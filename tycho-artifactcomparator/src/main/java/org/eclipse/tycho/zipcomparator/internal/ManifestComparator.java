@@ -71,8 +71,8 @@ public class ManifestComparator implements ContentsComparator {
         Attributes projectAttributes = projectManifest.getMainAttributes();
 
         Set<Name> names = new LinkedHashSet<>();
-        names.addAll(getNames(baselineAttributes));
-        names.addAll(getNames(projectAttributes));
+        addNames(baselineAttributes, names);
+        addNames(projectAttributes, names);
 
         for (Name key : names) {
             String baselineValue = baselineAttributes.getValue(key);
@@ -139,22 +139,17 @@ public class ManifestComparator implements ContentsComparator {
         result.put(key.toString(), new ManifestDelta(message, change, value, changed));
     }
 
-    protected Set<Name> getNames(Attributes attributes) {
-        Set<Name> result = new LinkedHashSet<>();
+    private void addNames(Attributes attributes, Set<Name> names) {
         for (Object key : attributes.keySet()) {
             Name name = (Name) key;
             if (!isIgnoredHeaderName(name)) {
-                result.add(name);
+                names.add(name);
             }
         }
-        return result;
     }
 
     public static boolean isIgnoredHeaderName(String name) {
-        if (name == null) {
-            return false;
-        }
-        return IGNORED_KEYS.contains(new Name(name));
+        return name != null && IGNORED_KEYS.contains(new Name(name));
     }
 
     public static boolean isIgnoredHeaderName(Name name) {

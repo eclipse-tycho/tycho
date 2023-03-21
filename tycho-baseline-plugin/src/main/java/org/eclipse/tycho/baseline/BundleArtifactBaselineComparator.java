@@ -6,7 +6,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
@@ -108,16 +108,16 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 				Jar projectJar = new Jar(artifact);
 				Jar baselineJar = new Jar("baseline", new ByteArrayInputStream(baselineData))) {
 			Baseline baseliner = createBaselineCompare(context, processor);
-			Instructions packageFilters = getPackageFilters(context, processor, projectJar, baselineJar);
+			Instructions packageFilters = getPackageFilters(context, processor, projectJar);
 			List<Info> infos = baseliner.baseline(projectJar, baselineJar, packageFilters).stream()//
 					.filter(info -> info.packageDiff.getDelta() != Delta.UNCHANGED) //
 					.sorted(Comparator.comparing(info -> info.packageName))//
 					.toList();
 			BundleInfo bundleInfo = baseliner.getBundleInfo();
 			boolean failed = false;
-			Map<Diff, ArtifactDelta> resourcediffs = new LinkedHashMap<Diff, ArtifactDelta>();
+			Map<Diff, ArtifactDelta> resourcediffs = new LinkedHashMap<>();
 			collectResources(baseliner.getDiff(), resourcediffs, baselineJar, projectJar, context);
-			List<Diff> manifestdiffs = new ArrayList<Diff>();
+			List<Diff> manifestdiffs = new ArrayList<>();
 			collectManifest(baseliner.getDiff(), manifestdiffs);
 			processManifestDiff(manifestdiffs);
 			if (!infos.isEmpty() || !resourcediffs.isEmpty() || !manifestdiffs.isEmpty()) {
@@ -151,8 +151,8 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 						Diff diff = entry.getKey();
 						String name = diff.getName();
 						at.addRule();
-						at.addRow(INDENT + getResourceDeltaString(diff), getResourceTypeString(diff), null,
-								null, null, name);
+						at.addRow(INDENT + getResourceDeltaString(diff), getResourceTypeString(diff), null, null, null,
+								name);
 						String message = entry.getValue().getDetailedMessage();
 						if (message != null && !message.isBlank() && !message.equals("different")) {
 							at.addRule();
@@ -219,7 +219,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 					// deprecated header was removed... check if it was added to the ee instead?
 					Map<Delta, Diff> capDiffMap = manifestdiffs.stream()
 							.filter(diff -> Constants.REQUIRE_CAPABILITY.equalsIgnoreCase(getHeaderName(diff)))
-							.collect(Collectors.toMap(diff -> diff.getDelta(), Function.identity()));
+							.collect(Collectors.toMap(Diff::getDelta, Function.identity()));
 					if (!capDiffMap.isEmpty()) {
 						Diff capDiff = capDiffMap.get(Delta.ADDED);
 						if (capDiff != null) {
@@ -289,8 +289,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		return outputStream.toByteArray();
 	}
 
-	private Instructions getPackageFilters(BaselineContext context, Processor processor, Jar projectJar,
-			Jar baselineJar) {
+	private Instructions getPackageFilters(BaselineContext context, Processor processor, Jar projectJar) {
 		Collection<String> packages;
 		if (context.isExtensionsEnabled()) {
 			packages = new LinkedHashSet<>();
@@ -308,12 +307,9 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 			// now we can ignore all packages that are internal, but not in the baseline,
 			// these are packages that are new and marked as internal
 			for (Entry<String, Boolean> entry : projectPackages.entrySet()) {
-				if (entry.getValue()) {
-					if (!baselinePackages.containsKey(entry.getKey())) {
-						logger.debug(
-								"Ignore package " + entry.getKey() + " as it is marked as internal in the project.");
-						packages.add("!" + entry.getKey());
-					}
+				if (entry.getValue() && !baselinePackages.containsKey(entry.getKey())) {
+					logger.debug("Ignore package " + entry.getKey() + " as it is marked as internal in the project.");
+					packages.add("!" + entry.getKey());
 				}
 			}
 			// finally add everything that was supplied by the context...
@@ -399,13 +395,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 	}
 
 	private boolean isValidHeaderDif(Diff diff) {
-		if (diff.getType() == Type.HEADER) {
-			if (ManifestComparator.isIgnoredHeaderName(getHeaderName(diff))) {
-				return false;
-			}
-			return true;
-		}
-		return false;
+		return diff.getType() == Type.HEADER && !ManifestComparator.isIgnoredHeaderName(getHeaderName(diff));
 	}
 
 	private String getHeaderName(Diff diff) {
@@ -414,8 +404,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 		}
 		String name = diff.getName();
 		String[] split = name.split(":", 2);
-		String name2 = split[0];
-		return name2;
+		return split[0];
 	}
 
 	private void collectResources(Diff diff, Map<Diff, ArtifactDelta> resourcediffs, Jar baselineJar, Jar projectJar,
@@ -502,8 +491,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 	private Baseline createBaselineCompare(BaselineContext context, Processor processor) throws IOException {
 		DiffPluginImpl differ = new DiffPluginImpl();
 		differ.setIgnore(new Parameters(Strings.join(context.getIgnores()), processor));
-		Baseline baseliner = new Baseline(processor, differ);
-		return baseliner;
+		return new Baseline(processor, differ);
 	}
 
 }
