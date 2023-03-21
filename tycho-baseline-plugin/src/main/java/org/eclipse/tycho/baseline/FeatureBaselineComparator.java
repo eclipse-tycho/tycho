@@ -6,7 +6,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
@@ -15,7 +15,6 @@ package org.eclipse.tycho.baseline;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +31,6 @@ import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -327,16 +325,15 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 	}
 
 	private List<Diff> computeJarDelta(MavenProject project, BaselineContext context, IInstallableUnit baselineJarUnit)
-			throws IOException, FileNotFoundException {
+			throws IOException {
 		File file = project.getArtifact().getFile();
 		try (FileInputStream reactor = new FileInputStream(file)) {
-			List<String> ignores = new ArrayList<String>();
+			List<String> ignores = new ArrayList<>();
 			ignores.add("feature.xml"); // we compare the feature not on the file level but on the requirements level
 										// here!
 			ignores.addAll(context.getIgnores());
 			ArtifactDelta artifactDelta = zipComparator.getDelta(getStream(baselineJarUnit, context),
-					new ComparatorInputStream(reactor),
-					new ComparisonData(ignores, false));
+					new ComparatorInputStream(reactor), new ComparisonData(ignores, false));
 			if (artifactDelta == null) {
 				return List.of();
 			}
@@ -373,9 +370,8 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 			if (!propertyEquals(baselineValue, projectValue)) {
 				int indexOfDifference = indexOfDifference(baselineValue, projectValue);
 				list.add(new Diff(ImpliedVersionChange.MICRO, Type.PROPERTY, Delta.CHANGED, String.format(
-						"Property %s is different, baseline = %s, project = %s (first index of difference is "
-								+ indexOfDifference,
-						name, baselineValue, projectValue)));
+						"Property %s is different, baseline = %s, project = %s (first index of difference is %s", //
+						name, baselineValue, projectValue, indexOfDifference)));
 			}
 		}
 		return list;
@@ -388,37 +384,28 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 		}
 		String normalizdBl = baselineValue.replaceAll("\\s", " ").replaceAll("\\s+", " ").trim();
 		String normalizdPr = projectValue.replaceAll("\\s", " ").replaceAll("\\s+", " ").trim();
-		if (normalizdBl.equals(normalizdPr)) {
-			return true;
-		}
-		return false;
+		return normalizdBl.equals(normalizdPr);
 	}
 
 	private static int indexOfDifference(CharSequence s1, CharSequence s2) {
-		int length = s1.length();
-		if (length < s2.length()) {
-			return indexOfDifference(s2, s1);
-		}
-		int i;
-		for (i = 0; i < length; i++) {
+		int length = Math.min(s1.length(), s2.length());
+		for (int i = 0; i < length; i++) {
 			char c1 = s1.charAt(i);
 			char c2 = s2.charAt(i);
 			if (c1 != c2) {
-				break;
+				return i;
 			}
 		}
-		return i;
-
+		return length;
 	}
 
-	private IQueryable<IInstallableUnit> getProjectUnits(MavenProject project)
-			throws MojoFailureException, IOException {
+	private IQueryable<IInstallableUnit> getProjectUnits(MavenProject project) throws IOException {
 		// first check if there is anything attached yet...
 		for (Artifact artifact : project.getAttachedArtifacts()) {
 			if (TychoConstants.CLASSIFIER_P2_METADATA.equals(artifact.getClassifier())) {
 				File file = artifact.getFile();
 				if (file != null && file.exists()) {
-					return new CollectionResult<IInstallableUnit>(metadataIO.readXML(file));
+					return new CollectionResult<>(metadataIO.readXML(file));
 				}
 			}
 		}
@@ -427,7 +414,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 		ArtifactFacade projectDefaultArtifact = new ArtifactFacade(project.getArtifact());
 		Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(List.of(projectDefaultArtifact),
 				new PublisherOptions(), targetDir);
-		return new CollectionResult<IInstallableUnit>(
+		return new CollectionResult<>(
 				generatedMetadata.values().stream().flatMap(a -> a.getInstallableUnits().stream()).toList());
 
 	}
