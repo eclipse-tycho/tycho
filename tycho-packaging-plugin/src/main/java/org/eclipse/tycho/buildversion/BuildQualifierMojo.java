@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.OverConstrainedVersionException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -200,13 +202,31 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         return format.format(timestamp);
     }
 
-    private String getUnqualifiedVersion() {
-        String version = project.getArtifact().getVersion();
-        if (version.endsWith("-" + Artifact.SNAPSHOT_VERSION)) {
-            version = version.substring(0, version.length() - Artifact.SNAPSHOT_VERSION.length() - 1);
-        }
-        return version;
-    }
+	private String getUnqualifiedVersion() {
+		// First try to handle this as an already valid OSGi version
+		try {
+			Version version = Version.parseVersion(project.getVersion());
+			return version.getMajor() + "." + version.getMinor() + "." + version.getMicro();
+		} catch (RuntimeException e) {
+		}
+		// then try the "selected version"
+		try {
+			ArtifactVersion version = project.getArtifact().getSelectedVersion();
+			int majorVersion = version.getMajorVersion();
+			int minorVersion = version.getMinorVersion();
+			int incrementalVersion = version.getIncrementalVersion();
+			if (majorVersion > 0 || minorVersion > 0 || incrementalVersion > 0) {
+				return majorVersion + "." + minorVersion + "." + incrementalVersion;
+			}
+		} catch (OverConstrainedVersionException e) {
+		}
+		// last resort ...
+		String version = project.getArtifact().getVersion();
+		if (version.endsWith("-" + Artifact.SNAPSHOT_VERSION)) {
+			version = version.substring(0, version.length() - Artifact.SNAPSHOT_VERSION.length() - 1);
+		}
+		return version;
+	}
 
     protected Date getBuildTimestamp() throws MojoExecutionException {
         String hint = timestampProvider != null ? timestampProvider : DefaultBuildTimestampProvider.ROLE_HINT;
