@@ -163,6 +163,12 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = "true")
 	protected boolean relativePathFromParent = true;
 
+	/**
+	 * If enabled, removes the parent and resolves version and group id directly
+	 */
+	@Parameter(defaultValue = "true")
+	protected boolean removeParent = true;
+
 	@Parameter
 	private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
@@ -191,6 +197,12 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		} catch (IOException e) {
 			throw new MojoExecutionException("reading the model failed!", e);
 		}
+		// just in case this is a CI-Friendly version replace it with actual value
+		projectModel.setVersion(project.getVersion());
+		if (removeParent) {
+			projectModel.setGroupId(project.getGroupId());
+			projectModel.setParent(null);
+		}
 		List<Dependency> dependencies = projectModel.getDependencies();
 		dependencies.clear();
 		List<Dependency> list = Objects.requireNonNullElse(project.getDependencies(), Collections.emptyList());
@@ -217,6 +229,11 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		}
 		Parent parent = projectModel.getParent();
 		if (parent != null) {
+			MavenProject parentmavenProject = project.getParent();
+			if (parentmavenProject != null) {
+				// just in case this is a CI-Friendly version replace it with actual value
+				parent.setVersion(parentmavenProject.getVersion());
+			}
 			if (relativePathFromParent) {
 				parent.setRelativePath("../pom.xml"); // will be treated as default and then removed...
 			} else {
