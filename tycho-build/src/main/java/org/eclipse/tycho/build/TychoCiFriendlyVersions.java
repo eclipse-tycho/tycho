@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 Christoph Läubrich and others.
+ * Copyright (c) 2022, 2023 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,11 +52,19 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 @Component(role = ModelVersionProcessor.class)
 public class TychoCiFriendlyVersions extends DefaultModelVersionProcessor implements ModelVersionProcessor {
 
+	static final String PROPERTY_FORCE_QUALIFIER = "forceContextQualifier";
+
+	static final String PROPERTY_BUILDQUALIFIER_FORMAT = "tycho.buildqualifier.format";
+
 	static final String BUILD_QUALIFIER = "qualifier";
+
 	static final String MICRO_VERSION = "micro";
 	static final String MINOR_VERSION = "minor";
 	static final String MAJOR_VERSION = "major";
 	static final String RELEASE_VERSION = "releaseVersion";
+
+	private static final Set<String> SIMPLE_PROPERTIES = Set.of(RELEASE_VERSION, MAJOR_VERSION, MINOR_VERSION,
+			MICRO_VERSION);
 	private PlexusContainer container;
 	private Logger logger;
 	private Map<File, MavenProject> rawProjectCache = new ConcurrentHashMap<>();
@@ -69,57 +78,56 @@ public class TychoCiFriendlyVersions extends DefaultModelVersionProcessor implem
 
 	@Override
 	public boolean isValidProperty(String property) {
-		return super.isValidProperty(property) || MAJOR_VERSION.equals(property) || MINOR_VERSION.equals(property)
-				|| MICRO_VERSION.equals(property) || BUILD_QUALIFIER.equals(property)
-				|| RELEASE_VERSION.equals(property);
+		return super.isValidProperty(property) || SIMPLE_PROPERTIES.contains(property)
+				|| BUILD_QUALIFIER.equals(property);
 	}
 
 	@Override
 	public void overwriteModelProperties(Properties modelProperties, ModelBuildingRequest request) {
 		super.overwriteModelProperties(modelProperties, request);
-		if (request.getSystemProperties().containsKey(MAJOR_VERSION)) {
-			modelProperties.put(MAJOR_VERSION, request.getSystemProperties().get(MAJOR_VERSION));
-		}
-		if (request.getSystemProperties().containsKey(MINOR_VERSION)) {
-			modelProperties.put(MINOR_VERSION, request.getSystemProperties().get(MINOR_VERSION));
-		}
-		if (request.getSystemProperties().containsKey(MICRO_VERSION)) {
-			modelProperties.put(MICRO_VERSION, request.getSystemProperties().get(MICRO_VERSION));
+		for (String property : SIMPLE_PROPERTIES) {
+			if (request.getSystemProperties().containsKey(property)) {
+				modelProperties.put(property, request.getSystemProperties().get(property));
+			}
 		}
 		if (request.getSystemProperties().containsKey(BUILD_QUALIFIER)) {
 			modelProperties.put(BUILD_QUALIFIER, request.getSystemProperties().get(BUILD_QUALIFIER));
 		} else {
-			String formatString = request.getSystemProperties().getProperty("tycho.buildqualifier.format");
-			if (formatString != null) {
-				Date startTime = request.getBuildStartTime();
-				File pomFile = request.getPomFile();
-				if (startTime != null && pomFile != null) {
-					String provider = request.getSystemProperties().getProperty("tycho.buildqualifier.provider",
-							"default");
-					try {
-						BuildTimestampProvider timestampProvider = container.lookup(BuildTimestampProvider.class,
-								provider);
-						SimpleDateFormat format = new SimpleDateFormat(formatString);
-						format.setTimeZone(TimeZone.getTimeZone("UTC"));
-						MavenProject mavenProject = getMavenProject(pomFile);
-						timestampProvider.setQuiet(true);
+			String forceContextQualifier = request.getSystemProperties().getProperty(PROPERTY_FORCE_QUALIFIER);
+			if (forceContextQualifier != null) {
+				modelProperties.put(BUILD_QUALIFIER, "." + forceContextQualifier);
+			} else {
+				String formatString = request.getSystemProperties().getProperty(PROPERTY_BUILDQUALIFIER_FORMAT);
+				if (formatString != null) {
+					Date startTime = request.getBuildStartTime();
+					File pomFile = request.getPomFile();
+					if (startTime != null && pomFile != null) {
+						String provider = request.getSystemProperties().getProperty("tycho.buildqualifier.provider",
+								"default");
 						try {
-							Date timestamp = timestampProvider.getTimestamp(getMavenSession(request), mavenProject,
-									getExecution(mavenProject));
-							String qualifier = format.format(timestamp);
-							modelProperties.put(BUILD_QUALIFIER, "." + qualifier);
-						} finally {
-							timestampProvider.setQuiet(false);
+							BuildTimestampProvider timestampProvider = container.lookup(BuildTimestampProvider.class,
+									provider);
+							SimpleDateFormat format = new SimpleDateFormat(formatString);
+							format.setTimeZone(TimeZone.getTimeZone("UTC"));
+							MavenProject mavenProject = getMavenProject(pomFile);
+							timestampProvider.setQuiet(true);
+							try {
+								Date timestamp = timestampProvider.getTimestamp(getMavenSession(request), mavenProject,
+										getExecution(mavenProject));
+								String qualifier = format.format(timestamp);
+								modelProperties.put(BUILD_QUALIFIER, "." + qualifier);
+							} finally {
+								timestampProvider.setQuiet(false);
+							}
+						} catch (ComponentLookupException | MojoExecutionException e) {
+							logger.warn("Cannot use '" + provider
+									+ "' as a timestamp provider for tycho-ci-friendly-versions (" + e + ")");
 						}
-					} catch (ComponentLookupException | MojoExecutionException e) {
-						logger.warn("Cannot use '" + provider
-								+ "' as a timestamp provider for tycho-ci-friendly-versions (" + e + ")");
-					}
 
+					}
 				}
 			}
 		}
-
 	}
 
 	private MojoExecution getExecution(MavenProject mavenProject) {
@@ -131,9 +139,8 @@ public class TychoCiFriendlyVersions extends DefaultModelVersionProcessor implem
 			projectPlugin.setGroupId("org.eclipse.tycho");
 			projectPlugin.setArtifactId("tycho-packaging-plugin");
 			try {
-			projectPlugin.setConfiguration(
-					Xpp3DomBuilder.build(new StringReader(
-							"<configuration><jgit.dirtyWorkingTree>ignore</jgit.dirtyWorkingTree></configuration>")));
+				projectPlugin.setConfiguration(Xpp3DomBuilder.build(new StringReader(
+						"<configuration><jgit.dirtyWorkingTree>ignore</jgit.dirtyWorkingTree></configuration>")));
 			} catch (XmlPullParserException | IOException e) {
 				projectPlugin.setConfiguration(null);
 			}

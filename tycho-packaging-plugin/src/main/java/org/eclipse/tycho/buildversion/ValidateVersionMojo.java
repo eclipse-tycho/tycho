@@ -43,7 +43,7 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
 	 * project versions do not match. If <code>false</code> will issue a warning but
 	 * will not fail the build if Maven and OSGi project versions do not match.
 	 */
-	@Parameter(defaultValue = "true")
+	@Parameter(defaultValue = "true", property = "tycho.strictVersions")
 	private boolean strictVersions = true;
 
 	@Component

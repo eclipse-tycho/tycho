@@ -11,7 +11,9 @@ Starting with Maven 3.8.5 Tycho now supports an enhanced form of the [Maven CI F
 These uses the usual semantics that you can use them in a version string e.g. `<version>${releaseVersion}${qualifier}</version>` and pass them on the commandline.
 
 Beside this, Tycho supports some useful default calculation for `qualifier` if you give a format on the commandline with `-Dtycho.buildqualifier.format=yyyyMMddHHmm` 
-(or [any other format supported](https://www.eclipse.org/tycho/sitedocs/tycho-packaging-plugin/build-qualifier-mojo.html#format)). Tycho will also make the build qualifier available in your Maven model!
+(or [any other format supported](https://tycho.eclipseprojects.io/doc/latest/tycho-packaging-plugin/build-qualifier-mojo.html#format)). Tycho will also make the build qualifier available in your Maven model!
+
+Alternatively, if you want that your qualifier matches the one from maven you can specify `-DforceContextQualifier=abc`
 
 That way you can configure your pom in the following way:
 

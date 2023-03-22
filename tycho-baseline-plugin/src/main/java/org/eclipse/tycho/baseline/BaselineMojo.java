@@ -37,10 +37,12 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.exceptions.VersionBumpRequiredException;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
+import org.osgi.framework.Version;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 /**
@@ -209,11 +211,19 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 
 	@Override
 	public void reportBaselineProblem(String message) throws MojoFailureException {
+		reportBaselineProblem(message, null);
+	}
+
+	@Override
+	public void reportBaselineProblem(String message, Version suggestedVersion) throws MojoFailureException {
 		if (mode == BaselineMode.warn) {
 			buildContext.addMessage(project.getBasedir(), 0, 0, message, BuildContext.SEVERITY_WARNING, null);
 			logger.warn(message);
 		} else {
 			buildContext.addMessage(project.getBasedir(), 0, 0, message, BuildContext.SEVERITY_ERROR, null);
+			if (suggestedVersion != null) {
+				throw new VersionBumpRequiredException(message, project, suggestedVersion);
+			}
 			throw new MojoFailureException(message);
 		}
 	}

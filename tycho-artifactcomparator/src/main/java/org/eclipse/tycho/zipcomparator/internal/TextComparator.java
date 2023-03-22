@@ -16,6 +16,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -35,6 +36,8 @@ import com.github.difflib.patch.Patch;
 public class TextComparator implements ContentsComparator {
 
     static final String HINT = "txt";
+
+    private static final Set<String> ALIAS = Set.of(HINT, "java", "javajet", "javajetinc", "html", "htm");
 
     @Override
     public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
@@ -91,13 +94,15 @@ public class TextComparator implements ContentsComparator {
 
     @Override
     public boolean matches(String nameOrExtension) {
-        return HINT.equals(nameOrExtension) ||
-        //TODO is there a way to compare java files? See https://github.com/eclipse-jdt/eclipse.jdt.core/discussions/628
-                "java".equalsIgnoreCase(nameOrExtension) ||
-                //TODO is there a better way to compare html? See for example https://stackoverflow.com/questions/47310845/compare-two-html-documents-using-jsoup-java 
-                "html".equalsIgnoreCase(nameOrExtension) || "htm".equalsIgnoreCase(nameOrExtension) ||
-                //META-INF/sisu/javax.inject.Named ... 
-                nameOrExtension.toLowerCase().endsWith("javax.inject.named");
+        if (ALIAS.contains(nameOrExtension.toLowerCase())) {
+            //a simple extension match
+            return true;
+        }
+        if (nameOrExtension.toLowerCase().endsWith("javax.inject.named")) {
+            //META-INF/sisu/javax.inject.Named ... 
+            return true;
+        }
+        return false;
     }
 
     public static ArtifactDelta createDelta(String message, ComparatorInputStream baseline,
