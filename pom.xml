@@ -60,7 +60,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<min.jdk.version>17</min.jdk.version>
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
-		<commonsCompressVersion>1.22</commonsCompressVersion>
+		<commonsCompressVersion>1.23.0</commonsCompressVersion>
 		<plexusVersion>2.1.1</plexusVersion>
 		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
 		<plexusCompilerVersion>2.13.0</plexusCompilerVersion>
