@@ -38,7 +38,8 @@ import org.osgi.framework.BundleException;
 @Component(role = ApiWorkspaceManager.class)
 public class ApiWorkspaceManager implements Disposable {
 
-	private static final Set<String> START_BUNDLES = Set.of("org.eclipse.core.runtime", "org.apache.felix.scr");
+	private static final Set<String> START_BUNDLES = Set.of("org.eclipse.core.runtime", "org.apache.felix.scr",
+			"org.eclipse.equinox.app");
 
 	private final Map<Thread, Map<URI, ApiWorkspace>> cache = new ConcurrentHashMap<>();
 
