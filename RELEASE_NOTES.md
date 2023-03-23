@@ -7,6 +7,7 @@ This page describes the noteworthy improvements provided by each release of Ecli
 ### Backports
 
 - improve CI friendly versions
+- Report download speed to the caller
 
 ## 3.0.4
 
