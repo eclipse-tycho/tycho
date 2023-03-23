@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,11 +76,13 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		Objects.requireNonNull(session);
 		// Tell the polyglot mappings that we are in extension mode
 		for (Mapping mapping : polyglotMappings.values()) {
-			if (mapping instanceof AbstractTychoMapping) {
-				AbstractTychoMapping tychoMapping = (AbstractTychoMapping) mapping;
+			if (mapping instanceof AbstractTychoMapping tychoMapping) {
 				tychoMapping.setExtensionMode(true);
 				tychoMapping.setMultiModuleProjectDirectory(session.getRequest().getMultiModuleProjectDirectory());
-				if (session.getRequest().getSystemProperties().getProperty("tycho.buildqualifier.format") != null) {
+				Properties properties = session.getRequest().getSystemProperties();
+				if (properties.getProperty(TychoCiFriendlyVersions.PROPERTY_BUILDQUALIFIER_FORMAT) != null
+						|| properties.getProperty(TychoCiFriendlyVersions.PROPERTY_FORCE_QUALIFIER) != null
+						|| properties.getProperty(TychoCiFriendlyVersions.BUILD_QUALIFIER) != null) {
 					tychoMapping.setSnapshotFormat("${" + TychoCiFriendlyVersions.BUILD_QUALIFIER + "}");
 				}
 			}

@@ -2,6 +2,12 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 3.0.5
+
+### Backports
+
+- improve CI friendly versions
+
 ## 3.0.4
 
 ### Backports
