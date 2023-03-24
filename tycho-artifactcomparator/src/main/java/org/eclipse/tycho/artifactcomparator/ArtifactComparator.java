@@ -19,22 +19,22 @@ import java.util.List;
 
 public interface ArtifactComparator {
 
-    public static class ComparisonData {
+    public static record ComparisonData(List<String> ignoredPattern, boolean writeDelta, boolean showDiffDetails) {
+
+        /**
+         * System property that control if a detailed diff is desired or not, <code>false</code>
+         * (default) = no detailed diff is shown, <code>true</code> show detailed difference.
+         */
+        private static final boolean SHOW_DIFF_DETAILS = Boolean.getBoolean("tycho.comparator.showDiff");
 
         public ComparisonData(List<String> ignoredPattern, boolean writeDelta) {
+            this(ignoredPattern, writeDelta, SHOW_DIFF_DETAILS);
+        }
+
+        public ComparisonData(List<String> ignoredPattern, boolean writeDelta, boolean showDiffDetails) {
             this.ignoredPattern = ignoredPattern != null ? List.copyOf(ignoredPattern) : List.of();
             this.writeDelta = writeDelta;
-        }
-
-        private final List<String> ignoredPattern;
-        private boolean writeDelta;
-
-        public List<String> ignoredPattern() {
-            return ignoredPattern;
-        }
-
-        public boolean writeDelta() {
-            return writeDelta;
+            this.showDiffDetails = showDiffDetails;
         }
     }
 
