@@ -30,7 +30,7 @@ public class DefaultContentsComparator implements ContentsComparator {
             throws IOException {
         if (isTextFile(baseline) && isTextFile(reactor)) {
             //If both items a certainly a text file, we compare them ignoring line endings
-            return TextComparator.compareText(baseline, reactor);
+            return TextComparator.compareText(baseline, reactor, data);
         }
         return ArtifactDelta.DEFAULT;
     }

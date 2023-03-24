@@ -6,7 +6,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
@@ -39,21 +39,21 @@ public class TextComparator implements ContentsComparator {
     @Override
     public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
             throws IOException {
-        return compareText(baseline, reactor);
+        return compareText(baseline, reactor, data);
     }
 
-    public static ArtifactDelta compareText(ComparatorInputStream baseline, ComparatorInputStream reactor)
-            throws IOException {
+    public static ArtifactDelta compareText(ComparatorInputStream baseline, ComparatorInputStream reactor,
+            ComparisonData data) throws IOException {
         ByteIterator baselineIterator = new ByteIterator(baseline.asBytes());
         ByteIterator reactorIterator = new ByteIterator(reactor.asBytes());
         while (baselineIterator.hasNext() && reactorIterator.hasNext()) {
             if (baselineIterator.next() != reactorIterator.next()) {
-                return createDelta(ArtifactDelta.DEFAULT.getMessage(), baseline, reactor);
+                return createDelta(ArtifactDelta.DEFAULT.getMessage(), baseline, reactor, data);
             }
         }
         //now both need to be at the end of the stream if they are the same!
         if (baselineIterator.hasNext() || reactorIterator.hasNext()) {
-            return createDelta(ArtifactDelta.DEFAULT.getMessage(), baseline, reactor);
+            return createDelta(ArtifactDelta.DEFAULT.getMessage(), baseline, reactor, data);
         }
         return ArtifactDelta.NO_DIFFERENCE;
     }
@@ -100,8 +100,8 @@ public class TextComparator implements ContentsComparator {
     }
 
     public static ArtifactDelta createDelta(String message, ComparatorInputStream baseline,
-            ComparatorInputStream reactor) {
-        if (SHOW_DIFF_DETAILS) {
+            ComparatorInputStream reactor, ComparisonData data) {
+        if (data.showDiffDetails()) {
             String detailed;
             try {
                 List<String> source = IOUtils.readLines(baseline.asNewStream(), StandardCharsets.UTF_8);
