@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -63,6 +64,7 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
@@ -155,7 +157,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			setupLogging(systemBundleContext);
 			try {
 				workspace.install(systemBundleContext);
-			} catch (IOException e) {
+			} catch (IOException | BundleException e) {
 				throw new MojoFailureException("Install API workspace failed!", e);
 			}
 			FrameworkWiring wiring = framework.adapt(FrameworkWiring.class);
@@ -166,32 +168,54 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			} catch (BundleException e) {
 				throw new MojoExecutionException("Start framework failed!", e);
 			}
-			getLog().debug("Framework started (took " + time(startFw) + ").");
-			EclipseAppLauncher appLauncher = new EclipseAppLauncher(systemBundleContext, false, true, null,
-					configuration);
-			systemBundleContext.registerService(ApplicationLauncher.class, appLauncher, null);
 			try {
+				getLog().debug("Framework started (took " + time(startFw) + ").");
+				EclipseAppLauncher appLauncher = new EclipseAppLauncher(systemBundleContext, false, true, null,
+						configuration);
+				systemBundleContext.registerService(ApplicationLauncher.class, appLauncher, null);
 				Object returnValue = appLauncher.start(null);
 				if (returnValue instanceof Integer retCode) {
 					if (retCode != 0) {
 						throw new MojoFailureException("API Tools failure!");
 					}
 				} else {
-					throw new MojoFailureException("Execute the Api application failed!");
+					throw applicationStartupError(systemBundleContext, null);
 				}
 			} catch (Exception e) {
-				throw new MojoFailureException("Execute the Api application failed!", e);
-			}
-			try {
-				framework.stop();
-				framework.waitForStop(0);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			} catch (BundleException e) {
-				// not interesting...
+				throw applicationStartupError(systemBundleContext, e);
+			} finally {
+				try {
+					framework.stop();
+					framework.waitForStop(0);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				} catch (BundleException e) {
+					// not interesting...
+				}
 			}
 			getLog().info("API Analysis finished in " + time(start) + ".");
 		}
+	}
+
+	private MojoExecutionException applicationStartupError(BundleContext systemBundleContext, Exception e) {
+		String bundleState = Arrays.stream(systemBundleContext.getBundles())
+				.map(b -> toBundleState(b.getState()) + " | " + b.getSymbolicName())
+				.collect(Collectors.joining(System.lineSeparator()));
+		getLog().error(String.format(
+				"Internal error execute the Api Application for project %s, the current framework state is:\r\n%s",
+				project.getId(), bundleState), e);
+		return new MojoExecutionException("Execute the Api application failed!", e);
+	}
+
+	private static String toBundleState(int state) {
+		return switch (state) {
+		case Bundle.ACTIVE -> "ACTIVE   ";
+		case Bundle.INSTALLED -> "INSTALLED";
+		case Bundle.RESOLVED -> "RESOLVED ";
+		case Bundle.STARTING -> "STARTING ";
+		case Bundle.STOPPING -> "STOPPING ";
+		default -> String.valueOf(state);
+		};
 	}
 
 	private MavenRepositoryLocation getRepository() {
@@ -308,9 +332,8 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			baselineBundles = resolver.getApiBaselineBundles(baselines.stream()
 					.map(repo -> new MavenRepositoryLocation(repo.getId(), URI.create(repo.getUrl()))).toList(),
 					artifactKey.get());
-			getLog().debug(
-					"API baseline contains " + baselineBundles.size() + " bundles (resolve takes " + time(start)
-							+ ").");
+			getLog().debug("API baseline contains " + baselineBundles.size() + " bundles (resolve takes " + time(start)
+					+ ").");
 		} catch (IllegalArtifactReferenceException e) {
 			throw new MojoFailureException("Project specify an invalid artifact key", e);
 		}
