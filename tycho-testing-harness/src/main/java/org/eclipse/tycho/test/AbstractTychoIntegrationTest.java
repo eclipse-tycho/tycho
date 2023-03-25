@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -238,7 +239,12 @@ public abstract class AbstractTychoIntegrationTest {
                 return;
             }
         }
-        throw new VerificationException("Pattern not found in log: " + pattern);
+        throwLogError("Pattern not found in log: " + pattern, lines);
+    }
+
+    private static void throwLogError(String msg, List<String> lines) throws VerificationException {
+        throw new VerificationException(msg + System.lineSeparator() + "Log Lines:" + System.lineSeparator()
+                + lines.stream().collect(Collectors.joining(System.lineSeparator())));
     }
 
     public static void verifyTextNotInLog(Verifier verifier, String text) throws VerificationException {
@@ -246,8 +252,23 @@ public abstract class AbstractTychoIntegrationTest {
 
         for (String line : lines) {
             if (Verifier.stripAnsi(line).contains(text)) {
-                throw new VerificationException("Text '" + text + "' was found in the log!");
+                throwLogError("Text '" + text + "' was found in the log!", lines);
             }
+        }
+    }
+
+    public static void verifyTextInLog(Verifier verifier, String text) throws VerificationException {
+        List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+
+        boolean result = false;
+        for (String line : lines) {
+            if (Verifier.stripAnsi(line).contains(text)) {
+                result = true;
+                break;
+            }
+        }
+        if (!result) {
+            throwLogError("Text not found in log: " + text, lines);
         }
     }
 

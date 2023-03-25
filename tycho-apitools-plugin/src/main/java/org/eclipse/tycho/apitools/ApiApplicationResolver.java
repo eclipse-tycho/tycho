@@ -29,6 +29,9 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
@@ -96,7 +99,9 @@ public class ApiApplicationResolver {
 						"0.0.0");
 				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.eclipse.core.runtime", "0.0.0");
 				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.eclipse.equinox.launcher", "0.0.0");
-
+				resolver.addRequirement(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+						"org.eclipse.jdt.launching.macosx",
+						VersionRange.emptyRange, "(osgi.os=macosx)", true, false, true));
 			} catch (IllegalArtifactReferenceException e) {
 				throw new TargetPlatformConfigurationException("Can't add API tools requirement", e);
 			}

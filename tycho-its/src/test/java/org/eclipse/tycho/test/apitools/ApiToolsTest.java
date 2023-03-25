@@ -51,10 +51,10 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		assertThrows("No API errors where detected!", VerificationException.class,
 				() -> verifier.executeGoals(List.of("clean", "verify")));
 
-		verifier.verifyTextInLog("1 API ERRORS");
-		verifier.verifyTextInLog("0 API warnings");
-		verifier.verifyTextInLog("The type bundle.InterfaceA has been removed from api-bundle");
-		verifier.verifyTextInLog("The type bundle.ClassA has been removed from api-bundle");
+		verifyTextInLog(verifier, "1 API ERRORS");
+		verifyTextInLog(verifier, "0 API warnings");
+		verifyTextInLog(verifier, "The type bundle.InterfaceA has been removed from api-bundle");
+		verifyTextInLog(verifier, "The type bundle.ClassA has been removed from api-bundle");
 
 		// TODO: check with api-filter
 		// TODO: check with second plugin with BREE?
