@@ -66,7 +66,6 @@ jobs:
        run: >- 
         mvn
         --batch-mode
-        --global-toolchains ${{ github.workspace }}/platform/.github/toolchains.xml
         -Pbuild-individual-bundles
         -Pbree-libs
         -Dmaven.test.failure.ignore=true

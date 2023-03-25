@@ -52,13 +52,12 @@ jobs:
         mvn -U -V -e -B -ntp clean install --file pom.xml -T1C -DtrimStackTrace=false -Pits -fae
     - name: Upload Test Results
       uses: actions/upload-artifact@v3
+      if: always()
       with:
         name: test-results-${{ matrix.os }}
-        if: always()
         if-no-files-found: warn
         path: |
           ${{ github.workspace }}/tycho-its/target/surefire-reports/*.xml
-      if: github.event.pull_request.draft == false
   event_file:
     name: "Event File"
     runs-on: ubuntu-latest
