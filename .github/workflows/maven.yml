@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
     - uses: actions/checkout@v3
     - name: Set up Java
@@ -49,15 +49,13 @@ jobs:
        JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
       run: | 
         cp .github/toolchains.xml ~/.m2/toolchains.xml
-        mvn -U -V -e -B -ntp clean install --file pom.xml -T1C -DtrimStackTrace=false
-    - name: Run Integration Tests
-      run: mvn -U -V -e -B -ntp -Pits -D maven.test.failure.ignore=true clean install --file tycho-its/pom.xml -DtrimStackTrace=false
-      if: github.event.pull_request.draft == false
+        mvn -U -V -e -B -ntp clean install --file pom.xml -T1C -DtrimStackTrace=false -Pits -fae
     - name: Upload Test Results
       uses: actions/upload-artifact@v3
       with:
         name: test-results-${{ matrix.os }}
-        if-no-files-found: error
+        if: always()
+        if-no-files-found: warn
         path: |
           ${{ github.workspace }}/tycho-its/target/surefire-reports/*.xml
       if: github.event.pull_request.draft == false

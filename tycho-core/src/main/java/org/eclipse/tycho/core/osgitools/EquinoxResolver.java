@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -497,11 +498,29 @@ public class EquinoxResolver {
     }
 
     private OsgiManifest loadManifest(File bundleLocation, ArtifactDescriptor artifact) {
-        if (bundleLocation == null || !bundleLocation.exists()) {
+        if (bundleLocation == null) {
+            throw new IllegalArgumentException("bundleLocation can't be null for artifact " + artifact);
+        }
+        if (!checkExits(bundleLocation)) {
             throw new IllegalArgumentException(
                     "bundleLocation not found: " + bundleLocation + " for artifact " + artifact);
         }
         return manifestReader.loadManifest(bundleLocation);
+    }
+
+    private boolean checkExits(File bundleLocation) {
+        if (bundleLocation.exists()) {
+            return true;
+        }
+        //especially on windows there can be delayed writes that ruin our day, just to be sure wait a little bit if the file really do not exits!
+        long deadLine = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(5);
+        while (System.currentTimeMillis() < deadLine) {
+            if (bundleLocation.exists()) {
+                return true;
+            }
+            Thread.onSpinWait();
+        }
+        return bundleLocation.exists();
     }
 
 }

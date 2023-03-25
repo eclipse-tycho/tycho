@@ -35,7 +35,9 @@ public class IncludeLaunchersTest extends AbstractTychoIntegrationTest {
 		File targetdir = new File(verifier.getBasedir(), "target");
 		File binaryDir = new File(targetdir, "repository/binary/");
 		String executable;
-		if (SystemUtils.IS_OS_WINDOWS) {
+		if (SystemUtils.IS_OS_MAC) {
+			executable = "includedLauncher.executable.cocoa.macosx.x86_64_1.0.0";
+		} else if (SystemUtils.IS_OS_WINDOWS) {
 			executable = "includedLauncher.executable.win32.win32.x86_64_1.0.0";
 		} else {
 			executable = "includedLauncher.executable.gtk.linux.x86_64_1.0.0";
