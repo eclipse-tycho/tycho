@@ -170,19 +170,10 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			}
 			try {
 				getLog().debug("Framework started (took " + time(startFw) + ").");
-				EclipseAppLauncher appLauncher = new EclipseAppLauncher(systemBundleContext, false, true, null,
-						configuration);
-				systemBundleContext.registerService(ApplicationLauncher.class, appLauncher, null);
-				Object returnValue = appLauncher.start(null);
-				if (returnValue instanceof Integer retCode) {
-					if (retCode != 0) {
-						throw new MojoFailureException("API Tools failure!");
-					}
-				} else {
-					throw applicationStartupError(systemBundleContext, null);
+				int returnValue = launchApplication(systemBundleContext, configuration);
+				if (returnValue != 0) {
+					throw new MojoFailureException("API Tools failure!");
 				}
-			} catch (Exception e) {
-				throw applicationStartupError(systemBundleContext, e);
 			} finally {
 				try {
 					framework.stop();
@@ -195,6 +186,23 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			}
 			getLog().info("API Analysis finished in " + time(start) + ".");
 		}
+	}
+
+	private int launchApplication(BundleContext systemBundleContext, EquinoxConfiguration configuration)
+			throws MojoExecutionException {
+		EclipseAppLauncher appLauncher = new EclipseAppLauncher(systemBundleContext, false, true, null,
+				configuration);
+		systemBundleContext.registerService(ApplicationLauncher.class, appLauncher, null);
+		Object returnValue;
+		try {
+			returnValue = appLauncher.start(null);
+		} catch (Exception e) {
+			throw applicationStartupError(systemBundleContext, e);
+		}
+		if (returnValue instanceof Integer retCode) {
+			return retCode.intValue();
+		}
+		throw applicationStartupError(systemBundleContext, null);
 	}
 
 	private MojoExecutionException applicationStartupError(BundleContext systemBundleContext, Exception e) {
