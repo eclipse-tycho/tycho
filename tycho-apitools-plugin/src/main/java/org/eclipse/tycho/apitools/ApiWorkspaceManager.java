@@ -38,8 +38,13 @@ import org.osgi.framework.BundleException;
 @Component(role = ApiWorkspaceManager.class)
 public class ApiWorkspaceManager implements Disposable {
 
-	private static final Set<String> START_BUNDLES = Set.of("org.eclipse.core.runtime", "org.apache.felix.scr",
-			"org.eclipse.equinox.app");
+	static final String BUNDLE_APP = "org.eclipse.equinox.app";
+
+	static final String BUNDLE_SCR = "org.apache.felix.scr";
+
+	static final String BUNDLE_CORE = "org.eclipse.core.runtime";
+
+	private static final Set<String> START_BUNDLES = Set.of(BUNDLE_CORE, BUNDLE_SCR, BUNDLE_APP);
 
 	private final Map<Thread, Map<URI, ApiWorkspace>> cache = new ConcurrentHashMap<>();
 
