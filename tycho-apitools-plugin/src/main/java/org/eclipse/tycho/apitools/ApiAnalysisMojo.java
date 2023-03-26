@@ -55,6 +55,7 @@ import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.apitools.ApiWorkspaceManager.ApiWorkspace;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.TychoProject;
@@ -97,6 +98,9 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	@Parameter(defaultValue = "false", property = "tycho.apitools.verify.skip")
 	private boolean skip;
 
+	@Parameter(defaultValue = "true", property = "tycho.apitools.verify.skipIfReplaced")
+	private boolean skipIfReplaced;
+
 	@Parameter(property = "baselines", name = "baselines")
 	private List<Repository> baselines;
 
@@ -131,7 +135,12 @@ public class ApiAnalysisMojo extends AbstractMojo {
 				|| !eclipseProject.get().hasNature("org.eclipse.pde.api.tools.apiAnalysisNature")) {
 			return;
 		}
+
 		if (supportedPackagingTypes.contains(project.getPackaging())) {
+			if (skipIfReplaced && wasReplaced()) {
+				getLog().info("Skipped because main artifact was replaced with baseline!");
+				return;
+			}
 			long start = System.currentTimeMillis();
 			Path targetFile;
 			try {
@@ -188,10 +197,17 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		}
 	}
 
+	private boolean wasReplaced() {
+		if (DefaultReactorProject.adapt(project)
+				.getContextValue(TychoConstants.KEY_BASELINE_REPLACE_ARTIFACT_MAIN) instanceof Boolean replaced) {
+			return replaced;
+		}
+		return false;
+	}
+
 	private int launchApplication(BundleContext systemBundleContext, EquinoxConfiguration configuration)
 			throws MojoExecutionException {
-		EclipseAppLauncher appLauncher = new EclipseAppLauncher(systemBundleContext, false, true, null,
-				configuration);
+		EclipseAppLauncher appLauncher = new EclipseAppLauncher(systemBundleContext, false, true, null, configuration);
 		systemBundleContext.registerService(ApplicationLauncher.class, appLauncher, null);
 		Object returnValue;
 		try {

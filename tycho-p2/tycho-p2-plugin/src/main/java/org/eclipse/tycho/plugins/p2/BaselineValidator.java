@@ -37,10 +37,12 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.core.osgitools.BaselineService;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.zipcomparator.internal.CompoundArtifactDelta;
 import org.eclipse.tycho.zipcomparator.internal.SimpleArtifactDelta;
@@ -165,7 +167,8 @@ public class BaselineValidator {
                     // baselineReplace==all guarantees consistency of build artifacts with baseline repository
                     // baselineReplace==none build results are self-consistent, but maybe inconsistent with baseline
                     // baselineReplace==common build artifacts are inconsistent
-
+                    DefaultReactorProject.adapt(project)
+                            .setContextValue(TychoConstants.KEY_BASELINE_REPLACE_ARTIFACT_MAIN, true);
                     if (log.isInfoEnabled()) {
                         StringBuilder msg = new StringBuilder();
                         msg.append(project.toString());
