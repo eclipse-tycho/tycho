@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 Christoph Läubrich and others.
+ * Copyright (c) 2022, 2023 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -75,7 +75,7 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 	/**
 	 * Compares the baseline against itself...
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	@Test
 	public void testUnchangedApi() throws Throwable {
@@ -84,9 +84,32 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 	}
 
 	/**
+	 * Compares the baseline against itself... but modify the line endings!
+	 *
+	 * @throws Throwable
+	 */
+	@Test
+	public void testChangedLineEndings() throws Throwable {
+		buildBaselineProject(false, projectPath -> {
+			for (String file : new String[] { "about.html", "MPL-1.1.txt" }) {
+				Path about = projectPath.resolve(file);
+				String string = Files.readString(about);
+				if (string.contains("\r\n")) {
+					string = string.replace("\r\n", "\n");
+				} else if (string.contains("\r")) {
+					string = string.replace("\r", "\n");
+				} else if (string.contains("\n")) {
+					string = string.replace("\n", "\r");
+				}
+				Files.writeString(about, string);
+			}
+		});
+	}
+
+	/**
 	 * This adds a method to the interface
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	@Test
 	public void testAddMethod() throws Throwable {
@@ -110,7 +133,7 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 	/**
 	 * This adds a internal method to the interface
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	@Test
 	public void testAddInternalMethod() throws Throwable {
@@ -135,7 +158,7 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 	/**
 	 * This adds a resource to the bundle
 	 *
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	@Test
 	public void testAddResource() throws Throwable {

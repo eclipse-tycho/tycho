@@ -130,7 +130,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
         }
         return comparators.values().stream() //
                 .filter(c -> c.matches(name) || c.matches(extension)) //
-                .findFirst().orElse(null);
+                .findFirst().orElseGet(() -> comparators.get(DefaultContentsComparator.TYPE));
     }
 
     private static Map<String, ZipEntry> toEntryMap(ZipFile zip, MatchPatterns ignored) {
