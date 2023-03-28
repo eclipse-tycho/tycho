@@ -55,12 +55,14 @@ import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.apitools.ApiWorkspaceManager.ApiWorkspace;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.helper.PluginRealmHelper;
@@ -124,6 +126,9 @@ public class ApiAnalysisMojo extends AbstractMojo {
 
 	@Component
 	private PluginRealmHelper pluginRealmHelper;
+
+	@Component
+	protected MavenBundleResolver mavenBundleResolver;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -211,6 +216,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		systemBundleContext.registerService(ApplicationLauncher.class, appLauncher, null);
 		Object returnValue;
 		try {
+			getLog().info("Performing API Analysis...");
 			returnValue = appLauncher.start(null);
 		} catch (Exception e) {
 			throw applicationStartupError(systemBundleContext, e);
@@ -426,6 +432,19 @@ public class ApiAnalysisMojo extends AbstractMojo {
 								}
 							}
 						}
+					}
+				});
+				// This is a hack because "org.eclipse.osgi.services" exports the annotation
+				// package and might then be resolved by Tycho as a dependency, but then PDE
+				// can't find the annotations here, so we always add this as a dependency
+				// manually here, once "org.eclipse.osgi.services" is gone we can remove this
+				// again!
+				Optional<ResolvedArtifactKey> bundle = mavenBundleResolver.resolveMavenBundle(project, session,
+						"org.osgi", "org.osgi.service.component.annotations", "1.3.0");
+				bundle.ifPresent(key -> {
+					try {
+						writeLocation(writer, key.getLocation(), written);
+					} catch (IOException e) {
 					}
 				});
 			}
