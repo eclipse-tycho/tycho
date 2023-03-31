@@ -280,7 +280,7 @@ The following properties have been added:
 
  - `skipIfJarsignedAndAnchored` - This is similar to `skipIfJarsigned` but is weaker in the sense that the signatures are checked in detail such that the PGP signing is skipped if and only if one of the signatures is anchored in Java cacerts.  The default is `false`. Set `skipIfJarsignedAndAnchored` to `true` and `skipIfJarsigned` to `false` to  enable this feature.
   - `skipBinaries` - Setting this to `false` will enable the signing of binary artifacts, which are of course not jar-signed.
-  - `pgpKeyBehavor` - Specify `skip`, `replace`, or `merge` for how to handle the signing of artifacts that are already PGP signed.
+  - `pgpKeyBehavior` - Specify `skip`, `replace`, or `merge` for how to handle the signing of artifacts that are already PGP signed.
   - `signer` - Currently supported are `bc` and `gpg` where the former is a new implementation that uses Bouncy Castle for signing, which is significantly faster and allows signing to proceed in parallel. This can also be configured by the system property `tycho.pgp.signer`.
 
 #### mixed reactor setups require the new resolver now
