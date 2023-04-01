@@ -9,7 +9,7 @@
 	<name>Plugin for performing API analysis tasks</name>
 	<packaging>maven-plugin</packaging>
 	<properties>
-		<asm.version>9.4</asm.version>
+		<asm.version>9.5</asm.version>
 	</properties>
 	<dependencies>
 		<dependency>
