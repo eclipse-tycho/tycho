@@ -29,6 +29,9 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
@@ -53,6 +56,16 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 @SessionScoped
 public class ApiApplicationResolver {
 
+	private static final String FRAGMENT_COMPATIBILITY = "org.eclipse.osgi.compatibility.state";
+
+	private static final String BUNDLE_API_TOOLS = "org.eclipse.pde.api.tools";
+
+	private static final String BUNDLE_LAUNCHER = "org.eclipse.equinox.launcher";
+
+	private static final String BUNDLE_LAUNCHING_MACOS = "org.eclipse.jdt.launching.macosx";
+
+	private static final String FILTER_MACOS = "(osgi.os=macosx)";
+
 	private final Map<URI, Collection<Path>> cache = new ConcurrentHashMap<>();
 
 	@Requirement
@@ -72,8 +85,7 @@ public class ApiApplicationResolver {
 	}
 
 	public Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
-			ArtifactKey artifactKey)
-			throws IllegalArtifactReferenceException {
+			ArtifactKey artifactKey) throws IllegalArtifactReferenceException {
 		P2Resolver resolver = createResolver();
 		resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, artifactKey.getId(), "0.0.0");
 		return resolveBundles(resolver, baselineRepoLocations);
@@ -84,19 +96,14 @@ public class ApiApplicationResolver {
 			logger.info("Resolve API tools runtime from " + apiToolsRepo + "...");
 			P2Resolver resolver = createResolver();
 			try {
-				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.eclipse.pde.api.tools", "0.0.0");
-				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, "javax.annotation", "0.0.0");
-				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.eclipse.equinox.p2.transport.ecf",
-						"0.0.0");
-				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.eclipse.ecf.provider.filetransfer.ssl",
-						"0.0.0");
-				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.eclipse.equinox.p2.touchpoint.natives",
-						"0.0.0");
-				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.eclipse.osgi.compatibility.state",
-						"0.0.0");
-				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.eclipse.core.runtime", "0.0.0");
-				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, "org.eclipse.equinox.launcher", "0.0.0");
-
+				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, BUNDLE_API_TOOLS, "0.0.0");
+				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, FRAGMENT_COMPATIBILITY, "0.0.0");
+				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, ApiWorkspaceManager.BUNDLE_CORE, "0.0.0");
+				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, ApiWorkspaceManager.BUNDLE_SCR, "0.0.0");
+				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, ApiWorkspaceManager.BUNDLE_APP, "0.0.0");
+				resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, BUNDLE_LAUNCHER, "0.0.0");
+				resolver.addRequirement(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+						BUNDLE_LAUNCHING_MACOS, VersionRange.emptyRange, FILTER_MACOS, true, false, true));
 			} catch (IllegalArtifactReferenceException e) {
 				throw new TargetPlatformConfigurationException("Can't add API tools requirement", e);
 			}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 Christoph Läubrich and others.
+ * Copyright (c) 2022, 2023 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -95,8 +95,7 @@ public class TychoProjectManager {
         });
     }
 
-    public void readExecutionEnvironmentConfiguration(ReactorProject project, MavenSession mavenSession,
-            ExecutionEnvironmentConfiguration sink) {
+    public void readExecutionEnvironmentConfiguration(ReactorProject project, ExecutionEnvironmentConfiguration sink) {
         TargetPlatformConfiguration tpConfiguration = getTargetPlatformConfiguration(project);
 
         String configuredForcedProfile = tpConfiguration.getExecutionEnvironment();
@@ -121,11 +120,8 @@ public class TychoProjectManager {
 
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenProject project) {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        return reactorProject.computeContextValue(CTX_TARGET_PLATFORM_CONFIGURATION, () -> {
-            TargetPlatformConfiguration configuration = configurationReader
-                    .getTargetPlatformConfiguration(getMavenSession(), project);
-            return configuration;
-        });
+        return reactorProject.computeContextValue(CTX_TARGET_PLATFORM_CONFIGURATION,
+                () -> configurationReader.getTargetPlatformConfiguration(getMavenSession(), project));
     }
 
     public TargetPlatformConfiguration getTargetPlatformConfiguration(ReactorProject project) {
@@ -156,8 +152,7 @@ public class TychoProjectManager {
     }
 
     public ArtifactKey getArtifactKey(Artifact artifact) {
-        if (artifact instanceof ProjectArtifact) {
-            ProjectArtifact projectArtifact = (ProjectArtifact) artifact;
+        if (artifact instanceof ProjectArtifact projectArtifact) {
             Optional<ArtifactKey> key = getArtifactKey(projectArtifact.getProject());
             if (key.isPresent()) {
                 return key.get();
@@ -175,25 +170,21 @@ public class TychoProjectManager {
 
     public Optional<EclipseProject> getEclipseProject(MavenProject project) {
         File projectFile = new File(project.getBasedir(), ".project");
-        if (projectFile.isFile()) {
-            return eclipseProjectCache.computeIfAbsent(projectFile, file -> {
+        return eclipseProjectCache.computeIfAbsent(projectFile, file -> {
+            if (file.isFile()) {
                 try {
-                    return Optional.of(EclipseProject.parse(projectFile.toPath()));
+                    return Optional.of(EclipseProject.parse(file.toPath()));
                 } catch (IOException e) {
-                    logger.warn("Can't parse project file " + projectFile + ": " + e);
-                    return Optional.empty();
+                    logger.warn("Can't parse project file " + file, e);
                 }
-            });
-        }
-        return Optional.empty();
+            }
+            return Optional.empty();
+        });
     }
 
     private MavenSession getMavenSession() {
         MavenSession session = legacySupport.getSession();
-        if (session != null) {
-            return session;
-        }
-        return mavenSession;
+        return session != null ? session : mavenSession;
     }
 
 }

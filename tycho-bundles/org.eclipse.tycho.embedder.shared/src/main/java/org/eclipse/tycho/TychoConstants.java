@@ -116,6 +116,8 @@ public interface TychoConstants {
      */
     String KEY_ARTIFACT_MAIN = "artifact.main";
 
+    String KEY_BASELINE_REPLACE_ARTIFACT_MAIN = CTX_BASENAME + "/BaselineReplacedMain";
+
     /**
      * Key prefix for attached artifact locations in {@value FILE_NAME_LOCAL_ARTIFACTS} files.
      */

@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -54,15 +55,19 @@ import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ResolvedArtifactKey;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.apitools.ApiWorkspaceManager.ApiWorkspace;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
@@ -95,6 +100,9 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	@Parameter(defaultValue = "false", property = "tycho.apitools.verify.skip")
 	private boolean skip;
 
+	@Parameter(defaultValue = "true", property = "tycho.apitools.verify.skipIfReplaced")
+	private boolean skipIfReplaced;
+
 	@Parameter(property = "baselines", name = "baselines")
 	private List<Repository> baselines;
 
@@ -119,6 +127,9 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	@Component
 	private PluginRealmHelper pluginRealmHelper;
 
+	@Component
+	protected MavenBundleResolver mavenBundleResolver;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (skip) {
@@ -129,7 +140,12 @@ public class ApiAnalysisMojo extends AbstractMojo {
 				|| !eclipseProject.get().hasNature("org.eclipse.pde.api.tools.apiAnalysisNature")) {
 			return;
 		}
+
 		if (supportedPackagingTypes.contains(project.getPackaging())) {
+			if (skipIfReplaced && wasReplaced()) {
+				getLog().info("Skipped because main artifact was replaced with baseline!");
+				return;
+			}
 			long start = System.currentTimeMillis();
 			Path targetFile;
 			try {
@@ -155,7 +171,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			setupLogging(systemBundleContext);
 			try {
 				workspace.install(systemBundleContext);
-			} catch (IOException e) {
+			} catch (IOException | BundleException e) {
 				throw new MojoFailureException("Install API workspace failed!", e);
 			}
 			FrameworkWiring wiring = framework.adapt(FrameworkWiring.class);
@@ -166,32 +182,70 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			} catch (BundleException e) {
 				throw new MojoExecutionException("Start framework failed!", e);
 			}
-			getLog().debug("Framework started (took " + time(startFw) + ").");
-			EclipseAppLauncher appLauncher = new EclipseAppLauncher(systemBundleContext, false, true, null,
-					configuration);
-			systemBundleContext.registerService(ApplicationLauncher.class, appLauncher, null);
 			try {
-				Object returnValue = appLauncher.start(null);
-				if (returnValue instanceof Integer retCode) {
-					if (retCode != 0) {
-						throw new MojoFailureException("API Tools failure!");
-					}
-				} else {
-					throw new MojoFailureException("Execute the Api application failed!");
+				getLog().debug("Framework started (took " + time(startFw) + ").");
+				int returnValue = launchApplication(systemBundleContext, configuration);
+				if (returnValue != 0) {
+					throw new MojoFailureException("API Tools failure!");
 				}
-			} catch (Exception e) {
-				throw new MojoFailureException("Execute the Api application failed!", e);
-			}
-			try {
-				framework.stop();
-				framework.waitForStop(0);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			} catch (BundleException e) {
-				// not interesting...
+			} finally {
+				try {
+					framework.stop();
+					framework.waitForStop(0);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				} catch (BundleException e) {
+					// not interesting...
+				}
 			}
 			getLog().info("API Analysis finished in " + time(start) + ".");
 		}
+	}
+
+	private boolean wasReplaced() {
+		if (DefaultReactorProject.adapt(project)
+				.getContextValue(TychoConstants.KEY_BASELINE_REPLACE_ARTIFACT_MAIN) instanceof Boolean replaced) {
+			return replaced;
+		}
+		return false;
+	}
+
+	private int launchApplication(BundleContext systemBundleContext, EquinoxConfiguration configuration)
+			throws MojoExecutionException {
+		EclipseAppLauncher appLauncher = new EclipseAppLauncher(systemBundleContext, false, true, null, configuration);
+		systemBundleContext.registerService(ApplicationLauncher.class, appLauncher, null);
+		Object returnValue;
+		try {
+			getLog().info("Performing API Analysis...");
+			returnValue = appLauncher.start(null);
+		} catch (Exception e) {
+			throw applicationStartupError(systemBundleContext, e);
+		}
+		if (returnValue instanceof Integer retCode) {
+			return retCode.intValue();
+		}
+		throw applicationStartupError(systemBundleContext, null);
+	}
+
+	private MojoExecutionException applicationStartupError(BundleContext systemBundleContext, Exception e) {
+		String bundleState = Arrays.stream(systemBundleContext.getBundles())
+				.map(b -> toBundleState(b.getState()) + " | " + b.getSymbolicName())
+				.collect(Collectors.joining(System.lineSeparator()));
+		getLog().error(String.format(
+				"Internal error execute the Api Application for project %s, the current framework state is:\r\n%s",
+				project.getId(), bundleState), e);
+		return new MojoExecutionException("Execute the Api application failed!", e);
+	}
+
+	private static String toBundleState(int state) {
+		return switch (state) {
+		case Bundle.ACTIVE -> "ACTIVE   ";
+		case Bundle.INSTALLED -> "INSTALLED";
+		case Bundle.RESOLVED -> "RESOLVED ";
+		case Bundle.STARTING -> "STARTING ";
+		case Bundle.STOPPING -> "STOPPING ";
+		default -> String.valueOf(state);
+		};
 	}
 
 	private MavenRepositoryLocation getRepository() {
@@ -308,9 +362,8 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			baselineBundles = resolver.getApiBaselineBundles(baselines.stream()
 					.map(repo -> new MavenRepositoryLocation(repo.getId(), URI.create(repo.getUrl()))).toList(),
 					artifactKey.get());
-			getLog().debug(
-					"API baseline contains " + baselineBundles.size() + " bundles (resolve takes " + time(start)
-							+ ").");
+			getLog().debug("API baseline contains " + baselineBundles.size() + " bundles (resolve takes " + time(start)
+					+ ").");
 		} catch (IllegalArtifactReferenceException e) {
 			throw new MojoFailureException("Project specify an invalid artifact key", e);
 		}
@@ -379,6 +432,19 @@ public class ApiAnalysisMojo extends AbstractMojo {
 								}
 							}
 						}
+					}
+				});
+				// This is a hack because "org.eclipse.osgi.services" exports the annotation
+				// package and might then be resolved by Tycho as a dependency, but then PDE
+				// can't find the annotations here, so we always add this as a dependency
+				// manually here, once "org.eclipse.osgi.services" is gone we can remove this
+				// again!
+				Optional<ResolvedArtifactKey> bundle = mavenBundleResolver.resolveMavenBundle(project, session,
+						"org.osgi", "org.osgi.service.component.annotations", "1.3.0");
+				bundle.ifPresent(key -> {
+					try {
+						writeLocation(writer, key.getLocation(), written);
+					} catch (IOException e) {
 					}
 				});
 			}

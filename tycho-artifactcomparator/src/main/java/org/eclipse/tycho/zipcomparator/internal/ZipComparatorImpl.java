@@ -18,19 +18,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -98,12 +98,10 @@ public class ZipComparatorImpl implements ArtifactComparator {
 
         try (InputStream baseline = baselineJar.getInputStream(baselineEntry);
                 InputStream reactor = reactorJar.getInputStream(reactorEntry);) {
-            byte[] baselineBytes = IOUtils.toByteArray(baseline);
-            byte[] reactorBytes = IOUtils.toByteArray(reactor);
-            ArtifactDelta direct = compareDirect(baselineBytes, reactorBytes);
-            if (direct == null) {
-                //perfectly equal!
-                return null;
+            byte[] baselineBytes = baseline.readAllBytes();
+            byte[] reactorBytes = reactor.readAllBytes();
+            if (Arrays.equals(baselineBytes, reactorBytes)) {
+                return ArtifactDelta.NO_DIFFERENCE;
             }
             ContentsComparator comparator = getContentsComparator(name);
             if (comparator != null && baselineBytes.length < ContentsComparator.THRESHOLD
@@ -117,14 +115,6 @@ public class ZipComparatorImpl implements ArtifactComparator {
                             + ", using direct byte compare", e);
                 }
             }
-            return direct;
-        }
-    }
-
-    private static ArtifactDelta compareDirect(byte[] baselineBytes, byte[] reactorBytes) {
-        if (Arrays.equals(baselineBytes, reactorBytes)) {
-            return ArtifactDelta.NO_DIFFERENCE;
-        } else {
             return ArtifactDelta.DEFAULT;
         }
     }
@@ -138,23 +128,14 @@ public class ZipComparatorImpl implements ArtifactComparator {
         if (name.equalsIgnoreCase("meta-inf/manifest.mf")) {
             return comparators.get(ManifestComparator.TYPE);
         }
-        for (ContentsComparator cc : comparators.values()) {
-            if (cc.matches(name) || cc.matches(extension)) {
-                return cc;
-            }
-        }
-        return null;
+        return comparators.values().stream() //
+                .filter(c -> c.matches(name) || c.matches(extension)) //
+                .findFirst().orElse(null);
     }
 
     private static Map<String, ZipEntry> toEntryMap(ZipFile zip, MatchPatterns ignored) {
-        Map<String, ZipEntry> result = new LinkedHashMap<>(zip.size());
-        Enumeration<? extends ZipEntry> entries = zip.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry entry = entries.nextElement();
-            if (!entry.isDirectory() && !ignored.matches(entry.getName(), false)) {
-                result.put(entry.getName(), entry);
-            }
-        }
-        return result;
+        return zip.stream() //
+                .filter(e -> !e.isDirectory() && !ignored.matches(e.getName(), false))
+                .collect(Collectors.toMap(e -> e.getName(), Function.identity()));
     }
 }

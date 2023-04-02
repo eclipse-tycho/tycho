@@ -6,7 +6,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
@@ -156,9 +156,7 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 				logger.info("No baseline problems found.");
 				return;
 			}
-		} catch (MojoExecutionException e) {
-			throw e;
-		} catch (MojoFailureException e) {
+		} catch (MojoExecutionException | MojoFailureException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new MojoExecutionException("Unknown error", e);

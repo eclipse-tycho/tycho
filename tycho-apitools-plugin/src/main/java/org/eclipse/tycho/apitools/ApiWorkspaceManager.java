@@ -38,8 +38,13 @@ import org.osgi.framework.BundleException;
 @Component(role = ApiWorkspaceManager.class)
 public class ApiWorkspaceManager implements Disposable {
 
-	private static final Set<String> START_BUNDLES = Set.of("org.eclipse.core.runtime", "org.apache.felix.scr",
-			"org.eclipse.equinox.app");
+	static final String BUNDLE_APP = "org.eclipse.equinox.app";
+
+	static final String BUNDLE_SCR = "org.apache.felix.scr";
+
+	static final String BUNDLE_CORE = "org.eclipse.core.runtime";
+
+	private static final Set<String> START_BUNDLES = Set.of(BUNDLE_CORE, BUNDLE_SCR, BUNDLE_APP);
 
 	private final Map<Thread, Map<URI, ApiWorkspace>> cache = new ConcurrentHashMap<>();
 
@@ -88,16 +93,18 @@ public class ApiWorkspaceManager implements Disposable {
 			return workDir;
 		}
 
-		public void install(BundleContext bundleContext) throws IOException {
+		public void install(BundleContext bundleContext) throws IOException, BundleException {
 			if (init.add(workDir)) {
 				for (Path bundleFile : applicationResolver.getApiApplicationBundles(apiToolsRepo)) {
+					Bundle bundle;
 					try (InputStream stream = Files.newInputStream(bundleFile)) {
-						Bundle bundle = bundleContext.installBundle(bundleFile.toUri().toString(), stream);
-						if (START_BUNDLES.contains(bundle.getSymbolicName())) {
-							bundle.start();
-						}
+						bundle = bundleContext.installBundle(bundleFile.toUri().toString(), stream);
 					} catch (BundleException e) {
 						logger.warn("Can't install " + bundleFile + ": " + e);
+						continue;
+					}
+					if (START_BUNDLES.contains(bundle.getSymbolicName())) {
+						bundle.start();
 					}
 				}
 			}

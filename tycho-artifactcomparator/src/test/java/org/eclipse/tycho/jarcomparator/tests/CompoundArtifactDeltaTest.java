@@ -41,15 +41,15 @@ public class CompoundArtifactDeltaTest {
         ArtifactDelta subject = new CompoundArtifactDelta(
                 "Baseline and reactor artifacts have the same version but different contents", delta);
 
-        String nl = System.lineSeparator();
-        String expected = "Baseline and reactor artifacts have the same version but different contents" + nl
-                + "   <main>: different" + nl //
-                + "      META-INF/MANIFEST.MF: different" + nl //
-                + "         name1: present in baseline only" + nl //
-                + "      path/file1: different" + nl //
-                + "      path/file2: not present in baseline" + nl //
-                + "   sources: different" + nl;
-
+        String expected = """
+                Baseline and reactor artifacts have the same version but different contents
+                   <main>: different
+                      META-INF/MANIFEST.MF: different
+                         name1: present in baseline only
+                      path/file1: different
+                      path/file2: not present in baseline
+                   sources: different
+                """.replace("\n", System.lineSeparator());
         assertEquals(expected, subject.getDetailedMessage());
     }
 }
