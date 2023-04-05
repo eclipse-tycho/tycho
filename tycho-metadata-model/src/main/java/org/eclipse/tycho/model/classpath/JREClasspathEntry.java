@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich  - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.dotClasspath;
+package org.eclipse.tycho.model.classpath;
 
 import java.util.Collection;
 

@@ -1,4 +1,4 @@
-package org.eclipse.tycho.core.dotClasspath;
+package org.eclipse.tycho.model.classpath;
 
 public interface M2ClasspathVariable extends ProjectClasspathEntry {
 

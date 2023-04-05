@@ -65,10 +65,6 @@ import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.dotClasspath.ClasspathParser;
-import org.eclipse.tycho.core.dotClasspath.JUnitClasspathContainerEntry;
-import org.eclipse.tycho.core.dotClasspath.LibraryClasspathEntry;
-import org.eclipse.tycho.core.dotClasspath.ProjectClasspathEntry;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
@@ -86,6 +82,9 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
+import org.eclipse.tycho.model.classpath.JUnitClasspathContainerEntry;
+import org.eclipse.tycho.model.classpath.LibraryClasspathEntry;
+import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
@@ -104,7 +103,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private BundleReader bundleReader;
 
     @Requirement
-    private ClasspathParser classpathParser;
+    private ClasspathReader classpathParser;
 
     @Requirement
     private EquinoxResolver resolver;
@@ -278,8 +277,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 P2Resolver resolver = resolverFactory
                         .createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
                 TargetPlatform tp = TychoProjectUtils.getTargetPlatform(reactorProject);
-                Collection<P2ResolutionResult> result = resolver.resolveArtifactDependencies(tp, junit.getArtifacts())
-                        .values();
+                Collection<P2ResolutionResult> result = resolver
+                        .resolveArtifactDependencies(tp, ClasspathReader.asMaven(junit.getArtifacts())).values();
                 for (P2ResolutionResult resolutionResult : result) {
                     for (Entry entry : resolutionResult.getArtifacts()) {
                         logger.debug("Resolved " + entry.getId() + "::" + entry.getVersion());
@@ -709,7 +708,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         Collection<ProjectClasspathEntry> entries = getEclipsePluginProject(project).getClasspathEntries();
         for (ProjectClasspathEntry cpe : entries) {
             if (cpe instanceof JUnitClasspathContainerEntry junitEntry) {
-                list.addAll(junitEntry.getArtifacts());
+                list.addAll(ClasspathReader.asMaven(junitEntry.getArtifacts()));
             }
         }
         return list;

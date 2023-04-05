@@ -28,8 +28,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.SourcepathEntry;
-import org.eclipse.tycho.core.dotClasspath.SourceFolderClasspathEntry;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.model.classpath.SourceFolderClasspathEntry;
 
 /**
  * Compiles test sources with eclipse plugin dependencies
