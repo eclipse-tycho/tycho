@@ -10,12 +10,16 @@
  * Contributors:
  *    Christoph Läubrich  - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.dotClasspath;
+package org.eclipse.tycho.model.classpath;
 
-import java.util.Map;
+import java.io.File;
 
-public interface ProjectClasspathEntry {
+public interface LibraryClasspathEntry extends ProjectClasspathEntry {
 
-    Map<String, String> getAttributes();
+    /**
+     * 
+     * @return the library path name
+     */
+    File getLibraryPath();
 
 }

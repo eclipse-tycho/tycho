@@ -50,13 +50,15 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.dotClasspath.JUnitClasspathContainerEntry;
 import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.core.osgitools.ClasspathReader;
 import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.model.classpath.JUnitBundle;
+import org.eclipse.tycho.model.classpath.JUnitClasspathContainerEntry;
 import org.eclipse.tycho.surefire.bnd.ArtifactKeyRepository;
 import org.eclipse.tycho.surefire.bnd.TargetPlatformRepository;
 import org.eclipse.tycho.version.TychoVersion;
@@ -358,8 +360,9 @@ public class BndTestMojo extends AbstractTestMojo {
             for (String engine : Strings.split(testEngines)) {
                 runrequire.add("bnd.identity; id=" + engine);
             }
-            for (MavenArtifactKey key : JUnitClasspathContainerEntry.JUNIT5_PLUGINS) {
-                mavenBundleResolver.resolveMavenBundle(project, session, key).ifPresentOrElse(bundles::add,
+            for (JUnitBundle key : JUnitClasspathContainerEntry.JUNIT5_PLUGINS) {
+                mavenBundleResolver.resolveMavenBundle(project, session, ClasspathReader.toMaven(key)).ifPresentOrElse(
+                        bundles::add,
                         () -> getLog().warn("Cannot get JUnit artifact " + key + ". Test run might not resolve"));
             }
             if (printTests || trace) {
@@ -376,8 +379,9 @@ public class BndTestMojo extends AbstractTestMojo {
                         });
             }
         } else if (TESTER_DEFAULT.equals(tester)) {
-            for (MavenArtifactKey key : JUnitClasspathContainerEntry.JUNIT4_PLUGINS) {
-                mavenBundleResolver.resolveMavenBundle(project, session, key).ifPresentOrElse(bundles::add,
+            for (JUnitBundle key : JUnitClasspathContainerEntry.JUNIT4_PLUGINS) {
+                mavenBundleResolver.resolveMavenBundle(project, session, ClasspathReader.toMaven(key)).ifPresentOrElse(
+                        bundles::add,
                         () -> getLog().warn("Cannot get JUnit artifact " + key + ". Test run might not resolve"));
             }
         }
