@@ -88,4 +88,9 @@ public interface JUnitClasspathContainerEntry extends ClasspathContainerEntry {
      */
     Collection<JUnitBundle> getArtifacts();
 
+    @Override
+    default boolean isTest() {
+        return true;
+    }
+
 }

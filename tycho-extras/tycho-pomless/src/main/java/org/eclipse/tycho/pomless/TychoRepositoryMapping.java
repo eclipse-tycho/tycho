@@ -33,7 +33,6 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.io.ModelParseException;
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.w3c.dom.Element;
 
@@ -143,24 +142,13 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
             PluginExecution pluginExecution = map.computeIfAbsent(executionId, required -> {
                 throw new IllegalArgumentException(required + " PluginExecution is missing");
             });
-            Xpp3Dom config = (Xpp3Dom) pluginExecution.getConfiguration();
-            if (config == null) {
-                pluginExecution.setConfiguration(config = new Xpp3Dom("configuration"));
-            }
-            Xpp3Dom products = config.getChild("products");
-            if (products == null) {
-                config.addChild(products = new Xpp3Dom("products"));
-            }
-            Xpp3Dom product = new Xpp3Dom("product");
-            Xpp3Dom id = new Xpp3Dom("id");
-            id.setValue(getRequiredXMLAttributeValue(productXml, PRODUCT_UID_ATTRIBUTE));
-            product.addChild(id);
+            MavenConfiguation config = getConfiguration(pluginExecution);
+            MavenConfiguation products = config.getChild("products");
+            MavenConfiguation product = products.addChild("product");
+            product.addChild("id").setValue(getRequiredXMLAttributeValue(productXml, PRODUCT_UID_ATTRIBUTE));
             if (attachId != null) {
-                Xpp3Dom attach = new Xpp3Dom("attachId");
-                attach.setValue(attachId);
-                product.addChild(attach);
+                product.addChild("attachId").setValue(attachId);
             }
-            products.addChild(product);
         }
     }
 

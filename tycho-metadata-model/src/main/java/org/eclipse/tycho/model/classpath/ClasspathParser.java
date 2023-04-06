@@ -52,6 +52,8 @@ public class ClasspathParser {
                 String kind = classpathentry.getAttribute("kind");
                 if ("output".equals(kind)) {
                     defaultOutput = classpathentry.getAttribute("path");
+                    list.add(
+                            new JDTOuput(new File(file.getParentFile(), defaultOutput), getAttributes(classpathentry)));
                 }
             }
             for (int i = 0; i < length; i++) {
@@ -186,6 +188,28 @@ public class ClasspathParser {
         @Override
         public String getContainerPath() {
             return path;
+        }
+
+    }
+
+    private static final class JDTOuput implements OutputClasspathEntry {
+
+        private File output;
+        private Map<String, String> attributes;
+
+        public JDTOuput(File output, Map<String, String> attributes) {
+            this.output = output;
+            this.attributes = attributes;
+        }
+
+        @Override
+        public Map<String, String> getAttributes() {
+            return attributes;
+        }
+
+        @Override
+        public File getOutputPath() {
+            return output;
         }
 
     }

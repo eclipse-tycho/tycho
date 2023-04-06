@@ -18,4 +18,10 @@ public interface ProjectClasspathEntry {
 
     Map<String, String> getAttributes();
 
+    /**
+     * @return <code>true</code> if this entry is marked a being a test entry
+     */
+    default boolean isTest() {
+        return Boolean.parseBoolean(getAttributes().get("test"));
+    }
 }
