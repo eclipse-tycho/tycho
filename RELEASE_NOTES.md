@@ -6,6 +6,7 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Backports
 
+- inject source folders into maven model
 - improve CI friendly versions
 - Report download speed to the caller
 

@@ -423,4 +423,13 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         }
         return build;
     }
+
+    protected static MavenConfiguation getConfiguration(PluginExecution execution) {
+        Object config = execution.getConfiguration();
+        MavenConfiguation mavenConfiguation = new MavenConfiguation(config, "configuration");
+        if (config == null) {
+            execution.setConfiguration(mavenConfiguation.getXpp3());
+        }
+        return mavenConfiguation;
+    }
 }
