@@ -15,6 +15,7 @@ package org.eclipse.tycho.extras.buildtimestamp.jgit;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,6 +30,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.IndexDiff;
@@ -106,7 +108,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 
 		public static DirtyBehavior getDirtyWorkingTreeBehaviour(MojoExecution execution) {
 			final DirtyBehavior defaultBehaviour = ERROR;
-			Xpp3Dom pluginConfiguration = (Xpp3Dom) execution.getPlugin().getConfiguration();
+			Xpp3Dom pluginConfiguration = getDom(execution);
 			if (pluginConfiguration == null) {
 				return defaultBehaviour;
 			}
@@ -126,6 +128,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 			}
 			return defaultBehaviour;
 		}
+
 	}
 
 	@Override
@@ -212,7 +215,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 	}
 
 	private static String getIgnoreFilter(MojoExecution execution) {
-		Xpp3Dom pluginConfiguration = (Xpp3Dom) execution.getPlugin().getConfiguration();
+		Xpp3Dom pluginConfiguration = getDom(execution);
 		if (pluginConfiguration == null) {
 			return null;
 		}
@@ -286,6 +289,21 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 	@Override
 	public void setQuiet(boolean quiet) {
 		this.quiet = quiet;
+	}
+
+	private static Xpp3Dom getDom(MojoExecution execution) {
+		Object config = execution.getPlugin().getConfiguration();
+		if (config == null) {
+			return null;
+		}
+		if (config instanceof Xpp3Dom xpp) {
+			return xpp;
+		}
+		try {
+			return Xpp3DomBuilder.build(new StringReader(String.valueOf(config)));
+		} catch (Exception e) {
+			throw new RuntimeException("can't get dom!", e);
+		}
 	}
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 Christoph Läubrich and others.
+ * Copyright (c) 2023 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.model.classpath;
 
-public interface M2ClasspathVariable extends ProjectClasspathEntry {
+import java.io.File;
 
-    static final String M2_REPO_VARIABLE_PREFIX = "M2_REPO/";
-
-    String getRepositoryPath();
-
+/**
+ * represents the main output folder defined in the classpath settings
+ */
+public interface OutputClasspathEntry extends ProjectClasspathEntry {
+    /**
+     * 
+     * @return the output
+     */
+    File getOutputPath();
 }

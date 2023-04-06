@@ -3,6 +3,7 @@ package org.eclipse.tycho.test.buildextension;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -16,6 +17,11 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.maven.it.Verifier;
+import org.apache.maven.model.Build;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
+import org.apache.maven.model.io.DefaultModelReader;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
@@ -30,6 +36,33 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "bnd/target/classes/module-info.class");
 		assertTrue("module-info.class is not generated!", file.isFile());
+	}
+
+	@Test
+	public void testSourceFolder() throws Exception {
+		Verifier verifier = getVerifier("pomless", false, true);
+		verifier.addCliOption("-pl");
+		verifier.addCliOption("sourcefolder");
+		verifier.addCliOption("-Dpolyglot.dump.pom=generated.pom.xml");
+		verifier.executeGoals(List.of("clean", "package"));
+		verifier.verifyErrorFreeLog();
+		File file = new File(verifier.getBasedir(), "sourcefolder/generated.pom.xml");
+		assertTrue("generated.pom.xml is not generated!", file.isFile());
+		Model model = new DefaultModelReader().read(file, Map.of());
+		Build build = model.getBuild();
+		assertNotNull(build);
+		assertEquals("src", build.getSourceDirectory());
+		assertEquals("src_test", build.getTestSourceDirectory());
+		List<Plugin> list = build.getPlugins().stream()
+				.filter(p -> "build-helper-maven-plugin".equals(p.getArtifactId())).toList();
+		assertEquals(1, list.size());
+		Plugin plugin = list.get(0);
+		List<PluginExecution> executions = plugin.getExecutions();
+		assertEquals(1, executions.size());
+		PluginExecution execution = executions.get(0);
+		assertTrue(execution.getGoals().contains("add-source"));
+		String config = String.valueOf(execution.getConfiguration());
+		assertTrue(file + "->" + config, config.contains("<source>src2</source>"));
 	}
 
 	@Test
