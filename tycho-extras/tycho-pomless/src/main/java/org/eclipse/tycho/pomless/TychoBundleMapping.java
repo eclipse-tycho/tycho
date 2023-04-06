@@ -20,21 +20,24 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
-import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Organization;
 import org.apache.maven.model.Plugin;
-import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.io.ModelParseException;
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.tycho.pomless.cp.ClasspathParser;
+import org.eclipse.tycho.pomless.cp.ProjectClasspathEntry;
+import org.eclipse.tycho.pomless.cp.SourceFolderClasspathEntry;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
 @Component(role = Mapping.class, hint = TychoBundleMapping.PACKAGING)
@@ -49,6 +52,7 @@ public class TychoBundleMapping extends AbstractTychoMapping {
     private static final String BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
     private static final String PACKAGING_TEST = "eclipse-test-plugin";
     private static final String PDE_BND = "pde.bnd";
+    private static final AtomicLong ID = new AtomicLong();
 
     @Override
     protected String getPackaging() {
@@ -119,6 +123,55 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         if (Files.isRegularFile(bndFile)) {
             createBndPlugin(model);
         }
+        List<SourceFolderClasspathEntry> sourceFolders = new ArrayList<SourceFolderClasspathEntry>(1);
+        List<SourceFolderClasspathEntry> testSourceFolders = new ArrayList<SourceFolderClasspathEntry>(1);
+        for (ProjectClasspathEntry entry : ClasspathParser.parse(bundleRoot.toFile())) {
+            if (entry instanceof SourceFolderClasspathEntry source) {
+                if (source.isTest()) {
+                    testSourceFolders.add(source);
+                } else {
+                    sourceFolders.add(source);
+                }
+            }
+        }
+        configureSourceFolders(model, bundleRoot, sourceFolders, false);
+        configureSourceFolders(model, bundleRoot, testSourceFolders, true);
+    }
+
+    private void configureSourceFolders(Model model, Path bundleRoot, List<SourceFolderClasspathEntry> sourceFolders,
+            boolean test) {
+        if (sourceFolders.size() > 0) {
+            SourceFolderClasspathEntry mainSrc = sourceFolders.remove(0);
+            Path mainSourcePath = mainSrc.getSourcePath().toPath();
+            String sourcePath = bundleRoot.relativize(mainSourcePath).toString();
+            if (test) {
+                getBuild(model).setTestSourceDirectory(sourcePath);
+            } else {
+                getBuild(model).setSourceDirectory(sourcePath);
+            }
+            addAdditionalFolders(sourceFolders, model, bundleRoot, test ? "add-test-source" : "add-source");
+        }
+    }
+
+    private void addAdditionalFolders(List<SourceFolderClasspathEntry> folders, Model model, Path bundleRoot,
+            String goal) {
+        Plugin buildHelperPlugin = null;
+        for (SourceFolderClasspathEntry entry : folders) {
+            if (buildHelperPlugin == null) {
+                buildHelperPlugin = getPlugin(model, "org.codehaus.mojo", "build-helper-maven-plugin");
+            }
+            addPluginExecution(buildHelperPlugin, execution -> {
+                execution.setId("eclipse-classpath-" + goal + "-" + ID.incrementAndGet());
+                execution.setPhase("initialize");
+                execution.getGoals().add(goal);
+                MavenConfiguation configuration = getConfiguration(execution);
+                MavenConfiguation sources = configuration.addChild("sources");
+                MavenConfiguation source = sources.addChild("source");
+                Path additionalSourcePath = entry.getSourcePath().toPath();
+                String additionalPath = bundleRoot.relativize(additionalSourcePath).toString();
+                source.setValue(additionalPath);
+            });
+        }
     }
 
     private Path getManifestFile(Path artifactFile) {
@@ -148,26 +201,14 @@ public class TychoBundleMapping extends AbstractTychoMapping {
 
     private static Plugin createBndPlugin(Model model) {
         //See https://github.com/bndtools/bnd/blob/master/maven/bnd-maven-plugin/README.md#bnd-process-goal 
-        Build build = model.getBuild();
-        if (build == null) {
-            model.setBuild(build = new Build());
-        }
-        Plugin plugin = new Plugin();
-        plugin.setGroupId("biz.aQute.bnd");
-        plugin.setArtifactId("bnd-maven-plugin");
-        build.addPlugin(plugin);
-        PluginExecution process = new PluginExecution();
-        process.setId("bnd-process");
-        process.setGoals(Arrays.asList("bnd-process"));
-        plugin.addExecution(process);
-        Xpp3Dom config = new Xpp3Dom("configuration");
-        process.setConfiguration(config);
-        Xpp3Dom packagingTypes = new Xpp3Dom("packagingTypes");
-        packagingTypes.setValue(model.getPackaging());
-        config.addChild(packagingTypes);
-        Xpp3Dom manifestPath = new Xpp3Dom("manifestPath");
-        manifestPath.setValue("${project.build.directory}/BND.MF");
-        config.addChild(manifestPath);
+        Plugin plugin = getPlugin(model, "biz.aQute.bnd", "bnd-maven-plugin");
+        addPluginExecution(plugin, execution -> {
+            execution.setId("bnd-process");
+            execution.setGoals(Arrays.asList("bnd-process"));
+            MavenConfiguation config = getConfiguration(execution);
+            config.addChild("packagingTypes").setValue(model.getPackaging());
+            config.addChild("manifestPath").setValue("${project.build.directory}/BND.MF");
+        });
         return plugin;
     }
 
