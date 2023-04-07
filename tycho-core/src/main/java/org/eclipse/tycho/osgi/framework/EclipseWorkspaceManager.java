@@ -13,11 +13,13 @@
 package org.eclipse.tycho.osgi.framework;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.plugin.Mojo;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -59,6 +61,15 @@ public class EclipseWorkspaceManager implements Disposable {
         cache.values().forEach(map -> {
             map.values().forEach(ws -> FileUtils.deleteQuietly(ws.getWorkDir().toFile()));
         });
+    }
+
+    public EclipseWorkspace<?> getWorkspace(URI uri, Mojo mojo) {
+        return getWorkspace(new MojoKey(uri.normalize(), mojo.getClass()));
+
+    }
+
+    private static final record MojoKey(URI uri, Class<?> clz) {
+        //a key that uses the mojo class and a URI
     }
 
 }

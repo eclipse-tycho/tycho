@@ -12,9 +12,21 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.framework;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.io.StreamCorruptedException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.input.ClassLoaderObjectInputStream;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.osgi.service.runnable.ApplicationLauncher;
@@ -25,38 +37,46 @@ import org.osgi.framework.launch.Framework;
 
 public class EclipseFramework implements AutoCloseable {
 
-    private Framework framework;
-    private EquinoxConfiguration configuration;
-    private EclipseApplication application;
+    private final Framework framework;
+    private final EquinoxConfiguration configuration;
+    private final EclipseApplication application;
+    private final EclipseModuleConnector connector;
+    private AtomicBoolean started = new AtomicBoolean();
 
-    EclipseFramework(Framework framework, EquinoxConfiguration configuration, EclipseApplication application) {
+    EclipseFramework(Framework framework, EquinoxConfiguration configuration, EclipseApplication application,
+            EclipseModuleConnector connector) {
         this.framework = framework;
         this.configuration = configuration;
         this.application = application;
+        this.connector = connector;
     }
 
     @Override
     public void close() {
-        try {
-            framework.stop();
-            framework.waitForStop(0);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (BundleException e) {
-            // not interesting...
+        if (started.compareAndSet(true, false)) {
+            try {
+                framework.stop();
+                framework.waitForStop(0);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (BundleException e) {
+                // not interesting...
+            }
         }
     }
 
     public void start() throws Exception {
-        framework.start();
-        String[] args = configuration.getNonFrameworkArgs();
-        for (String arg : args) {
-            if (EclipseApplication.ARG_APPLICATION.equals(arg)) {
-                int exitCode = launchApplication(framework.getBundleContext(), configuration);
-                if (exitCode != 0) {
-                    throw new Exception("Application returned exit code " + exitCode);
+        if (started.compareAndSet(false, true)) {
+            framework.start();
+            String[] args = configuration.getNonFrameworkArgs();
+            for (String arg : args) {
+                if (EclipseApplication.ARG_APPLICATION.equals(arg)) {
+                    int exitCode = launchApplication(framework.getBundleContext(), configuration);
+                    if (exitCode != 0) {
+                        throw new Exception("Application returned exit code " + exitCode);
+                    }
+                    return;
                 }
-                return;
             }
         }
     }
@@ -95,6 +115,66 @@ public class EclipseFramework implements AutoCloseable {
         case Bundle.STOPPING -> "STOPPING ";
         default -> String.valueOf(state);
         };
+    }
+
+    @SuppressWarnings("unchecked")
+    public <X extends Callable<R> & Serializable, R extends Serializable> R execute(X runnable)
+            throws InvocationTargetException {
+        try {
+            start();
+            byte[] runnableBytes = getBytes(runnable);
+            BundleContext bundleContext = framework.getBundleContext();
+            String newBundleId = connector.newBundle(runnable.getClass());
+            Bundle bundle = bundleContext.installBundle(newBundleId);
+            try {
+                bundle.start();
+                Class<?> foreignClass = bundle.loadClass(runnable.getClass().getName());
+                Object foreignObject = readObject(runnableBytes, foreignClass.getClassLoader());
+                Method method = foreignClass.getMethod("call");
+                byte[] resultBytes = getBytes(method.invoke(foreignObject));
+                if (resultBytes == null) {
+                    return null;
+                }
+                return (R) readObject(resultBytes, runnable.getClass().getClassLoader());
+            } finally {
+                bundle.uninstall();
+                connector.release(newBundleId);
+            }
+        } catch (Exception e) {
+            if (e instanceof InvocationTargetException ite) {
+                throw ite;
+            }
+            throw new InvocationTargetException(e);
+        }
+    }
+
+    private Object readObject(byte[] runnableBytes, ClassLoader loader)
+            throws IOException, ClassNotFoundException, StreamCorruptedException {
+        Object foreignObject;
+        try (ClassLoaderObjectInputStream stream = new ClassLoaderObjectInputStream(loader,
+                new ByteArrayInputStream(runnableBytes))) {
+            foreignObject = stream.readObject();
+        }
+        return foreignObject;
+    }
+
+    private static byte[] getBytes(Object o) throws IOException {
+        if (o == null) {
+            return null;
+        }
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        try (ObjectOutputStream stream = new ObjectOutputStream(byteStream)) {
+            stream.writeObject(o);
+        }
+        return byteStream.toByteArray();
+    }
+
+    public void printState() {
+        Logger logger = application.getLogger();
+        logger.info("==== " + application.getName() + " ====");
+        for (Bundle bundle : framework.getBundleContext().getBundles()) {
+            logger.info(toBundleState(bundle.getState()) + " | " + bundle.getSymbolicName());
+        }
     }
 
 }

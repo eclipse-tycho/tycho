@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!-- ===================================================== -->
+<!-- Declare the documentation for the JDT ISV Guide       -->
+<!-- We will declare only one infoset (book)               -->
+<!-- ===================================================== -->
+
+<plugin>
+
+
+<!-- ============================================================================= -->
+<!-- Define primary TOC                                                            -->
+<!-- ============================================================================= -->
+
+   <extension point="org.eclipse.help.toc">
+       <toc file="toc.xml" primary="true" />
+       <index path="index"/>
+   </extension>
+
+<!-- ============================================================================= -->
+<!-- Define TOCs                                                                   -->
+<!-- ============================================================================= -->
+
+   <extension point="org.eclipse.help.toc">
+       <toc file="topics_Guide.xml" />
+       <toc file="topics_Reference.xml" />
+       <toc file="topics_Porting.xml"/>
+       <toc file="topics_Questions.xml" />
+   </extension>
+
+<!-- ============================================================================= -->
+<!-- Define Javadoc locations                                                      -->
+<!-- ============================================================================= -->
+   <extension point="org.eclipse.pde.core.javadoc">
+       <javadoc path="reference/api">
+           <plugin id="org.eclipse.ant.launching"/>
+           <plugin id="org.eclipse.ant.ui"/>
+           <plugin id="org.eclipse.jdt.annotation"/>
+           <plugin id="org.eclipse.jdt.core"/>
+           <plugin id="org.eclipse.jdt.core.manipulation"/>
+           <plugin id="org.eclipse.jdt.debug"/>
+           <plugin id="org.eclipse.jdt.debug.ui"/>
+           <plugin id="org.eclipse.jdt.launching"/>
+           <plugin id="org.eclipse.jdt.ui"/>
+           <plugin id="org.eclipse.jdt.apt.ui"/>
+           <plugin id="org.eclipse.jdt.apt.core"/>
+           <plugin id="org.eclipse.jdt.junit"/>
+           <plugin id="org.eclipse.jdt.junit.core"/>
+       </javadoc>
+       <javadoc path="http://junit.org/junit4/javadoc/latest/">
+          <plugin id="org.junit"/>
+       </javadoc>
+       <javadoc path="http://hamcrest.org/JavaHamcrest/javadoc/1.3/">
+          <plugin id="org.hamcrest.core"/>
+       </javadoc>
+       <javadoc path="http://junit.org/junit5/docs/current/api/">
+          <plugin id="org.junit.jupiter.api"/>
+       </javadoc>
+       <javadoc path="http://junit.org/junit5/docs/current/api/">
+          <plugin id="org.junit.jupiter.engine"/>
+       </javadoc>
+       <javadoc path="http://junit.org/junit5/docs/current/api/">
+          <plugin id="org.junit.jupiter.migrationsupport"/>
+       </javadoc>
+       <javadoc path="http://junit.org/junit5/docs/current/api/">
+          <plugin id="org.junit.jupiter.params"/>
+       </javadoc>
+       <javadoc path="http://junit.org/junit5/docs/current/api/">
+          <plugin id="org.junit.platform.commons"/>
+       </javadoc>
+       <javadoc path="http://junit.org/junit5/docs/current/api/">
+          <plugin id="org.junit.platform.engine"/>
+       </javadoc>
+       <javadoc path="http://junit.org/junit5/docs/current/api/">
+          <plugin id="org.junit.platform.launcher"/>
+       </javadoc>
+       <javadoc path="http://junit.org/junit5/docs/current/api/">
+          <plugin id="org.junit.platform.runner"/>
+       </javadoc>
+       <javadoc path="http://junit.org/junit5/docs/current/api/">
+          <plugin id="org.junit.platform.suite.api"/>
+       </javadoc>
+       <javadoc path="http://junit.org/junit5/docs/current/api/">
+          <plugin id="org.junit.vintage.engine"/>
+       </javadoc>
+       <javadoc path="http://ota4j-team.github.io/opentest4j/docs/current/api/">/
+          <plugin id="org.opentest4j"/>
+       </javadoc>
+       <javadoc path="https://apiguardian-team.github.io/apiguardian/docs/current/api/">
+          <plugin id="org.apiguardian"/>
+       </javadoc>
+   </extension>
+
+</plugin>

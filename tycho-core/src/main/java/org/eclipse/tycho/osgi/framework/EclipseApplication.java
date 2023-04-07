@@ -176,7 +176,8 @@ public class EclipseApplication {
                 getClass().getClassLoader());
         ConnectFrameworkFactory factory = loader.findFirst()
                 .orElseThrow(() -> new BundleException("No ConnectFrameworkFactory found"));
-        Framework framework = factory.newFramework(frameworkProperties, new EclipseModuleConnector());
+        EclipseModuleConnector connector = new EclipseModuleConnector();
+        Framework framework = factory.newFramework(frameworkProperties, connector);
         framework.init();
         BundleContext systemBundleContext = framework.getBundleContext();
         EquinoxConfiguration configuration = setupArguments(systemBundleContext, applicationArguments);
@@ -198,7 +199,7 @@ public class EclipseApplication {
         }
         FrameworkWiring wiring = framework.adapt(FrameworkWiring.class);
         wiring.resolveBundles(Collections.emptyList());
-        return new EclipseFramework(framework, configuration, this);
+        return new EclipseFramework(framework, configuration, this, connector);
     }
 
     private void setupLogging(BundleContext bundleContext) {
