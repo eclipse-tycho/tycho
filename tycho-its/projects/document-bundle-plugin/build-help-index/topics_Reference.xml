@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+<!-- ============================================================================= -->
+<!-- Define topics for the references                                              -->
+<!-- ============================================================================= -->
+<toc label="Reference">
+	<topic label="API Reference" href="reference/api/overview-summary.html">
+	   <topic label="org.eclipse.ant.launching" href="reference/api/org/eclipse/ant/launching/package-summary.html"/>
+	   <topic label="org.eclipse.ant.ui.launching" href="reference/api/org/eclipse/ant/ui/launching/package-summary.html"/>
+       <topic label="org.eclipse.jdt.apt.core.build" href="reference/api/org/eclipse/jdt/apt/core/build/package-summary.html"/>
+       <topic label="org.eclipse.jdt.apt.core.env" href="reference/api/org/eclipse/jdt/apt/core/env/package-summary.html"/>
+       <topic label="org.eclipse.jdt.apt.core.util" href="reference/api/org/eclipse/jdt/apt/core/util/package-summary.html"/>
+       <topic label="com.sun.mirror.apt" href="reference/api/com/sun/mirror/apt/package-summary.html"/>
+       <topic label="com.sun.mirror.declaration" href="reference/api/com/sun/mirror/declaration/package-summary.html"/>
+       <topic label="com.sun.mirror.type" href="reference/api/com/sun/mirror/type/package-summary.html"/>
+       <topic label="com.sun.mirror.util" href="reference/api/com/sun/mirror/util/package-summary.html"/>
+       <topic label="org.eclipse.jdt.annotation" href="reference/api/org/eclipse/jdt/annotation/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core" href="reference/api/org/eclipse/jdt/core/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.compiler" href="reference/api/org/eclipse/jdt/core/compiler/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.compiler.batch" href="reference/api/org/eclipse/jdt/core/compiler/batch/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.dom" href="reference/api/org/eclipse/jdt/core/dom/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.dom.rewrite" href="reference/api/org/eclipse/jdt/core/dom/rewrite/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.eval" href="reference/api/org/eclipse/jdt/core/eval/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.formatter" href="reference/api/org/eclipse/jdt/core/formatter/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.index" href="reference/api/org/eclipse/jdt/core/index/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.jdom" href="reference/api/org/eclipse/jdt/core/jdom/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.manipulation" href="reference/api/org/eclipse/jdt/core/manipulation/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.refactoring" href="reference/api/org/eclipse/jdt/core/refactoring/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.refactoring.descriptors" href="reference/api/org/eclipse/jdt/core/refactoring/descriptors/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.refactoring.participants" href="reference/api/org/eclipse/jdt/core/refactoring/participants/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.search" href="reference/api/org/eclipse/jdt/core/search/package-summary.html"/>
+       <topic label="org.eclipse.jdt.core.util" href="reference/api/org/eclipse/jdt/core/util/package-summary.html"/>
+       <topic label="org.eclipse.jdt.debug.core" href="reference/api/org/eclipse/jdt/debug/core/package-summary.html"/>
+       <topic label="org.eclipse.jdt.debug.eval" href="reference/api/org/eclipse/jdt/debug/eval/package-summary.html"/>
+       <topic href="reference/api/org/eclipse/jdt/debug/ui/package-summary.html" label="org.eclipse.jdt.debug.ui">
+       </topic>
+       <topic href="reference/api/org/eclipse/jdt/debug/ui/actions/package-summary.html" label="org.eclipse.jdt.debug.ui.actions">
+       </topic>
+       <topic label="org.eclipse.jdt.debug.ui.breakpoints" href="reference/api/org/eclipse/jdt/debug/ui/breakpoints/package-summary.html"/>
+       <topic label="org.eclipse.jdt.debug.ui.launchConfigurations" href="reference/api/org/eclipse/jdt/debug/ui/launchConfigurations/package-summary.html"/>
+       <topic label="org.eclipse.jdt.launching" href="reference/api/org/eclipse/jdt/launching/package-summary.html"/>
+       <topic label="org.eclipse.jdt.launching.environments" href="reference/api/org/eclipse/jdt/launching/environments/package-summary.html"/>
+       <topic label="org.eclipse.jdt.launching.sourcelookup" href="reference/api/org/eclipse/jdt/launching/sourcelookup/package-summary.html"/>
+       <topic label="org.eclipse.jdt.launching.sourcelookup.advanced" href="reference/api/org/eclipse/jdt/launching/sourcelookup/advanced/package-summary.html"/>
+       <topic label="org.eclipse.jdt.launching.sourcelookup.containers" href="reference/api/org/eclipse/jdt/launching/sourcelookup/containers/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui" href="reference/api/org/eclipse/jdt/ui/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui.actions" href="reference/api/org/eclipse/jdt/ui/actions/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui.cleanup" href="reference/api/org/eclipse/jdt/ui/cleanup/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui.dialogs" href="reference/api/org/eclipse/jdt/ui/dialogs/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui.jarpackager" href="reference/api/org/eclipse/jdt/ui/jarpackager/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui.refactoring" href="reference/api/org/eclipse/jdt/ui/refactoring/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui.search" href="reference/api/org/eclipse/jdt/ui/search/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui.text" href="reference/api/org/eclipse/jdt/ui/text/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui.text.folding" href="reference/api/org/eclipse/jdt/ui/text/folding/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui.text.java" href="reference/api/org/eclipse/jdt/ui/text/java/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui.text.java.correction" href="reference/api/org/eclipse/jdt/ui/text/java/correction/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui.text.java.hover" href="reference/api/org/eclipse/jdt/ui/text/java/hover/package-summary.html"/>
+       <topic label="org.eclipse.jdt.ui.wizards" href="reference/api/org/eclipse/jdt/ui/wizards/package-summary.html"/>
+       <topic label="org.eclipse.jdt.junit" href="reference/api/org/eclipse/jdt/junit/package-summary.html"/>
+       <topic label="org.eclipse.jdt.junit.launcher" href="reference/api/org/eclipse/jdt/junit/launcher/package-summary.html"/>
+       <topic label="org.eclipse.jdt.junit.model" href="reference/api/org/eclipse/jdt/junit/model/package-summary.html"/>
+       <topic label="org.eclipse.jdt.junit.wizards" href="reference/api/org/eclipse/jdt/junit/wizards/package-summary.html"/>
+	</topic>
+
+	<topic label="Extension Points Reference" href="reference/extension-points/index.html">
+	     <topic label="org.eclipse.jdt.apt.core.annotationProcessorFactory" href="reference/extension-points/org_eclipse_jdt_apt_core_annotationProcessorFactory.html"/>
+         <topic label="org.eclipse.jdt.core.annotationProcessorManager" href="reference/extension-points/org_eclipse_jdt_core_annotationProcessorManager.html"/>
+         <topic label="org.eclipse.jdt.core.classpathContainerInitializer" href="reference/extension-points/org_eclipse_jdt_core_classpathContainerInitializer.html"/>
+         <topic label="org.eclipse.jdt.core.classpathVariableInitializer" href="reference/extension-points/org_eclipse_jdt_core_classpathVariableInitializer.html"/>
+         <topic label="org.eclipse.jdt.core.compilationParticipant" href="reference/extension-points/org_eclipse_jdt_core_compilationParticipant.html"/>
+         <topic label="org.eclipse.jdt.core.codeFormatter" href="reference/extension-points/org_eclipse_jdt_core_codeFormatter.html"/>
+         <topic label="org.eclipse.jdt.core.manipulation.changeMethodSignatureParticipants" href="reference/extension-points/org_eclipse_jdt_core_manipulation_changeMethodSignatureParticipants.html"/>
+         <topic label="org.eclipse.jdt.core.javaFormatter" href="reference/extension-points/org_eclipse_jdt_core_javaFormatter.html"/>
+         <topic label="org.eclipse.jdt.debug.breakpointListeners" href="reference/extension-points/org_eclipse_jdt_debug_breakpointListeners.html"/>
+         <topic label="org.eclipse.jdt.debug.javaLogicalStructures" href="reference/extension-points/org_eclipse_jdt_debug_javaLogicalStructures.html"/>
+         <topic label="org.eclipse.jdt.debug.ui.vmInstallPages" href="reference/extension-points/org_eclipse_jdt_debug_ui_vmInstallPages.html"/>
+         <topic label="org.eclipse.jdt.debug.ui.vmInstallTypePage" href="reference/extension-points/org_eclipse_jdt_debug_ui_vmInstallTypePage.html"/>
+         <topic label="org.eclipse.jdt.junit.junitLaunchConfigs" href="reference/extension-points/org_eclipse_jdt_junit_junitLaunchConfigs.html"/>
+         <topic label="org.eclipse.jdt.junit.testRunListeners" href="reference/extension-points/org_eclipse_jdt_junit_testRunListeners.html"/>
+         <topic label="org.eclipse.jdt.launching.classpathProviders" href="reference/extension-points/org_eclipse_jdt_launching_classpathProviders.html"/>
+         <topic label="org.eclipse.jdt.launching.executionEnvironments" href="reference/extension-points/org_eclipse_jdt_launching_executionEnvironments.html"/>
+         <topic label="org.eclipse.jdt.launching.libraryLocationResolvers" href="reference/extension-points/org_eclipse_jdt_launching_libraryLocationResolvers.html"/>
+         <topic label="org.eclipse.jdt.launching.runtimeClasspathEntries" href="reference/extension-points/org_eclipse_jdt_launching_runtimeClasspathEntries.html"/>
+         <topic label="org.eclipse.jdt.launching.runtimeClasspathEntryResolvers" href="reference/extension-points/org_eclipse_jdt_launching_runtimeClasspathEntryResolvers.html"/>
+         <topic label="org.eclipse.jdt.launching.vmConnectors" href="reference/extension-points/org_eclipse_jdt_launching_vmConnectors.html"/>
+         <topic label="org.eclipse.jdt.launching.vmInstalls" href="reference/extension-points/org_eclipse_jdt_launching_vmInstalls.html"/>
+         <topic label="org.eclipse.jdt.launching.vmInstallTypes" href="reference/extension-points/org_eclipse_jdt_launching_vmInstallTypes.html"/>
+         <topic label="org.eclipse.jdt.ui.classpathAttributeConfiguration" href="reference/extension-points/org_eclipse_jdt_ui_classpathAttributeConfiguration.html"/>
+         <topic label="org.eclipse.jdt.ui.classpathContainerPage" href="reference/extension-points/org_eclipse_jdt_ui_classpathContainerPage.html"/>
+         <topic label="org.eclipse.jdt.ui.classpathFixProcessors" href="reference/extension-points/org_eclipse_jdt_ui_classpathFixProcessors.html"/>
+         <topic label="org.eclipse.jdt.ui.cleanUps" href="reference/extension-points/org_eclipse_jdt_ui_cleanUps.html"/>
+         <topic label="org.eclipse.jdt.ui.foldingStructureProviders" href="reference/extension-points/org_eclipse_jdt_ui_foldingStructureProviders.html"/>
+         <topic label="org.eclipse.jdt.ui.javaCompletionProposalComputer" href="reference/extension-points/org_eclipse_jdt_ui_javaCompletionProposalComputer.html"/>
+         <topic label="org.eclipse.jdt.ui.javaCompletionProposalSorters" href="reference/extension-points/org_eclipse_jdt_ui_javaCompletionProposalSorters.html"/>
+         <topic label="org.eclipse.jdt.ui.javadocCompletionProcessor" href="reference/extension-points/org_eclipse_jdt_ui_javadocCompletionProcessor.html"/>
+         <topic label="org.eclipse.jdt.ui.javadocExportWizardPage" href="reference/extension-points/org_eclipse_jdt_ui_javadocExportWizardPage.html"/>
+         <topic label="org.eclipse.jdt.ui.javaEditorTextHovers" href="reference/extension-points/org_eclipse_jdt_ui_javaEditorTextHovers.html"/>
+         <topic label="org.eclipse.jdt.ui.javaElementFilters" href="reference/extension-points/org_eclipse_jdt_ui_javaElementFilters.html"/>
+         <topic label="org.eclipse.jdt.ui.queryParticipants" href="reference/extension-points/org_eclipse_jdt_ui_queryParticipants.html"/>
+         <topic label="org.eclipse.jdt.ui.quickAssistProcessors" href="reference/extension-points/org_eclipse_jdt_ui_quickAssistProcessors.html"/>
+         <topic label="org.eclipse.jdt.ui.quickFixProcessors" href="reference/extension-points/org_eclipse_jdt_ui_quickFixProcessors.html"/>
+	</topic>
+	<topic label="Other Reference Information" href="reference/misc/index.html">
+      	<topic label="JDT Plug-ins Map" href="reference/misc/overview-jdt.html"/>
+	</topic>
+</toc>

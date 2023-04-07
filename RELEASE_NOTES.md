@@ -4,6 +4,27 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
+### New document-bundle mojo
+
+There is now a new mojo that replaces the usual ant-based workflow to generate the help index, it can be used like this:
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho.extras</groupId>
+	<artifactId>tycho-document-bundle-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<executions>
+		<execution>
+			<id>index</id>
+			<goals>
+				<goal>build-help-index</goal>
+			</goals>
+		</execution>
+	</executions>
+</plugin>
+```
+
+
 ### New API-Tools Mojo
 
 There is now a new mojo that replaces the usual ant-based workflow to call the PDE-API tools, it can be used like this:

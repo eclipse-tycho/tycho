@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+<!-- ============================================================================= -->
+<!-- Define topics for the porting guide index                                     -->
+<!-- ============================================================================= -->
+<toc label="Migration">
+	<topic label="Migrating to Eclipse JDT 4.27 from 4.26">
+		<topic label="Introduction" href="porting/eclipse_4_27_porting_guide.html"/>
+		<topic label="FAQ"                             href="porting/4.27/faq.html" />
+		<topic label="Incompatibilities"               href="porting/4.27/incompatibilities.html" />
+		<topic label="Adopting 4.27 Mechanisms and API" href="porting/4.27/recommended.html" />
+	</topic>
+	<topic label="Migrating to Eclipse JDT 4.26 from 4.25">
+		<topic label="Introduction" href="porting/eclipse_4_26_porting_guide.html"/>
+		<topic label="FAQ"                             href="porting/4.26/faq.html" />
+		<topic label="Incompatibilities"               href="porting/4.26/incompatibilities.html" />
+		<topic label="Adopting 4.26 Mechanisms and API" href="porting/4.26/recommended.html" />
+	</topic>
+	<topic label="Migrating to Eclipse JDT 4.25 from 4.24">
+		<topic label="Introduction" href="porting/eclipse_4_25_porting_guide.html"/>
+		<topic label="FAQ"                             href="porting/4.25/faq.html" />
+		<topic label="Incompatibilities"               href="porting/4.25/incompatibilities.html" />
+		<topic label="Adopting 4.25 Mechanisms and API" href="porting/4.25/recommended.html" />
+	</topic>
+	<topic label="Migrating to Eclipse JDT 4.24 from 4.23">
+		<topic label="Introduction" href="porting/eclipse_4_24_porting_guide.html"/>
+		<topic label="FAQ"                             href="porting/4.24/faq.html" />
+		<topic label="Incompatibilities"               href="porting/4.24/incompatibilities.html" />
+		<topic label="Adopting 4.24 Mechanisms and API" href="porting/4.24/recommended.html" />
+	</topic>
+	<topic label="Migrating to Eclipse JDT 4.23 from 4.22">
+		<topic label="Introduction" href="porting/eclipse_4_23_porting_guide.html"/>
+		<topic label="FAQ"                             href="porting/4.23/faq.html" />
+		<topic label="Incompatibilities"               href="porting/4.23/incompatibilities.html" />
+		<topic label="Adopting 4.23 Mechanisms and API" href="porting/4.23/recommended.html" />
+	</topic>
+	<topic label="Older Migration Guides">
+		<topic label="Migrating to Eclipse JDT 4.22 from 4.21">
+			<topic label="Introduction" href="porting/eclipse_4_22_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.22/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.22/incompatibilities.html" />
+			<topic label="Adopting 4.22 Mechanisms and API" href="porting/4.22/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.21 from 4.20">
+			<topic label="Introduction" href="porting/eclipse_4_21_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.21/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.21/incompatibilities.html" />
+			<topic label="Adopting 4.21 Mechanisms and API" href="porting/4.21/recommended.html" />
+		</topic>
+	    <topic label="Migrating to Eclipse JDT 4.20 from 4.19">
+			<topic label="Introduction" href="porting/eclipse_4_20_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.20/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.20/incompatibilities.html" />
+			<topic label="Adopting 4.20 Mechanisms and API" href="porting/4.20/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.19 from 4.18">
+			<topic label="Introduction" href="porting/eclipse_4_19_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.19/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.19/incompatibilities.html" />
+			<topic label="Adopting 4.19 Mechanisms and API" href="porting/4.19/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.18 from 4.17">
+			<topic label="Introduction" href="porting/eclipse_4_18_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.18/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.18/incompatibilities.html" />
+			<topic label="Adopting 4.18 Mechanisms and API" href="porting/4.18/recommended.html" />
+		</topic>
+	    <topic label="Migrating to Eclipse JDT 4.17 from 4.16">
+			<topic label="Introduction" href="porting/eclipse_4_17_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.17/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.17/incompatibilities.html" />
+			<topic label="Adopting 4.17 Mechanisms and API" href="porting/4.17/recommended.html" />
+		</topic>
+	    <topic label="Migrating to Eclipse JDT 4.16 from 4.15">
+			<topic label="Introduction" href="porting/eclipse_4_16_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.16/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.16/incompatibilities.html" />
+			<topic label="Adopting 4.16 Mechanisms and API" href="porting/4.16/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.15 from 4.14">
+			<topic label="Introduction" href="porting/eclipse_4_15_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.15/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.15/incompatibilities.html" />
+			<topic label="Adopting 4.15 Mechanisms and API" href="porting/4.15/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.14 from 4.13">
+			<topic label="Introduction" href="porting/eclipse_4_14_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.14/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.14/incompatibilities.html" />
+			<topic label="Adopting 4.14 Mechanisms and API" href="porting/4.14/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.13 from 4.12">
+			<topic label="Introduction" href="porting/eclipse_4_13_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.13/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.13/incompatibilities.html" />
+			<topic label="Adopting 4.13 Mechanisms and API" href="porting/4.13/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.12 from 4.11">
+			<topic label="Introduction" href="porting/eclipse_4_12_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.12/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.12/incompatibilities.html" />
+			<topic label="Adopting 4.12 Mechanisms and API" href="porting/4.12/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.11 from 4.10">
+			<topic label="Introduction" href="porting/eclipse_4_11_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.11/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.11/incompatibilities.html" />
+			<topic label="Adopting 4.11 Mechanisms and API" href="porting/4.11/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.10 from 4.9">
+			<topic label="Introduction" href="porting/eclipse_4_10_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.10/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.10/incompatibilities.html" />
+			<topic label="Adopting 4.10 Mechanisms and API" href="porting/4.10/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.9 from 4.8">
+			<topic label="Introduction" href="porting/eclipse_4_9_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.9/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.9/incompatibilities.html" />
+			<topic label="Adopting 4.9 Mechanisms and API" href="porting/4.9/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.8 from 4.7">
+			<topic label="Introduction" href="porting/eclipse_4_8_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.8/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.8/incompatibilities.html" />
+			<topic label="Adopting 4.8 Mechanisms and API" href="porting/4.8/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.7 from 4.6">
+			<topic label="Introduction" href="porting/eclipse_4_7_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.7/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.7/incompatibilities.html" />
+			<topic label="Adopting 4.7 Mechanisms and API" href="porting/4.7/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.6 from 4.5">
+			<topic label="Introduction" href="porting/eclipse_4_6_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.6/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.6/incompatibilities.html" />
+			<topic label="Adopting 4.6 Mechanisms and API" href="porting/4.6/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.5 from 4.4">
+			<topic label="Introduction" href="porting/eclipse_4_5_porting_guide.html"/>
+			<topic label="FAQ"                             href="porting/4.5/faq.html" />
+			<topic label="Incompatibilities"               href="porting/4.5/incompatibilities.html" />
+			<topic label="Adopting 4.5 Mechanisms and API" href="porting/4.5/recommended.html" />
+		</topic>
+		<topic label="Migrating to Eclipse JDT 4.4 from 4.3">
+			<topic label="Introduction" href="porting/eclipse_4_4_porting_guide.html"/>
+			<topic label="FAQ" href="porting/4.4/faq.html" />
+			<topic label="Incompatibilities" href="porting/4.4/incompatibilities.html" />
+			<topic label="Adopting 4.4 Mechanisms and API" href="porting/4.4/recommended.html" />
+		</topic>
+	</topic>
+</toc>
