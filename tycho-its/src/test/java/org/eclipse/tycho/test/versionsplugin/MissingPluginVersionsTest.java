@@ -11,9 +11,10 @@
  *     SAP AG - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.test;
+package org.eclipse.tycho.test.versionsplugin;
 
 import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
 public class MissingPluginVersionsTest extends AbstractTychoIntegrationTest {
