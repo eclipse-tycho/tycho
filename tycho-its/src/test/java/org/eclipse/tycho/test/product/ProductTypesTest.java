@@ -1,6 +1,9 @@
 package org.eclipse.tycho.test.product;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -54,8 +57,14 @@ public class ProductTypesTest extends AbstractTychoIntegrationTest {
 
 		Path basedir = Path.of(testBuildVerifier.getBasedir());
 
-		File prodRoot = basedir.resolve("products").resolve(productId).resolve("target").resolve("products")
-				.resolve(productId).toFile();
+		Path productsDir = basedir.resolve("products");
+		assertTrue(productsDir.toString(), Files.isDirectory(productsDir));
+		Path targetDir = productsDir.resolve(productId).resolve("target");
+		assertTrue(targetDir.toString(), Files.isDirectory(targetDir));
+		Path products2 = targetDir.resolve("products");
+		assertTrue(products2.toString(), Files.isDirectory(products2));
+		File prodRoot = products2.resolve(productId).toFile();
+		assertTrue(prodRoot.toString(), prodRoot.exists());
 
 		if (features.isEmpty()) {
 			assertDirectoryDoesNotExist(prodRoot, "*/*/*/features");

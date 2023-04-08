@@ -14,9 +14,15 @@ package org.eclipse.tycho.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -196,7 +202,42 @@ public abstract class AbstractTychoIntegrationTest {
         DirectoryScanner ds = scan(baseDir, pattern);
         File[] includedFiles = Arrays.stream(ds.getIncludedFiles()).map(file -> new File(baseDir, file))
                 .toArray(File[]::new);
-        assertEquals(baseDir.getAbsolutePath() + "/" + pattern, 1, includedFiles.length);
+        boolean found = 1 == includedFiles.length;
+        if (!found) {
+            StringBuilder allFiles = new StringBuilder();
+            allFiles.append(System.lineSeparator());
+            try {
+                Files.walkFileTree(baseDir.toPath(), new FileVisitor<Path>() {
+
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                        allFiles.append(dir);
+                        allFiles.append(System.lineSeparator());
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        allFiles.append(file);
+                        allFiles.append(System.lineSeparator());
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+            } catch (IOException e) {
+                allFiles.append(e);
+            }
+            fail(baseDir.getAbsolutePath() + "/" + pattern + allFiles);
+        }
         assertTrue(baseDir.getAbsolutePath() + "/" + pattern, includedFiles[0].canRead());
         return includedFiles;
     }

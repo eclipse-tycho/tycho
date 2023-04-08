@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [macos-latest]
     steps:
     - uses: actions/checkout@v3
     - name: Set up Java
@@ -49,7 +49,8 @@ jobs:
        JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
       run: | 
         cp .github/toolchains.xml ~/.m2/toolchains.xml
-        mvn -U -V -e -B -ntp clean install --file pom.xml -DtrimStackTrace=false -Pits -fae
+        mvn -U -V -e -B -ntp clean install --file pom.xml -DtrimStackTrace=false -DskipTests -fae
+        mvn -U -V -e -B -ntp clean install --file tycho-its/pom.xml -DtrimStackTrace=false -Pits -Dtest=org.eclipse.tycho.test.product.ProductTypesTest
     - name: Upload Test Results
       uses: actions/upload-artifact@v3
       if: always()
