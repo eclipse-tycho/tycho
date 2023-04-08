@@ -1,6 +1,6 @@
 # Eclipse Tycho: Release notes
 
-This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
+This page describes the noteworthy improvements provided by each release of Eclipse Tycho. Please use the [generated table of contents](https://github.blog/changelog/2021-04-13-table-of-contents-support-in-markdown-files/) to jump to specific versions.
 
 ## 4.0.0 (under development)
 
