@@ -35,6 +35,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 
@@ -148,6 +149,10 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
         File file = new File(new File(mavenProject.getBuild().getOutputDirectory()), JarFile.MANIFEST_NAME);
         if (file.isFile()) {
             return file;
+        }
+        File bndFile = new File(basedir, TychoConstants.PDE_BND);
+        if (bndFile.isFile()) {
+            return bndFile;
         }
         return defaultLocation;
     }
