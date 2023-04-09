@@ -12,7 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.ds;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -26,6 +28,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ResolvedArtifactKey;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.eclipse.tycho.core.TychoProjectManager;
@@ -33,6 +36,12 @@ import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.osgitools.AbstractSpecificationClasspathContributor;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
+
+import aQute.bnd.header.Attrs;
+import aQute.bnd.header.OSGiHeader;
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.Constants;
+import aQute.bnd.osgi.Processor;
 
 @Component(role = ClasspathContributor.class, hint = "ds-annotations")
 @SessionScoped
@@ -92,10 +101,40 @@ public class DeclarativeServicesClasspathContributor extends AbstractSpecificati
 		} catch (IOException e) {
 			// can't determine the minimum specification version then...
 		}
+		try {
+			File bndFile = new File(project.getBasedir(), TychoConstants.PDE_BND);
+			if (bndFile.exists()) {
+				try (Processor processor = new Processor()) {
+					processor.setProperties(bndFile);
+					Version lowerVersion = new Version("1.3.0"); // lowest version supported by BND
+					Version upperVersion = null;
+					String mergeProperties = processor.mergeProperties(Constants.DSANNOTATIONS_OPTIONS);
+					Parameters optionsHeader = OSGiHeader.parseHeader(mergeProperties);
+					for (Map.Entry<String, Attrs> entry : optionsHeader.entrySet()) {
+						if ("version".equals(entry.getKey())) {
+							Attrs attrs = entry.getValue();
+							String min = attrs.get("minimum");
+							if (min != null && min.length() > 0) {
+								lowerVersion = Version.valueOf(min);
+							}
+							String max = attrs.get("maximum");
+							if (max != null && max.length() > 0) {
+								Version version = Version.valueOf(max);
+								upperVersion = new Version(version.getMajor(), version.getMinor() + 1, 0);
+							}
+						}
+					}
+					return new VersionRange(VersionRange.LEFT_CLOSED, lowerVersion, upperVersion,
+							VersionRange.RIGHT_OPEN);
+				}
+			}
+
+		} catch (Exception e) {
+			// can't determine the minimum specification version then...
+		}
 		return new VersionRange(VersionRange.LEFT_CLOSED,
 				Version.parseVersion(DeclarativeServiceConfigurationReader.DEFAULT_DS_VERSION), null,
 				VersionRange.RIGHT_OPEN);
 	}
-
 
 }

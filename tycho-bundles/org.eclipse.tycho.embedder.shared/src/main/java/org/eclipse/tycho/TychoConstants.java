@@ -51,6 +51,8 @@ public interface TychoConstants {
 
     static final Pattern PLATFORM_URL_PATTERN = Pattern.compile("platform:/(plugin|fragment)/([^/]*)(/)*.*");
 
+    static final String PDE_BND = "pde.bnd";
+
     public String JAR_EXTENSION = "jar";
 
     String PROP_GROUP_ID = "maven-groupId";
