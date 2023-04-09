@@ -14,6 +14,12 @@ package org.eclipse.sisu.equinox.launching.internal;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,24 +31,58 @@ import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
  */
 public class EquinoxInstallationLaunchConfiguration implements LaunchConfiguration {
 
+    private static final String EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher_";
     private final File equinoxDirectory;
     private final String[] programArguments;
-    private final File launcherJar;
+    private File launcherJar;
 
     public EquinoxInstallationLaunchConfiguration(File equinoxDirectory, List<String> programArguments) {
         this.equinoxDirectory = equinoxDirectory;
         this.programArguments = programArguments.toArray(new String[0]);
-        this.launcherJar = findLauncherJar(equinoxDirectory);
     }
 
     public static File findLauncherJar(File equinoxDirectory) {
         File pluginsDir = new File(equinoxDirectory, "plugins");
-        File[] launchers = pluginsDir
-                .listFiles((FilenameFilter) (dir, name) -> name.startsWith("org.eclipse.equinox.launcher_"));
+        File[] launchers = pluginsDir.listFiles((FilenameFilter) (dir, name) -> name.startsWith(EQUINOX_LAUNCHER));
 
-        if (launchers == null || launchers.length == 0)
-            throw new IllegalArgumentException("No launcher bundle found in " + pluginsDir);
-        else if (launchers.length > 1)
+        if (launchers == null || launchers.length == 0) {
+
+            StringBuilder allFiles = new StringBuilder();
+            allFiles.append(System.lineSeparator());
+            try {
+                Files.walkFileTree(equinoxDirectory.toPath(), new FileVisitor<Path>() {
+
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                        allFiles.append(dir);
+                        allFiles.append(System.lineSeparator());
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        allFiles.append(file);
+                        allFiles.append(System.lineSeparator());
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+            } catch (IOException e) {
+                allFiles.append(e);
+            }
+
+            throw new IllegalArgumentException("The launcher bundle " + EQUINOX_LAUNCHER + "*.jar was not found in "
+                    + pluginsDir + ", files in directory: \r\n " + allFiles);
+        } else if (launchers.length > 1)
             throw new IllegalArgumentException("Multiple versions of the launcher bundle found in " + pluginsDir);
         else
             return launchers[0];
@@ -64,6 +104,9 @@ public class EquinoxInstallationLaunchConfiguration implements LaunchConfigurati
 
     @Override
     public File getLauncherJar() {
+        if (launcherJar == null) {
+            this.launcherJar = findLauncherJar(equinoxDirectory);
+        }
         return launcherJar;
     }
 

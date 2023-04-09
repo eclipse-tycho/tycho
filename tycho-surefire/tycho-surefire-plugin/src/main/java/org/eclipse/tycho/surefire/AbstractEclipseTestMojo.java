@@ -75,6 +75,7 @@ import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolver;
@@ -638,7 +639,16 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             File workingDir = new File(project.getBuild().getDirectory(), "p2temp");
             workingDir.mkdirs();
             installationBuilder.setWorkingDir(workingDir);
-            installationBuilder.setDestination(work);
+            TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
+            if (PlatformPropertiesUtils.OS_MACOSX.equals(runningEnvironment.getOs())) {
+                if (work.getName().endsWith(".app")) {
+                    installationBuilder.setDestination(work);
+                } else {
+                    installationBuilder.setDestination(new File(work, "Eclipse.app/Contents/Eclipse/"));
+                }
+            } else {
+                installationBuilder.setDestination(work);
+            }
             return installationBuilder.install();
         } catch (Exception ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
