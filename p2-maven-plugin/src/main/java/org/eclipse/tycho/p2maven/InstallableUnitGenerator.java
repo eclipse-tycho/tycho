@@ -319,21 +319,22 @@ public class InstallableUnitGenerator {
 				// TODO in case of "java-source" type, we might want to generate the source IU
 				// based on the parent artifact!
 				File file = artifact.getFile();
-				if (isValidFile(file)) {
-					lastModified = file.lastModified();
-					String type = artifact.getType();
-					if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(type)
-							|| PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(type) || "bundle".equals(type)) {
-						List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_PLUGIN, file,
-								artifact.getVersion(), artifact.getArtifactId());
-						return units = publisher.publishMetadata(actions);
-					} else if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(type)) {
-						List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_FEATURE, file,
-								artifact.getVersion(), artifact.getArtifactId());
-						return units = publisher.publishMetadata(actions);
-					} else {
-						boolean isBundle = false;
-						boolean isFeature = false;
+				lastModified = file.lastModified();
+				String type = artifact.getType();
+				if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(type)
+					|| PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(type) || "bundle".equals(type)) {
+					List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_PLUGIN, file,
+							artifact.getVersion(), artifact.getArtifactId());
+					return units = publisher.publishMetadata(actions);
+				} else if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(type)) {
+					List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_FEATURE, file,
+							artifact.getVersion(), artifact.getArtifactId());
+					return units = publisher.publishMetadata(actions);
+				} else {
+					boolean isBundle = false;
+					boolean isFeature = false;
+
+					if (file.getName().toLowerCase().endsWith(".jar") && file.isFile()) {
 						try (JarFile jarFile = new JarFile(file)) {
 							Manifest manifest = jarFile.getManifest();
 							isBundle = manifest != null
@@ -343,16 +344,37 @@ public class InstallableUnitGenerator {
 						} catch (IOException e) {
 							// can't determine the type then...
 						}
-						if (isBundle) {
-							List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_PLUGIN,
-									file, artifact.getVersion(), artifact.getArtifactId());
-							return units = publisher.publishMetadata(actions);
+					}
+
+					// TychoReactorReader or another custom WorkspaceReader might have returned
+					// a "dummy" file for the project's artifact if the project is in the reactor.
+					// Usually that file is the project's base directory
+					if (file.isDirectory()) {
+						final File manifestFile = new File(file, "META-INF/MANIFEST.MF");
+
+						if (manifestFile.isFile()) {
+							try (final InputStream is = new FileInputStream(manifestFile)) {
+								final Manifest manifest = new Manifest(is);
+								final Attributes mainAttributes = manifest.getMainAttributes();
+								isBundle = mainAttributes.getValue(Constants.BUNDLE_SYMBOLICNAME) != null;
+							} catch (final IOException e) {
+								log.error("Could not read the MANIFEST file", e);
+							}
 						}
-						if (isFeature) {
-							List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_FEATURE,
-									file, artifact.getVersion(), artifact.getArtifactId());
-							return units = publisher.publishMetadata(actions);
-						}
+
+						final File featureFile = new File(file, "feature.xml");
+						isFeature = featureFile.isFile();
+					}
+
+					if (isBundle) {
+						List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_PLUGIN,
+								file, artifact.getVersion(), artifact.getArtifactId());
+						return units = publisher.publishMetadata(actions);
+					}
+					if (isFeature) {
+						List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_FEATURE,
+								file, artifact.getVersion(), artifact.getArtifactId());
+						return units = publisher.publishMetadata(actions);
 					}
 				}
 			} catch (CoreException e) {
@@ -361,16 +383,9 @@ public class InstallableUnitGenerator {
 			return units = Collections.emptyList();
 		}
 
-		private boolean isValidFile(File file) {
-			return file != null && file.getName().toLowerCase().endsWith(".jar") && file.exists();
-		}
-
 		private boolean hasChanges(Artifact artifact) {
 			File file = artifact.getFile();
-			if (isValidFile(file)) {
-				return file.lastModified() != lastModified;
-			}
-			return false;
+			return file.lastModified() != lastModified;
 		}
 
 	}

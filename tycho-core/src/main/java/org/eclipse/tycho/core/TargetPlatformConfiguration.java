@@ -156,11 +156,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public PomDependencies getPomDependencies() {
         if (pomDependencies == null) {
-            if (isRequireEagerResolve()) {
-                return PomDependencies.ignore;
-            } else {
-                return PomDependencies.consider;
-            }
+            return PomDependencies.consider;
         }
         return pomDependencies;
     }

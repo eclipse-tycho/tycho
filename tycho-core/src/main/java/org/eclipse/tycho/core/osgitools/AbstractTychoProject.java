@@ -171,7 +171,18 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
                         if (artifactReactorProject != null) {
                             MavenProject mavenProject = artifactReactorProject.adapt(MavenProject.class);
                             if (mavenProject != null) {
-                                return mavenProject.getArtifact();
+                                // TychoReactorReader or another custom WorkspaceReader might have returned a "dummy"
+                                // file in case the project is inside the workspace and not packaged/installed already.
+                                // Here we just make sure we copy the returned file if necessary
+                                final Artifact projectArtifact = mavenProject.getArtifact();
+
+                                if (projectArtifact == null) {
+                                    mavenProject.setArtifact(artifact);
+                                } else if (projectArtifact.getFile() == null) {
+                                    projectArtifact.setFile(artifact.getFile());
+                                }
+
+                                return projectArtifact;
                             }
                         }
                         return artifact;
