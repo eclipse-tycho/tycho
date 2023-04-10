@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,11 +58,11 @@ import org.osgi.resource.Capability;
 @Component(role = DependencyComputer.class)
 public class DependencyComputer {
 
-    public static class DependencyEntry {
+    public static class EquinoxDependencyEntry implements DependencyEntry {
         public final ModuleRevision module;
         public final Collection<AccessRule> rules;
 
-        public DependencyEntry(ModuleRevision module, Collection<AccessRule> rules) {
+        public EquinoxDependencyEntry(ModuleRevision module, Collection<AccessRule> rules) {
             this.module = module;
             this.rules = rules;
         }
@@ -79,8 +80,26 @@ public class DependencyComputer {
                 return false;
             if (getClass() != obj.getClass())
                 return false;
-            DependencyEntry other = (DependencyEntry) obj;
+            EquinoxDependencyEntry other = (EquinoxDependencyEntry) obj;
             return Objects.equals(this.module, other.module) && Objects.equals(this.rules, other.rules);
+        }
+
+        @Override
+        public Collection<AccessRule> getAccessRules() {
+            if (rules == null) {
+                return Collections.emptyList();
+            }
+            return rules;
+        }
+
+        @Override
+        public File getLocation() {
+            return (File) module.getRevisionInfo();
+        }
+
+        @Override
+        public BundleRevision getRevision() {
+            return module;
         }
     }
 
@@ -114,7 +133,7 @@ public class DependencyComputer {
     }
 
     /**
-     * Computes and returns the List of {@link DependencyEntry dependencies} of the given
+     * Computes and returns the List of {@link EquinoxDependencyEntry dependencies} of the given
      * {@link ModuleRevision}.
      * <p>
      * The given {@code ModuleRevision} must be contained in the {@link ModuleContainer} associated
@@ -126,7 +145,7 @@ public class DependencyComputer {
      * @return the list of dependencies of the module
      * @see #DependencyComputer(ModuleContainer)
      */
-    public List<DependencyEntry> computeDependencies(ModuleRevision module) {
+    public List<EquinoxDependencyEntry> computeDependencies(ModuleRevision module) {
         if (module == null) {
             return Collections.emptyList();
         }
@@ -137,7 +156,7 @@ public class DependencyComputer {
         // to avoid cycles, e.g. when a bundle imports a package it exports
         added.add(module);
 
-        Set<DependencyEntry> entries = new LinkedHashSet<>();
+        Set<EquinoxDependencyEntry> entries = new LinkedHashSet<>();
         getFragmentHost(module).ifPresent(host -> addHostPlugin(host, added, visiblePackages, entries));
         getRequiredBundles(module).forEach(required -> addDependency(required, added, visiblePackages, entries));
 
@@ -309,7 +328,7 @@ public class DependencyComputer {
     }
 
     private void addDependencyViaImportPackage(ModuleRevision module, Collection<ModuleRevision> added,
-            VisiblePackages visiblePackages, Set<DependencyEntry> entries) {
+            VisiblePackages visiblePackages, Set<EquinoxDependencyEntry> entries) {
         if (module == null || !added.add(module)) {
             return;
         }
@@ -330,12 +349,12 @@ public class DependencyComputer {
     }
 
     private void addDependency(ModuleRevision desc, Collection<ModuleRevision> added, VisiblePackages visiblePackages,
-            Set<DependencyEntry> entries) {
+            Set<EquinoxDependencyEntry> entries) {
         addDependency(desc, added, visiblePackages, entries, true);
     }
 
     private void addDependency(ModuleRevision desc, Collection<ModuleRevision> added, VisiblePackages visiblePackages,
-            Set<DependencyEntry> entries, boolean useInclusion) {
+            Set<EquinoxDependencyEntry> entries, boolean useInclusion) {
         if (desc == null || !added.add(desc))
             return;
 
@@ -352,14 +371,14 @@ public class DependencyComputer {
     }
 
     private void addPlugin(ModuleRevision module, boolean useInclusions, VisiblePackages visiblePackages,
-            Set<DependencyEntry> entries) {
+            Set<EquinoxDependencyEntry> entries) {
         Collection<AccessRule> rules = useInclusions ? visiblePackages.getInclusions(module) : null;
-        DependencyEntry entry = new DependencyEntry(module, rules);
+        EquinoxDependencyEntry entry = new EquinoxDependencyEntry(module, rules);
         entries.add(entry);
     }
 
     private void addHostPlugin(ModuleRevision host, Set<ModuleRevision> added, VisiblePackages visiblePackages,
-            Set<DependencyEntry> entries) {
+            Set<EquinoxDependencyEntry> entries) {
         if (host == null) {
             return;
         }

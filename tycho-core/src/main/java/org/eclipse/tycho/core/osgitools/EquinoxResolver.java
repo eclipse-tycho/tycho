@@ -60,6 +60,7 @@ import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildPropertiesParser;
+import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
@@ -68,6 +69,7 @@ import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -81,8 +83,8 @@ import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 
-@Component(role = EquinoxResolver.class)
-public class EquinoxResolver {
+@Component(role = DependenciesResolver.class, hint = "equinox")
+public class EquinoxResolver implements DependenciesResolver {
 
     private static final String FORCE_KEEP_USES = "First attempt at resolving bundle failed. Trying harder by keeping `uses` information... This may drastically slow down your build!";
 
@@ -101,6 +103,9 @@ public class EquinoxResolver {
     @Requirement
     TychoProjectManager projectManager;
 
+    @Requirement
+    private DependencyComputer dependencyComputer;
+
     public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts) throws BundleException {
         Objects.requireNonNull(artifacts, "DependencyArtifacts can't be null!");
@@ -111,6 +116,18 @@ public class EquinoxResolver {
                     new EquinoxResolverConfiguration());
         } finally {
             executorService.shutdownNow();
+        }
+    }
+
+    public ModuleContainer getResolverState(MavenProject project, DependencyArtifacts artifacts, MavenSession session) {
+        try {
+            ExecutionEnvironmentConfiguration eeConfiguration = projectManager
+                    .getExecutionEnvironmentConfiguration(project);
+            ExecutionEnvironment executionEnvironment = eeConfiguration.getFullSpecification();
+            return newResolvedState(DefaultReactorProject.adapt(project), session,
+                    eeConfiguration.isIgnoredByResolver() ? null : executionEnvironment, artifacts);
+        } catch (BundleException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -521,6 +538,38 @@ public class EquinoxResolver {
             Thread.onSpinWait();
         }
         return bundleLocation.exists();
+    }
+
+    public DependenciesInfo computeDependencies(MavenProject project, DependencyArtifacts artifacts,
+            MavenSession session) {
+        ModuleContainer state = getResolverState(project, artifacts, session);
+        Module module = state.getModule(project.getBasedir().getAbsolutePath());
+        if (module == null) {
+            Module systemModule = state.getModule(Constants.SYSTEM_BUNDLE_LOCATION);
+            if (project.getBasedir().equals(systemModule.getCurrentRevision().getRevisionInfo())) {
+                module = systemModule;
+            }
+        }
+        ModuleRevision bundleDescription = module.getCurrentRevision();
+        List<DependencyEntry> list = List.copyOf(dependencyComputer.computeDependencies(bundleDescription));
+        List<AccessRule> extraAccessRules = dependencyComputer.computeBootClasspathExtraAccessRules(state);
+        return new DependenciesInfo() {
+
+            @Override
+            public List<DependencyEntry> getDependencyEntries() {
+                return list;
+            }
+
+            @Override
+            public BundleRevision getRevision() {
+                return bundleDescription;
+            }
+
+            @Override
+            public List<AccessRule> getBootClasspathExtraAccessRules() {
+                return extraAccessRules;
+            }
+        };
     }
 
 }

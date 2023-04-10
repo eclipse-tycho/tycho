@@ -44,7 +44,7 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        subject = lookup(EquinoxResolver.class);
+        subject = (EquinoxResolver) lookup(DependenciesResolver.class, "equinox");
     }
 
     @Override

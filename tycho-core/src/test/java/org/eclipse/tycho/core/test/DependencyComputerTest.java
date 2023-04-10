@@ -44,8 +44,9 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.DependenciesResolver;
 import org.eclipse.tycho.core.osgitools.DependencyComputer;
-import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
+import org.eclipse.tycho.core.osgitools.DependencyComputer.EquinoxDependencyEntry;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.core.utils.MavenSessionUtils;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
@@ -63,7 +64,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         dependencyComputer = lookup(DependencyComputer.class);
-        resolver = lookup(EquinoxResolver.class);
+        resolver = (EquinoxResolver) lookup(DependenciesResolver.class, "equinox");
     }
 
     @Override
@@ -88,7 +89,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         ModuleContainer state = resolver.newResolvedState(reactorProject, null, executionEnvironment, platform);
         ModuleRevision bundle = state.getModule(project.getBasedir().getAbsolutePath()).getCurrentRevision();
 
-        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundle);
+        List<EquinoxDependencyEntry> dependencies = dependencyComputer.computeDependencies(bundle);
         Assert.assertEquals(3, dependencies.size());
         Assert.assertEquals("dep", dependencies.get(0).module.getSymbolicName());
         Assert.assertEquals("dep2", dependencies.get(1).module.getSymbolicName());
@@ -138,7 +139,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         ModuleContainer state = resolver.newResolvedState(reactorProject, null, customProfile, platform);
         ModuleRevision bundle = state.getModule(project.getBasedir().getAbsolutePath()).getCurrentRevision();
 
-        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundle);
+        List<EquinoxDependencyEntry> dependencies = dependencyComputer.computeDependencies(bundle);
 
         if (dependencies.size() > 0) {
             assertEquals(1, dependencies.size());
@@ -154,17 +155,17 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, properties));
         // 1. bundle importing a JRE package only
         MavenProject bundle1Project = basedirMap.get(new File(basedir, "bundle1"));
-        List<DependencyEntry> bundle1Dependencies = computeDependencies(bundle1Project);
+        List<EquinoxDependencyEntry> bundle1Dependencies = computeDependencies(bundle1Project);
         assertEquals(1, bundle1Dependencies.size());
-        DependencyEntry dependency = bundle1Dependencies.get(0);
+        EquinoxDependencyEntry dependency = bundle1Dependencies.get(0);
         assertEquals(1, dependency.rules.size());
         assertEquals("javax/net/ssl/*", dependency.rules.iterator().next().getPattern());
 
         // 2. bundle importing both a JRE package and an OSGi framework package
         MavenProject bundle2Project = basedirMap.get(new File(basedir, "bundle2"));
-        List<DependencyEntry> bundle2Dependencies = computeDependencies(bundle2Project);
+        List<EquinoxDependencyEntry> bundle2Dependencies = computeDependencies(bundle2Project);
         assertEquals(1, bundle2Dependencies.size());
-        DependencyEntry dependencyBundle2 = bundle2Dependencies.get(0);
+        EquinoxDependencyEntry dependencyBundle2 = bundle2Dependencies.get(0);
         Set<String> accessRules = new HashSet<>();
         for (AccessRule rule : dependencyBundle2.rules) {
             accessRules.add(rule.getPattern());
@@ -172,7 +173,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         assertEquals(new HashSet<>(asList("javax/net/ssl/*", "org/osgi/framework/*")), accessRules);
     }
 
-    private List<DependencyEntry> computeDependencies(MavenProject project) throws BundleException {
+    private List<EquinoxDependencyEntry> computeDependencies(MavenProject project) throws BundleException {
         DependencyArtifacts platform = (DependencyArtifacts) DefaultReactorProject.adapt(project)
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
         ModuleContainer state = resolver.newResolvedState(DefaultReactorProject.adapt(project), null,
@@ -181,7 +182,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         return dependencyComputer.computeDependencies(bundle);
     }
 
-    private List<DependencyEntry> computeDependenciesIgnoringEE(MavenProject project) throws BundleException {
+    private List<EquinoxDependencyEntry> computeDependenciesIgnoringEE(MavenProject project) throws BundleException {
         DependencyArtifacts platform = (DependencyArtifacts) DefaultReactorProject.adapt(project)
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
         ModuleContainer state = resolver.newResolvedState(DefaultReactorProject.adapt(project), null, null, platform);
@@ -193,7 +194,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     public void testAccessRules() throws Exception {
         File basedir = getBasedir("projects/accessrules");
         MavenProject project = getProjectWithName(getSortedProjects(basedir), "p002");
-        List<DependencyEntry> dependencies = computeDependencies(project);
+        List<EquinoxDependencyEntry> dependencies = computeDependencies(project);
         assertEquals(3, dependencies.size());
         assertArrayEquals(new String[] { "p001/*" }, getAccessRulePatterns(dependencies, "p001"));
         assertArrayEquals(new String[] { "p003/*" }, getAccessRulePatterns(dependencies, "p003"));
@@ -204,7 +205,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     public void testReexportAccessRules() throws Exception {
         File basedir = getBasedir("projects/reexport");
         MavenProject project = getProjectWithName(getSortedProjects(basedir), "p002");
-        List<DependencyEntry> dependencies = computeDependencies(project);
+        List<EquinoxDependencyEntry> dependencies = computeDependencies(project);
         assertEquals(3, dependencies.size());
         assertArrayEquals(new String[] { "p001/*" }, getAccessRulePatterns(dependencies, "p001"));
         // next one should be accessible because p001 reexports
@@ -231,7 +232,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     public void testFragmentsImportClassProvidedByFragmentFromPackageExportedByHost() throws Exception {
         File basedir = getBasedir("projects/fragment-import-class-provided-by-fragment-from-package-exported-by-host");
         MavenProject bundle2 = getProjectWithArtifactId(getSortedProjects(basedir), "bundle2");
-        Collection<DependencyEntry> deps = computeDependenciesIgnoringEE(bundle2);
+        Collection<EquinoxDependencyEntry> deps = computeDependenciesIgnoringEE(bundle2);
         assertThat(deps.stream().filter(entry -> entry.module.getSymbolicName().equals("bundle1.fragment")) //
                 .flatMap(entry -> entry.rules.stream()) //
                 .map(rule -> rule.getPattern()) //
@@ -263,7 +264,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     public void testFragmentSplitPackageMandatory() throws Exception {
         File basedir = getBasedir("projects/fragment-split-mandatory");
         MavenProject bundleTest = getProjectWithArtifactId(getSortedProjects(basedir), "bundle.tests");
-        Collection<DependencyEntry> deps = computeDependencies(bundleTest);
+        Collection<EquinoxDependencyEntry> deps = computeDependencies(bundleTest);
         assertTrue(deps.stream().filter(entry -> entry.module.getSymbolicName().equals("bundle")) //
                 .flatMap(entry -> entry.rules.stream()) //
                 .filter(accessRule -> !accessRule.isDiscouraged()) //
@@ -282,7 +283,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     public void testImportVsRequire() throws Exception {
         File basedir = getBasedir("projects/importVsRequire");
         MavenProject bundleTest = getProjectWithArtifactId(getSortedProjects(basedir), "A");
-        Collection<DependencyEntry> deps = computeDependencies(bundleTest);
+        Collection<EquinoxDependencyEntry> deps = computeDependencies(bundleTest);
         Collection<String> patterns = deps.stream().filter(entry -> entry.module.getSymbolicName().equals("B")) //
                 .flatMap(entry -> entry.rules.stream()) //
                 .filter(accessRule -> !accessRule.isDiscouraged()) //
@@ -296,7 +297,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     public void testDeepReexportBundle() throws Exception {
         File basedir = getBasedir("projects/deepReexport");
         MavenProject bundleTest = getProjectWithArtifactId(getSortedProjects(basedir), "D");
-        Collection<DependencyEntry> deps = computeDependencies(bundleTest);
+        Collection<EquinoxDependencyEntry> deps = computeDependencies(bundleTest);
         Collection<String> patterns = deps.stream() //
                 .flatMap(entry -> entry.rules.stream()) //
                 .filter(accessRule -> !accessRule.isDiscouraged()) //
@@ -307,7 +308,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         assertTrue(patterns.stream().anyMatch(pattern -> pattern.startsWith("c")));
     }
 
-    private String[] getAccessRulePatterns(List<DependencyEntry> dependencies, String moduleName) {
+    private String[] getAccessRulePatterns(List<EquinoxDependencyEntry> dependencies, String moduleName) {
         String[] p001accessRulesPatterns = dependencies.stream()
                 .filter(dep -> dep.module.getSymbolicName().equals(moduleName)) //
                 .flatMap(dep -> dep.rules.stream()) //
@@ -320,7 +321,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     public void testFragmentRequiredBundle() throws Exception {
         File basedir = getBasedir("projects/fragment");
         MavenProject fragment = getProjectWithArtifactId(getSortedProjects(basedir), "fragment");
-        Collection<DependencyEntry> deps = computeDependencies(fragment);
+        Collection<EquinoxDependencyEntry> deps = computeDependencies(fragment);
         assertTrue(deps.stream().filter(dep -> dep.module.getSymbolicName().equals("dep")) //
                 .flatMap(dep -> dep.rules.stream()) //
                 .filter(rule -> !rule.isDiscouraged()) //
