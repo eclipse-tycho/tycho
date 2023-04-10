@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+<!-- ============================================================================= -->
+<!-- Define the top level topics                                                   -->
+<!-- ============================================================================= -->
+
+<toc label="JDT Plug-in Developer Guide">
+	<topic label="Programmer&apos;s Guide" href="guide/jdt_int.htm">
+		<link toc="topics_Guide.xml" />
+	</topic>
+	<topic label="Reference">
+		<link toc="topics_Reference.xml" />
+	</topic>
+	<topic label="Plug-in Migration Guide">
+		<link toc="topics_Porting.xml"/>
+	</topic>
+	<topic label="Questions Index" href="questions/index.html">
+		<link toc="topics_Questions.xml" />
+	</topic>
+	<topic label="Legal" href="notices.html"/>
+	<enablement>
+		<test property="org.eclipse.core.runtime.isBundleInstalled" args="org.eclipse.jdt.ui"/>
+	</enablement>
+</toc>

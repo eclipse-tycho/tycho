@@ -344,7 +344,7 @@ public class DefaultTargetPlatformConfigurationReader {
         try {
             Xpp3Dom environmentsDom = configuration.getChild(ENVIRONMENTS);
             if (environmentsDom != null) {
-                Filter filter = getProjectFiler(tychoProject, project);
+                Filter filter = getTargetEnvironmentFilter(tychoProject, project);
                 List<TargetEnvironment> skipped = new ArrayList<>();
                 for (Xpp3Dom environmentDom : environmentsDom.getChildren("environment")) {
                     TargetEnvironment environment = newTargetEnvironment(environmentDom);
@@ -374,7 +374,7 @@ public class DefaultTargetPlatformConfigurationReader {
         return true;
     }
 
-    private static Filter getProjectFiler(TychoProject tychoProject, MavenProject project) {
+    private static Filter getTargetEnvironmentFilter(TychoProject tychoProject, MavenProject project) {
         if (tychoProject != null) {
             return tychoProject.getTargetEnvironmentFilter(project);
         }

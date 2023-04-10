@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.dotClasspath.ProjectClasspathEntry;
+import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 
 public class EclipsePluginProjectImpl implements EclipsePluginProject {
 

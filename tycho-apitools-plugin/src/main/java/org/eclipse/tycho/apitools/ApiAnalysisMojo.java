@@ -20,15 +20,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,10 +41,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher;
-import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
-import org.eclipse.osgi.service.environment.EnvironmentInfo;
-import org.eclipse.osgi.service.runnable.ApplicationLauncher;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ClasspathEntry;
@@ -57,7 +50,6 @@ import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.apitools.ApiWorkspaceManager.ApiWorkspace;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
@@ -67,24 +59,23 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
+import org.eclipse.tycho.osgi.framework.EclipseApplication;
+import org.eclipse.tycho.osgi.framework.EclipseFramework;
+import org.eclipse.tycho.osgi.framework.EclipseWorkspace;
+import org.eclipse.tycho.osgi.framework.EclipseWorkspaceManager;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.connect.ConnectFrameworkFactory;
-import org.osgi.framework.launch.Framework;
-import org.osgi.framework.wiring.FrameworkWiring;
-import org.osgi.service.log.LogEntry;
-import org.osgi.service.log.LogListener;
-import org.osgi.service.log.LogReaderService;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
  * Performs a PDE-API Tools analysis of this project.
  */
 @Mojo(name = "verify", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class ApiAnalysisMojo extends AbstractMojo {
+
+	static final String BUNDLE_APP = "org.eclipse.equinox.app";
+
+	static final String BUNDLE_SCR = "org.apache.felix.scr";
+
+	static final String BUNDLE_CORE = "org.eclipse.core.runtime";
 
 	private static final String REPO_DEFAULT = "https://download.eclipse.org/releases/2023-06/";
 
@@ -116,7 +107,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	private Map<String, String> properties;
 
 	@Component
-	private ApiWorkspaceManager workspaceManager;
+	private EclipseWorkspaceManager workspaceManager;
 
 	@Component
 	private TychoProjectManager projectManager;
@@ -129,6 +120,9 @@ public class ApiAnalysisMojo extends AbstractMojo {
 
 	@Component
 	protected MavenBundleResolver mavenBundleResolver;
+
+	@Component
+	private ApiApplicationResolver applicationResolver;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -155,51 +149,28 @@ public class ApiAnalysisMojo extends AbstractMojo {
 				return;
 
 			}
-			ApiWorkspace workspace = workspaceManager.getWorkspace(getRepository());
-			Map<String, String> frameworkProperties = getFrameworkProperties(workspace.getWorkDir());
-			var loader = ServiceLoader.load(ConnectFrameworkFactory.class, getClass().getClassLoader());
-			ConnectFrameworkFactory factory = loader.findFirst()
-					.orElseThrow(() -> new MojoExecutionException("No ConnectFrameworkFactory found"));
-			Framework framework = factory.newFramework(frameworkProperties, new ApiToolsModuleConnector());
+			EclipseWorkspace<ApiAppKey> workspace = getWorkspace();
+			List<String> configuration = setupArguments(targetFile);
+			EclipseApplication apiApplication = applicationResolver.getApiApplication(workspace.getKey().repository);
+			EclipseFramework eclipseFramework;
 			try {
-				framework.init();
+				eclipseFramework = apiApplication.startFramework(workspace, configuration);
 			} catch (BundleException e) {
-				throw new MojoExecutionException("Init framework failed!", e);
-			}
-			BundleContext systemBundleContext = framework.getBundleContext();
-			EquinoxConfiguration configuration = setupArguments(targetFile, systemBundleContext);
-			setupLogging(systemBundleContext);
-			try {
-				workspace.install(systemBundleContext);
-			} catch (IOException | BundleException e) {
-				throw new MojoFailureException("Install API workspace failed!", e);
-			}
-			FrameworkWiring wiring = framework.adapt(FrameworkWiring.class);
-			wiring.resolveBundles(Collections.emptyList());
-			long startFw = System.currentTimeMillis();
-			try {
-				framework.start();
-			} catch (BundleException e) {
-				throw new MojoExecutionException("Start framework failed!", e);
+				throw new MojoFailureException("Start Framework failed!", e);
 			}
 			try {
-				getLog().debug("Framework started (took " + time(startFw) + ").");
-				int returnValue = launchApplication(systemBundleContext, configuration);
-				if (returnValue != 0) {
-					throw new MojoFailureException("API Tools failure!");
-				}
+				eclipseFramework.start();
+			} catch (Exception e) {
+				throw new MojoExecutionException("Execute ApiApplication failed", e);
 			} finally {
-				try {
-					framework.stop();
-					framework.waitForStop(0);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				} catch (BundleException e) {
-					// not interesting...
-				}
+				eclipseFramework.close();
 			}
 			getLog().info("API Analysis finished in " + time(start) + ".");
 		}
+	}
+
+	private EclipseWorkspace<ApiAppKey> getWorkspace() {
+		return workspaceManager.getWorkspace(new ApiAppKey(getRepository()));
 	}
 
 	private boolean wasReplaced() {
@@ -210,44 +181,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		return false;
 	}
 
-	private int launchApplication(BundleContext systemBundleContext, EquinoxConfiguration configuration)
-			throws MojoExecutionException {
-		EclipseAppLauncher appLauncher = new EclipseAppLauncher(systemBundleContext, false, true, null, configuration);
-		systemBundleContext.registerService(ApplicationLauncher.class, appLauncher, null);
-		Object returnValue;
-		try {
-			getLog().info("Performing API Analysis...");
-			returnValue = appLauncher.start(null);
-		} catch (Exception e) {
-			throw applicationStartupError(systemBundleContext, e);
-		}
-		if (returnValue instanceof Integer retCode) {
-			return retCode.intValue();
-		}
-		throw applicationStartupError(systemBundleContext, null);
-	}
-
-	private MojoExecutionException applicationStartupError(BundleContext systemBundleContext, Exception e) {
-		String bundleState = Arrays.stream(systemBundleContext.getBundles())
-				.map(b -> toBundleState(b.getState()) + " | " + b.getSymbolicName())
-				.collect(Collectors.joining(System.lineSeparator()));
-		getLog().error(String.format(
-				"Internal error execute the Api Application for project %s, the current framework state is:\r\n%s",
-				project.getId(), bundleState), e);
-		return new MojoExecutionException("Execute the Api application failed!", e);
-	}
-
-	private static String toBundleState(int state) {
-		return switch (state) {
-		case Bundle.ACTIVE -> "ACTIVE   ";
-		case Bundle.INSTALLED -> "INSTALLED";
-		case Bundle.RESOLVED -> "RESOLVED ";
-		case Bundle.STARTING -> "STARTING ";
-		case Bundle.STOPPING -> "STOPPING ";
-		default -> String.valueOf(state);
-		};
-	}
-
 	private MavenRepositoryLocation getRepository() {
 		if (apiToolsRepository == null) {
 			return new MavenRepositoryLocation(null, URI.create(REPO_DEFAULT));
@@ -255,85 +188,9 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		return new MavenRepositoryLocation(apiToolsRepository.getId(), URI.create(apiToolsRepository.getUrl()));
 	}
 
-	private void setupLogging(BundleContext bundleContext) {
-		LogListener logListener = new LogListener() {
 
-			@Override
-			public void logged(LogEntry entry) {
-				if (isOnlyDebug(entry) && !getLog().isDebugEnabled()) {
-					return;
-				}
-				switch (entry.getLogLevel()) {
-				case AUDIT:
-				case ERROR:
-					getLog().error(entry.getMessage(), entry.getException());
-					break;
-				case WARN:
-					getLog().warn(entry.getMessage(), entry.getException());
-					break;
-				case INFO:
-					getLog().info(entry.getMessage(), entry.getException());
-					break;
-				case TRACE:
-				case DEBUG:
-					getLog().debug(entry.getMessage(), entry.getException());
-					break;
-				}
-			}
-
-			private static boolean isOnlyDebug(LogEntry entry) {
-				String message = entry.getMessage();
-				if (message.contains("The workspace ") && message.contains("with unsaved changes")) {
-					return true;
-				}
-				if (message.contains("Workspace was not properly initialized or has already shutdown")) {
-					return true;
-				}
-				if (message.contains("Platform proxy API not available")) {
-					return true;
-				}
-				if (message.contains("Error processing mirrors URL")) {
-					return true;
-				}
-				if (entry.getException() instanceof BundleException) {
-					return true;
-				}
-				return false;
-			}
-		};
-		ServiceTracker<LogReaderService, LogReaderService> serviceTracker = new ServiceTracker<>(bundleContext,
-				LogReaderService.class, new ServiceTrackerCustomizer<>() {
-
-					@Override
-					public LogReaderService addingService(ServiceReference<LogReaderService> reference) {
-						LogReaderService service = bundleContext.getService(reference);
-						if (service != null) {
-							service.addLogListener(logListener);
-						}
-						return service;
-					}
-
-					@Override
-					public void modifiedService(ServiceReference<LogReaderService> reference,
-							LogReaderService service) {
-					}
-
-					@Override
-					public void removedService(ServiceReference<LogReaderService> reference, LogReaderService service) {
-						service.removeLogListener(logListener);
-						bundleContext.ungetService(reference);
-					}
-				});
-		serviceTracker.open();
-
-	}
-
-	private EquinoxConfiguration setupArguments(Path targetFile, BundleContext systemBundleContext)
+	private List<String> setupArguments(Path targetFile)
 			throws MojoFailureException {
-		ServiceTracker<EnvironmentInfo, EnvironmentInfo> environmentInfoTracker = new ServiceTracker<EnvironmentInfo, EnvironmentInfo>(
-				systemBundleContext, EnvironmentInfo.class, null);
-		environmentInfoTracker.open();
-		EquinoxConfiguration configuration = (EquinoxConfiguration) environmentInfoTracker.getService();
 		List<String> args = new ArrayList<>();
 		args.add("-application");
 		args.add("org.eclipse.pde.api.tools.apiAnalyzer");
@@ -348,9 +205,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			throw new MojoFailureException("Can't write dependencies!", e);
 		}
 		args.add("-failOnError");
-		configuration.setAppArgs(args.toArray(String[]::new));
-		environmentInfoTracker.close();
-		return configuration;
+		return args;
 	}
 
 	private Path createTargetFile() throws MojoExecutionException, MojoFailureException {
@@ -385,17 +240,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		}
 		long sec = ms / 1000;
 		return sec + " s";
-	}
-
-	private Map<String, String> getFrameworkProperties(Path workDir) {
-		Map<String, String> map = new LinkedHashMap<>();
-		if (properties != null) {
-			map.putAll(properties);
-		}
-		map.put("osgi.configuration.area", workDir.resolve("configuration").toAbsolutePath().toString());
-		map.put("osgi.instance.area", workDir.resolve("data").toAbsolutePath().toString());
-		map.put("osgi.compatibility.bootdelegation", "true");
-		return map;
 	}
 
 	private Path writeProjectDependencies() throws Exception {
@@ -463,4 +307,32 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		}
 	}
 
+	private static final class ApiAppKey {
+
+		private URI key;
+		private MavenRepositoryLocation repository;
+
+		public ApiAppKey(MavenRepositoryLocation repository) {
+			this.repository = repository;
+			key = Objects.requireNonNull(repository.getURL()).normalize();
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(key);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ApiAppKey other = (ApiAppKey) obj;
+			return Objects.equals(key, other.key);
+		}
+
+	}
 }

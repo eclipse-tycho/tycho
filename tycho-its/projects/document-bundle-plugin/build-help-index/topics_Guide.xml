@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+<!-- ============================================================================= -->
+<!-- Define topics for the main guide                                              -->
+<!-- ============================================================================= -->
+<toc label="Guide">
+	<topic label="JDT Core" href="guide/jdt_int_core.htm">
+		<topic label="Java model" href="guide/jdt_int_model.htm" />
+		<topic label="Manipulating Java code" href="guide/jdt_api_manip.htm" />
+		<topic label="Setting the Java build path" href="guide/jdt_api_classpath.htm" />
+		<topic label="Compiling Java code" href="guide/jdt_api_compile.htm" />
+		<topic label="Using the Java search engine" href="guide/jdt_api_search.htm" />
+		<topic label="Indexes for the Java search" href="guide/jdt_api_searchindex.htm" />
+		<topic label="Performing code assist on Java code" href="guide/jdt_api_codeassist.htm" />
+		<topic label="JDT Core options" href="guide/jdt_api_options.htm" />
+		<topic label="Formatting Java code" href="guide/jdt_api_codeformatter.htm" />
+	</topic>
+	<topic label="JDT UI" href="guide/jdt_int_ui.htm">
+		<topic label="JavaUI utilities" href="guide/jdt_api_utility.htm">
+			<topic label="Opening a Java editor" href="guide/jdt_api_open_editor.htm" />
+			<topic label="Creating Java specific prompter dialogs" href="guide/jdt_api_prompter.htm" />
+		</topic>
+		<topic label="Presenting Java elements in a JFace viewer" href="guide/jdt_api_render.htm" />
+		<topic label="Java wizard pages" href="guide/jdt_api_wizards.htm" />
+		<topic label="Customizing Java editors" href="guide/jdt_api_editors.htm" />
+		<topic label="Writing Jar files" href="guide/jdt_api_write_jar_file.htm" />
+		<topic label="Contributing a clean up and a save action" href="guide/jdt_api_contributing_a_cleanup.htm" />
+		<topic label="Contributing a quick fix and a quick assist" href="guide/jdt_api_contributing_a_quickfix.htm" />
+	</topic>
+	<topic label="JDT Debug" href="guide/jdt_int_debug.htm">
+		<topic label="Running Java code" href="guide/jdt_api_run.htm" />
+	</topic>
+	<topic label="JDT JUnit integration" href="guide/jdt_int_junit.htm">
+		<topic label="Observing JUnit test runs" href="guide/jdt_api_junit.htm" />
+	</topic>
+	<topic label="JDT Annotation Processing" href="guide/jdt_int_apt.htm">
+		<topic label="Getting Started" href="guide/jdt_apt_getting_started.htm"/>
+		<topic label="Headless Build" href="guide/jdt_apt_building_with_apt.htm"/>
+	</topic>
+</toc>

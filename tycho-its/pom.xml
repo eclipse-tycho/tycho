@@ -184,6 +184,19 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.jface</artifactId>
+			<version>3.29.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jdt</groupId>
+			<artifactId>org.eclipse.jdt.core</artifactId>
+			<version>3.33.0</version>
+			<scope>test</scope>
+		</dependency>
 		<!-- update site tests -->
 		<dependency>
 			<groupId>org.sonatype.plexus</groupId>
