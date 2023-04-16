@@ -33,6 +33,7 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment.JavaInfo;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment.SystemPackageEntry;
@@ -134,7 +135,7 @@ public class ExecutionEnvironmentUtils {
                 }
                 String name = props.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME).trim();
                 executionEnvironmentsMap.put(name, new StandardExecutionEnvironment(props,
-                        getToolchainFor(name, manager, session, logger), logger));
+                        getToolchainFor(name, null, manager, session, logger), logger));
             }
             //derive from the toolchains...
             if (manager != null) {
@@ -154,14 +155,14 @@ public class ExecutionEnvironmentUtils {
                 Properties runningVm = createProfileJvm(javaVersion, ListSystemPackages.getCurrentJREPackages());
                 String name = runningVm.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME).trim();
                 executionEnvironmentsMap.put(name, new StandardExecutionEnvironment(runningVm,
-                        getToolchainFor(name, manager, session, logger), logger));
+                        getToolchainFor(name, null, manager, session, logger), logger));
             }
         }
         return executionEnvironmentsMap;
     }
 
-    public static Toolchain getToolchainFor(String profileName, ToolchainManager manager, MavenSession session,
-            Logger logger) {
+    public static Toolchain getToolchainFor(String profileName, TargetEnvironment environment, ToolchainManager manager,
+            MavenSession session, Logger logger) {
         if (manager != null) {
             logger.debug("Searching profile " + profileName + " in ToolchainManager");
             //First try to find it by ID
@@ -174,6 +175,15 @@ public class ExecutionEnvironmentUtils {
             if (version > 8) {
                 for (Toolchain toolchain : manager.getToolchains(session, "jdk",
                         Collections.singletonMap("version", String.valueOf(version)))) {
+                    return toolchain;
+                }
+            }
+            // Try by env + version
+            if (environment != null) {
+                String os = environment.getOs();
+                String arch = environment.getArch();
+                for (Toolchain toolchain : manager.getToolchains(session, "jdk",
+                        Map.of("version", String.valueOf(version), "os", os, "arch", arch))) {
                     return toolchain;
                 }
             }
