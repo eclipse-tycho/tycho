@@ -80,6 +80,10 @@ public final class TargetEnvironment {
         return ws + '.' + os + '.' + arch;
     }
 
+    public boolean isWindows() {
+        return PlatformPropertiesUtils.OS_WIN32.equals(getOs());
+    }
+
     /**
      * Returns the target environment as map. The keys are "osgi.ws", "osgi.os", and "osgi.arch".
      * This format is used by the p2 slicer to filter installable units by environments.
