@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,7 +37,9 @@ import org.eclipse.osgi.container.ModuleWire;
 import org.eclipse.osgi.container.ModuleWiring;
 import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
@@ -58,10 +61,10 @@ import org.osgi.resource.Capability;
 public class DependencyComputer {
 
     public static class DependencyEntry {
-        public final ModuleRevision module;
+        public final BundleRevision module;
         public final Collection<AccessRule> rules;
 
-        public DependencyEntry(ModuleRevision module, Collection<AccessRule> rules) {
+        public DependencyEntry(BundleRevision module, Collection<AccessRule> rules) {
             this.module = module;
             this.rules = rules;
         }
@@ -82,11 +85,45 @@ public class DependencyComputer {
             DependencyEntry other = (DependencyEntry) obj;
             return Objects.equals(this.module, other.module) && Objects.equals(this.rules, other.rules);
         }
+
+        public BundleRevision getRevision() {
+            return module;
+        }
+
+        public File getLocation() {
+            if (module instanceof ModuleRevision moduleRevision) {
+                return (File) moduleRevision.getRevisionInfo();
+            }
+            Bundle bundle = module.getBundle();
+            if (bundle != null) {
+                return new File(bundle.getLocation());
+            }
+            return null;
+        }
+
+        public boolean isSystemBundle() {
+            if (module instanceof ModuleRevision moduleRevision) {
+                return Constants.SYSTEM_BUNDLE_ID == moduleRevision.getRevisions().getModule().getId();
+            }
+            Bundle bundle = module.getBundle();
+            if (bundle != null) {
+                return bundle.getBundleId() == Constants.SYSTEM_BUNDLE_ID;
+            }
+            return false;
+        }
+
+        public String getSymbolicName() {
+            return getRevision().getSymbolicName();
+        }
+
+        public Version getVersion() {
+            return getRevision().getVersion();
+        }
     }
 
     private final class VisiblePackages {
-        private final Map<ModuleRevision, Set<AccessRule>> visiblePackages = new HashMap<>();
-        private final ModuleRevision consumerHost;
+        private final Map<BundleRevision, Set<AccessRule>> visiblePackages = new HashMap<>();
+        private final BundleRevision consumerHost;
 
         public VisiblePackages(ModuleRevision consumer) {
             this.consumerHost = getFragmentHost(consumer).orElse(consumer);
@@ -97,9 +134,9 @@ public class DependencyComputer {
             visiblePackages.computeIfAbsent(packageCapability.getResource(), m -> new LinkedHashSet<>()).add(rule);
         }
 
-        public Collection<AccessRule> getInclusions(ModuleRevision module) {
+        public Collection<AccessRule> getInclusions(BundleRevision module) {
             Set<AccessRule> rules = visiblePackages.getOrDefault(module, Collections.emptySet());
-            Optional<ModuleRevision> host = getFragmentHost(module);
+            Optional<BundleRevision> host = getFragmentHost(module);
             if (host.isPresent()) {
                 Set<AccessRule> hostRules = visiblePackages.getOrDefault(host.get(), Collections.emptySet());
                 rules = new HashSet<>(rules);
@@ -108,7 +145,7 @@ public class DependencyComputer {
             return Collections.unmodifiableSet(rules);
         }
 
-        public Collection<ModuleRevision> getParticipatingModules() {
+        public Collection<BundleRevision> getParticipatingModules() {
             return Collections.unmodifiableSet(visiblePackages.keySet());
         }
     }
@@ -132,7 +169,7 @@ public class DependencyComputer {
         }
 
         VisiblePackages visiblePackages = getPackagesInternal(module);
-        Set<ModuleRevision> added = new HashSet<>();
+        Set<BundleRevision> added = new HashSet<>();
 
         // to avoid cycles, e.g. when a bundle imports a package it exports
         added.add(module);
@@ -143,28 +180,28 @@ public class DependencyComputer {
 
         // add Import-Package
         // sort by symbolicName_version to get a consistent order
-        Map<String, ModuleRevision> resolvedImportPackages = new TreeMap<>();
-        for (ModuleRevision bundle : visiblePackages.getParticipatingModules()) {
+        Map<String, BundleRevision> resolvedImportPackages = new TreeMap<>();
+        for (BundleRevision bundle : visiblePackages.getParticipatingModules()) {
             resolvedImportPackages.put(bundle.getSymbolicName(), bundle);
         }
-        for (ModuleRevision bundle : resolvedImportPackages.values()) {
+        for (BundleRevision bundle : resolvedImportPackages.values()) {
             addDependencyViaImportPackage(bundle, added, visiblePackages, entries);
         }
 
         return new ArrayList<>(entries);
     }
 
-    private Collection<ModuleRevision> getRequiredBundles(ModuleRevision module) {
+    private List<BundleRevision> getRequiredBundles(BundleRevision module) {
         if (module == null) {
             return Collections.emptyList();
         }
-        return module.getWiring().getRequiredModuleWires(BundleNamespace.BUNDLE_NAMESPACE).stream()
-                .map(ModuleWire::getProvider).toList();
+        return module.getWiring().getRequiredWires(BundleNamespace.BUNDLE_NAMESPACE).stream()
+                .map(BundleWire::getProvider).toList();
     }
 
-    private static Optional<ModuleRevision> getFragmentHost(ModuleRevision bundleRevision) {
-        return bundleRevision.getWiring().getRequiredModuleWires(HostNamespace.HOST_NAMESPACE).stream()
-                .map(ModuleWire::getProvider).findAny();
+    private static Optional<BundleRevision> getFragmentHost(BundleRevision bundleRevision) {
+        return bundleRevision.getWiring().getRequiredWires(HostNamespace.HOST_NAMESPACE).stream()
+                .map(BundleWire::getProvider).findAny();
     }
 
     private VisiblePackages getPackagesInternal(ModuleRevision module) {
@@ -298,7 +335,7 @@ public class DependencyComputer {
 
     }
 
-    private static AccessRule createRule(ModuleRevision consumer, Capability export) {
+    private static AccessRule createRule(BundleRevision consumer, Capability export) {
         String name = getPackageName(export);
         String path = (name.equals(".")) ? "*" : name.replace('.', '/') + "/*";
         return new DefaultAccessRule(path, isDiscouragedAccess(consumer, export));
@@ -308,7 +345,7 @@ public class DependencyComputer {
         return (String) capability.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
     }
 
-    private void addDependencyViaImportPackage(ModuleRevision module, Collection<ModuleRevision> added,
+    private void addDependencyViaImportPackage(BundleRevision module, Collection<BundleRevision> added,
             VisiblePackages visiblePackages, Set<DependencyEntry> entries) {
         if (module == null || !added.add(module)) {
             return;
@@ -316,25 +353,25 @@ public class DependencyComputer {
 
         addPlugin(module, true, visiblePackages, entries);
 
-        for (ModuleRevision fragment : getFragments(module)) {
+        for (BundleRevision fragment : getFragments(module)) {
             addDependencyViaImportPackage(fragment, added, visiblePackages, entries);
         }
     }
 
-    private Collection<ModuleRevision> getFragments(ModuleRevision host) {
+    private Collection<BundleRevision> getFragments(BundleRevision host) {
         if (host == null /* || !isExtensibleAPI(host) */) {
             return Collections.emptyList();
         }
-        return host.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
-                .map(ModuleWire::getRequirer).toList();
+        return host.getWiring().getProvidedWires(HostNamespace.HOST_NAMESPACE).stream().map(BundleWire::getRequirer)
+                .toList();
     }
 
-    private void addDependency(ModuleRevision desc, Collection<ModuleRevision> added, VisiblePackages visiblePackages,
+    private void addDependency(BundleRevision desc, Collection<BundleRevision> added, VisiblePackages visiblePackages,
             Set<DependencyEntry> entries) {
         addDependency(desc, added, visiblePackages, entries, true);
     }
 
-    private void addDependency(ModuleRevision desc, Collection<ModuleRevision> added, VisiblePackages visiblePackages,
+    private void addDependency(BundleRevision desc, Collection<BundleRevision> added, VisiblePackages visiblePackages,
             Set<DependencyEntry> entries, boolean useInclusion) {
         if (desc == null || !added.add(desc))
             return;
@@ -342,23 +379,23 @@ public class DependencyComputer {
         addPlugin(desc, useInclusion, visiblePackages, entries);
 
         // add fragments that are not patches after the host
-        for (ModuleRevision fragment : getFragments(desc)) {
+        for (BundleRevision fragment : getFragments(desc)) {
             addDependency(fragment, added, visiblePackages, entries, useInclusion);
         }
 
-        for (ModuleRevision required : getRequiredBundles(desc)) {
+        for (BundleRevision required : getRequiredBundles(desc)) {
             addDependency(required, added, visiblePackages, entries, useInclusion);
         }
     }
 
-    private void addPlugin(ModuleRevision module, boolean useInclusions, VisiblePackages visiblePackages,
+    private void addPlugin(BundleRevision module, boolean useInclusions, VisiblePackages visiblePackages,
             Set<DependencyEntry> entries) {
         Collection<AccessRule> rules = useInclusions ? visiblePackages.getInclusions(module) : null;
         DependencyEntry entry = new DependencyEntry(module, rules);
         entries.add(entry);
     }
 
-    private void addHostPlugin(ModuleRevision host, Set<ModuleRevision> added, VisiblePackages visiblePackages,
+    private void addHostPlugin(BundleRevision host, Set<BundleRevision> added, VisiblePackages visiblePackages,
             Set<DependencyEntry> entries) {
         if (host == null) {
             return;
@@ -366,13 +403,12 @@ public class DependencyComputer {
         // add host plug-in
         if (added.add(host)) {
             addPlugin(host, false, visiblePackages, entries);
-            for (ModuleRevision required : getRequiredBundles(host)) {
+            for (BundleRevision required : getRequiredBundles(host)) {
                 addDependency(required, added, visiblePackages, entries);
             }
 
             // add Import-Package
-            host.getWiring().getRequiredModuleWires(PackageNamespace.PACKAGE_NAMESPACE).stream()
-                    .map(ModuleWire::getProvider)
+            host.getWiring().getRequiredWires(PackageNamespace.PACKAGE_NAMESPACE).stream().map(BundleWire::getProvider)
                     .forEach(provider -> addDependencyViaImportPackage(provider, added, visiblePackages, entries));
         }
     }
@@ -393,7 +429,7 @@ public class DependencyComputer {
     public List<AccessRule> computeBootClasspathExtraAccessRules(ModuleContainer container) {
         ModuleRevision systemBundle = container.getModule(Constants.SYSTEM_BUNDLE_ID).getCurrentRevision();
         return systemBundle.getWiring().getProvidedModuleWires(HostNamespace.HOST_NAMESPACE).stream()
-                .map(ModuleWire::getRequirer).flatMap(systemFragment -> systemFragment
+                .map(BundleWire::getRequirer).flatMap(systemFragment -> systemFragment
                         .getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE).stream())
                 .map(packageExport -> createRule(systemBundle, packageExport)).toList();
     }

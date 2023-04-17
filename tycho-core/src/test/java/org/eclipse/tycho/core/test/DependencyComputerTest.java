@@ -44,6 +44,7 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.DependenciesResolver;
 import org.eclipse.tycho.core.osgitools.DependencyComputer;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
@@ -63,7 +64,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         dependencyComputer = lookup(DependencyComputer.class);
-        resolver = lookup(EquinoxResolver.class);
+        resolver = (EquinoxResolver) lookup(DependenciesResolver.class, EquinoxResolver.HINT);
     }
 
     @Override
@@ -90,9 +91,9 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundle);
         Assert.assertEquals(3, dependencies.size());
-        Assert.assertEquals("dep", dependencies.get(0).module.getSymbolicName());
-        Assert.assertEquals("dep2", dependencies.get(1).module.getSymbolicName());
-        Assert.assertEquals("dep3", dependencies.get(2).module.getSymbolicName());
+        Assert.assertEquals("dep", dependencies.get(0).getSymbolicName());
+        Assert.assertEquals("dep2", dependencies.get(1).getSymbolicName());
+        Assert.assertEquals("dep3", dependencies.get(2).getSymbolicName());
         Assert.assertTrue(dependencies.get(2).rules.isEmpty());
     }
 
@@ -142,7 +143,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
 
         if (dependencies.size() > 0) {
             assertEquals(1, dependencies.size());
-            assertEquals(Constants.SYSTEM_BUNDLE_SYMBOLICNAME, dependencies.get(0).module.getSymbolicName());
+            assertEquals(Constants.SYSTEM_BUNDLE_SYMBOLICNAME, dependencies.get(0).getSymbolicName());
         }
     }
 
@@ -232,7 +233,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/fragment-import-class-provided-by-fragment-from-package-exported-by-host");
         MavenProject bundle2 = getProjectWithArtifactId(getSortedProjects(basedir), "bundle2");
         Collection<DependencyEntry> deps = computeDependenciesIgnoringEE(bundle2);
-        assertThat(deps.stream().filter(entry -> entry.module.getSymbolicName().equals("bundle1.fragment")) //
+        assertThat(deps.stream().filter(entry -> entry.getSymbolicName().equals("bundle1.fragment")) //
                 .flatMap(entry -> entry.rules.stream()) //
                 .map(rule -> rule.getPattern()) //
                 .toList(), //
@@ -264,13 +265,13 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/fragment-split-mandatory");
         MavenProject bundleTest = getProjectWithArtifactId(getSortedProjects(basedir), "bundle.tests");
         Collection<DependencyEntry> deps = computeDependencies(bundleTest);
-        assertTrue(deps.stream().filter(entry -> entry.module.getSymbolicName().equals("bundle")) //
+        assertTrue(deps.stream().filter(entry -> entry.getSymbolicName().equals("bundle")) //
                 .flatMap(entry -> entry.rules.stream()) //
                 .filter(accessRule -> !accessRule.isDiscouraged()) //
                 .filter(accessRule -> accessRule.getPattern().startsWith("split")) //
                 .findAny() //
                 .isPresent());
-        assertTrue(deps.stream().filter(entry -> entry.module.getSymbolicName().equals("fragment")) //
+        assertTrue(deps.stream().filter(entry -> entry.getSymbolicName().equals("fragment")) //
                 .flatMap(entry -> entry.rules.stream()) //
                 .filter(accessRule -> !accessRule.isDiscouraged()) //
                 .filter(accessRule -> accessRule.getPattern().startsWith("split")) //
@@ -283,7 +284,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/importVsRequire");
         MavenProject bundleTest = getProjectWithArtifactId(getSortedProjects(basedir), "A");
         Collection<DependencyEntry> deps = computeDependencies(bundleTest);
-        Collection<String> patterns = deps.stream().filter(entry -> entry.module.getSymbolicName().equals("B")) //
+        Collection<String> patterns = deps.stream().filter(entry -> entry.getSymbolicName().equals("B")) //
                 .flatMap(entry -> entry.rules.stream()) //
                 .filter(accessRule -> !accessRule.isDiscouraged()) //
                 .map(AccessRule::getPattern) //
@@ -308,8 +309,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     }
 
     private String[] getAccessRulePatterns(List<DependencyEntry> dependencies, String moduleName) {
-        String[] p001accessRulesPatterns = dependencies.stream()
-                .filter(dep -> dep.module.getSymbolicName().equals(moduleName)) //
+        String[] p001accessRulesPatterns = dependencies.stream().filter(dep -> dep.getSymbolicName().equals(moduleName)) //
                 .flatMap(dep -> dep.rules.stream()) //
                 .map(AccessRule::getPattern) //
                 .toArray(String[]::new);
@@ -321,7 +321,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/fragment");
         MavenProject fragment = getProjectWithArtifactId(getSortedProjects(basedir), "fragment");
         Collection<DependencyEntry> deps = computeDependencies(fragment);
-        assertTrue(deps.stream().filter(dep -> dep.module.getSymbolicName().equals("dep")) //
+        assertTrue(deps.stream().filter(dep -> dep.getSymbolicName().equals("dep")) //
                 .flatMap(dep -> dep.rules.stream()) //
                 .filter(rule -> !rule.isDiscouraged()) //
                 .map(AccessRule::getPattern) //
