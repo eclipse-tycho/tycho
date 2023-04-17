@@ -84,8 +84,10 @@ import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 
-@Component(role = EquinoxResolver.class)
+@Component(role = DependenciesResolver.class, hint = EquinoxResolver.HINT)
 public class EquinoxResolver implements DependenciesResolver {
+
+    public static final String HINT = "equinox";
 
     private static final String FORCE_KEEP_USES = "First attempt at resolving bundle failed. Trying harder by keeping `uses` information... This may drastically slow down your build!";
 

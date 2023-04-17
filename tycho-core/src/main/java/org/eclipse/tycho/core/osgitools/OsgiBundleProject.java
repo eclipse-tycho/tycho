@@ -81,7 +81,6 @@ import org.eclipse.tycho.model.UpdateSite;
 import org.eclipse.tycho.model.classpath.JUnitClasspathContainerEntry;
 import org.eclipse.tycho.model.classpath.LibraryClasspathEntry;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
-import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -100,8 +99,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     @Requirement
     private ClasspathReader classpathParser;
 
-    @Requirement
-    private EquinoxResolver resolver;
+    @Requirement(hint = EquinoxResolver.HINT)
+    private DependenciesResolver resolver;
 
     @Requirement
     private Logger logger;
@@ -194,14 +193,14 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
         List<ClasspathEntry> classpath = new ArrayList<>();
         for (DependencyEntry entry : dependenciesInfo.getDependencyEntries()) {
-            if (Constants.SYSTEM_BUNDLE_ID == entry.module.getRevisions().getModule().getId()) {
+            if (entry.isSystemBundle()) {
                 if (entry.rules != null) {
                     strictBootClasspathAccessRules.addAll(entry.rules);
                 }
             }
-            File location = (File) entry.module.getRevisionInfo();
+            File location = entry.getLocation();
             if (location != null && location.exists()) {
-                ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.module.getSymbolicName());
+                ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.getSymbolicName());
                 if (otherArtifact != null) {
                     ReactorProject otherProject = otherArtifact.getMavenProject();
                     List<File> locations;
@@ -218,12 +217,13 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     classpath.add(
                             new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
                 } else {
-                    logger.debug("Cannot fetch artifact info for " + entry.module.getSymbolicName() + " and location "
+                    logger.debug("Cannot fetch artifact info for " + entry.getSymbolicName() + " and location "
                             + location + ", using raw jar item for classpath");
-                    classpath.add(new DefaultClasspathEntry(null,
-                            new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.module.getSymbolicName(),
-                                    entry.module.getVersion().toString()),
-                            Collections.singletonList(location), entry.rules));
+                    classpath
+                            .add(new DefaultClasspathEntry(null,
+                                    new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.getSymbolicName(),
+                                            entry.getVersion().toString()),
+                                    Collections.singletonList(location), entry.rules));
                 }
             }
         }
