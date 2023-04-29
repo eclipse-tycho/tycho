@@ -73,6 +73,7 @@ public class DefaultTargetPlatformConfigurationReader {
     public static final String EXECUTION_ENVIRONMENT_DEFAULT = "executionEnvironmentDefault";
     public static final String EXECUTION_ENVIRONMENT = "executionEnvironment";
     public static final String POM_DEPENDENCIES = "pomDependencies";
+    public static final String PROPERTY_POM_DEPENDENCIES = "tycho.target.pomDependencies";
     public static final String TARGET = "target";
     public static final String RESOLVER = "resolver";
     public static final String ENVIRONMENTS = "environments";
@@ -113,7 +114,7 @@ public class DefaultTargetPlatformConfigurationReader {
 
                 setTarget(result, session, project, configuration);
 
-                setPomDependencies(result, configuration);
+                setPomDependencies(result, configuration, session);
 
                 setDisableP2Mirrors(configuration);
 
@@ -381,8 +382,8 @@ public class DefaultTargetPlatformConfigurationReader {
         return null;
     }
 
-    private void setPomDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        String value = getStringValue(configuration.getChild(POM_DEPENDENCIES));
+    private void setPomDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration, MavenSession session) {
+        String value = getStringValue(configuration.getChild(POM_DEPENDENCIES), session, PROPERTY_POM_DEPENDENCIES, null);
         if (value == null) {
             return;
         }

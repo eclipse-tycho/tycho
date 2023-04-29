@@ -23,7 +23,7 @@
 	<name>Tycho Core</name>
 	<description>Core Tycho components</description>
 	<properties>
-		<jetty.version>11.0.14</jetty.version>
+		<jetty.version>11.0.15</jetty.version>
 	</properties>
 
 	<build>
@@ -168,7 +168,7 @@
 		<dependency>
 	      <groupId>org.apache.maven.resolver</groupId>
 	      <artifactId>maven-resolver-util</artifactId>
-	      <version>1.9.7</version>
+	      <version>1.9.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>

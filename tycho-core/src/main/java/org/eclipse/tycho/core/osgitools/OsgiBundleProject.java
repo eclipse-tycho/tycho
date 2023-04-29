@@ -40,9 +40,6 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.osgi.container.Module;
-import org.eclipse.osgi.container.ModuleContainer;
-import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
 import org.eclipse.osgi.internal.framework.FilterImpl;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -67,7 +64,6 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
@@ -85,8 +81,6 @@ import org.eclipse.tycho.model.UpdateSite;
 import org.eclipse.tycho.model.classpath.JUnitClasspathContainerEntry;
 import org.eclipse.tycho.model.classpath.LibraryClasspathEntry;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -105,11 +99,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     @Requirement
     private ClasspathReader classpathParser;
 
-    @Requirement
-    private EquinoxResolver resolver;
-
-    @Requirement
-    private DependencyComputer dependencyComputer;
+    @Requirement(hint = EquinoxResolver.HINT)
+    private DependenciesResolver resolver;
 
     @Requirement
     private Logger logger;
@@ -197,36 +188,19 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         DependencyArtifacts artifacts = getDependencyArtifacts(reactorProject);
 
-        ModuleContainer state = getResolverState(reactorProject, artifacts, session);
-
-//        if (getLogger().isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
-//            getLogger().debug(resolver.toDebugString(state));
-//        }
-
-        Module module = state.getModule(project.getBasedir().getAbsolutePath());
-        if (module == null) {
-            Module systemModule = state.getModule(Constants.SYSTEM_BUNDLE_LOCATION);
-            if (project.getBasedir().equals(systemModule.getCurrentRevision().getRevisionInfo())) {
-                module = systemModule;
-            }
-        }
-        ModuleRevision bundleDescription = module.getCurrentRevision();
-
-        List<ClasspathEntry> classpath = new ArrayList<>();
-
-        // dependencies
+        DependenciesInfo dependenciesInfo = resolver.computeDependencies(project, artifacts, session);
         List<AccessRule> strictBootClasspathAccessRules = new ArrayList<>();
         strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
-        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundleDescription);
-        for (DependencyEntry entry : dependencies) {
-            if (Constants.SYSTEM_BUNDLE_ID == entry.module.getRevisions().getModule().getId()) {
+        List<ClasspathEntry> classpath = new ArrayList<>();
+        for (DependencyEntry entry : dependenciesInfo.getDependencyEntries()) {
+            if (entry.isSystemBundle()) {
                 if (entry.rules != null) {
                     strictBootClasspathAccessRules.addAll(entry.rules);
                 }
             }
-            File location = (File) entry.module.getRevisionInfo();
+            File location = entry.getLocation();
             if (location != null && location.exists()) {
-                ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.module.getSymbolicName());
+                ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.getSymbolicName());
                 if (otherArtifact != null) {
                     ReactorProject otherProject = otherArtifact.getMavenProject();
                     List<File> locations;
@@ -243,12 +217,13 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     classpath.add(
                             new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
                 } else {
-                    logger.debug("Cannot fetch artifact info for " + entry.module.getSymbolicName() + " and location "
+                    logger.debug("Cannot fetch artifact info for " + entry.getSymbolicName() + " and location "
                             + location + ", using raw jar item for classpath");
-                    classpath.add(new DefaultClasspathEntry(null,
-                            new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.module.getSymbolicName(),
-                                    entry.module.getVersion().toString()),
-                            Collections.singletonList(location), entry.rules));
+                    classpath
+                            .add(new DefaultClasspathEntry(null,
+                                    new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.getSymbolicName(),
+                                            entry.getVersion().toString()),
+                                    Collections.singletonList(location), entry.rules));
                 }
             }
         }
@@ -257,11 +232,12 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         addExtraClasspathEntries(classpath, reactorProject, artifacts);
 
         // project itself
-        ArtifactDescriptor artifact = getArtifact(artifacts, project.getBasedir(), bundleDescription.getSymbolicName());
+        ArtifactDescriptor artifact = getArtifact(artifacts, project.getBasedir(),
+                dependenciesInfo.getRevision().getSymbolicName());
         List<File> projectClasspath = getThisProjectClasspath(artifact, reactorProject);
         classpath.add(new DefaultClasspathEntry(reactorProject, artifact.getKey(), projectClasspath, null));
 
-        List<AccessRule> bootClasspathExtraAccessRules = dependencyComputer.computeBootClasspathExtraAccessRules(state);
+        List<AccessRule> bootClasspathExtraAccessRules = dependenciesInfo.getBootClasspathExtraAccessRules();
 
         addPDESourceRoots(project);
         return new BundleClassPath(classpath, strictBootClasspathAccessRules, bootClasspathExtraAccessRules);
@@ -324,19 +300,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         .debug("Removed duplicate test compile root " + testCompileRoot + " from maven project model");
                 return;
             }
-        }
-    }
-
-    private ModuleContainer getResolverState(ReactorProject project, DependencyArtifacts artifacts,
-            MavenSession session) {
-        try {
-            ExecutionEnvironmentConfiguration eeConfiguration = projectManager
-                    .getExecutionEnvironmentConfiguration(getMavenProject(project));
-            ExecutionEnvironment executionEnvironment = eeConfiguration.getFullSpecification();
-            return resolver.newResolvedState(project, session,
-                    eeConfiguration.isIgnoredByResolver() ? null : executionEnvironment, artifacts);
-        } catch (BundleException e) {
-            throw new RuntimeException(e);
         }
     }
 

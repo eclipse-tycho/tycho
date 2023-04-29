@@ -81,7 +81,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * resolution is activated and {@link PomDependencies#consider} otherwhise.
      * </p>
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.POM_DEPENDENCIES)
+    @Parameter(name = DefaultTargetPlatformConfigurationReader.POM_DEPENDENCIES, property = DefaultTargetPlatformConfigurationReader.PROPERTY_POM_DEPENDENCIES)
     private PomDependencies pomDependencies;
 
     /**

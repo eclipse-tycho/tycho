@@ -50,6 +50,7 @@ import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 import org.eclipse.tycho.zipcomparator.internal.ContentsComparator;
+import org.eclipse.tycho.zipcomparator.internal.DefaultContentsComparator;
 import org.eclipse.tycho.zipcomparator.internal.ManifestComparator;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -455,6 +456,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 					return alternative;
 				}
 			}
+			return contentComparators.get(DefaultContentsComparator.TYPE);
 		}
 		return comparator;
 	}

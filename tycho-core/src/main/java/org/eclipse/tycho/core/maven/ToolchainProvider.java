@@ -14,24 +14,112 @@ package org.eclipse.tycho.core.maven;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
+import javax.inject.Inject;
+
+import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.toolchain.MisconfiguredToolchainException;
+import org.apache.maven.toolchain.Toolchain;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.maven.toolchain.ToolchainManagerPrivate;
 import org.apache.maven.toolchain.ToolchainPrivate;
 import org.apache.maven.toolchain.java.DefaultJavaToolChain;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 
 @Component(role = ToolchainProvider.class)
+@SessionScoped
 public class ToolchainProvider {
+
+    private static final String RUNNING_PROFILE_NAME = "JavaSE-" + Runtime.version().feature();
+
+    static final String TYPE_JDK = "jdk";
 
     @Requirement
     ToolchainManagerPrivate toolChainManager;
 
+    @Requirement
+    ToolchainManager toolchainManager;
+
+    @Requirement
+    LegacySupport legacySupport;
+
+    @Requirement
+    Logger logger;
+
+    private Map<ToolchainKey, Optional<OSGiJavaToolchain>> toolchainMap = new ConcurrentHashMap<>();
+
+    private MavenSession mavenSession;
+
     public static enum JDKUsage {
         SYSTEM, BREE;
+    }
+
+    @Inject
+    public ToolchainProvider(MavenSession mavenSession) {
+        this.mavenSession = mavenSession;
+    }
+
+    public Optional<OSGiJavaToolchain> getToolchain(JDKUsage usage, String profileName) {
+        if (usage == JDKUsage.SYSTEM) {
+            return getSystemToolchain();
+        }
+        return toolchainMap.computeIfAbsent(new ToolchainKey(usage, profileName), key -> {
+            Toolchain toolchain = ExecutionEnvironmentUtils.getToolchainFor(profileName,
+                    TargetEnvironment.getRunningEnvironment(), toolchainManager, getMavenSession(), logger);
+            if (toolchain != null) {
+                return Optional.of(new OSGiJavaToolchain(toolchain));
+            }
+            //Special case the requested profile is the one of the running JVM, but not defined in the toolchains, we can handle this like a JAVA_HOME defined one!
+            if (RUNNING_PROFILE_NAME.equals(profileName)) {
+                String javaHomeProperty = System.getProperty("java.home");
+                if (javaHomeProperty != null) {
+                    JavaHomeToolchain javaHomeToolchain = new JavaHomeToolchain(javaHomeProperty);
+                    if (javaHomeToolchain.findTool("java") != null) {
+                        return Optional.of(new OSGiJavaToolchain(javaHomeToolchain));
+                    }
+                }
+            }
+            return Optional.empty();
+        });
+    }
+
+    private Optional<OSGiJavaToolchain> getSystemToolchain() {
+        Toolchain contextToolchain = toolchainManager.getToolchainFromBuildContext(TYPE_JDK, getMavenSession());
+        if (contextToolchain != null) {
+            //this is the one configured by the maven toolchain plugin...
+            return Optional.of(new OSGiJavaToolchain(contextToolchain));
+        }
+        //Fallback to running system ...
+        Optional<OSGiJavaToolchain> profileToolchain = getToolchain(JDKUsage.BREE, RUNNING_PROFILE_NAME);
+        if (profileToolchain.isPresent()) {
+            return profileToolchain;
+        }
+        //Fallback to java home ...
+        String javaHome = System.getenv("JAVA_HOME");
+        if (javaHome != null && !javaHome.isBlank()) {
+            JavaHomeToolchain javaHomeToolchain = new JavaHomeToolchain(javaHome);
+            if (javaHomeToolchain.findTool("java") != null) {
+                return Optional.of(new OSGiJavaToolchain(javaHomeToolchain));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private MavenSession getMavenSession() {
+        MavenSession session = legacySupport.getSession();
+        if (session != null) {
+            return session;
+        }
+        return mavenSession;
     }
 
     /**
@@ -63,4 +151,9 @@ public class ToolchainProvider {
             throw new MojoExecutionException(e.getMessage(), e);
         }
     }
+
+    private static final record ToolchainKey(JDKUsage usage, String profileName) {
+
+    }
+
 }

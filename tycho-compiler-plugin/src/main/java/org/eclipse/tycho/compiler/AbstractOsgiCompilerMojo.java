@@ -51,7 +51,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.artifact.ProjectArtifact;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.maven.toolchain.ToolchainManagerPrivate;
-import org.apache.maven.toolchain.java.DefaultJavaToolChain;
 import org.codehaus.plexus.compiler.CompilerConfiguration;
 import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
 import org.codehaus.plexus.compiler.util.scan.SimpleSourceInclusionScanner;
@@ -80,6 +79,7 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
+import org.eclipse.tycho.core.maven.OSGiJavaToolchain;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.maven.ToolchainProvider.JDKUsage;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -805,33 +805,28 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     }
 
     private void configureJavaHome(CompilerConfiguration compilerConfiguration) throws MojoExecutionException {
-        if (useJDK != JDKUsage.BREE) {
-            return;
+        if (useJDK == JDKUsage.BREE) {
+            StandardExecutionEnvironment[] brees = getBREE();
+            String toolchainId;
+            if (brees.length > 0) {
+                toolchainId = brees[0].getProfileName();
+            } else {
+                getLog().warn(
+                        "useJDK=BREE configured, but no BREE is set in bundle. Fail back to currently running execution environment ("
+                                + getTargetExecutionEnvironment().getProfileName() + ").");
+                toolchainId = getTargetExecutionEnvironment().getProfileName();
+            }
+            OSGiJavaToolchain osgiToolchain = toolchainProvider.getToolchain(useJDK, toolchainId)
+                    .orElseThrow(() -> new MojoExecutionException(
+                            "useJDK = BREE configured, but no toolchain of type 'jdk' with id '" + toolchainId
+                                    + "' found. See https://maven.apache.org/guides/mini/guide-using-toolchains.html"));
+            compilerConfiguration.addCompilerCustomArgument("use.java.home", osgiToolchain.getJavaHome());
+            configureBootClassPath(compilerConfiguration, osgiToolchain);
         }
-        StandardExecutionEnvironment[] brees = getBREE();
-        String toolchainId = null;
-        if (brees.length > 0) {
-            toolchainId = brees[0].getProfileName();
-        } else {
-            getLog().warn(
-                    "useJDK=BREE configured, but no BREE is set in bundle. Fail back to currently running execution environment ("
-                            + getTargetExecutionEnvironment().getProfileName() + ").");
-            toolchainId = getTargetExecutionEnvironment().getProfileName();
-        }
-
-        DefaultJavaToolChain toolChain = (DefaultJavaToolChain) ExecutionEnvironmentUtils.getToolchainFor(toolchainId,
-                toolchainManager, session, logger);
-        if (toolChain == null) {
-            throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
-                    + toolchainId + "' found. See https://maven.apache.org/guides/mini/guide-using-toolchains.html");
-        }
-        compilerConfiguration.addCompilerCustomArgument("use.java.home", toolChain.getJavaHome());
-        configureBootClassPath(compilerConfiguration, toolChain);
     }
 
-    private void configureBootClassPath(CompilerConfiguration compilerConfiguration,
-            DefaultJavaToolChain javaToolChain) {
-        Xpp3Dom config = (Xpp3Dom) javaToolChain.getModel().getConfiguration();
+    private void configureBootClassPath(CompilerConfiguration compilerConfiguration, OSGiJavaToolchain osgiToolchain) {
+        Xpp3Dom config = osgiToolchain.getConfiguration();
         if (config != null) {
             Xpp3Dom bootClassPath = config.getChild("bootClassPath");
             if (bootClassPath != null) {
@@ -840,7 +835,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                     Xpp3Dom[] includes = includeParent.getChildren("include");
                     if (includes.length > 0) {
                         compilerConfiguration.addCompilerCustomArgument("-bootclasspath", scanBootclasspath(
-                                javaToolChain.getJavaHome(), includes, bootClassPath.getChild("excludes")));
+                                osgiToolchain.getJavaHome(), includes, bootClassPath.getChild("excludes")));
                     }
                 }
             }

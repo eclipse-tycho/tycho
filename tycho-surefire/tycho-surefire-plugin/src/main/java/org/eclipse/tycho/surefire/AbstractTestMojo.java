@@ -20,7 +20,6 @@
 package org.eclipse.tycho.surefire;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,8 +43,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.surefire.api.testset.TestListResolver;
 import org.apache.maven.surefire.api.util.DefaultScanResult;
 import org.apache.maven.surefire.api.util.ScanResult;
-import org.apache.maven.toolchain.Toolchain;
-import org.apache.maven.toolchain.ToolchainManager;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.VersionRange;
@@ -58,6 +55,7 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.maven.OSGiJavaToolchain;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.maven.ToolchainProvider.JDKUsage;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -68,10 +66,6 @@ import aQute.bnd.osgi.Analyzer;
 import aQute.bnd.osgi.Jar;
 
 public abstract class AbstractTestMojo extends AbstractMojo {
-
-    private static final String SYSTEM_JDK = "jdk";
-
-    private static final String[] JAVA_EXECUTABLES = { "java", "java.exe" };
 
     protected static final String IMPORT_REQUIRED_PACKAGES = "*";
 
@@ -197,9 +191,6 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     @Component
     protected TychoProjectManager projectManager;
-
-    @Component
-    protected ToolchainManager toolchainManager;
 
     @Component
     protected ToolchainProvider toolchainProvider;
@@ -421,20 +412,14 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return targetEnvironments;
     }
 
-    protected Toolchain getToolchain() throws MojoExecutionException {
-        if (JDKUsage.SYSTEM.equals(useJDK)) {
-            if (toolchainManager != null) {
-                return toolchainManager.getToolchainFromBuildContext(SYSTEM_JDK, session);
-            }
-            return null;
-        }
+    protected Optional<OSGiJavaToolchain> getToolchain() throws MojoExecutionException {
         String profileName = getTestProfileName();
-        Toolchain toolChain = toolchainProvider.findMatchingJavaToolChain(session, profileName);
-        if (toolChain == null) {
+        Optional<OSGiJavaToolchain> toolchain = toolchainProvider.getToolchain(useJDK, profileName);
+        if (useJDK == JDKUsage.BREE && toolchain.isEmpty()) {
             throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
                     + profileName + "' found. See https://maven.apache.org/guides/mini/guide-using-toolchains.html");
         }
-        return toolChain;
+        return toolchain;
     }
 
     protected String getTestProfileName() {
@@ -443,49 +428,11 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     }
 
     protected String getJavaExecutable() throws MojoExecutionException {
-        Toolchain tc = getToolchain();
-        if (tc != null) {
-            getLog().info("Toolchain in tycho-surefire-plugin: " + tc);
+
+        return getToolchain().map(tc -> {
+            getLog().debug("Toolchain in tycho-surefire-plugin: " + tc);
             return tc.findTool("java");
-        }
-        String javaHome = System.getenv("JAVA_HOME");
-        if (javaHome != null && !javaHome.isBlank()) {
-            File java = getJavaFromJavaHome(javaHome);
-            if (java != null) {
-                getLog().info("Could not find a Java toolchain of type " + SYSTEM_JDK
-                        + ". Using Java from JAVA_HOME instead (" + java.getAbsolutePath() + ")");
-                return java.getAbsolutePath();
-            }
-            getLog().info("Could not find a Java toolchain of type " + SYSTEM_JDK
-                    + " and JAVA_HOME does not seem to point to a valid location. Trying Java from PATH instead (JAVA_HOME="
-                    + javaHome + ")");
-        } else {
-            getLog().info("Could not find a Java toolchain of type " + SYSTEM_JDK
-                    + " and JAVA_HOME is not set. Trying Java from PATH instead");
-        }
-        return "java";
-    }
-
-    private File getJavaFromJavaHome(String javaHome) {
-        File javaBin = new File(javaHome, "bin");
-        for (String executable : JAVA_EXECUTABLES) {
-            File java = new File(javaBin, executable);
-            if (java.isFile()) {
-                return java;
-            }
-        }
-        //last resort just in case other extension or case-sensitive file-system...
-        File[] listFiles = javaBin.listFiles(new FileFilter() {
-
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.isFile() && FilenameUtils.getBaseName(pathname.getName().toLowerCase()).equals("java");
-            }
-        });
-        if (listFiles != null && listFiles.length > 0) {
-            return listFiles[0];
-        }
-        return null;
+        }).orElse("java");
     }
 
     protected void handleNoTestsFound() throws MojoFailureException {

@@ -16,7 +16,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -37,10 +36,13 @@ public class TextComparator implements ContentsComparator {
 
     static final String HINT = "txt";
 
-    private static final Set<String> ALIAS = Set.of(HINT, "java", "javajet", "javajetinc", "html", "htm");
-
     @Override
     public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
+            throws IOException {
+        return compareText(baseline, reactor);
+    }
+
+    public static ArtifactDelta compareText(ComparatorInputStream baseline, ComparatorInputStream reactor)
             throws IOException {
         ByteIterator baselineIterator = new ByteIterator(baseline.asBytes());
         ByteIterator reactorIterator = new ByteIterator(reactor.asBytes());
@@ -94,15 +96,7 @@ public class TextComparator implements ContentsComparator {
 
     @Override
     public boolean matches(String nameOrExtension) {
-        if (ALIAS.contains(nameOrExtension.toLowerCase())) {
-            //a simple extension match
-            return true;
-        }
-        if (nameOrExtension.toLowerCase().endsWith("javax.inject.named")) {
-            //META-INF/sisu/javax.inject.Named ... 
-            return true;
-        }
-        return false;
+        return HINT.equalsIgnoreCase(nameOrExtension);
     }
 
     public static ArtifactDelta createDelta(String message, ComparatorInputStream baseline,
