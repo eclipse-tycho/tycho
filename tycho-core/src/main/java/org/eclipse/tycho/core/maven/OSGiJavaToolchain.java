@@ -16,6 +16,7 @@ import java.io.File;
 
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainPrivate;
+import org.apache.maven.toolchain.java.JavaToolchainImpl;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 public class OSGiJavaToolchain implements Toolchain {
@@ -37,7 +38,7 @@ public class OSGiJavaToolchain implements Toolchain {
     }
 
     public String getJavaHome() {
-        if (base instanceof @SuppressWarnings("deprecation") org.apache.maven.toolchain.java.DefaultJavaToolChain defaultToolchain) {
+        if (base instanceof JavaToolchainImpl defaultToolchain) {
             return defaultToolchain.getJavaHome();
         }
         if (base instanceof JavaHomeToolchain javaHomeToolchain) {
@@ -52,10 +53,9 @@ public class OSGiJavaToolchain implements Toolchain {
     }
 
     public Xpp3Dom getConfiguration() {
-        if (base instanceof ToolchainPrivate privateToolchain) {
-            if (privateToolchain.getModel().getConfiguration() instanceof Xpp3Dom xpp3) {
-                return xpp3;
-            }
+        if (base instanceof ToolchainPrivate privateToolchain
+                && privateToolchain.getModel().getConfiguration() instanceof Xpp3Dom xpp3) {
+            return xpp3;
         }
         return null;
     }

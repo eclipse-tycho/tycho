@@ -28,7 +28,7 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.maven.toolchain.ToolchainManagerPrivate;
 import org.apache.maven.toolchain.ToolchainPrivate;
-import org.apache.maven.toolchain.java.DefaultJavaToolChain;
+import org.apache.maven.toolchain.java.JavaToolchainImpl;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -123,8 +123,8 @@ public class ToolchainProvider {
     }
 
     /**
-     * Finds a matching {@link DefaultJavaToolChain} in the maven toolchains for a given maven
-     * session and toolchain id. Returns the toolchain or null if no toolchain could be found.
+     * Finds a matching {@link JavaToolchainImpl} in the maven toolchains for a given maven session
+     * and toolchain id. Returns the toolchain or null if no toolchain could be found.
      * 
      * @param session
      *            The maven session
@@ -134,15 +134,14 @@ public class ToolchainProvider {
      * @throws MojoExecutionException
      *             if the toolchains are misconfigured
      */
-    public DefaultJavaToolChain findMatchingJavaToolChain(final MavenSession session, final String toolchainId)
+    public JavaToolchainImpl findMatchingJavaToolChain(final MavenSession session, final String toolchainId)
             throws MojoExecutionException {
         try {
             final Map<String, String> requirements = Collections.singletonMap("id", toolchainId);
             for (ToolchainPrivate javaToolChain : toolChainManager.getToolchainsForType("jdk", session)) {
-                if (javaToolChain.matchesRequirements(requirements)) {
-                    if (javaToolChain instanceof DefaultJavaToolChain defaultJavaToolchain) {
-                        return defaultJavaToolchain;
-                    }
+                if (javaToolChain.matchesRequirements(requirements)
+                        && javaToolChain instanceof JavaToolchainImpl javaToolchain) {
+                    return javaToolchain;
                 }
             }
             return null;
