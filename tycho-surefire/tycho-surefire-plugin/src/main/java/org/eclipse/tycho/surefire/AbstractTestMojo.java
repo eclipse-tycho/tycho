@@ -144,30 +144,33 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      * <li>BREE: use MANIFEST header <code>Bundle-RequiredExecutionEnvironment</code> to lookup the
      * JDK from <a href=
      * "https://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>. The
-     * value of BREE will be matched against the id of the toolchain elements in
-     * toolchains.xml.</li>
+     * value of BREE will be matched against the id of the JDK toolchain elements in
+     * <code>toolchains.xml</code>. If the BREEs version is 9 or later and the ID did not match any
+     * element, the version of the BREE will be matched against the version of the JDK toolchain
+     * elements.</li>
      * </ul>
      *
      * Example for BREE: <br>
      * In <code>META-INF/MANIFEST.MF</code>:
      *
      * <pre>
-     * Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+     * Bundle-RequiredExecutionEnvironment: JavaSE-11
      * </pre>
      *
      * In toolchains.xml:
      *
      * <pre>
      * &lt;toolchains&gt;
-     *    &lt;toolchain&gt;
-     *       &lt;type&gt;jdk&lt;/type&gt;
-     *       &lt;provides&gt;
-     *          &lt;id&gt;JavaSE-1.7&lt;/id&gt;
-     *       &lt;/provides&gt;
-     *       &lt;configuration&gt;
-     *          &lt;jdkHome&gt;/path/to/jdk/1.7&lt;/jdkHome&gt;
-     *       &lt;/configuration&gt;
-     *    &lt;/toolchain&gt;
+     *   &lt;toolchain&gt;
+     *      &lt;type&gt;jdk&lt;/type&gt;
+     *      &lt;provides&gt;
+     *          &lt;id&gt;JavaSE-11&lt;/id&gt;
+     *          &lt;version&gt;11&lt;/version&gt;
+     *      &lt;/provides&gt;
+     *      &lt;configuration&gt;
+     *         &lt;jdkHome&gt;/path/to/jdk/11&lt;/jdkHome&gt;
+     *      &lt;/configuration&gt;
+     *   &lt;/toolchain&gt;
      * &lt;/toolchains&gt;
      * </pre>
      */
@@ -390,9 +393,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         final var value = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
         final var separatorIndex = value.indexOf(';');
         final var hostSymbolicName = separatorIndex > -1 ? value.substring(0, separatorIndex) : value;
-        final var fragmentHost = "%s;%s=\"%s\"".formatted(hostSymbolicName, Constants.BUNDLE_VERSION_ATTRIBUTE,
-                hostVersion);
-        return fragmentHost;
+        return "%s;%s=\"%s\"".formatted(hostSymbolicName, Constants.BUNDLE_VERSION_ATTRIBUTE, hostVersion);
     }
 
     protected List<TargetEnvironment> getTestTargetEnvironments() {
@@ -423,8 +424,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     }
 
     protected String getTestProfileName() {
-        String profileName = projectManager.getExecutionEnvironmentConfiguration(project).getProfileName();
-        return profileName;
+        return projectManager.getExecutionEnvironmentConfiguration(project).getProfileName();
     }
 
     protected String getJavaExecutable() throws MojoExecutionException {
