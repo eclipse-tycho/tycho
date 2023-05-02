@@ -1,4 +1,4 @@
-Eclipse Tycho
+![Eclipse Tycho](https://github.com/eclipse-tycho/tycho/blob/master/assets/LOGO%20TYCHO_README.png)
 =============
 
 [![Build Tycho](https://github.com/eclipse-tycho/tycho/actions/workflows/maven.yml/badge.svg)](https://github.com/eclipse-tycho/tycho/actions/workflows/maven.yml) [![Unit Test Results](https://github.com/eclipse-tycho/tycho/actions/workflows/check.yml/badge.svg)](https://github.com/eclipse-tycho/tycho/actions/workflows/check.yml) [![License check](https://github.com/eclipse-tycho/tycho/actions/workflows/licensecheck.yml/badge.svg)](https://github.com/eclipse-tycho/tycho/actions/workflows/licensecheck.yml)
