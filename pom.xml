@@ -150,7 +150,7 @@
 			<dependency>
 				<groupId>org.eclipse.sisu</groupId>
 				<artifactId>org.eclipse.sisu.plexus</artifactId>
-				<version>0.9.0.M1</version>
+				<version>0.9.0.M2</version>
 				<!-- classes from plexus-container-default come with the maven installation -->
 				<!-- BUT groupId/artifactId was changed from
 				       plexus-container-default (maven 2.0.x)
