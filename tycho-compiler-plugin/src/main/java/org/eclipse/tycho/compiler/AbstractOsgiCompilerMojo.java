@@ -142,18 +142,21 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * JDK. If BREE is specified, MANIFEST header <code>Bundle-RequiredExecutionEnvironment</code>
      * is used to define the JDK to compile against. In this case, you need to provide a
      * <a href="https://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>
-     * configuration file. The value of BREE will be matched against the id of the toolchain
-     * elements in toolchains.xml. Example:
+     * configuration file. The value of BREE will be matched against the id of the JDK toolchain
+     * elements in <code>toolchains.xml</code>. If the BREEs version is 9 or later and the ID did
+     * not match any element, the version of the BREE will be matched against the version of the JDK
+     * toolchain elements. Example:
      * 
      * <pre>
      * &lt;toolchains&gt;
      *   &lt;toolchain&gt;
      *      &lt;type&gt;jdk&lt;/type&gt;
      *      &lt;provides&gt;
-     *          &lt;id&gt;J2SE-1.5&lt;/id&gt;
+     *          &lt;id&gt;JavaSE-11&lt;/id&gt;
+     *          &lt;version&gt;11&lt;/version&gt;
      *      &lt;/provides&gt;
      *      &lt;configuration&gt;
-     *         &lt;jdkHome&gt;/path/to/jdk/1.5&lt;/jdkHome&gt;
+     *         &lt;jdkHome&gt;/path/to/jdk/11&lt;/jdkHome&gt;
      *      &lt;/configuration&gt;
      *   &lt;/toolchain&gt;
      * &lt;/toolchains&gt;

@@ -1,4 +1,4 @@
-Eclipse Tycho
+![Eclipse Tycho](https://github.com/eclipse-tycho/tycho/blob/master/assets/LOGO%20TYCHO_README.png)
 =============
 
 [![Build Tycho](https://github.com/eclipse-tycho/tycho/actions/workflows/maven.yml/badge.svg)](https://github.com/eclipse-tycho/tycho/actions/workflows/maven.yml) [![Unit Test Results](https://github.com/eclipse-tycho/tycho/actions/workflows/check.yml/badge.svg)](https://github.com/eclipse-tycho/tycho/actions/workflows/check.yml) [![License check](https://github.com/eclipse-tycho/tycho/actions/workflows/licensecheck.yml/badge.svg)](https://github.com/eclipse-tycho/tycho/actions/workflows/licensecheck.yml)
@@ -56,7 +56,6 @@ Tycho has a very large user-base and thus we use exhaustive test-suites to ensur
 
 The following Organizations support Tycho getting processing power for their builds:
 * <img src="https://www.eclipse.org/favicon.ico" width="16" height="16"> [Eclipse Foundation](https://www.eclipse.org/sponsor/) - host our CI Infrastructure, become a friend of Eclipse and support the Eclipse Foundation in general
-* <img src="https://läubisoft.gmbh/favicon.ico"  width="16" height="16"> [Läubisoft GmbH](https://läubisoft.gmbh/en/) - provides four dynamic build nodes powered by 12 CPU / 32 GB RAM
 * <img src="https://www.renesas.com/favicon.ico" width="16" height="16"> [Renesas Electronics Corporation](https://www.eclipse.org/membership/showMember.php?member_id=1069) - sponsors a resource pack with 2 CPU / 8 GB RAM
 * <img src="https://www.sap.com/favicon.ico"     width="16" height="16"> [SAP SE](https://www.eclipse.org/membership/showMember.php?member_id=665) - sponsors two resource packs with 2 CPU / 8 GB RAM each
 * <img src="https://www.redhat.com/favicon.ico"  width="16" height="16"> [Red Hat, Inc.](https://www.eclipse.org/membership/showMember.php?member_id=731) - sponsors a resource pack with 2 CPU / 8 GB RAM
