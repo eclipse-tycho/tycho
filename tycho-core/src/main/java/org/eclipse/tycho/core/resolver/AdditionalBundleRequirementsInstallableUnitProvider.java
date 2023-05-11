@@ -12,10 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.maven.execution.MavenSession;
@@ -34,10 +36,12 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.BundleProject;
-import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
+
+import aQute.bnd.osgi.Constants;
+import aQute.bnd.osgi.Processor;
 
 /**
  * This provides P2 visible meta-data for bundles that are not expressed in the manifest (e.g.
@@ -48,9 +52,8 @@ import org.eclipse.tycho.resolver.InstallableUnitProvider;
 public class AdditionalBundleRequirementsInstallableUnitProvider implements InstallableUnitProvider {
     @Requirement
     private Logger logger;
-
-    @Requirement(role = TychoProject.class)
-    private Map<String, TychoProject> projectTypes;
+    @Requirement
+    TychoProjectManager projectManager;
 
     @Requirement
     private BuildPropertiesParser buildPropertiesParser;
@@ -58,7 +61,19 @@ public class AdditionalBundleRequirementsInstallableUnitProvider implements Inst
     @Override
     public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)
             throws CoreException {
-        if (projectTypes.get(project.getPackaging()) instanceof BundleProject) {
+
+        Optional<Processor> bndTychoProject = projectManager.getBndTychoProject(project);
+        if (bndTychoProject.isPresent()) {
+            try (Processor processor = bndTychoProject.get()) {
+                List<IRequirement> requirements = getBndClasspathRequirements(processor);
+                if (!requirements.isEmpty()) {
+                    return createIU(requirements);
+                }
+            } catch (IOException e) {
+                logger.warn("Can't determine classpath requirements from " + project.getId(), e);
+            }
+        } else if (projectManager.getTychoProject(project).isPresent()) {
+            //"classic" pde project with build properties
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
             BuildProperties buildProperties = buildPropertiesParser.parse(reactorProject);
             List<IRequirement> additionalBundleRequirements = buildProperties.getAdditionalBundles().stream()
@@ -66,6 +81,18 @@ public class AdditionalBundleRequirementsInstallableUnitProvider implements Inst
                             bundleName, VersionRange.emptyRange, null, true, true))
                     .toList();
             return createIU(additionalBundleRequirements);
+        }
+        return Collections.emptyList();
+    }
+
+    public static List<IRequirement> getBndClasspathRequirements(Processor processor) {
+        //See https://bnd.bndtools.org/instructions/buildpath.html
+        String buildPath = processor.mergeProperties(Constants.BUILDPATH);
+        if (buildPath != null && !buildPath.isBlank()) {
+            return Arrays.stream(buildPath.split(","))
+                    .map(bundleName -> MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
+                            bundleName.trim(), VersionRange.emptyRange, null, true, true))
+                    .toList();
         }
         return Collections.emptyList();
     }

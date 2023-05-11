@@ -73,6 +73,7 @@ import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
+import org.eclipse.tycho.core.resolver.AdditionalBundleRequirementsInstallableUnitProvider;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
@@ -327,6 +328,10 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         for (String additionalBundle : additionalBundles) {
             resolver.addAdditionalBundleDependency(additionalBundle);
         }
+        projectManager.getBndTychoProject(project).ifPresent(processor -> {
+            AdditionalBundleRequirementsInstallableUnitProvider.getBndClasspathRequirements(processor)
+                    .forEach(req -> resolver.addRequirement(req));
+        });
         // get reactor project with prepared optional dependencies // TODO use original IU and have the resolver create the modified IUs
         ReactorProject optionalDependencyPreparedProject = getThisReactorProject(session, project, configuration);
 
