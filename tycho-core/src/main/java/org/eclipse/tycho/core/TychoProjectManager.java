@@ -46,6 +46,8 @@ import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 
+import aQute.bnd.osgi.Processor;
+
 @Component(role = TychoProjectManager.class)
 @SessionScoped
 public class TychoProjectManager {
@@ -185,6 +187,20 @@ public class TychoProjectManager {
     private MavenSession getMavenSession() {
         MavenSession session = legacySupport.getSession();
         return session != null ? session : mavenSession;
+    }
+
+    public Optional<Processor> getBndTychoProject(MavenProject project) {
+        Optional<TychoProject> tychoProject = getTychoProject(project);
+        if (tychoProject.isEmpty()) {
+            return Optional.empty();
+        }
+        File bndFile = new File(project.getBasedir(), TychoConstants.PDE_BND);
+        if (bndFile.exists()) {
+            Processor processor = new Processor();
+            processor.setProperties(bndFile);
+            return Optional.of(processor);
+        }
+        return Optional.empty();
     }
 
 }
