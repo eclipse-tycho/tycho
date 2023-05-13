@@ -34,7 +34,7 @@
 					<plugin>
 						<groupId>org.eclipse.tycho.extras</groupId>
 						<artifactId>tycho-p2-extras-plugin</artifactId>
-						<version>${tycho-extras-version}</version>
+						<version>${tycho-version}</version>
 						<executions>
 							<execution>
 								<phase>verify</phase>
@@ -53,17 +53,4 @@
 			</build>
 		</profile>
 	</profiles>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>tycho-snapshots</id>
-			<url>${tycho-snapshots-url}</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
 </project>
