@@ -161,8 +161,14 @@ public class SharedHttpCacheStorage {
     }
 
     private synchronized CacheLine getCacheLine(URI uri) {
-        File file = new File(cacheConfig.location, uri.normalize().toASCIIString().replace(':', '/').replace('?', '/')
-                .replace('&', '/').replaceAll("/+", "/"));
+        String cleanPath = uri.normalize().toASCIIString().replace(':', '/').replace('?', '/').replace('&', '/')
+                .replaceAll("/+", "/");
+        if (cleanPath.endsWith("/")) {
+            //simulate accessing this as a folder... 
+        	//this can happen in case of a redirect even though its quite clumsy
+            cleanPath += ".idx";
+        }
+        File file = new File(cacheConfig.location, cleanPath);
         File location;
         try {
             location = file.getCanonicalFile();
