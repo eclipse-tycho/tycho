@@ -114,11 +114,26 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
             for (Artifact artifact : initalArtifacts) {
                 IArtifactFacade facade = facadeMap.get(artifact);
                 getArtifactStream(artifact, facade).forEach(a -> {
-                    if (a.getFile() == null || configuration.isExcluded(a.getGroupId(), a.getArtifactId())) {
-                        logger.debug("Skipp artifact " + a);
+                    Collection<IInstallableUnit> units;
+                    if (a.getFile() == null) {
+                        if (facadeMap.get(a) instanceof ReactorProjectFacade reactorFacade) {
+                            ReactorProject prj = reactorFacade.getReactorProject();
+                            units = generator.getProvidedInstallableUnits(prj);
+                            if (units.isEmpty()) {
+                                logger.debug("Skip artifact " + a
+                                        + " because it is not resolved and can't gather any units for it...");
+                                return;
+                            }
+                        } else {
+                            logger.debug("Skip artifact " + a + " because it is not resolved!");
+                            return;
+                        }
+                    } else if (configuration.isExcluded(a.getGroupId(), a.getArtifactId())) {
+                        logger.debug("Skip artifact " + a + " because it is excluded...");
                         return;
+                    } else {
+                        units = generator.getInstallableUnits(a);
                     }
-                    Collection<IInstallableUnit> units = generator.getInstallableUnits(a);
                     logger.debug("artifact " + a + " maps to " + units);
                     IArtifactFacade artifactFacade;
                     if (a.hasClassifier()) {
@@ -195,11 +210,7 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
         if (mavenSession != null) {
             for (MavenProject mavenProject : mavenSession.getProjects()) {
                 if ("jar".equals(mavenProject.getPackaging())) {
-                    Artifact artifact = mavenProject.getArtifact();
-                    File file = artifact.getFile();
-                    if (file != null && file.exists()) {
-                        initalArtifacts.add(artifact);
-                    }
+                    initalArtifacts.add(mavenProject.getArtifact());
                 }
             }
         }

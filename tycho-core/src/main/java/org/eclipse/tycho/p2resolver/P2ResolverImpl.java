@@ -60,7 +60,6 @@ import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.resolver.DefaultP2ResolutionResult;
@@ -225,11 +224,7 @@ public class P2ResolverImpl implements P2Resolver {
         Collection<IInstallableUnit> newState;
         try {
             if (project != null && p2ResolverFactoryImpl != null && pomDependencies != PomDependencies.ignore) {
-                TargetPlatformConfiguration configuration = p2ResolverFactoryImpl.getProjectManager()
-                        .getTargetPlatformConfiguration(project);
-                if (!configuration.isRequireEagerResolve()) {
-                    data.setAdditionalUnitStore(p2ResolverFactoryImpl.getPomUnits().createPomQueryable(project));
-                }
+                data.setAdditionalUnitStore(p2ResolverFactoryImpl.getPomUnits().createPomQueryable(project));
             }
             newState = strategy.resolve(environment, monitor);
         } catch (ResolverException e) {
