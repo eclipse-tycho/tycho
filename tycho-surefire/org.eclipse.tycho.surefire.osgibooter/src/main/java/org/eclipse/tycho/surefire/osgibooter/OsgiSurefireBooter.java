@@ -84,8 +84,6 @@ public class OsgiSurefireBooter {
     private static final String JUNIT_PLATFORM_PROVIDER = "org.apache.maven.surefire.junitplatform.JUnitPlatformProvider";
 
     public static int run(String[] args, Properties testProps) throws Exception {
-        // TODO eventually make use of parameter redirectTestOutputToFile
-        @SuppressWarnings("unused")
         boolean redirectTestOutputToFile = Boolean
                 .parseBoolean(testProps.getProperty("redirectTestOutputToFile", "false"));
         String testPlugin = testProps.getProperty("testpluginname");
@@ -130,7 +128,7 @@ public class OsgiSurefireBooter {
                 extractProviderProperties(testProps), null, false, Collections.emptyList(), skipAfterFailureCount,
                 Shutdown.DEFAULT, 30);
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
-                ConsoleReporter.PLAIN, false, reportsDir, trimStackTrace, null, new File(reportsDir, "TESTHASH"), false,
+                ConsoleReporter.PLAIN, redirectTestOutputToFile, reportsDir, trimStackTrace, null, new File(reportsDir, "TESTHASH"), false,
                 rerunFailingTestsCount, XSD, StandardCharsets.UTF_8.toString(), false,
                 getSurefireStatelessReporter(provider, disableXmlReport, null),
                 getSurefireConsoleOutputReporter(provider), getSurefireStatelessTestsetInfoReporter(provider));
