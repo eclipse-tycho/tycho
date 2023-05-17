@@ -574,17 +574,19 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         Set<String> seen = new HashSet<>();
         Set<String> includedPathes = new HashSet<>();
         for (ClasspathEntry cpe : getClasspath()) {
-            for (File location : cpe.getLocations()) {
-                if (!isValidLocation(location)) {
-                    continue;
-                }
+            Stream<File> classpathLocations = Stream
+                    .concat(cpe.getLocations().stream(),
+                            Optional.ofNullable(cpe.getMavenProject())
+                                    .map(mp -> mp.getBuildDirectory().getOutputDirectory()).stream())
+                    .filter(AbstractOsgiCompilerMojo::isValidLocation).distinct();
+            classpathLocations.forEach(location -> {
                 String path = location.getAbsolutePath();
                 String entry = path + toString(cpe.getAccessRules());
                 if (seen.add(entry)) {
                     includedPathes.add(path);
                     classpath.add(entry);
                 }
-            }
+            });
         }
         if (session != null) {
             ArtifactRepository repository = session.getLocalRepository();

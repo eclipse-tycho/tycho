@@ -28,6 +28,7 @@
                 org.eclipse.tycho:tycho-compiler-plugin:${project.version}:compile
               </compile>
               <process-classes>
+                org.eclipse.tycho:tycho-bnd-plugin:${project.version}:process,
               	org.eclipse.tycho:tycho-ds-plugin:${project.version}:declarative-services
               </process-classes>
               <process-test-resources>

@@ -186,59 +186,72 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private BundleClassPath resolveClassPath(MavenSession session, MavenProject project) {
         logger.info("Resolving class path of " + project.getName());
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        DependencyArtifacts artifacts = getDependencyArtifacts(reactorProject);
-
-        DependenciesInfo dependenciesInfo = resolver.computeDependencies(project, artifacts, session);
         List<AccessRule> strictBootClasspathAccessRules = new ArrayList<>();
         strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
+        DependencyArtifacts artifacts = getDependencyArtifacts(reactorProject);
         List<ClasspathEntry> classpath = new ArrayList<>();
-        for (DependencyEntry entry : dependenciesInfo.getDependencyEntries()) {
-            if (entry.isSystemBundle()) {
-                if (entry.rules != null) {
-                    strictBootClasspathAccessRules.addAll(entry.rules);
-                }
+        File bndFile = new File(project.getBasedir(), TychoConstants.PDE_BND);
+        List<AccessRule> bootClasspathExtraAccessRules;
+        if (bndFile.exists()) {
+            bootClasspathExtraAccessRules = List.of();
+            ArtifactKey artifactKey = projectManager.getArtifactKey(project).get();
+            classpath.add(new DefaultClasspathEntry(reactorProject, artifactKey,
+                    List.of(new File(project.getBuild().getOutputDirectory())), null));
+            List<ArtifactDescriptor> bundles = artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
+            for (ArtifactDescriptor bundle : bundles) {
+                //TODO we might want to compute the access rules based on the manifest exported packages
+                Collection<AccessRule> rules = null;
+                classpath.add(new DefaultClasspathEntry(bundle.getMavenProject(), bundle.getKey(),
+                        List.of(bundle.fetchArtifact().join()), rules));
             }
-            File location = entry.getLocation();
-            if (location != null && location.exists()) {
-                ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.getSymbolicName());
-                if (otherArtifact != null) {
-                    ReactorProject otherProject = otherArtifact.getMavenProject();
-                    List<File> locations;
-                    if (otherProject != null) {
-                        locations = getOtherProjectClasspath(otherArtifact, otherProject, null);
+        } else {
+            DependenciesInfo dependenciesInfo = resolver.computeDependencies(project, artifacts, session);
+            for (DependencyEntry entry : dependenciesInfo.getDependencyEntries()) {
+                if (entry.isSystemBundle()) {
+                    if (entry.rules != null) {
+                        strictBootClasspathAccessRules.addAll(entry.rules);
+                    }
+                }
+                File location = entry.getLocation();
+                if (location != null && location.exists()) {
+                    ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.getSymbolicName());
+                    if (otherArtifact != null) {
+                        ReactorProject otherProject = otherArtifact.getMavenProject();
+                        List<File> locations;
+                        if (otherProject != null) {
+                            locations = getOtherProjectClasspath(otherArtifact, otherProject, null);
+                        } else {
+                            locations = getBundleClasspath(otherArtifact);
+                        }
+
+                        if (locations.isEmpty() && !entry.rules.isEmpty()) {
+                            getLogger().warn("Empty classpath of required bundle " + otherArtifact);
+                        }
+
+                        classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations,
+                                entry.rules));
                     } else {
-                        locations = getBundleClasspath(otherArtifact);
+                        logger.debug("Cannot fetch artifact info for " + entry.getSymbolicName() + " and location "
+                                + location + ", using raw jar item for classpath");
+                        classpath.add(new DefaultClasspathEntry(null,
+                                new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.getSymbolicName(),
+                                        entry.getVersion().toString()),
+                                Collections.singletonList(location), entry.rules));
                     }
-
-                    if (locations.isEmpty() && !entry.rules.isEmpty()) {
-                        getLogger().warn("Empty classpath of required bundle " + otherArtifact);
-                    }
-
-                    classpath.add(
-                            new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
-                } else {
-                    logger.debug("Cannot fetch artifact info for " + entry.getSymbolicName() + " and location "
-                            + location + ", using raw jar item for classpath");
-                    classpath
-                            .add(new DefaultClasspathEntry(null,
-                                    new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.getSymbolicName(),
-                                            entry.getVersion().toString()),
-                                    Collections.singletonList(location), entry.rules));
                 }
             }
+
+            // build.properties/jars.extra.classpath
+            addExtraClasspathEntries(classpath, reactorProject, artifacts);
+
+            // project itself
+            ArtifactDescriptor artifact = getArtifact(artifacts, project.getBasedir(),
+                    dependenciesInfo.getRevision().getSymbolicName());
+            List<File> projectClasspath = getThisProjectClasspath(artifact, reactorProject);
+            classpath.add(new DefaultClasspathEntry(reactorProject, artifact.getKey(), projectClasspath, null));
+
+            bootClasspathExtraAccessRules = dependenciesInfo.getBootClasspathExtraAccessRules();
         }
-
-        // build.properties/jars.extra.classpath
-        addExtraClasspathEntries(classpath, reactorProject, artifacts);
-
-        // project itself
-        ArtifactDescriptor artifact = getArtifact(artifacts, project.getBasedir(),
-                dependenciesInfo.getRevision().getSymbolicName());
-        List<File> projectClasspath = getThisProjectClasspath(artifact, reactorProject);
-        classpath.add(new DefaultClasspathEntry(reactorProject, artifact.getKey(), projectClasspath, null));
-
-        List<AccessRule> bootClasspathExtraAccessRules = dependenciesInfo.getBootClasspathExtraAccessRules();
-
         addPDESourceRoots(project);
         return new BundleClassPath(classpath, strictBootClasspathAccessRules, bootClasspathExtraAccessRules);
     }
@@ -520,7 +533,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private String[] parseBundleClasspath(ArtifactDescriptor bundle) {
-        OsgiManifest mf = bundleReader.loadManifest(bundle.getLocation(true));
+        File location = bundle.getLocation(true);
+        OsgiManifest mf = bundleReader.loadManifest(location);
         return mf.getBundleClasspath();
     }
 

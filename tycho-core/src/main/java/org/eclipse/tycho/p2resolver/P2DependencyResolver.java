@@ -73,6 +73,7 @@ import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
+import org.eclipse.tycho.core.resolver.AdditionalBundleRequirementsInstallableUnitProvider;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
@@ -135,13 +136,13 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             final ReactorProject reactorProject) {
         TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         List<TargetEnvironment> environments = configuration.getEnvironments();
-        Map<String, IDependencyMetadata> metadataMap = getDependencyMetadata(session, project, environments,
+        Collection<IDependencyMetadata> metadataMap = getDependencyMetadata(session, project, environments,
                 OptionalResolutionAction.OPTIONAL);
         Map<DependencyMetadataType, Set<IInstallableUnit>> typeMap = new TreeMap<>();
         for (DependencyMetadataType type : DependencyMetadataType.values()) {
             typeMap.put(type, new LinkedHashSet<>());
         }
-        for (IDependencyMetadata metadata : metadataMap.values()) {
+        for (IDependencyMetadata metadata : metadataMap) {
             typeMap.forEach((key, value) -> value.addAll(metadata.getDependencyMetadata(key)));
         }
         Set<IInstallableUnit> initial = new HashSet<>();
@@ -152,7 +153,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         reactorProject.setDependencyMetadata(DependencyMetadataType.INITIAL, initial);
     }
 
-    protected Map<String, IDependencyMetadata> getDependencyMetadata(final MavenSession session,
+    protected Collection<IDependencyMetadata> getDependencyMetadata(final MavenSession session,
             final MavenProject project, final List<TargetEnvironment> environments,
             final OptionalResolutionAction optionalAction) {
         final ReactorProject reactorProject = DefaultReactorProject.adapt(project);
@@ -176,7 +177,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             throw new RuntimeException(e);
         }
 
-        return metadata;
+        return metadata.values();
     }
 
     @Override
@@ -212,10 +213,10 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         final List<TargetEnvironment> environments = configuration.getEnvironments();
         final OptionalResolutionAction optionalAction = configuration.getDependencyResolverConfiguration()
                 .getOptionalResolutionAction();
-        Map<String, IDependencyMetadata> dependencyMetadata = getDependencyMetadata(session, project, environments,
+        Collection<IDependencyMetadata> dependencyMetadata = getDependencyMetadata(session, project, environments,
                 optionalAction);
         Map<DependencyMetadataType, Set<IInstallableUnit>> typeMap = new TreeMap<>();
-        for (IDependencyMetadata value : dependencyMetadata.values()) {
+        for (IDependencyMetadata value : dependencyMetadata) {
             for (DependencyMetadataType type : DependencyMetadataType.values()) {
                 typeMap.computeIfAbsent(type, t -> new LinkedHashSet<>()).addAll(value.getDependencyMetadata(type));
             }
@@ -327,6 +328,10 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         for (String additionalBundle : additionalBundles) {
             resolver.addAdditionalBundleDependency(additionalBundle);
         }
+        projectManager.getBndTychoProject(project).ifPresent(processor -> {
+            AdditionalBundleRequirementsInstallableUnitProvider.getBndClasspathRequirements(processor)
+                    .forEach(req -> resolver.addRequirement(req));
+        });
         // get reactor project with prepared optional dependencies // TODO use original IU and have the resolver create the modified IUs
         ReactorProject optionalDependencyPreparedProject = getThisReactorProject(session, project, configuration);
 
