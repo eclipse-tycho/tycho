@@ -30,6 +30,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
@@ -58,6 +59,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.actions.AuthoredIUAction;
 import org.eclipse.tycho.p2maven.actions.CategoryDependenciesAction;
@@ -278,6 +280,28 @@ public class InstallableUnitGenerator {
 
 	public Collection<IInstallableUnit> getInstallableUnits(Artifact artifact) {
 		return artifactUnitMap.computeIfAbsent(artifact, x -> new ArtifactUnits()).getUnits(artifact);
+	}
+
+	/**
+	 * Compute the additional provided units for a ReactorProject
+	 * 
+	 * @param reactorProject
+	 * @return a collection of units for the given reactor project
+	 */
+	public Collection<IInstallableUnit> getProvidedInstallableUnits(ReactorProject reactorProject) {
+		MavenProject mavenProject = reactorProject.adapt(MavenProject.class);
+		MavenSession mavenSession = reactorProject.adapt(MavenSession.class);
+		try {
+			return getProvider(mavenProject, mavenSession).stream().flatMap(provider -> {
+				try {
+					return provider.getInstallableUnits(mavenProject, mavenSession).stream();
+				} catch (CoreException e) {
+					return Stream.empty();
+				}
+			}).toList();
+		} catch (CoreException e) {
+			return List.of();
+		}
 	}
 
 	private Collection<InstallableUnitProvider> getProvider(MavenProject project, MavenSession mavenSession)

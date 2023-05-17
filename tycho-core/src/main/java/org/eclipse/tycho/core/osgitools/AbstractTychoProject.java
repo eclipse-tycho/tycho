@@ -97,7 +97,19 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         reactorProject.setContextValue(CTX_MAVEN_SESSION, session);
         reactorProject.setContextValue(CTX_MAVEN_PROJECT, project);
-        reactorProject.setContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES, List.copyOf(project.getDependencies()));
+        reactorProject.setContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES,
+                List.copyOf(collectInitial(project, new HashMap<String, Dependency>()).values()));
+    }
+
+    private Map<String, Dependency> collectInitial(MavenProject project, Map<String, Dependency> map) {
+        for (Dependency dependency : project.getDependencies()) {
+            map.putIfAbsent(dependency.getManagementKey(), dependency);
+        }
+        MavenProject parent = project.getParent();
+        if (parent != null) {
+            return collectInitial(parent, map);
+        }
+        return map;
     }
 
     protected TargetEnvironment[] getEnvironments(ReactorProject project, TargetEnvironment environment) {
