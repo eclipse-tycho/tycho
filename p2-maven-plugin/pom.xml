@@ -189,7 +189,7 @@
 		<dependency>
 			<groupId>org.eclipse.ecf</groupId>
 			<artifactId>org.eclipse.ecf.provider.filetransfer</artifactId>
-			<version>3.2.800</version>
+			<version>3.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.ecf</groupId>
