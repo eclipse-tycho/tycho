@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
@@ -44,7 +43,7 @@ public class TargetDefinitionFileTest {
 
         InstallableUnitLocation location = (InstallableUnitLocation) locations.get(0);
         assertEquals(1, location.getRepositories().size());
-        assertEquals(URI.create("https://download.eclipse.org/eclipse/updates/3.5/"),
+        assertEquals("https://download.eclipse.org/eclipse/updates/3.5/",
                 location.getRepositories().get(0).getLocation());
         assertEquals(1, location.getUnits().size());
         assertEquals("org.eclipse.platform.sdk", location.getUnits().get(0).getId());
@@ -53,9 +52,8 @@ public class TargetDefinitionFileTest {
         InstallableUnitLocation l02 = (InstallableUnitLocation) locations.get(1);
         assertEquals(5, l02.getUnits().size());
         assertEquals(2, l02.getRepositories().size());
-        assertEquals(URI.create("http://subclipse.tigris.org/update_1.6.x/"),
-                l02.getRepositories().get(0).getLocation());
-        assertEquals(URI.create("https://download.eclipse.org/tools/mylyn/update/e3.4/"),
+        assertEquals("http://subclipse.tigris.org/update_1.6.x/", l02.getRepositories().get(0).getLocation());
+        assertEquals("https://download.eclipse.org/tools/mylyn/update/e3.4/",
                 l02.getRepositories().get(1).getLocation());
     }
 

@@ -40,6 +40,7 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
@@ -49,6 +50,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionFile;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionVariableResolver;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
@@ -187,6 +189,8 @@ public class TPValidationMojo extends AbstractMojo {
             DirectorRuntime director = this.equinox.getService(DirectorRuntime.class);
             DirectorRuntime.Command directorCommand = director.newInstallCommand();
 
+            MavenContext mavenContext = this.equinox.getService(MavenContext.class);
+            TargetDefinitionVariableResolver varResolver = new TargetDefinitionVariableResolver(mavenContext);
             TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile);
             TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
             tpConfiguration.addTargetDefinition(targetDefinition);
@@ -198,8 +202,9 @@ public class TPValidationMojo extends AbstractMojo {
                 if (location instanceof InstallableUnitLocation) {
                     InstallableUnitLocation p2Loc = (InstallableUnitLocation) location;
                     for (Repository repo : p2Loc.getRepositories()) {
-                        ref.addArtifactRepository(repo.getLocation());
-                        ref.addMetadataRepository(repo.getLocation());
+                        var repoUri = varResolver.resolveRepositoryLocation(repo.getLocation());
+                        ref.addArtifactRepository(repoUri);
+                        ref.addMetadataRepository(repoUri);
                     }
                     for (Unit unit : p2Loc.getUnits()) {
                         if (checkDependencies) {

@@ -18,7 +18,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
@@ -185,7 +184,7 @@ public interface TargetDefinition {
     }
 
     public interface Repository {
-        URI getLocation();
+        String getLocation();
 
         String getId();
     }

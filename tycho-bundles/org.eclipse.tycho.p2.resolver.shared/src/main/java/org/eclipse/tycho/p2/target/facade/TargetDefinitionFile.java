@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -406,9 +405,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
     private static final class Repository implements TargetDefinition.Repository {
 
         private final String id;
-        private final URI uri;
+        private final String uri;
 
-        Repository(String id, URI uri) {
+        Repository(String id, String uri) {
             this.id = id;
             this.uri = uri;
         }
@@ -420,7 +419,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
 
         @Override
-        public URI getLocation() {
+        public String getLocation() {
             return uri;
         }
 
@@ -523,6 +522,10 @@ public final class TargetDefinitionFile implements TargetDefinition {
         return new TargetDefinitionFile(document, origin);
     }
 
+    public static TargetDefinition.Repository repository(String id, String location) {
+        return new Repository(id, location);
+    }
+
     @Override
     public String getTargetEE() {
         return targetEE;
@@ -610,12 +613,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
         final List<Repository> repositories = new ArrayList<>();
         for (Element node : getChildren(dom, "repository")) {
             String id = node.getAttribute("id");
-            URI uri;
-            try {
-                uri = new URI(node.getAttribute("location"));
-            } catch (URISyntaxException e) {
-                throw new TargetDefinitionSyntaxException("invalid URI", e);
-            }
+            String uri = node.getAttribute("location");
             repositories.add(new Repository(id, uri));
         }
         return new IULocation(Collections.unmodifiableList(units), Collections.unmodifiableList(repositories),

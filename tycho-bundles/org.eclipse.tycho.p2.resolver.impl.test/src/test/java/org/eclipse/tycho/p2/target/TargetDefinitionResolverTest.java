@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -393,13 +392,13 @@ public class TargetDefinitionResolverTest {
         }
 
         @Override
-        public URI getLocation() {
+        public String getLocation() {
             try {
                 if (repository != null) {
                     File repo = ResourceUtil.resourceFile(basedir + repository + "/content.xml").getParentFile();
-                    return repo.toURI();
+                    return repo.toURI().toString();
                 }
-                return URI.create("invalid:hello");
+                return URI.create("invalid:hello").toString();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
