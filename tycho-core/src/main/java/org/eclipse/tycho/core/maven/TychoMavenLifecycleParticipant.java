@@ -154,6 +154,10 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                     ProjectDependencyClosure closure = dependencyProcessor.computeProjectDependencyClosure(projects,
                             session);
                     for (MavenProject project : lazyProjects) {
+                        if (projectManager.getTychoProject(project).isEmpty()) {
+                            //do not inject additional dependencies for non Tycho managed projects!
+                            continue;
+                        }
                         Model model = project.getModel();
                         Set<String> existingDependencies = model.getDependencies().stream()
                                 .map(TychoMavenLifecycleParticipant::getKey)
