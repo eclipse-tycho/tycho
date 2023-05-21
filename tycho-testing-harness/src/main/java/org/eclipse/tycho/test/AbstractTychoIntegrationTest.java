@@ -87,6 +87,7 @@ public abstract class AbstractTychoIntegrationTest {
         File testDir = getBasedir(test);
 
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
+        verifier.setForkJvm(isForked());
         String debug = System.getProperty("tycho.mvnDebug");
         if (debug != null) {
             System.out.println("Preparing to execute Maven in debug mode");
@@ -141,6 +142,10 @@ public abstract class AbstractTychoIntegrationTest {
 
         return verifier;
 
+    }
+
+    protected boolean isForked() {
+        return true;
     }
 
     protected Verifier getVerifier(String test) throws Exception {
