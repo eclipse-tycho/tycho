@@ -372,8 +372,9 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         for (ReactorProject project : reactorProjects) {
             Set<IInstallableUnit> projectIUs = project.getDependencyMetadata(DependencyMetadataType.INITIAL);
 
-            if (projectIUs == null)
+            if (projectIUs == null) {
                 continue;
+            }
             for (IInstallableUnit iu : projectIUs) {
                 ReactorProjectIdentities identities = project.getIdentities();
                 ReactorProjectIdentities otherOrigin = reactorUIs.put(iu, identities);
