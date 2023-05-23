@@ -17,31 +17,10 @@ import org.eclipse.aether.artifact.Artifact;
 /**
  * represents a message that occurred while processing the jar.
  */
-public final class ProcessingMessage {
+public record ProcessingMessage(Artifact artifact, Type type, String message) {
 
-	private Artifact artifact;
-	private Type type;
-	private String message;
-
-	ProcessingMessage(Artifact artifact, Type type, String message) {
-		this.artifact = artifact;
-		this.type = type;
-		this.message = message;
+	public enum Type {
+		ERROR, WARN 
 	}
 
-	public static enum Type {
-		ERROR, WARN
-	}
-
-	public Artifact getArtifact() {
-		return artifact;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-	
-	public Type getType() {
-		return type;
-	}
 }
