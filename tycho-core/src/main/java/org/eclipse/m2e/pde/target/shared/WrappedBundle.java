@@ -23,12 +23,12 @@ import aQute.bnd.osgi.Jar;
 
 public final class WrappedBundle {
 
-	private DependencyNode node;
-	private List<WrappedBundle> depends;
-	private String instructionsKey;
-	private Path file;
-	private Jar jar;
-	private List<ProcessingMessage> messages;
+	private final DependencyNode node;
+	private final List<WrappedBundle> depends;
+	private final String instructionsKey;
+	private final Path file;
+	private final Jar jar;
+	private final List<ProcessingMessage> messages;
 
 	WrappedBundle(DependencyNode node, List<WrappedBundle> depends, String key, Path file, Jar jar,
 			List<ProcessingMessage> messages) {
@@ -48,16 +48,12 @@ public final class WrappedBundle {
 		return jar;
 	}
 
-	/**
-	 * @return the file where the wrappes bundle is located
-	 */
+	/** @return the location of the wrapped bundle's files */
 	public Path getFile() {
 		return file;
 	}
 
-	/**
-	 * @return the messages that where produced
-	 */
+	/** @return the messages that where produced */
 	public Stream<ProcessingMessage> messages() {
 		return Stream.concat(messages.stream(), depends.stream().flatMap(dep -> dep.messages()));
 	}
@@ -72,14 +68,9 @@ public final class WrappedBundle {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		WrappedBundle other = (WrappedBundle) obj;
-		return Objects.equals(instructionsKey, other.instructionsKey) && Objects.equals(node, other.node);
+		return obj instanceof WrappedBundle other //
+				&& Objects.equals(instructionsKey, other.instructionsKey) //
+				&& Objects.equals(node, other.node);
 	}
 
 }

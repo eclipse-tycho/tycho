@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.jar.Manifest;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,9 +41,9 @@ import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.graph.DependencyVisitor;
-import org.eclipse.aether.impl.SyncContextFactory;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.spi.synccontext.SyncContextFactory;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.m2e.pde.target.shared.ProcessingMessage.Type;
 import org.osgi.framework.Constants;
@@ -66,6 +67,8 @@ import aQute.bnd.version.Version;
  * </ul>
  */
 public class MavenBundleWrapper {
+	private MavenBundleWrapper() {
+	}
 
 	/**
 	 * Wraps an artifact (and possible its dependents if required) to produce a
@@ -111,7 +114,7 @@ public class MavenBundleWrapper {
 				}
 			});
 			syncContext.acquire(lockList, null);
-			HashMap<DependencyNode, WrappedBundle> visited = new HashMap<>();
+			Map<DependencyNode, WrappedBundle> visited = new HashMap<>();
 			WrappedBundle wrappedNode = getWrappedNode(node, instructionsLookup, visited);
 			for (WrappedBundle wrap : visited.values()) {
 				wrap.getJar().close();
@@ -230,17 +233,14 @@ public class MavenBundleWrapper {
 		return createOSGiVersion(model.getVersion());
 	}
 
+	private static final Pattern DASH = Pattern.compile("-");
+
 	public static Version createOSGiVersion(String version) {
 		if (version == null || version.isEmpty()) {
 			return new Version(0, 0, 1);
 		}
 		try {
-			int index = version.indexOf('-');
-			if (index > -1) {
-				StringBuilder sb = new StringBuilder(version);
-				sb.setCharAt(index, '.');
-				return Version.parseVersion(sb.toString());
-			}
+			version = DASH.matcher(version).replaceFirst(".");
 			return Version.parseVersion(version);
 		} catch (IllegalArgumentException e) {
 			return new Version(0, 0, 1, version);
