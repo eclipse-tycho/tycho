@@ -22,6 +22,7 @@ import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.MavenTargetLocationFactory;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
@@ -55,7 +56,7 @@ public class P2ResolverTestBase extends TychoPlexusTestCase {
     @Before
     final public void prepare() throws Exception {
         resolverFactory = new TestResolverFactory(logVerifier.getMavenLogger(), logVerifier.getLogger(),
-                lookup(IProvisioningAgent.class));
+                lookup(IProvisioningAgent.class), lookup(MavenTargetLocationFactory.class));
         MockMavenContext mavenContext = new MockMavenContext(null, logVerifier.getLogger());
         fullGenerator = new P2GeneratorImpl(true);
         fullGenerator.setMavenContext(mavenContext);

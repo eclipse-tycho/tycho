@@ -29,6 +29,7 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
+import org.eclipse.tycho.core.resolver.MavenTargetLocationFactory;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
@@ -50,7 +51,7 @@ public class CustomEEResolutionHandlerTest extends TychoPlexusTestCase {
     @Before
     public void setUpContext() throws Exception {
         tpFactory = new TestResolverFactory(logVerifier.getMavenLogger(), logVerifier.getLogger(),
-                lookup(IProvisioningAgent.class)).getTargetPlatformFactory();
+                lookup(IProvisioningAgent.class), lookup(MavenTargetLocationFactory.class)).getTargetPlatformFactory();
         tpConfig = new TargetPlatformConfigurationStub();
     }
 

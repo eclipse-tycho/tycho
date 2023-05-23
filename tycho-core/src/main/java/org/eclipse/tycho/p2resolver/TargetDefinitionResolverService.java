@@ -29,10 +29,10 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.MavenTargetLocationFactory;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.target.TargetDefinitionContent;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 
 /**
@@ -51,7 +51,7 @@ public class TargetDefinitionResolverService {
     private MavenContext mavenContext;
 
     @Requirement
-    private MavenDependenciesResolver dependenciesResolver;
+    private MavenTargetLocationFactory dependenciesResolver;
 
     // constructor for DS
     public TargetDefinitionResolverService() {
@@ -123,7 +123,7 @@ public class TargetDefinitionResolverService {
     }
 
     // setter for DS
-    public void setMavenDependenciesResolver(MavenDependenciesResolver mavenDependenciesResolver) {
+    public void setMavenDependenciesResolver(MavenTargetLocationFactory mavenDependenciesResolver) {
         this.dependenciesResolver = mavenDependenciesResolver;
     }
 
