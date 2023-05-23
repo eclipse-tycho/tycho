@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
@@ -39,6 +40,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.RepositoryUtils;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.repository.RepositorySystem;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.impl.SyncContextFactory;
+import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -52,6 +61,8 @@ import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.m2e.pde.target.shared.MavenBundleWrapper;
+import org.eclipse.m2e.pde.target.shared.WrappedBundle;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.TychoConstants;
@@ -65,6 +76,7 @@ import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MavenModelFacade;
+import org.eclipse.tycho.osgi.configuration.MavenDependenciesResolverConfigurer;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.resolver.BundlePublisher;
 import org.eclipse.tycho.p2.resolver.FeatureGenerator;
@@ -92,7 +104,9 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     private MavenContext mavenContext;
 
     public MavenTargetDefinitionContent(MavenGAVLocation location, MavenDependenciesResolver mavenDependenciesResolver,
-            IncludeSourceMode sourceMode, IProvisioningAgent agent, MavenContext mavenContext) {
+            IncludeSourceMode sourceMode, IProvisioningAgent agent, MavenContext mavenContext,
+            SyncContextFactory syncContextFactory, RepositorySystem repositorySystem, MavenSession mavenSession,
+            org.eclipse.aether.RepositorySystem repositorySystem2) {
         this.mavenContext = mavenContext;
         MavenLogger logger = mavenContext.getLogger();
         File repositoryRoot = mavenDependenciesResolver.getRepositoryRoot();
@@ -174,53 +188,38 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                     try {
                         File bundleLocation = mavenArtifact.getLocation();
                         BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleLocation);
-                        if (bundleDescription == null) {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("Bundle Location:       " + bundleLocation + " (Filesize "
-                                        + (bundleLocation != null ? bundleLocation.length() : -1) + ")");
-                                boolean isFile = bundleLocation != null && bundleLocation.isFile();
-                                logger.debug("File isFile:           " + isFile);
-                                if (isFile) {
-                                    try (JarFile jarFile = new JarFile(bundleLocation)) {
-                                        Enumeration<JarEntry> entries = jarFile.entries();
-                                        while (entries.hasMoreElements()) {
-                                            JarEntry jarEntry = entries.nextElement();
-                                            logger.debug("                Entry: " + jarEntry.getName());
-                                        }
-                                    } catch (Exception e) {
-                                        logger.debug("Reading as jar failed: " + e);
-                                    }
-                                }
+                        symbolicName = bundleDescription != null ? bundleDescription.getSymbolicName() : null;
+                        bundleVersion = bundleDescription != null ? bundleDescription.getVersion().toString() : null;
+                        IInstallableUnit unit;
+                        if (symbolicName == null) {
+                            if (location.getMissingManifestStrategy() == MissingManifestStrategy.IGNORE) {
+                                logger.info("Ignoring " + asDebugString(mavenArtifact)
+                                        + " as it is not a bundle and MissingManifestStrategy is set to ignore for this location");
+                                continue;
                             }
-                            throw new TargetDefinitionResolutionException("Artifact " + mavenArtifact + " of location "
-                                    + location + " is not a valid jar file");
-                        } else {
-                            symbolicName = bundleDescription.getSymbolicName();
-                            bundleVersion = bundleDescription.getVersion().toString();
-                            IInstallableUnit unit;
-                            if (symbolicName == null) {
-                                if (location.getMissingManifestStrategy() == MissingManifestStrategy.IGNORE) {
-                                    logger.info("Ignoring " + asDebugString(mavenArtifact)
-                                            + " as it is not a bundle and MissingManifestStrategy is set to ignore for this location");
-                                    continue;
-                                }
-                                if (location.getMissingManifestStrategy() == MissingManifestStrategy.ERROR) {
-                                    throw new TargetDefinitionResolutionException("Artifact "
-                                            + asDebugString(mavenArtifact)
-                                            + " is not a bundle and MissingManifestStrategy is set to error for this location");
-                                }
-                                File tempFile = File.createTempFile("tycho_wrapped_bundle", ".jar");
-                                tempFile.deleteOnExit();
-                                WrappedArtifact wrappedArtifact;
-                                try {
-                                    Properties properties = instructionsMap.getOrDefault(getKey(mavenArtifact),
-                                            instructionsMap.getOrDefault("", defaultProperties));
-                                    wrappedArtifact = WrappedArtifact.createWrappedArtifact(mavenArtifact, properties,
-                                            tempFile);
-                                } catch (Exception e) {
-                                    throw new TargetDefinitionResolutionException(
-                                            "Artifact " + asDebugString(mavenArtifact) + " could not be wrapped", e);
-                                }
+                            if (location.getMissingManifestStrategy() == MissingManifestStrategy.ERROR) {
+                                throw new TargetDefinitionResolutionException("Artifact " + asDebugString(mavenArtifact)
+                                        + " is not a bundle and MissingManifestStrategy is set to error for this location");
+                            }
+                            try {
+                                List<RemoteRepository> repositories = RepositoryUtils
+                                        .toRepos(MavenDependenciesResolverConfigurer.getEffectiveRepositories(
+                                                mavenSession.getCurrentProject(), location.getRepositoryReferences(),
+                                                repositorySystem));
+                                Function<DependencyNode, Properties> instructionsLookup = node -> instructionsMap
+                                        .getOrDefault(getKey(node.getArtifact()),
+                                                instructionsMap.getOrDefault("", defaultProperties));
+                                WrappedBundle wrappedBundle = MavenBundleWrapper.getWrappedArtifact(
+                                        new DefaultArtifact(mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(),
+                                                mavenArtifact.getClassifier(), mavenArtifact.getPackagingType(),
+                                                mavenArtifact.getVersion()),
+                                        instructionsLookup, repositories, repositorySystem2,
+                                        mavenSession.getRepositorySession(), syncContextFactory);
+                                File file = wrappedBundle.getFile().toFile();
+                                BundleDescription description = BundlesAction.createBundleDescription(file);
+                                WrappedArtifact wrappedArtifact = new WrappedArtifact(file, mavenArtifact,
+                                        mavenArtifact.getClassifier(), description.getSymbolicName(),
+                                        description.getVersion().toString(), null);
                                 logger.info(asDebugString(mavenArtifact)
                                         + " is wrapped as a bundle with bundle symbolic name "
                                         + wrappedArtifact.getWrappedBsn());
@@ -237,20 +236,22 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                 mavenProperties.put(TychoConstants.PROP_WRAPPED_VERSION, mavenArtifact.getVersion());
                                 mavenProperties.put(TychoConstants.PROP_WRAPPED_CLASSIFIER,
                                         mavenArtifact.getClassifier());
-
-                                unit = publish(BundlesAction.createBundleDescription(tempFile), tempFile,
-                                        new MavenPropertiesAdvice(mavenProperties));
+                                unit = publish(description, file, new MavenPropertiesAdvice(mavenProperties));
                                 symbolicName = wrappedArtifact.getWrappedBsn();
                                 bundleVersion = wrappedArtifact.getWrappedVersion();
-                            } else {
-                                unit = publish(bundleDescription, bundleLocation, mavenArtifact);
+                            } catch (Exception e) {
+                                throw new TargetDefinitionResolutionException("Artifact " + asDebugString(mavenArtifact)
+                                        + " of location " + location + " could not be wrapped as a bundle", e);
                             }
-                            bundles.add(unit);
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("MavenResolver: artifact " + asDebugString(mavenArtifact) + " at location "
-                                        + bundleLocation + " resolves installable unit "
-                                        + new VersionedId(unit.getId(), unit.getVersion()));
-                            }
+
+                        } else {
+                            unit = publish(bundleDescription, bundleLocation, mavenArtifact);
+                        }
+                        bundles.add(unit);
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("MavenResolver: artifact " + asDebugString(mavenArtifact) + " at location "
+                                    + bundleLocation + " resolves installable unit "
+                                    + new VersionedId(unit.getId(), unit.getVersion()));
                         }
                     } catch (BundleException | IOException e) {
                         throw new TargetDefinitionResolutionException("Artifact " + asDebugString(mavenArtifact)
@@ -410,6 +411,19 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     }
 
     private static String getKey(IArtifactFacade artifact) {
+        if (artifact == null) {
+            return "";
+        }
+        String key = artifact.getGroupId() + ":" + artifact.getArtifactId();
+        String classifier = artifact.getClassifier();
+        if (classifier != null) {
+            key += ":" + classifier;
+        }
+        key += ":" + artifact.getVersion();
+        return key;
+    }
+
+    private static String getKey(Artifact artifact) {
         if (artifact == null) {
             return "";
         }

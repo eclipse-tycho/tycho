@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.eclipse.tycho.IArtifactFacade;
@@ -34,13 +35,13 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
     private final File file;
     private final String classifier;
 
-    private String wrappedBsn;
+    private final String wrappedBsn;
 
-    private String wrappedVersion;
+    private final String wrappedVersion;
 
-    private Manifest manifest;
+    private final Manifest manifest;
 
-    private WrappedArtifact(File file, IArtifactFacade wrapped, String classifier, String wrappedBsn,
+    public WrappedArtifact(File file, IArtifactFacade wrapped, String classifier, String wrappedBsn,
             String wrappedVersion, Manifest manifest) {
         super(wrapped);
         this.file = file;
@@ -81,7 +82,10 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
     public String getGeneratedManifest() {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         try {
-            manifest.write(bout);
+            Manifest manifest2 = getManifest();
+            if (manifest2 != null) {
+                manifest2.write(bout);
+            }
         } catch (IOException e) {
             throw new AssertionError("should never happen", e);
         }
@@ -203,6 +207,16 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
         } catch (IllegalArgumentException e) {
             return new Version(0, 0, 1, version);
         }
+    }
+
+    private Manifest getManifest() {
+        if (manifest == null) {
+            try (JarFile jarFile = new JarFile(file)) {
+                return jarFile.getManifest();
+            } catch (IOException e) {
+            }
+        }
+        return manifest;
     }
 
 }
