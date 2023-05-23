@@ -148,6 +148,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-xml</artifactId>
+				<version>4.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-archiver</artifactId>
 				<version>4.7.1</version>
 			</dependency>

@@ -32,6 +32,10 @@
 			<artifactId>plexus-component-annotations</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-xml</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
