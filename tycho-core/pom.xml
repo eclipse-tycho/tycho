@@ -312,7 +312,18 @@
 			<artifactId>org.eclipse.jdt.core</artifactId>
 			<version>3.33.0</version>
 		</dependency>
-
+		<dependency>
+		    <groupId>org.eclipse.pde</groupId>
+		    <artifactId>org.eclipse.pde.core</artifactId>
+		    <version>3.16.100</version>
+		    <scope>test</scope>
+		    <exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
 
 </project>
