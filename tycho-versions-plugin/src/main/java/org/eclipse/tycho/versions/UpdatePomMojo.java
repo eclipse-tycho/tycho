@@ -13,14 +13,15 @@
 package org.eclipse.tycho.versions;
 
 import java.io.IOException;
+import java.util.Objects;
 
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.versions.engine.PomVersionUpdater;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 
@@ -33,8 +34,8 @@ import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 public class UpdatePomMojo extends AbstractMojo {
     private static final Object LOCK = new Object();
 
-    @Parameter(property = "session", readonly = true)
-    protected MavenSession session;
+    @Parameter(defaultValue = "${project}", required = true, readonly = true)
+    private MavenProject project;
 
     @Component
     protected ProjectMetadataReader pomReader;
@@ -46,7 +47,7 @@ public class UpdatePomMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
             try {
-                pomReader.addBasedir(session.getCurrentProject().getBasedir(), true);
+                pomReader.addBasedir(Objects.requireNonNullElse(project.getFile(), project.getBasedir()), true);
                 pomUpdater.setProjects(pomReader.getProjects());
                 pomUpdater.apply();
             } catch (IOException e) {
