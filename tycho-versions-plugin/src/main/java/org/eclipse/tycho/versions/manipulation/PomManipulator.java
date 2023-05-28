@@ -77,6 +77,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
         if (!pom.isMutable()) {
             return;
         }
+        String pomName = project.getPomFile().getName();
         // TODO visitor pattern is a better way to implement this
 
         for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
@@ -93,7 +94,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
                     }
                     if (ciFriendlyProperties.size() == 1) {
                         //thats actually a simply property change
-                        applyPropertyChange(pom, ciFriendlyProperties.get(0), newVersion);
+                        applyPropertyChange(pomName, pom, ciFriendlyProperties.get(0), newVersion);
                     } else {
                         String update = newVersion;
                         //now the  hard part starts, we need to match the pattern, the current algorithm is just dumb and only updates the first non matching property
@@ -105,18 +106,19 @@ public class PomManipulator extends AbstractMetadataManipulator {
                                 update = update.substring(0, update.length() - value.length());
                                 continue;
                             }
-                            applyPropertyChange(pom, property, update);
+                            applyPropertyChange(pomName, pom, property, update);
                             break;
                         }
                     }
                 } else {
-                    logger.info("  pom.xml//project/version: " + version + " => " + newVersion);
+                    logger.info("  %s//project/version: %s => %s".formatted(pomName, version, newVersion));
                     pom.setVersion(newVersion);
                 }
             } else {
+
                 GAV parent = pom.getParent();
                 if (parent != null && isGavEquals(parent, change) && !isCiFriendly(parent.getVersion())) {
-                    logger.info("  pom.xml//project/parent/version: " + version + " => " + newVersion);
+                    logger.info("  %s//project/version: %s => %s".formatted(pomName, version, newVersion));
                     parent.setVersion(newVersion);
                 }
             }
@@ -128,15 +130,16 @@ public class PomManipulator extends AbstractMetadataManipulator {
             // it.
             //
 
-            changeDependencies("  pom.xml//project/dependencies", pom.getDependencies(), change, version, newVersion);
-            changeDependencyManagement("  pom.xml//project/dependencyManagement", pom.getDependencyManagement(), change,
-                    version, newVersion);
+            changeDependencies("  %s//project/dependencies".formatted(pomName), pom.getDependencies(), change, version,
+                    newVersion);
+            changeDependencyManagement("  %s//project/dependencyManagement".formatted(pomName),
+                    pom.getDependencyManagement(), change, version, newVersion);
 
-            changeBuild("  pom.xml//project/build", pom.getBuild(), change, version, newVersion);
+            changeBuild("  //project/build".formatted(pomName), pom.getBuild(), change, version, newVersion);
 
             for (Profile profile : pom.getProfiles()) {
                 String profileId = profile.getId() != null ? profile.getId() : NULL;
-                String pomPath = "  pom.xml//project/profiles/profile[ " + profileId + " ]";
+                String pomPath = "  %s//project/profiles/profile[ %s ]".formatted(pomName, profileId);
                 changeDependencies(pomPath + "/dependencies", profile.getDependencies(), change, version, newVersion);
                 changeDependencyManagement(pomPath + "/dependencyManagement", profile.getDependencyManagement(), change,
                         version, newVersion);
@@ -232,16 +235,17 @@ public class PomManipulator extends AbstractMetadataManipulator {
     @Override
     public void writeMetadata(ProjectMetadata project) throws IOException {
         PomFile pom = project.getMetadata(PomFile.class);
-        File pomFile = new File(project.getBasedir(), "pom.xml");
+        File pomFile = project.getPomFile();
         if (pom != null && pomFile.exists()) {
             PomFile.write(pom, pomFile);
         }
     }
 
-    public void applyPropertyChange(PomFile pom, String propertyName, String propertyValue) {
-        changeProperties("  pom.xml//project/properties", pom.getProperties(), propertyName, propertyValue);
+    public void applyPropertyChange(String pomName, PomFile pom, String propertyName, String propertyValue) {
+        changeProperties("  %s//project/properties".formatted(pomName), pom.getProperties(), propertyName,
+                propertyValue);
         for (Profile profile : pom.getProfiles()) {
-            String pomPath = "  pom.xml//project/profiles/profile[ " + profile.getId() + " ]/properties";
+            String pomPath = "  %s//project/profiles/profile[ %s ]/properties".formatted(pomName, profile.getId());
             changeProperties(pomPath, profile.getProperties(), propertyName, propertyValue);
         }
     }
