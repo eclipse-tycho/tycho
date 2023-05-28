@@ -14,35 +14,25 @@
 package org.eclipse.tycho.test.util;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.IRepositoryIdManager;
-import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.MavenTargetLocationFactory;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.core.shared.DependencyResolutionException;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.core.shared.MavenModelFacade;
-import org.eclipse.tycho.core.test.utils.ResourceUtil;
-import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.p2resolver.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2resolver.P2ResolverImpl;
@@ -60,7 +50,8 @@ public class TestResolverFactory implements P2ResolverFactory {
     private IRepositoryIdManager idManager;
     private Logger logger2;
 
-    public TestResolverFactory(MavenLogger logger, Logger logger2, IProvisioningAgent agent) {
+    public TestResolverFactory(MavenLogger logger, Logger logger2, IProvisioningAgent agent,
+            MavenTargetLocationFactory resolve) {
         this.logger2 = logger2;
         this.agent = agent;
         this.idManager = agent.getService(IRepositoryIdManager.class);
@@ -69,37 +60,7 @@ public class TestResolverFactory implements P2ResolverFactory {
 
         targetDefinitionResolverService = new TargetDefinitionResolverService();
         targetDefinitionResolverService.setMavenContext(mavenContext);
-        targetDefinitionResolverService.setMavenDependenciesResolver(new MavenDependenciesResolver() {
-
-            @Override
-            public Collection<?> resolve(String groupId, String artifactId, String version, String packaging,
-                    String classifier, Collection<String> dependencyScopes, int depth,
-                    Collection<MavenArtifactRepositoryReference> additionalRepositories, Object session)
-                    throws DependencyResolutionException {
-                GAV gav = new GAV(groupId, artifactId, version);
-                String relativePath = RepositoryLayoutHelper.getRelativePath(gav, null, "jar");
-                // This is supposed to mimic Maven repo returning an artifact
-                File file = new File(getLocalRepositoryLocation(), relativePath);
-                try {
-                    file.getParentFile().mkdirs();
-                    File resourceFile = ResourceUtil.resourceFile("targetresolver/stubMavenRepo/" + relativePath);
-                    Files.copy(resourceFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    throw new DependencyResolutionException(e.getMessage(), List.of(e));
-                }
-                return List.of(new ArtifactMock(file, groupId, artifactId, version, "jar"));
-            }
-
-            @Override
-            public MavenModelFacade loadModel(File modelFile) throws IOException {
-                return null;
-            }
-
-            @Override
-            public File getRepositoryRoot() {
-                return mavenContext.getLocalRepositoryRoot();
-            }
-        });
+        targetDefinitionResolverService.setMavenDependenciesResolver(resolve);
 
         File localMavenRepoRoot = mavenContext.getLocalRepositoryRoot();
         LocalRepositoryP2Indices localRepoIndices = createLocalRepoIndices(mavenContext);
