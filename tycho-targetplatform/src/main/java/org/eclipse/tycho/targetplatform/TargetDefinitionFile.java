@@ -407,9 +407,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
     private static final class Repository implements TargetDefinition.Repository {
 
         private final String id;
-        private final URI uri;
+        private final String uri;
 
-        Repository(String id, URI uri) {
+        Repository(String id, String uri) {
             this.id = id;
             this.uri = uri;
         }
@@ -421,7 +421,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
 
         @Override
-        public URI getLocation() {
+        public String getLocation() {
             return uri;
         }
 
@@ -562,7 +562,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 				&& file.getName().toLowerCase().endsWith(TargetDefinitionFile.FILE_EXTENSION)
 	            && !file.getName().startsWith(".polyglot.");
 	}
-
+	
 	private static List<? extends TargetDefinition.Location> parseLocations(Element dom) {
         ArrayList<TargetDefinition.Location> locations = new ArrayList<>();
         Element locationsDom = getChild(dom, "locations");
@@ -640,12 +640,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
         final List<Repository> repositories = new ArrayList<>();
         for (Element node : getChildren(dom, "repository")) {
             String id = node.getAttribute("id");
-            URI uri;
-            try {
-                uri = new URI(node.getAttribute("location"));
-            } catch (URISyntaxException e) {
-                throw new TargetDefinitionSyntaxException("invalid URI", e);
-            }
+            String uri = node.getAttribute("location");
             repositories.add(new Repository(id, uri));
         }
         return new IULocation(Collections.unmodifiableList(units), Collections.unmodifiableList(repositories),

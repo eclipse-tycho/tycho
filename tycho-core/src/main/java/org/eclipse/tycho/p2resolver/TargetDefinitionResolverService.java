@@ -53,6 +53,9 @@ public class TargetDefinitionResolverService {
     @Requirement
     private MavenTargetLocationFactory dependenciesResolver;
 
+    @Requirement
+    private TargetDefinitionVariableResolver varResolver;
+
     // constructor for DS
     public TargetDefinitionResolverService() {
     }
@@ -85,7 +88,7 @@ public class TargetDefinitionResolverService {
         }
 
         TargetDefinitionResolver resolver = new TargetDefinitionResolver(arguments.environments, arguments.jreIUs,
-                arguments.includeSourceMode, mavenContext, dependenciesResolver);
+                arguments.includeSourceMode, mavenContext, dependenciesResolver, varResolver);
         try {
             return CompletableFuture.completedFuture(resolver.resolveContent(arguments.definition, arguments.agent));
         } catch (Exception e) {
@@ -125,6 +128,11 @@ public class TargetDefinitionResolverService {
     // setter for DS
     public void setMavenDependenciesResolver(MavenTargetLocationFactory mavenDependenciesResolver) {
         this.dependenciesResolver = mavenDependenciesResolver;
+    }
+
+    // setter for DS
+    public void setTargetDefinitionVariableResolver(TargetDefinitionVariableResolver varResolver) {
+        this.varResolver = varResolver;
     }
 
     private static final class ResolutionArguments {

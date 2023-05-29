@@ -34,6 +34,7 @@ import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
+import org.eclipse.tycho.p2resolver.DefaultTargetDefinitionVariableResolver;
 import org.eclipse.tycho.p2resolver.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2resolver.PomDependencyCollectorImpl;
@@ -61,6 +62,8 @@ public class TestResolverFactory implements P2ResolverFactory {
         targetDefinitionResolverService = new TargetDefinitionResolverService();
         targetDefinitionResolverService.setMavenContext(mavenContext);
         targetDefinitionResolverService.setMavenDependenciesResolver(resolve);
+        targetDefinitionResolverService.setTargetDefinitionVariableResolver(
+                new DefaultTargetDefinitionVariableResolver(mavenContext, logger2));
 
         File localMavenRepoRoot = mavenContext.getLocalRepositoryRoot();
         LocalRepositoryP2Indices localRepoIndices = createLocalRepoIndices(mavenContext);
