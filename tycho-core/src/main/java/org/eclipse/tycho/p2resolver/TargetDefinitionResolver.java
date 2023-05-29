@@ -26,9 +26,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -43,7 +40,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.MavenTargetLocationFactory;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
@@ -79,29 +75,26 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
  */
 public final class TargetDefinitionResolver {
 
-    private static final Pattern SYSTEM_PROPERTY_PATTERN = createVariablePatternArgument("system_property");
-    private static final Pattern PROJECT_LOC_PATTERN = createVariablePatternArgument("project_loc");
-    private static final Pattern ENV_VAR_PATTERN = createVariablePatternArgument("env_var");
-
     private final MavenLogger logger;
 
     private final List<TargetEnvironment> environments;
 
     private final ExecutionEnvironmentResolutionHints executionEnvironment;
 
-    private MavenContext mavenContext;
     private IncludeSourceMode includeSourceMode;
     private MavenTargetLocationFactory mavenDependenciesResolver;
+    private TargetDefinitionVariableResolver varResolver;
 
     public TargetDefinitionResolver(List<TargetEnvironment> environments,
             ExecutionEnvironmentResolutionHints executionEnvironment, IncludeSourceMode includeSourceMode,
-            MavenContext mavenContext, MavenTargetLocationFactory mavenDependenciesResolver) {
+            MavenContext mavenContext, MavenTargetLocationFactory mavenDependenciesResolver,
+            TargetDefinitionVariableResolver varResolver) {
         this.environments = environments;
         this.executionEnvironment = executionEnvironment;
         this.includeSourceMode = includeSourceMode;
-        this.mavenContext = mavenContext;
         this.mavenDependenciesResolver = mavenDependenciesResolver;
         this.logger = mavenContext.getLogger();
+        this.varResolver = varResolver;
     }
 
     public TargetDefinitionContent resolveContent(TargetDefinition definition, IProvisioningAgent provisioningAgent) {
@@ -142,7 +135,7 @@ public final class TargetDefinitionResolver {
                 }
                 List<URITargetDefinitionContent> locations = new ArrayList<>();
                 for (Repository repository : installableUnitLocation.getRepositories()) {
-                    URI location = repository.getLocation();
+                    URI location = resolveRepositoryLocation(repository.getLocation());
                     String key = location.normalize().toASCIIString();
                     locations.add(uriRepositories.computeIfAbsent(key,
                             s -> new URITargetDefinitionContent(provisioningAgent, location, repository.getId())));
@@ -298,62 +291,15 @@ public final class TargetDefinitionResolver {
     }
 
     protected String resolvePath(String path, TargetDefinition definition) {
-        path = resolvePattern(path, SYSTEM_PROPERTY_PATTERN,
-                key -> mavenContext.getSessionProperties().getProperty(key, ""));
-        path = resolvePattern(path, ENV_VAR_PATTERN, key -> {
-            String env = System.getenv(key);
-            return env == null ? "" : env;
-        });
-        path = resolvePattern(path, PROJECT_LOC_PATTERN, this::findProjectLocation);
-        return path;
+        return varResolver.resolve(path);
     }
 
-    private String findProjectLocation(String projectName) {
-        if (projectName.startsWith("/")) {
-            projectName = projectName.substring(1);
+    protected URI resolveRepositoryLocation(String location) {
+        try {
+            return new URI(varResolver.resolve(location));
+        } catch (URISyntaxException e) {
+            throw new TargetDefinitionSyntaxException("Invalid URI: " + location);
         }
-        logger.debug("Find project location for project " + projectName);
-        for (ReactorProject project : mavenContext.getProjects()) {
-            String name = project.getName();
-            logger.debug("check reactor project name: " + name);
-            if (name.equals(projectName)) {
-                return project.getBasedir().getAbsolutePath();
-            }
-        }
-        for (ReactorProject project : mavenContext.getProjects()) {
-            String artifactId = project.getArtifactId();
-            logger.debug("check reactor project artifact id: " + artifactId);
-            if (artifactId.equals(projectName)) {
-                return project.getBasedir().getAbsolutePath();
-            }
-        }
-        for (ReactorProject project : mavenContext.getProjects()) {
-            String name = project.getBasedir().getName();
-            logger.debug("check reactor project base directory: " + name);
-            if (name.equals(projectName)) {
-                return project.getBasedir().getAbsolutePath();
-            }
-        }
-        //if we can't resolve this, we will return the original one as this might be intentional to not include the project in the build
-        String defaultValue = "${project_loc:" + projectName + "}";
-        logger.warn("Cannot resolve " + defaultValue + " target resolution might be incomplete");
-        return defaultValue;
-    }
-
-    private static String resolvePattern(String input, Pattern pattern, Function<String, String> parameterResolver) {
-        Matcher matcher = pattern.matcher(input);
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            String group = matcher.group(1);
-            String resolved = parameterResolver.apply(group);
-            matcher.appendReplacement(sb, Matcher.quoteReplacement(resolved));
-        }
-        matcher.appendTail(sb);
-        return sb.toString();
-    }
-
-    private static Pattern createVariablePatternArgument(String variableName) {
-        return Pattern.compile("\\$\\{" + variableName + ":([^}]+)\\}", Pattern.CASE_INSENSITIVE);
     }
 
 }

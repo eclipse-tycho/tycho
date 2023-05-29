@@ -13,10 +13,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,14 +28,15 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
+import org.eclipse.tycho.p2resolver.TargetDefinitionVariableResolver;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
-import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.w3c.dom.Document;
@@ -49,6 +53,9 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     @Parameter(property = "target")
     private File targetFile;
 
+    @Component
+    private TargetDefinitionVariableResolver varResolver;
+
     @Override
     protected void doUpdate() throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
 
@@ -57,7 +64,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
             target = TargetDefinitionFile.parseDocument(input);
             TargetDefinitionFile parsedTarget = TargetDefinitionFile.parse(target, targetFile.getAbsolutePath());
             resolutionContext.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
-            resolutionContext.addTargetDefinition(new LatestVersionTarget(parsedTarget));
+            resolutionContext.addTargetDefinition(new LatestVersionTarget(parsedTarget, varResolver));
             P2ResolutionResult result = p2.getTargetPlatformAsResolutionResult(resolutionContext, executionEnvironment);
 
             Map<String, String> ius = new HashMap<>();
@@ -90,16 +97,18 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     private static final class LatestVersionTarget implements TargetDefinition {
 
         private TargetDefinitionFile delegate;
+        private TargetDefinitionVariableResolver varResolver;
 
-        public LatestVersionTarget(TargetDefinitionFile delegate) {
+        public LatestVersionTarget(TargetDefinitionFile delegate, TargetDefinitionVariableResolver varResolver) {
             this.delegate = delegate;
+            this.varResolver = varResolver;
         }
 
         @Override
         public List<? extends Location> getLocations() {
             return delegate.getLocations().stream().map(location -> {
                 if (location instanceof InstallableUnitLocation iuLocation) {
-                    return new LatestVersionLocation(iuLocation);
+                    return new LatestVersionLocation(iuLocation, varResolver);
                 } else {
                     return location;
                 }
@@ -126,14 +135,19 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     private static final class LatestVersionLocation implements InstallableUnitLocation {
 
         private InstallableUnitLocation delegate;
+        private TargetDefinitionVariableResolver varResolver;
 
-        public LatestVersionLocation(InstallableUnitLocation delegate) {
+        public LatestVersionLocation(InstallableUnitLocation delegate, TargetDefinitionVariableResolver varResolver) {
             this.delegate = delegate;
+            this.varResolver = varResolver;
         }
 
         @Override
-        public List<? extends Repository> getRepositories() {
-            return delegate.getRepositories();
+        public List<? extends TargetDefinition.Repository> getRepositories() {
+            return delegate.getRepositories().stream().map(repo -> {
+                URI resolvedLocation = URI.create(varResolver.resolve(repo.getLocation()));
+                return new ResolvedRepository(repo.getId(), resolvedLocation.toString());
+            }).collect(toList());
         }
 
         @Override
@@ -174,6 +188,28 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         @Override
         public String getVersion() {
             return "0.0.0";
+        }
+
+    }
+
+    private static final class ResolvedRepository implements TargetDefinition.Repository {
+
+        private final String id;
+        private final String uri;
+
+        ResolvedRepository(String id, String uri) {
+            this.id = id;
+            this.uri = uri;
+        }
+
+        @Override
+        public String getId() {
+            return id;
+        }
+
+        @Override
+        public String getLocation() {
+            return uri;
         }
 
     }

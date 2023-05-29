@@ -245,6 +245,13 @@ This can be disabled with the following configuration in the pom:
   </plugin>
 ```
 
+### Variable resolution in target repository location
+
+URI in `<repository location="...">` in `*.target` files can contain:
+- Environment variable as `${env_var:MY_VARIABLE}`
+- System variable as `${system_property:myProp}` passed at build time as `-DmyProp`
+- Project location as `${project_loc:ProjectName}`
+
 ### Migration guide 3.x > 4.x
 
 ### New delayed target platform resolving

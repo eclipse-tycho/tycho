@@ -185,7 +185,7 @@ public interface TargetDefinition {
     }
 
     public interface Repository {
-        URI getLocation();
+        String getLocation();
 
         String getId();
     }

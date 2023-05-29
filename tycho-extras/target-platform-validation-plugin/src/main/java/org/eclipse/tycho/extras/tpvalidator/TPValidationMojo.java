@@ -14,6 +14,7 @@
 package org.eclipse.tycho.extras.tpvalidator;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,6 +46,7 @@ import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+import org.eclipse.tycho.p2resolver.TargetDefinitionVariableResolver;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
@@ -116,6 +118,9 @@ public class TPValidationMojo extends AbstractMojo {
 
     @Component
     private P2ResolverFactory factory;
+
+    @Component
+    private TargetDefinitionVariableResolver varResolver;
 
     public void execute() throws MojoExecutionException {
 
@@ -194,8 +199,9 @@ public class TPValidationMojo extends AbstractMojo {
             for (Location location : targetDefinition.getLocations()) {
                 if (location instanceof InstallableUnitLocation p2Loc) {
                     for (Repository repo : p2Loc.getRepositories()) {
-                        ref.addArtifactRepository(repo.getLocation());
-                        ref.addMetadataRepository(repo.getLocation());
+                        URI repoUri = URI.create(varResolver.resolve(repo.getLocation()));
+                        ref.addArtifactRepository(repoUri);
+                        ref.addMetadataRepository(repoUri);
                     }
                     for (Unit unit : p2Loc.getUnits()) {
                         if (checkDependencies) {
