@@ -11,20 +11,20 @@
  *     SAP AG - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.locking.facade;
+package org.eclipse.tycho;
 
-import java.io.File;
+public class LockTimeoutException extends RuntimeException {
 
-/**
- * Provides process-level file locking.
- */
-public interface FileLockService {
+    public LockTimeoutException(String message) {
+        super(message);
+    }
 
-    /**
-     * Get a locker object which can be used to protect read/write access from multiple processes on
-     * the given file. Locking is advisory only, i.e. all processes must use the same locking
-     * mechanism.
-     */
-    public FileLocker getFileLocker(File file);
+    public LockTimeoutException(Throwable cause) {
+        super(cause);
+    }
+
+    public LockTimeoutException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

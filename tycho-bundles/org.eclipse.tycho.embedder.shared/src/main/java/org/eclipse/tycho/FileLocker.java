@@ -11,7 +11,7 @@
  *     SAP AG - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.locking.facade;
+package org.eclipse.tycho;
 
 /**
  * Provides process-level file locking. Locking is advisory, meaning that processes must
