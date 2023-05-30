@@ -10,7 +10,7 @@
 	<description>Builds BND Workspace with Maven</description>
 	<packaging>maven-plugin</packaging>
 	<prerequisites>
-		<maven>3.8.6</maven>
+		<maven>${minimal-maven-version}</maven>
 	</prerequisites>
 	<dependencies>
 		<dependency>

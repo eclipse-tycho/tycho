@@ -23,7 +23,9 @@
 	<packaging>maven-plugin</packaging>
 
 	<name>Tycho p2 Extras Plugin</name>
-
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<properties>
 		<tycho-build-version>${project.version}</tycho-build-version>
 	</properties>

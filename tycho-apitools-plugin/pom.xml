@@ -8,6 +8,9 @@
 	<artifactId>tycho-apitools-plugin</artifactId>
 	<name>Plugin for performing API analysis tasks</name>
 	<packaging>maven-plugin</packaging>
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<properties>
 		<asm.version>9.5</asm.version>
 	</properties>

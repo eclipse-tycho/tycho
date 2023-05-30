@@ -24,7 +24,9 @@
 	<packaging>maven-plugin</packaging>
 
 	<name>Tycho p2 Metadata Plugin</name>
-
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven</groupId>

@@ -22,7 +22,9 @@
 
 	<artifactId>tycho-version-bump-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<name>Tycho Version Bump Plugin</name>
 
 	<dependencies>
