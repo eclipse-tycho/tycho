@@ -7,6 +7,9 @@
 	</parent>
 	<artifactId>tycho-ds-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<name>Tycho OSGi Declarative Services Plugin</name>
 	<description>A plugin for handling OSGi Declarative Services</description>
 	<dependencies>

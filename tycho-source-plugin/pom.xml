@@ -21,7 +21,9 @@
 
 	<artifactId>tycho-source-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<name>Tycho OSGi Source Plugin</name>
 	<description>A plugin for packing source on OSGi bundles</description>
 

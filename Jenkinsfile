@@ -18,7 +18,7 @@ pipeline {
 		label agentLabel
 	}
 	tools {
-		maven 'apache-maven-3.8.6'
+		maven 'apache-maven-3.9.1'
 		jdk 'openjdk-jdk17-latest'
 	}
 	stages {

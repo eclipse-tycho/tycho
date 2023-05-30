@@ -21,6 +21,9 @@
 	<name>P2 Maven Integration</name>
 	<description>The P2 Maven Plugin provides access to the P2 eco-system inside maven.</description>
 	<properties></properties>
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<dependencies>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>

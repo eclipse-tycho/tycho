@@ -21,7 +21,9 @@
 
 	<name>Tycho GPG plugin</name>
 	<description>A plugin to produce GPG signatures for p2 artifacts</description>
-
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven</groupId>

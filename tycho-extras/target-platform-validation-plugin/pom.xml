@@ -22,7 +22,9 @@
 	<artifactId>target-platform-validation-plugin</artifactId>
 	<name>Tycho Target Platform Validation Plugin</name>
 	<packaging>maven-plugin</packaging>
-
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
