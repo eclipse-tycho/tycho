@@ -17,7 +17,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
-import org.eclipse.tycho.locking.facade.FileLockService;
+import org.eclipse.tycho.FileLockService;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "FileLockServiceConfigurator")
 public class FileLockServiceConfigurator implements EquinoxLifecycleListener {

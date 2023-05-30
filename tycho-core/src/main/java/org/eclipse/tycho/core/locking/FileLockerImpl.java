@@ -21,8 +21,8 @@ import java.nio.channels.FileLock;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import org.eclipse.tycho.locking.facade.FileLocker;
-import org.eclipse.tycho.locking.facade.LockTimeoutException;
+import org.eclipse.tycho.FileLocker;
+import org.eclipse.tycho.LockTimeoutException;
 
 public class FileLockerImpl implements FileLocker {
 

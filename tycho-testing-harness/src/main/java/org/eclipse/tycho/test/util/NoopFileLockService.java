@@ -15,9 +15,9 @@ package org.eclipse.tycho.test.util;
 
 import java.io.File;
 
-import org.eclipse.tycho.locking.facade.FileLockService;
-import org.eclipse.tycho.locking.facade.FileLocker;
-import org.eclipse.tycho.locking.facade.LockTimeoutException;
+import org.eclipse.tycho.FileLockService;
+import org.eclipse.tycho.FileLocker;
+import org.eclipse.tycho.LockTimeoutException;
 
 public class NoopFileLockService implements FileLockService {
 

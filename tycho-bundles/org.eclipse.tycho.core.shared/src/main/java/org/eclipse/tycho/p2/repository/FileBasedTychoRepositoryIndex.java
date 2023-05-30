@@ -29,10 +29,10 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.tycho.FileLockService;
+import org.eclipse.tycho.FileLocker;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.locking.facade.FileLockService;
-import org.eclipse.tycho.locking.facade.FileLocker;
 
 /**
  * Simplistic local Maven repository index to allow efficient lookup of all installed Tycho
