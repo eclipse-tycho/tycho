@@ -36,8 +36,8 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 
 /**
  * Tool to obtain the list of p2 repositories that contain the dependencies of a module.

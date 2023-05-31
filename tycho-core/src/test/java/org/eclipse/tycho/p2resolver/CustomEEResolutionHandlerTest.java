@@ -25,10 +25,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
-import org.eclipse.tycho.core.ee.shared.SystemCapability;
-import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
+import org.eclipse.tycho.ExecutionEnvironment;
+import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.SystemCapability;
+import org.eclipse.tycho.SystemCapability.Type;
 import org.eclipse.tycho.core.resolver.MavenTargetLocationFactory;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;

@@ -20,7 +20,6 @@ import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
-import org.eclipse.tycho.repository.registry.facade.PublishingRepositoryFacade;
 
 /**
  * Representation of the p2 repositories that receive the artifacts produced by a project.

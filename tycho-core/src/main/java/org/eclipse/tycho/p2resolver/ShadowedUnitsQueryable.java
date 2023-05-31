@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
+import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
 final class ShadowedUnitsQueryable implements IQueryable<IInstallableUnit> {
     private final P2TargetPlatform targetPlatform;

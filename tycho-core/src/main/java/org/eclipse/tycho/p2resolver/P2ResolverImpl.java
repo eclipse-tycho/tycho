@@ -51,6 +51,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyResolutionException;
+import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
@@ -60,7 +61,6 @@ import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.resolver.DefaultP2ResolutionResult;
 import org.eclipse.tycho.core.resolver.MetadataOnlyP2ResolutionResult;
@@ -68,7 +68,6 @@ import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
-import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.p2.publisher.AuthoredIUAction;
@@ -76,6 +75,7 @@ import org.eclipse.tycho.p2.repository.QueryableCollection;
 import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
+import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
 public class P2ResolverImpl implements P2Resolver {
 

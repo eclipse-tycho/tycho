@@ -22,8 +22,8 @@ import java.util.List;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.eclipse.tycho.BuildFailureException;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
-import org.eclipse.tycho.core.ee.shared.SystemCapability;
+import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.SystemCapability;
 import org.junit.Before;
 import org.junit.Test;
 
