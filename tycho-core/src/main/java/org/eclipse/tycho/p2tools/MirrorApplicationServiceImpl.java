@@ -53,6 +53,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.tools.BuildContext;
@@ -62,7 +63,6 @@ import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.IUDescription;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
-import org.eclipse.tycho.repository.util.StatusTool;
 
 @Component(role = MirrorApplicationService.class)
 public class MirrorApplicationServiceImpl implements MirrorApplicationService {

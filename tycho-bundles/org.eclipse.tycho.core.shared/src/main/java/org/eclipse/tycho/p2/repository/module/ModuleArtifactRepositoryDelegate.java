@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
-import org.eclipse.tycho.repository.publishing.WriteSessionContext;
+import org.eclipse.tycho.WriteSessionContext;
 
 /**
  * Delegate for a {@link ModuleArtifactRepository} which additionally passes a

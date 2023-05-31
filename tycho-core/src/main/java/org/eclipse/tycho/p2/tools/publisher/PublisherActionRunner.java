@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.repository.util.StatusTool;
+import org.eclipse.tycho.core.shared.StatusTool;
 
 /**
  * Helper for running publisher actions in the context of a project.

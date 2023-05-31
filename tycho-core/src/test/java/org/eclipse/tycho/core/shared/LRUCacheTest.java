@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
 
+import org.eclipse.tycho.core.LRUCache;
 import org.junit.Test;
 
 public class LRUCacheTest {

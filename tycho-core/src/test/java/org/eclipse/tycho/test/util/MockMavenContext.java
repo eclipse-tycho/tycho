@@ -20,7 +20,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.MavenContextImpl;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 

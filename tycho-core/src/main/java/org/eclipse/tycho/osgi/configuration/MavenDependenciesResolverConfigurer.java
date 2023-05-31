@@ -41,10 +41,10 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
+import org.eclipse.tycho.core.DependencyResolutionException;
+import org.eclipse.tycho.core.MavenDependenciesResolver;
+import org.eclipse.tycho.core.MavenModelFacade;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
-import org.eclipse.tycho.core.shared.DependencyResolutionException;
-import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
-import org.eclipse.tycho.core.shared.MavenModelFacade;
 
 @Component(role = MavenDependenciesResolver.class)
 public class MavenDependenciesResolverConfigurer implements MavenDependenciesResolver {

@@ -13,9 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository;
 
-import static org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkFactory.rawWriteToStream;
-import static org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkFactory.writeToStream;
-import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+import static org.eclipse.tycho.p2.repository.BundleConstants.BUNDLE_ID;
+import static org.eclipse.tycho.p2.repository.streaming.ArtifactSinkFactory.rawWriteToStream;
+import static org.eclipse.tycho.p2.repository.streaming.ArtifactSinkFactory.writeToStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,10 +35,10 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
-import org.eclipse.tycho.p2.artifact.provider.IRawArtifactProvider;
-import org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkException;
-import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
-import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
+import org.eclipse.tycho.ArtifactSinkException;
+import org.eclipse.tycho.IArtifactSink;
+import org.eclipse.tycho.IRawArtifactProvider;
+import org.eclipse.tycho.IRawArtifactSink;
 
 /**
  * Base class for {@link IArtifactRepository} implementations that fixes some problems in the p2 API

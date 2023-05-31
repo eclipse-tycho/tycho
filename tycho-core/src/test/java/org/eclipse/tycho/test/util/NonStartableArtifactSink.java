@@ -21,8 +21,8 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkException;
-import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
+import org.eclipse.tycho.ArtifactSinkException;
+import org.eclipse.tycho.IRawArtifactSink;
 
 public class NonStartableArtifactSink implements IRawArtifactSink {
 

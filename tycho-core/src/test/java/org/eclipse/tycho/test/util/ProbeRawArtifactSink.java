@@ -15,7 +15,7 @@ package org.eclipse.tycho.test.util;
 import java.io.IOException;
 
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
+import org.eclipse.tycho.IRawArtifactSink;
 
 public class ProbeRawArtifactSink extends ProbeArtifactSink implements IRawArtifactSink {
 

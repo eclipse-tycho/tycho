@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository;
 
-import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+import static org.eclipse.tycho.p2.repository.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,11 +30,11 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.p2.artifact.provider.IArtifactProvider;
-import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
-import org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkException;
-import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
-import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
+import org.eclipse.tycho.ArtifactSinkException;
+import org.eclipse.tycho.IArtifactProvider;
+import org.eclipse.tycho.IArtifactSink;
+import org.eclipse.tycho.IRawArtifactFileProvider;
+import org.eclipse.tycho.IRawArtifactSink;
 
 public class CompositeArtifactProvider extends CompositeArtifactProviderBaseImpl implements IRawArtifactFileProvider {
 

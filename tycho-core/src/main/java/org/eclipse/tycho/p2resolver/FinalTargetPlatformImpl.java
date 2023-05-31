@@ -22,8 +22,8 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.IArtifactFacade;
+import org.eclipse.tycho.IRawArtifactFileProvider;
 import org.eclipse.tycho.ReactorProjectIdentities;
-import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.p2.repository.ImmutableInMemoryMetadataRepository;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 

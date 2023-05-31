@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository.module;
 
-import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+import static org.eclipse.tycho.p2.repository.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -20,13 +20,13 @@ import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.tools.publisher.PublishProductToolImpl;
 import org.eclipse.tycho.p2.tools.publisher.PublisherActionRunner;
 import org.eclipse.tycho.p2.tools.publisher.PublisherServiceImpl;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
-import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 

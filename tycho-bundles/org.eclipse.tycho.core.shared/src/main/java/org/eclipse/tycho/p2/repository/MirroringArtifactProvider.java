@@ -14,7 +14,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository;
 
-import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+import static org.eclipse.tycho.p2.repository.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,20 +40,20 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.ArtifactSinkException;
+import org.eclipse.tycho.IArtifactSink;
+import org.eclipse.tycho.IRawArtifactFileProvider;
+import org.eclipse.tycho.IRawArtifactProvider;
+import org.eclipse.tycho.IRawArtifactSink;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.shared.DuplicateFilteringLoggingProgressMonitor;
+import org.eclipse.tycho.core.shared.LoggingProgressMonitor;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenContext.ChecksumPolicy;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
-import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
-import org.eclipse.tycho.p2.artifact.provider.IRawArtifactProvider;
-import org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkException;
-import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
-import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
-import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
-import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
-import org.eclipse.tycho.repository.util.StatusTool;
+import org.eclipse.tycho.core.shared.StatusTool;
 
 /**
  * {@link IRawArtifactFileProvider} which caches all accessed artifacts in the local Maven
