@@ -29,9 +29,9 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
-import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.resolver.ClassifiedArtifactKey;
 import org.eclipse.tycho.p2.resolver.ClassifiedLocation;
+import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
 public class DefaultP2ResolutionResult implements P2ResolutionResult {
 

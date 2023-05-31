@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.tycho.TargetPlatform;
-import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
+import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
 
 /**
  * List of p2 repositories for a p2 operation. Instances of this class store a list of metadata and

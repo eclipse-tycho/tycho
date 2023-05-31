@@ -58,9 +58,9 @@ import org.eclipse.pde.core.target.TargetFeature;
 import org.eclipse.tycho.core.resolver.MavenTargetLocationFactory;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
-import org.eclipse.tycho.core.resolver.target.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
+import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 
