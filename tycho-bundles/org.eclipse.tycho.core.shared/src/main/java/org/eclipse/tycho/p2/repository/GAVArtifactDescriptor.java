@@ -16,7 +16,6 @@ import java.util.Map;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.repository.util.GAVArtifactDescriptorBase;
 
 /**
  * Key which uniquely identifies an artifact in both the p2 ("artifact descriptor") and Maven

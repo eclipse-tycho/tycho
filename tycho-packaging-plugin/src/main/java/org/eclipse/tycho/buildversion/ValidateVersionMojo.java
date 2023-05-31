@@ -26,7 +26,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.core.ManifestHelper;
-import org.eclipse.tycho.core.shared.VersioningHelper;
+import org.eclipse.tycho.core.VersioningHelper;
 import org.osgi.framework.Constants;
 import org.sonatype.plexus.build.incremental.BuildContext;
 

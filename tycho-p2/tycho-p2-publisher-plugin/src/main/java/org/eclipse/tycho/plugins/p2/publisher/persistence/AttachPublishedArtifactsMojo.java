@@ -24,9 +24,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.PublishingRepositoryFacade;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
-import org.eclipse.tycho.repository.publishing.PublishingRepositoryFacade;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
 /**

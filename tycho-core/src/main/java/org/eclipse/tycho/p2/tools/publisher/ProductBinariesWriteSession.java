@@ -15,7 +15,7 @@ package org.eclipse.tycho.p2.tools.publisher;
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.tycho.repository.publishing.WriteSessionContext;
+import org.eclipse.tycho.WriteSessionContext;
 
 /**
  * {@link WriteSessionContext} for publishing the binary executables artifacts.

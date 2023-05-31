@@ -14,7 +14,7 @@
 package org.eclipse.tycho.p2.resolver;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.tycho.repository.util.StatusTool;
+import org.eclipse.tycho.core.shared.StatusTool;
 
 /**
  * Exception thrown by Tycho's p2 resolution implementations. It is a checked exception to encourage

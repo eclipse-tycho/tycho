@@ -28,7 +28,7 @@ import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.AbstractLogger;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
+import org.eclipse.tycho.core.BuildPropertiesImpl;
 import org.eclipse.tycho.testing.TestUtil;
 import org.junit.Test;
 

@@ -13,7 +13,7 @@
 package org.eclipse.tycho.test.util;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.tycho.p2.artifact.provider.IArtifactProvider;
+import org.eclipse.tycho.IArtifactProvider;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;

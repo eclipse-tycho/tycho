@@ -36,8 +36,8 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.resolver.ResolverException;
-import org.eclipse.tycho.repository.util.StatusTool;
 
 public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrategy {
 

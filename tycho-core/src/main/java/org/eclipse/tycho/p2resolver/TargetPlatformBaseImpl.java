@@ -30,11 +30,11 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.IArtifactFacade;
+import org.eclipse.tycho.IRawArtifactFileProvider;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.resolver.target.ArtifactMatcher;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
-import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 

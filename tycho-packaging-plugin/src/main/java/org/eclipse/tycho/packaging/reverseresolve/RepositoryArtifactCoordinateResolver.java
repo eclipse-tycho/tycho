@@ -34,7 +34,7 @@ import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.core.shared.DependencyResolutionException;
+import org.eclipse.tycho.core.DependencyResolutionException;
 
 /**
  * This resolves against the maven (local) repository if the jar carry a

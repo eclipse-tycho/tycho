@@ -21,7 +21,6 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
-import org.eclipse.tycho.repository.util.RepositoryFactoryTools;
 
 public class ArtifactRepositoryBlackboard extends ArtifactRepositoryFactory {
 

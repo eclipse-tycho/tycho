@@ -24,7 +24,6 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.repository.util.BundleConstants;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

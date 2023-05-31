@@ -19,9 +19,9 @@ import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
-import org.eclipse.tycho.repository.publishing.PublishingRepository;
 
 /**
  * Manages the p2 repositories for the projects' build results ("publishing repository") and the p2

@@ -38,8 +38,8 @@ import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
-import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
 /**

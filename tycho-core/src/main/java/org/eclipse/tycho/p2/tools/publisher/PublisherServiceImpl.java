@@ -27,9 +27,9 @@ import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.tycho.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.impl.CustomEEResolutionHints;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
-import org.eclipse.tycho.repository.publishing.PublishingRepository;
 
 public class PublisherServiceImpl implements PublisherService {
 

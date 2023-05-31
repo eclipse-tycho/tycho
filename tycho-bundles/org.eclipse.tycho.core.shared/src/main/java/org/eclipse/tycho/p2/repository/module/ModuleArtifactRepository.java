@@ -13,7 +13,7 @@
 package org.eclipse.tycho.p2.repository.module;
 
 import static java.util.stream.Collectors.toSet;
-import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+import static org.eclipse.tycho.p2.repository.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,17 +34,17 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.IArtifactSink;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
+import org.eclipse.tycho.WriteSessionContext;
+import org.eclipse.tycho.WriteSessionContext.ClassifierAndExtension;
 import org.eclipse.tycho.p2.repository.ArtifactRepositoryBaseImpl;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
 import org.eclipse.tycho.p2.repository.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.GAVArtifactDescriptorBase;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.p2.repository.module.ModuleArtifactRepository.ModuleArtifactDescriptor;
-import org.eclipse.tycho.repository.publishing.WriteSessionContext;
-import org.eclipse.tycho.repository.publishing.WriteSessionContext.ClassifierAndExtension;
-import org.eclipse.tycho.repository.util.GAVArtifactDescriptorBase;
 
 /**
  * A p2 artifact repository implementation for the build output directory. Instances are persisted

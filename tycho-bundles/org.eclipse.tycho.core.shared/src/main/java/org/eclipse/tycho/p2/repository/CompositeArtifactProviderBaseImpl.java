@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository;
 
-import static org.eclipse.tycho.p2.artifact.provider.ArtifactProviderImplUtilities.canWriteCanonicalArtifactToSink;
-import static org.eclipse.tycho.p2.artifact.provider.ArtifactProviderImplUtilities.canWriteToSink;
-import static org.eclipse.tycho.p2.artifact.provider.ArtifactProviderImplUtilities.createMultiStatusWithFixedSeverity;
-import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+import static org.eclipse.tycho.p2.repository.ArtifactProviderImplUtilities.canWriteCanonicalArtifactToSink;
+import static org.eclipse.tycho.p2.repository.ArtifactProviderImplUtilities.canWriteToSink;
+import static org.eclipse.tycho.p2.repository.ArtifactProviderImplUtilities.createMultiStatusWithFixedSeverity;
+import static org.eclipse.tycho.p2.repository.BundleConstants.BUNDLE_ID;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,10 +28,10 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.p2.artifact.provider.IRawArtifactProvider;
-import org.eclipse.tycho.p2.artifact.provider.streaming.ArtifactSinkException;
-import org.eclipse.tycho.p2.artifact.provider.streaming.IArtifactSink;
-import org.eclipse.tycho.p2.artifact.provider.streaming.IRawArtifactSink;
+import org.eclipse.tycho.ArtifactSinkException;
+import org.eclipse.tycho.IArtifactSink;
+import org.eclipse.tycho.IRawArtifactProvider;
+import org.eclipse.tycho.IRawArtifactSink;
 
 public abstract class CompositeArtifactProviderBaseImpl implements IRawArtifactProvider {
 

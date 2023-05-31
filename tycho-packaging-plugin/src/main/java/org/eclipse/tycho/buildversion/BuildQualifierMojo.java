@@ -35,8 +35,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.build.BuildTimestampProvider;
+import org.eclipse.tycho.core.VersioningHelper;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.shared.VersioningHelper;
 import org.osgi.framework.Version;
 
 /**
