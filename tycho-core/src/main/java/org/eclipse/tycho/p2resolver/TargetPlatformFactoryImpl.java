@@ -54,7 +54,6 @@ import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetPlatform;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.core.ee.impl.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.resolver.target.DuplicateReactorIUsException;
@@ -84,6 +83,7 @@ import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
 
 public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 

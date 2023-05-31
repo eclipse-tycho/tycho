@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.artifacts;
+package org.eclipse.tycho.targetplatform;
 
 public class TargetPlatformFilterSyntaxException extends RuntimeException {
 

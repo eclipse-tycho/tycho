@@ -17,10 +17,10 @@ import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
-import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilterSyntaxException;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityType;
 
 @Component(role = TargetPlatformFilterConfigurationReader.class)
 public class TargetPlatformFilterConfigurationReader {

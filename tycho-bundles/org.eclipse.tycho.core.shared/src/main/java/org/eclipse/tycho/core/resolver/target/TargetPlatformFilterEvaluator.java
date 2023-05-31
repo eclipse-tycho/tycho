@@ -24,11 +24,11 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
-import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilterSyntaxException;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityType;
 
 public class TargetPlatformFilterEvaluator {
 
