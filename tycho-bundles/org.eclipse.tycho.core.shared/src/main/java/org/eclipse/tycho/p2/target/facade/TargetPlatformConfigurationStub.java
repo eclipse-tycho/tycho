@@ -21,9 +21,9 @@ import java.util.Set;
 
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
 
 // TODO 412416 add an TargetPlatformConfiguration interface with only getters, and add implementation backed by the POM configuration
 public class TargetPlatformConfigurationStub {

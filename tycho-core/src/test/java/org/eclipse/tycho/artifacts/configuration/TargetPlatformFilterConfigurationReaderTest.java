@@ -12,9 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.artifacts.configuration;
 
-import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithVersion;
-import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithVersionRange;
-import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithoutVersion;
+import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithVersion;
+import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithVersionRange;
+import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithoutVersion;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -33,11 +33,11 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.DefaultRepositorySystemSession;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter.FilterAction;
-import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilterSyntaxException;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityType;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter.FilterAction;
 import org.eclipse.tycho.version.TychoVersion;
 
 public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTestCase {
