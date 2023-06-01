@@ -26,10 +26,7 @@
 	<name>Tycho p2 Tools Parent</name>
 
 	<modules>
-		<module>tycho-p2-director-plugin</module>
-		<module>tycho-p2-plugin</module>
-		<module>tycho-p2-publisher-plugin</module>
-		<module>tycho-p2-repository-plugin</module>
+
 	</modules>
 
 </project>

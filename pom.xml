@@ -532,7 +532,10 @@
 		<!-- release -->
 		<module>tycho-versions-plugin</module>
 		<!-- tycho-p2 -->
-		<module>tycho-p2</module>
+		<module>tycho-p2-director-plugin</module>
+		<module>tycho-p2-plugin</module>
+		<module>tycho-p2-publisher-plugin</module>
+		<module>tycho-p2-repository-plugin</module>
 		<module>tycho-artifactcomparator</module>
 		<module>tycho-gpg-plugin</module>
 		<module>tycho-extras</module>
