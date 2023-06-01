@@ -25,7 +25,7 @@
 	<name>Tycho OSGi Bundles Parent</name>
 
 	<modules>
-		<module>org.eclipse.tycho.embedder.shared</module>
+
 		<module>org.eclipse.tycho.core.shared</module>
 	</modules>
 </project>

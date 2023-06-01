@@ -511,6 +511,7 @@
 	</reporting>
 	<modules>
 		<module>tycho-bundles</module>
+		<module>tycho-api</module>
 		<module>sisu-osgi</module>
 		<module>p2-maven-plugin</module>
 		<module>tycho-metadata-model</module>
