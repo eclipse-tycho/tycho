@@ -23,9 +23,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
     - name: Set up Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2 # v3.11.0
       with:
         java-version: |
             8
@@ -34,14 +34,14 @@ jobs:
             17
         distribution: 'temurin'
     - name: Cache local Maven repository
-      uses: actions/cache@v3
+      uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-tycho4m39-${{ matrix.os }}-${{ hashFiles('**/pom.xml', '**/*.target') }}
         restore-keys: |
           ${{ runner.os }}-tycho4m39-${{ matrix.os }}-
     - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.5
+      uses: stCarolas/setup-maven@07fbbe97d97ef44336b7382563d66743297e442f # v4.5
       with:
         maven-version: 3.9.2
     - name: Build Tycho
@@ -51,7 +51,7 @@ jobs:
         cp .github/toolchains.xml ~/.m2/toolchains.xml
         mvn -U -V -e -B -ntp clean install --file pom.xml -DtrimStackTrace=false -Pits -fae
     - name: Upload Test Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
       if: always()
       with:
         name: test-results-${{ matrix.os }}
@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
       with:
         name: Event File
         path: ${{ github.event_path }}
