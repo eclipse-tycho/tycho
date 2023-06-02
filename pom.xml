@@ -510,7 +510,6 @@
 		</plugins>
 	</reporting>
 	<modules>
-		<module>tycho-bundles</module>
 		<module>tycho-api</module>
 		<module>sisu-osgi</module>
 		<module>p2-maven-plugin</module>
@@ -521,6 +520,7 @@
 		<module>tycho-compiler-jdt</module>
 		<module>tycho-lib-detector</module>
 		<module>tycho-compiler-plugin</module>
+		<module>tycho-p2</module>
 		<module>tycho-packaging-plugin</module>
 		<module>tycho-source-plugin</module>
 		<module>target-platform-configuration</module>
