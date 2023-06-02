@@ -4,4 +4,4 @@
 # and if these should be started                #
 #################################################
 
-org.eclipse.tycho.core.shared,true
+org.eclipse.tycho.p2,true
