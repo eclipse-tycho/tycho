@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Suite Test
+Bundle-SymbolicName: org.eclipse.tycho.test.suite;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Test
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Eclipse-BundleShape: dir
+Automatic-Module-Name: org.eclipse.tycho.test.suite
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
