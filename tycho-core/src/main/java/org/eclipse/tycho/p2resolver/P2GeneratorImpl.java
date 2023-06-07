@@ -289,6 +289,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                     throw new RuntimeException("Unable to read category File", e);
                 }
             }
+        } else if (PackagingType.TYPE_P2_SITE.equals(packaging)) {
+            //nothing to do at the moment...
         } else if (PackagingType.TYPE_P2_IU.equals(packaging)) {
             actions.add(new AuthoredIUAction(location));
         } else if (location.isFile() && location.getName().endsWith(".jar")) {

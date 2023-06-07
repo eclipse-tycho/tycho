@@ -25,8 +25,10 @@ public final class PackagingType {
     public static final String TYPE_ECLIPSE_REPOSITORY = "eclipse-repository";
     public static final String TYPE_ECLIPSE_TARGET_DEFINITION = "eclipse-target-definition";
     public static final String TYPE_P2_IU = ArtifactType.TYPE_INSTALLABLE_UNIT;
+    public static final String TYPE_P2_SITE = ArtifactType.TYPE_P2_MAVEN_REPOSITORY;
 
     public static final Set<String> TYCHO_PACKAGING_TYPES = Set.of(PackagingType.TYPE_ECLIPSE_PLUGIN,
-            TYPE_ECLIPSE_TEST_PLUGIN, TYPE_ECLIPSE_FEATURE, TYPE_ECLIPSE_REPOSITORY, TYPE_ECLIPSE_TARGET_DEFINITION);
+            TYPE_ECLIPSE_TEST_PLUGIN, TYPE_ECLIPSE_FEATURE, TYPE_ECLIPSE_REPOSITORY, TYPE_ECLIPSE_TARGET_DEFINITION,
+            TYPE_P2_SITE);
 
 }
