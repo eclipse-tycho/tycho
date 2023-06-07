@@ -29,5 +29,6 @@ public final class ArtifactType {
     public static final String TYPE_INSTALLABLE_UNIT = "p2-installable-unit";
     public static final String TYPE_P2_ARTIFACTS = "p2-artifacts";
     public static final String TYPE_P2_METADATA = "p2-metadata";
+    public static final String TYPE_P2_MAVEN_REPOSITORY = "p2-maven-repository";
 
 }

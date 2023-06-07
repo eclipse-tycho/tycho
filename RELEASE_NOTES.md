@@ -4,6 +4,15 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
+### creating maven p2 sites with Tycho packaging
+
+There is already a way to [create a p2 maven site with Tycho](https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md#create-p2-repository-referencing-maven-artifacts) for plain jar based projects.
+This support is now enhanced to being used in a Tycho based setup so it is possible to build a full maven deployed updatesite automatically with all bundles of the current build.
+You can find a demo here:
+
+https://github.com/eclipse-tycho/tycho/tree/master/demo/p2-maven-site
+
+
 ### New document-bundle mojo
 
 There is now a new mojo that replaces the usual ant-based workflow to generate the help index, it can be used like this:
