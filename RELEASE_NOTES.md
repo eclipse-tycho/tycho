@@ -226,6 +226,29 @@ The parameters of the `tycho-apitools-plugin:generate` goal have been completed 
 The `tycho-p2-repository-plugin:assemble-repository` mojo has now a new configuration parameter `filterProvided` that (if enabled) filter units and artifacts that are already present in one of the referenced repositories.
 That way one can prevent including items that are already present in the same form in another repository.
 
+If you want to include repository references automatically, there are two other new options:
+
+- `addPomRepositoryReferences` - all P2 repositories from the pom are added as a reference
+- `addIUTargetRepositoryReferences` - all P2 repositories defined in target files IU-location types are added as a reference
+
+so now one can produce a self-contained update-site that only includes what is not already available from the target content used by specify:
+
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-p2-repository-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<includeAllDependencies>true</includeAllDependencies>
+		<filterProvided>true</filterProvided>
+		<addPomRepositoryReferences>true</addPomRepositoryReferences>
+		<addIUTargetRepositoryReferences>true</addIUTargetRepositoryReferences>
+	</configuration>
+</plugin>
+
+```
+
 ### New parameter in tycho-packaging-plugin:package-plugin
 
 The `tycho-packaging-plugin:package-plugin` mojo has now a new configuration parameter `deriveHeaderFromSource` (default true), that allows Tycho to discover additional headers declared in the source (e.g. from annotations).
