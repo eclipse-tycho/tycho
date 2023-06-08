@@ -14,10 +14,13 @@ package org.eclipse.tycho.plugins.p2.repository;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -39,6 +42,9 @@ import org.eclipse.tycho.p2.tools.RepositoryReference;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
+import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
+import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
+import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
 /**
  * <p>
@@ -193,6 +199,19 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter
     private Map<String, String> extraArtifactRepositoryProperties;
 
+    /**
+     * if enabled all P2 repositories referenced in the pom are added as referenced sites
+     */
+    @Parameter()
+    private boolean addPomRepositoryReferences;
+
+    /**
+     * if enabled all P2 repositories referenced in the IU location type of target-files are added
+     * as referenced sites
+     */
+    @Parameter()
+    private boolean addIUTargetRepositoryReferences;
+
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
@@ -226,8 +245,28 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                         .map(Category::getRepositoryReferences)//
                         .flatMap(List::stream)//
                         .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
-                        .toList();
-
+                        .collect(Collectors.toCollection(ArrayList::new));
+                if (addPomRepositoryReferences) {
+                    for (Repository pomRepo : getProject().getRepositories()) {
+                        if ("p2".equals(pomRepo.getLayout())) {
+                            repositoryReferences
+                                    .add(new RepositoryReference(pomRepo.getName(), pomRepo.getUrl(), true));
+                        }
+                    }
+                }
+                if (addIUTargetRepositoryReferences) {
+                    for (TargetDefinitionFile targetDefinitionFile : projectManager
+                            .getTargetPlatformConfiguration(getProject()).getTargets()) {
+                        for (Location location : targetDefinitionFile.getLocations()) {
+                            if (location instanceof InstallableUnitLocation iu) {
+                                for (org.eclipse.tycho.targetplatform.TargetDefinition.Repository iuRepo : iu
+                                        .getRepositories()) {
+                                    repositoryReferences.add(new RepositoryReference(null, iuRepo.getLocation(), true));
+                                }
+                            }
+                        }
+                    }
+                }
                 DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
                         destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
                         !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryReferences);

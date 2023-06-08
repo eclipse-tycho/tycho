@@ -40,7 +40,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     private String qualifier;
 
     @Component
-    private TychoProjectManager projectManager;
+    protected TychoProjectManager projectManager;
 
     protected MavenProject getProject() {
         return project;
