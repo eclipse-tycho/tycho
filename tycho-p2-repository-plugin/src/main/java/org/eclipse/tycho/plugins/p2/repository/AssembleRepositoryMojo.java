@@ -15,6 +15,7 @@ package org.eclipse.tycho.plugins.p2.repository;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Category;
+import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
@@ -45,6 +47,9 @@ import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
+
+import aQute.bnd.osgi.repository.XMLResourceGenerator;
+import aQute.bnd.repository.fileset.FileSetRepository;
 
 /**
  * <p>
@@ -212,6 +217,20 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter()
     private boolean addIUTargetRepositoryReferences;
 
+    /**
+     * If enabled, an
+     * <a href="https://docs.osgi.org/specification/osgi.cmpn/7.0.0/service.repository.html">OSGi
+     * Repository</a> is generated out of the content of the P2 repository.
+     */
+    @Parameter()
+    private boolean generateOSGiRepository;
+
+    /**
+     * Specify the filename of the additionally generated OSGi Repository (if enabled)
+     */
+    @Parameter(defaultValue = "repository.xml")
+    private String repositoryFileName;
+
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
@@ -273,6 +292,43 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                 mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                         includeAllDependencies, includeAllSources, includeRequiredPlugins, includeRequiredFeatures,
                         filterProvided, profileProperties);
+                if (generateOSGiRepository) {
+                    XMLResourceGenerator resourceGenerator = new XMLResourceGenerator();
+                    resourceGenerator.name(repositoryName);
+                    resourceGenerator.base(destination.toURI());
+                    File pluginsResult = new File(destination, "plugins");
+                    if (pluginsResult.isDirectory()) {
+                        File[] files = pluginsResult
+                                .listFiles(pathname -> pathname.isFile() && pathname.getName().endsWith(".jar"));
+                        try {
+                            resourceGenerator.repository(new FileSetRepository("plugins", Arrays.asList(files)));
+                        } catch (Exception e) {
+                            throw new MojoExecutionException("Could not read p2 repository plugins", e);
+                        }
+                    }
+                    File featureResult = new File(destination, "features");
+                    if (featureResult.isDirectory()) {
+                        File[] files = featureResult
+                                .listFiles(pathname -> pathname.isFile() && pathname.getName().endsWith(".jar"));
+                        for (File featureFile : files) {
+                            try {
+                                Feature feature = Feature.readJar(featureFile);
+                                feature.toResource().forEach(resourceGenerator::resource);
+                            } catch (IOException e) {
+                                throw new MojoExecutionException("Could not read feature " + featureFile, e);
+                            }
+                        }
+                    }
+                    try {
+                        if (compress) {
+                            resourceGenerator.save(new File(destination, repositoryFileName + ".gz"));
+                        } else {
+                            resourceGenerator.save(new File(destination, repositoryFileName));
+                        }
+                    } catch (IOException e) {
+                        throw new MojoExecutionException("Could not write OSGi Repository!", e);
+                    }
+                }
             } catch (FacadeException e) {
                 throw new MojoExecutionException("Could not assemble p2 repository", e);
             }

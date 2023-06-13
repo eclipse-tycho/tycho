@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine.tests;
 
-import static org.eclipse.tycho.versions.engine.ImportRefVersionConstraint.MATCH_COMPATIBLE;
-import static org.eclipse.tycho.versions.engine.ImportRefVersionConstraint.MATCH_EQUIVALENT;
-import static org.eclipse.tycho.versions.engine.ImportRefVersionConstraint.MATCH_GREATER_OR_EQUAL;
-import static org.eclipse.tycho.versions.engine.ImportRefVersionConstraint.MATCH_PERFECT;
+import static org.eclipse.tycho.model.Feature.MATCH_COMPATIBLE;
+import static org.eclipse.tycho.model.Feature.MATCH_EQUIVALENT;
+import static org.eclipse.tycho.model.Feature.MATCH_GREATER_OR_EQUAL;
+import static org.eclipse.tycho.model.Feature.MATCH_PERFECT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
