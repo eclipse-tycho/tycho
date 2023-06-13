@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="feature1"/>
+   <feature id="feature2"/>
+   <feature id="feature3"/>
+   <bundle id="bundle1"/>
+   <bundle id="bundle1a"/>
+   <bundle id="bundle1b"/>
+   <bundle id="bundle2"/>
+</site>

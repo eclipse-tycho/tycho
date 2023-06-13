@@ -113,8 +113,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
 
                     boolean isPatch = importRef.getPatch().equals("true");
                     ImportRefVersionConstraint originalVersionConstraint = new ImportRefVersionConstraint(
-                            importRef.getVersion(),
-                            isPatch ? ImportRefVersionConstraint.MATCH_PERFECT : importRef.getMatch());
+                            importRef.getVersion(), isPatch ? Feature.MATCH_PERFECT : importRef.getMatch());
 
                     ImportRefVersionConstraint newImportRefVersionConstraint = versionRangeUpdateStrategy
                             .computeNewImportRefVersionConstraint(originalVersionConstraint,

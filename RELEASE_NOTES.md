@@ -249,6 +249,23 @@ so now one can produce a self-contained update-site that only includes what is n
 
 ```
 
+### Building OSGi Repositories with tycho-p2-repository-plugin:assemble-repository
+
+OSGi defines an own [repository serialization format](https://docs.osgi.org/specification/osgi.cmpn/7.0.0/service.repository.html) Tycho can now produce such repositories to ease integration with these format, the only thing required is specifying the following configuration options:
+
+```
+<plugin>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho-p2-repository-plugin</artifactId>
+		<version>${tycho-version}</version>
+		<configuration>
+			<generateOSGiRepository>true</generateOSGiRepository>
+		</configuration>
+</plugin>
+```
+
+This will generate an additional `repository.xml` file in the root of the produced p2 repository representing the content as an OSGi Repository.
+
 ### New parameter in tycho-packaging-plugin:package-plugin
 
 The `tycho-packaging-plugin:package-plugin` mojo has now a new configuration parameter `deriveHeaderFromSource` (default true), that allows Tycho to discover additional headers declared in the source (e.g. from annotations).
