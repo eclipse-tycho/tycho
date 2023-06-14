@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -252,6 +254,27 @@ public abstract class AbstractTychoIntegrationTest {
         for (String line : lines) {
             if (Verifier.stripAnsi(line).contains(text)) {
                 throw new VerificationException("Text '" + text + "' was found in the log!");
+            }
+        }
+    }
+
+    /**
+     * Variant of verifyErrorFreeLog that do not skip stacktraces
+     * 
+     * @param verifier
+     * @throws VerificationException
+     */
+    protected static void verifyErrorFreeLog(Verifier verifier) throws VerificationException {
+        List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+        int size = lines.size();
+        Pattern pattern = Pattern.compile("\\[\\w+\\]");
+        for (int i = 0; i < size; i++) {
+            String line = lines.get(i);
+            if (Verifier.stripAnsi(line).contains("[ERROR]")) {
+                String collect = IntStream.range(i, size).mapToObj(lines::get)
+                        .takeWhile(l -> l.contains("[ERROR]") || !pattern.matcher(l).find())
+                        .collect(Collectors.joining(System.lineSeparator()));
+                throw new VerificationException("Error in execution: " + collect);
             }
         }
     }
