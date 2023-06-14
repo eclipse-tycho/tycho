@@ -25,7 +25,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.publisher.AbstractPublisherApplication;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -48,7 +47,6 @@ public class TransientArtifactRepository extends AbstractArtifactRepository {
 
     private static Map<String, String> newProperties() {
         Map<String, String> properties = new LinkedHashMap<>();
-        properties.put(AbstractPublisherApplication.PUBLISH_PACK_FILES_AS_SIBLINGS, "true");
         return properties;
     }
 
