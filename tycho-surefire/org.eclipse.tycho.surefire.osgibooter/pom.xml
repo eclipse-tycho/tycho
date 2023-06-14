@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.e4.ui.workbench3</artifactId>
-			<version>0.16.200</version>
+			<version>0.17.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
