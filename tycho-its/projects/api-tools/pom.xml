@@ -12,9 +12,7 @@
 		<module>bundle2</module>
 	</modules>
 	<properties>
-		<target-platform>https://download.eclipse.org/releases/2022-06/</target-platform>
-		<!-- required until 2023-06 release! -->
-		<eclipserun-repo>https://download.eclipse.org/eclipse/updates/4.28-I-builds/</eclipserun-repo>
+		<target-platform>https://download.eclipse.org/releases/2023-06/</target-platform>
 	</properties>
 	<repositories>
 		<repository>
@@ -36,9 +34,6 @@
 				<artifactId>tycho-apitools-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-					<apiToolsRepository>
-				 		<url>${eclipserun-repo}</url>
-				 	</apiToolsRepository>
 					<baselines>
 						<repository>
 							<id>baseline</id>
