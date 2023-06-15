@@ -94,7 +94,12 @@ public class EclipseFramework implements AutoCloseable {
         if (returnValue instanceof Integer retCode) {
             return retCode.intValue();
         }
-        throw applicationStartupError(systemBundleContext, null);
+        if (returnValue == null) {
+            throw applicationStartupError(systemBundleContext,
+                    new NullPointerException("Application return value is null!"));
+        }
+        throw applicationStartupError(systemBundleContext, new IllegalStateException(
+                "Unsupported return value: " + returnValue + " of type " + returnValue.getClass().getName()));
     }
 
     private Exception applicationStartupError(BundleContext systemBundleContext, Exception e) {
