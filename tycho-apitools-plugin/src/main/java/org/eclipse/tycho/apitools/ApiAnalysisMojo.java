@@ -182,7 +182,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	}
 
 	private MavenRepositoryLocation getRepository() {
-		if (apiToolsRepository == null) {
+		if (apiToolsRepository == null || apiToolsRepository.getUrl() == null) {
 			return new MavenRepositoryLocation(null, URI.create(REPO_DEFAULT));
 		}
 		return new MavenRepositoryLocation(apiToolsRepository.getId(), URI.create(apiToolsRepository.getUrl()));
@@ -214,7 +214,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		try {
 			Optional<ArtifactKey> artifactKey = projectManager.getArtifactKey(project);
 			getLog().info("Resolve API baseline for " + project.getId());
-			baselineBundles = resolver.getApiBaselineBundles(baselines.stream()
+			baselineBundles = resolver.getApiBaselineBundles(baselines.stream().filter(repo -> repo.getUrl() != null)
 					.map(repo -> new MavenRepositoryLocation(repo.getId(), URI.create(repo.getUrl()))).toList(),
 					artifactKey.get());
 			getLog().debug("API baseline contains " + baselineBundles.size() + " bundles (resolve takes " + time(start)

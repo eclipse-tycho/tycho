@@ -96,10 +96,13 @@ public class DefaultTargetPlatformConfigurationReader {
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project)
             throws TargetPlatformConfigurationException {
         TargetPlatformConfiguration result = new TargetPlatformConfiguration();
+        //we first need to set all items from the system environment just in case a target platform is not defined at all
+        setRequireEagerResolve(result,
+                getStringValue(null, session, PROPERTY_REQUIRE_EAGER_RESOLVE, PROPERTY_ALIAS_REQUIRE_EAGER_RESOLVE));
+        setLocalArtifacts(result, getStringValue(null, session, LOCAL_ARTIFACTS_PROPERTY, null));
+        //Now use org.eclipse.tycho:target-platform-configuration if provided
         TychoProject tychoProject = projectManager.getTychoProject(project).orElse(null);
-        // Use org.eclipse.tycho:target-platform-configuration/configuration/environment, if provided
         Plugin plugin = project.getPlugin("org.eclipse.tycho:target-platform-configuration");
-
         if (plugin != null) {
             Xpp3Dom configuration = (Xpp3Dom) plugin.getConfiguration();
             if (configuration != null) {
@@ -136,6 +139,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 setTargetDefinitionIncludeSources(result, configuration);
             }
         }
+        //consider items set in the pom repositories
         for (Repository repository : project.getRepositories()) {
             if ("target".equals(repository.getLayout())) {
                 try {
@@ -205,6 +209,10 @@ public class DefaultTargetPlatformConfigurationReader {
     private void setLocalArtifacts(TargetPlatformConfiguration result, Xpp3Dom resolverDom, MavenSession mavenSession) {
         String value = getStringValue(resolverDom.getChild(LOCAL_ARTIFACTS), mavenSession, LOCAL_ARTIFACTS_PROPERTY,
                 null);
+        setLocalArtifacts(result, value);
+    }
+
+    private void setLocalArtifacts(TargetPlatformConfiguration result, String value) {
         if (value == null) {
             return;
         }
@@ -219,7 +227,6 @@ public class DefaultTargetPlatformConfigurationReader {
             throw new BuildFailureException("Invalid value for " + LOCAL_ARTIFACTS + " setting, given = " + value
                     + ", allowed = " + Arrays.toString(LocalArtifactHandling.values()));
         }
-
     }
 
     private void setOptionalDependencies(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
@@ -326,6 +333,10 @@ public class DefaultTargetPlatformConfigurationReader {
         Xpp3Dom child = resolverDom.getChild(REQUIRE_EAGER_RESOLVE);
         String value = getStringValue(child, session, PROPERTY_REQUIRE_EAGER_RESOLVE,
                 PROPERTY_ALIAS_REQUIRE_EAGER_RESOLVE);
+        setRequireEagerResolve(result, value);
+    }
+
+    private void setRequireEagerResolve(TargetPlatformConfiguration result, String value) {
         if (value == null) {
             return;
         }
@@ -383,7 +394,8 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setPomDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration, MavenSession session) {
-        String value = getStringValue(configuration.getChild(POM_DEPENDENCIES), session, PROPERTY_POM_DEPENDENCIES, null);
+        String value = getStringValue(configuration.getChild(POM_DEPENDENCIES), session, PROPERTY_POM_DEPENDENCIES,
+                null);
         if (value == null) {
             return;
         }

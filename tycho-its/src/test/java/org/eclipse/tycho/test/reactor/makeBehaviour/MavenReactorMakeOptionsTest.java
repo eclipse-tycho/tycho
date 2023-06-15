@@ -43,7 +43,7 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 
 	@Before
 	public void setUp() throws Exception {
-		verifier = getVerifier("reactor.makeBehaviour");
+		verifier = getVerifier("reactor.makeBehaviour", false, true);
 		verifier.addCliOption("-T1C");
 	}
 
