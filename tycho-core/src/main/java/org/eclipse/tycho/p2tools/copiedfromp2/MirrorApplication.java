@@ -263,7 +263,6 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
         mirror.setValidate(validate);
         mirror.setCompareExclusions(compareExclusions);
         mirror.setTransport((Transport) agent.getService(Transport.SERVICE_NAME));
-        mirror.setIncludePacked(includePacked);
         mirror.setMirrorProperties(mirrorProperties);
 
         // If IUs have been specified then only they should be mirrored, otherwise

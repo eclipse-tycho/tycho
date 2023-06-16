@@ -22,7 +22,9 @@
 
 	<artifactId>tycho-version-bump-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<name>Tycho Version Bump Plugin</name>
 
 	<dependencies>
@@ -33,10 +35,6 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.core.shared</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>

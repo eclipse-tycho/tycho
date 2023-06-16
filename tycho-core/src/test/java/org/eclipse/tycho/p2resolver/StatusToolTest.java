@@ -21,7 +21,7 @@ import static org.junit.Assert.assertSame;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.tycho.repository.util.StatusTool;
+import org.eclipse.tycho.core.shared.StatusTool;
 import org.junit.Test;
 
 public class StatusToolTest {

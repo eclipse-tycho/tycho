@@ -47,7 +47,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
-import org.eclipse.tycho.p2.artifact.provider.IRawArtifactProvider;
+import org.eclipse.tycho.IRawArtifactProvider;
 import org.eclipse.tycho.p2.repository.AbstractArtifactRepository2;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicy;

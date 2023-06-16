@@ -35,9 +35,9 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.eclipse.tycho.FileLockService;
+import org.eclipse.tycho.FileLocker;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.locking.facade.FileLockService;
-import org.eclipse.tycho.locking.facade.FileLocker;
 
 @Component(role = BundleReader.class)
 public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {

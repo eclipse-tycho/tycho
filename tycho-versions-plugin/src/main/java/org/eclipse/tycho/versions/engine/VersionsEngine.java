@@ -149,8 +149,8 @@ public class VersionsEngine {
             // TODO property changes should be added as a new type of change in VersionChangeDescriptors
             for (PropertyChange propertyChange : propertyChanges) {
                 if (pom == propertyChange.pom) {
-                    ((PomManipulator) pomManipulator).applyPropertyChange(pom, propertyChange.propertyName,
-                            propertyChange.propertyValue);
+                    ((PomManipulator) pomManipulator).applyPropertyChange(project.getPomFile().getName(), pom,
+                            propertyChange.propertyName, propertyChange.propertyValue);
                 }
             }
 

@@ -31,9 +31,9 @@ import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.MavenTargetLocationFactory;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
-import org.eclipse.tycho.core.resolver.target.TargetDefinitionContent;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
+import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 
 /**
  * Service instance for resolving target definitions. Results are cached so that there is no
@@ -52,6 +52,9 @@ public class TargetDefinitionResolverService {
 
     @Requirement
     private MavenTargetLocationFactory dependenciesResolver;
+
+    @Requirement
+    private TargetDefinitionVariableResolver varResolver;
 
     // constructor for DS
     public TargetDefinitionResolverService() {
@@ -85,7 +88,7 @@ public class TargetDefinitionResolverService {
         }
 
         TargetDefinitionResolver resolver = new TargetDefinitionResolver(arguments.environments, arguments.jreIUs,
-                arguments.includeSourceMode, mavenContext, dependenciesResolver);
+                arguments.includeSourceMode, mavenContext, dependenciesResolver, varResolver);
         try {
             return CompletableFuture.completedFuture(resolver.resolveContent(arguments.definition, arguments.agent));
         } catch (Exception e) {
@@ -125,6 +128,11 @@ public class TargetDefinitionResolverService {
     // setter for DS
     public void setMavenDependenciesResolver(MavenTargetLocationFactory mavenDependenciesResolver) {
         this.dependenciesResolver = mavenDependenciesResolver;
+    }
+
+    // setter for DS
+    public void setTargetDefinitionVariableResolver(TargetDefinitionVariableResolver varResolver) {
+        this.varResolver = varResolver;
     }
 
     private static final class ResolutionArguments {

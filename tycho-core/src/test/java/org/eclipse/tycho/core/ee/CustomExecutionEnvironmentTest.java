@@ -25,8 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
-import org.eclipse.tycho.core.ee.shared.SystemCapability;
-import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
+import org.eclipse.tycho.SystemCapability;
+import org.eclipse.tycho.SystemCapability.Type;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.osgi.framework.Constants;

@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Properties;
 
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
+import org.eclipse.tycho.ExecutionEnvironment;
 
 public class NoExecutionEnvironment implements ExecutionEnvironment {
 

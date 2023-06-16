@@ -19,7 +19,7 @@ import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
+import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
 import org.junit.Test;
 
 public class RepositoryBlackboardKeyTest {

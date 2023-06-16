@@ -30,13 +30,14 @@ import static org.hamcrest.core.StringContains.containsString;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
-import org.eclipse.tycho.core.resolver.target.TargetDefinitionContent;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
-import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
+import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
+import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
@@ -56,9 +57,10 @@ public class TargetDefinitionResolverIncludeModeTest extends TychoPlexusTestCase
 
     @Before
     public void initSubject() throws Exception {
+        MavenContext mavenCtx = new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger());
         subject = new TargetDefinitionResolver(defaultEnvironments(),
-                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, IncludeSourceMode.honor,
-                new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger()), null);
+                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, IncludeSourceMode.honor, mavenCtx, null,
+                new DefaultTargetDefinitionVariableResolver(mavenCtx, logVerifier.getLogger()));
     }
 
     @Test

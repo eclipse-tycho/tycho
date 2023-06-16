@@ -7,6 +7,9 @@
 	</parent>
 	<artifactId>tycho-baseline-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<name>Tycho Baseline Plugin</name>
 	<description>A plugin for handling OSGi Declarative Services</description>
 	<dependencies>

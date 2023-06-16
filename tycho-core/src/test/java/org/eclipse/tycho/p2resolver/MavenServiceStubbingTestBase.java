@@ -18,8 +18,8 @@ import java.util.Collection;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.test.util.NoopFileLockService;

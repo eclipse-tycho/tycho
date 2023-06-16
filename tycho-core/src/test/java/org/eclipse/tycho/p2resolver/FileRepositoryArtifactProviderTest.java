@@ -26,7 +26,7 @@ import java.util.Collections;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.IRawArtifactFileProvider;
 import org.eclipse.tycho.p2.repository.ArtifactRepositorySupplier;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicy;

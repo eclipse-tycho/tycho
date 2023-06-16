@@ -4,6 +4,15 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0 (under development)
 
+### creating maven p2 sites with Tycho packaging
+
+There is already a way to [create a p2 maven site with Tycho](https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md#create-p2-repository-referencing-maven-artifacts) for plain jar based projects.
+This support is now enhanced to being used in a Tycho based setup so it is possible to build a full maven deployed updatesite automatically with all bundles of the current build.
+You can find a demo here:
+
+https://github.com/eclipse-tycho/tycho/tree/master/demo/p2-maven-site
+
+
 ### New document-bundle mojo
 
 There is now a new mojo that replaces the usual ant-based workflow to generate the help index, it can be used like this:
@@ -226,6 +235,46 @@ The parameters of the `tycho-apitools-plugin:generate` goal have been completed 
 The `tycho-p2-repository-plugin:assemble-repository` mojo has now a new configuration parameter `filterProvided` that (if enabled) filter units and artifacts that are already present in one of the referenced repositories.
 That way one can prevent including items that are already present in the same form in another repository.
 
+If you want to include repository references automatically, there are two other new options:
+
+- `addPomRepositoryReferences` - all P2 repositories from the pom are added as a reference
+- `addIUTargetRepositoryReferences` - all P2 repositories defined in target files IU-location types are added as a reference
+
+so now one can produce a self-contained update-site that only includes what is not already available from the target content used by specify:
+
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-p2-repository-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<includeAllDependencies>true</includeAllDependencies>
+		<filterProvided>true</filterProvided>
+		<addPomRepositoryReferences>true</addPomRepositoryReferences>
+		<addIUTargetRepositoryReferences>true</addIUTargetRepositoryReferences>
+	</configuration>
+</plugin>
+
+```
+
+### Building OSGi Repositories with tycho-p2-repository-plugin:assemble-repository
+
+OSGi defines an own [repository serialization format](https://docs.osgi.org/specification/osgi.cmpn/7.0.0/service.repository.html) Tycho can now produce such repositories to ease integration with these format, the only thing required is specifying the following configuration options:
+
+```
+<plugin>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho-p2-repository-plugin</artifactId>
+		<version>${tycho-version}</version>
+		<configuration>
+			<generateOSGiRepository>true</generateOSGiRepository>
+		</configuration>
+</plugin>
+```
+
+This will generate an additional `repository.xml` file in the root of the produced p2 repository representing the content as an OSGi Repository.
+
 ### New parameter in tycho-packaging-plugin:package-plugin
 
 The `tycho-packaging-plugin:package-plugin` mojo has now a new configuration parameter `deriveHeaderFromSource` (default true), that allows Tycho to discover additional headers declared in the source (e.g. from annotations).
@@ -244,6 +293,13 @@ This can be disabled with the following configuration in the pom:
 	 </configuration>
   </plugin>
 ```
+
+### Variable resolution in target repository location
+
+URI in `<repository location="...">` in `*.target` files can contain:
+- Environment variable as `${env_var:MY_VARIABLE}`
+- System variable as `${system_property:myProp}` passed at build time as `-DmyProp`
+- Project location as `${project_loc:ProjectName}`
 
 ### Migration guide 3.x > 4.x
 

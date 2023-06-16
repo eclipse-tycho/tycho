@@ -53,15 +53,9 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.core.shared</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.embedder.shared</artifactId>
+			<artifactId>tycho-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

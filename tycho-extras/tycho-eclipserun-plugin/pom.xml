@@ -20,6 +20,9 @@
 
   <artifactId>tycho-eclipserun-plugin</artifactId>
   <packaging>maven-plugin</packaging>
+  	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
   <name>Tycho Eclipserun Plugin</name>
       <dependencies>
 		<dependency>

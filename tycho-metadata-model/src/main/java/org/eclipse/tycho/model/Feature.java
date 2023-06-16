@@ -26,8 +26,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarFile;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.osgi.framework.Version;
+import org.osgi.resource.Resource;
+
+import aQute.bnd.version.VersionRange;
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLIOSource;
@@ -40,6 +46,27 @@ import de.pdark.decentxml.XMLWriter;
  */
 public class Feature {
 
+    /**
+     * dependent plug-in version must be at least at the version specified, or at a higher service,
+     * minor or major level.
+     */
+    public static final String MATCH_GREATER_OR_EQUAL = "greaterOrEqual";
+    /**
+     * dependent plug-in version must be at least at the version specified, or at a higher service
+     * level or minor level (major version level must equal the specified version).
+     */
+    public static final String MATCH_COMPATIBLE = "compatible";
+    /**
+     * dependent plug-in version must be at least at the version specified, or at a higher service
+     * level (major and minor version levels must equal the specified version).
+     */
+    public static final String MATCH_EQUIVALENT = "equivalent";
+    /**
+     * dependent plug-in version must match exactly the specified version. If "patch" is "true",
+     * "perfect" is assumed and other values cannot be set.
+     */
+    public static final String MATCH_PERFECT = "perfect";
+
     public static final String FEATURE_XML = "feature.xml";
 
     private static XMLParser parser = new XMLParser();
@@ -51,6 +78,8 @@ public class Feature {
     private ArrayList<PluginRef> plugins;
 
     private ArrayList<FeatureRef> features;
+
+    private File source;
 
     public Feature(Document document) {
         this.document = document;
@@ -138,7 +167,7 @@ public class Feature {
 
         public String getMatch() {
             String match = dom.getAttributeValue("match");
-            if (match == null) {
+            if (match == null || match.isBlank()) {
                 return "compatible";
             } else {
                 return match;
@@ -275,7 +304,9 @@ public class Feature {
             ZipEntry ze = jar.getEntry(FEATURE_XML);
             if (ze != null) {
                 InputStream is = jar.getInputStream(ze);
-                return read(is);
+                Feature read = read(is);
+                read.source = file;
+                return read;
             }
             throw new IOException(file.getAbsolutePath() + " does not have " + FEATURE_XML + " entry.");
         }
@@ -461,5 +492,89 @@ public class Feature {
 
     public void setWS(String value) {
         dom.setAttribute("ws", value);
+    }
+
+    public Stream<Resource> toResource() {
+        return Stream.of(toJarResource(), toGroupResource());
+    }
+
+    public Resource toGroupResource() {
+        FeatureResourceBuilder featureGroup = new FeatureResourceBuilder();
+        featureGroup.addFeatureGroupCapability(getId(), getVersion());
+        featureGroup.addFeatureJarRequirement(getId(), getVersion());
+        for (PluginRef pluginRef : getPlugins()) {
+            featureGroup.addRequireBundle(pluginRef.getId(),
+                    new VersionRange("[" + pluginRef.getVersion() + "," + pluginRef.getVersion() + "]"));
+        }
+        for (FeatureRef featureRef : getIncludedFeatures()) {
+            featureGroup.addRequireFeature(featureRef.getId(),
+                    "[" + featureRef.getVersion() + "," + featureRef.getVersion() + "]");
+
+        }
+        for (RequiresRef requiresRef : getRequires()) {
+            for (ImportRef importRef : requiresRef.getImports()) {
+                String feature = importRef.getFeature();
+                String plugin = importRef.getPlugin();
+                VersionRange range = getVersionRange(importRef);
+                if (feature != null && !features.isEmpty()) {
+                    //feature requirement
+                    featureGroup.addRuntimeFeature(feature, range);
+                } else if (plugin != null && !plugin.isEmpty()) {
+                    //bundle requirements
+                    featureGroup.addRuntimeBundleRequirement(plugin, range);
+                }
+            }
+        }
+        return featureGroup.build();
+
+    }
+
+    private static VersionRange getVersionRange(ImportRef importRef) {
+        String version = importRef.getVersion();
+        if (version == null || version.isEmpty()) {
+            return new VersionRange(Version.emptyVersion.toString());
+        }
+        Version parsed = Version.parseVersion(version);
+        String match = importRef.getMatch();
+        if (MATCH_PERFECT.equals(match)) {
+            return new VersionRange("[" + parsed + "," + parsed + "]");
+        }
+        if (MATCH_EQUIVALENT.equals(match)) {
+            return new VersionRange("[" + parsed + "," + (parsed.getMajor() + "." + parsed.getMinor() + 1) + ")");
+        }
+        if (MATCH_COMPATIBLE.equals(match)) {
+            return new VersionRange("[" + parsed + "," + (parsed.getMajor() + 1) + ")");
+        }
+        if (MATCH_GREATER_OR_EQUAL.equals(match)) {
+            return new VersionRange(version);
+        }
+        throw new IllegalArgumentException("Can't parse value of match = " + match);
+    }
+
+    public Resource toJarResource() {
+        FeatureResourceBuilder featureJar = new FeatureResourceBuilder();
+        featureJar.addFeatureJarCapability(getId(), getVersion());
+        if (source != null) {
+            String sha256;
+            try (FileInputStream data = new FileInputStream(source)) {
+                sha256 = DigestUtils.sha256Hex(data);
+            } catch (IOException e) {
+                throw new RuntimeException("Computing digest failed!", e);
+            }
+            featureJar.addContentCapability(source.toURI(), sha256, source.length(), "application/eclipse-feature");
+        }
+        return featureJar.build();
+    }
+
+    private boolean isVersionedRef(ImportRef importRef) {
+        String version = importRef.getVersion();
+        if (version == null || version.isEmpty()) {
+            return false;
+        }
+        String match = importRef.getMatch();
+        if (match == null || match.isEmpty()) {
+            return false;
+        }
+        return true;
     }
 }

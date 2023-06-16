@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.locking.facade.FileLockService;
+import org.eclipse.tycho.FileLockService;
 
 @Component(role = FileLockService.class)
 public class FileLockServiceImpl implements FileLockService {

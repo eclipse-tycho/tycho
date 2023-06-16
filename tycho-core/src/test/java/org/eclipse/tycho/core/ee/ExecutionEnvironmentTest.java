@@ -13,9 +13,9 @@ import java.io.File;
 import java.util.Optional;
 
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 

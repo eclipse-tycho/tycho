@@ -35,8 +35,8 @@ import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.BuildPropertiesImpl;
 import org.eclipse.tycho.core.maven.TychoInterpolator;
-import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
 
 @Component(role = BuildPropertiesParser.class)
 public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposable {
