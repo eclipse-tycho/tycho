@@ -319,6 +319,12 @@ public class BndTestMojo extends AbstractTestMojo {
                 throw new MojoExecutionException("resolve bundles failed!");
             }
         } catch (Exception e) {
+            if (e instanceof MojoExecutionException mee) {
+                throw mee;
+            }
+            if (e instanceof MojoFailureException mfe) {
+                throw mfe;
+            }
             throw new MojoExecutionException("executing test container failed!", e);
         }
 
