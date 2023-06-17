@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>io.takari.maven</groupId>
 			<artifactId>takari-smart-builder</artifactId>
-			<version>0.6.2</version>
+			<version>0.6.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho.extras</groupId>
