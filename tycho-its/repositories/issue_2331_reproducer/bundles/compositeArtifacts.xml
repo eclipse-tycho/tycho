@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<repository name='Issue 2331 Reproducer'
+    type='org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository' version='1.0.0'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1668781002'/>
+    <property name='p2.atomic.composite.loading' value='false'/>
+  </properties>
+  <children size='2'>
+    <child location='../../packages/e342'/>
+    <child location='../../packages/e352'/>
+  </children>
+</repository>
