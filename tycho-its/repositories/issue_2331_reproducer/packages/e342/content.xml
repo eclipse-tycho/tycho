@@ -1,0 +1,877 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='file:/workspaces/tycho-dev/sonatype-tycho/tycho-its/repositories/e342/ - metadata' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1335147150432'/>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <units size='18'>
+    <unit id='org.apache.ant' version='1.7.1.v20090120-1145' singleton='false'>
+      <update id='org.apache.ant' range='[0.0.0,1.7.1.v20090120-1145)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Apache Ant'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='78'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.apache.ant' version='1.7.1.v20090120-1145'/>
+        <provided namespace='osgi.bundle' name='org.apache.ant' version='1.7.1.v20090120-1145'/>
+        <provided namespace='java.package' name='images' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.dispatch' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.filters' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.filters.util' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.helper' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.input' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.launch' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.listener' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.loader' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.compilers' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.condition' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.cvslib' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.email' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.ccm' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.clearcase' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.depend' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.depend.constantpool' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.dotnet' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.ejb' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.extension' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.extension.resolvers' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.i18n' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.image' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.j2ee' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.javacc' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.javah' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.jdepend' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.jlink' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.jsp' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.jsp.compilers' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.junit' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.junit.xsl' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.native2ascii' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.net' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.perforce' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.pvcs' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.scm' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.script' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.sos' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.sound' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.splash' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.ssh' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.starteam' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.unix' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.vss' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.optional.windows' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.taskdefs.rmic' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types.conditions' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types.mappers' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types.optional' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types.optional.depend' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types.optional.image' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types.resolver' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types.resources' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types.resources.comparators' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types.resources.selectors' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types.selectors' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types.selectors.modifiedselector' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.types.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.util' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.util.depend' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.util.depend.bcel' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.util.facade' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.util.java15' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.util.optional' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.ant.util.regexp' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.bzip2' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.mail' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.tar' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.tools.zip' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='osgi.bundle' name='org.eclipse.osgi' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.apache.ant' version='1.7.1.v20090120-1145'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.apache.ant&#xA;Bundle-Version: 1.7.1.v20090120-1145&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.equinox.common' version='3.4.0.v20080421-2006'>
+      <update id='org.eclipse.equinox.common' range='[0.0.0,3.4.0.v20080421-2006)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Common Eclipse Runtime'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='7'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.common' version='3.4.0.v20080421-2006'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.equinox.common' version='3.4.0.v20080421-2006'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.boot' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.runtime' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime' version='3.4.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='10'>
+        <required namespace='java.package' name='org.eclipse.osgi.framework.log' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.datalocation' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.debug' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.localization' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.urlconversion' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.service.url' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.util' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.framework' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.service.packageadmin' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.util.tracker' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.equinox.common' version='3.4.0.v20080421-2006'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.equinox.common; singleton:=true&#xA;Bundle-Version: 3.4.0.v20080421-2006&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.equinox.frameworkadmin' version='1.0.0.v20080430-1750'>
+      <update id='org.eclipse.equinox.frameworkadmin' range='[0.0.0,1.0.0.v20080430-1750)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Equinox Framework Admin'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='7'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.frameworkadmin' version='1.0.0.v20080430-1750'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.equinox.frameworkadmin' version='1.0.0.v20080430-1750'/>
+        <provided namespace='java.package' name='org.eclipse.equinox.internal.frameworkadmin.utils' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.equinox.internal.provisional.configuratormanipulator' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.equinox.internal.provisional.frameworkadmin' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='4'>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='3.4.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.pluginconversion' range='1.0.0'/>
+        <required namespace='java.package' name='org.osgi.framework' range='1.3.0'/>
+        <required namespace='java.package' name='org.osgi.service.startlevel' range='1.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.equinox.frameworkadmin' version='1.0.0.v20080430-1750'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.equinox.frameworkadmin;singleton:=true&#xA;Bundle-Version: 1.0.0.v20080430-1750&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.equinox.launcher' version='1.0.101.R34x_v20081125' singleton='false'>
+      <update id='org.eclipse.equinox.launcher' range='[0.0.0,1.0.101.R34x_v20081125)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Equinox Launcher'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='launcher'/>
+      </properties>
+      <provides size='7'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher' version='1.0.101.R34x_v20081125'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.equinox.launcher' version='1.0.101.R34x_v20081125'/>
+        <provided namespace='java.package' name='org.eclipse.core.launcher' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.equinox.internal.launcher' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.equinox.launcher' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.equinox.launcher' version='1.0.101.R34x_v20081125'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.equinox.launcher&#xA;Bundle-Version: 1.0.101.R34x_v20081125&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.core.jobs' version='3.4.1.R34x_v20081128'>
+      <update id='org.eclipse.core.jobs' range='[0.0.0,3.4.1.R34x_v20081128)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Eclipse Jobs Mechanism'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='6'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.jobs' version='3.4.1.R34x_v20081128'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.core.jobs' version='3.4.1.R34x_v20081128'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.jobs' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime.jobs' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='6'>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='[3.2.0,4.0.0)'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.debug' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.util' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.framework' range='1.3.0'/>
+        <required namespace='java.package' name='org.osgi.service.packageadmin' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.util.tracker' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.core.jobs' version='3.4.1.R34x_v20081128'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.core.jobs; singleton:=true&#xA;Bundle-Version: 3.4.1.R34x_v20081128&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.core.runtime' version='3.4.0.v20080512'>
+      <update id='org.eclipse.core.runtime' range='[0.0.0,3.4.0.v20080512)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Core Runtime'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='7'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.runtime' version='3.4.0.v20080512'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.core.runtime' version='3.4.0.v20080512'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.preferences.legacy' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.runtime' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime' version='3.4.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='8'>
+        <required namespace='osgi.bundle' name='org.eclipse.osgi' range='[3.2.0,4.0.0)'/>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='[3.2.0,4.0.0)'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.jobs' range='[3.2.0,4.0.0)'/>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.registry' range='[3.4.0,4.0.0)'/>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.preferences' range='[3.2.0,4.0.0)'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.contenttype' range='[3.3.0,4.0.0)'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime.compatibility.auth' range='[3.2.0,4.0.0)' optional='true' greedy='false'/>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.app' range='[1.0.0,2.0.0)'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.core.runtime' version='3.4.0.v20080512'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.core.runtime; singleton:=true&#xA;Bundle-Version: 3.4.0.v20080512&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'>
+      <update id='org.eclipse.osgi' range='[0.0.0,3.4.3.R34x_v20081215-1030)' severity='0'/>
+      <properties size='6'>
+        <property name='df_LT.systemBundle' value='OSGi System Bundle'/>
+        <property name='df_LT.eclipse.org' value='Eclipse.org'/>
+        <property name='org.eclipse.equinox.p2.name' value='%systemBundle'/>
+        <property name='org.eclipse.equinox.p2.description' value='%systemBundle'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%eclipse.org'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='systembundle'/>
+      </properties>
+      <provides size='52'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.event' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.console' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.eventmgr' version='1.1.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.log' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.datalocation' version='1.1.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.debug' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.environment' version='1.1.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.localization' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.pluginconversion' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.resolver' version='1.2.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.runnable' version='1.1.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.security' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.urlconversion' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.signedcontent' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.storagemanager' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.util' version='1.1.0'/>
+        <provided namespace='java.package' name='org.osgi.framework' version='1.4.0'/>
+        <provided namespace='java.package' name='org.osgi.service.condpermadmin' version='1.0.0'/>
+        <provided namespace='java.package' name='org.osgi.service.packageadmin' version='1.2.0'/>
+        <provided namespace='java.package' name='org.osgi.service.permissionadmin' version='1.2.0'/>
+        <provided namespace='java.package' name='org.osgi.service.startlevel' version='1.1.0'/>
+        <provided namespace='java.package' name='org.osgi.service.url' version='1.0.0'/>
+        <provided namespace='java.package' name='org.osgi.util.tracker' version='1.3.3'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime.adaptor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime.internal.adaptor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime.internal.stats' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.baseadaptor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.baseadaptor.bundlefile' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.baseadaptor.hooks' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.baseadaptor.loader' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.adaptor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.debug' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.internal.core' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.internal.protocol' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.internal.protocol.bundleentry' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.internal.protocol.bundleresource' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.internal.protocol.reference' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.internal.reliablefile' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.launcher' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.util' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.baseadaptor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.module' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.profile' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.resolver' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.provisional.service.security' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.provisional.verifier' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.service.security' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.signedcontent' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.osgi; singleton:=true&#xA;Bundle-Version: 3.4.3.R34x_v20081215-1030&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.equinox.preferences' version='3.2.201.R34x_v20080709'>
+      <update id='org.eclipse.equinox.preferences' range='[0.0.0,3.2.201.R34x_v20080709)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Eclipse Preferences Mechanism'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='8'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.preferences' version='3.2.201.R34x_v20080709'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.equinox.preferences' version='3.2.201.R34x_v20080709'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.preferences' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.preferences.exchange' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime.preferences' version='3.2.0'/>
+        <provided namespace='java.package' name='org.osgi.service.prefs' version='1.1.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='10'>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='[3.2.0,4.0.0)'/>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.registry' range='[3.2.0,4.0.0)' optional='true' greedy='false'/>
+        <required namespace='java.package' name='org.eclipse.osgi.framework.log' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.datalocation' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.debug' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.environment' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.util' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.framework' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.service.packageadmin' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.util.tracker' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.equinox.preferences' version='3.2.201.R34x_v20080709'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.equinox.preferences; singleton:=true&#xA;Bundle-Version: 3.2.201.R34x_v20080709&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.core.contenttype' version='3.3.0.v20080604-1400'>
+      <update id='org.eclipse.core.contenttype' range='[0.0.0,3.3.0.v20080604-1400)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Eclipse Content Mechanism'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='6'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.contenttype' version='3.3.0.v20080604-1400'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.core.contenttype' version='3.3.0.v20080604-1400'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.content' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime.content' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='11'>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.preferences' range='[3.2.0,4.0.0)'/>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.registry' range='[3.2.0,4.0.0)'/>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='[3.2.0,4.0.0)'/>
+        <required namespace='java.package' name='javax.xml.parsers' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.debug' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.util' range='1.0.0'/>
+        <required namespace='java.package' name='org.osgi.framework' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.util.tracker' range='0.0.0'/>
+        <required namespace='java.package' name='org.xml.sax' range='0.0.0'/>
+        <required namespace='java.package' name='org.xml.sax.ext' range='0.0.0'/>
+        <required namespace='java.package' name='org.xml.sax.helpers' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.core.contenttype' version='3.3.0.v20080604-1400'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.core.contenttype; singleton:=true&#xA;Bundle-Version: 3.3.0.v20080604-1400&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.osgi.source' version='3.4.3.R34x_v20081215-1030' singleton='false'>
+      <update id='org.eclipse.osgi.source' range='[0.0.0,3.4.3.R34x_v20081215-1030)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.systemBundle' value='OSGi System Bundle Source'/>
+        <property name='df_LT.eclipse.org' value='Eclipse.org'/>
+        <property name='org.eclipse.equinox.p2.name' value='%systemBundle'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%eclipse.org'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='systembundle'/>
+      </properties>
+      <provides size='4'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.osgi.source' version='3.4.3.R34x_v20081215-1030'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.osgi.source' version='3.4.3.R34x_v20081215-1030'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='source' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.osgi.source' version='3.4.3.R34x_v20081215-1030'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.osgi.source&#xA;Bundle-Version: 3.4.3.R34x_v20081215-1030&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.junit' version='3.8.2.v20080602-1318' singleton='false'>
+      <update id='org.junit' range='[0.0.0,3.8.2.v20080602-1318)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='JUnit Testing Framework'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='11'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.junit' version='3.8.2.v20080602-1318'/>
+        <provided namespace='osgi.bundle' name='org.junit' version='3.8.2.v20080602-1318'/>
+        <provided namespace='java.package' name='junit.awtui' version='3.8.2'/>
+        <provided namespace='java.package' name='junit.extensions' version='3.8.2'/>
+        <provided namespace='java.package' name='junit.framework' version='3.8.2'/>
+        <provided namespace='java.package' name='junit.runner' version='3.8.2'/>
+        <provided namespace='java.package' name='junit.swingui' version='3.8.2'/>
+        <provided namespace='java.package' name='junit.swingui.icons' version='3.8.2'/>
+        <provided namespace='java.package' name='junit.textui' version='3.8.2'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.junit' version='3.8.2.v20080602-1318'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.junit&#xA;Bundle-Version: 3.8.2.v20080602-1318&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.equinox.launcher.win32.win32.x86' version='1.0.101.R34x_v20080731'>
+      <update id='org.eclipse.equinox.launcher.win32.win32.x86' range='[0.0.0,1.0.101.R34x_v20080731)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Equinox Launcher Win32 X86 Fragment'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='launcher.win32.win32.x86'/>
+      </properties>
+      <provides size='5'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.win32.win32.x86' version='1.0.101.R34x_v20080731'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.equinox.launcher.win32.win32.x86' version='1.0.101.R34x_v20080731'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='osgi.fragment' name='org.eclipse.equinox.launcher' version='1.0.101.R34x_v20080731'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.launcher' range='[1.0.0,1.1.0)'/>
+      </requires>
+      <filter>
+        (&amp;(osgi.arch=x86)(osgi.os=win32)(osgi.ws=win32))
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.equinox.launcher.win32.win32.x86' version='1.0.101.R34x_v20080731'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='2'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.equinox.launcher.win32.win32.x86; singleton:=true&#xA;Bundle-Version: 1.0.101.R34x_v20080731&#xA;Fragment-Host: org.eclipse.equinox.launcher;bundle-version=&quot;[1.0.0,1.1.0)&quot;&#xA;
+          </instruction>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.equinox.executable.feature.jar' version='3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu'>
+      <properties size='5'>
+        <property name='org.eclipse.equinox.p2.name' value='%featureName'/>
+        <property name='org.eclipse.equinox.p2.description' value='%description'/>
+        <property name='df_LT.featureName' value='Eclipse Platform Launchers'/>
+        <property name='df_LT.description' value='Platform specific launchers.'/>
+        <property name='df_LT.license' value='ECLIPSE FOUNDATION SOFTWARE USER AGREEMENT&#xA;March 17, 2005&#xA;&#xA;Usage Of Content&#xA;&#xA;THE ECLIPSE FOUNDATION MAKES AVAILABLE SOFTWARE, DOCUMENTATION, INFORMATION AND/OR&#xA;OTHER MATERIALS FOR OPEN SOURCE PROJECTS (COLLECTIVELY &quot;CONTENT&quot;).&#xA;USE OF THE CONTENT IS GOVERNED BY THE TERMS AND CONDITIONS OF THIS&#xA;AGREEMENT AND/OR THE TERMS AND CONDITIONS OF LICENSE AGREEMENTS OR&#xA;NOTICES INDICATED OR REFERENCED BELOW. BY USING THE CONTENT, YOU&#xA;AGREE THAT YOUR USE OF THE CONTENT IS GOVERNED BY THIS AGREEMENT&#xA;AND/OR THE TERMS AND CONDITIONS OF ANY APPLICABLE LICENSE AGREEMENTS&#xA;OR NOTICES INDICATED OR REFERENCED BELOW. IF YOU DO NOT AGREE TO THE&#xA;TERMS AND CONDITIONS OF THIS AGREEMENT AND THE TERMS AND CONDITIONS&#xA;OF ANY APPLICABLE LICENSE AGREEMENTS OR NOTICES INDICATED OR REFERENCED&#xA;BELOW, THEN YOU MAY NOT USE THE CONTENT.&#xA;&#xA;Applicable Licenses&#xA;&#xA;Unless otherwise indicated, all Content made available by the Eclipse Foundation&#xA;is provided to you under the terms and conditions of the Eclipse Public&#xA;License Version 1.0 (&quot;EPL&quot;). A copy of the EPL is provided with this&#xA;Content and is also available at http://www.eclipse.org/legal/epl-v10.html.&#xA;For purposes of the EPL, &quot;Program&quot; will mean the Content.&#xA;&#xA;Content includes, but is not limited to, source code, object code,&#xA;documentation and other files maintained in the Eclipse.org CVS&#xA;repository (&quot;Repository&quot;) in CVS modules (&quot;Modules&quot;) and made available&#xA;as downloadable archives (&quot;Downloads&quot;).&#xA;&#xA;- Content may be structured and packaged into modules to facilitate delivering,&#xA;extending, and upgrading the Content. Typical modules may include plug-ins (&quot;Plug-ins&quot;),&#xA;plug-in fragments (&quot;Fragments&quot;), and features (&quot;Features&quot;).&#xA;- Each Plug-in or Fragment may be packaged as a sub-directory or JAR (Java? ARchive)&#xA;in a directory named &quot;plugins&quot;.&#xA;- A Feature is a bundle of one or more Plug-ins and/or Fragments and associated material.&#xA;Each Feature may be packaged as a sub-directory in a directory named &quot;features&quot;.&#xA;Within a Feature, files named &quot;feature.xml&quot; may contain a list of the names and version&#xA;numbers of the Plug-ins and/or Fragments associated with that Feature.&#xA;- Features may also include other Features (&quot;Included Features&quot;). Within a Feature, files&#xA;named &quot;feature.xml&quot; may contain a list of the names and version numbers of Included Features.&#xA;&#xA;Features may also include other Features (&quot;Included Features&quot;). Files named&#xA;&quot;feature.xml&quot; may contain a list of the names and version numbers of&#xA;Included Features.&#xA;&#xA;The terms and conditions governing Plug-ins and Fragments should be&#xA;contained in files named &quot;about.html&quot; (&quot;Abouts&quot;). The terms and&#xA;conditions governing Features and Included Features should be contained&#xA;in files named &quot;license.html&quot; (&quot;Feature Licenses&quot;). Abouts and Feature&#xA;Licenses may be located in any directory of a Download or Module&#xA;including, but not limited to the following locations:&#xA;&#xA;- The top-level (root) directory&#xA;- Plug-in and Fragment directories&#xA;- Inside Plug-ins and Fragments packaged as JARs&#xA;- Sub-directories of the directory named &quot;src&quot; of certain Plug-ins&#xA;- Feature directories&#xA;&#xA;Note: if a Feature made available by the Eclipse Foundation is installed using the&#xA;Eclipse Update Manager, you must agree to a license (&quot;Feature Update&#xA;License&quot;) during the installation process. If the Feature contains&#xA;Included Features, the Feature Update License should either provide you&#xA;with the terms and conditions governing the Included Features or inform&#xA;you where you can locate them. Feature Update Licenses may be found in&#xA;the &quot;license&quot; property of files named &quot;feature.properties&quot;. Such Abouts,&#xA;Feature Licenses and Feature Update Licenses contain the terms and&#xA;conditions (or references to such terms and conditions) that govern your&#xA;use of the associated Content in that directory.&#xA;&#xA;THE ABOUTS, FEATURE LICENSES AND FEATURE UPDATE LICENSES MAY REFER&#xA;TO THE EPL OR OTHER LICENSE AGREEMENTS, NOTICES OR TERMS AND CONDITIONS.&#xA;SOME OF THESE OTHER LICENSE AGREEMENTS MAY INCLUDE (BUT ARE NOT LIMITED TO):&#xA;&#xA;- Common Public License Version 1.0 (available at https://www.eclipse.org/legal/cpl-v10.html)&#xA;- Apache Software License 1.1 (available at http://www.apache.org/licenses/LICENSE)&#xA;- Apache Software License 2.0 (available at http://www.apache.org/licenses/LICENSE-2.0)&#xA;- IBM Public License 1.0 (available at http://oss.software.ibm.com/developerworks/opensource/license10.html)&#xA;- Metro Link Public License 1.00 (available at http://www.opengroup.org/openmotif/supporters/metrolink/license.html)&#xA;- Mozilla Public License Version 1.1 (available at http://www.mozilla.org/MPL/MPL-1.1.html)&#xA;&#xA;IT IS YOUR OBLIGATION TO READ AND ACCEPT ALL SUCH TERMS AND CONDITIONS PRIOR&#xA;TO USE OF THE CONTENT. If no About, Feature License or Feature Update License&#xA;is provided, please contact the Eclipse Foundation to determine what terms and conditions&#xA;govern that particular Content.&#xA;&#xA;Cryptography&#xA;&#xA;Content may contain encryption software. The country in which you are&#xA;currently may have restrictions on the import, possession, and use,&#xA;and/or re-export to another country, of encryption software. BEFORE&#xA;using any encryption software, please check the country&apos;s laws,&#xA;regulations and policies concerning the import, possession, or use,&#xA;and re-export of encryption software, to see if this is permitted.&#xA;&#xA;Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in the United States, other countries, or both.&#xA;'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.executable.feature.jar' version='3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
+        <provided namespace='org.eclipse.update.feature' name='org.eclipse.equinox.executable' version='3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu'/>
+      </provides>
+      <filter>
+        (org.eclipse.update.install.features=true)
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='org.eclipse.update.feature' id='org.eclipse.equinox.executable' version='3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+      <licenses size='1'>
+        <license uri='%25licenseURL' url='%25licenseURL'>
+          %license
+        </license>
+      </licenses>
+    </unit>
+    <unit id='org.eclipse.equinox.registry' version='3.4.0.v20080516-0950'>
+      <update id='org.eclipse.equinox.registry' range='[0.0.0,3.4.0.v20080516-0950)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Extension Registry Support'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='11'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.registry' version='3.4.0.v20080516-0950'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.equinox.registry' version='3.4.0.v20080516-0950'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.adapter' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.registry' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.registry.osgi' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.registry.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime' version='3.4.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime.dynamichelpers' version='3.4.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime.spi' version='3.4.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='15'>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='[3.2.0,4.0.0)'/>
+        <required namespace='java.package' name='javax.xml.parsers' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.core.runtime.jobs' range='0.0.0' optional='true' greedy='false'/>
+        <required namespace='java.package' name='org.eclipse.osgi.framework.console' range='0.0.0' optional='true' greedy='false'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.datalocation' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.debug' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.environment' range='0.0.0' optional='true' greedy='false'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.resolver' range='0.0.0' optional='true' greedy='false'/>
+        <required namespace='java.package' name='org.eclipse.osgi.storagemanager' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.util' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.framework' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.service.packageadmin' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.util.tracker' range='0.0.0'/>
+        <required namespace='java.package' name='org.xml.sax' range='0.0.0'/>
+        <required namespace='java.package' name='org.xml.sax.helpers' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.equinox.registry' version='3.4.0.v20080516-0950'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.equinox.registry;singleton:=true&#xA;Bundle-Version: 3.4.0.v20080516-0950&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.equinox.launcher.carbon.macosx' version='1.0.101.R34x_v20080731'>
+      <update id='org.eclipse.equinox.launcher.carbon.macosx' range='[0.0.0,1.0.101.R34x_v20080731)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Equinox Launcher MacOSX Fragment'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='launcher.carbon.macosx'/>
+      </properties>
+      <provides size='5'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.carbon.macosx' version='1.0.101.R34x_v20080731'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.equinox.launcher.carbon.macosx' version='1.0.101.R34x_v20080731'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='osgi.fragment' name='org.eclipse.equinox.launcher' version='1.0.101.R34x_v20080731'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.launcher' range='[1.0.0,1.1.0)'/>
+      </requires>
+      <filter>
+        (&amp;(osgi.os=macosx)(osgi.ws=carbon)(|(osgi.arch=ppc)(osgi.arch=x86)))
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.equinox.launcher.carbon.macosx' version='1.0.101.R34x_v20080731'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='2'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.equinox.launcher.carbon.macosx;singleton:=true&#xA;Bundle-Version: 1.0.101.R34x_v20080731&#xA;Fragment-Host: org.eclipse.equinox.launcher;bundle-version=&quot;[1.0.0,1.1.0)&quot;&#xA;
+          </instruction>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.equinox.launcher.gtk.linux.x86_64' version='1.0.101.R34x_v20080731'>
+      <update id='org.eclipse.equinox.launcher.gtk.linux.x86_64' range='[0.0.0,1.0.101.R34x_v20080731)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Equinox Launcher Linux X86_64 Fragment'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='launcher.gtk.linux.x86_64'/>
+      </properties>
+      <provides size='5'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.linux.x86_64' version='1.0.101.R34x_v20080731'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.equinox.launcher.gtk.linux.x86_64' version='1.0.101.R34x_v20080731'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='osgi.fragment' name='org.eclipse.equinox.launcher' version='1.0.101.R34x_v20080731'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.launcher' range='[1.0.0,1.1.0)'/>
+      </requires>
+      <filter>
+        (&amp;(osgi.arch=x86_64)(osgi.os=linux)(osgi.ws=gtk))
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.equinox.launcher.gtk.linux.x86_64' version='1.0.101.R34x_v20080731'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='2'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.equinox.launcher.gtk.linux.x86_64;singleton:=true&#xA;Bundle-Version: 1.0.101.R34x_v20080731&#xA;Fragment-Host: org.eclipse.equinox.launcher;bundle-version=&quot;[1.0.0,1.1.0)&quot;&#xA;
+          </instruction>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.equinox.executable.feature.group' version='3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu' singleton='false'>
+      <update id='org.eclipse.equinox.executable.feature.group' range='[0.0.0,3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu)' severity='0'/>
+      <properties size='6'>
+        <property name='org.eclipse.equinox.p2.name' value='%featureName'/>
+        <property name='org.eclipse.equinox.p2.description' value='%description'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+        <property name='df_LT.featureName' value='Eclipse Platform Launchers'/>
+        <property name='df_LT.description' value='Platform specific launchers.'/>
+        <property name='df_LT.license' value='ECLIPSE FOUNDATION SOFTWARE USER AGREEMENT&#xA;March 17, 2005&#xA;&#xA;Usage Of Content&#xA;&#xA;THE ECLIPSE FOUNDATION MAKES AVAILABLE SOFTWARE, DOCUMENTATION, INFORMATION AND/OR&#xA;OTHER MATERIALS FOR OPEN SOURCE PROJECTS (COLLECTIVELY &quot;CONTENT&quot;).&#xA;USE OF THE CONTENT IS GOVERNED BY THE TERMS AND CONDITIONS OF THIS&#xA;AGREEMENT AND/OR THE TERMS AND CONDITIONS OF LICENSE AGREEMENTS OR&#xA;NOTICES INDICATED OR REFERENCED BELOW. BY USING THE CONTENT, YOU&#xA;AGREE THAT YOUR USE OF THE CONTENT IS GOVERNED BY THIS AGREEMENT&#xA;AND/OR THE TERMS AND CONDITIONS OF ANY APPLICABLE LICENSE AGREEMENTS&#xA;OR NOTICES INDICATED OR REFERENCED BELOW. IF YOU DO NOT AGREE TO THE&#xA;TERMS AND CONDITIONS OF THIS AGREEMENT AND THE TERMS AND CONDITIONS&#xA;OF ANY APPLICABLE LICENSE AGREEMENTS OR NOTICES INDICATED OR REFERENCED&#xA;BELOW, THEN YOU MAY NOT USE THE CONTENT.&#xA;&#xA;Applicable Licenses&#xA;&#xA;Unless otherwise indicated, all Content made available by the Eclipse Foundation&#xA;is provided to you under the terms and conditions of the Eclipse Public&#xA;License Version 1.0 (&quot;EPL&quot;). A copy of the EPL is provided with this&#xA;Content and is also available at http://www.eclipse.org/legal/epl-v10.html.&#xA;For purposes of the EPL, &quot;Program&quot; will mean the Content.&#xA;&#xA;Content includes, but is not limited to, source code, object code,&#xA;documentation and other files maintained in the Eclipse.org CVS&#xA;repository (&quot;Repository&quot;) in CVS modules (&quot;Modules&quot;) and made available&#xA;as downloadable archives (&quot;Downloads&quot;).&#xA;&#xA;- Content may be structured and packaged into modules to facilitate delivering,&#xA;extending, and upgrading the Content. Typical modules may include plug-ins (&quot;Plug-ins&quot;),&#xA;plug-in fragments (&quot;Fragments&quot;), and features (&quot;Features&quot;).&#xA;- Each Plug-in or Fragment may be packaged as a sub-directory or JAR (Java? ARchive)&#xA;in a directory named &quot;plugins&quot;.&#xA;- A Feature is a bundle of one or more Plug-ins and/or Fragments and associated material.&#xA;Each Feature may be packaged as a sub-directory in a directory named &quot;features&quot;.&#xA;Within a Feature, files named &quot;feature.xml&quot; may contain a list of the names and version&#xA;numbers of the Plug-ins and/or Fragments associated with that Feature.&#xA;- Features may also include other Features (&quot;Included Features&quot;). Within a Feature, files&#xA;named &quot;feature.xml&quot; may contain a list of the names and version numbers of Included Features.&#xA;&#xA;Features may also include other Features (&quot;Included Features&quot;). Files named&#xA;&quot;feature.xml&quot; may contain a list of the names and version numbers of&#xA;Included Features.&#xA;&#xA;The terms and conditions governing Plug-ins and Fragments should be&#xA;contained in files named &quot;about.html&quot; (&quot;Abouts&quot;). The terms and&#xA;conditions governing Features and Included Features should be contained&#xA;in files named &quot;license.html&quot; (&quot;Feature Licenses&quot;). Abouts and Feature&#xA;Licenses may be located in any directory of a Download or Module&#xA;including, but not limited to the following locations:&#xA;&#xA;- The top-level (root) directory&#xA;- Plug-in and Fragment directories&#xA;- Inside Plug-ins and Fragments packaged as JARs&#xA;- Sub-directories of the directory named &quot;src&quot; of certain Plug-ins&#xA;- Feature directories&#xA;&#xA;Note: if a Feature made available by the Eclipse Foundation is installed using the&#xA;Eclipse Update Manager, you must agree to a license (&quot;Feature Update&#xA;License&quot;) during the installation process. If the Feature contains&#xA;Included Features, the Feature Update License should either provide you&#xA;with the terms and conditions governing the Included Features or inform&#xA;you where you can locate them. Feature Update Licenses may be found in&#xA;the &quot;license&quot; property of files named &quot;feature.properties&quot;. Such Abouts,&#xA;Feature Licenses and Feature Update Licenses contain the terms and&#xA;conditions (or references to such terms and conditions) that govern your&#xA;use of the associated Content in that directory.&#xA;&#xA;THE ABOUTS, FEATURE LICENSES AND FEATURE UPDATE LICENSES MAY REFER&#xA;TO THE EPL OR OTHER LICENSE AGREEMENTS, NOTICES OR TERMS AND CONDITIONS.&#xA;SOME OF THESE OTHER LICENSE AGREEMENTS MAY INCLUDE (BUT ARE NOT LIMITED TO):&#xA;&#xA;- Common Public License Version 1.0 (available at https://www.eclipse.org/legal/cpl-v10.html)&#xA;- Apache Software License 1.1 (available at http://www.apache.org/licenses/LICENSE)&#xA;- Apache Software License 2.0 (available at http://www.apache.org/licenses/LICENSE-2.0)&#xA;- IBM Public License 1.0 (available at http://oss.software.ibm.com/developerworks/opensource/license10.html)&#xA;- Metro Link Public License 1.00 (available at http://www.opengroup.org/openmotif/supporters/metrolink/license.html)&#xA;- Mozilla Public License Version 1.1 (available at http://www.mozilla.org/MPL/MPL-1.1.html)&#xA;&#xA;IT IS YOUR OBLIGATION TO READ AND ACCEPT ALL SUCH TERMS AND CONDITIONS PRIOR&#xA;TO USE OF THE CONTENT. If no About, Feature License or Feature Update License&#xA;is provided, please contact the Eclipse Foundation to determine what terms and conditions&#xA;govern that particular Content.&#xA;&#xA;Cryptography&#xA;&#xA;Content may contain encryption software. The country in which you are&#xA;currently may have restrictions on the import, possession, and use,&#xA;and/or re-export to another country, of encryption software. BEFORE&#xA;using any encryption software, please check the country&apos;s laws,&#xA;regulations and policies concerning the import, possession, or use,&#xA;and re-export of encryption software, to see if this is permitted.&#xA;&#xA;Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in the United States, other countries, or both.&#xA;'/>
+      </properties>
+      <provides size='2'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.executable.feature.group' version='3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='19'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher' range='[1.0.101.R34x_v20081125,1.0.101.R34x_v20081125]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.solaris.sparc' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
+          <filter>
+            (&amp;(osgi.arch=sparc)(osgi.os=solaris)(osgi.ws=gtk))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.solaris.x86' range='0.0.0'>
+          <filter>
+            (&amp;(osgi.arch=x86)(osgi.os=solaris)(osgi.ws=gtk))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.motif.solaris.sparc' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
+          <filter>
+            (&amp;(osgi.arch=sparc)(osgi.os=solaris)(osgi.ws=motif))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.carbon.macosx' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
+          <filter>
+            (&amp;(osgi.os=macosx)(osgi.ws=carbon))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.linux.ppc' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
+          <filter>
+            (&amp;(osgi.arch=ppc)(osgi.os=linux)(osgi.ws=gtk))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.linux.x86' range='[1.0.101.R34x_v20080805,1.0.101.R34x_v20080805]'>
+          <filter>
+            (&amp;(osgi.arch=x86)(osgi.os=linux)(osgi.ws=gtk))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.linux.x86_64' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
+          <filter>
+            (&amp;(osgi.arch=x86_64)(osgi.os=linux)(osgi.ws=gtk))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.motif.aix.ppc' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
+          <filter>
+            (&amp;(osgi.arch=ppc)(osgi.os=aix)(osgi.ws=motif))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.motif.hpux.PA_RISC' range='[1.0.100.v20080303,1.0.100.v20080303]'>
+          <filter>
+            (&amp;(osgi.arch=PA_RISC)(osgi.os=hpux)(osgi.ws=motif))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.motif.hpux.ia64_32' range='[1.0.2.R34x_v20081125,1.0.2.R34x_v20081125]'>
+          <filter>
+            (&amp;(osgi.arch=ia64_32)(osgi.os=hpux)(osgi.ws=motif))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.motif.linux.x86' range='[1.0.101.R34x_v20080805,1.0.101.R34x_v20080805]'>
+          <filter>
+            (&amp;(osgi.arch=x86)(osgi.os=linux)(osgi.ws=motif))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.win32.win32.x86' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
+          <filter>
+            (&amp;(osgi.arch=x86)(osgi.os=win32)(osgi.ws=win32))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.win32.win32.x86_64' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
+          <filter>
+            (&amp;(osgi.arch=x86_64)(osgi.os=win32)(osgi.ws=win32))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.win32.win32.ia64' range='0.0.0'>
+          <filter>
+            (&amp;(osgi.arch=ia64)(osgi.os=win32)(osgi.ws=win32))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.wpf.win32.x86' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
+          <filter>
+            (&amp;(osgi.arch=x86)(osgi.os=win32)(osgi.ws=wpf))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.linux.s390' range='0.0.0'>
+          <filter>
+            (&amp;(osgi.arch=s390)(osgi.os=linux)(osgi.ws=gtk))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.linux.s390x' range='0.0.0'>
+          <filter>
+            (&amp;(osgi.arch=s390x)(osgi.os=linux)(osgi.ws=gtk))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.executable.feature.jar' range='[3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu,3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu]'>
+          <filter>
+            (org.eclipse.update.install.features=true)
+          </filter>
+        </required>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+      <licenses size='1'>
+        <license uri='%25licenseURL' url='%25licenseURL'>
+          %license
+        </license>
+      </licenses>
+    </unit>
+    <unit id='org.eclipse.equinox.app' version='1.1.0.v20080421-2006'>
+      <update id='org.eclipse.equinox.app' range='[0.0.0,1.1.0.v20080421-2006)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Equinox Application Container'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='7'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.app' version='1.1.0.v20080421-2006'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.equinox.app' version='1.1.0.v20080421-2006'/>
+        <provided namespace='java.package' name='org.eclipse.equinox.app' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.equinox.internal.app' version='0.0.0'/>
+        <provided namespace='java.package' name='org.osgi.service.application' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='15'>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.registry' range='[3.4.0,4.0.0)'/>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='[3.2.0,4.0.0)'/>
+        <required namespace='java.package' name='org.eclipse.osgi.framework.console' range='0.0.0' optional='true' greedy='false'/>
+        <required namespace='java.package' name='org.eclipse.osgi.framework.log' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.datalocation' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.debug' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.environment' range='1.1.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.runnable' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.storagemanager' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.util' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.framework' range='1.3.0'/>
+        <required namespace='java.package' name='org.osgi.service.condpermadmin' range='0.0.0' optional='true' greedy='false'/>
+        <required namespace='java.package' name='org.osgi.service.event' range='1.0.0' optional='true' greedy='false'/>
+        <required namespace='java.package' name='org.osgi.service.packageadmin' range='1.2.0'/>
+        <required namespace='java.package' name='org.osgi.util.tracker' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.equinox.app' version='1.1.0.v20080421-2006'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: org.eclipse.equinox.app; singleton:=true&#xA;Bundle-Version: 1.1.0.v20080421-2006&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+  </units>
+</repository>
