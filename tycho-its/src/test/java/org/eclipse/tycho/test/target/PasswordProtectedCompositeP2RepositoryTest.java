@@ -19,7 +19,8 @@ public class PasswordProtectedCompositeP2RepositoryTest extends AbstractTychoInt
 	@Before
 	public void startServer() throws Exception {
 		server = HttpServer.startServer("test-user", "test-password");
-		p2RepoUrl = server.addServer("foo", ResourceUtil.resolveTestResource("repositories/issue_2331_reproducer"));
+		p2RepoUrl = server.addServer("foo", ResourceUtil.resolveTestResource("repositories/issue_2331_reproducer"))
+				+ "/bundles";
 	}
 
 	@After
