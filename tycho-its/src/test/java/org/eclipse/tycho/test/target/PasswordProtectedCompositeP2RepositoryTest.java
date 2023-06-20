@@ -1,4 +1,3 @@
-<<<<<<<HEAD
 /*******************************************************************************
  * Copyright (c) 23 Arm Limited and others.
  * This program and the accompanying materials
@@ -11,7 +10,6 @@
  * Contributors:
  *    Arm Limited - initial API and implementation
  *******************************************************************************/
-=======>>>>>>>Issue#2331-Add integration test for password composite p2 repo
 package org.eclipse.tycho.test.target;
 
 import java.io.File;
