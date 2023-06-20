@@ -18,11 +18,13 @@ import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Stack;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,6 +34,7 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.tycho.IRepositoryIdManager;
@@ -46,6 +49,7 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 
 	static final String PROXY_AUTHORIZATION_HEADER = "Proxy-Authorization";
 	static final String AUTHORIZATION_HEADER = "Authorization";
+	private ThreadLocal<Stack<URI>> locationStack = ThreadLocal.withInitial(Stack::new);
 
 	@Requirement
 	LegacySupport legacySupport;
@@ -59,28 +63,63 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 	@Requirement
 	MavenRepositorySettings mavenRepositorySettings;
 
+	@Requirement
+	Logger log;
+
 	private List<MavenRepositoryLocation> repositoryLocations;
 
-	public Credentials getServerCredentials(URI uri) {
+	public Credentials getServerCredentials(URI requestUri) {
+		List<URI> list = new ArrayList<>(locationStack.get());
+		Collections.reverse(list);
+		Stream<URI> repoStream = list.stream().takeWhile(repo -> repo.getHost().equals(requestUri.getHost()));
+		List<MavenRepositoryLocation> locations = getMavenLocations();
+		return Stream.concat(Stream.of(requestUri), repoStream).flatMap(uri -> {
+			log.info("Fetching credentials for " + uri);
+			return locations.stream().filter(loc -> {
+				String prefix = loc.getURL().normalize().toASCIIString();
+				String match = uri.normalize().toASCIIString();
+				if (match.startsWith(prefix)) {
+					log.info("Found matching " + loc);
+					return true;
+				}
+				log.info(loc + " does not match (prefix = " + prefix + ", to match = " + match + ")");
+				return false;
+			});
+		}).map(mavenRepositorySettings::getCredentials).filter(Objects::nonNull).findFirst().orElse(null);
+	}
+
+	private List<MavenRepositoryLocation> getMavenLocations() {
 		Stream<MavenRepositoryLocation> locations = repositoryLocations.stream();
 		locations = Stream.concat(locations, repositoryIdManager.getKnownMavenRepositoryLocations());
-		String requestUri = uri.normalize().toASCIIString();
-		return locations.sorted((loc1, loc2) -> {
+		List<MavenRepositoryLocation> sorted = locations.sorted((loc1, loc2) -> {
 			// we wan't the longest prefix match, so first sort all uris by their length ...
 			String s1 = loc1.getURL().normalize().toASCIIString();
 			String s2 = loc2.getURL().normalize().toASCIIString();
 			return Long.compare(s2.length(), s1.length());
-		}).filter(loc -> {
-			String prefix = loc.getURL().normalize().toASCIIString();
-			return requestUri.startsWith(prefix);
-		}).map(mavenRepositorySettings::getCredentials).filter(Objects::nonNull).findFirst().orElse(null);
+		}).toList();
+		return sorted;
 	}
 
-	public void preemtiveAuth(BiConsumer<String, String> headerConsumer, URI uri) {
+	public Authenticator preemtiveAuth(BiConsumer<String, String> headerConsumer, URI uri) {
 		// as everything is known and we can't ask the user anyways, preemtive auth is a
 		// good choice here to prevent successive requests
-		addAuthHeader(headerConsumer, getAuth(RequestorType.PROXY, uri), PROXY_AUTHORIZATION_HEADER);
-		addAuthHeader(headerConsumer, getAuth(RequestorType.SERVER, uri), AUTHORIZATION_HEADER);
+		PasswordAuthentication proxyAuth = getAuth(RequestorType.PROXY, uri);
+		PasswordAuthentication serverAuth = getAuth(RequestorType.SERVER, uri);
+		addAuthHeader(headerConsumer, proxyAuth, PROXY_AUTHORIZATION_HEADER);
+		addAuthHeader(headerConsumer, serverAuth, AUTHORIZATION_HEADER);
+		return new Authenticator() {
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+				RequestorType type = getRequestorType();
+				if (type == RequestorType.PROXY) {
+					return proxyAuth;
+				}
+				if (type == RequestorType.SERVER) {
+					return serverAuth;
+				}
+				return null;
+			}
+		};
 	}
 
 	@Override
@@ -137,6 +176,16 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 					}).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
 		}
 
+	}
+
+	public void enterLoad(URI location) {
+		log.info("Enter loading repository " + location);
+		locationStack.get().push(location);
+	}
+
+	public void exitLoad() {
+		URI pop = locationStack.get().pop();
+		log.info("Exit loading repository " + pop);
 	}
 
 }

@@ -30,6 +30,9 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
 	@Requirement
 	IRepositoryIdManager repositoryIdManager;
 
+	@Requirement
+	MavenAuthenticator authenticator;
+
     @Override
     public Object createService(IProvisioningAgent agent) {
         IArtifactRepositoryManager plainRepoManager = (IArtifactRepositoryManager) new ArtifactRepositoryComponent()
@@ -38,7 +41,7 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
             plainRepoManager = new P2MirrorDisablingArtifactRepositoryManager(plainRepoManager,
 					logger);
         }
-		return new RemoteArtifactRepositoryManager(plainRepoManager, repositoryIdManager);
+		return new RemoteArtifactRepositoryManager(plainRepoManager, repositoryIdManager, authenticator);
     }
 
     private boolean getDisableP2MirrorsConfiguration() {
