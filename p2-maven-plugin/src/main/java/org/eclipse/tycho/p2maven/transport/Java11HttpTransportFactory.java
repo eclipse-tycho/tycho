@@ -15,6 +15,7 @@ package org.eclipse.tycho.p2maven.transport;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.net.Authenticator;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
@@ -30,12 +31,14 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
+import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 
 /**
@@ -51,9 +54,12 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 	// see https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3
 	// per RFC there are three different formats:
 	private static final List<ThreadLocal<DateFormat>> DATE_PATTERNS = List.of(//
-			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz")), // RFC 1123
-			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE, dd-MMM-yy HH:mm:ss zzz")), // RFC 1036
-			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE MMMd HH:mm:ss yyyy")) // ANSI C's asctime() format
+			// RFC 1123
+			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH)),
+			// RFC 1036
+			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE, dd-MMM-yy HH:mm:ss zzz", Locale.ENGLISH)),
+			// ANSI C's asctime() format
+			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE MMMd HH:mm:ss yyyy", Locale.ENGLISH))
 	);
 
 	static final String HINT = "Java11Client";
@@ -197,7 +203,7 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 
 	@Override
 	public void initialize() throws InitializationException {
-		client = HttpClient.newBuilder().followRedirects(Redirect.NEVER).authenticator(authenticator)
+		client = HttpClient.newBuilder().followRedirects(Redirect.NEVER)
 				.proxy(new ProxySelector() {
 
 					@Override
