@@ -43,6 +43,11 @@ public interface MavenRepositorySettings {
         public URI getURI() {
             return url;
         }
+
+        @Override
+        public String toString() {
+            return getUserName() + "@******" + getURI();
+        }
     }
 
     /**
