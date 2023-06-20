@@ -1,3 +1,4 @@
+// Copyright (C) 2023 Arm Limited (or its affiliates).
 package org.eclipse.tycho.test.target;
 
 import java.io.File;
