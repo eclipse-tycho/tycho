@@ -71,7 +71,7 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 	public Credentials getServerCredentials(URI requestUri) {
 		List<URI> list = new ArrayList<>(locationStack.get());
 		Collections.reverse(list);
-		Stream<URI> repoStream = list.stream().takeWhile(repo -> repo.getHost().equals(requestUri.getHost()));
+		Stream<URI> repoStream = list.stream().takeWhile(repo -> Objects.equals(repo.getHost(), requestUri.getHost()));
 		List<MavenRepositoryLocation> locations = getMavenLocations();
 		return Stream.concat(Stream.of(requestUri), repoStream).flatMap(uri -> {
 			log.info("Fetching credentials for " + uri);
