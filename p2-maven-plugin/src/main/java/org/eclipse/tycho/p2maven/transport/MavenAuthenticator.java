@@ -22,9 +22,13 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,9 +51,17 @@ import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 @Component(role = MavenAuthenticator.class)
 public class MavenAuthenticator extends Authenticator implements Initializable {
 
+	private static final Comparator<URI> LONGEST_PREFIX_MATCH = (loc1, loc2) -> {
+		// we wan't the longest prefix match, so first sort all uris by their length ...
+		String s1 = loc1.normalize().toASCIIString();
+		String s2 = loc2.normalize().toASCIIString();
+		return Long.compare(s2.length(), s1.length());
+	};
+
 	static final String PROXY_AUTHORIZATION_HEADER = "Proxy-Authorization";
 	static final String AUTHORIZATION_HEADER = "Authorization";
 	private ThreadLocal<Stack<URI>> locationStack = ThreadLocal.withInitial(Stack::new);
+	private Map<URI, List<URI>> repositoryChain = new ConcurrentHashMap<>();
 
 	@Requirement
 	LegacySupport legacySupport;
@@ -69,34 +81,48 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 	private List<MavenRepositoryLocation> repositoryLocations;
 
 	public Credentials getServerCredentials(URI requestUri) {
-		List<URI> list = new ArrayList<>(locationStack.get());
-		Collections.reverse(list);
-		Stream<URI> repoStream = list.stream().takeWhile(repo -> repo.getHost().equals(requestUri.getHost()));
+		Stack<URI> stack = locationStack.get();
+		Stream<URI> repoStream;
+		if (stack.isEmpty()) {
+			repoStream = getLongestPrefixStream(requestUri);
+		} else {
+			List<URI> list = new ArrayList<>(stack);
+			Collections.reverse(list);
+			repoStream = list.stream();
+		}
 		List<MavenRepositoryLocation> locations = getMavenLocations();
-		return Stream.concat(Stream.of(requestUri), repoStream).flatMap(uri -> {
-			log.info("Fetching credentials for " + uri);
-			return locations.stream().filter(loc -> {
-				String prefix = loc.getURL().normalize().toASCIIString();
-				String match = uri.normalize().toASCIIString();
-				if (match.startsWith(prefix)) {
-					log.info("Found matching " + loc);
-					return true;
-				}
-				log.info(loc + " does not match (prefix = " + prefix + ", to match = " + match + ")");
-				return false;
-			});
+		return Stream.concat(Stream.of(requestUri),
+				repoStream.takeWhile(repo -> Objects.equals(repo.getHost(), requestUri.getHost()))).flatMap(uri -> {
+			log.debug("Fetching credentials for " + uri);
+			return locations.stream().filter(loc -> uriPrefixMatch(uri, loc.getURL()));
 		}).map(mavenRepositorySettings::getCredentials).filter(Objects::nonNull).findFirst().orElse(null);
+	}
+
+	private boolean uriPrefixMatch(URI matchUri, URI prefixUri) {
+		String prefix = prefixUri.normalize().toASCIIString();
+		String match = matchUri.normalize().toASCIIString();
+		if (match.startsWith(prefix)) {
+			log.debug("Found matching " + prefixUri + " for " + matchUri);
+			return true;
+		}
+		log.debug(prefixUri + " does not match (prefix = " + prefix + ", to match = " + match + ")");
+		return false;
+	}
+
+	private Stream<URI> getLongestPrefixStream(URI requestUri) {
+		
+		List<URI> list = repositoryChain.entrySet().stream().filter(entry -> uriPrefixMatch(requestUri, entry.getKey()))
+				.sorted(Comparator.comparing(Entry::getKey, LONGEST_PREFIX_MATCH))
+				.flatMap(entry -> entry.getValue().stream()).toList();
+		
+		return list.stream();
 	}
 
 	private List<MavenRepositoryLocation> getMavenLocations() {
 		Stream<MavenRepositoryLocation> locations = repositoryLocations.stream();
 		locations = Stream.concat(locations, repositoryIdManager.getKnownMavenRepositoryLocations());
-		List<MavenRepositoryLocation> sorted = locations.sorted((loc1, loc2) -> {
-			// we wan't the longest prefix match, so first sort all uris by their length ...
-			String s1 = loc1.getURL().normalize().toASCIIString();
-			String s2 = loc2.getURL().normalize().toASCIIString();
-			return Long.compare(s2.length(), s1.length());
-		}).toList();
+		List<MavenRepositoryLocation> sorted = locations
+				.sorted(Comparator.comparing(MavenRepositoryLocation::getURL, LONGEST_PREFIX_MATCH)).toList();
 		return sorted;
 	}
 
@@ -179,13 +205,19 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 	}
 
 	public void enterLoad(URI location) {
-		log.info("Enter loading repository " + location);
-		locationStack.get().push(location);
+		log.debug("Enter loading repository " + location);
+		Stack<URI> stack = locationStack.get();
+		if (!stack.isEmpty()) {
+			List<URI> list = new ArrayList<>(locationStack.get());
+			Collections.reverse(list);
+			repositoryChain.putIfAbsent(location.normalize(), list);
+		}
+		stack.push(location);
 	}
 
 	public void exitLoad() {
 		URI pop = locationStack.get().pop();
-		log.info("Exit loading repository " + pop);
+		log.debug("Exit loading repository " + pop);
 	}
 
 }

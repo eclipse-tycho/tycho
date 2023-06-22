@@ -153,6 +153,9 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
             }
             throw e;
         } catch (IOException e) {
+			if (e instanceof AuthenticationFailedException afe) {
+				throw afe;
+			}
 			if (DEBUG_REQUESTS) {
                 logger.debug(" --> generic error: " + e);
             }
