@@ -29,14 +29,24 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryParser;
 import org.eclipse.equinox.internal.p2.updatesite.SiteModel;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
+import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
@@ -287,6 +297,31 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                             new CategoryDependenciesAction(siteModel, artifact.getArtifactId(), artifact.getVersion()));
                 } catch (Exception e) {
                     throw new RuntimeException("Unable to read category File", e);
+                }
+            }
+            File p2inf = new File(location, "p2.inf");
+            if (p2inf.isFile()) {
+                AdviceFileAdvice advice = new AdviceFileAdvice(artifact.getArtifactId(), Version.parseVersion("1.0"),
+                        new Path(location.getAbsolutePath()), new Path("p2.inf"));
+                if (advice.containsAdvice()) {
+                    actions.add(new AbstractPublisherAction() {
+
+                        @Override
+                        public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results,
+                                IProgressMonitor monitor) {
+                            InstallableUnitDescription[] descriptions = advice
+                                    .getAdditionalInstallableUnitDescriptions(null);
+                            if (descriptions != null && descriptions.length > 0) {
+                                for (InstallableUnitDescription desc : descriptions) {
+                                    results.addIU(MetadataFactory.createInstallableUnit(desc),
+                                            IPublisherResult.NON_ROOT);
+                                }
+                            }
+//                            publisherInfo.addAdvice(advice);
+                            return Status.OK_STATUS;
+                        }
+
+                    });
                 }
             }
         } else if (PackagingType.TYPE_P2_SITE.equals(packaging)) {
