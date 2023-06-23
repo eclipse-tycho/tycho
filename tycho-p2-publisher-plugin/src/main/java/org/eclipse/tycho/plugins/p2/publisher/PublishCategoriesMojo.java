@@ -24,8 +24,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.PackagingType;
@@ -90,10 +90,19 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
             buildFolder.getLocation().mkdirs();
             Category.write(category, ret);
             copySiteI18nFiles(buildFolder);
+            copyP2Inf(buildFolder);
             return ret;
         } catch (IOException e) {
             throw new MojoExecutionException("I/O exception while writing category definition to disk", e);
         }
+    }
+
+    private void copyP2Inf(BuildDirectory buildFolder) throws IOException {
+        File p2inf = new File(getProject().getBasedir(), "p2.inf");
+        if (p2inf.isFile()) {
+            FileUtils.copyFile(p2inf, buildFolder.getChild(p2inf.getName()));
+        }
+
     }
 
     private void copySiteI18nFiles(BuildDirectory buildFolder) throws IOException {

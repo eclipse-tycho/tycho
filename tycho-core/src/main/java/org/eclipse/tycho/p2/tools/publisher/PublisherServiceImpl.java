@@ -20,8 +20,13 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Properties;
 
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryXMLAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.tycho.ExecutionEnvironment;
@@ -63,7 +68,19 @@ public class PublisherServiceImpl implements PublisherService {
          */
         Collection<IInstallableUnit> allIUs = publisherRunner.executeAction(categoryXMLAction,
                 publishingRepository.getMetadataRepository(), publishingRepository.getArtifactRepository());
-        // TODO introduce type "eclipse-category"?
+        File p2inf = new File(categoryDefinition.getParentFile(), "p2.inf");
+        if (p2inf.isFile()) {
+            AdviceFileAdvice advice = new AdviceFileAdvice("category.xml", Version.parseVersion("1.0"),
+                    new Path(p2inf.getParentFile().getAbsolutePath()), new Path("p2.inf"));
+            if (advice.containsAdvice()) {
+                InstallableUnitDescription[] descriptions = advice.getAdditionalInstallableUnitDescriptions(null);
+                if (descriptions != null && descriptions.length > 0) {
+                    for (InstallableUnitDescription desc : descriptions) {
+                        allIUs.add(MetadataFactory.createInstallableUnit(desc));
+                    }
+                }
+            }
+        }
         return toSeeds(null, allIUs);
     }
 
