@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event.pull_request.merged == true
-      && contains(github.event.pull_request.labels.*.name, 'backport-to-tycho-3.0.x')
+      && contains(github.event.pull_request.labels.*.name, 'backport-to-tycho-4.0.x')
       && (
-        (github.event.action == 'labeled' && github.event.label.name == 'backport-to-tycho-3.0.x')
+        (github.event.action == 'labeled' && github.event.label.name == 'backport-to-tycho-4.0.x')
         || (github.event.action == 'closed')
       )
     permissions:
