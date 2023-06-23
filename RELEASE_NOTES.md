@@ -2,7 +2,7 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
-## 4.0.0 (under development)
+## 4.0.0
 
 ### creating maven p2 sites with Tycho packaging
 
@@ -504,6 +504,23 @@ Old behavior can be restored through configuration of the tycho-surefire-plugin:
     </configuration>
 </plugin>
 ```
+
+## 3.0.5
+
+### Backports
+
+- inject source folders into maven model
+- improve CI friendly versions
+- Report download speed to the caller
+- redirectTestOutputToFile for OsgiSurefireBooter
+
+## 3.0.4
+
+### Backports
+
+- Include smartbuilder (but disabled by default), can be enabled with `-Dtycho.build.smartbuilder=true`
+- tycho-bnd-plugin support
+- Version Mojo Bugfixes
 
 ## 3.0.3
 
