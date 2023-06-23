@@ -4,6 +4,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.0
 
+### Maven 3.9 required
+
+Tycho 4.x requires Maven Version 3.9
+
 ### creating maven p2 sites with Tycho packaging
 
 There is already a way to [create a p2 maven site with Tycho](https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md#create-p2-repository-referencing-maven-artifacts) for plain jar based projects.
