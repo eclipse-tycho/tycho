@@ -53,8 +53,7 @@ public class PasswordProtectedCompositeP2RepositoryTest extends AbstractTychoInt
 	}
 
 	private Verifier createVerifier(String settingsFile, String settingsSecurityFile) throws Exception {
-		Verifier verifier = getVerifier("target.httpAuthentication", false,
-				new File("projects/target.httpAuthentication/" + settingsFile));
+		Verifier verifier = getVerifier("issue2331", false, new File("projects/issue2331/" + settingsFile));
 		Properties systemProperties = verifier.getSystemProperties();
 		systemProperties.setProperty("p2.repo", p2RepoUrl);
 		if (settingsSecurityFile != null) {

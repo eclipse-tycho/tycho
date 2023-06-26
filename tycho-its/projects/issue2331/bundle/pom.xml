@@ -9,7 +9,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>Issue2331passwordProtectedCompositeP2Repository.bundle</artifactId>
+    <artifactId>ISSUE2331passwordProtectedCompositeP2Repository.bundle</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 
