@@ -151,7 +151,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 
     private synchronized CacheLine getCacheLine(URI uri) {
 		String cleanPath = uri.normalize().toASCIIString().replace(':', '/').replace('?', '/').replace('&', '/')
-				.replaceAll("/+", "/");
+				.replace('*', '/').replaceAll("/+", "/");
 		if (cleanPath.endsWith("/")) {
 			// simulate accessing this as a folder...
 			// this can happen in case of a redirect even though its quite clumsy
