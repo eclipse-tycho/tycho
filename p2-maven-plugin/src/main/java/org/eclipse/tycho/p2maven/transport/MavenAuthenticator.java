@@ -60,8 +60,11 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 
 	static final String PROXY_AUTHORIZATION_HEADER = "Proxy-Authorization";
 	static final String AUTHORIZATION_HEADER = "Authorization";
-	private ThreadLocal<Stack<URI>> locationStack = ThreadLocal.withInitial(Stack::new);
-	private Map<URI, List<URI>> repositoryChain = new ConcurrentHashMap<>();
+
+	// For some reason maven creates different instances of the component even if
+	// there should only be one...
+	private static final ThreadLocal<Stack<URI>> locationStack = ThreadLocal.withInitial(Stack::new);
+	private static final Map<URI, List<URI>> repositoryChain = new ConcurrentHashMap<>();
 
 	@Requirement
 	LegacySupport legacySupport;
