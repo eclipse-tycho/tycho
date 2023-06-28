@@ -343,12 +343,12 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     protected DependencyResolver dependencyResolver;
 
     /**
-     * Normally tycho will automatically determine the test framework provider based on the test
-     * project's classpath. Use this to force using a test framework provider implementation with
-     * the given role hint. Tycho comes with providers
-     * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;,&quot;junit5&quot;. Note that when
-     * specifying a providerHint, you have to make sure the provider is actually available in the
-     * dependencies of tycho-surefire-plugin.
+     * Normally, Tycho will automatically determine the test framework provider based on the test
+     * project's classpath. This options forces the use of a test framework provider implementation
+     * with the given role hint. Tycho comes with providers such as
+     * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;,&quot;junit5&quot;, or
+     * &quot;junit59&quot;. Note that when specifying a providerHint, you have to make sure the
+     * provider is actually available in the dependencies of tycho-surefire-plugin.
      *
      * @since 0.16.0
      */
