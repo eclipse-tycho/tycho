@@ -13,10 +13,10 @@
 			<item name="Declarative Services Plugin" href="tycho-ds-plugin/plugin-info.html" />
 			<item name="Packaging Plugin" href="tycho-packaging-plugin/plugin-info.html" />
 			<item name="Surefire Plugin" href="tycho-surefire-plugin/plugin-info.html" />
-			<item name="p2 Publisher Plugin" href="tycho-p2/tycho-p2-publisher-plugin/plugin-info.html" />
-			<item name="p2 Repository Plugin" href="tycho-p2/tycho-p2-repository-plugin/plugin-info.html" />
-			<item name="p2 Director Plugin" href="tycho-p2/tycho-p2-director-plugin/plugin-info.html" />
-			<item name="p2 Metadata Plugin" href="tycho-p2/tycho-p2-plugin/plugin-info.html" />
+			<item name="p2 Publisher Plugin" href="tycho-p2-publisher-plugin/plugin-info.html" />
+			<item name="p2 Repository Plugin" href="tycho-p2-repository-plugin/plugin-info.html" />
+			<item name="p2 Director Plugin" href="tycho-p2-director-plugin/plugin-info.html" />
+			<item name="p2 Metadata Plugin" href="tycho-p2-plugin/plugin-info.html" />
 			<item name="Source Plugin" href="tycho-source-plugin/plugin-info.html" />
 			<item name="GPG Signature Plugin" href="tycho-gpg-plugin/plugin-info.html"/>
 			<item name="Versions Plugin" href="tycho-versions-plugin/plugin-info.html" />
