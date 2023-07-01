@@ -26,8 +26,6 @@ This describes the steps to perform a release of Tycho:
 
 ## Making a new release for the current stream
 
-** NEEDS UPDATE **
-
 - [ ] Make sure all fixed issues and merged PRs have the correct milestone for this release, to finding PRs without milestone you can use the following filter `is:pr is:merged no:milestone` issues without milestone can be found with `is:issue no:milestone is:closed`
 - [ ] Review the [release notes](https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md) which should provide a quick overview of new features and bug fixes
 - [ ] Create branch `tycho-N.M.x` (e.g. `tycho-2.4.x`) for upcoming release and push it to remote; this branch should remain frozen until the release, only major fixes for regressions could be merged in before release. Work can still happen regularly for the following version on the `master` branch.
@@ -58,62 +56,30 @@ Tycho team
 ... Wait until review date (usually a week later)...
 
 - [ ] make sure all tags are fetched with `git fetch -t`
-- [ ] `git fetch eclipse tycho-N.M.x && git checkout FETCH_HEAD` to get the branch to be released
-- [ ] Update version to remove `-SNAPSHOT` with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<VERSION>`
+- [ ] `git fetch eclipse tycho-N.M.x` to get the branch to be released
+- [ ] Update version to remove `-SNAPSHOT` with `mvn versions:set -DnewVersion=<VERSION>`
 - [ ] Update versions in tycho-demo folder
 - [ ] `git add * && git commit` version change
 - [ ] Deploy to nexus staging repository (check that the correct pgp key is used and published to the key-servers eg. https://keys.openpgp.org/): 
 ```
-mvn clean deploy -Prelease -DskipTests -Dsource=8 -DjdetectJavaApiLink=false \
+mvn clean deploy -Prelease -DskipTests \
      -DforgeReleaseId=sonatype-nexus-staging \
      -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ \
-     -Dgpg.keyname=<your e-mail of pgpg key>
+     -Dgpg.keyname=<your e-mail of pgpg key> \
+     -Dmaven.repo.local=/tmp/tycho-release
 ```
-- In the meantime...
-    - [ ] `git fetch --all --tags`
-    - [ ] `git tag tycho-<TYCHO_VERSION>`
-    - [ ] Find out who contributed to the release:
-```
-git log --pretty=format:%an tycho-<previousVersion>..tycho-<newVersion> | sort | uniq
-git log --grep="Also-[bB]y:" tycho-<previousVersion>..tycho-<newVersion> | grep -i also-by | sed -e 's/.*Also-[bB]y:\s*\(.*\)/\1/' | sort | uniq
-```
-   - [ ] Find out who has sponsored something in this release:
-   ```
-   is:closed is:issue label:sponsored milestone:<version mile stone> 
-   ```
-   - [ ] [Draft a release](https://github.com/eclipse-tycho/tycho/releases/new), thanking the contributors:
-```
-Subject: Tycho <VERSION> is released
-
-Tycho <VERSION> has been released and is available from Maven Central repository.
-
-🆕 https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md#xyz
-🏷️ https://github.com/eclipse-tycho/tycho/tree/tycho-x.y.z
-👔 https://projects.eclipse.org/projects/technology.tycho/releases/x.y.z
-🙏 contributors who contributed patches for this release:
-    <contributors>
-💰 we would like to also thank <list of sponsors> for sponsoring contributions in this release
-
-and thanks to everyone who helped us with testing the snapshot version.
-
-Regards,
-
- The Tycho Team
-
-```
-- [ ] close the staging repository on https://oss.sonatype.org/#stagingRepositories 
-- [ ] Wait until all checks are done (this takes some time, see Activity tab). If all checks have passed, release the repository.
-- [ ] Wait for artifacts to be available on Maven central, e.g. by looking at https://repo1.maven.org/maven2/org/eclipse/tycho/tycho-core/
-- [ ] push tag `git push origin tycho-<TYCHO_VERSION>`
-- Documentation
-  - [ ] Generate site docs using `mvn install site site:stage -DskipTests` and check the result from `target/staging` seems viable.
-  - [ ] Prepare documentation on the webite, using git repo https://git.eclipse.org/c/www.eclipse.org/tycho.git/ : copy the local site docs folders `target/staging/sitedocs` to the existing `sitedocs` folder and then submit as Gerrit review (don't merge yet)
-- Announce the release
-  - [ ] Publish the draft release you made above. This will also send an email to watchers of the project.
-  - [ ] Forward the above email to tycho-dev@eclipse.org
-  - [ ] Add a link to the above release on the discussion started earlier.
-  - [ ] Optionally, announce on other medias (Twitter)
-- [ ] Create, push and merge patch changing the bootstrap Tycho version for Tycho build (eg https://git.eclipse.org/r/c/tycho/org.eclipse.tycho/+/174964 )
+- [ ] [Publish the staged release](#publish-the-staged-release)
+- [ ] `git tag tycho-<VERSION>`
+- [ ] [Publish the sitedoc](#publish-the-sitedoc) for the release
+- [ ] Update version to the next development version with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<NEXT_VERSION>-SNAPSHOT`
+- [ ] review, add and commit the changes e.g. with message `Prepare for next version`
+- [ ] push the branch
+- [ ] push the tag `git push origin tycho-<TYCHO_VERSION>`
+- [ ] [Prepare the announcment text](#prepare-the-announcment-text)
+- [ ] [Create a Github release](https://github.com/eclipse-tycho/tycho/releases/new) using the created tag and prepared text
+- [ ] Also post this in the release discussion
+- [ ] Forward the above text to tycho-dev@eclipse.org
+- [ ] Optionally, announce on other medias (Twitter, ...)
 
 ## Create a Bugfix Release for an older version stream
 
