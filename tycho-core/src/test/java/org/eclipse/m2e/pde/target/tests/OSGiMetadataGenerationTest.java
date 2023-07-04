@@ -40,6 +40,59 @@ import org.osgi.framework.VersionRange;
 public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
 
     @Test
+    public void testBadDependencyInChain() throws Exception {
+        ITargetLocation target = resolveMavenTarget("""
+                <location includeDependencyScope="compile" missingManifest="generate" type="Maven">
+                    <dependencies>
+                        <dependency>
+                            <groupId>edu.ucar</groupId>
+                            <artifactId>cdm</artifactId>
+                            <version>4.5.5</version>
+                            <type>jar</type>
+                        </dependency>
+                    </dependencies>
+                </location>
+                """);
+        assertStatusOk(getTargetStatus(target));
+    }
+
+    @Test
+    public void testBadDependencyDirect() throws Exception {
+        ITargetLocation target = resolveMavenTarget("""
+                <location missingManifest="generate" type="Maven">
+                    <dependencies>
+                        <dependency>
+                              <groupId>com.ibm.icu</groupId>
+                              <artifactId>icu4j</artifactId>
+                              <version>2.6.1</version>
+                            <type>jar</type>
+                        </dependency>
+                    </dependencies>
+                </location>
+                """);
+        IStatus targetStatus = getTargetStatus(target);
+        assertEquals(String.valueOf(targetStatus), IStatus.ERROR, targetStatus.getSeverity());
+    }
+
+    @Test
+    public void testMissingOptionalDependency() throws Exception {
+        ITargetLocation target = resolveMavenTarget(
+                """
+                        <location includeDependencyDepth="none" includeDependencyScopes="compile" missingManifest="generate" type="Maven">
+                            <dependencies>
+                                <dependency>
+                                    <groupId>net.sf.saxon</groupId>
+                                    <artifactId>Saxon-HE</artifactId>
+                                    <version>10.9</version>
+                                    <type>jar</type>
+                                </dependency>
+                            </dependencies>
+                        </location>
+                        """);
+        assertStatusOk(getTargetStatus(target));
+    }
+
+    @Test
     @Ignore("FIXME")
     public void testNonOSGiArtifact_missingArtifactError() throws Exception {
         ITargetLocation target = resolveMavenTarget("""
