@@ -34,6 +34,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -62,6 +63,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.m2e.pde.target.shared.MavenBundleWrapper;
+import org.eclipse.m2e.pde.target.shared.ProcessingMessage;
 import org.eclipse.m2e.pde.target.shared.WrappedBundle;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.IArtifactFacade;
@@ -215,6 +217,15 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                                 mavenArtifact.getVersion()),
                                         instructionsLookup, repositories, repositorySystem2,
                                         mavenSession.getRepositorySession(), syncContextFactory);
+                                List<ProcessingMessage> directErrors = wrappedBundle.messages(false)
+                                        .filter(msg -> msg.type() == ProcessingMessage.Type.ERROR).toList();
+                                if (directErrors.isEmpty()) {
+                                    wrappedBundle.messages(true).map(ProcessingMessage::message)
+                                            .forEach(msg -> logger.warn(asDebugString(mavenArtifact) + ": " + msg));
+                                } else {
+                                    throw new RuntimeException(directErrors.stream().map(ProcessingMessage::message)
+                                            .collect(Collectors.joining(System.lineSeparator())));
+                                }
                                 File file = wrappedBundle.getFile().toFile();
                                 BundleDescription description = BundlesAction.createBundleDescription(file);
                                 WrappedArtifact wrappedArtifact = new WrappedArtifact(file, mavenArtifact,
