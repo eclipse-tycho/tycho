@@ -67,6 +67,11 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 		runDemo("p2-maven-site", "deploy", "-DaltDeploymentRepository=snapshot-repo::default::file:maven-repository");
 	}
 
+	@Test
+	public void testOsgiMavenRepositoryDemo() throws Exception {
+		runDemo("osgi-repository", "deploy", "-DaltDeploymentRepository=snapshot-repo::default::file:maven-repository");
+	}
+
 	protected Verifier runDemo(String test, String... xargs) throws Exception {
 		Verifier verifier = super.getVerifier("../../demo/" + test, true, true);
 		for (String xarg : xargs) {

@@ -37,12 +37,6 @@
 	</dependencies>
 
 	<properties>
-    <!-- these are referenced from src/main/resources/META-INF/plexus/components.xml -->
-		<resources-plugin.version>2.4.3</resources-plugin.version>
-		<install-plugin.version>2.3.1</install-plugin.version>
-		<deploy-plugin.version>2.5</deploy-plugin.version>
-		<clean-plugin.version>2.4.1</clean-plugin.version>
-		<surefire-plugin.version>${surefire-version}</surefire-plugin.version>
 	</properties>
 
 	<build>
