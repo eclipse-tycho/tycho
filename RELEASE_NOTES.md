@@ -2,6 +2,12 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 4.0.1
+
+backports:
+- new tycho-repository-plugin
+- Non existing but optional dependencies lead to resolving issue in target
+
 ## 4.0.0
 
 ### Maven 3.9 required
