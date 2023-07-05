@@ -4,6 +4,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 5.0.0 (under development)
 
+### new tycho-repository-plugin
+
+Tycho now contains a new `tycho-repository-plugin` that can be used to package OSGi repositories.
+
 
 ## 4.0.0
 
