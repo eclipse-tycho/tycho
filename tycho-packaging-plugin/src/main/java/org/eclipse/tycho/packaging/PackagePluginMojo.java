@@ -76,7 +76,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	/**
 	 * Name of the generated JAR.
 	 */
-	@Parameter(property = "project.build.finalName", alias = "jarName", required = true)
+	@Parameter(defaultValue = "${project.build.finalName}", property = "jarName", required = true)
 	protected String finalName;
 
 	/**
