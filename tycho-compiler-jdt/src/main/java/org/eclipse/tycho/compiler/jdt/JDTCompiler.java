@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -54,6 +56,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.tycho.compiler.jdt.copied.LibraryInfo;
+import org.osgi.framework.Constants;
 
 /**
  * See https://help.eclipse.org/ganymede/topic/org.eclipse.jdt.doc.isv/guide/jdt_api_options.htm
@@ -74,6 +77,8 @@ public class JDTCompiler extends AbstractCompiler {
 
     static final Pattern LINE_PATTERN = Pattern
             .compile("(?:(\\d*)\\. )?(ERROR|WARNING) in (.*?)( \\(at line (\\d+)\\))?\\s*");
+
+    static final String COMPILER_NAME = getCompilerName();
 
     @Requirement
     private JdkLibraryInfoProvider jdkLibInfoProvider;
@@ -103,7 +108,7 @@ public class JDTCompiler extends AbstractCompiler {
         }
 
         getLogger().info("Compiling " + sourceFiles.length + " " + "source file" + (sourceFiles.length == 1 ? "" : "s")
-                + " to " + destinationDir.getAbsolutePath());
+                + " to " + destinationDir.getAbsolutePath() + " using " + COMPILER_NAME + "");
 
         Collection<Map.Entry<String, String>> customCompilerArgumentEntries = config
                 .getCustomCompilerArgumentsEntries();
@@ -120,6 +125,30 @@ public class JDTCompiler extends AbstractCompiler {
         }
 
         return messages;
+    }
+
+    private static String getCompilerName() {
+
+        try {
+            URL location = Main.class.getProtectionDomain().getCodeSource().getLocation();
+            File file = new File(location.toURI());
+            try (JarFile jarFile = new JarFile(file)) {
+                Manifest manifest = jarFile.getManifest();
+                String name = manifest.getMainAttributes().getValue(Constants.BUNDLE_NAME);
+                String version = manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
+                if (name != null && version != null) {
+                    return name + " " + version;
+                }
+                if (version != null) {
+                    return "Eclipse Compiler for Java(TM) " + version;
+                }
+                if (name != null) {
+                    return name;
+                }
+            }
+        } catch (Exception e) {
+        }
+        return "Unknown Compiler";
     }
 
     private boolean requireFork(CompilerConfiguration config, CustomCompilerConfiguration custom) {
