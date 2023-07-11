@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product uid="issue2331" version="0.0.1.qualifier" useFeatures="false" includeLaunchers="true">
+<product uid="issue2331" version="0.0.1.qualifier" useFeatures="false" includeLaunchers="false">
 
    <configIni use="default">
    </configIni>
