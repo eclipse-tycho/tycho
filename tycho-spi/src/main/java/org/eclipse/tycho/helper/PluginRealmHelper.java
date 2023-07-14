@@ -13,9 +13,13 @@
 package org.eclipse.tycho.helper;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.lifecycle.internal.LifecyclePluginResolver;
@@ -102,17 +106,65 @@ public class PluginRealmHelper {
     public <T> void visitPluginExtensions(MavenProject project, MavenSession mavenSession, Class<T> type,
             Consumer<? super T> consumer) throws PluginVersionResolutionException, PluginDescriptorParsingException,
             InvalidPluginDescriptorException, PluginResolutionException, PluginManagerException {
+        visitPluginExtensions(project, mavenSession, type, x -> {
+            consumer.accept(x);
+            return true;
+        });
+    }
+
+    public <T> void visitPluginExtensions(MavenProject project, MavenSession mavenSession, Class<T> type,
+            Predicate<? super T> consumer) throws PluginVersionResolutionException, PluginDescriptorParsingException,
+            InvalidPluginDescriptorException, PluginResolutionException, PluginManagerException {
+        visitPluginExtensions(project, mavenSession, type, null, consumer);
+    }
+
+    public <T> void visitPluginExtensions(MavenProject project, MavenSession mavenSession, Class<T> type, String hint,
+            Predicate<? super T> consumer) throws PluginVersionResolutionException, PluginDescriptorParsingException,
+            InvalidPluginDescriptorException, PluginResolutionException, PluginManagerException {
+        visit(project, mavenSession, type, hint, consumer, false);
+    }
+
+    public <T> void visitExtensions(MavenProject project, MavenSession mavenSession, Class<T> type, String hint,
+            Predicate<? super T> consumer) throws PluginVersionResolutionException, PluginDescriptorParsingException,
+            InvalidPluginDescriptorException, PluginResolutionException, PluginManagerException {
+        visit(project, mavenSession, type, hint, consumer, true);
+    }
+
+    private <T> void visit(MavenProject project, MavenSession mavenSession, Class<T> type, String hint,
+            Predicate<? super T> consumer, boolean self)
+            throws PluginVersionResolutionException, PluginDescriptorParsingException, InvalidPluginDescriptorException,
+            PluginResolutionException, PluginManagerException {
         Set<String> visited = new HashSet<String>();
-        execute(project, mavenSession, () -> {
+        BooleanSupplier supplier = () -> {
             try {
-                plexus.lookupList(type).stream().filter(x -> visited.add(x.getClass().getName())).forEach(consumer);
+                if (hint == null) {
+                    Iterator<T> iterator = plexus.lookupList(type).stream()
+                            .filter(x -> visited.add(x.getClass().getName())).iterator();
+                    while (iterator.hasNext()) {
+                        T component = (T) iterator.next();
+                        if (!consumer.test(component)) {
+                            return false;
+                        }
+                    }
+                } else {
+                    Map<String, T> map = plexus.lookupMap(type);
+                    T component = map.get(hint);
+                    if (component != null && visited.add(component.getClass().getName())) {
+                        return consumer.test(component);
+                    }
+                }
             } catch (ComponentLookupException e) {
                 logger.debug("Cannot lookup any item of type: " + type);
             }
-        }, PluginRealmHelper::isTychoEmbedderPlugin);
+            return true;
+        };
+        if (!self || supplier.getAsBoolean()) { // this executes in the caller realm
+            //this then executes in the plugin realms...
+            execute(project, mavenSession, supplier, PluginRealmHelper::isTychoEmbedderPlugin);
+        }
     }
 
-    public void execute(MavenProject project, MavenSession mavenSession, Runnable runnable, PluginFilter filter)
+    private void execute(MavenProject project, MavenSession mavenSession, BooleanSupplier runnable, PluginFilter filter)
             throws PluginVersionResolutionException, PluginDescriptorParsingException, InvalidPluginDescriptorException,
             PluginResolutionException, PluginManagerException {
         if (mavenSession.getLocalRepository() == null) {
@@ -137,7 +189,6 @@ public class PluginRealmHelper {
             try {
                 pluginDescriptor = mavenPluginManager.getPluginDescriptor(plugin, project.getRemotePluginRepositories(),
                         executeSession.getRepositorySession());
-                // session);
             } catch (PluginResolutionException e) {
                 // if the plugin really does not exist, the Maven build will fail later on
                 // anyway -> ignore for now (cf. bug #432957)
@@ -151,7 +202,9 @@ public class PluginRealmHelper {
                         ClassLoader origTCCL = Thread.currentThread().getContextClassLoader();
                         try {
                             Thread.currentThread().setContextClassLoader(pluginRealm);
-                            runnable.run();
+                            if (!runnable.getAsBoolean()) {
+                                return;
+                            }
                         } finally {
                             Thread.currentThread().setContextClassLoader(origTCCL);
                         }

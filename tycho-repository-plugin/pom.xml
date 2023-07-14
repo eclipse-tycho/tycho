@@ -49,6 +49,15 @@
 			<artifactId>org.osgi.util.promise</artifactId>
 			<version>1.3.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-spi</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-archiver</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
