@@ -75,8 +75,8 @@ public class BndManifestProcessor implements ManifestProcessor {
 	@Override
 	public void processManifest(MavenProject mavenProject, Manifest manifest) {
 
-		if (configurationHelper.getBooleanOption("deriveHeaderFromSource")
-				// don't be confused here, we use FALSE als default because it means no such
+		if (configurationHelper.getConfiguration().getBoolean("deriveHeaderFromSource")
+				// don't be confused here, we use FALSE as default because it means no such
 				// configuration option defined in the mojo (probably called from different
 				// context) but the default in the PackagePluginMojo defines the real default
 				// (what is TRUE)
