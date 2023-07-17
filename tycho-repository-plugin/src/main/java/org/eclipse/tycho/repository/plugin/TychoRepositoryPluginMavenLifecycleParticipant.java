@@ -23,7 +23,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 
 @Component(role = AbstractMavenLifecycleParticipant.class)
-public class PackageMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
+public class TychoRepositoryPluginMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
 	@Override
 	public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
@@ -40,7 +40,7 @@ public class PackageMavenLifecycleParticipant extends AbstractMavenLifecyclePart
 			if (other == project) {
 				continue;
 			}
-			if (PackageMavenRepositoryMojo.isInteresting(other)) {
+			if (PackageRepositoryMojo.isInteresting(other)) {
 				Dependency dependency = new Dependency();
 				dependency.setGroupId(other.getGroupId());
 				dependency.setArtifactId(other.getArtifactId());
