@@ -22,8 +22,14 @@ import org.eclipse.tycho.TargetPlatform;
 // TODO 412416 javadoc
 public interface TargetPlatformFactory {
 
+    default TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
+            ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects) {
+        return createTargetPlatform(tpConfiguration, eeConfiguration, reactorProjects, null);
+    }
+
     public TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
-            ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects);
+            ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
+            ReactorProject project);
 
     public TargetPlatform createTargetPlatformWithUpdatedReactorContent(TargetPlatform baseTargetPlatform,
             List<?/* PublishingRepository */> upstreamProjectResults, PomDependencyCollector pomDependencies);
