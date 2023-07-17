@@ -86,6 +86,22 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>system-packages-companion-bnd-process</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>bnd-process</goal>
+						</goals>
+						<configuration>
+							<packagingTypes>jar,maven-plugin</packagingTypes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
 				<executions>
 					<execution>
