@@ -48,6 +48,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.shared.MavenContext;
@@ -88,6 +89,9 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     @Requirement
     private IRepositoryIdManager repositoryIdManager;
+
+    @Requirement
+    private MavenBundleResolver bundleResolver;
 
     private synchronized LocalMetadataRepository getLocalMetadataRepository(MavenContext context,
             LocalRepositoryP2Indices localRepoIndices) {
@@ -131,7 +135,7 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         LocalMetadataRepository localMetadataRepo = getLocalMetadataRepository(mavenContext, localRepoIndices);
         LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(mavenContext, localRepoIndices);
         return new TargetPlatformFactoryImpl(mavenContext, agent, localArtifactRepo, localMetadataRepo,
-                targetDefinitionResolverService, repositoryIdManager);
+                targetDefinitionResolverService, repositoryIdManager, projectManager, bundleResolver);
     }
 
     @Override

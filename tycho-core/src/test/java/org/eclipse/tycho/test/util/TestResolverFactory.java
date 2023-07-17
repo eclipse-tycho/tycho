@@ -109,7 +109,7 @@ public class TestResolverFactory implements P2ResolverFactory {
 
     public TargetPlatformFactoryImpl getTargetPlatformFactoryImpl() {
         return new TargetPlatformFactoryImpl(mavenContext, agent, localArtifactRepo, localMetadataRepo,
-                targetDefinitionResolverService, idManager);
+                targetDefinitionResolverService, idManager, null, null);
     }
 
     @Override
