@@ -31,7 +31,7 @@
               <prepare-package>
               </prepare-package>
               <package>
-                org.eclipse.tycho:tycho-repository-plugin:${project.version}:package-maven-repository
+                org.eclipse.tycho:tycho-repository-plugin:${project.version}:package-repository
               </package>
               <integration-test>
               </integration-test>
