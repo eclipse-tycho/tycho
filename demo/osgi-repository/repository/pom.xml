@@ -17,6 +17,10 @@
 				<version>${tycho-version}</version>
 				<!-- Extensions must be enabled for this mojo to work reliable and for using the custom package type-->
 				<extensions>true</extensions>
+				<configuration>
+					<!-- Another option would be using 'local' -->
+					<repositoryLayout>maven</repositoryLayout>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
