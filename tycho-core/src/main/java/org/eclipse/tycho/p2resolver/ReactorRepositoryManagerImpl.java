@@ -68,7 +68,8 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
             List<ReactorProject> reactorProjects) {
         //
         // at this point, there is only incomplete ("dependency-only") metadata for the reactor projects
-        TargetPlatform result = getTpFactory().createTargetPlatform(tpConfiguration, eeConfiguration, reactorProjects);
+        TargetPlatform result = getTpFactory().createTargetPlatform(tpConfiguration, eeConfiguration, reactorProjects,
+                project);
         project.setContextValue(PRELIMINARY_TARGET_PLATFORM_KEY, result);
 
         List<MavenArtifactRepositoryReference> repositoryReferences = tpConfiguration.getTargetDefinitions().stream()
