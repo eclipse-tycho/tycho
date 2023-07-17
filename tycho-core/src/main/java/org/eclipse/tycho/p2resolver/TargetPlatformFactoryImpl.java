@@ -18,6 +18,7 @@
 package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,15 +32,24 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -49,20 +59,31 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.IArtifactFacade;
-import org.eclipse.tycho.IRawArtifactFileProvider;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.IRawArtifactFileProvider;
 import org.eclipse.tycho.IRepositoryIdManager;
+import org.eclipse.tycho.MavenArtifactKey;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.ee.impl.ExecutionEnvironmentResolutionHandler;
+import org.eclipse.tycho.core.osgitools.ClasspathReader;
+import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
+import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
+import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.core.resolver.target.DuplicateReactorIUsException;
 import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
 import org.eclipse.tycho.core.resolver.target.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.core.shared.DuplicateFilteringLoggingProgressMonitor;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.model.classpath.JUnitBundle;
+import org.eclipse.tycho.model.classpath.JUnitClasspathContainerEntry;
+import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 import org.eclipse.tycho.p2.repository.ArtifactRepositoryBlackboard;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
@@ -74,8 +95,10 @@ import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.repository.MirroringArtifactProvider;
 import org.eclipse.tycho.p2.repository.ProviderOnlyArtifactRepository;
 import org.eclipse.tycho.p2.repository.PublishingRepository;
+import org.eclipse.tycho.p2.repository.QueryableCollection;
 import org.eclipse.tycho.p2.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
+import org.eclipse.tycho.p2.resolver.BundlePublisher;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
@@ -84,6 +107,7 @@ import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
+import org.osgi.framework.BundleException;
 
 public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
@@ -104,11 +128,16 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     private final LocalMetadataRepository localMetadataRepository;
 
     private final TargetDefinitionResolverService targetDefinitionResolverService;
+    private TychoProjectManager projectManager;
+    private MavenBundleResolver mavenBundleResolver;
 
     public TargetPlatformFactoryImpl(MavenContext mavenContext, IProvisioningAgent remoteAgent,
             LocalArtifactRepository localArtifactRepo, LocalMetadataRepository localMetadataRepo,
-            TargetDefinitionResolverService targetDefinitionResolverService, IRepositoryIdManager repositoryIdManager) {
+            TargetDefinitionResolverService targetDefinitionResolverService, IRepositoryIdManager repositoryIdManager,
+            TychoProjectManager projectManager, MavenBundleResolver mavenBundleResolver) {
         this.mavenContext = mavenContext;
+        this.projectManager = projectManager;
+        this.mavenBundleResolver = mavenBundleResolver;
         this.logger = mavenContext.getLogger();
         this.monitor = new DuplicateFilteringLoggingProgressMonitor(logger); // entails that this class is not thread-safe
 
@@ -138,6 +167,14 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration, logger), reactorProjects);
     }
 
+    @Override
+    public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
+            ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
+            ReactorProject project) {
+        return createTargetPlatform(tpConfiguration,
+                ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration, logger), reactorProjects, project);
+    }
+
     /**
      * Computes the target platform from the given configuration and content.
      * 
@@ -158,8 +195,15 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      * @see #createTargetPlatform(TargetPlatformConfigurationStub,
      *      ExecutionEnvironmentConfiguration, List, PomDependencyCollector)
      */
+
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<ReactorProject> reactorProjects) {
+        return createTargetPlatform(tpConfiguration, eeResolutionHandler, reactorProjects, null);
+    }
+
+    public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
+            ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<ReactorProject> reactorProjects,
+            ReactorProject project) {
 
         List<TargetDefinitionContent> targetFileContent = resolveTargetDefinitions(tpConfiguration,
                 eeResolutionHandler.getResolutionHints());
@@ -169,8 +213,38 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
         // collect & process metadata
         boolean includeLocalMavenRepo = !tpConfiguration.getIgnoreLocalArtifacts();
-        LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories,
-                targetFileContent, includeLocalMavenRepo);
+        Set<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories, targetFileContent,
+                includeLocalMavenRepo);
+
+        //add maven junit bundles...
+        List<MavenArtifactKey> junitBundles = getMissingJunitBundles(project, externalUIs);
+        for (MavenArtifactKey mavenArtifactKey : junitBundles) {
+            Optional<ResolvedArtifactKey> mavenBundle = mavenBundleResolver.resolveMavenBundle(
+                    project.adapt(MavenProject.class), project.adapt(MavenSession.class), mavenArtifactKey);
+            mavenBundle.map(ResolvedArtifactKey::getLocation).flatMap(bundleFile -> {
+                try {
+                    Optional<IInstallableUnit> iu = BundlePublisher.getBundleIU(bundleFile);
+                    IInstallableUnit unit = iu.orElse(null);
+                    if (unit != null) {
+                        InstallableUnitDescription description = new InstallableUnitDescription();
+                        unit.getProperties().forEach((k, v) -> description.setProperty(k, v));
+                        description.setId(unit.getId());
+                        description.setVersion(unit.getVersion());
+                        description.addProvidedCapabilities(unit.getProvidedCapabilities());
+                        if (!mavenArtifactKey.getId().equals(unit.getId())) {
+                            IProvidedCapability cap = MetadataFactory.createProvidedCapability(
+                                    "org.eclipse.equinox.p2.iu", mavenArtifactKey.getId(), unit.getVersion());
+                            description.addProvidedCapabilities(List.of(cap));
+                        }
+                        description.setArtifacts(unit.getArtifacts().toArray(IArtifactKey[]::new));
+                        return Optional.of(MetadataFactory.createInstallableUnit(description));
+                    }
+                } catch (IOException e) {
+                } catch (BundleException e) {
+                }
+                return null;
+            }).ifPresent(externalUIs::add);
+        }
 
         Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectUIs = getPreliminaryReactorProjectUIs(
                 reactorProjects);
@@ -200,6 +274,35 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
 
         return targetPlatform;
+    }
+
+    private List<MavenArtifactKey> getMissingJunitBundles(ReactorProject project, Set<IInstallableUnit> externalUIs) {
+        List<MavenArtifactKey> missing = new ArrayList<>();
+        if (projectManager != null) {
+            Optional<TychoProject> tychoProject = projectManager.getTychoProject(project);
+            tychoProject.filter(OsgiBundleProject.class::isInstance).map(OsgiBundleProject.class::cast)
+                    .map(obp -> obp.getEclipsePluginProject(project)).ifPresent(eclipseProject -> {
+                        Collection<ProjectClasspathEntry> entries = eclipseProject.getClasspathEntries();
+                        for (ProjectClasspathEntry entry : entries) {
+                            if (entry instanceof JUnitClasspathContainerEntry junit) {
+                                QueryableCollection queriable = new QueryableCollection(externalUIs);
+                                Collection<JUnitBundle> artifacts = junit.getArtifacts();
+                                for (JUnitBundle bundle : artifacts) {
+                                    MavenArtifactKey maven = ClasspathReader.toMaven(bundle);
+                                    VersionRange range = new VersionRange(maven.getVersion());
+                                    IQuery<IInstallableUnit> query = ArtifactTypeHelper.createQueryFor(maven.getType(),
+                                            maven.getId(), range);
+                                    IQueryResult<IInstallableUnit> result = queriable
+                                            .query(QueryUtil.createLatestQuery(query), monitor);
+                                    if (result.isEmpty()) {
+                                        missing.add(maven);
+                                    }
+                                }
+                            }
+                        }
+                    });
+        }
+        return missing;
     }
 
     private List<TargetDefinitionContent> resolveTargetDefinitions(TargetPlatformConfigurationStub tpConfiguration,
