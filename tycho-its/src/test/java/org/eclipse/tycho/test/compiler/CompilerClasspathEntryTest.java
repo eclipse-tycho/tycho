@@ -33,6 +33,7 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("compiler.junitcontainer/junit4-in-bundle", true);
 		verifier.executeGoal("test");
 		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("Tests run: 5, Failures: 0, Errors: 0, Skipped: 0");
 	}
 
 	@Test
@@ -40,6 +41,7 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("compiler.junitcontainer/junit4-in-bundle-with-dependencies", true);
 		verifier.executeGoal("test");
 		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("Tests run: 5, Failures: 0, Errors: 0, Skipped: 0");
 	}
 
 	@Test

@@ -32,6 +32,15 @@
 						<version>3.0.0-M5</version>
 					</dependency>
 				</dependencies>
+				<executions>
+					<execution>
+						<id>surefire-test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
