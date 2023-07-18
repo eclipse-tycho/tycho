@@ -176,9 +176,19 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
 
     @Override
     public File getArtifactLocation(org.eclipse.tycho.ArtifactKey artifact) {
-        IArtifactKey p2Artifact = ArtifactTypeHelper.toP2ArtifactKey(artifact);
-        if (p2Artifact != null) {
-            return artifacts.getArtifactFile(p2Artifact);
+        if (ArtifactType.TYPE_INSTALLABLE_UNIT.equals(artifact.getType())) {
+            //it might be a bundle or a feature...
+            File bundleFile = artifacts.getArtifactFile(ArtifactTypeHelper.toP2BundleArtifactKey(artifact));
+            if (bundleFile != null) {
+                return bundleFile;
+            }
+            //the try it as a feature
+            return artifacts.getArtifactFile(ArtifactTypeHelper.toP2FeatureArtifactKey(artifact));
+        } else {
+            IArtifactKey p2Artifact = ArtifactTypeHelper.toP2ArtifactKey(artifact);
+            if (p2Artifact != null) {
+                return artifacts.getArtifactFile(p2Artifact);
+            }
         }
         return null;
     }

@@ -122,6 +122,14 @@ public class ArtifactTypeHelper {
 
     // p2 artifacts
 
+    public static IArtifactKey toP2BundleArtifactKey(org.eclipse.tycho.ArtifactKey artifact) {
+        return createP2ArtifactKey(PublisherHelper.OSGI_BUNDLE_CLASSIFIER, artifact);
+    }
+
+    public static IArtifactKey toP2FeatureArtifactKey(org.eclipse.tycho.ArtifactKey artifact) {
+        return createP2ArtifactKey(PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER, artifact);
+    }
+
     public static IArtifactKey toP2ArtifactKey(org.eclipse.tycho.ArtifactKey artifact) {
         if (TYPE_ECLIPSE_PLUGIN.equals(artifact.getType()) || TYPE_BUNDLE_FRAGMENT.equals(artifact.getType())) {
             return createP2ArtifactKey(PublisherHelper.OSGI_BUNDLE_CLASSIFIER, artifact);
