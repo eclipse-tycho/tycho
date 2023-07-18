@@ -143,8 +143,8 @@ public class P2ResolverImpl implements P2Resolver {
             Collection<? extends ArtifactKey> artifacts) {
         P2TargetPlatform targetPlatform = getTargetFromContext(context);
         Collection<IInstallableUnit> roots = new ArrayList<>();
+        QueryableCollection queriable = new QueryableCollection(targetPlatform.getInstallableUnits());
         for (ArtifactKey artifactKey : artifacts) {
-            QueryableCollection queriable = new QueryableCollection(targetPlatform.getInstallableUnits());
             VersionRange range = new VersionRange(artifactKey.getVersion());
             IQuery<IInstallableUnit> query = ArtifactTypeHelper.createQueryFor(artifactKey.getType(),
                     artifactKey.getId(), range);

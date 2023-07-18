@@ -68,6 +68,9 @@ public class MavenBundleResolver {
      */
     public Optional<ResolvedArtifactKey> resolveMavenBundle(MavenProject project, MavenSession mavenSession,
             MavenArtifactKey mavenArtifactKey) {
+        if (project == null) {
+            return Optional.empty();
+        }
         TargetPlatform tp = TychoProjectUtils.getTargetPlatformIfAvailable(DefaultReactorProject.adapt(project));
         String type = mavenArtifactKey.getType();
         String resolvedType = PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(type) ? ArtifactType.TYPE_ECLIPSE_PLUGIN
@@ -88,6 +91,9 @@ public class MavenBundleResolver {
             }
         }
         // then fallback to maven artifact ...
+        if (mavenSession == null) {
+            return Optional.empty();
+        }
         String groupId = mavenArtifactKey.getGroupId();
         String artifactId = mavenArtifactKey.getArtifactId();
         try {
