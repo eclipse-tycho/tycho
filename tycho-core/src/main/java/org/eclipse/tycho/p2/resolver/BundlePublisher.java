@@ -45,7 +45,11 @@ public class BundlePublisher extends BundlesAction {
         }
         PublisherInfo publisherInfo = new PublisherInfo();
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
-        IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(),
+        String symbolicName = bundleDescription.getSymbolicName();
+        if (symbolicName == null) {
+            return Optional.empty();
+        }
+        IArtifactKey key = BundlesAction.createBundleArtifactKey(symbolicName,
                 bundleDescription.getVersion().toString());
         IArtifactDescriptor descriptor = FileArtifactRepository.forFile(bundleLocation, key);
         return Optional.ofNullable(publishBundle(bundleDescription, descriptor, publisherInfo));
