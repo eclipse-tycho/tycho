@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The main pom used by all plugins, except the test plugins. See pom-test.xml -->
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho-its-project.maven.brokenp2data</groupId>
+	<artifactId>parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>tycho-its-project.maven.brokenp2data.feature/pom.xml</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-packaging-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<deployableFeature>true</deployableFeature>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>tmf</id>
+			<url>https://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.29.0</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>mwe2</id>
+			<url>https://download.eclipse.org/modeling/emft/mwe/updates/releases/2.14.0</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>2021-03</id>
+			<url>https://download.eclipse.org/releases/2021-03/</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+</project>
