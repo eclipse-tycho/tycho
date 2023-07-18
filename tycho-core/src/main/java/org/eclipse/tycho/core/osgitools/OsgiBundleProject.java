@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -54,8 +55,8 @@ import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
@@ -70,14 +71,12 @@ import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProjectImpl;
-import org.eclipse.tycho.core.resolver.P2ResolutionResult;
-import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
-import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
+import org.eclipse.tycho.model.classpath.JUnitBundle;
 import org.eclipse.tycho.model.classpath.JUnitClasspathContainerEntry;
 import org.eclipse.tycho.model.classpath.LibraryClasspathEntry;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
@@ -113,6 +112,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Requirement
     private BuildPropertiesParser buildPropertiesParser;
+
+    @Requirement
+    private MavenBundleResolver mavenBundleResolver;
 
     @Override
     public ArtifactDependencyWalker getDependencyWalker(ReactorProject project) {
@@ -263,18 +265,15 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         for (ProjectClasspathEntry cpe : entries) {
             if (cpe instanceof JUnitClasspathContainerEntry junit) {
                 logger.info("Resolving JUnit " + junit.getJUnitSegment() + " classpath container");
-                P2Resolver resolver = resolverFactory
-                        .createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
-                TargetPlatform tp = TychoProjectUtils.getTargetPlatform(reactorProject);
-                Collection<P2ResolutionResult> result = resolver
-                        .resolveArtifactDependencies(tp, ClasspathReader.asMaven(junit.getArtifacts())).values();
-                for (P2ResolutionResult resolutionResult : result) {
-                    for (Entry entry : resolutionResult.getArtifacts()) {
-                        logger.debug("Resolved " + entry.getId() + "::" + entry.getVersion());
-                        File location = entry.getLocation(true);
-                        list.add(new DefaultClasspathEntry(null, entry, Collections.singletonList(location),
+
+                for (JUnitBundle junitBundle : junit.getArtifacts()) {
+                    Optional<ResolvedArtifactKey> mavenBundle = mavenBundleResolver.resolveMavenBundle(
+                            reactorProject.adapt(MavenProject.class), reactorProject.adapt(MavenSession.class),
+                            ClasspathReader.toMaven(junitBundle));
+                    mavenBundle.ifPresent(key -> {
+                        list.add(new DefaultClasspathEntry(key,
                                 Collections.singletonList(new DefaultAccessRule("**/*", false))));
-                    }
+                    });
                 }
             }
         }
@@ -318,6 +317,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public EclipsePluginProject getEclipsePluginProject(ReactorProject otherProject) {
+        if (otherProject == null) {
+            return null;
+        }
         EclipsePluginProjectImpl pdeProject = (EclipsePluginProjectImpl) otherProject
                 .getContextValue(CTX_ECLIPSE_PLUGIN_PROJECT);
         if (pdeProject == null) {
