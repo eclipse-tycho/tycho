@@ -202,7 +202,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 result.put(classifier, p2artifact);
             }, () -> {
                 logger.debug("Skip generation of secondary metadata for artifact = " + artifact
-                        + ", as it does not has a canonical ArtifactDescriptor");
+                        + ", as it does not have a canonical ArtifactDescriptor");
             });
 
         }
@@ -365,7 +365,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
     /**
      * Looks for all files at the base of the project that extension is ".product" Duplicated in the
      * EclipseRepositoryProject
-     * 
+     *
      * @param projectLocation
      * @return The list of product files to parse for an eclipse-repository project
      */
