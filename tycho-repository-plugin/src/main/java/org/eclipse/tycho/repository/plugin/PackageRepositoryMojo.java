@@ -14,14 +14,16 @@ package org.eclipse.tycho.repository.plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -29,21 +31,27 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
-import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.MavenArtifactNamespace;
-
-import aQute.bnd.osgi.repository.XMLResourceGenerator;
-import aQute.bnd.osgi.resource.CapReqBuilder;
-import aQute.bnd.osgi.resource.ResourceBuilder;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
+import org.eclipse.tycho.packaging.RepositoryGenerator;
+import org.eclipse.tycho.packaging.RepositoryGenerator.RepositoryConfiguration;
+import org.eclipse.tycho.packaging.RepositoryGenerator.RepositoryLayout;
 
 /**
  * Generates an OSGi repository from the current reactor projects
  *
  */
 @Mojo(name = "package-repository")
-public class PackageRepositoryMojo extends AbstractMojo {
+public class PackageRepositoryMojo extends AbstractMojo implements RepositoryConfiguration {
+
+	private static final XmlPlexusConfiguration NO_SETTINGS = new XmlPlexusConfiguration("settings");
+
+	static final String DEFAULT_REPOSITORY_TYPE = OSGiRepositoryGenerator.HINT;
+
+	static final String PARAMETER_REPOSITORY_TYPE = "repositoryType";
 
 	@Parameter(property = "session", readonly = true)
 	protected MavenSession session;
@@ -55,13 +63,6 @@ public class PackageRepositoryMojo extends AbstractMojo {
 	 */
 	@Parameter(defaultValue = "${project.name}")
 	private String repositoryName;
-
-	/**
-	 * Specify the filename of the additionally generated OSGi Repository (if
-	 * enabled)
-	 */
-	@Parameter(defaultValue = "repository.xml")
-	private String repositoryFileName;
 
 	@Parameter(defaultValue = "${project.build.directory}")
 	private File destination;
@@ -82,82 +83,95 @@ public class PackageRepositoryMojo extends AbstractMojo {
 	@Parameter(defaultValue = "maven")
 	private RepositoryLayout repositoryLayout;
 
+	/**
+	 * Configures the used repository type
+	 */
+	@Parameter(defaultValue = DEFAULT_REPOSITORY_TYPE, name = PARAMETER_REPOSITORY_TYPE)
+	private String repositoryType;
+
+	@Parameter(property = "mojoExecution", readonly = true)
+	MojoExecution execution;
+
+	/**
+	 * Configures the repository type specific settings.
+	 */
+	@Parameter
+	private PlexusConfiguration settings;
+
 	@Component(role = Archiver.class, hint = "zip")
 	private ZipArchiver zipArchiver;
 
+	@Component(role = RepositoryGenerator.class)
+	private Map<String, RepositoryGenerator> generators;
+
+	@Component
+	private MavenProjectHelper mavenProjectHelper;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		XMLResourceGenerator resourceGenerator = new XMLResourceGenerator();
-		resourceGenerator.name(repositoryName);
-		File folder;
-		if (repositoryLayout == RepositoryLayout.local) {
-			folder = new File(destination, FilenameUtils.getBaseName(repositoryFileName));
-			folder.mkdirs();
-			resourceGenerator.base(folder.toURI());
-		} else {
-			folder = null;
+		RepositoryGenerator generator = generators.get(repositoryType);
+		if (generator == null) {
+			throw new MojoFailureException(
+					"No repository implementation of type " + repositoryType + " found, available ones are "
+							+ generators.keySet().stream().sorted().collect(Collectors.joining(", ")));
 		}
-		for (MavenProject project : session.getProjects()) {
-			if (isInteresting(project)) {
-				ResourceBuilder rb = new ResourceBuilder();
-				try {
-					URI uri;
-					File file = project.getArtifact().getFile();
-					if (folder == null) {
-						uri = new URI("mvn:" + project.getGroupId() + ":" + project.getArtifactId() + ":"
-								+ project.getVersion());
-					} else {
-						uri = new File(folder, file.getName()).toURI();
-					}
-					if (rb.addFile(project.getArtifact().getFile(), uri)) {
-						CapReqBuilder identity = new CapReqBuilder(MavenArtifactNamespace.MAVEN_ARTIFACT_NAMESPACE)
-								.addAttribute(MavenArtifactNamespace.CAPABILITY_GROUP_ATTRIBUTE, project.getGroupId())
-								.addAttribute(MavenArtifactNamespace.MAVEN_ARTIFACT_NAMESPACE, project.getArtifactId())
-								.addAttribute(MavenArtifactNamespace.CAPABILITY_VERSION_ATTRIBUTE,
-										project.getVersion());
-						rb.addCapability(identity);
-						resourceGenerator.resource(rb.build());
-						getLog().info("Adding " + project.getId());
-						if (folder != null) {
-							FileUtils.copyFileToDirectory(file, folder);
-						}
-					} else {
-						getLog().info("Skip " + project.getId() + ": Not a bundle");
-					}
-				} catch (Exception e) {
-					Log log = getLog();
-					log.warn("Ignoring " + project.getId() + ": " + e, log.isDebugEnabled() ? e : null);
-				}
-			}
-		}
+		List<MavenProject> projects = session.getProjects().stream().filter(generator::isInteresting).toList();
 		try {
-			Artifact artifact = project.getArtifact();
-			if (folder != null) {
-				File location = new File(folder, repositoryFileName);
-				resourceGenerator.save(location);
-				File destFile = new File(destination, project.getArtifactId() + "-" + folder.getName() + ".zip");
-				zipArchiver.addDirectory(folder);
+			File repository = generator.createRepository(projects, this);
+			String executionId = execution.getExecutionId();
+			if (repository.isDirectory()) {
+				File destFile = new File(destination, project.getArtifactId() + "-" + repository.getName() + ".zip");
+				zipArchiver.addDirectory(repository);
 				zipArchiver.setDestFile(destFile);
 				zipArchiver.createArchive();
-				artifact.setFile(destFile);
-				artifact.setArtifactHandler(new DefaultArtifactHandler("zip"));
+				if (executionId.startsWith("default-")) {
+					Artifact artifact = project.getArtifact();
+					artifact.setFile(destFile);
+					artifact.setArtifactHandler(new DefaultArtifactHandler("zip"));
+				} else {
+					mavenProjectHelper.attachArtifact(project, "zip", executionId, destFile);
+				}
 			} else {
-				File location = new File(destination, repositoryFileName);
-				resourceGenerator.save(location);
-				artifact.setArtifactHandler(new DefaultArtifactHandler("xml"));
-				artifact.setFile(location);
+				String extension = FilenameUtils.getExtension(repository.getName());
+				if (executionId.startsWith("default-")) {
+					Artifact artifact = project.getArtifact();
+					artifact.setArtifactHandler(new DefaultArtifactHandler(extension));
+					artifact.setFile(repository);
+				} else {
+					mavenProjectHelper.attachArtifact(project, extension, executionId, repository);
+				}
 			}
 		} catch (IOException e) {
-			throw new MojoExecutionException("Could not write OSGi Repository!", e);
+			throw new MojoExecutionException("Could not write repository!", e);
 		}
 	}
 
-	public static boolean isInteresting(MavenProject other) {
-		String packaging = other.getPackaging();
-		return "jar".equalsIgnoreCase(packaging) || "bundle".equalsIgnoreCase(packaging)
-				|| ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
-				|| ArtifactType.TYPE_BUNDLE_FRAGMENT.equals(packaging)
-				|| ArtifactType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging);
+	@Override
+	public File getDestination() {
+		return destination;
+	}
+
+	@Override
+	public RepositoryLayout getLayout() {
+		return repositoryLayout;
+	}
+
+	@Override
+	public String getRepositoryName() {
+		return repositoryName;
+	}
+
+	@Override
+	public Log getLog() {
+		return super.getLog();
+	}
+
+	@Override
+	public PlexusConfiguration getConfiguration() {
+		if (settings == null) {
+			return NO_SETTINGS;
+		}
+		return settings;
 	}
 
 }
