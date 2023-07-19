@@ -6,7 +6,7 @@ Thanks for your interest in this project.
 
 To enable SNAPSHOTs, make sure the following Maven plugin-repository is available to your build: https://repo.eclipse.org/content/repositories/tycho-snapshots/.
 This can be accomplished by adding the following snippet to your (parent) pom.xml or settings.xml:
-```
+```xml
 <pluginRepositories>
     <pluginRepository>
         <id>tycho-snapshots</id>
@@ -87,7 +87,7 @@ The tycho integration tests are located in the [tycho-its](https://github.com/ec
 
 1. create a new folder in the the [projects](https://github.com/eclipse-tycho/tycho/tree/master/tycho-its/projects) directory (see below for a good naming, but this could be improved as part of the review so don't mind to choose an intermediate name first), usually you would like to use `${tycho-version}` as a placeholder in your pom so the execution picks up the current tycho version
 2. Check if there is already a suitable test-class available or simply create your own (again the name could be improved later on if required), the usual pattern for a self-contained test-case that fails the build is:
-```
+```java
 @Test
 public void test() throws Exception {
     Verifier verifier = getVerifier("your-project-folder-name", false);
@@ -143,7 +143,7 @@ Tycho internally calls the Eclipse Java Compiler, therefore it might be usefull 
 3. Build the `eclipse.jdt.core/org.eclipse.jdt.core` module with `mvn clean package -Pbuild-individual-bundles -Dtycho.localArtifacts=ignore -DskipTests`
 4. Install the result in your local maven repository under a new version `mvn install:install-file -Dfile=<path to>/eclipse.jdt.core/org.eclipse.jdt.core/target/org.eclipse.jdt.core-<version>-batch-compiler.jar -DgroupId=org.eclipse.jdt -DartifactId=ecj -Dversion=<yournewversion> -Dpackaging=jar`
 5. Now edit the `pom.xml` of your project you like to test and either edit or insert
-```
+```xml
 <plugin>
   <groupId>org.eclipse.tycho</groupId>
   <artifactId>tycho-compiler-plugin</artifactId>
