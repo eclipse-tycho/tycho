@@ -330,7 +330,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * And a configuration:
      * 
      * &lt;configuration&gt;
-     *   &lt;logEnabled&gt;true&lt;/logEnabled&gt;
      *   &lt;logDirectory&gt;${project.build.directory}/logfiles&lt;/logDirectory&gt;
      *   &lt;log&gt;xml&lt;/log&gt; 
      * &lt;/configuration&gt;
