@@ -58,7 +58,7 @@ The following Organizations support Tycho getting processing power for their bui
 * <img src="https://www.eclipse.org/favicon.ico" width="16" height="16"> [Eclipse Foundation](https://www.eclipse.org/sponsor/) - host our CI Infrastructure, become a friend of Eclipse and support the Eclipse Foundation in general
 * <img src="https://www.renesas.com/favicon.ico" width="16" height="16"> [Renesas Electronics Corporation](https://www.eclipse.org/membership/showMember.php?member_id=1069) - sponsors a resource pack with 2 CPU / 8 GB RAM
 * <img src="https://www.sap.com/favicon.ico"     width="16" height="16"> [SAP SE](https://www.eclipse.org/membership/showMember.php?member_id=665) - sponsors two resource packs with 2 CPU / 8 GB RAM each
-* <img src="https://www.redhat.com/favicon.ico"  width="16" height="16"> [Red Hat, Inc.](https://www.eclipse.org/membership/showMember.php?member_id=731) - sponsors a resource pack with 2 CPU / 8 GB RAM
+* <img src="https://www.redhat.com/themes/custom/rhdc/favicon.ico"  width="16" height="16"> [Red Hat, Inc.](https://www.eclipse.org/membership/showMember.php?member_id=731) - sponsors a resource pack with 2 CPU / 8 GB RAM
 * <img src="https://www.sigasi.com/favicon.ico"  width="16" height="16"> [Sigasi](https://www.eclipse.org/membership/showMember.php?member_id=990) - sponsors a resource pack with 2 CPU / 8 GB RAM
 
 
