@@ -59,5 +59,7 @@ The following Organizations support Tycho getting processing power for their bui
 * <img src="https://www.renesas.com/favicon.ico" width="16" height="16"> [Renesas Electronics Corporation](https://www.eclipse.org/membership/showMember.php?member_id=1069) - sponsors a resource pack with 2 CPU / 8 GB RAM
 * <img src="https://www.sap.com/favicon.ico"     width="16" height="16"> [SAP SE](https://www.eclipse.org/membership/showMember.php?member_id=665) - sponsors two resource packs with 2 CPU / 8 GB RAM each
 * <img src="https://www.redhat.com/favicon.ico"  width="16" height="16"> [Red Hat, Inc.](https://www.eclipse.org/membership/showMember.php?member_id=731) - sponsors a resource pack with 2 CPU / 8 GB RAM
+* <img src="https://www.sigasi.com/favicon.ico"  width="16" height="16"> [Sigasi;](https://www.eclipse.org/membership/showMember.php?member_id=990) - sponsors a resource pack with 2 CPU / 8 GB RAM
+
 
 If your Organizations is an [Eclipse Member](https://www.eclipse.org/membership/exploreMembership.php) you can help us by [sponsoring one of the included resource packs](https://wiki.eclipse.org/CBI#Assigning_Resource_Packs_to_a_Project) to speed up builds. Organizations can check how many Resource Packs they have left for project sponsoring on the [membership portal](https://membership.eclipse.org/portal/login).
