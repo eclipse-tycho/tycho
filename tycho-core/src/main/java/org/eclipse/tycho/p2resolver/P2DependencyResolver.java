@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -44,8 +45,10 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.BuildProperties;
@@ -56,6 +59,7 @@ import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
+import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.ReactorProject;
@@ -65,8 +69,10 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.InjectP2MavenMetadataHandling;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.LocalArtifactHandling;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -130,6 +136,9 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     @Requirement
     private PomUnits pomUnits;
+
+    @Requirement
+    private MavenDependenciesResolver dependenciesResolver;
 
     @Override
     public void setupProjects(final MavenSession session, final MavenProject project,
@@ -387,8 +396,28 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     @Override
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
             DependencyArtifacts dependencyArtifacts, DependencyArtifacts testDependencyArtifacts, Logger logger) {
+        Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping;
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
+        if (configuration.getP2MetadataHandling() == InjectP2MavenMetadataHandling.inject) {
+            descriptorMapping = resolverFactory::resolveDependencyDescriptor;
+        } else if (configuration.getP2MetadataHandling() == InjectP2MavenMetadataHandling.validate) {
+            descriptorMapping = descriptor -> {
+                MavenDependencyDescriptor result = resolverFactory.resolveDependencyDescriptor(descriptor);
+                if (result != null) {
+                    try {
+                        dependenciesResolver.resolveArtifact(project, context.getSession(), result.getGroupId(),
+                                result.getArtifactId(), result.getVersion());
+                    } catch (ArtifactResolutionException e) {
+                        logger.warn("Mapping P2 > Maven Coordinates failed: " + e.getMessage());
+                    }
+                }
+                return null;
+            };
+        } else {
+            descriptorMapping = null;
+        }
         MavenDependencyInjector.injectMavenDependencies(project, dependencyArtifacts, testDependencyArtifacts,
-                bundleReader, resolverFactory::resolveDependencyDescriptor, logger, repositorySystem,
-                context.getSession().getSettings(), buildPropertiesParser);
+                bundleReader, descriptorMapping, logger, repositorySystem, context.getSession().getSettings(),
+                buildPropertiesParser);
     }
 }
