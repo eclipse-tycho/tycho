@@ -90,14 +90,15 @@ public class SharedHttpCacheStorage implements HttpCache {
      */
 	@Override
 	public CacheEntry getCacheEntry(URI uri, Logger logger) throws FileNotFoundException {
-        CacheLine cacheLine = getCacheLine(uri);
+		URI normalized = uri.normalize();
+		CacheLine cacheLine = getCacheLine(normalized);
 		if (!cacheConfig.isUpdate()) { // if not updates are forced ...
             int code = cacheLine.getResponseCode();
             if (code == HttpURLConnection.HTTP_NOT_FOUND) {
-                throw new FileNotFoundException(uri.toASCIIString());
+				throw new FileNotFoundException(normalized.toASCIIString());
             }
             if (code == HttpURLConnection.HTTP_MOVED_PERM) {
-                return getCacheEntry(cacheLine.getRedirect(uri), logger);
+				return getCacheEntry(cacheLine.getRedirect(normalized), logger);
             }
         }
         return new CacheEntry() {
@@ -106,19 +107,19 @@ public class SharedHttpCacheStorage implements HttpCache {
 			public long getLastModified(HttpTransportFactory transportFactory)
                     throws IOException {
 				if (cacheConfig.isOffline()) {
-                    return cacheLine.getLastModified(uri, transportFactory,
+					return cacheLine.getLastModified(normalized, transportFactory,
                             SharedHttpCacheStorage::mavenIsOffline, logger);
                 }
                 try {
-					return cacheLine.fetchLastModified(uri, transportFactory, logger);
+					return cacheLine.fetchLastModified(normalized, transportFactory, logger);
                 } catch (FileNotFoundException | AuthenticationFailedException e) {
                     //for not found and failed authentication we can't do anything useful
                     throw e;
                 } catch (IOException e) {
 					if (!cacheConfig.isUpdate() && cacheLine.getResponseCode() > 0) {
                         //if we have something cached, use that ...
-                        logger.warn("Request to " + uri + " failed, trying cache instead");
-						return cacheLine.getLastModified(uri, transportFactory, nil -> e, logger);
+						logger.warn("Request to " + normalized + " failed, trying cache instead");
+						return cacheLine.getLastModified(normalized, transportFactory, nil -> e, logger);
                     }
                     throw e;
                 }
@@ -128,19 +129,19 @@ public class SharedHttpCacheStorage implements HttpCache {
 			public File getCacheFile(HttpTransportFactory transportFactory)
                     throws IOException {
 				if (cacheConfig.isOffline()) {
-					return cacheLine.getFile(uri, transportFactory,
+					return cacheLine.getFile(normalized, transportFactory,
                             SharedHttpCacheStorage::mavenIsOffline, logger);
                 }
                 try {
-					return cacheLine.fetchFile(uri, transportFactory, logger);
+					return cacheLine.fetchFile(normalized, transportFactory, logger);
                 } catch (FileNotFoundException | AuthenticationFailedException e) {
                     //for not found and failed authentication we can't do anything useful
                     throw e;
                 } catch (IOException e) {
 					if (!cacheConfig.isUpdate() && cacheLine.getResponseCode() > 0) {
                         //if we have something cached, use that ...
-                        logger.warn("Request to " + uri + " failed, trying cache instead");
-						return cacheLine.getFile(uri, transportFactory, nil -> e, logger);
+						logger.warn("Request to " + normalized + " failed, trying cache instead");
+						return cacheLine.getFile(normalized, transportFactory, nil -> e, logger);
                     }
                     throw e;
                 }
