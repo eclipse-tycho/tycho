@@ -64,11 +64,9 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
 
     @Override
     public File getLocation(boolean fetch) {
-        if (project != null) {
-            File basedir = project.getBasedir();
-            if (basedir != null) {
-                return basedir;
-            }
+        File projectLocation = getProjectLocation();
+        if (projectLocation != null) {
+            return projectLocation;
         }
         if (fetch && locationSupplier != null && (location == null || !location.exists())) {
             File file = locationSupplier.apply(this);
@@ -79,15 +77,27 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
         return location;
     }
 
-    @Override
-    public CompletableFuture<File> fetchArtifact() {
+    private File getProjectLocation() {
         if (project != null) {
+            File packedArtifact = project.getArtifact();
+            if (packedArtifact != null && packedArtifact.isFile()) {
+                return packedArtifact;
+            }
             //TODO this really looks wrong! It should the file of the artifact (if present!) or the output directory,
             // but the basedir most likely only works for tycho ...
             File basedir = project.getBasedir();
             if (basedir != null) {
-                return CompletableFuture.completedFuture(basedir);
+                return basedir;
             }
+        }
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<File> fetchArtifact() {
+        File projectLocation = getProjectLocation();
+        if (projectLocation != null) {
+            return CompletableFuture.completedFuture(projectLocation);
         }
         if (location != null && location.exists()) {
             return CompletableFuture.completedFuture(location);
@@ -109,19 +119,14 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
 
     @Override
     public Optional<File> getLocation() {
-        if (project != null) {
-            //TODO this really looks wrong! It should the file of the artifact (if present!) or the output directory,
-            // but the basedir most likely only works for tycho ...
-            File basedir = project.getBasedir();
-            if (basedir != null) {
-                return Optional.of(basedir);
-            }
+        File projectLocation = getProjectLocation();
+        if (projectLocation != null) {
+            return Optional.of(projectLocation);
         }
         if (location != null) {
             //TODO actually location.exists() should be used here! But some code has problems with that!
             return Optional.of(location);
         }
-        // TODO Auto-generated method stub
         return Optional.empty();
     }
 
