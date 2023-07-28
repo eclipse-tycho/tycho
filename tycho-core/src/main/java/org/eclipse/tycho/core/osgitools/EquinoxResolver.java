@@ -377,7 +377,12 @@ public class EquinoxResolver implements DependenciesResolver {
                         reqb.addAll(additionalBundles.stream().map(b -> b + ";resolution:=optional").toList());
                         mf.getHeaders().put(Constants.REQUIRE_BUNDLE, String.join(",", reqb));
                     }
-                    projects.put(location, mf);
+                    File packedArtifact = mavenProject.getArtifact();
+                    if (packedArtifact == null) {
+                        projects.put(location, mf);
+                    } else {
+                        projects.put(packedArtifact, loadManifest(packedArtifact, artifact));
+                    }
                 } else {
                     externalBundles.put(location, mf);
                 }
