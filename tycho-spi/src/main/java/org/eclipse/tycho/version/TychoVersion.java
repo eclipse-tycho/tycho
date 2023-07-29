@@ -22,6 +22,8 @@ public class TychoVersion {
 
     private static final String TYCHO_SCM = readVersion("scm");
 
+    private static final String TYCHO_BUILDNUMBER = readVersion("buildNumber");
+
     private static final String BND_VERSION = readVersion("bnd");
 
     private static Properties PROPERTIES;
@@ -36,7 +38,11 @@ public class TychoVersion {
 
     public static String getSCMInfo() {
         if ("${env.GIT_COMMIT}".equals(TYCHO_SCM)) {
-            return "local build";
+            if ("${buildNumber}".equals(TYCHO_BUILDNUMBER)) {
+                //no way then...
+                return "local build";
+            }
+            return TYCHO_BUILDNUMBER;
         }
         return TYCHO_SCM;
     }
