@@ -312,7 +312,10 @@ public final class MavenDependencyInjector {
         return dependency;
     }
 
-    private boolean isValidMavenDescriptor(MavenDependencyDescriptor dependencyDescriptor) {
+    public static boolean isValidMavenDescriptor(MavenDependencyDescriptor dependencyDescriptor) {
+        if (dependencyDescriptor == null) {
+            return false;
+        }
         //TODO we should make this configurable maybe on the tycho plugin level e.g.
         //        <plugin>
         //            <groupId>org.eclipse.tycho</groupId>

@@ -401,23 +401,27 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         if (configuration.getP2MetadataHandling() == InjectP2MavenMetadataHandling.inject) {
             descriptorMapping = resolverFactory::resolveDependencyDescriptor;
         } else if (configuration.getP2MetadataHandling() == InjectP2MavenMetadataHandling.validate) {
-            descriptorMapping = descriptor -> {
-                MavenDependencyDescriptor result = resolverFactory.resolveDependencyDescriptor(descriptor);
-                if (result != null) {
-                    try {
-                        dependenciesResolver.resolveArtifact(project, context.getSession(), result.getGroupId(),
-                                result.getArtifactId(), result.getVersion());
-                    } catch (ArtifactResolutionException e) {
-                        logger.warn("Mapping P2 > Maven Coordinates failed: " + e.getMessage());
-                    }
-                }
-                return null;
-            };
+            descriptorMapping = descriptor -> resolveDescriptorWithValidation(project, logger, descriptor);
         } else {
             descriptorMapping = null;
         }
         MavenDependencyInjector.injectMavenDependencies(project, dependencyArtifacts, testDependencyArtifacts,
                 bundleReader, descriptorMapping, logger, repositorySystem, context.getSession().getSettings(),
                 buildPropertiesParser);
+    }
+
+    private MavenDependencyDescriptor resolveDescriptorWithValidation(MavenProject project, Logger logger,
+            ArtifactDescriptor descriptor) {
+        MavenDependencyDescriptor result = resolverFactory.resolveDependencyDescriptor(descriptor);
+        if (MavenDependencyInjector.isValidMavenDescriptor(result)) {
+            try {
+                dependenciesResolver.resolveArtifact(project, context.getSession(), result.getGroupId(),
+                        result.getArtifactId(), result.getVersion());
+            } catch (ArtifactResolutionException e) {
+                logger.warn("Mapping P2 > Maven Coordinates failed: " + e.getMessage());
+                return null;
+            }
+        }
+        return result;
     }
 }
