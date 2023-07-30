@@ -252,9 +252,14 @@ public class MavenBundleWrapper {
                 return new Jar(cacheFile.toFile());
             }
         } catch (IOException e) {
-            // if any I/O error occurs we assume we need to regenerate the data...
-            Platform.getLog(MavenBundleWrapper.class)
-                    .error("Reading cached data for " + cacheFile + " failed, will regenerate the data ...", e);
+            try {
+                // if any I/O error occurs we assume we need to regenerate the data...
+                Platform.getLog(MavenBundleWrapper.class)
+                        .error("Reading cached data for " + cacheFile + " failed, will regenerate the data ...", e);
+            } catch (RuntimeException rte) {
+                //WORKAROUND FOR https://github.com/eclipse-platform/eclipse.platform/pull/521
+                System.err.println("Reading cached data for " + cacheFile + " failed, will regenerate the data ...");
+            }
         }
         return null;
     }
