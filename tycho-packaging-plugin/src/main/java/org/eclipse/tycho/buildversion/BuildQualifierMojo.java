@@ -116,11 +116,25 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     @Parameter(property = "mojoExecution", readonly = true)
     protected MojoExecution execution;
 
-    @Component(role = BuildTimestampProvider.class)
-    protected Map<String, BuildTimestampProvider> timestampProviders;
+	@Component(role = BuildTimestampProvider.class)
+	protected Map<String, BuildTimestampProvider> timestampProviders;
 
 	@Component
 	private BuildPropertiesParser buildPropertiesParser;
+
+	/**
+	 * This is only a dummy parameter used to prevent maven from complaining about
+	 * "unknown" parameters when using the jgit extension
+	 */
+	@Parameter(alias = "jgit.dirtyWorkingTree")
+	private String dummy1;
+
+	/**
+	 * This is only a dummy parameter used to prevent maven from complaining about
+	 * "unknown" parameters when using the jgit extension
+	 */
+	@Parameter(alias = "jgit.ignore")
+	private String dummy2;
 
     // setter is needed to make sure we always use UTC
     public void setFormat(String formatString) {

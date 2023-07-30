@@ -93,6 +93,9 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
  */
 @Component(role = BuildTimestampProvider.class, hint = "jgit")
 public class JGitBuildTimestampProvider implements BuildTimestampProvider {
+	private static final String PARAMETER_JGIT_IGNORE = "jgit.ignore";
+
+	private static final String PARAMETER_JGIT_DIRTY_WORKING_TREE = "jgit.dirtyWorkingTree";
 
 	@Requirement(hint = "default")
 	private BuildTimestampProvider defaultTimestampProvider;
@@ -112,7 +115,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 			if (pluginConfiguration == null) {
 				return defaultBehaviour;
 			}
-			Xpp3Dom dirtyWorkingTreeDom = pluginConfiguration.getChild("jgit.dirtyWorkingTree");
+			Xpp3Dom dirtyWorkingTreeDom = pluginConfiguration.getChild(PARAMETER_JGIT_DIRTY_WORKING_TREE);
 			if (dirtyWorkingTreeDom == null) {
 				return defaultBehaviour;
 			}
@@ -219,7 +222,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 		if (pluginConfiguration == null) {
 			return null;
 		}
-		Xpp3Dom ignoreDom = pluginConfiguration.getChild("jgit.ignore");
+		Xpp3Dom ignoreDom = pluginConfiguration.getChild(PARAMETER_JGIT_IGNORE);
 		if (ignoreDom == null) {
 			return null;
 		}
