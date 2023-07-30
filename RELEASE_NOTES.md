@@ -2,6 +2,9 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 4.0.2
+-
+
 ## 4.0.1
 
 backports:

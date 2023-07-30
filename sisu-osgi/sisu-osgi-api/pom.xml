@@ -17,7 +17,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>sisu-osgi</artifactId>
-		<version>4.0.1</version>
+		<version>4.0.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>sisu-osgi-api</artifactId>
 
