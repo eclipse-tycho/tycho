@@ -7,6 +7,11 @@ This page describes the noteworthy improvements provided by each release of Ecli
 backports:
 - new tycho-repository-plugin
 - Non existing but optional dependencies lead to resolving issue in target
+- SharedHttpCacheStorage doesn't resolve redirect correctly if the uri that is given isn't normalized
+- Non existing but optional dependencies lead to resolving issue in target
+- Make comparison of newlines in text files more precise
+- Fix resolving of project if target do not contains JUnit
+- Check if the about to be injected maven coordinates can be resolved
 
 ## 4.0.0
 
