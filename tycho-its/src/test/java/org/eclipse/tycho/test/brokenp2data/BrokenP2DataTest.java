@@ -13,7 +13,7 @@ public class BrokenP2DataTest extends AbstractTychoIntegrationTest {
 	public void test() throws Exception {
 		Verifier verifier = getVerifier("brokenp2data");
 
-		verifier.executeGoals(List.of("clean", "verify", "-Dtycho-version=3.0.5"));
+		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 	}
 }
