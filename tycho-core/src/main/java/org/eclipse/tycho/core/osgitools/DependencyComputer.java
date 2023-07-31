@@ -164,7 +164,7 @@ public class DependencyComputer {
      * @see #DependencyComputer(ModuleContainer)
      */
     public List<DependencyEntry> computeDependencies(ModuleRevision module) {
-        if (module == null) {
+        if (module == null || module.getWiring() == null) {
             return Collections.emptyList();
         }
 
