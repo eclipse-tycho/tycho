@@ -30,14 +30,15 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.RepositoryStub;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.UnitStub;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
-import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
+import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
@@ -155,7 +156,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest extends Tycho
             throws ProvisionException, IOException {
         MavenContext mavenCtx = new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger());
         return new TargetDefinitionResolver(environments, ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS,
-                IncludeSourceMode.honor, mavenCtx, null,
+                IncludeSourceMode.honor, ReferencedRepositoryMode.ignore, mavenCtx, null,
                 new DefaultTargetDefinitionVariableResolver(mavenCtx, logVerifier.getLogger()));
     }
 

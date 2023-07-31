@@ -210,6 +210,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         tpConfiguration.setIncludeSourceMode(configuration.getTargetDefinitionIncludeSourceMode());
         tpConfiguration
                 .setIgnoreLocalArtifacts(configuration.getIgnoreLocalArtifacts() == LocalArtifactHandling.ignore);
+        tpConfiguration.setReferencedRepositoryMode(configuration.getReferencedRepositoryMode());
 
         return reactorRepositoryManager.computePreliminaryTargetPlatform(reactorProject, tpConfiguration, ee,
                 reactorProjects);

@@ -19,6 +19,7 @@ package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,6 +53,8 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -74,6 +77,7 @@ import org.eclipse.tycho.core.ee.impl.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.core.osgitools.ClasspathReader;
 import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.core.resolver.target.DuplicateReactorIUsException;
 import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
@@ -212,9 +216,11 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         registerRepositoryIDs(completeRepositories);
 
         // collect & process metadata
+        Set<URI> artifactRepositories = new LinkedHashSet<>();
         boolean includeLocalMavenRepo = !tpConfiguration.getIgnoreLocalArtifacts();
         Set<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories, targetFileContent,
-                includeLocalMavenRepo);
+                includeLocalMavenRepo, artifactRepositories,
+                tpConfiguration.getIncludeRefererenced() == ReferencedRepositoryMode.include);
 
         //add maven junit bundles...
         List<MavenArtifactKey> junitBundles = getMissingJunitBundles(project, externalUIs);
@@ -259,7 +265,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         applyFilters(filter, externalUIs, reactorProjectUIs.keySet(), eeResolutionHandler.getResolutionHints(),
                 shadowed);
 
-        IRawArtifactFileProvider externalArtifactFileProvider = createExternalArtifactProvider(completeRepositories,
+        IRawArtifactFileProvider externalArtifactFileProvider = createExternalArtifactProvider(artifactRepositories,
                 targetFileContent);
         PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjectUIs, //
                 externalUIs, //
@@ -316,7 +322,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
             TargetDefinitionContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
                     definition, tpConfiguration.getEnvironments(), eeResolutionHints,
-                    tpConfiguration.getIncludeSourceMode(), remoteAgent);
+                    tpConfiguration.getIncludeSourceMode(), tpConfiguration.getIncludeRefererenced(), remoteAgent);
             result.add(targetFileContent);
 
             if (logger.isDebugEnabled()) {
@@ -340,10 +346,12 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     /**
      * External installable units collected from p2 repositories, .target files and local Maven
      * repository.
+     * 
+     * @param artifactRepositories
      */
     private LinkedHashSet<IInstallableUnit> gatherExternalInstallableUnits(
             Set<MavenRepositoryLocation> completeRepositories, List<TargetDefinitionContent> targetDefinitionsContent,
-            boolean includeLocalMavenRepo) {
+            boolean includeLocalMavenRepo, Set<URI> artifactRepositories, boolean includeReferences) {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>();
 
         for (TargetDefinitionContent targetDefinitionContent : targetDefinitionsContent) {
@@ -352,8 +360,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         }
 
         List<IMetadataRepository> metadataRepositories = new ArrayList<>();
+        Set<URI> loaded = new HashSet<>();
         for (MavenRepositoryLocation location : completeRepositories) {
-            metadataRepositories.add(loadMetadataRepository(location));
+            artifactRepositories.add(location.getURL());
+            loadMetadataRepository(location, metadataRepositories, loaded, artifactRepositories, includeReferences);
         }
         if (includeLocalMavenRepo) {
             metadataRepositories.add(localMetadataRepository);
@@ -374,17 +384,32 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         return result;
     }
 
-    private IMetadataRepository loadMetadataRepository(MavenRepositoryLocation location) {
-        try {
-            // TODO always log that a p2 repository is added to the target platform somewhere; used to be either from p2 or the following line
-            // logger.info("Adding repository (cached) " + location.toASCIIString());
-
-            return remoteMetadataRepositoryManager.loadRepository(location.getURL(), monitor);
-
-        } catch (ProvisionException e) {
-            String idMessage = location.getId() == null ? "" : " with ID '" + location.getId() + "'";
-            throw new RuntimeException(
-                    "Failed to load p2 repository" + idMessage + " from location " + location.getURL(), e);
+    private void loadMetadataRepository(MavenRepositoryLocation location,
+            List<IMetadataRepository> metadataRepositories, Set<URI> loaded, Set<URI> artifactRepositories,
+            boolean includeReferences) {
+        if (loaded.add(location.getURL().normalize())) {
+            try {
+                IMetadataRepository repository = remoteMetadataRepositoryManager.loadRepository(location.getURL(),
+                        monitor);
+                metadataRepositories.add(repository);
+                if (includeReferences) {
+                    for (IRepositoryReference reference : repository.getReferences()) {
+                        if ((reference.getOptions() | IRepository.ENABLED) != 0) {
+                            if (reference.getType() == IRepository.TYPE_METADATA) {
+                                loadMetadataRepository(
+                                        new MavenRepositoryLocation(reference.getNickname(), reference.getLocation()),
+                                        metadataRepositories, loaded, artifactRepositories, includeReferences);
+                            } else if (reference.getType() == IRepository.TYPE_ARTIFACT) {
+                                artifactRepositories.add(reference.getLocation());
+                            }
+                        }
+                    }
+                }
+            } catch (ProvisionException e) {
+                String idMessage = location.getId() == null ? "" : " with ID '" + location.getId() + "'";
+                throw new RuntimeException(
+                        "Failed to load p2 repository" + idMessage + " from location " + location.getURL(), e);
+            }
         }
     }
 
@@ -430,7 +455,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     /**
      * Provider for all target platform artifacts from outside the reactor.
      */
-    private IRawArtifactFileProvider createExternalArtifactProvider(Set<MavenRepositoryLocation> completeRepositories,
+    private IRawArtifactFileProvider createExternalArtifactProvider(Set<URI> completeRepositories,
             List<TargetDefinitionContent> targetDefinitionsContent) {
         SortedRepositories repos = SortedRepositories
                 .sort(targetDefinitionsContent.stream().map(TargetDefinitionContent::getArtifactRepository).toList());
@@ -448,14 +473,14 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     /**
      * Provider for the target platform artifacts not yet available in the local Maven repository.
      */
-    private RepositoryArtifactProvider createRemoteArtifactProvider(Set<MavenRepositoryLocation> mavenRepositories,
+    private RepositoryArtifactProvider createRemoteArtifactProvider(Set<URI> mavenRepositories,
             List<IArtifactRepository> repos) {
         List<IArtifactRepository> artifactRepositories = new ArrayList<>();
 
-        for (MavenRepositoryLocation location : mavenRepositories) {
-            if (!offline || URIUtil.isFileURI(location.getURL())) {
-                artifactRepositories.add(new LazyArtifactRepository(remoteAgent, location.getURL(),
-                        RepositoryArtifactProvider::loadRepository));
+        for (URI location : mavenRepositories) {
+            if (!offline || URIUtil.isFileURI(location)) {
+                artifactRepositories.add(
+                        new LazyArtifactRepository(remoteAgent, location, RepositoryArtifactProvider::loadRepository));
             }
         }
 

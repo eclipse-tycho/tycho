@@ -8,6 +8,22 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 Tycho now contains a new `tycho-repository-plugin` that can be used to package OSGi repositories.
 
+### new option to include referenced repositories when resolving the target platform
+
+Repositories can contain references to other repositories (e.g. to find additional dependencies), from now on there is a new option to also consider these references:
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>target-platform-configuration</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		... other configuration options ...
+		<referencedRepositoryMode>include</referencedRepositoryMode>
+	</configuration>
+</plugin>
+	
+```
 
 ## 4.0.0
 
