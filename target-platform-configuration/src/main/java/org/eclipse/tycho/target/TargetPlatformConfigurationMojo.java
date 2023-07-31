@@ -26,6 +26,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPol
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern;
 
 /**
@@ -45,11 +46,11 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * List of .target artifacts to use for dependency resolution.<br>
      * Could either be
      * <ul>
-     * <li><code>&lt;artifact></code> to define a target GAV (either local to the reactor or a remote
-     * one)</li>
+     * <li><code>&lt;artifact></code> to define a target GAV (either local to the reactor or a
+     * remote one)</li>
      * <li><code>&lt;file></code> to define a file local to the build</li>
-     * <li><code>&lt;uri></code> to define a (remote) URI that specifies a target, currently only URIs
-     * that can be converted to URLs are supported (e.g. file:/.... http://..., )</li>
+     * <li><code>&lt;uri></code> to define a (remote) URI that specifies a target, currently only
+     * URIs that can be converted to URLs are supported (e.g. file:/.... http://..., )</li>
      * </ul>
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.TARGET)
@@ -60,21 +61,21 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * <p>
      * If <code>consider</code> or <code>wrapAsBundle</code>, the effect is:
      * <ul>
-     * <li>First, Maven resolves the GAV dependencies according to the normal Maven rules. This results
-     * in a list of artifacts consisting of the specified artifacts and their transitive Maven
-     * dependencies.</li>
-     * <li>Tycho then checks each of these artifacts, and if the artifact is an OSGi bundle, it is added
-     * to the target platform. Other artifacts are ignored in case of <code>consider</code>, or get some
-     * OSGi metadata generated and an OSGi bundle created from them.</li>
+     * <li>First, Maven resolves the GAV dependencies according to the normal Maven rules. This
+     * results in a list of artifacts consisting of the specified artifacts and their transitive
+     * Maven dependencies.</li>
+     * <li>Tycho then checks each of these artifacts, and if the artifact is an OSGi bundle, it is
+     * added to the target platform. Other artifacts are ignored in case of <code>consider</code>,
+     * or get some OSGi metadata generated and an OSGi bundle created from them.</li>
      * <li>OSGi bundles which become part of the target platform in this way are then available to
      * resolve the project's OSGi dependencies.</li>
      * </ul>
      * </p>
      * <p>
-     * 📝 Tycho always attempts to resolve transitive dependencies, so if you need a POM dependency in
-     * the target platform of one module, you will also need it in all downstream modules. Therefore the
-     * POM dependencies (and the pomDependencies=consider configuration) typically need to be added in
-     * the parent POM.
+     * 📝 Tycho always attempts to resolve transitive dependencies, so if you need a POM dependency
+     * in the target platform of one module, you will also need it in all downstream modules.
+     * Therefore the POM dependencies (and the pomDependencies=consider configuration) typically
+     * need to be added in the parent POM.
      * </p>
      * <p>
      * If no explicit value is configured Tycho uses {@link PomDependencies#ignore} if eager
@@ -85,8 +86,8 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
     private PomDependencies pomDependencies;
 
     /**
-     * Force an execution environment for dependency resolution. If unset, use the default JRE of your
-     * computer.
+     * Force an execution environment for dependency resolution. If unset, use the default JRE of
+     * your computer.
      * <p>
      * Set to <code>none</code> to force the resolution to happen <b>without</b> any execution
      * environment, typically when the module is supposed to use system packages coming from some
@@ -122,15 +123,15 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
     /**
      * Selectively remove content from the target platform.
      * <p>
-     * This for example allows to restrict the version of a bundle, or to select one particular provider
-     * for a package. Filtering is done as last step in the target platform computation, so the filters
-     * apply to all sources listed above.
+     * This for example allows to restrict the version of a bundle, or to select one particular
+     * provider for a package. Filtering is done as last step in the target platform computation, so
+     * the filters apply to all sources listed above.
      * </p>
      * <p>
      * The filters will only remove content from the target platform; they will not add new content.
      * {@code dependency-resolution} should be used for addition of extra content. If you specify a
-     * restriction that is not fulfilled by any of the units from the target platform sources, all units
-     * that the filter applies to (i.e. units that match the filter.type, filter.id, and
+     * restriction that is not fulfilled by any of the units from the target platform sources, all
+     * units that the filter applies to (i.e. units that match the filter.type, filter.id, and
      * filter.version/versionRange criteria) will be removed from the target platform.
      * </p>
      * <p>
@@ -169,10 +170,10 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
     private List<CapabilityPattern> filters;
 
     /**
-     * Exclusions could be used together with {@link #pomDependencies} setting to exclude certain maven
-     * dependencies from being considered. This is useful for example if there is an offending
-     * (transitive) dependency needed for compilation but not for the runtime that would cause problems
-     * otherwise.
+     * Exclusions could be used together with {@link #pomDependencies} setting to exclude certain
+     * maven dependencies from being considered. This is useful for example if there is an offending
+     * (transitive) dependency needed for compilation but not for the runtime that would cause
+     * problems otherwise.
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.EXCLUSIONS)
     private List<Exclusion> exclusions;
@@ -205,6 +206,12 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
 
     @Parameter(name = DefaultTargetPlatformConfigurationReader.TARGET_DEFINITION_INCLUDE_SOURCE)
     private IncludeSourceMode targetDefinionIncludeSource;
+
+    /**
+     * Configures if referenced repositories should be included in when fetching repositories.
+     */
+    @Parameter(name = DefaultTargetPlatformConfigurationReader.REFERENCED_REPOSITORY_MODE)
+    private ReferencedRepositoryMode referencedRepositoryMode;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {

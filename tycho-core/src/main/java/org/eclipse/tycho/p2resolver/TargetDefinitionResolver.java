@@ -43,6 +43,7 @@ import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.MavenTargetLocationFactory;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.core.shared.LoggingProgressMonitor;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -53,7 +54,6 @@ import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.resolver.URITargetDefinitionContent;
 import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
-import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinition.DirectoryLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.FeaturesLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
@@ -63,6 +63,7 @@ import org.eclipse.tycho.targetplatform.TargetDefinition.PathLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.ProfileLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
 import org.eclipse.tycho.targetplatform.TargetDefinition.TargetReferenceLocation;
+import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
@@ -85,13 +86,16 @@ public final class TargetDefinitionResolver {
     private MavenTargetLocationFactory mavenDependenciesResolver;
     private TargetDefinitionVariableResolver varResolver;
 
+    private ReferencedRepositoryMode referencedRepositoryMode;
+
     public TargetDefinitionResolver(List<TargetEnvironment> environments,
             ExecutionEnvironmentResolutionHints executionEnvironment, IncludeSourceMode includeSourceMode,
-            MavenContext mavenContext, MavenTargetLocationFactory mavenDependenciesResolver,
-            TargetDefinitionVariableResolver varResolver) {
+            ReferencedRepositoryMode referencedRepositoryMode, MavenContext mavenContext,
+            MavenTargetLocationFactory mavenDependenciesResolver, TargetDefinitionVariableResolver varResolver) {
         this.environments = environments;
         this.executionEnvironment = executionEnvironment;
         this.includeSourceMode = includeSourceMode;
+        this.referencedRepositoryMode = referencedRepositoryMode;
         this.mavenDependenciesResolver = mavenDependenciesResolver;
         this.logger = mavenContext.getLogger();
         this.varResolver = varResolver;
@@ -137,8 +141,9 @@ public final class TargetDefinitionResolver {
                 for (Repository repository : installableUnitLocation.getRepositories()) {
                     URI location = resolveRepositoryLocation(repository.getLocation());
                     String key = location.normalize().toASCIIString();
-                    locations.add(uriRepositories.computeIfAbsent(key,
-                            s -> new URITargetDefinitionContent(provisioningAgent, location, repository.getId())));
+                    locations.add(
+                            uriRepositories.computeIfAbsent(key, s -> new URITargetDefinitionContent(provisioningAgent,
+                                    location, repository.getId(), referencedRepositoryMode)));
                 }
                 IQueryable<IInstallableUnit> locationUnits = QueryUtil.compoundQueryable(locations);
                 installableUnitResolver.addLocation((InstallableUnitLocation) locationDefinition, locationUnits);
@@ -258,7 +263,7 @@ public final class TargetDefinitionResolver {
             @Override
             public IArtifactRepository getArtifactRepository() {
                 if (artifactRepository == null) {
-                    artifactRepository = new ListCompositeArtifactRepository(provisioningAgent, artifactRepositories);
+                    artifactRepository = new ListCompositeArtifactRepository(artifactRepositories, provisioningAgent);
                 }
                 return artifactRepository;
             }
