@@ -3,7 +3,8 @@
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
 ## 4.0.2
--
+- new option to include referenced repositories when resolving the target platform
+- Add dummy parameter to prevent warnings with jgit as timestamp provider
 
 ## 4.0.1
 

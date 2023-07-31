@@ -34,6 +34,7 @@ import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
 
@@ -117,6 +118,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private boolean requireEagerResolve;
 
     private InjectP2MavenMetadataHandling p2MavenMetadataHandling;
+
+    private ReferencedRepositoryMode referencedRepositoryMode = ReferencedRepositoryMode.ignore;
 
     /**
      * Returns the list of configured target environments, or the running environment if no
@@ -309,6 +312,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void setLocalArtifactHandling(LocalArtifactHandling localArtifactHandling) {
         this.localArtifactHandling = localArtifactHandling;
+    }
+
+    public ReferencedRepositoryMode getReferencedRepositoryMode() {
+        return referencedRepositoryMode;
+    }
+
+    public void setReferencedRepositoryMode(ReferencedRepositoryMode referencedRepositoryMode) {
+        this.referencedRepositoryMode = referencedRepositoryMode;
     }
 
 }
