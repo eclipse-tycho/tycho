@@ -50,6 +50,7 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolver;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
@@ -59,6 +60,7 @@ import org.osgi.framework.Filter;
 @Component(role = DefaultTargetPlatformConfigurationReader.class)
 public class DefaultTargetPlatformConfigurationReader {
     public static final String TARGET_DEFINITION_INCLUDE_SOURCE = "targetDefinitionIncludeSource";
+    public static final String REFERENCED_REPOSITORY_MODE = "referencedRepositoryMode";
     public static final String DEPENDENCY_RESOLUTION = "dependency-resolution";
     public static final String OPTIONAL_DEPENDENCIES = "optionalDependencies";
     public static final String LOCAL_ARTIFACTS = "localArtifacts";
@@ -137,6 +139,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 readDependencyResolutionConfiguration(result, configuration, session);
 
                 setTargetDefinitionIncludeSources(result, configuration);
+                setReferencedRepositoryMode(result, configuration);
             }
         }
         //consider items set in the pom repositories
@@ -188,6 +191,20 @@ public class DefaultTargetPlatformConfigurationReader {
                     "Illegal value of <targetDefinitionIncludeSource> target platform configuration parameter: "
                             + value,
                     e);
+        }
+    }
+
+    private void setReferencedRepositoryMode(TargetPlatformConfiguration result, Xpp3Dom configuration)
+            throws BuildFailureException {
+        String value = getStringValue(configuration.getChild(REFERENCED_REPOSITORY_MODE));
+        if (value == null) {
+            return;
+        }
+        try {
+            result.setReferencedRepositoryMode(ReferencedRepositoryMode.valueOf(value));
+        } catch (IllegalArgumentException e) {
+            throw new BuildFailureException("Illegal value of <" + REFERENCED_REPOSITORY_MODE
+                    + "> target platform configuration parameter: " + value, e);
         }
     }
 

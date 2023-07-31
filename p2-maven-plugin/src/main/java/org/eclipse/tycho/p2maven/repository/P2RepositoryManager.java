@@ -93,7 +93,7 @@ public class P2RepositoryManager {
 		for (Repository repository : repositories) {
 			childs.add(getArtifactRepository(repository));
 		}
-		return new ListCompositeArtifactRepository(agent, childs);
+		return new ListCompositeArtifactRepository(childs, agent);
 	}
 
 	/**

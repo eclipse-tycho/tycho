@@ -20,12 +20,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.ICompositeRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -61,12 +61,7 @@ public class ListCompositeMetadataRepository extends AbstractMetadataRepository
         if (size == 1) {
             return metadataRepositories.get(0).query(query, monitor);
         }
-        Collector<IInstallableUnit> collector = new Collector<>();
-        SubMonitor subMonitor = SubMonitor.convert(monitor, size);
-        for (IMetadataRepository repository : metadataRepositories) {
-            collector.addAll(repository.query(query, subMonitor.split(1)));
-        }
-        return collector;
+        return QueryUtil.compoundQueryable(metadataRepositories).query(query, IProgressMonitor.nullSafe(monitor));
     }
 
     @Override

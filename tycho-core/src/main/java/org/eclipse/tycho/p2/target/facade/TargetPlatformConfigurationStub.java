@@ -22,6 +22,7 @@ import java.util.Set;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
 
@@ -35,6 +36,7 @@ public class TargetPlatformConfigurationStub {
     private final List<TargetDefinition> targetDefinitions = new ArrayList<>();
     private boolean forceIgnoreLocalArtifacts = false;
     private IncludeSourceMode includeSourceMode = IncludeSourceMode.honor;
+    private ReferencedRepositoryMode referencedRepositoryMode = ReferencedRepositoryMode.ignore;
 
     public TargetPlatformConfigurationStub() {
         // TODO Auto-generated constructor stub
@@ -91,6 +93,14 @@ public class TargetPlatformConfigurationStub {
 
     public void setIncludeSourceMode(IncludeSourceMode includeSourceMode) {
         this.includeSourceMode = includeSourceMode;
+    }
+
+    public ReferencedRepositoryMode getIncludeRefererenced() {
+        return referencedRepositoryMode;
+    }
+
+    public void setReferencedRepositoryMode(ReferencedRepositoryMode referencedRepositoryMode) {
+        this.referencedRepositoryMode = referencedRepositoryMode;
     }
 
 }
