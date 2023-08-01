@@ -15,7 +15,6 @@ package org.eclipse.tycho.p2maven.transport;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.net.Authenticator;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
@@ -33,12 +32,13 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
-import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 
 /**
@@ -59,20 +59,23 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 			// RFC 1036
 			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE, dd-MMM-yy HH:mm:ss zzz", Locale.ENGLISH)),
 			// ANSI C's asctime() format
-			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE MMMd HH:mm:ss yyyy", Locale.ENGLISH))
-	);
+			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE MMMd HH:mm:ss yyyy", Locale.ENGLISH)));
 
 	static final String HINT = "Java11Client";
 	@Requirement
 	ProxyHelper proxyHelper;
 	@Requirement
 	MavenAuthenticator authenticator;
+	@Requirement
+	Logger logger;
 
 	private HttpClient client;
+	private HttpClient clientHttp1;
 
 	@Override
 	public HttpTransport createTransport(URI uri) {
-		Java11HttpTransport transport = new Java11HttpTransport(client, HttpRequest.newBuilder().uri(uri));
+		Java11HttpTransport transport = new Java11HttpTransport(client, clientHttp1, HttpRequest.newBuilder().uri(uri),
+				logger);
 		authenticator.preemtiveAuth((k, v) -> transport.setHeader(k, v), uri);
 		return transport;
 	}
@@ -81,10 +84,14 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 
 		private Builder builder;
 		private HttpClient client;
+		private Logger logger;
+		private HttpClient clientHttp1;
 
-		public Java11HttpTransport(HttpClient client, Builder builder) {
+		public Java11HttpTransport(HttpClient client, HttpClient clientHttp1, Builder builder, Logger logger) {
 			this.client = client;
+			this.clientHttp1 = clientHttp1;
 			this.builder = builder;
+			this.logger = logger;
 		}
 
 		@Override
@@ -95,7 +102,7 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 		@Override
 		public Response<InputStream> get() throws IOException {
 			try {
-				HttpResponse<InputStream> response = client.send(builder.GET().build(), BodyHandlers.ofInputStream());
+				HttpResponse<InputStream> response = performGet();
 				return new ResponseImplementation<>(response) {
 
 					@Override
@@ -126,6 +133,21 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 				};
 			} catch (InterruptedException e) {
 				throw new InterruptedIOException();
+			}
+		}
+
+		private HttpResponse<InputStream> performGet() throws IOException, InterruptedException {
+			HttpRequest request = builder.GET().build();
+			try {
+				return client.send(request, BodyHandlers.ofInputStream());
+			} catch (IOException e) {
+				if (isGoaway(e)) {
+					logger.warn("Received GOAWAY from server " + request.uri().getHost()
+							+ " will retry after one second with Http/1...");
+					TimeUnit.SECONDS.sleep(1);
+					return clientHttp1.send(request, BodyHandlers.ofInputStream());
+				}
+				throw e;
 			}
 		}
 
@@ -203,22 +225,45 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 
 	@Override
 	public void initialize() throws InitializationException {
-		client = HttpClient.newBuilder().followRedirects(Redirect.NEVER)
-				.proxy(new ProxySelector() {
+		ProxySelector proxySelector = new ProxySelector() {
 
-					@Override
-					public List<Proxy> select(URI uri) {
-						Proxy proxy = proxyHelper.getProxy(uri);
-						return List.of(proxy);
-					}
+			@Override
+			public List<Proxy> select(URI uri) {
+				Proxy proxy = proxyHelper.getProxy(uri);
+				return List.of(proxy);
+			}
 
-					@Override
-					public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
-						// anything useful we can do here?
+			@Override
+			public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+				// anything useful we can do here?
 
-					}
-				}).build();
+			}
+		};
+		client = HttpClient.newBuilder().followRedirects(Redirect.NEVER).proxy(proxySelector).build();
+		clientHttp1 = HttpClient.newBuilder().version(Version.HTTP_1_1).followRedirects(Redirect.NEVER)
+				.proxy(proxySelector).build();
 
+	}
+
+	private static boolean isGoaway(Throwable e) {
+		if (e == null) {
+			return false;
+		}
+		if (e instanceof IOException) {
+			// first check the message
+			String message = e.getMessage();
+			if (message != null && message.contains("GOAWAY received")) {
+				return true;
+			}
+			// maybe it is in the stack?!?
+			for (StackTraceElement stack : e.getStackTrace()) {
+				if ("jdk.internal.net.http.Http2Connection.handleGoAway".equals(stack.getMethodName())) {
+					return true;
+				}
+			}
+		}
+		// look further in the chain...
+		return isGoaway(e.getCause());
 	}
 
 }
