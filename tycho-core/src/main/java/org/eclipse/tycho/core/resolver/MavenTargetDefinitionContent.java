@@ -421,19 +421,6 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         return metadataRepository;
     }
 
-    private static String getKey(IArtifactFacade artifact) {
-        if (artifact == null) {
-            return "";
-        }
-        String key = artifact.getGroupId() + ":" + artifact.getArtifactId();
-        String classifier = artifact.getClassifier();
-        if (classifier != null) {
-            key += ":" + classifier;
-        }
-        key += ":" + artifact.getVersion();
-        return key;
-    }
-
     private static String getKey(Artifact artifact) {
         if (artifact == null) {
             return "";

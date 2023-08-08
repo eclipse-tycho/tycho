@@ -203,13 +203,6 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 		}
 	}
 
-	private void setProperty(Project project, String key, String value) {
-		String property = project.getProperty(key);
-		if (property == null || property.isBlank()) {
-			project.setProperty(key, value);
-		}
-	}
-
 	private void logError(String msg, Exception e) {
 		if (logger.isDebugEnabled()) {
 			logger.error(msg, e);
