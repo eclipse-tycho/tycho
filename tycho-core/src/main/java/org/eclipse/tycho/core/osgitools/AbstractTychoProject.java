@@ -98,7 +98,7 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         reactorProject.setContextValue(CTX_MAVEN_SESSION, session);
         reactorProject.setContextValue(CTX_MAVEN_PROJECT, project);
         reactorProject.setContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES,
-                List.copyOf(collectInitial(project, new HashMap<String, Dependency>()).values()));
+                List.copyOf(collectInitial(project, new HashMap<>()).values()));
     }
 
     private Map<String, Dependency> collectInitial(MavenProject project, Map<String, Dependency> map) {
