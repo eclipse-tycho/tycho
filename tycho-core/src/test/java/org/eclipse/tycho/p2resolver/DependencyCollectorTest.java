@@ -59,8 +59,8 @@ public class DependencyCollectorTest {
 
         ResolutionDataImpl data = new ResolutionDataImpl(ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS);
         data.setRootIUs(rootUIs);
-        data.setAdditionalRequirements(new ArrayList<IRequirement>());
-        data.setAvailableIUs(Collections.<IInstallableUnit> emptyList());
+        data.setAdditionalRequirements(new ArrayList<>());
+        data.setAvailableIUs(Collections.emptyList());
 
         DependencyCollector dc = new DependencyCollector(new MavenLoggerAdapter(logVerifier.getLogger(), false));
         dc.setData(data);
