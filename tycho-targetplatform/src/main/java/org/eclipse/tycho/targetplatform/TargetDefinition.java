@@ -18,7 +18,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.targetplatform;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
