@@ -12,8 +12,6 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
-import java.io.File;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.failsafe.VerifyMojo;
