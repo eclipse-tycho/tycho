@@ -13,12 +13,14 @@
 package org.eclipse.tycho.test.versionsplugin;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 
 import org.apache.maven.it.Verifier;
 import org.apache.maven.model.Model;
@@ -29,7 +31,7 @@ import org.junit.Test;
 
 public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
-	private final String VERSION = TychoVersion.getTychoVersion();
+	private static final String VERSION = TychoVersion.getTychoVersion();
 
 	/**
 	 * <p>
@@ -78,6 +80,37 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		assertTrue("Actual Target content = " + targetContent,
 				targetContent.contains("mvn:org.tycho.its:other:" + expectedNewVersion + ":target")
 						&& targetContent.contains("sequenceNumber=\"12\""));
+	}
+
+	@Test
+	public void updateProjectVersionBndTest() throws Exception {
+		String expectedNewVersion = "1.2.3";
+
+		Verifier verifier = getVerifier("tycho-version-plugin/set-version/pde-bnd", true);
+
+		verifier.addCliOption("-DnewVersion=" + expectedNewVersion);
+		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
+
+		verifier.verifyErrorFreeLog();
+		Properties properties = new Properties();
+		properties.load(Files.newInputStream(new File(verifier.getBasedir(), "bundle/pde.bnd").toPath()));
+		String versionProperty = properties.getProperty("Bundle-Version");
+		assertNotNull("Bundle-Version is null", versionProperty);
+		assertEquals("Bundle-Version is not as expected!", expectedNewVersion, versionProperty);
+	}
+
+	@Test
+	public void updateProjectMetadataVersionBndTest() throws Exception {
+		String expectedNewVersion = "2.0.0.qualifier";
+
+		Verifier verifier = getVerifier("tycho-version-plugin/update-eclipse-metadata/pde-bnd", false, false);
+		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":update-eclipse-metadata");
+		verifier.verifyErrorFreeLog();
+		Properties properties = new Properties();
+		properties.load(Files.newInputStream(new File(verifier.getBasedir(), "pde.bnd").toPath()));
+		String versionProperty = properties.getProperty("Bundle-Version");
+		assertNotNull("Bundle-Version is null", versionProperty);
+		assertEquals("Bundle-Version is not as expected!", expectedNewVersion, versionProperty);
 	}
 
 	/**
