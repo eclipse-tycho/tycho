@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.versions.engine.Versions;
@@ -64,7 +65,7 @@ public class MutableBundleManifest {
         ManifestAttribute curr = null;
 
         String str;
-        while ((str = readLineWithLineEnding(br, mf)) != null) {
+        while ((str = readLineWithLineEnding(br, mf::setLineEndingWhenFirstLine)) != null) {
             if (str.trim().isEmpty()) {
                 break;
             } else if (str.charAt(0) == ' ') {
@@ -90,7 +91,8 @@ public class MutableBundleManifest {
         return mf;
     }
 
-    private static String readLineWithLineEnding(PushbackReader reader, MutableBundleManifest mf) throws IOException {
+    public static String readLineWithLineEnding(PushbackReader reader, Consumer<String> lineEndingConsumer)
+            throws IOException {
         StringBuilder result = new StringBuilder();
         int ch, lastch = -1;
 
@@ -98,10 +100,10 @@ public class MutableBundleManifest {
             if (lastch == '\r') {
                 if (ch == '\n') {
                     result.append((char) ch);
-                    mf.setLineEndingWhenFirstLine("\r\n");
+                    lineEndingConsumer.accept("\r\n");
                 } else {
                     reader.unread(ch);
-                    mf.setLineEndingWhenFirstLine("\r");
+                    lineEndingConsumer.accept("\r");
                 }
                 break;
             }
@@ -109,7 +111,7 @@ public class MutableBundleManifest {
             result.append((char) ch);
 
             if (ch == '\n' || ch == '\u2028' || ch == '\u2029' || ch == '\u0085') { // see Scanner#LINE_SEPARATOR_PATTERN
-                mf.setLineEndingWhenFirstLine(new String(new char[] { (char) ch }));
+                lineEndingConsumer.accept(new String(new char[] { (char) ch }));
                 break;
             }
 
