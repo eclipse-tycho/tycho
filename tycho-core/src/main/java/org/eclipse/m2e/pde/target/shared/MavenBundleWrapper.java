@@ -141,10 +141,7 @@ public class MavenBundleWrapper {
             Map<DependencyNode, WrappedBundle> visited = new HashMap<>();
             WrappedBundle wrappedNode = getWrappedNode(node, instructionsLookup, visited);
             for (WrappedBundle wrap : visited.values()) {
-                Jar jar = wrap.getJar();
-                if (jar != null) {
-                    jar.close();
-                }
+                wrap.getJar().ifPresent(jar -> jar.close());
             }
             return wrappedNode;
         }
@@ -200,6 +197,7 @@ public class MavenBundleWrapper {
             if (cached == null) {
                 List<ProcessingMessage> messages = new ArrayList<>();
                 wrapArtifactFile.getParentFile().mkdirs();
+                boolean hasErrors = false;
                 try (Analyzer analyzer = new Analyzer(analyzerJar);) {
                     analyzer.setProperty("mvnGroupId", artifact.getGroupId());
                     analyzer.setProperty("mvnArtifactId", artifact.getArtifactId());
@@ -213,7 +211,7 @@ public class MavenBundleWrapper {
                         analyzer.setProperty(property, trimValue);
                     }
                     for (WrappedBundle dep : depends) {
-                        Jar depJar = dep.getJar();
+                        Jar depJar = dep.getJar().orElse(null);
                         if (depJar == null) {
                             messages.add(new ProcessingMessage(artifact, Type.WARN,
                                     "Dependency " + dep.getNode().getDependency() + " was ignored!"));
@@ -230,14 +228,21 @@ public class MavenBundleWrapper {
                             continue;
                         }
                         messages.add(new ProcessingMessage(artifact, Type.ERROR, err));
+                        hasErrors = true;
                     }
                     for (String warn : analyzer.getWarnings()) {
                         messages.add(new ProcessingMessage(artifact, Type.WARN, warn));
                     }
                 }
-                wrapArtifactFile.setLastModified(originalFile.lastModified());
-                visited.put(node, wrappedNode = new WrappedBundle(node, depends, key, wrapArtifactFile.toPath(),
-                        new Jar(wrapArtifactFile), messages));
+                if (hasErrors) {
+                    Files.deleteIfExists(wrapArtifactFile.toPath());
+                    visited.put(node, wrappedNode = new WrappedBundle(node, depends, key, null, null, messages));
+                } else {
+                    Files.setLastModifiedTime(wrapArtifactFile.toPath(),
+                            Files.getLastModifiedTime(originalFile.toPath()));
+                    visited.put(node, wrappedNode = new WrappedBundle(node, depends, key, wrapArtifactFile.toPath(),
+                            new Jar(wrapArtifactFile), messages));
+                }
             } else {
                 visited.put(node, wrappedNode = new WrappedBundle(node, depends, key, wrapArtifactFile.toPath(),
                         new Jar(wrapArtifactFile), List.of()));
@@ -301,7 +306,7 @@ public class MavenBundleWrapper {
         if (Files.exists(cacheFile)) {
             FileTime sourceTimeStamp = Files.getLastModifiedTime(sourceFile);
             FileTime cacheTimeStamp = Files.getLastModifiedTime(cacheFile);
-            return sourceTimeStamp.compareTo(cacheTimeStamp) > 0;
+            return sourceTimeStamp.toMillis() > cacheTimeStamp.toMillis();
         }
         return true;
     }

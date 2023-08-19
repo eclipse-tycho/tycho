@@ -15,6 +15,7 @@ package org.eclipse.m2e.pde.target.shared;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.aether.graph.DependencyNode;
@@ -26,8 +27,8 @@ public final class WrappedBundle {
     private final DependencyNode node;
     private final List<WrappedBundle> depends;
     private final String instructionsKey;
-    private final Path file;
-    private final Jar jar;
+    private final Optional<Path> file;
+    private final Optional<Jar> jar;
     private final List<ProcessingMessage> messages;
 
     WrappedBundle(DependencyNode node, List<WrappedBundle> depends, String key, Path file, Jar jar,
@@ -35,8 +36,8 @@ public final class WrappedBundle {
         this.node = node;
         this.depends = depends;
         this.instructionsKey = key;
-        this.file = file;
-        this.jar = jar;
+        this.file = Optional.ofNullable(file);
+        this.jar = Optional.ofNullable(jar);
         this.messages = messages;
     }
 
@@ -44,7 +45,7 @@ public final class WrappedBundle {
         return instructionsKey;
     }
 
-    Jar getJar() {
+    Optional<Jar> getJar() {
         return jar;
     }
 
@@ -52,8 +53,12 @@ public final class WrappedBundle {
         return node;
     }
 
-    /** @return the location of the wrapped bundle's files */
-    public Path getFile() {
+    /**
+     * 
+     * @return an optional describing the wrapped bundle, or an empty optional if the bundle was not
+     *         wrapped because of errors in the generation phase.
+     */
+    public Optional<Path> getFile() {
         return file;
     }
 
