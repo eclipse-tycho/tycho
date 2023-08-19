@@ -226,7 +226,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                     throw new RuntimeException(directErrors.stream().map(ProcessingMessage::message)
                                             .collect(Collectors.joining(System.lineSeparator())));
                                 }
-                                File file = wrappedBundle.getFile().toFile();
+                                File file = wrappedBundle.getFile().get().toFile();
                                 BundleDescription description = BundlesAction.createBundleDescription(file);
                                 WrappedArtifact wrappedArtifact = new WrappedArtifact(file, mavenArtifact,
                                         mavenArtifact.getClassifier(), description.getSymbolicName(),
