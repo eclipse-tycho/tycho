@@ -126,8 +126,8 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
     }
 
     @Override
-    public synchronized InputStream stream(URI toDownload, IProgressMonitor monitor)
-            throws FileNotFoundException, CoreException, AuthenticationFailedException {
+	public InputStream stream(URI toDownload, IProgressMonitor monitor)
+			throws FileNotFoundException, CoreException, AuthenticationFailedException {
 		if (DEBUG_REQUESTS) {
             logger.debug("Request stream for " + toDownload);
 		}
