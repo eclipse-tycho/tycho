@@ -29,6 +29,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -137,7 +138,7 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 		}
 
 		private HttpResponse<InputStream> performGet() throws IOException, InterruptedException {
-			HttpRequest request = builder.GET().build();
+			HttpRequest request = builder.GET().timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).build();
 			try {
 				return client.send(request, BodyHandlers.ofInputStream());
 			} catch (IOException e) {
@@ -154,7 +155,8 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 		@Override
 		public Response<Void> head() throws IOException {
 			try {
-				HttpResponse<Void> response = client.send(builder.method("HEAD", null).build(),
+				HttpResponse<Void> response = client.send(
+						builder.method("HEAD", null).timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).build(),
 						BodyHandlers.discarding());
 				return new ResponseImplementation<>(response) {
 					@Override
@@ -239,8 +241,11 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 
 			}
 		};
-		client = HttpClient.newBuilder().followRedirects(Redirect.NEVER).proxy(proxySelector).build();
-		clientHttp1 = HttpClient.newBuilder().version(Version.HTTP_1_1).followRedirects(Redirect.NEVER)
+		client = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(TIMEOUT_SECONDS))
+				.followRedirects(Redirect.NEVER)
+				.proxy(proxySelector).build();
+		clientHttp1 = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(TIMEOUT_SECONDS))
+				.version(Version.HTTP_1_1).followRedirects(Redirect.NEVER)
 				.proxy(proxySelector).build();
 
 	}

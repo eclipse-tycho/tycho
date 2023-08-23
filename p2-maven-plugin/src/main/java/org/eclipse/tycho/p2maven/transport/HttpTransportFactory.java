@@ -16,6 +16,8 @@ import java.net.URI;
 
 public interface HttpTransportFactory {
 
+	static final long TIMEOUT_SECONDS = Long.getLong("tycho.http.transport.timeout", 30);
+
 	HttpTransport createTransport(URI uri);
 
 }
