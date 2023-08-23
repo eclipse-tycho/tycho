@@ -164,8 +164,8 @@ public class FileTargetDefinitionContent implements TargetDefinitionContent {
                             consumer.accept(FileArtifactRepository.forFile(bundleLocation, key),
                                     BundlesAction.createBundleIU(bundleDescription, key, publisherInfo));
                         }
-                    } catch (BundleException | IOException e) {
-                        throw new ResolverException("Reading bundle failed", e);
+                    } catch (BundleException | IOException | RuntimeException e) {
+                        throw new ResolverException("Reading " + bundleLocation + " bundle failed", e);
                     }
                     subMonitor.worked(1);
                 }
