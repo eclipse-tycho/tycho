@@ -31,7 +31,7 @@ public class RepositoryIncludeTest extends AbstractTychoIntegrationTest {
 		P2RepositoryTool p2Repo = P2RepositoryTool
 				.forEclipseRepositoryModule(new File(verifier.getBasedir(), "repository"));
 		p2Repo.getUniqueIU("bundle");
-		p2Repo.assertNumberOfUnits(1, u -> u.id.equals("a.jre.javase") || u.id.endsWith(".test.category"));
+		p2Repo.assertNumberOfUnits(1, u -> u.id().equals("a.jre.javase") || u.id().endsWith(".test.category"));
 		assertTrue("Bundle artifact not found!", p2Repo.findBundleArtifact("bundle").isPresent());
 		p2Repo.assertNumberOfBundles(1);
 		p2Repo.assertNumberOfFeatures(0);

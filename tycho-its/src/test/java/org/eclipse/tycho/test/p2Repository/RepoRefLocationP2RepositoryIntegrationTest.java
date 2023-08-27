@@ -12,92 +12,63 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
+import static org.eclipse.equinox.p2.repository.IRepository.ENABLED;
+import static org.eclipse.equinox.p2.repository.IRepository.NONE;
+import static org.eclipse.equinox.p2.repository.IRepository.TYPE_ARTIFACT;
+import static org.eclipse.equinox.p2.repository.IRepository.TYPE_METADATA;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.P2RepositoryTool;
+import org.eclipse.tycho.test.util.P2RepositoryTool.RepositoryReference;
 import org.eclipse.tycho.test.util.ResourceUtil;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLParser;
 
 public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoIntegrationTest {
 
-	private static Verifier verifier;
-
-	private static class RepositoryReferenceData {
-		private String uri;
-		private String type;
-		private String enabled;
-
-		public RepositoryReferenceData(String uri, String type, String enabled) {
-			this.uri = uri;
-			this.type = type;
-			this.enabled = enabled;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			RepositoryReferenceData other = (RepositoryReferenceData) obj;
-			return Objects.equals(enabled, other.enabled) && Objects.equals(type, other.type)
-					&& Objects.equals(uri, other.uri);
-		}
-
-		@Override
-		public String toString() {
-			return "[uri=" + uri + ", type=" + type + ", enabled=" + enabled + "]";
-		}
-	}
-
-	@BeforeClass
-	public static void executeBuild() throws Exception {
-		verifier = new RepoRefLocationP2RepositoryIntegrationTest().getVerifier("/p2Repository.repositoryRef.location",
-				false);
+	@Test
+	public void testRefLocation() throws Exception {
+		Verifier verifier = getVerifier("/p2Repository.repositoryRef.location", false);
 		verifier.addCliOption("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
+
+		P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
+		List<RepositoryReference> allRepositoryReferences = p2Repo.getAllRepositoryReferences();
+
+		assertEquals(4, allRepositoryReferences.size());
+		assertThat(allRepositoryReferences,
+				containsInAnyOrder(new RepositoryReference("http://some.where", TYPE_ARTIFACT, NONE),
+						new RepositoryReference("http://some.where", TYPE_METADATA, NONE),
+						new RepositoryReference("http://some.where.else", TYPE_ARTIFACT, ENABLED),
+						new RepositoryReference("http://some.where.else", TYPE_METADATA, ENABLED)));
 	}
 
 	@Test
-	public void testRefLocation() throws Exception {
-		File target = new File(verifier.getBasedir(), "target");
-		File repository = new File(target, "repository");
-		File contentXml = new File(repository, "content.xml");
-		assertTrue(contentXml.isFile());
-		File artifactXml = new File(repository, "artifacts.xml");
-		assertTrue(artifactXml.isFile());
-		assertTrue(new File(target, "category.xml").isFile());
+	public void testReferenceFiltering() throws Exception {
+		// Of course it is actually a bit pointless to filter explicitly specified
+		// references, but it makes the test simple/faster instead of preparing a
+		// target-definition with IU-location so that it can be added automatically,
+		// which is the main use-case.
+		Verifier verifier = getVerifier("/p2Repository.repositoryRef.filter", false);
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
 
-		Document artifactsDocument = XMLParser.parse(contentXml);
-		// See MetadataRepositoryIO.Writer#writeRepositoryReferences
-		List<Element> repositories = artifactsDocument.getChild("repository").getChild("references")
-				.getChildren("repository");
-		assertEquals(4, repositories.size());
-		List<RepositoryReferenceData> actual = repositories.stream()
-				.map(e -> new RepositoryReferenceData(e.getAttributeValue("uri"), e.getAttributeValue("type"),
-						e.getAttributeValue("options")))
-				.toList();
-		assertThat(actual,
-				containsInAnyOrder(new RepositoryReferenceData("http://some.where", "1", "0"),
-						new RepositoryReferenceData("http://some.where", "0", "0"),
-						new RepositoryReferenceData("http://some.where.else", "1", "1"),
-						new RepositoryReferenceData("http://some.where.else", "0", "1")));
+		P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
+		List<RepositoryReference> allRepositoryReferences = p2Repo.getAllRepositoryReferences();
+
+		assertEquals(4, allRepositoryReferences.size());
+		assertThat(allRepositoryReferences, containsInAnyOrder( //
+				new RepositoryReference("https://download.eclipse.org/tm4e/releases/0.8.1", TYPE_ARTIFACT, ENABLED),
+				new RepositoryReference("https://download.eclipse.org/tm4e/releases/0.8.1", TYPE_METADATA, ENABLED),
+				new RepositoryReference("https://some.where/from/category", TYPE_ARTIFACT, ENABLED),
+				new RepositoryReference("https://some.where/from/category", TYPE_METADATA, ENABLED)));
 	}
 
 }
