@@ -24,6 +24,28 @@ Repositories can contain references to other repositories (e.g. to find addition
 </plugin>
 	
 ```
+### new option to filter added repository-references when assembling a p2-repository
+
+The repository references automatically added to a assembled p2-repository (via `tycho-p2-repository-plugin`'s `addIUTargetRepositoryReferences` or `addPomRepositoryReferences`) 
+can now be filtered by their location using exclusion and inclusion patterns and therefore allows more fine-grained control which references are added.
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-p2-repository-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		... other configuration options ...
+		<repositoryReferenceFilter>
+			<exclude>
+				<location>https://foo.bar.org/hidden/**</location>
+				<location>https://foo.bar.org/secret/**</location>
+			</exclude>
+			<include>%regex[http(s)?:\/\/foo\.bar\.org\/.*]</include>
+		</repositoryReferenceFilter>
+	</configuration>
+</plugin>
+	
+```
 
 ## 4.0.0
 
