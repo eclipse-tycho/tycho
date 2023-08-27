@@ -7,11 +7,11 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,7 +28,7 @@ import org.w3c.dom.NodeList;
 
 public class P2RepositoryTool {
 
-    private static final ThreadLocal<XPath> xPathTool = ThreadLocal
+    private static final ThreadLocal<XPath> XPATH_TOOL = ThreadLocal
             .withInitial(() -> XPathFactory.newInstance().newXPath());
     private static final Pattern strictVersionRangePattern = Pattern.compile("\\[([^,]*),\\1\\]");
     private final File repoLocation;
@@ -213,6 +213,21 @@ public class P2RepositoryTool {
         return getValues(contentXml, "/repository/units/unit/provides/provided[@namespace='java.package']/@name");
     }
 
+    public List<RepositoryReference> getAllRepositoryReferences() throws Exception {
+        loadMetadata();
+        // See MetadataRepositoryIO.Writer#writeRepositoryReferences
+        List<Node> references = getNodes(contentXml, "/repository/references/repository");
+        List<RepositoryReference> result = new ArrayList<>();
+        for (Node reference : references) {
+            String uri = getAttribute(reference, "@uri");
+            int type = Integer.parseInt(getAttribute(reference, "@type"));
+            int options = Integer.parseInt(getAttribute(reference, "@options"));
+            result.add(new RepositoryReference(uri, type, options));
+        }
+
+        return result;
+    }
+
     private void loadMetadata() throws Exception {
         if (contentXml != null)
             return;
@@ -223,27 +238,17 @@ public class P2RepositoryTool {
     }
 
     private static XPath getXPathTool() {
-        return xPathTool.get();
+        return XPATH_TOOL.get();
     }
 
     static List<Node> getNodes(Object startingPoint, String expression) throws XPathExpressionException {
         NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
 
-        List<Node> result = new ArrayList<>(nodeList.getLength());
-        for (int ix = 0; ix < nodeList.getLength(); ++ix) {
-            result.add(nodeList.item(ix));
-        }
-        return result;
+        return IntStream.range(0, nodeList.getLength()).mapToObj(nodeList::item).toList();
     }
 
     static List<String> getValues(Object startingPoint, String expression) throws XPathExpressionException {
-        NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
-
-        List<String> result = new ArrayList<>(nodeList.getLength());
-        for (int ix = 0; ix < nodeList.getLength(); ++ix) {
-            result.add(nodeList.item(ix).getNodeValue());
-        }
-        return result;
+        return getNodes(startingPoint, expression).stream().map(Node::getNodeValue).toList();
     }
 
     static String getAttribute(Node node, String expression) throws XPathExpressionException {
@@ -300,14 +305,7 @@ public class P2RepositoryTool {
         }
 
         public List<String> getRequiredIds() throws Exception {
-            List<String> result = new ArrayList<>();
-
-            List<Node> requiredIds = getNodes(unitElement, "requires/required/@name");
-            for (Node id : requiredIds) {
-                result.add(id.getNodeValue());
-            }
-
-            return result;
+            return getValues(unitElement, "requires/required/@name");
         }
 
         /**
@@ -371,33 +369,10 @@ public class P2RepositoryTool {
         }
     }
 
-    public static final class IdAndVersion {
-        public final String id;
-        public final String version;
+    public static final record IdAndVersion(String id, String version) {
+    }
 
-        public IdAndVersion(String id, String version) {
-            this.id = id;
-            this.version = version;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, version);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return this == obj || //
-                    (obj instanceof IdAndVersion other && //
-                            Objects.equals(id, other.id) && //
-                            Objects.equals(version, other.version));
-        }
-
-        @Override
-        public String toString() {
-            return "id=" + id + ", version=" + version;
-        }
-
+    public static final record RepositoryReference(String uri, int type, int options) {
     }
 
     public static IdAndVersion withIdAndVersion(String id, String version) {

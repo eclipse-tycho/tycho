@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.maven.model.Repository;
@@ -29,6 +31,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.MatchPatterns;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
@@ -73,6 +76,12 @@ import aQute.bnd.repository.fileset.FileSetRepository;
  */
 @Mojo(name = "assemble-repository", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
+
+    public static class RepositoryReferenceFilter {
+        List<String> exclude;
+        List<String> include;
+    }
+
     private static final Object LOCK = new Object();
     /**
      * <p>
@@ -218,6 +227,40 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     private boolean addIUTargetRepositoryReferences;
 
     /**
+     * A list of patterns to filter the automatically derived repository references by including or
+     * excluding their location to control if they are eventually added to the assembled repository.
+     * <p>
+     * Each pattern is either an <em>inclusion</em> or <em>exclusion</em> and an arbitrary number of
+     * each can be specified. The location of a repository reference must match at least one
+     * <em>inclusion</em>-pattern (if any is specified) and must not be match by any
+     * <em>exclusion</em>-pattern, in order to be eventually added to the assembled repository.<br>
+     * The specified filters are only applied to those repository references derived from the
+     * target-definition or pom file, when {@link #addIUTargetRepositoryReferences} respectively
+     * {@link #addPomRepositoryReferences} is set to {@code true}.
+     * </p>
+     * <p>
+     * Configuration example
+     * 
+     * <pre>
+     * &lt;repositoryReferenceFilter&gt;
+     *   &lt;exclude&gt;
+     *     &lt;location&gt;https://foo.bar.org/hidden/**&lt;/location&gt;
+     *     &lt;location&gt;https://foo.bar.org/secret/**&lt;/location&gt;
+     *   &lt;/exclude&gt;
+     *   &lt;include&gt;%regex[http(s)?:\/\/foo\.bar\.org\/.*]&lt;/include&gt;
+     * &lt;/repositoryReferenceFilter&gt;
+     * </pre>
+     * 
+     * It contains two <em>exclusion</em> patterns using {@code ANT}-style syntax and one
+     * <em>inclusion</em> using a {@code Java RegEx} {@link Pattern} (enclosed in
+     * {@code %regex[<the-regex-pattern>]}). The <em>inclusion</em> pattern uses the shorthand
+     * notation for singleton lists.
+     * </p>
+     */
+    @Parameter
+    private RepositoryReferenceFilter repositoryReferenceFilter = null;
+
+    /**
      * If enabled, an
      * <a href="https://docs.osgi.org/specification/osgi.cmpn/7.0.0/service.repository.html">OSGi
      * Repository</a> is generated out of the content of the P2 repository.
@@ -265,11 +308,14 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                         .flatMap(List::stream)//
                         .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
                         .collect(Collectors.toCollection(ArrayList::new));
+                Predicate<String> autoReferencesFilter = buildRepositoryReferenceLocationFilter();
                 if (addPomRepositoryReferences) {
                     for (Repository pomRepo : getProject().getRepositories()) {
                         if ("p2".equals(pomRepo.getLayout())) {
-                            repositoryReferences
-                                    .add(new RepositoryReference(pomRepo.getName(), pomRepo.getUrl(), true));
+                            String locationURL = pomRepo.getUrl();
+                            if (autoReferencesFilter.test(locationURL)) {
+                                repositoryReferences.add(new RepositoryReference(pomRepo.getName(), locationURL, true));
+                            }
                         }
                     }
                 }
@@ -278,14 +324,17 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                             .getTargetPlatformConfiguration(getProject()).getTargets()) {
                         for (Location location : targetDefinitionFile.getLocations()) {
                             if (location instanceof InstallableUnitLocation iu) {
-                                for (org.eclipse.tycho.targetplatform.TargetDefinition.Repository iuRepo : iu
-                                        .getRepositories()) {
-                                    repositoryReferences.add(new RepositoryReference(null, iuRepo.getLocation(), true));
+                                for (var iuRepo : iu.getRepositories()) {
+                                    String locationURL = iuRepo.getLocation();
+                                    if (autoReferencesFilter.test(locationURL)) {
+                                        repositoryReferences.add(new RepositoryReference(null, locationURL, true));
+                                    }
                                 }
                             }
                         }
                     }
                 }
+
                 DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
                         destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
                         !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryReferences);
@@ -349,6 +398,22 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     private List<Category> getCategories(final File categoriesDirectory) {
         return eclipseRepositoryProject.loadCategories(categoriesDirectory);
+    }
+
+    private Predicate<String> buildRepositoryReferenceLocationFilter() {
+        Predicate<String> filter = l -> true;
+        if (repositoryReferenceFilter != null) {
+            if (repositoryReferenceFilter.include != null && !repositoryReferenceFilter.include.isEmpty()) {
+                MatchPatterns inclusionPattern = MatchPatterns.from(repositoryReferenceFilter.include);
+                filter = l -> inclusionPattern.matches(l, true);
+            }
+            if (repositoryReferenceFilter.exclude != null && !repositoryReferenceFilter.exclude.isEmpty()) {
+                MatchPatterns exclusionPattern = MatchPatterns.from(repositoryReferenceFilter.exclude);
+                Predicate<String> exclusionFilter = l -> !exclusionPattern.matches(l, true);
+                filter = filter.and(exclusionFilter);
+            }
+        }
+        return filter;
     }
 
 }
