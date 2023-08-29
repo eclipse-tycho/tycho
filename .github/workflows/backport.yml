@@ -21,7 +21,7 @@ jobs:
       contents: write
     steps:
       - name: Backport Action
-        uses: sqren/backport-github-action@e325a2d70df7264afa24c92b1d5feb2278ff63af # v8.9.7
+        uses: sqren/backport-github-action@682f871a79e28f3a79dc87c4098bf2a894d12285 # v9.2.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           auto_backport_label_prefix: backport-to-
