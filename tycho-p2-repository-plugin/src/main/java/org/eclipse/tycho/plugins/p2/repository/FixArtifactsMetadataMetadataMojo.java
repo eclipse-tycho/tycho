@@ -13,7 +13,6 @@
 package org.eclipse.tycho.plugins.p2.repository;
 
 import java.io.File;
-import java.util.Collections;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -73,8 +72,7 @@ public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
                             "Could not update p2 repository, directory does not exist: " + destination);
                 }
                 DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
-                        destination, repositoryName, true, xzCompress, keepNonXzIndexFiles, false, true,
-                        Collections.emptyMap(), Collections.emptyList());
+                        destination, repositoryName, true, xzCompress, keepNonXzIndexFiles, false, true);
                 mirrorApp.recreateArtifactRepository(destinationRepoDescriptor);
             } catch (FacadeException e) {
                 throw new MojoExecutionException("Could not update p2 repository", e);
