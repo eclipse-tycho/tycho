@@ -16,12 +16,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
@@ -36,6 +37,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.CollectionResult;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -50,6 +52,7 @@ import org.eclipse.tycho.p2.tools.RepositoryReference;
 public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfromp2.MirrorApplication {
 
     private static final String SOURCE_SUFFIX = ".source";
+    private static final String FEATURE_GROUP = ".feature.group";
     private final Map<String, String> extraArtifactRepositoryProperties;
     private final List<RepositoryReference> repositoryReferences;
     private boolean includeAllSource;
@@ -91,7 +94,7 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
                 if ((includeRequiredBundles || includeRequiredFeatures) && QueryUtil.isGroup(iu)) {
                     if (req instanceof IRequiredCapability capability) {
                         if (IInstallableUnit.NAMESPACE_IU_ID.equals(capability.getNamespace())) {
-                            boolean isFeature = capability.getName().endsWith(".feature.group");
+                            boolean isFeature = capability.getName().endsWith(FEATURE_GROUP);
                             if ((isFeature && includeRequiredFeatures) || (!isFeature && includeRequiredBundles)) {
                                 if (!includeOptionalDependencies) {
                                     if (req.getMin() == 0) {
@@ -130,19 +133,20 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
                 if (includeAllSource && targetPlatform != null) {
                     Set<IInstallableUnit> collected = slice.query(QueryUtil.ALL_UNITS, null).toSet();
                     Set<IInstallableUnit> result = new HashSet<>(collected);
-                    Map<String, IInstallableUnit> sourceIus = new HashMap<>();
-                    targetPlatform.getMetadataRepository().query(QueryUtil.ALL_UNITS, null).forEach(iu -> {
-                        if (iu.getId().endsWith(SOURCE_SUFFIX)) {
-                            sourceIus.put(iu.getId(), iu);
-                        }
-                    });
+                    IQueryResult<IInstallableUnit> query = targetPlatform.getMetadataRepository()
+                            .query(QueryUtil.ALL_UNITS, null);
+                    Map<String, List<IInstallableUnit>> sourceIus = StreamSupport.stream(query.spliterator(), false)
+                            .filter(iu -> iu.getId().endsWith(SOURCE_SUFFIX))
+                            .collect(Collectors.groupingBy(IInstallableUnit::getId));
                     for (IInstallableUnit iu : collected) {
-                        String sourceId = iu.getId().endsWith(".feature.group")
-                                ? iu.getId().replaceAll(".feature.group", SOURCE_SUFFIX)
-                                : iu.getId() + SOURCE_SUFFIX;
-                        IInstallableUnit sourceUnit = sourceIus.get(sourceId);
-                        if (sourceUnit != null) {
-                            result.add(sourceUnit);
+                        String id = iu.getId();
+                        String sourceId = id.endsWith(FEATURE_GROUP)
+                                ? id.substring(id.length() - FEATURE_GROUP.length()) + SOURCE_SUFFIX
+                                : id + SOURCE_SUFFIX;
+                        List<IInstallableUnit> sourceUnits = sourceIus.get(sourceId);
+                        if (sourceUnits != null) {
+                            sourceUnits.stream().filter(su -> su.getVersion().equals(iu.getVersion())) //
+                                    .findFirst().ifPresent(result::add);
                         }
                     }
                     return new CollectionResult<>(result);
