@@ -236,8 +236,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     private static TychoMirrorApplication createMirrorApplication(RepositoryReferences sources,
             DestinationRepositoryDescriptor destination, IProvisioningAgent agent) {
-        final TychoMirrorApplication mirrorApp = new TychoMirrorApplication(agent,
-                destination.getExtraArtifactRepositoryProperties(), destination.getRepositoryReferences());
+        final TychoMirrorApplication mirrorApp = new TychoMirrorApplication(agent, destination);
         mirrorApp.setRaw(false);
 
         List<RepositoryDescriptor> sourceDescriptors = createSourceDescriptors(sources);
@@ -438,7 +437,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         repo.save();
         DestinationRepositoryDescriptor desc = new DestinationRepositoryDescriptor(repository, repo.getName(),
                 new File(repository, "artifacts.xml.xz").exists(), new File(repository, "artifacts.xml.xz").exists(),
-                true, false, false, Collections.emptyMap(), Collections.emptyList());
+                true, false, false);
         xzCompress(desc);
     }
 }

@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2tools;
 
+import static java.util.stream.Collectors.groupingBy;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -20,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -41,12 +42,13 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.IRepositoryReference;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
 
 public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfromp2.MirrorApplication {
@@ -58,14 +60,13 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
     private boolean includeAllSource;
     private boolean includeRequiredBundles;
     private boolean includeRequiredFeatures;
-    private TargetPlatform targetPlatform;
     private boolean filterProvided;
+    private TargetPlatform targetPlatform;
 
-    public TychoMirrorApplication(IProvisioningAgent agent, Map<String, String> extraArtifactRepositoryProperties,
-            List<RepositoryReference> repositoryReferences) {
+    public TychoMirrorApplication(IProvisioningAgent agent, DestinationRepositoryDescriptor destination) {
         super(agent);
-        this.extraArtifactRepositoryProperties = extraArtifactRepositoryProperties;
-        this.repositoryReferences = repositoryReferences;
+        this.extraArtifactRepositoryProperties = destination.getExtraArtifactRepositoryProperties();
+        this.repositoryReferences = destination.getRepositoryReferences();
         this.removeAddedRepositories = false;
     }
 
@@ -75,8 +76,7 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
         IArtifactRepository result = super.initializeDestination(toInit, mgr);
         // simple.SimpleArtifactRepository.PUBLISH_PACK_FILES_AS_SIBLINGS is not public
         result.setProperty("publishPackFilesAsSiblings", "true");
-        extraArtifactRepositoryProperties.entrySet()
-                .forEach(entry -> result.setProperty(entry.getKey(), entry.getValue()));
+        extraArtifactRepositoryProperties.forEach(result::setProperty);
         return result;
     }
 
@@ -85,38 +85,25 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
         Map<String, String> context = options.getFilter();
         boolean includeOptionalDependencies = options.includeOptionalDependencies();
         boolean onlyFilteredRequirements = options.followOnlyFilteredRequirements();
-        boolean considerFilter = (context != null && context.size() > 1) ? true : false;
+        boolean considerFilter = context != null && context.size() > 1;
         IMetadataRepository repository = getCompositeMetadataRepository();
         return new PermissiveSlicer(repository, context, includeOptionalDependencies, options.isEverythingGreedy(),
                 options.forceFilterTo(), options.considerStrictDependencyOnly(), onlyFilteredRequirements) {
             @Override
             protected boolean isApplicable(IInstallableUnit iu, IRequirement req) {
-                if ((includeRequiredBundles || includeRequiredFeatures) && QueryUtil.isGroup(iu)) {
-                    if (req instanceof IRequiredCapability capability) {
-                        if (IInstallableUnit.NAMESPACE_IU_ID.equals(capability.getNamespace())) {
-                            boolean isFeature = capability.getName().endsWith(FEATURE_GROUP);
-                            if ((isFeature && includeRequiredFeatures) || (!isFeature && includeRequiredBundles)) {
-                                if (!includeOptionalDependencies) {
-                                    if (req.getMin() == 0) {
-                                        return false;
-                                    }
-                                }
-                                IMatchExpression<IInstallableUnit> filter = req.getFilter();
-                                if (considerFilter) {
-                                    if (onlyFilteredRequirements && filter == null) {
-                                        return false;
-                                    }
-                                    boolean filterMatches = filter == null || filter.isMatch(selectionContext);
-                                    if (filterMatches) {
-                                    }
-                                    return filterMatches;
-                                }
-                                if (filter == null && onlyFilteredRequirements) {
-                                    return false;
-                                }
-                                return true;
-                            }
+                if ((includeRequiredBundles || includeRequiredFeatures) && QueryUtil.isGroup(iu)
+                        && req instanceof IRequiredCapability capability
+                        && IInstallableUnit.NAMESPACE_IU_ID.equals(capability.getNamespace())) {
+                    boolean isFeature = capability.getName().endsWith(FEATURE_GROUP);
+                    if ((isFeature && includeRequiredFeatures) || (!isFeature && includeRequiredBundles)) {
+                        if (!includeOptionalDependencies && req.getMin() == 0) {
+                            return false;
                         }
+                        IMatchExpression<IInstallableUnit> filter = req.getFilter();
+                        if (onlyFilteredRequirements && filter == null) {
+                            return false;
+                        }
+                        return !considerFilter || filter == null || filter.isMatch(selectionContext);
                     }
                 }
                 return super.isApplicable(req);
@@ -133,11 +120,10 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
                 if (includeAllSource && targetPlatform != null) {
                     Set<IInstallableUnit> collected = slice.query(QueryUtil.ALL_UNITS, null).toSet();
                     Set<IInstallableUnit> result = new HashSet<>(collected);
-                    IQueryResult<IInstallableUnit> query = targetPlatform.getMetadataRepository()
-                            .query(QueryUtil.ALL_UNITS, null);
-                    Map<String, List<IInstallableUnit>> sourceIus = StreamSupport.stream(query.spliterator(), false)
+                    var allUnits = targetPlatform.getMetadataRepository().query(QueryUtil.ALL_UNITS, null);
+                    Map<String, List<IInstallableUnit>> sourceIus = stream(allUnits)
                             .filter(iu -> iu.getId().endsWith(SOURCE_SUFFIX))
-                            .collect(Collectors.groupingBy(IInstallableUnit::getId));
+                            .collect(groupingBy(IInstallableUnit::getId));
                     for (IInstallableUnit iu : collected) {
                         String id = iu.getId();
                         String sourceId = id.endsWith(FEATURE_GROUP)
@@ -161,22 +147,18 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
     protected IMetadataRepository initializeDestination(RepositoryDescriptor toInit, IMetadataRepositoryManager mgr)
             throws ProvisionException {
         IMetadataRepository result = super.initializeDestination(toInit, mgr);
-        List<? extends IRepositoryReference> iRepoRefs = repositoryReferences.stream()
-                .flatMap(TychoMirrorApplication::toSpiRepositoryReferences).toList();
-        result.addReferences(iRepoRefs);
+        var refs = repositoryReferences.stream().flatMap(TychoMirrorApplication::toSpiRepositoryReferences).toList();
+        result.addReferences(refs);
         return result;
     }
 
     private static Stream<org.eclipse.equinox.p2.repository.spi.RepositoryReference> toSpiRepositoryReferences(
             RepositoryReference rr) {
-        return Stream.of(toSpiRepositoryReference(rr, IRepository.TYPE_METADATA),
-                toSpiRepositoryReference(rr, IRepository.TYPE_ARTIFACT));
-    }
-
-    private static org.eclipse.equinox.p2.repository.spi.RepositoryReference toSpiRepositoryReference(
-            RepositoryReference rr, int type) {
-        return new org.eclipse.equinox.p2.repository.spi.RepositoryReference(URI.create(rr.getLocation()), rr.getName(),
-                type, rr.isEnable() ? IRepository.ENABLED : IRepository.NONE);
+        return Stream.of(IRepository.TYPE_METADATA, IRepository.TYPE_ARTIFACT).map(type -> {
+            URI location = URI.create(rr.getLocation());
+            int options = rr.isEnable() ? IRepository.ENABLED : IRepository.NONE;
+            return new org.eclipse.equinox.p2.repository.spi.RepositoryReference(location, rr.getName(), type, options);
+        });
     }
 
     @Override
@@ -184,23 +166,9 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
             throws ProvisionException {
         List<IArtifactKey> keys = super.collectArtifactKeys(ius, monitor);
         if (isFilterProvidedItems()) {
-            List<IArtifactRepository> referencedRepositories = new ArrayList<>();
-            for (RepositoryReference reference : repositoryReferences) {
-                String location = reference.getLocation();
-                try {
-                    referencedRepositories
-                            .add(getArtifactRepositoryManager().loadRepository(new URI(location), monitor));
-                } catch (URISyntaxException e) {
-                    throw new ProvisionException("Can't parse referenced URI!", e);
-                }
-            }
-            keys.removeIf(key -> referencedRepositories.stream().anyMatch(repo -> repo.contains(key)));
+            removeProvidedItems(keys, getArtifactRepositoryManager(), monitor);
         }
         return keys;
-    }
-
-    private boolean isFilterProvidedItems() {
-        return filterProvided && !repositoryReferences.isEmpty();
     }
 
     @Override
@@ -208,21 +176,55 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
             throws ProvisionException {
         Set<IInstallableUnit> units = super.collectUnits(slice, monitor);
         if (isFilterProvidedItems()) {
-            List<IMetadataRepository> referencedRepositories = new ArrayList<>();
-            for (RepositoryReference reference : repositoryReferences) {
-                String location = reference.getLocation();
-                try {
-                    referencedRepositories
-                            .add(getMetadataRepositoryManager().loadRepository(new URI(location), monitor));
-                } catch (URISyntaxException e) {
-                    throw new ProvisionException("Can't parse referenced URI!", e);
-                }
-            }
-            units.removeIf(unit -> referencedRepositories.stream().anyMatch(repo -> {
-                return !repo.query(QueryUtil.createIUQuery(unit.getId(), unit.getVersion()), monitor).isEmpty();
-            }));
+            removeProvidedItems(units, getMetadataRepositoryManager(), monitor);
         }
         return units;
+    }
+
+    private boolean isFilterProvidedItems() {
+        return filterProvided && !repositoryReferences.isEmpty();
+    }
+
+    private <T> void removeProvidedItems(Collection<T> allElements, IRepositoryManager<T> repoManager,
+            IProgressMonitor monitor) throws ProvisionException {
+        List<IRepository<T>> referencedRepositories = new ArrayList<>();
+        for (RepositoryReference reference : repositoryReferences) {
+            try {
+                URI location = new URI(reference.getLocation());
+                IRepository<T> repository = loadRepository(repoManager, location, monitor);
+                referencedRepositories.add(repository);
+            } catch (URISyntaxException e) {
+                throw new ProvisionException("Can't parse referenced URI!", e);
+            }
+        }
+        allElements.removeIf(e -> referencedRepositories.stream().anyMatch(repo -> contains(repo, e)));
+    }
+
+    //TODO: just call IRepositoryManager.loadRepository() once available: https://github.com/eclipse-equinox/p2/pull/311
+    @SuppressWarnings("unchecked")
+    private static <T> IRepository<T> loadRepository(IRepositoryManager<T> mgr, URI location, IProgressMonitor monitor)
+            throws ProvisionException {
+        if (mgr instanceof IArtifactRepositoryManager artifactRepoManager) {
+            return (IRepository<T>) artifactRepoManager.loadRepository(location, monitor);
+        } else if (mgr instanceof IMetadataRepositoryManager metadataMangager) {
+            return (IRepository<T>) metadataMangager.loadRepository(location, monitor);
+        }
+        throw new AssertionError("Unsupported IRepositoryManager type" + mgr.getClass());
+    }
+
+    //TODO: just call IRepositoryManager.contains() once available: https://github.com/eclipse-equinox/p2/pull/314
+    private static <T> boolean contains(IRepository<T> repository, T element) {
+        if (repository instanceof IArtifactRepository artifactRepository) {
+            return artifactRepository.contains((IArtifactKey) element);
+        } else if (repository instanceof IMetadataRepository metadataRepository) {
+            return !metadataRepository.query(QueryUtil.createIUQuery((IInstallableUnit) element), null).isEmpty();
+        }
+        throw new AssertionError("Unsupported IRepository type" + repository.getClass());
+    }
+
+    //TODO: use query.stream() once available: https://github.com/eclipse-equinox/p2/pull/312 is available
+    private static <T> Stream<T> stream(IQueryResult<T> result) {
+        return StreamSupport.stream(result.spliterator(), false);
     }
 
     public void setIncludeSources(boolean includeAllSource, TargetPlatform targetPlatform) {
@@ -234,12 +236,12 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
         this.includeRequiredBundles = includeRequiredBundles;
     }
 
-    public void setFilterProvided(boolean filterProvided) {
-        this.filterProvided = filterProvided;
-    }
-
     public void setIncludeRequiredFeatures(boolean includeRequiredFeatures) {
         this.includeRequiredFeatures = includeRequiredFeatures;
+    }
+
+    public void setFilterProvided(boolean filterProvided) {
+        this.filterProvided = filterProvided;
     }
 
 }

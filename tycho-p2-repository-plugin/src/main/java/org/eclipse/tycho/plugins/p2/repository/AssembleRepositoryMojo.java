@@ -23,7 +23,6 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -48,8 +47,6 @@ import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
-import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
-import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
 import aQute.bnd.osgi.repository.XMLResourceGenerator;
 import aQute.bnd.repository.fileset.FileSetRepository;
@@ -214,16 +211,16 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     private Map<String, String> extraArtifactRepositoryProperties;
 
     /**
-     * if enabled all P2 repositories referenced in the pom are added as referenced sites
+     * If enabled all P2-repositories referenced in the pom are added as referenced repositories.
      */
-    @Parameter()
+    @Parameter
     private boolean addPomRepositoryReferences;
 
     /**
-     * if enabled all P2 repositories referenced in the IU location type of target-files are added
-     * as referenced sites
+     * If enabled all P2 repositories referenced in {@code InstallableUnit}-type locations of the
+     * active target-file are added as referenced repositories.
      */
-    @Parameter()
+    @Parameter
     private boolean addIUTargetRepositoryReferences;
 
     /**
@@ -265,7 +262,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
      * <a href="https://docs.osgi.org/specification/osgi.cmpn/7.0.0/service.repository.html">OSGi
      * Repository</a> is generated out of the content of the P2 repository.
      */
-    @Parameter()
+    @Parameter
     private boolean generateOSGiRepository;
 
     /**
@@ -310,31 +307,21 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                         .collect(Collectors.toCollection(ArrayList::new));
                 Predicate<String> autoReferencesFilter = buildRepositoryReferenceLocationFilter();
                 if (addPomRepositoryReferences) {
-                    for (Repository pomRepo : getProject().getRepositories()) {
-                        if ("p2".equals(pomRepo.getLayout())) {
-                            String locationURL = pomRepo.getUrl();
-                            if (autoReferencesFilter.test(locationURL)) {
-                                repositoryReferences.add(new RepositoryReference(pomRepo.getName(), locationURL, true));
-                            }
-                        }
-                    }
+                    getProject().getRepositories().stream() //
+                            .filter(pomRepo -> "p2".equals(pomRepo.getLayout()))
+                            .filter(pomRepo -> autoReferencesFilter.test(pomRepo.getUrl()))
+                            .map(pomRepo -> new RepositoryReference(pomRepo.getName(), pomRepo.getUrl(), true))
+                            .forEach(repositoryReferences::add);
                 }
                 if (addIUTargetRepositoryReferences) {
-                    for (TargetDefinitionFile targetDefinitionFile : projectManager
-                            .getTargetPlatformConfiguration(getProject()).getTargets()) {
-                        for (Location location : targetDefinitionFile.getLocations()) {
-                            if (location instanceof InstallableUnitLocation iu) {
-                                for (var iuRepo : iu.getRepositories()) {
-                                    String locationURL = iuRepo.getLocation();
-                                    if (autoReferencesFilter.test(locationURL)) {
-                                        repositoryReferences.add(new RepositoryReference(null, locationURL, true));
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    projectManager.getTargetPlatformConfiguration(getProject()).getTargets().stream()
+                            .flatMap(tpFile -> tpFile.getLocations().stream())
+                            .filter(InstallableUnitLocation.class::isInstance).map(InstallableUnitLocation.class::cast)
+                            .flatMap(iu -> iu.getRepositories().stream())
+                            .filter(iuRepo -> autoReferencesFilter.test(iuRepo.getLocation()))
+                            .map(iuRepo -> new RepositoryReference(null, iuRepo.getLocation(), true))
+                            .forEach(repositoryReferences::add);
                 }
-
                 DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
                         destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
                         !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryReferences);
@@ -345,20 +332,18 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                     XMLResourceGenerator resourceGenerator = new XMLResourceGenerator();
                     resourceGenerator.name(repositoryName);
                     resourceGenerator.base(destination.toURI());
-                    File pluginsResult = new File(destination, "plugins");
-                    if (pluginsResult.isDirectory()) {
-                        File[] files = pluginsResult
-                                .listFiles(pathname -> pathname.isFile() && pathname.getName().endsWith(".jar"));
+                    File plugins = new File(destination, "plugins");
+                    if (plugins.isDirectory()) {
+                        File[] files = plugins.listFiles(path -> path.getName().endsWith(".jar") && path.isFile());
                         try {
                             resourceGenerator.repository(new FileSetRepository("plugins", Arrays.asList(files)));
                         } catch (Exception e) {
                             throw new MojoExecutionException("Could not read p2 repository plugins", e);
                         }
                     }
-                    File featureResult = new File(destination, "features");
-                    if (featureResult.isDirectory()) {
-                        File[] files = featureResult
-                                .listFiles(pathname -> pathname.isFile() && pathname.getName().endsWith(".jar"));
+                    File features = new File(destination, "features");
+                    if (features.isDirectory()) {
+                        File[] files = features.listFiles(path -> path.getName().endsWith(".jar") && path.isFile());
                         for (File featureFile : files) {
                             try {
                                 Feature feature = Feature.readJar(featureFile);
@@ -369,11 +354,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                         }
                     }
                     try {
-                        if (compress) {
-                            resourceGenerator.save(new File(destination, repositoryFileName + ".gz"));
-                        } else {
-                            resourceGenerator.save(new File(destination, repositoryFileName));
-                        }
+                        String filename = compress ? repositoryFileName + ".gz" : repositoryFileName;
+                        resourceGenerator.save(new File(destination, filename));
                     } catch (IOException e) {
                         throw new MojoExecutionException("Could not write OSGi Repository!", e);
                     }

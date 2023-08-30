@@ -19,8 +19,8 @@ import java.util.Map;
 
 public class DestinationRepositoryDescriptor {
 
-    final File location;
-    final String name;
+    private final File location;
+    private final String name;
     private final boolean compress;
     private final boolean xzCompress;
     private final boolean keepNonXzIndexFiles;
@@ -43,8 +43,14 @@ public class DestinationRepositoryDescriptor {
         this.repositoryReferences = repositoryReferences;
     }
 
+    public DestinationRepositoryDescriptor(File location, String name, boolean compress, boolean xzCompress,
+            boolean keepNonXzIndexFiles, boolean metaDataOnly, boolean append) {
+        this(location, name, compress, xzCompress, keepNonXzIndexFiles, metaDataOnly, append, Collections.emptyMap(),
+                Collections.emptyList());
+    }
+
     public DestinationRepositoryDescriptor(File location, String name) {
-        this(location, name, true, true, false, false, true, Collections.emptyMap(), Collections.emptyList());
+        this(location, name, true, true, false, false, true);
     }
 
     public File getLocation() {

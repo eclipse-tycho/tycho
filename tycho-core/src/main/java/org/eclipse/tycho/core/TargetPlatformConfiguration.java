@@ -111,7 +111,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private Map<String, String> resolverProfileProperties = new HashMap<>();
 
-    List<Supplier<File>> lazyTargetFiles = new ArrayList<>();
+    private final List<Supplier<File>> lazyTargetFiles = new ArrayList<>();
 
     private LocalArtifactHandling localArtifactHandling;
 
@@ -240,10 +240,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     }
 
     public List<TargetPlatformFilter> getFilters() {
-        if (filters == null)
-            return Collections.emptyList();
-        else
-            return filters;
+        return filters == null ? Collections.emptyList() : filters;
     }
 
     public DependencyResolverConfiguration getDependencyResolverConfiguration() {
