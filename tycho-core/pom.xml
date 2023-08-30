@@ -23,7 +23,7 @@
 	<name>Tycho Core</name>
 	<description>Core Tycho components</description>
 	<properties>
-		<jetty.version>11.0.15</jetty.version>
+		<jetty.version>11.0.16</jetty.version>
 	</properties>
 
 	<build>
