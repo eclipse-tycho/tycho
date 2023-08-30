@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -29,7 +31,7 @@ public class IncludeAllSourcesTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testSourceInclusion() throws Exception {
-		Verifier verifier = new IncludeAllSourcesTest().getVerifier("p2Repository.includeAllSources", false);
+		Verifier verifier = getVerifier("p2Repository.includeAllSources", false);
 		verifier.executeGoal("verify");
 		// Missing source should never trigger an error
 		verifier.verifyErrorFreeLog();
@@ -42,11 +44,13 @@ public class IncludeAllSourcesTest extends AbstractTychoIntegrationTest {
 		assertThrows(AssertionError.class, () -> {
 			p2Repo.getUniqueIU("org.apache.commons.commons-io.source");
 		});
+		// test inclusion of sources for multiple version of the main/source artifact
+		assertThat(p2Repo.getUnitVersions("org.opentest4j.source"), containsInAnyOrder("1.2.0", "1.3.0"));
 	}
 
 	@Test
 	public void testIncludeAllSourcesFromOldOrbit() throws Exception {
-		Verifier verifier = new IncludeAllSourcesTest().getVerifier("p2Repository.includeAllSources.oldOrbit", false);
+		Verifier verifier = getVerifier("p2Repository.includeAllSources.oldOrbit", false);
 		File localRepository = new File(verifier.getLocalRepository());
 		File indexFile = new File(localRepository, FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
 		if (indexFile.exists()) {
