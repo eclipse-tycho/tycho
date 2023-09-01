@@ -64,9 +64,12 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfromp2.MirrorApplication {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TychoMirrorApplication.class);
     private static final String SOURCE_SUFFIX = ".source";
     private static final String FEATURE_GROUP = ".feature.group";
     private final DestinationRepositoryDescriptor destination;
@@ -210,6 +213,16 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
         // In order to avoid stripping of slashes from URI instances do it now before URIs are created.
         String location = r.getLocation();
         return URI.create(location.endsWith("/") ? location.substring(0, location.length() - 1) : location);
+    }
+
+    @Override
+    protected void finalizeRepositories() {
+        Collection<IRepositoryReference> references = getDestinationMetadataRepository().getReferences();
+        if (!references.isEmpty()) {
+            LOGGER.info("Adding references to the following repositories:");
+            references.stream().map(r -> r.getLocation()).distinct().forEach(loc -> LOGGER.info("  {}", loc));
+        }
+        super.finalizeRepositories();
     }
 
     @Override
