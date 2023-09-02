@@ -54,7 +54,11 @@ public interface MirrorApplicationService {
      *            Whether to include bundles mentioned in the require section of a feature
      * @param includeRequiredFeatures
      *            Whether to include features mentioned in the require section of a feature
-     * @param filterProvided Whether to filter IU/artifacts that are already provided by a referenced repository
+     * @param filterProvided
+     *            Whether to filter IU/artifacts that are already provided by a referenced
+     *            repository
+     * @param addOnlyProvidingRepoReferences
+     *            Whether to add only repository-references that provide any relevant IU
      * @param filterProperties
      *            additional filter properties to be set in the p2 slicing options. May be
      *            <code>null</code>
@@ -64,7 +68,8 @@ public interface MirrorApplicationService {
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<DependencySeed> seeds, BuildContext context, boolean includeAllDependencies,
             boolean includeAllSource, boolean includeRequiredBundles, boolean includeRequiredFeatures,
-            boolean filterProvided, Map<String, String> filterProperties) throws FacadeException;
+            boolean filterProvided, boolean addOnlyProvidingRepoReferences, Map<String, String> filterProperties)
+            throws FacadeException;
 
     /**
      * recreates the metadata of an existing repository e.g. to account for changes in the contained

@@ -6,8 +6,11 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### new option to filter added repository-references when assembling a p2-repository
 
-The repository references automatically added to a assembled p2-repository (via `tycho-p2-repository-plugin`'s `addIUTargetRepositoryReferences` or `addPomRepositoryReferences`) 
-can now be filtered by their location using exclusion and inclusion patterns and therefore allows more fine-grained control which references are added.
+If filtering provided artifacts is enabled, the repository references automatically added to a assembled p2-repository
+(via `tycho-p2-repository-plugin`'s `addIUTargetRepositoryReferences` or `addPomRepositoryReferences`) can now be filtered by their location
+using exclusion and inclusion patterns and therefore allows more fine-grained control which references are added.
+Additionally the automatically added references can be filter based on if they provide any of the filtered units or not.
+If `addOnlyProviding` is `true` repositories that don't provide any filtered unit are not added to the assembled repo.
 ```xml
 <plugin>
 	<groupId>org.eclipse.tycho</groupId>
@@ -16,6 +19,7 @@ can now be filtered by their location using exclusion and inclusion patterns and
 	<configuration>
 		... other configuration options ...
 		<repositoryReferenceFilter>
+			<addOnlyProviding>true</addOnlyProviding>
 			<exclude>
 				<location>https://foo.bar.org/hidden/**</location>
 				<location>%regex[http(s)?:\/\/foo\.bar\.org\/secret\/.*]</location>
