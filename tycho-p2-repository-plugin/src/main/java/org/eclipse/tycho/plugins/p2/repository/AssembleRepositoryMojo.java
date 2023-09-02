@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -75,8 +74,17 @@ import aQute.bnd.repository.fileset.FileSetRepository;
 public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     public static class RepositoryReferenceFilter {
+        /**
+         * If {@link #filterProvided} is {@code true} and repository references are added
+         * automatically via {@link #addIUTargetRepositoryReferences} or
+         * {@link #addPomRepositoryReferences}, then this property controls if from the
+         * automatically added ones only references to those repositories are added, that provide
+         * relevant content, which is not provided by any other referenced repositories. If this is
+         * set to {@code false} all automatically added references are added as they are available.
+         */
+        public boolean addOnlyProviding = true;
         /** The list of location patterns that exclude matching repository references. */
-        List<String> exclude = List.of();
+        public List<String> exclude = List.of();
     }
 
     private static final Object LOCK = new Object();
@@ -224,20 +232,32 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     private boolean addIUTargetRepositoryReferences;
 
     /**
-     * A list of patterns to exclude automatically derived repository references from being added to
-     * the assembled repository.
+     * Filters to exclude automatically derived repository references from being added to the
+     * assembled repository.
+     * 
      * <p>
+     * Repository references can be filtered based on their location URI using a list of exclusion
+     * pattern:<br>
      * The location of a reference must not be matched by any pattern, in order to be eventually
-     * added to the assembled repository. An arbitrary number of patterns can be specified.<br>
-     * The specified filters are only applied to those repository references derived from the
+     * added to the assembled repository. An arbitrary number of patterns can be specified.
+     * </p>
+     * <p>
+     * If the sub-property {@code addOnlyProviding} is set to {@code true} (the default), references
+     * to repositories that don't provide any relevant unit are excluded from being added to the
+     * assembled repository.
+     * </p>
+     * <p>
+     * All those filters are only applied to those repository references derived from the
      * target-definition or pom file, when {@link #addIUTargetRepositoryReferences} respectively
-     * {@link #addPomRepositoryReferences} is set to {@code true}.
+     * {@link #addPomRepositoryReferences} is set {@code true}. References explicitly listed in the
+     * repository file ({@code category.xml}) are always added.
      * </p>
      * <p>
      * Configuration example 1
      * 
      * <pre>
      * &lt;repositoryReferenceFilter&gt;
+     *   &lt;addOnlyProviding&gt;true&lt;/addOnlyProviding&gt;
      *   &lt;exclude&gt;https://foo.bar.org/hidden/**&lt;/exclude&gt;
      * &lt;/repositoryReferenceFilter&gt;
      * </pre>
@@ -246,6 +266,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
      * 
      * <pre>
      * &lt;repositoryReferenceFilter&gt;
+     *   &lt;addOnlyProviding&gt;false&lt;/addOnlyProviding&gt;
      *   &lt;exclude&gt;
      *     &lt;location&gt;https://foo.bar.org/hidden/**&lt;/location&gt;
      *     &lt;location&gt;%regex[http(s)?:\/\/foo\.bar\.org\/secret\/.*]&lt;/location&gt;
@@ -259,7 +280,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
      * {@code %regex[<the-regex-pattern>]}). <br>
      * The third pattern is a negated (enclosed in {@code ![<the-negated-pattern>]}), which
      * effectively makes it an <em>inclusion</em> pattern that all references must match in order to
-     * be added.
+     * be added. Unlike in the first example, in the second example all references that pass the
+     * location filter are added, regardless of if the provide any unit or not.
      * </p>
      */
     @Parameter
@@ -312,14 +334,15 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                         .map(Category::getRepositoryReferences)//
                         .flatMap(List::stream)//
                         .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
-                        .collect(Collectors.toCollection(ArrayList::new));
+                        .toList();
                 Predicate<String> autoReferencesFilter = buildRepositoryReferenceLocationFilter();
+                List<RepositoryReference> autoRepositoryRefeferences = new ArrayList<>();
                 if (addPomRepositoryReferences) {
                     getProject().getRepositories().stream() //
                             .filter(pomRepo -> "p2".equals(pomRepo.getLayout()))
                             .filter(pomRepo -> autoReferencesFilter.test(pomRepo.getUrl()))
                             .map(pomRepo -> new RepositoryReference(pomRepo.getName(), pomRepo.getUrl(), true))
-                            .forEach(repositoryReferences::add);
+                            .forEach(autoRepositoryRefeferences::add);
                 }
                 if (addIUTargetRepositoryReferences) {
                     projectManager.getTargetPlatformConfiguration(getProject()).getTargets().stream()
@@ -328,14 +351,15 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                             .flatMap(iu -> iu.getRepositories().stream())
                             .filter(iuRepo -> autoReferencesFilter.test(iuRepo.getLocation()))
                             .map(iuRepo -> new RepositoryReference(null, iuRepo.getLocation(), true))
-                            .forEach(repositoryReferences::add);
+                            .forEach(autoRepositoryRefeferences::add);
                 }
                 DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
                         destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
-                        !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryReferences);
+                        !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryReferences,
+                        autoRepositoryRefeferences);
                 mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                         includeAllDependencies, includeAllSources, includeRequiredPlugins, includeRequiredFeatures,
-                        filterProvided, profileProperties);
+                        filterProvided, repositoryReferenceFilter.addOnlyProviding, profileProperties);
                 if (generateOSGiRepository) {
                     XMLResourceGenerator resourceGenerator = new XMLResourceGenerator();
                     resourceGenerator.name(repositoryName);

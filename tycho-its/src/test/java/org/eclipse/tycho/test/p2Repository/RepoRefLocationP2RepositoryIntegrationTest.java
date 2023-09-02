@@ -22,7 +22,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.List;
+import java.util.function.Consumer;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
@@ -34,13 +36,10 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 
 	@Test
 	public void testRefLocation() throws Exception {
-		Verifier verifier = getVerifier("/p2Repository.repositoryRef.location", false);
-		verifier.addCliOption("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
-		verifier.executeGoal("package");
-		verifier.verifyErrorFreeLog();
 
-		P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
-		List<RepositoryReference> allRepositoryReferences = p2Repo.getAllRepositoryReferences();
+		List<RepositoryReference> allRepositoryReferences = buildAndGetRepositoryReferences(
+				"/p2Repository.repositoryRef.location",
+				v -> v.addCliOption("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString()));
 
 		assertEquals(4, allRepositoryReferences.size());
 		assertThat(allRepositoryReferences,
@@ -56,19 +55,45 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 		// references, but it makes the test simple/faster instead of preparing a
 		// target-definition with IU-location so that it can be added automatically,
 		// which is the main use-case.
-		Verifier verifier = getVerifier("/p2Repository.repositoryRef.filter", false);
-		verifier.executeGoal("package");
-		verifier.verifyErrorFreeLog();
-
-		P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
-		List<RepositoryReference> allRepositoryReferences = p2Repo.getAllRepositoryReferences();
-
+		List<RepositoryReference> allRepositoryReferences = buildAndGetRepositoryReferences(
+				"/p2Repository.repositoryRef.filter", c -> {
+				});
 		assertEquals(4, allRepositoryReferences.size());
 		assertThat(allRepositoryReferences, containsInAnyOrder( //
 				new RepositoryReference("https://download.eclipse.org/tm4e/releases/0.8.1", TYPE_ARTIFACT, ENABLED),
 				new RepositoryReference("https://download.eclipse.org/tm4e/releases/0.8.1", TYPE_METADATA, ENABLED),
 				new RepositoryReference("https://some.where/from/category", TYPE_ARTIFACT, ENABLED),
 				new RepositoryReference("https://some.where/from/category", TYPE_METADATA, ENABLED)));
+	}
+
+	@Test
+	public void testAdditionOfOnlyProvidingRepos() throws Exception {
+		// Of course it is actually a bit pointless to filter explicitly specified
+		// references, but it makes the test simple/faster instead of preparing a
+		// target-definition with IU-location so that it can be added automatically,
+		// which is the main use-case.
+		List<RepositoryReference> allRepositoryReferences = buildAndGetRepositoryReferences(
+				"/p2Repository.repositoryRef.filter.providing", c -> {
+				});
+
+		assertEquals(4, allRepositoryReferences.size());
+		assertThat(allRepositoryReferences, containsInAnyOrder( //
+				new RepositoryReference("https://download.eclipse.org/eclipse/updates/4.29", TYPE_ARTIFACT, ENABLED),
+				new RepositoryReference("https://download.eclipse.org/eclipse/updates/4.29", TYPE_METADATA, ENABLED),
+				new RepositoryReference("https://download.eclipse.org/cbi/updates/license", TYPE_ARTIFACT, ENABLED),
+				new RepositoryReference("https://download.eclipse.org/cbi/updates/license", TYPE_METADATA, ENABLED)));
+	}
+
+	private List<RepositoryReference> buildAndGetRepositoryReferences(String buildRoot, Consumer<Verifier> setup)
+			throws Exception, VerificationException {
+		Verifier verifier = getVerifier(buildRoot, false);
+		setup.accept(verifier);
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+
+		P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
+		List<RepositoryReference> allRepositoryReferences = p2Repo.getAllRepositoryReferences();
+		return allRepositoryReferences;
 	}
 
 }

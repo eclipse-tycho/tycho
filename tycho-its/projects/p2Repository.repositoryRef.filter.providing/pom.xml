@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<version>1.0.0</version>
+	<groupId>tycho-its-project.p2Repository.repositoryRef.location</groupId>
+	<artifactId>repositoryRef.location</artifactId>
+	<packaging>eclipse-repository</packaging>
+
+	<repositories>
+		<!-- Add one that is removed because it contributes nothing, it's content is entirly provided by another. And one that would be removed but is added to the  category explicity-->
+		<repository>
+			<id>repo0</id>
+			<url>https://download.eclipse.org/eclipse/updates/4.29/</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>repo-provided-by-others</id>
+			<url>https://download.eclipse.org/modeling/emf/emf/builds/release/2.35.0</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>an-unused-repo</id>
+			<url>https://download.eclipse.org/egit/updates-6.7/</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>an-unused-repo-but-added-explicitly-in-category-xml</id>
+			<url>https://download.eclipse.org/cbi/updates/license</url>
+			<layout>p2</layout>
+		</repository>
+		
+	</repositories>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-repository-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<compress>false</compress>
+					<includeAllDependencies>true</includeAllDependencies>
+					<includeAllSources>true</includeAllSources>
+					<filterProvided>true</filterProvided>
+					<addPomRepositoryReferences>true</addPomRepositoryReferences>
+					<repositoryReferenceFilters>
+						<addOnlyProviding>true</addOnlyProviding>
+					</repositoryReferenceFilters>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

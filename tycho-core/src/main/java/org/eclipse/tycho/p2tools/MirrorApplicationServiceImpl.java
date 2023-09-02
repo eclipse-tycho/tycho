@@ -152,7 +152,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<DependencySeed> projectSeeds, BuildContext context, boolean includeAllDependencies,
             boolean includeAllSource, boolean includeRequiredBundles, boolean includeRequiredFeatures,
-            boolean filterProvided, Map<String, String> filterProperties) throws FacadeException {
+            boolean filterProvided, boolean addOnlyProvidingRepoReferences, Map<String, String> filterProperties)
+            throws FacadeException {
         final TychoMirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
 
         // mirror scope: seed units...
@@ -162,6 +163,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         mirrorApp.setIncludeRequiredBundles(includeRequiredBundles);
         mirrorApp.setIncludeRequiredFeatures(includeRequiredFeatures);
         mirrorApp.setFilterProvided(filterProvided);
+        mirrorApp.setAddOnlyProvidingRepoReferences(addOnlyProvidingRepoReferences);
         mirrorApp.setEnvironments(context.getEnvironments());
         SlicingOptions options = new SlicingOptions();
         options.considerStrictDependencyOnly(!includeAllDependencies);
