@@ -149,7 +149,7 @@ public class FileLockServiceTest {
     }
 
     private Path getLockMarkerFile(File file) {
-        return subject.getFileLocker(file.toPath()).lockMarkerFile;
+        return subject.getFileLocker(file.toPath()).fileLocker().lockMarkerFile;
     }
 
     private boolean isLocked(File file) throws IOException {

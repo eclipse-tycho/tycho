@@ -37,4 +37,10 @@ public interface FileLockService {
      * advisory only, i.e. all processes must use the same locking mechanism.
      */
     Closeable lock(File file, long timeout);
+
+    /**
+     * Locks the given file for this JVM to protect read/write access from multiple threads in this
+     * JVM on it.
+     */
+    Closeable lockVirtually(File file);
 }

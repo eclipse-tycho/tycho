@@ -30,6 +30,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.MatchPattern;
+import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
@@ -87,7 +88,6 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
         public List<String> exclude = List.of();
     }
 
-    private static final Object LOCK = new Object();
     /**
      * <p>
      * By default, this goal creates a p2 repository. Set this to <code>false</code> if only a p2
@@ -309,92 +309,91 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
     private EclipseRepositoryProject eclipseRepositoryProject;
+    @Component
+    private FileLockService fileLockService;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        synchronized (LOCK) {
-            try {
-                File destination = getAssemblyRepositoryLocation();
-                destination.mkdirs();
-                copyResources(destination);
+        File destination = getAssemblyRepositoryLocation();
+        try (var locking = fileLockService.lockVirtually(destination)) {
+            destination.mkdirs();
+            copyResources(destination);
 
-                final ReactorProject reactorProject = getReactorProject();
-                Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(reactorProject);
-                if (projectSeeds.isEmpty()) {
-                    getLog().warn("No content specified for p2 repository");
-                    return;
-                }
-
-                reactorProject.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, categoriesDirectory);
-                RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(getProject(),
-                        getSession(), RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
-                sources.setTargetPlatform(TychoProjectUtils.getTargetPlatform(getReactorProject()));
-
-                List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory).stream()//
-                        .map(Category::getRepositoryReferences)//
-                        .flatMap(List::stream)//
-                        .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
-                        .toList();
-                Predicate<String> autoReferencesFilter = buildRepositoryReferenceLocationFilter();
-                List<RepositoryReference> autoRepositoryRefeferences = new ArrayList<>();
-                if (addPomRepositoryReferences) {
-                    getProject().getRepositories().stream() //
-                            .filter(pomRepo -> "p2".equals(pomRepo.getLayout()))
-                            .filter(pomRepo -> autoReferencesFilter.test(pomRepo.getUrl()))
-                            .map(pomRepo -> new RepositoryReference(pomRepo.getName(), pomRepo.getUrl(), true))
-                            .forEach(autoRepositoryRefeferences::add);
-                }
-                if (addIUTargetRepositoryReferences) {
-                    projectManager.getTargetPlatformConfiguration(getProject()).getTargets().stream()
-                            .flatMap(tpFile -> tpFile.getLocations().stream())
-                            .filter(InstallableUnitLocation.class::isInstance).map(InstallableUnitLocation.class::cast)
-                            .flatMap(iu -> iu.getRepositories().stream())
-                            .filter(iuRepo -> autoReferencesFilter.test(iuRepo.getLocation()))
-                            .map(iuRepo -> new RepositoryReference(null, iuRepo.getLocation(), true))
-                            .forEach(autoRepositoryRefeferences::add);
-                }
-                DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
-                        destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
-                        !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryReferences,
-                        autoRepositoryRefeferences);
-                mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
-                        includeAllDependencies, includeAllSources, includeRequiredPlugins, includeRequiredFeatures,
-                        filterProvided, repositoryReferenceFilter.addOnlyProviding, profileProperties);
-                if (generateOSGiRepository) {
-                    XMLResourceGenerator resourceGenerator = new XMLResourceGenerator();
-                    resourceGenerator.name(repositoryName);
-                    resourceGenerator.base(destination.toURI());
-                    File plugins = new File(destination, "plugins");
-                    if (plugins.isDirectory()) {
-                        File[] files = plugins.listFiles(path -> path.getName().endsWith(".jar") && path.isFile());
-                        try {
-                            resourceGenerator.repository(new FileSetRepository("plugins", Arrays.asList(files)));
-                        } catch (Exception e) {
-                            throw new MojoExecutionException("Could not read p2 repository plugins", e);
-                        }
-                    }
-                    File features = new File(destination, "features");
-                    if (features.isDirectory()) {
-                        File[] files = features.listFiles(path -> path.getName().endsWith(".jar") && path.isFile());
-                        for (File featureFile : files) {
-                            try {
-                                Feature feature = Feature.readJar(featureFile);
-                                feature.toResource().forEach(resourceGenerator::resource);
-                            } catch (IOException e) {
-                                throw new MojoExecutionException("Could not read feature " + featureFile, e);
-                            }
-                        }
-                    }
-                    try {
-                        String filename = compress ? repositoryFileName + ".gz" : repositoryFileName;
-                        resourceGenerator.save(new File(destination, filename));
-                    } catch (IOException e) {
-                        throw new MojoExecutionException("Could not write OSGi Repository!", e);
-                    }
-                }
-            } catch (FacadeException e) {
-                throw new MojoExecutionException("Could not assemble p2 repository", e);
+            final ReactorProject reactorProject = getReactorProject();
+            Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(reactorProject);
+            if (projectSeeds.isEmpty()) {
+                getLog().warn("No content specified for p2 repository");
+                return;
             }
+
+            reactorProject.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, categoriesDirectory);
+            RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(),
+                    RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
+            sources.setTargetPlatform(TychoProjectUtils.getTargetPlatform(getReactorProject()));
+
+            List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory).stream()//
+                    .map(Category::getRepositoryReferences)//
+                    .flatMap(List::stream)//
+                    .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
+                    .toList();
+            Predicate<String> autoReferencesFilter = buildRepositoryReferenceLocationFilter();
+            List<RepositoryReference> autoRepositoryRefeferences = new ArrayList<>();
+            if (addPomRepositoryReferences) {
+                getProject().getRepositories().stream() //
+                        .filter(pomRepo -> "p2".equals(pomRepo.getLayout()))
+                        .filter(pomRepo -> autoReferencesFilter.test(pomRepo.getUrl()))
+                        .map(pomRepo -> new RepositoryReference(pomRepo.getName(), pomRepo.getUrl(), true))
+                        .forEach(autoRepositoryRefeferences::add);
+            }
+            if (addIUTargetRepositoryReferences) {
+                projectManager.getTargetPlatformConfiguration(getProject()).getTargets().stream()
+                        .flatMap(tpFile -> tpFile.getLocations().stream())
+                        .filter(InstallableUnitLocation.class::isInstance).map(InstallableUnitLocation.class::cast)
+                        .flatMap(iu -> iu.getRepositories().stream())
+                        .filter(iuRepo -> autoReferencesFilter.test(iuRepo.getLocation()))
+                        .map(iuRepo -> new RepositoryReference(null, iuRepo.getLocation(), true))
+                        .forEach(autoRepositoryRefeferences::add);
+            }
+            DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(destination,
+                    repositoryName, compress, xzCompress, keepNonXzIndexFiles, !createArtifactRepository, true,
+                    extraArtifactRepositoryProperties, repositoryReferences, autoRepositoryRefeferences);
+            mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
+                    includeAllDependencies, includeAllSources, includeRequiredPlugins, includeRequiredFeatures,
+                    filterProvided, repositoryReferenceFilter.addOnlyProviding, profileProperties);
+            if (generateOSGiRepository) {
+                XMLResourceGenerator resourceGenerator = new XMLResourceGenerator();
+                resourceGenerator.name(repositoryName);
+                resourceGenerator.base(destination.toURI());
+                File plugins = new File(destination, "plugins");
+                if (plugins.isDirectory()) {
+                    File[] files = plugins.listFiles(path -> path.getName().endsWith(".jar") && path.isFile());
+                    try {
+                        resourceGenerator.repository(new FileSetRepository("plugins", Arrays.asList(files)));
+                    } catch (Exception e) {
+                        throw new MojoExecutionException("Could not read p2 repository plugins", e);
+                    }
+                }
+                File features = new File(destination, "features");
+                if (features.isDirectory()) {
+                    File[] files = features.listFiles(path -> path.getName().endsWith(".jar") && path.isFile());
+                    for (File featureFile : files) {
+                        try {
+                            Feature feature = Feature.readJar(featureFile);
+                            feature.toResource().forEach(resourceGenerator::resource);
+                        } catch (IOException e) {
+                            throw new MojoExecutionException("Could not read feature " + featureFile, e);
+                        }
+                    }
+                }
+                try {
+                    String filename = compress ? repositoryFileName + ".gz" : repositoryFileName;
+                    resourceGenerator.save(new File(destination, filename));
+                } catch (IOException e) {
+                    throw new MojoExecutionException("Could not write OSGi Repository!", e);
+                }
+            }
+        } catch (IOException | FacadeException e) {
+            throw new MojoExecutionException("Could not assemble p2 repository", e);
         }
     }
 
