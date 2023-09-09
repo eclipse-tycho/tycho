@@ -1,6 +1,8 @@
 # Eclipse Tycho: Release notes
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
+If you are reading this in the browser, then you can quickly jump to specific versions by using the rightmost button above the headline: 
+![grafik](https://github.com/eclipse-tycho/tycho/assets/406876/7025e8cb-0cdb-4211-8239-fc01867923af)
 
 ## 5.0.0 (under development)
 
