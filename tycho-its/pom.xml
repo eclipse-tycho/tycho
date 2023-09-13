@@ -194,7 +194,7 @@
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>org.eclipse.jdt.core</artifactId>
-			<version>3.34.0</version>
+			<version>3.35.0</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- update site tests -->
