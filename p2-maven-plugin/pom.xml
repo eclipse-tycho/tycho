@@ -170,7 +170,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
-			<version>1.2.300</version>
+			<version>1.2.400</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
