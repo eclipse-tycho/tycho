@@ -58,7 +58,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.help.base</artifactId>
-			<version>4.4.0</version>
+			<version>4.4.100</version>
 		</dependency>
 	</dependencies>
 	<build>
