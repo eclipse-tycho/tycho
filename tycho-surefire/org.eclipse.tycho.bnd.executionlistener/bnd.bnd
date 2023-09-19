@@ -1,1 +1,5 @@
-Import-Package: org.osgi.service.component.*;resolution:=optional,*
+Import-Package: org.osgi.service.component.*;resolution:=optional,\
+	org.junit.platform.engine;version="[1.9,2)",\
+	org.junit.platform.launcher;version="[1.9,2)",\
+	org.osgi.framework;version="[1,2)",\
+	*
