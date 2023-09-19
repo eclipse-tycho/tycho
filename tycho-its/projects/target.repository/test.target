@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="repo">
+	<locations>
+		<location type="Repository" uri="https://devel.data-in-motion.biz/repository/gecko/release/geckoEMF/index.xml">
+			<require>osgi.identity;filter:='(osgi.identity=org.gecko.bnd.eclipse.bom)'</require>
+		</location>
+	</locations>
+</target>
