@@ -180,4 +180,11 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 	}
+
+	@Test
+	public void testTargetRepositoryLocation() throws Exception {
+		Verifier verifier = getVerifier("target.repository", false, true);
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
 }

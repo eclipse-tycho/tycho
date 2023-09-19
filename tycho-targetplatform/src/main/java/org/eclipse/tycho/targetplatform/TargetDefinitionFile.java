@@ -51,12 +51,16 @@ import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation.DependencyDepth;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation.MissingManifestStrategy;
+import org.osgi.resource.Requirement;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.resource.CapReqBuilder;
 
 public final class TargetDefinitionFile implements TargetDefinition {
 
@@ -160,6 +164,28 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
 
     }
+
+	private static final class OSGIRepositoryLocation implements TargetDefinition.RepositoryLocation {
+
+		private String uri;
+		private Collection<Requirement> requirements;
+
+		public OSGIRepositoryLocation(String uri, Collection<Requirement> requirements) {
+			this.uri = uri;
+			this.requirements = requirements;
+		}
+
+		@Override
+		public String getUri() {
+			return uri;
+		}
+
+		@Override
+		public Collection<Requirement> getRequirements() {
+			return requirements;
+		}
+
+	}
 
     private static class MavenLocation implements TargetDefinition.MavenGAVLocation {
 
@@ -581,6 +607,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
                     locations.add(parseMavenLocation(locationDom));
                 } else if ("Target".equals(type)) {
                     locations.add(new TargetRef(locationDom.getAttribute("uri")));
+				} else if (TargetDefinition.RepositoryLocation.TYPE.equals(type)) {
+					locations.add(parseRepositoryLocation(locationDom));
                 } else {
                     locations.add(new OtherLocation(type));
                 }
@@ -588,6 +616,20 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
         return Collections.unmodifiableList(locations);
     }
+
+	private static TargetDefinition.RepositoryLocation parseRepositoryLocation(Element dom) {
+		String uri = dom.getAttribute("uri");
+		NodeList childNodes = dom.getChildNodes();
+		List<Requirement> requirements = IntStream.range(0, childNodes.getLength()).mapToObj(childNodes::item)
+				.filter(Element.class::isInstance).map(Element.class::cast)
+				.filter(element -> element.getNodeName().equalsIgnoreCase("require"))
+				.flatMap(element -> {
+					String textContent = element.getTextContent();
+					Parameters parameters = new Parameters(textContent);
+					return CapReqBuilder.getRequirementsFrom(parameters).stream();
+				}).toList();
+		return new OSGIRepositoryLocation(uri, requirements);
+	}
 
     private static MavenLocation parseMavenLocation(Element dom) {
         Set<String> globalExcludes = new LinkedHashSet<>();
