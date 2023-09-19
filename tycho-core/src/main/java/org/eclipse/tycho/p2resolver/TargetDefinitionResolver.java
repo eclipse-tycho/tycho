@@ -62,6 +62,7 @@ import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.PathLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.ProfileLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
+import org.eclipse.tycho.targetplatform.TargetDefinition.RepositoryLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.TargetReferenceLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
@@ -131,6 +132,7 @@ public final class TargetDefinitionResolver {
         Map<String, URITargetDefinitionContent> uriRepositories = new LinkedHashMap<>();
         List<TargetDefinitionContent> mavenLocations = new ArrayList<>();
         List<TargetDefinitionContent> referencedTargetLocations = new ArrayList<>();
+        List<TargetDefinitionContent> repositorytLocations = new ArrayList<>();
         for (Location locationDefinition : definition.getLocations()) {
             if (locationDefinition instanceof InstallableUnitLocation installableUnitLocation) {
                 if (installableUnitResolver == null) {
@@ -201,6 +203,22 @@ public final class TargetDefinitionResolver {
                         new LoggingProgressMonitor(logger));
                 unitResultSet.addAll(result);
                 referencedTargetLocations.add(content);
+            } else if (locationDefinition instanceof RepositoryLocation repositoryLocation) {
+                URI resolvedUri;
+                String uri = repositoryLocation.getUri();
+                try {
+                    resolvedUri = new URI(convertRawToUri(resolvePath(uri, definition)));
+                } catch (URISyntaxException e) {
+                    throw new ResolverException("Invalid URI " + resolvePath(uri, definition) + ": " + e.getMessage(),
+                            e);
+                }
+                logger.info("Loading " + resolvedUri + "...");
+                RepositoryLocationContent content = new RepositoryLocationContent(resolvedUri,
+                        repositoryLocation.getRequirements(), provisioningAgent, logger);
+                repositorytLocations.add(content);
+                IQueryResult<IInstallableUnit> result = content.query(QueryUtil.ALL_UNITS,
+                        new LoggingProgressMonitor(logger));
+                unitResultSet.addAll(result);
             } else {
                 logger.warn("Target location type '" + locationDefinition.getTypeDescription() + "' is not supported");
             }
@@ -231,6 +249,11 @@ public final class TargetDefinitionResolver {
         }
         //preliminary step: add all referenced targets:
         for (TargetDefinitionContent referenceContent : referencedTargetLocations) {
+            metadataRepositories.add(referenceContent.getMetadataRepository());
+            artifactRepositories.add(referenceContent.getArtifactRepository());
+        }
+        //preliminary step: add all repository locations:
+        for (TargetDefinitionContent referenceContent : repositorytLocations) {
             metadataRepositories.add(referenceContent.getMetadataRepository());
             artifactRepositories.add(referenceContent.getArtifactRepository());
         }
