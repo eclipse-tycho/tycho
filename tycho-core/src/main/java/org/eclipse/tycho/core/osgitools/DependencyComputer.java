@@ -119,6 +119,11 @@ public class DependencyComputer {
         public Version getVersion() {
             return getRevision().getVersion();
         }
+
+        @Override
+        public String toString() {
+            return "DependencyEntry [module=" + module + ", rules=" + rules + "]";
+        }
     }
 
     private final class VisiblePackages {
@@ -182,7 +187,7 @@ public class DependencyComputer {
         // sort by symbolicName_version to get a consistent order
         Map<String, BundleRevision> resolvedImportPackages = new TreeMap<>();
         for (BundleRevision bundle : visiblePackages.getParticipatingModules()) {
-            resolvedImportPackages.put(bundle.getSymbolicName(), bundle);
+            resolvedImportPackages.put(bundle.getSymbolicName() + "_" + bundle.getVersion(), bundle);
         }
         for (BundleRevision bundle : resolvedImportPackages.values()) {
             addDependencyViaImportPackage(bundle, added, visiblePackages, entries);
