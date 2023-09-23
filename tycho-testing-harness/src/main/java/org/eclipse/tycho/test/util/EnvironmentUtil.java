@@ -36,7 +36,7 @@ public class EnvironmentUtil {
 
     private static final String MAVEN_HOME_INFO = "Maven home:";
 
-    public static final String ECLIPSE_LATEST = "https:////download.eclipse.org/releases/2022-12/";
+    public static final String ECLIPSE_LATEST = "https:////download.eclipse.org/releases/2023-09/";
 
     private static final Properties props;
 
