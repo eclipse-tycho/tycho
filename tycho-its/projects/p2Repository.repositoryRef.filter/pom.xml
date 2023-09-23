@@ -45,8 +45,8 @@
 						<exclude>
 							<location>https://download.eclipse.org/lsp4e/**</location>
 							<location>https://download.eclipse.org/lsp4j/**</location>
+							<location>![%regex[http(s)?:\/\/download\.eclipse\.org\/.*]]</location>
 						</exclude>
-						<include>%regex[http(s)?:\/\/download\.eclipse\.org\/.*]</include>
 					</repositoryReferenceFilter>
 				</configuration>
 			</plugin>
