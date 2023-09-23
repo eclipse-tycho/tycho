@@ -12,7 +12,7 @@
 		<module>bundle2</module>
 	</modules>
 	<properties>
-		<target-platform>https://download.eclipse.org/releases/2023-06/</target-platform>
+		<target-platform>https://download.eclipse.org/releases/2023-09/</target-platform>
 	</properties>
 	<repositories>
 		<repository>
