@@ -51,7 +51,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildDirectory;
-import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.repository.GAV;
@@ -164,28 +163,24 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         mirrorApp.setIncludeRequiredFeatures(includeRequiredFeatures);
         mirrorApp.setIncludePacked(false); // no way, Tycho do no longer support packed artifacts anyways
         mirrorApp.setFilterProvided(filterProvided);
-        // TODO the p2 mirror tool should support mirroring multiple environments at once
-        for (TargetEnvironment environment : context.getEnvironments()) {
-            SlicingOptions options = new SlicingOptions();
-            options.considerStrictDependencyOnly(!includeAllDependencies);
-            Map<String, String> filter = options.getFilter();
-            addFilterForFeatureJARs(filter);
-            if (filterProperties != null) {
-                filter.putAll(filterProperties);
-            }
-            filter.putAll(environment.toFilterProperties());
-            mirrorApp.setSlicingOptions(options);
+        mirrorApp.setEnvironments(context.getEnvironments());
+        SlicingOptions options = new SlicingOptions();
+        options.considerStrictDependencyOnly(!includeAllDependencies);
+        Map<String, String> filter = options.getFilter();
+        addFilterForFeatureJARs(filter);
+        if (filterProperties != null) {
+            filter.putAll(filterProperties);
+        }
+        mirrorApp.setSlicingOptions(options);
+        try {
+            LogListener logListener = new LogListener(logger);
+            mirrorApp.setLog(logListener);
 
-            try {
-                LogListener logListener = new LogListener(logger);
-                mirrorApp.setLog(logListener);
-
-                IStatus returnStatus = mirrorApp.run(null);
-                checkStatus(returnStatus, false);
-                logListener.showHelpForLoggedMessages();
-            } catch (ProvisionException e) {
-                throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
-            }
+            IStatus returnStatus = mirrorApp.run(null);
+            checkStatus(returnStatus, false);
+            logListener.showHelpForLoggedMessages();
+        } catch (ProvisionException e) {
+            throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
         }
         recreateArtifactRepository(destination);
     }
