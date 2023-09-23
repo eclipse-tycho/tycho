@@ -40,9 +40,9 @@ can now be filtered by their location using exclusion and inclusion patterns and
 		<repositoryReferenceFilter>
 			<exclude>
 				<location>https://foo.bar.org/hidden/**</location>
-				<location>https://foo.bar.org/secret/**</location>
+				<location> %regex[http(s)?:\/\/foo\.bar\.org\/secret\/.*]</location>
+				<location>![https://foo.bar.org/**]</location>
 			</exclude>
-			<include>%regex[http(s)?:\/\/foo\.bar\.org\/.*]</include>
 		</repositoryReferenceFilter>
 	</configuration>
 </plugin>
