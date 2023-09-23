@@ -30,7 +30,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.MatchPatterns;
+import org.codehaus.plexus.util.MatchPattern;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
@@ -75,8 +75,8 @@ import aQute.bnd.repository.fileset.FileSetRepository;
 public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     public static class RepositoryReferenceFilter {
-        List<String> exclude;
-        List<String> include;
+        /** The list of location patterns that exclude matching repository references. */
+        List<String> exclude = List.of();
     }
 
     private static final Object LOCK = new Object();
@@ -224,38 +224,46 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     private boolean addIUTargetRepositoryReferences;
 
     /**
-     * A list of patterns to filter the automatically derived repository references by including or
-     * excluding their location to control if they are eventually added to the assembled repository.
+     * A list of patterns to exclude automatically derived repository references from being added to
+     * the assembled repository.
      * <p>
-     * Each pattern is either an <em>inclusion</em> or <em>exclusion</em> and an arbitrary number of
-     * each can be specified. The location of a repository reference must match at least one
-     * <em>inclusion</em>-pattern (if any is specified) and must not be match by any
-     * <em>exclusion</em>-pattern, in order to be eventually added to the assembled repository.<br>
+     * The location of a reference must not be matched by any pattern, in order to be eventually
+     * added to the assembled repository. An arbitrary number of patterns can be specified.<br>
      * The specified filters are only applied to those repository references derived from the
      * target-definition or pom file, when {@link #addIUTargetRepositoryReferences} respectively
      * {@link #addPomRepositoryReferences} is set to {@code true}.
      * </p>
      * <p>
-     * Configuration example
+     * Configuration example 1
+     * 
+     * <pre>
+     * &lt;repositoryReferenceFilter&gt;
+     *   &lt;exclude&gt;https://foo.bar.org/hidden/**&lt;/exclude&gt;
+     * &lt;/repositoryReferenceFilter&gt;
+     * </pre>
+     * 
+     * Configuration example 2
      * 
      * <pre>
      * &lt;repositoryReferenceFilter&gt;
      *   &lt;exclude&gt;
      *     &lt;location&gt;https://foo.bar.org/hidden/**&lt;/location&gt;
-     *     &lt;location&gt;https://foo.bar.org/secret/**&lt;/location&gt;
+     *     &lt;location&gt;%regex[http(s)?:\/\/foo\.bar\.org\/secret\/.*]&lt;/location&gt;
+     *     &lt;location&gt;![https://foo.bar.org/**]&lt;/location&gt;
      *   &lt;/exclude&gt;
-     *   &lt;include&gt;%regex[http(s)?:\/\/foo\.bar\.org\/.*]&lt;/include&gt;
      * &lt;/repositoryReferenceFilter&gt;
      * </pre>
      * 
-     * It contains two <em>exclusion</em> patterns using {@code ANT}-style syntax and one
-     * <em>inclusion</em> using a {@code Java RegEx} {@link Pattern} (enclosed in
-     * {@code %regex[<the-regex-pattern>]}). The <em>inclusion</em> pattern uses the shorthand
-     * notation for singleton lists.
+     * In the second example the first of the three patterns uses {@code ANT}-style syntax, the
+     * second one uses a {@code Java RegEx} {@link Pattern} (enclosed in
+     * {@code %regex[<the-regex-pattern>]}). <br>
+     * The third pattern is a negated (enclosed in {@code ![<the-negated-pattern>]}), which
+     * effectively makes it an <em>inclusion</em> pattern that all references must match in order to
+     * be added.
      * </p>
      */
     @Parameter
-    private RepositoryReferenceFilter repositoryReferenceFilter = null;
+    private RepositoryReferenceFilter repositoryReferenceFilter = new RepositoryReferenceFilter();
 
     /**
      * If enabled, an
@@ -383,19 +391,17 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     }
 
     private Predicate<String> buildRepositoryReferenceLocationFilter() {
-        Predicate<String> filter = l -> true;
-        if (repositoryReferenceFilter != null) {
-            if (repositoryReferenceFilter.include != null && !repositoryReferenceFilter.include.isEmpty()) {
-                MatchPatterns inclusionPattern = MatchPatterns.from(repositoryReferenceFilter.include);
-                filter = l -> inclusionPattern.matches(l, true);
-            }
-            if (repositoryReferenceFilter.exclude != null && !repositoryReferenceFilter.exclude.isEmpty()) {
-                MatchPatterns exclusionPattern = MatchPatterns.from(repositoryReferenceFilter.exclude);
-                Predicate<String> exclusionFilter = l -> !exclusionPattern.matches(l, true);
-                filter = filter.and(exclusionFilter);
-            }
-        }
-        return filter;
+        List<Predicate<String>> filters = repositoryReferenceFilter.exclude.stream()
+                .<Predicate<String>> map(exclusionPattern -> {
+                    boolean isNegated = false;
+                    if (exclusionPattern.startsWith("![") && exclusionPattern.endsWith("]")) {
+                        exclusionPattern = exclusionPattern.substring(2, exclusionPattern.length() - 1);
+                        isNegated = true;
+                    }
+                    MatchPattern pattern = MatchPattern.fromString(exclusionPattern);
+                    return isNegated ? ref -> !pattern.matchPath(ref, true) : ref -> pattern.matchPath(ref, true);
+                }).toList();
+        return ref -> filters.stream().noneMatch(f -> f.test(ref));
     }
 
 }
