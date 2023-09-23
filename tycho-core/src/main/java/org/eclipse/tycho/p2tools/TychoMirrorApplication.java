@@ -9,6 +9,7 @@
  *
  * Contributors:
  *     SAP SE - initial API and implementation
+ *     Hannes Wellmann - Assemble repository for all environments in one pass
  *******************************************************************************/
 package org.eclipse.tycho.p2tools;
 
@@ -29,6 +30,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
@@ -82,13 +85,16 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
 
     @Override
     protected Slicer createSlicer(SlicingOptions options) {
-        Map<String, String> context = options.getFilter();
+        List<Map<String, String>> filters = getContextFilters();
+        List<IInstallableUnit> selectionContexts = filters.stream().map(InstallableUnit::contextIU).toList();
         boolean includeOptionalDependencies = options.includeOptionalDependencies();
         boolean onlyFilteredRequirements = options.followOnlyFilteredRequirements();
-        boolean considerFilter = context != null && context.size() > 1;
+        boolean considerFilter = filters.stream().anyMatch(f -> f.size() > 1);
+        boolean evalFilterTo = options.forceFilterTo();
         IMetadataRepository repository = getCompositeMetadataRepository();
-        return new PermissiveSlicer(repository, context, includeOptionalDependencies, options.isEverythingGreedy(),
-                options.forceFilterTo(), options.considerStrictDependencyOnly(), onlyFilteredRequirements) {
+        boolean considerOnlyStrictDependency = options.considerStrictDependencyOnly();
+        return new PermissiveSlicer(repository, filters.get(0), includeOptionalDependencies,
+                options.isEverythingGreedy(), evalFilterTo, considerOnlyStrictDependency, onlyFilteredRequirements) {
             @Override
             protected boolean isApplicable(IInstallableUnit iu, IRequirement req) {
                 if ((includeRequiredBundles || includeRequiredFeatures) && QueryUtil.isGroup(iu)
@@ -103,15 +109,43 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
                         if (onlyFilteredRequirements && filter == null) {
                             return false;
                         }
-                        return !considerFilter || filter == null || filter.isMatch(selectionContext);
+                        return !considerFilter || filter == null || matchesSelectionContext(filter);
                     }
                 }
-                return super.isApplicable(req);
+                return isApplicable(req);
             }
 
             @Override
             protected boolean isApplicable(IRequirement req) {
-                throw new UnsupportedOperationException("should never be called!");
+                //Every filter in this method needs to continue except when the filter does not pass
+                if (!includeOptionalDependencies && req.getMin() == 0) {
+                    return false;
+                }
+                if (considerOnlyStrictDependency && !RequiredCapability.isStrictVersionRequirement(req.getMatches())) {
+                    return false;
+                }
+                //deal with filters
+                IMatchExpression<IInstallableUnit> filter = req.getFilter();
+                if (considerFilter) {
+                    if (onlyFilteredRequirements && filter == null) {
+                        return false;
+                    }
+                    return filter == null || matchesSelectionContext(filter);
+                }
+                return filter == null ? !onlyFilteredRequirements : evalFilterTo;
+            }
+
+            @Override
+            protected boolean isApplicable(IInstallableUnit iu) {
+                if (considerFilter) {
+                    IMatchExpression<IInstallableUnit> filter = iu.getFilter();
+                    return filter == null || matchesSelectionContext(filter);
+                }
+                return iu.getFilter() == null || evalFilterTo;
+            }
+
+            private boolean matchesSelectionContext(IMatchExpression<IInstallableUnit> filter) {
+                return selectionContexts.stream().anyMatch(filter::isMatch);
             }
 
             @Override
