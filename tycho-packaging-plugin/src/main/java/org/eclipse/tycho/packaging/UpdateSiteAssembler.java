@@ -28,7 +28,6 @@ import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.FileLockService;
-import org.eclipse.tycho.FileLocker;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.FeatureDescription;
@@ -199,15 +198,11 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
 
         unzip.setSourceFile(location);
         unzip.setDestDirectory(outputJar);
-        FileLocker locker = fileLockService.getFileLocker(location);
-        locker.lock();
-        try {
+		try (var locked = fileLockService.lock(location)) {
             unzip.extract();
-        } catch (ArchiverException e) {
+		} catch (ArchiverException | IOException e) {
             throw new RuntimeException("Could not unpack jar", e);
-        } finally {
-            locker.release();
-        }
+		}
     }
 
     private void copyDir(File location, File outputJar) {
