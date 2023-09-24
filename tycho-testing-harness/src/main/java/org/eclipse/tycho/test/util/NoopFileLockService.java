@@ -13,29 +13,16 @@
 
 package org.eclipse.tycho.test.util;
 
+import java.io.Closeable;
 import java.io.File;
 
 import org.eclipse.tycho.FileLockService;
-import org.eclipse.tycho.FileLocker;
-import org.eclipse.tycho.LockTimeoutException;
 
 public class NoopFileLockService implements FileLockService {
 
     @Override
-    public FileLocker getFileLocker(File file) {
-        return new FileLocker() {
-
-            @Override
-            public void release() {
-            }
-
-            @Override
-            public void lock() {
-            }
-
-            @Override
-            public void lock(long timeout) throws LockTimeoutException {
-            }
+    public Closeable lock(File file, long timeout) {
+        return () -> {
         };
     }
 

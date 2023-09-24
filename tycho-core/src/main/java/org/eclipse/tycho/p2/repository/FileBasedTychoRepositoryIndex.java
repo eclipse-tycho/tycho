@@ -30,7 +30,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.tycho.FileLockService;
-import org.eclipse.tycho.FileLocker;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 
@@ -47,7 +46,7 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
 
     private final File indexFile;
     private final MavenLogger logger;
-    private FileLocker fileLocker;
+    private final FileLockService fileLockService;
 
     private Set<GAV> addedGavs = new HashSet<>();
     private Set<GAV> removedGavs = new HashSet<>();
@@ -58,26 +57,15 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
         super();
         this.indexFile = indexFile;
         this.mavenContext = mavenContext;
-        this.fileLocker = fileLockService.getFileLocker(indexFile);
+        this.fileLockService = fileLockService;
         this.logger = mavenContext.getLogger();
         if (indexFile.isFile()) {
-            lock();
-            try {
+            try (var locked = fileLockService.lock(indexFile)) {
                 gavs = read(new FileInputStream(indexFile));
             } catch (IOException e) {
                 throw new RuntimeException(e);
-            } finally {
-                unlock();
             }
         }
-    }
-
-    private void lock() {
-        fileLocker.lock();
-    }
-
-    private void unlock() {
-        fileLocker.release();
     }
 
     @Override
@@ -118,8 +106,7 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
         if (!parentDir.isDirectory()) {
             parentDir.mkdirs();
         }
-        lock();
-        try {
+        try (var locked = fileLockService.lock(indexFile)) {
             reconcile();
             // minimize time window for corrupting the file by first writing to a temp file, then moving it
             File tempFile = File.createTempFile("index", "tmp", indexFile.getParentFile());
@@ -128,8 +115,6 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
                 indexFile.delete();
             }
             tempFile.renameTo(indexFile);
-        } finally {
-            unlock();
         }
     }
 

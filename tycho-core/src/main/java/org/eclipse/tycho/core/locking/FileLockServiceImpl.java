@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 SAP AG and others.
+ * Copyright (c) 2011, 2023 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,8 +13,10 @@
 
 package org.eclipse.tycho.core.locking;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,17 +26,23 @@ import org.eclipse.tycho.FileLockService;
 @Component(role = FileLockService.class)
 public class FileLockServiceImpl implements FileLockService {
 
-    private final Map<String, FileLockerImpl> lockers = new ConcurrentHashMap<>();
+    private final Map<Path, FileLockerImpl> lockers = new ConcurrentHashMap<>();
 
     @Override
-    public FileLockerImpl getFileLocker(File file) {
-        String key;
+    public Closeable lock(File file, long timeout) {
+        FileLockerImpl locker = getFileLocker(file.toPath());
+        locker.lock(timeout);
+        return locker::release;
+    }
+
+    FileLockerImpl getFileLocker(Path file) {
+        Path key;
         try {
-            key = file.getCanonicalPath();
+            key = file.toRealPath();
         } catch (IOException e) {
-            key = file.getAbsolutePath();
+            key = file.toAbsolutePath().normalize();
         }
-        return lockers.computeIfAbsent(key, k -> new FileLockerImpl(file));
+        return lockers.computeIfAbsent(key, FileLockerImpl::new);
     }
 
 }

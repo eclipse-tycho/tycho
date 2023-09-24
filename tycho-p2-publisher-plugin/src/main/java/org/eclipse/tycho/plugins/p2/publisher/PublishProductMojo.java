@@ -21,14 +21,17 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.*;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.FileLockService;
-import org.eclipse.tycho.FileLocker;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.PlatformPropertiesUtils;
@@ -129,19 +132,15 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 return unzipped.getAbsoluteFile();
             }
             try {
-                FileLocker locker = fileLockService.getFileLocker(equinoxExecFeature);
-                locker.lock();
-                try {
+                try (var locked = fileLockService.lock(equinoxExecFeature)) {
                     // unzip now then:
                     unzipped.mkdirs();
                     deflater.setSourceFile(equinoxExecFeature);
                     deflater.setDestDirectory(unzipped);
                     deflater.extract();
                     return unzipped.getAbsoluteFile();
-                } finally {
-                    locker.release();
                 }
-            } catch (ArchiverException e) {
+            } catch (ArchiverException | IOException e) {
                 throw new MojoFailureException("Unable to unzip the equinox executable feature", e);
             }
         }
