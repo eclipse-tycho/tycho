@@ -201,7 +201,11 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 			File jarFile = new File(project.getBasedir(), jarName);
 			JarArchiver archiver = new JarArchiver();
 			archiver.setDestFile(jarFile);
-			archiver.addDirectory(jar.getOutputDirectory());
+			File outputDirectory = jar.getOutputDirectory();
+			if (!outputDirectory.mkdirs() && !outputDirectory.exists()) {
+				throw new IOException("creating output directory " + outputDirectory.getAbsolutePath() + " failed");
+			}
+			archiver.addDirectory(outputDirectory);
 			if (customManifest != null) {
 				for (File sourceFolder : jar.getSourceFolders()) {
 					File manifestFile = new File(sourceFolder, customManifest);
