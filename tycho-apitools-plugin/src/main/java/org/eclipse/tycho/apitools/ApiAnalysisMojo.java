@@ -77,8 +77,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 
 	static final String BUNDLE_CORE = "org.eclipse.core.runtime";
 
-	private static final String REPO_DEFAULT = "https://download.eclipse.org/releases/2023-06/";
-
 	@Parameter(property = "plugin.artifacts")
 	protected List<Artifact> pluginArtifacts;
 
@@ -183,7 +181,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 
 	private MavenRepositoryLocation getRepository() {
 		if (apiToolsRepository == null || apiToolsRepository.getUrl() == null) {
-			return new MavenRepositoryLocation(null, URI.create(REPO_DEFAULT));
+			return new MavenRepositoryLocation(null, URI.create(TychoConstants.ECLIPSE_LATEST));
 		}
 		return new MavenRepositoryLocation(apiToolsRepository.getId(), URI.create(apiToolsRepository.getUrl()));
 	}

@@ -16,6 +16,9 @@ package org.eclipse.tycho;
 import java.util.regex.Pattern;
 
 public interface TychoConstants {
+
+    public static final String ECLIPSE_LATEST = "https://download.eclipse.org/releases/2023-09/";
+
     static final String ANY_QUALIFIER = "qualifier";
 
     static final boolean USE_SMART_BUILDER = Boolean
