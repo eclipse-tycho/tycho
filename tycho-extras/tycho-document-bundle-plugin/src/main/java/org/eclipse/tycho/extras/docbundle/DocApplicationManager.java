@@ -20,16 +20,16 @@ import org.apache.maven.model.Repository;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
 import org.eclipse.tycho.osgi.framework.EclipseApplicationFactory;
 
 @Component(role = DocApplicationManager.class)
 public class DocApplicationManager {
-	private static final String REPO_DEFAULT = "https://download.eclipse.org/releases/2023-03/";
 
 	static MavenRepositoryLocation getRepository(Repository location) {
 		if (location == null) {
-			return new MavenRepositoryLocation(null, URI.create(REPO_DEFAULT));
+			return new MavenRepositoryLocation(null, URI.create(TychoConstants.ECLIPSE_LATEST));
 		}
 		return new MavenRepositoryLocation(location.getId(), URI.create(location.getUrl()));
 	}
