@@ -42,6 +42,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -107,6 +108,7 @@ import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
+import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
@@ -224,12 +226,16 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
         //add maven junit bundles...
         List<MavenArtifactKey> junitBundles = getMissingJunitBundles(project, externalUIs);
+        MissingBundlesArtifactFileProvider extraMavenBundles = new MissingBundlesArtifactFileProvider();
         for (MavenArtifactKey mavenArtifactKey : junitBundles) {
             Optional<ResolvedArtifactKey> mavenBundle = mavenBundleResolver.resolveMavenBundle(
                     project.adapt(MavenProject.class), project.adapt(MavenSession.class), mavenArtifactKey);
-            mavenBundle.map(ResolvedArtifactKey::getLocation).flatMap(bundleFile -> {
+            mavenBundle.flatMap(key -> {
+                File bundleFile = key.getLocation();
                 try {
-                    Optional<IInstallableUnit> iu = BundlePublisher.getBundleIU(bundleFile);
+                    MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifactKey.getGroupId(),
+                            mavenArtifactKey.getArtifactId(), key.getVersion());
+                    Optional<IInstallableUnit> iu = BundlePublisher.getBundleIU(bundleFile, advice);
                     IInstallableUnit unit = iu.orElse(null);
                     if (unit != null) {
                         InstallableUnitDescription description = new InstallableUnitDescription();
@@ -242,13 +248,17 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                                     "org.eclipse.equinox.p2.iu", mavenArtifactKey.getId(), unit.getVersion());
                             description.addProvidedCapabilities(List.of(cap));
                         }
-                        description.setArtifacts(unit.getArtifacts().toArray(IArtifactKey[]::new));
+                        IArtifactKey[] artifactKeys = unit.getArtifacts().toArray(IArtifactKey[]::new);
+                        description.setArtifacts(artifactKeys);
+                        for (IArtifactKey mavenkey : artifactKeys) {
+                            extraMavenBundles.add(mavenkey, bundleFile);
+                        }
                         return Optional.of(MetadataFactory.createInstallableUnit(description));
                     }
                 } catch (IOException e) {
                 } catch (BundleException e) {
                 }
-                return null;
+                return Optional.empty();
             }).ifPresent(externalUIs::add);
         }
 
@@ -266,7 +276,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 shadowed);
 
         IRawArtifactFileProvider externalArtifactFileProvider = createExternalArtifactProvider(artifactRepositories,
-                targetFileContent);
+                targetFileContent, extraMavenBundles);
         PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjectUIs, //
                 externalUIs, //
                 eeResolutionHandler.getResolutionHints(), //
@@ -276,7 +286,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 localArtifactRepository, //
                 includeLocalMavenRepo, //
                 logger, shadowed);
-
         eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
 
         return targetPlatform;
@@ -456,7 +465,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      * Provider for all target platform artifacts from outside the reactor.
      */
     private IRawArtifactFileProvider createExternalArtifactProvider(Set<URI> completeRepositories,
-            List<TargetDefinitionContent> targetDefinitionsContent) {
+            List<TargetDefinitionContent> targetDefinitionsContent, IRawArtifactFileProvider extraMavenBundles) {
         SortedRepositories repos = SortedRepositories
                 .sort(targetDefinitionsContent.stream().map(TargetDefinitionContent::getArtifactRepository).toList());
         RepositoryArtifactProvider remoteArtifactProvider = createRemoteArtifactProvider(completeRepositories,
@@ -467,7 +476,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         return new CompositeArtifactProvider(
                 new FileRepositoryArtifactProvider(repos.localRepositories,
                         ArtifactTransferPolicies.forLocalArtifacts()), //
-                remoteArtifactProviderWithCache);
+                remoteArtifactProviderWithCache, extraMavenBundles);
     }
 
     /**

@@ -22,6 +22,7 @@ import java.util.Optional;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
@@ -37,13 +38,17 @@ public class BundlePublisher extends BundlesAction {
         super(new BundleDescription[] { bundleDescription });
     }
 
-    public static Optional<IInstallableUnit> getBundleIU(File bundleLocation) throws IOException, BundleException {
+    public static Optional<IInstallableUnit> getBundleIU(File bundleLocation, IPublisherAdvice... advices)
+            throws IOException, BundleException {
         BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleLocation);
         if (bundleDescription == null) {
             //seems it is not a bundle
             return Optional.empty();
         }
         PublisherInfo publisherInfo = new PublisherInfo();
+        for (IPublisherAdvice advice : advices) {
+            publisherInfo.addAdvice(advice);
+        }
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
         String symbolicName = bundleDescription.getSymbolicName();
         if (symbolicName == null) {
