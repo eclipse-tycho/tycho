@@ -73,7 +73,6 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
     private boolean mirrorReferences = true;
     private String metadataOrArtifacts = null;
     private String[] rootIUs = null;
-    private boolean includePacked = true;
     private boolean mirrorProperties = false;
 
     private File mirrorLogFile; // file to log mirror output to (optional)
@@ -281,7 +280,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
      * Collect all artifacts from the IUs that should be mirrored
      * 
      * @param ius
-     *            the IUs that are selected for mirroring
+     *                the IUs that are selected for mirroring
      * @return a (modifiable) list of {@link IArtifactKey}s that must be mirrored
      */
     protected List<IArtifactKey> collectArtifactKeys(Collection<IInstallableUnit> ius, IProgressMonitor monitor)
@@ -316,7 +315,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
      * Collect all IUS from the slice that should be mirrored
      * 
      * @param slice
-     *            the slice for mirroring
+     *                  the slice for mirroring
      * @return a (modifiable) set of {@link IInstallableUnit}s that must be mirrored
      * @throws ProvisionException
      */
@@ -328,9 +327,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
     }
 
     /*
-     * Ensure all mandatory parameters have been set. Throw an exception if there are any missing.
-     * We don't require the user to specify the artifact repository here, we will default to the
-     * ones already registered in the manager. (callers are free to add more if they wish)
+     * Ensure all mandatory parameters have been set. Throw an exception if there are any missing. We
+     * don't require the user to specify the artifact repository here, we will default to the ones
+     * already registered in the manager. (callers are free to add more if they wish)
      */
     private void validate() throws ProvisionException {
         if (sourceRepositories.isEmpty())
@@ -556,10 +555,6 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
     public void setComparatorExclusions(IQuery<IArtifactDescriptor> exclusions) {
         compareExclusions = exclusions;
-    }
-
-    public void setIncludePacked(boolean includePacked) {
-        this.includePacked = includePacked;
     }
 
     public void setMirrorProperties(boolean mirrorProperties) {

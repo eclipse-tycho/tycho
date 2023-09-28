@@ -161,7 +161,6 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         mirrorApp.setIncludeSources(includeAllSource, sources.getTargetPlatform());
         mirrorApp.setIncludeRequiredBundles(includeRequiredBundles);
         mirrorApp.setIncludeRequiredFeatures(includeRequiredFeatures);
-        mirrorApp.setIncludePacked(false); // no way, Tycho do no longer support packed artifacts anyways
         mirrorApp.setFilterProvided(filterProvided);
         mirrorApp.setEnvironments(context.getEnvironments());
         SlicingOptions options = new SlicingOptions();
