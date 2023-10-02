@@ -17,9 +17,9 @@ import java.io.File;
 import org.osgi.framework.Version;
 
 public class Versions {
-    private static final String SUFFIX_QUALIFIER = ".qualifier";
+    public static final String SUFFIX_QUALIFIER = ".qualifier";
 
-    private static final String SUFFIX_SNAPSHOT = "-SNAPSHOT";
+    public static final String SUFFIX_SNAPSHOT = "-SNAPSHOT";
 
     public static String toCanonicalVersion(String version) {
         if (version == null) {
