@@ -66,6 +66,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     protected static final String TYCHO_POMLESS_AGGREGATOR_NAMES_PROPERTY = "tycho.pomless.aggregator.names";
 
     private static final String PARENT_POM_DEFAULT_VALUE = System.getProperty(TYCHO_POMLESS_PARENT_PROPERTY, "..");
+    private static final String QUALIFIER_SUFFIX = ".qualifier";
     private static final String MODEL_PARENT = "TychoMapping.model.parent";
 
     @Requirement
@@ -343,12 +344,12 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     protected String getPomVersion(String pdeVersion) {
         String pomVersion = pdeVersion;
-        if (pdeVersion.endsWith(TychoConstants.QUALIFIER_SUFFIX)) {
+        if (pdeVersion.endsWith(QUALIFIER_SUFFIX)) {
             String unqualifiedVersion = pdeVersion.substring(0, pdeVersion.length() - QUALIFIER_SUFFIX.length());
             if (isExtensionMode() && snapshotFormat != null) {
                 return unqualifiedVersion + snapshotFormat;
             }
-            return unqualifiedVersion + TychoConstants.SNAPSHOT_SUFFIX;
+            return unqualifiedVersion + "-SNAPSHOT";
         }
         return pomVersion;
     }
