@@ -109,17 +109,6 @@ Therefore, here are a few tips for writing good integration tests:
 * Test project groupIds: Should be <tt>tycho-its-project.&lt;component&gt;.&lt;aspect&gt;</tt> plus a segment for the reactor in case of multi-reactor tests. The groupId is particularly important if the test project is installed in the local Maven repository. Avoid `install`, use `verify` if possible.
 * Test project artifact ids have to be the same as the ID of the feature/bundle and need a unique prefix, e.g. the first letters of each segment of the project name.
 
-### Tycho Extras integration tests
-
-Each Tycho Extras project has its own integration tests located in the subdirectory `it` within the project (e.g. `tycho-eclipserun-plugin/src/it`).
-To run the tests use the maven profile `its`, run `mvn integration-test -Pits` either within the Tycho Extras source folder to run all Tycho Extras integration tests or within a Tycho Extras plugin directory to run only the integration tests of that project.
-
-_Background information on the Tycho Extras integration tests_
-
-Tycho Extras and Tycho are developed and released in parallel and will use the snapshot version of Tycho from the repository `https://repo.eclipse.org/content/repositories/tycho-snapshots/`.
-If you want to run the tests with a specific version of Tycho use the `tycho-version` system property, e.g. `mvn integration-test -Pits -Dtycho-version=0.22.0`.
-To use a different Tycho snapshot repository use the system property `tycho-snapshots-url`, e.g. `mvn integration-test -Pits -Dtycho-snapshots-url=file:/path/to/repo`
-
 ## Advanced development tricks
 
 ### Building Tycho against a locally built version of p2
