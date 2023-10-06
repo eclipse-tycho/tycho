@@ -165,6 +165,8 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("target.maven.eclipse-feature", false, true);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
+		File targetdir = new File(verifier.getBasedir(), "repository/target");
+		assertFileExists(targetdir, "repository/features/org.eclipse.jgit_6.1.0.202203080745-r.jar");
 	}
 
 	@Test
