@@ -8,6 +8,7 @@
 	<modules>
 		<module>target-platform</module>
 		<module>feature</module>
+		<module>repository</module>
 	</modules>
 	
 	<properties>
