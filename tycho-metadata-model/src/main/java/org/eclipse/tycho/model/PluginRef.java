@@ -85,6 +85,12 @@ public class PluginRef {
         dom.setAttribute("arch", arch);
     }
 
+    @Deprecated
+    public boolean hasUnpack() {
+        String value = dom.getAttributeValue("unpack");
+        return value != null && !value.isBlank();
+    }
+
     /**
      * @deprecated The installation format (packed/unpacked) shall be specified through the bundle's
      *             Eclipse-BundleShape manifest header. The feature.xml's unpack attribute may not
@@ -105,12 +111,22 @@ public class PluginRef {
         dom.setAttribute("unpack", Boolean.toString(unpack));
     }
 
+    public boolean hasDownloadSize() {
+        String value = dom.getAttributeValue("download-size");
+        return value != null && !value.isBlank();
+    }
+
     public long getDownloadSize() {
         return Long.parseLong(dom.getAttributeValue("download-size"));
     }
 
     public void setDownloadSize(long size) {
         dom.setAttribute("download-size", Long.toString(size));
+    }
+
+    public boolean hasInstallSize() {
+        String value = dom.getAttributeValue("install-size");
+        return value != null && !value.isBlank();
     }
 
     public long getInstallSize() {

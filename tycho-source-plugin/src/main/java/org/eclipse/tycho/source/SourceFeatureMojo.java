@@ -575,8 +575,9 @@ public class SourceFeatureMojo extends AbstractMojo {
         if (pluginRef.getArch() != null) {
             sourceRef.setArch(pluginRef.getArch());
         }
-        sourceRef.setUnpack(false);
-
+        if (pluginRef.hasUnpack()) {
+            sourceRef.setUnpack(false);
+        }
         sourceFeature.addPlugin(sourceRef);
     }
 
