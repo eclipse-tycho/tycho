@@ -15,7 +15,6 @@ package org.eclipse.tycho.packaging;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
@@ -158,7 +157,9 @@ public class FeatureXmlTransformer {
 	}
 
 	private void setDownloadAndInstallSize(PluginRef pluginRefToEdit, File artifact) {
-		// TODO 375111 optionally disable this?
+		if (!pluginRefToEdit.hasInstallSize() && !pluginRefToEdit.hasDownloadSize()) {
+			return;
+		}
 		long downloadSize = 0;
 		long installSize = 0;
 		if (artifact.isFile()) {
@@ -167,33 +168,23 @@ public class FeatureXmlTransformer {
 		} else {
 			log.info("Download/install size is not calculated for directory based bundle " + pluginRefToEdit.getId());
 		}
-
-		pluginRefToEdit.setDownloadSize(downloadSize / KBYTE);
-		pluginRefToEdit.setInstallSize(installSize / KBYTE);
+		if (pluginRefToEdit.hasDownloadSize()) {
+			pluginRefToEdit.setDownloadSize(downloadSize / KBYTE);
+		}
+		if (pluginRefToEdit.hasInstallSize()) {
+			pluginRefToEdit.setInstallSize(installSize / KBYTE);
+		}
 	}
 
 	protected long getInstallSize(File location) {
-		long installSize = 0;
 		FileLocker locker = fileLockService.getFileLocker(location);
 		locker.lock();
-		try {
-			try {
-				try (JarFile jar = new JarFile(location)) {
-					Enumeration<JarEntry> entries = jar.entries();
-					while (entries.hasMoreElements()) {
-						JarEntry entry = entries.nextElement();
-						long entrySize = entry.getSize();
-						if (entrySize > 0) {
-							installSize += entrySize;
-						}
-					}
-				}
-			} catch (IOException e) {
-				throw new RuntimeException("Could not determine installation size of file " + location, e);
-			}
+		try (JarFile jar = new JarFile(location)) {
+			return jar.stream().mapToLong(JarEntry::getSize).filter(s -> s > 0).sum();
+		} catch (IOException e) {
+			throw new RuntimeException("Could not determine installation size of file " + location, e);
 		} finally {
 			locker.release();
 		}
-		return installSize;
 	}
 }
