@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import org.eclipse.core.resources.ICommand;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -36,7 +37,11 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.service.resolver.ResolverError;
 import org.eclipse.pde.api.tools.internal.BundleListTargetLocation;
 import org.eclipse.pde.api.tools.internal.FilterStore;
@@ -56,6 +61,8 @@ import org.eclipse.pde.core.target.ITargetLocation;
 import org.eclipse.pde.core.target.ITargetPlatformService;
 import org.eclipse.pde.core.target.LoadTargetDefinitionJob;
 import org.eclipse.pde.core.target.TargetBundle;
+import org.eclipse.pde.internal.core.ICoreConstants;
+import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.target.TargetPlatformService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
@@ -86,6 +93,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 	@Override
 	public ApiAnalysisResult call() throws Exception {
 		ApiAnalysisResult result = new ApiAnalysisResult();
+		Platform.addLogListener((status, plugin) -> debug(status.toString()));
 		printVersion();
 		disableAutoBuild();
 		setTargetPlatform();
@@ -124,9 +132,14 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 				.loadProjectDescription(projectDescriptionFile);
 		projectDescription.setLocation(projectPath);
 		projectDescription.setBuildSpec(new ICommand[0]);
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectDescription.getName());
+		// FIXME ApiTools wrongly assumes that the location matches the project name
+		// see: https://github.com/eclipse-pde/eclipse.pde/issues/789
+		// therefore we here must not use projectDescription.getName() but
+		// projectPath.lastSegment() ...
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectPath.lastSegment());
 		project.create(projectDescription, new NullProgressMonitor());
 		project.open(new NullProgressMonitor());
+		createOutputFolder(project, projectPath);
 		IApiBaseline workspaceBaseline = ApiPlugin.getDefault().getApiBaselineManager().getWorkspaceBaseline();
 		IApiComponent component = workspaceBaseline.getApiComponent(project);
 		if (component instanceof ProjectComponent projectComponent) {
@@ -156,6 +169,29 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		throw new RuntimeException("Can't import project");
 	}
 
+	private void createOutputFolder(IProject project, IPath projectPath) throws IOException, CoreException {
+		// FIXME see bug https://github.com/eclipse-pde/eclipse.pde/issues/791
+		IJavaProject javaProject = JavaCore.create(project);
+		if (javaProject != null) {
+			makeOutputFolder(javaProject.getOutputLocation(), projectPath);
+			IClasspathEntry[] classpath = javaProject.getRawClasspath();
+			for (IClasspathEntry entry : classpath) {
+				makeOutputFolder(entry.getOutputLocation(), projectPath);
+			}
+		}
+	}
+
+	private void makeOutputFolder(IPath outputLocation, IPath projectPath) throws CoreException, IOException {
+		if (outputLocation != null) {
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			IFolder folder = workspace.getRoot().getFolder(outputLocation);
+			if (!folder.exists()) {
+				folder.create(true, true, new NullProgressMonitor());
+			}
+		}
+
+	}
+
 	private void deleteAllProjects() throws CoreException {
 		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 			project.delete(IResource.NEVER_DELETE_PROJECT_CONTENT | IResource.FORCE, new NullProgressMonitor());
@@ -167,6 +203,8 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		IWorkspaceDescription desc = workspace.getDescription();
 		desc.setAutoBuilding(false);
 		workspace.setDescription(desc);
+		PDECore.getDefault().getPreferencesManager().setValue(ICoreConstants.DISABLE_API_ANALYSIS_BUILDER, false);
+		PDECore.getDefault().getPreferencesManager().setValue(ICoreConstants.RUN_API_ANALYSIS_AS_JOB, false);
 	}
 
 	private Properties getPreferences() throws IOException {
