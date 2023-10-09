@@ -10,7 +10,7 @@
     <repository>
       <id>eclipse202003</id>
       <layout>p2</layout>
-      <url>${repo-2020-03}</url>
+      <url>${target-platform}</url>
     </repository>
   </repositories>
   
