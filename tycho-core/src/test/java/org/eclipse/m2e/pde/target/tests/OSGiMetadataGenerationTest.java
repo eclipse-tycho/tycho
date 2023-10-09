@@ -168,7 +168,7 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
         assertEquals("Bundle derived from maven artifact com.google.errorprone:error_prone_annotations:2.18.0",
                 attributes.getValue(Constants.BUNDLE_NAME));
         assertEqualManifestHeaders(Constants.IMPORT_PACKAGE, attributes,
-                "javax.lang.model.element;resolution:=optional");
+                "javax.lang.model.element;resolution:=\"optional\", java.lang.annotation;resolution:=\"optional\", java.lang;resolution:=\"optional\"");
         assertEqualManifestHeaders(Constants.EXPORT_PACKAGE, attributes,
                 "com.google.errorprone.annotations;version=\"2.18.0\";uses:=\"javax.lang.model.element\"",
                 "com.google.errorprone.annotations.concurrent;version=\"2.18.0\"");
@@ -223,7 +223,8 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
                 attributes.getValue(Constants.BUNDLE_SYMBOLICNAME));
         assertEquals("Bundle in Test from artifact com.google.errorprone:error_prone_annotations:2.18.0:",
                 attributes.getValue(Constants.BUNDLE_NAME));
-        assertEqualManifestHeaders(Constants.IMPORT_PACKAGE, attributes, "javax.lang.model.element");
+        assertEqualManifestHeaders(Constants.IMPORT_PACKAGE, attributes,
+                "java.lang.annotation, javax.lang.model.element, java.lang");
         assertEqualManifestHeaders(Constants.EXPORT_PACKAGE, attributes,
                 "com.google.errorprone.annotations;version=\"2.18.0\";uses:=\"javax.lang.model.element\"",
                 "com.google.errorprone.annotations.concurrent;version=\"2.18.0\"");
