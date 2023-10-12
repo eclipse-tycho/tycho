@@ -28,6 +28,7 @@ If `addOnlyProviding` is `true` repositories that don't provide any filtered uni
 		</repositoryReferenceFilter>
 	</configuration>
 </plugin>
+```
 
 ## 4.0.2
 - new option to include referenced repositories when resolving the target platform
