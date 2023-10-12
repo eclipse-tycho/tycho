@@ -15,7 +15,6 @@ package org.eclipse.tycho.packaging;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +49,6 @@ public class FeatureXmlTransformerTest {
         junit4JarLocation = TestUtil.getTestResourceLocation("eclipse/plugins/org.junit4_4.8.1.v20100302.jar");
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testExpandReferences() throws Exception {
         subject = new FeatureXmlTransformer(new SilentLog(), new NoopFileLockService());
@@ -69,10 +67,6 @@ public class FeatureXmlTransformerTest {
         assertThat(feature.getPlugins(), hasItem(plugin("org.junit4", "4.8.1.v20100302")));
         PluginRef plugin = feature.getPlugins().get(0);
 		assertEquals("org.junit4", plugin.getId());
-		assertEquals(1L, plugin.getDownloadSize()); // 1720 bytes rounded to kiB
-		assertEquals(2L, plugin.getInstallSize()); // 2419 bytes rounded to kiB // TODO shouldn't
-													// installSize=downloadSize for unpack=false?
-        assertFalse(plugin.isUnpack());
     }
 
     private static Matcher<FeatureRef> feature(final String id, final String version) {
