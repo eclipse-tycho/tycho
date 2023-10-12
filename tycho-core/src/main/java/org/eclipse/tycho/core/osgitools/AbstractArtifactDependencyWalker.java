@@ -147,7 +147,6 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
                     ref.setOs(os);
                     ref.setWs(ws);
                     ref.setArch(arch);
-                    ref.setUnpack(true);
                     traversePlugin(ref, visitor, visited);
                 }
             }

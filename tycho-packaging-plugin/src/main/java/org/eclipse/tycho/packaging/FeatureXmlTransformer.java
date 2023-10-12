@@ -13,15 +13,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.MojoFailureException;
@@ -41,7 +37,12 @@ import org.eclipse.tycho.model.PluginRef;
 
 @Component(role = FeatureXmlTransformer.class)
 public class FeatureXmlTransformer {
-	private static final int KBYTE = 1024;
+	/**
+	 * Obsolete attributes that are to remove.
+	 * 
+	 * @see https://github.com/eclipse-pde/eclipse.pde/issues/730
+	 */
+	private static final List<String> OBSOLETE_PLUGIN_ATTRIBUTES = List.of("unpack", "download-size", "install-size");
 
 	@Requirement
 	private Logger log;
@@ -84,12 +85,7 @@ public class FeatureXmlTransformer {
 			}
 			ArtifactKey plugin = resolvePluginReference(targetPlatform, pluginRef, version);
 			pluginRef.setVersion(plugin.getVersion());
-
-			File location = targetPlatform.getArtifactLocation(plugin);
-			if (location == null) {
-				throw new MojoFailureException("location is missing for plugin " + plugin);
-			}
-			setDownloadAndInstallSize(pluginRef, location);
+			OBSOLETE_PLUGIN_ATTRIBUTES.forEach(pluginRef::removeAttribute);
 		}
 
 		for (FeatureRef featureRef : feature.getIncludedFeatures()) {
@@ -150,42 +146,11 @@ public class FeatureXmlTransformer {
 	}
 
 	private static String quote(String nullableString) {
-		if (nullableString == null)
+		if (nullableString == null) {
 			return null;
-		else
-			return "\"" + nullableString + "\"";
-	}
-
-	private void setDownloadAndInstallSize(PluginRef pluginRefToEdit, File artifact) {
-		// TODO 375111 optionally disable this?
-		long downloadSize = 0;
-		long installSize = 0;
-		if (artifact.isFile()) {
-			installSize = getInstallSize(artifact);
-			downloadSize = artifact.length();
 		} else {
-			log.info("Download/install size is not calculated for directory based bundle " + pluginRefToEdit.getId());
+			return "\"" + nullableString + "\"";
 		}
-
-		pluginRefToEdit.setDownloadSize(downloadSize / KBYTE);
-		pluginRefToEdit.setInstallSize(installSize / KBYTE);
 	}
 
-	protected long getInstallSize(File location) {
-		long installSize = 0;
-		try (var locked = fileLockService.lock(location); //
-				JarFile jar = new JarFile(location);) {
-			Enumeration<JarEntry> entries = jar.entries();
-			while (entries.hasMoreElements()) {
-				JarEntry entry = entries.nextElement();
-				long entrySize = entry.getSize();
-				if (entrySize > 0) {
-					installSize += entrySize;
-				}
-			}
-		} catch (IOException e) {
-			throw new RuntimeException("Could not determine installation size of file " + location, e);
-		}
-		return installSize;
-	}
 }

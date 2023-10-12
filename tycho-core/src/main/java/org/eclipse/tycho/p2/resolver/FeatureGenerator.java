@@ -45,7 +45,6 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureManifestParser;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
-import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.tycho.core.MavenModelFacade;
 import org.eclipse.tycho.core.MavenModelFacade.MavenLicense;
@@ -93,14 +92,9 @@ public class FeatureGenerator {
         for (IInstallableUnit bundle : bundles) {
             //TODO can a feature contain the same id in different versions? PDE Editor seems not to support this...
             if (versionedIds.add(new VersionedId(bundle.getId(), bundle.getVersion()))) {
-                boolean isFragment = bundle.getProvidedCapabilities().stream().anyMatch(
-                        capability -> capability.getNamespace().equals(BundlesAction.CAPABILITY_NS_OSGI_FRAGMENT));
                 Element pluginElement = doc.createElement(ELEMENT_PLUGIN);
                 pluginElement.setAttribute(ATTR_ID, bundle.getId());
                 pluginElement.setAttribute(ATTR_VERSION, bundle.getVersion().toString());
-                if (isFragment) {
-                    pluginElement.setAttribute(ATTR_FRAGMENT, String.valueOf(true));
-                }
                 //TODO can we check form the IU if we need to unpack? Or is the bundle info required here? Does it actually matter at all?
                 pluginElement.setAttribute(ATTR_UNPACK, String.valueOf(false));
                 featureElement.appendChild(pluginElement);
