@@ -38,6 +38,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.IJobChangeListener;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -94,6 +97,39 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 	public ApiAnalysisResult call() throws Exception {
 		ApiAnalysisResult result = new ApiAnalysisResult();
 		Platform.addLogListener((status, plugin) -> debug(status.toString()));
+		IJobManager jobManager = Job.getJobManager();
+		jobManager.addJobChangeListener(new IJobChangeListener() {
+
+			@Override
+			public void sleeping(IJobChangeEvent event) {
+				debug("Job " + event.getJob() + " sleeping...");
+			}
+
+			@Override
+			public void scheduled(IJobChangeEvent event) {
+				debug("Job " + event.getJob() + " scheduled...");
+			}
+
+			@Override
+			public void running(IJobChangeEvent event) {
+				debug("Job " + event.getJob() + " running...");
+			}
+
+			@Override
+			public void done(IJobChangeEvent event) {
+				debug("Job " + event.getJob() + " done...");
+			}
+
+			@Override
+			public void awake(IJobChangeEvent event) {
+				debug("Job " + event.getJob() + " awake...");
+			}
+
+			@Override
+			public void aboutToRun(IJobChangeEvent event) {
+				debug("Job " + event.getJob() + " aboutToRun...");
+			}
+		});
 		printVersion();
 		disableAutoBuild();
 		setTargetPlatform();
@@ -125,6 +161,20 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		return result;
 	}
 
+	private void waitForAnyJobs() {
+		IJobManager manager = Job.getJobManager();
+		debug("Suspend JobManager...");
+		manager.suspend();
+		debug("Wait for JobManager become idle...");
+		while (!manager.isIdle()) {
+			Thread.onSpinWait();
+		}
+		// See https://github.com/eclipse-platform/eclipse.platform/issues/741
+		debug("Cancel remaining jobs...");
+		manager.cancel(null);
+		debug("JobManager is idle... no new jobs will run!");
+	}
+
 	private BundleComponent importProject() throws CoreException, IOException {
 		IPath projectPath = IPath.fromOSString(projectDir);
 		IPath projectDescriptionFile = projectPath.append(IProjectDescription.DESCRIPTION_FILE_NAME);
@@ -140,6 +190,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		project.create(projectDescription, new NullProgressMonitor());
 		project.open(new NullProgressMonitor());
 		createOutputFolder(project, projectPath);
+		waitForAnyJobs();
 		IApiBaseline workspaceBaseline = ApiPlugin.getDefault().getApiBaselineManager().getWorkspaceBaseline();
 		IApiComponent component = workspaceBaseline.getApiComponent(project);
 		if (component instanceof ProjectComponent projectComponent) {
@@ -203,7 +254,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		IWorkspaceDescription desc = workspace.getDescription();
 		desc.setAutoBuilding(false);
 		workspace.setDescription(desc);
-		PDECore.getDefault().getPreferencesManager().setValue(ICoreConstants.DISABLE_API_ANALYSIS_BUILDER, false);
+		PDECore.getDefault().getPreferencesManager().setValue(ICoreConstants.DISABLE_API_ANALYSIS_BUILDER, true);
 		PDECore.getDefault().getPreferencesManager().setValue(ICoreConstants.RUN_API_ANALYSIS_AS_JOB, false);
 	}
 
