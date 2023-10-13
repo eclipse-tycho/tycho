@@ -53,6 +53,49 @@ If `addOnlyProviding` is `true` repositories that don't provide any filtered uni
 	
 ```
 
+## 4.0.3
+
+### new option to filter added repository-references when assembling a p2-repository
+
+If filtering provided artifacts is enabled, the repository references automatically added to a assembled p2-repository
+(via `tycho-p2-repository-plugin`'s `addIUTargetRepositoryReferences` or `addPomRepositoryReferences`) can now be filtered by their location
+using exclusion and inclusion patterns and therefore allows more fine-grained control which references are added.
+Additionally the automatically added references can be filter based on if they provide any of the filtered units or not.
+If `addOnlyProviding` is `true` repositories that don't provide any filtered unit are not added to the assembled repo.
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-p2-repository-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		... other configuration options ...
+		<repositoryReferenceFilter>
+			<addOnlyProviding>true</addOnlyProviding>
+			<exclude>
+				<location>https://foo.bar.org/hidden/**</location>
+				<location>%regex[http(s)?:\/\/foo\.bar\.org\/secret\/.*]</location>
+				<location>![https://foo.bar.org/**]</location>
+			</exclude>
+		</repositoryReferenceFilter>
+	</configuration>
+</plugin>
+```
+
+## 4.0.2
+- new option to include referenced repositories when resolving the target platform
+- Add dummy parameter to prevent warnings with jgit as timestamp provider
+
+## 4.0.1
+
+backports:
+- new tycho-repository-plugin
+- Non existing but optional dependencies lead to resolving issue in target
+- SharedHttpCacheStorage doesn't resolve redirect correctly if the uri that is given isn't normalized
+- Non existing but optional dependencies lead to resolving issue in target
+- Make comparison of newlines in text files more precise
+- Fix resolving of project if target do not contains JUnit
+- Check if the about to be injected maven coordinates can be resolved
+
 ## 4.0.0
 
 ### Maven 3.9 required
