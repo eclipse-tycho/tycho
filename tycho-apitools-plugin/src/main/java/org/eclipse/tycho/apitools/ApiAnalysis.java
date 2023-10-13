@@ -38,10 +38,16 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.IJobChangeListener;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.launching.LaunchingPlugin;
 import org.eclipse.osgi.service.resolver.ResolverError;
 import org.eclipse.pde.api.tools.internal.BundleListTargetLocation;
 import org.eclipse.pde.api.tools.internal.FilterStore;
@@ -94,8 +100,42 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 	public ApiAnalysisResult call() throws Exception {
 		ApiAnalysisResult result = new ApiAnalysisResult();
 		Platform.addLogListener((status, plugin) -> debug(status.toString()));
+		IJobManager jobManager = Job.getJobManager();
+		jobManager.addJobChangeListener(new IJobChangeListener() {
+
+			@Override
+			public void sleeping(IJobChangeEvent event) {
+				debug("Job " + event.getJob() + " sleeping...");
+			}
+
+			@Override
+			public void scheduled(IJobChangeEvent event) {
+				debug("Job " + event.getJob() + " scheduled...");
+			}
+
+			@Override
+			public void running(IJobChangeEvent event) {
+				debug("Job " + event.getJob() + " running...");
+			}
+
+			@Override
+			public void done(IJobChangeEvent event) {
+				debug("Job " + event.getJob() + " done...");
+			}
+
+			@Override
+			public void awake(IJobChangeEvent event) {
+				debug("Job " + event.getJob() + " awake...");
+			}
+
+			@Override
+			public void aboutToRun(IJobChangeEvent event) {
+				debug("Job " + event.getJob() + " aboutToRun...");
+			}
+		});
 		printVersion();
 		disableAutoBuild();
+		disableJVMDiscovery();
 		setTargetPlatform();
 		deleteAllProjects();
 		BundleComponent projectComponent = importProject();
@@ -123,6 +163,12 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 			ResourcesPlugin.getWorkspace().save(true, new NullProgressMonitor());
 		}
 		return result;
+	}
+
+	private void disableJVMDiscovery() {
+		IEclipsePreferences instanceNode = InstanceScope.INSTANCE
+				.getNode(LaunchingPlugin.getDefault().getBundle().getSymbolicName());
+		instanceNode.putBoolean(LaunchingPlugin.PREF_DETECT_VMS_AT_STARTUP, false);
 	}
 
 	private BundleComponent importProject() throws CoreException, IOException {
