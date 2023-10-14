@@ -564,8 +564,12 @@ public class SourceFeatureMojo extends AbstractMojo {
         PluginRef sourceRef = new PluginRef("plugin");
         sourceRef.setId(sourceBundle.getId());
         sourceRef.setVersion(sourceBundle.getVersion());
-        sourceRef.setDownloadSize(0);
-        sourceRef.setInstallSize(0);
+        if (pluginRef.hasDownloadSize()) {
+            sourceRef.setDownloadSize(0);
+        }
+        if (pluginRef.hasInstallSize()) {
+            sourceRef.setInstallSize(0);
+        }
         if (pluginRef.getOs() != null) {
             sourceRef.setOs(pluginRef.getOs());
         }
@@ -575,7 +579,9 @@ public class SourceFeatureMojo extends AbstractMojo {
         if (pluginRef.getArch() != null) {
             sourceRef.setArch(pluginRef.getArch());
         }
-        if (pluginRef.hasUnpack()) {
+        if (pluginRef.hasDownloadSize() && pluginRef.hasInstallSize()) {
+            // PDE editor does not set unpack="true" but just removes the unpack attribute. 
+            // Thus an absent attribute can also mean unpack="true" and therefore the presence of other attributes has to be checked in order to check if the unused attributes are still set.
             sourceRef.setUnpack(false);
         }
         sourceFeature.addPlugin(sourceRef);
