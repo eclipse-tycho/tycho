@@ -83,9 +83,11 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 	private boolean debug;
 	private String apiPreferences;
 	private String binaryArtifact;
+	private String outputDir;
 
 	public ApiAnalysis(Collection<Path> baselineBundles, Collection<Path> dependencyBundles, String baselineName,
-			Path apiFilterFile, Path apiPreferences, Path projectDir, boolean debug, Path binaryArtifact) {
+			Path apiFilterFile, Path apiPreferences, Path projectDir, boolean debug, Path binaryArtifact,
+			Path outputDir) {
 		this.targetBundles = dependencyBundles.stream().map(ApiAnalysis::pathAsString).toList();
 		this.baselineBundles = baselineBundles.stream().map(ApiAnalysis::pathAsString).toList();
 		this.baselineName = baselineName;
@@ -93,6 +95,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		this.apiPreferences = pathAsString(apiPreferences);
 		this.projectDir = pathAsString(projectDir);
 		this.binaryArtifact = pathAsString(binaryArtifact);
+		this.outputDir = projectDir.relativize(outputDir).toString();
 		this.debug = debug;
 	}
 
@@ -216,12 +219,18 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 	}
 
 	private void createOutputFolder(IProject project, IPath projectPath) throws IOException, CoreException {
-		// FIXME see bug https://github.com/eclipse-pde/eclipse.pde/issues/791
 		IJavaProject javaProject = JavaCore.create(project);
 		if (javaProject != null) {
+			IPath fullPath = project.getFolder(outputDir).getFullPath();
+			// FIXME see bug https://github.com/eclipse-pde/eclipse.pde/issues/801
+			// it can happen that project output location != maven compiled classes, usually
+			// eclipse uses output = bin/ while maven uses target/classes if not
+			// specifically configured to be even
+			javaProject.setOutputLocation(fullPath, null);
 			makeOutputFolder(javaProject.getOutputLocation(), projectPath);
 			IClasspathEntry[] classpath = javaProject.getRawClasspath();
 			for (IClasspathEntry entry : classpath) {
+				// FIXME see bug https://github.com/eclipse-pde/eclipse.pde/issues/791
 				makeOutputFolder(entry.getOutputLocation(), projectPath);
 			}
 		}
