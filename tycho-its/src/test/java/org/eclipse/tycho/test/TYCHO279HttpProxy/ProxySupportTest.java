@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -39,6 +40,10 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlet.ServletMapping;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
@@ -89,12 +94,12 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier(TEST_BASEDIR, false);
 		configureProxyInSettingsXml(true, null, null);
 		replaceSettingsArg(verifier);
-		verifier.getSystemProperties().setProperty("p2.repo", getP2RepoUrl());
+		verifier.getSystemProperties().setProperty("p2.repo", getUnreachableP2RepoUrl());
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 		List<String> accessedUris = proxyServlet.getAccessedUris();
 		assertTrue("proxy was not accessed", accessedUris.size() > 0);
-		String expectedUri = getP2RepoUrl() + "content.xml";
+		String expectedUri = getRealP2RepoUrl() + "content.xml";
 		assertTrue("URL " + expectedUri + " was not accessed via proxy", accessedUris.contains(expectedUri));
 	}
 
@@ -108,13 +113,13 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
 		configureProxyInSettingsXml(true, proxyUser, proxyPasswordEncrypted);
 		replaceSettingsArg(verifier);
 		Properties systemProperties = verifier.getSystemProperties();
-		systemProperties.setProperty("p2.repo", getP2RepoUrl());
+		systemProperties.setProperty("p2.repo", getUnreachableP2RepoUrl());
 		systemProperties.setProperty("settings.security", new File(baseDir, "settings-security.xml").getAbsolutePath());
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 		List<String> accessedUris = proxyServlet.getAccessedUris();
 		assertTrue("proxy was not accessed", accessedUris.size() > 0);
-		String expectedUri = getP2RepoUrl() + "content.xml";
+		String expectedUri = getRealP2RepoUrl() + "content.xml";
 		assertTrue("URL " + expectedUri + " was not accessed via proxy", accessedUris.contains(expectedUri));
 	}
 
@@ -124,7 +129,7 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier(TEST_BASEDIR, false);
 		configureProxyInSettingsXml(false, null, null);
 		replaceSettingsArg(verifier);
-		verifier.getSystemProperties().setProperty("p2.repo", getP2RepoUrl());
+		verifier.getSystemProperties().setProperty("p2.repo", getRealP2RepoUrl());
 		verifier.executeGoal("package"); // build fails
 		List<String> accessedUris = proxyServlet.getAccessedUris();
 		assertTrue("proxy was accessed although not active. Accessed URIs: " + accessedUris, accessedUris.isEmpty());
@@ -140,7 +145,29 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
 		if (useAuthentication) {
 			authMap.put(user, password);
 		}
-		proxyServlet = proxyServer.getProxyServlet();
+
+		// Emulate a corpare proxy by using a domain name that cannot be resolved as
+		// clients behind a corporate proxy may not be able to resolve public domain names.
+		proxyServlet = new MonitorableProxyServlet() {
+			@Override
+			protected String rewriteTarget(HttpServletRequest clientRequest) {
+				String target = super.rewriteTarget(clientRequest);
+
+				// Override the URL with the real local webserver
+				return target.replace(getUnreachableP2RepoUrl(), getRealP2RepoUrl());
+			}
+		};
+		ServletHolder holder = new ServletHolder(proxyServlet);
+		ServletMapping mapping = new ServletMapping();
+		mapping.setServletName(holder.getName());
+		mapping.setPathSpec("/");
+
+		ServletContextHandler context = proxyServer.getProxyingContext();
+		ServletHandler handler = context.getServletHandler();
+		handler.setServlets(new ServletHolder[0]);
+		context.addServlet(holder, "/");
+		handler.setServletMappings(new ServletMapping[] { mapping });
+
 		proxyServlet.setAuthentications(authMap);
 		proxyServlet.setUseAuthentication(useAuthentication);
 
@@ -166,8 +193,12 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
 		}
 	}
 
-	private String getP2RepoUrl() {
+	private String getRealP2RepoUrl() {
 		return "http://localhost:" + httpServerPort + PATH;
+	}
+
+	private String getUnreachableP2RepoUrl() {
+		return "http://fake-non-existing-domain/random/path/";
 	}
 
 	private void replaceSettingsArg(Verifier verifier) throws IOException {
