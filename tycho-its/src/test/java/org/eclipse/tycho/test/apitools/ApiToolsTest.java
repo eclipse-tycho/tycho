@@ -60,25 +60,31 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 			}
 		});
 		// check summary output
-		verifier.verifyTextInLog("4 API ERRORS");
+		verifier.verifyTextInLog("7 API ERRORS");
 		verifier.verifyTextInLog("0 API warnings");
 		// check error output has source references and lines
+		verifier.verifyTextInLog("File ClassA.java at line 5: The method bundle.ClassA.getString() has been removed");
 		verifier.verifyTextInLog(
-				"File ApiInterface.java at line 2: The type bundle.ApiInterface has been removed from api-bundle");
-		verifier.verifyTextInLog("File ClassA.java at line 5: The type bundle.ClassA has been removed from api-bundle");
+				"File ClassA.java at line 5: The method bundle.ClassA.getCollection() has been removed");
 		verifier.verifyTextInLog(
 				"File MANIFEST.MF at line 0: The type bundle.InterfaceA has been removed from api-bundle");
+		verifier.verifyTextInLog("File ClassA.java at line 7: Missing @since tag on getGreetings()");
+		verifier.verifyTextInLog("File ClassA.java at line 11: Missing @since tag on getCollection()");
+		verifier.verifyTextInLog("File InterfaceB.java at line 2: Missing @since tag on bundle.InterfaceB");
 		verifier.verifyTextInLog(
 				"File MANIFEST.MF at line 5: The major version should be incremented in version 0.0.1, since API breakage occurred since version 0.0.1");
 		// now check for the build error output
 		verifier.verifyTextInLog("on project api-bundle-1: There are API errors:");
+		verifier.verifyTextInLog("src/bundle/ClassA.java:5 The method bundle.ClassA.getString() has been removed");
+		verifier.verifyTextInLog("src/bundle/ClassA.java:5 The method bundle.ClassA.getCollection() has been removed");
 		verifier.verifyTextInLog(
-				"src/bundle/ApiInterface.java:2 The type bundle.ApiInterface has been removed from api-bundle");
-		verifier.verifyTextInLog(
-				"src/bundle/ClassA.java:5 The type bundle.ClassA has been removed from api-bundle-1_0.0.1");
-		verifier.verifyTextInLog("META-INF/MANIFEST.MF:0 The type bundle.InterfaceA has been removed from api-bundle");
+				"META-INF/MANIFEST.MF:0 The type bundle.InterfaceA has been removed from api-bundle-1_0.0.1");
+		verifier.verifyTextInLog("src/bundle/ClassA.java:7 Missing @since tag on getGreetings()");
+		verifier.verifyTextInLog("src/bundle/ClassA.java:11 Missing @since tag on getCollection()");
+		verifier.verifyTextInLog("src/bundle/InterfaceB.java:2 Missing @since tag on bundle.InterfaceB");
 		verifier.verifyTextInLog(
 				"META-INF/MANIFEST.MF:5 The major version should be incremented in version 0.0.1, since API breakage occurred since version 0.0.1");
+
 		// TODO: check with api-filter
 		// TODO: check with second plugin with BREE?
 	}

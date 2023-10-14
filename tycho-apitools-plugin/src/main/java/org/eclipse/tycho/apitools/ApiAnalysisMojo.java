@@ -172,9 +172,11 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			}
 			ApiAnalysisResult analysisResult;
 			try {
-				analysisResult = eclipseFramework.execute(new ApiAnalysis(baselineBundles, dependencyBundles,
+				ApiAnalysis analysis = new ApiAnalysis(baselineBundles, dependencyBundles,
 						project.getName(), fileToPath(apiFilter), fileToPath(apiPreferences),
-						fileToPath(project.getBasedir()), debug, fileToPath(project.getArtifact().getFile())));
+						fileToPath(project.getBasedir()), debug, fileToPath(project.getArtifact().getFile()),
+						stringToPath(project.getBuild().getOutputDirectory()));
+				analysisResult = eclipseFramework.execute(analysis);
 			} catch (Exception e) {
 				throw new MojoExecutionException("Execute ApiApplication failed", e);
 			} finally {
@@ -348,6 +350,13 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			return Objects.equals(key, other.key);
 		}
 
+	}
+
+	private static Path stringToPath(String file) {
+		if (file == null) {
+			return null;
+		}
+		return Path.of(file);
 	}
 
 	private static Path fileToPath(File file) {
