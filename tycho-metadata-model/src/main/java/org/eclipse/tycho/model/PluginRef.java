@@ -85,12 +85,6 @@ public class PluginRef {
         dom.setAttribute("arch", arch);
     }
 
-    @Deprecated
-    public boolean hasUnpack() {
-        String value = dom.getAttributeValue("unpack");
-        return value != null && !value.isBlank();
-    }
-
     /**
      * @deprecated The installation format (packed/unpacked) shall be specified through the bundle's
      *             Eclipse-BundleShape manifest header. The feature.xml's unpack attribute may not
