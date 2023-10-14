@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2021 SAP AG and others.
+ * Copyright (c) 2012, 2023 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,24 +18,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.XMLTool;
 import org.junit.Test;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
+import org.w3c.dom.Node;
 
 public class ParallelTestExecutionTest extends AbstractTychoIntegrationTest {
 
@@ -56,20 +50,15 @@ public class ParallelTestExecutionTest extends AbstractTychoIntegrationTest {
 		assertEquals(expectedTests, actualTests);
 	}
 
-	private Set<String> extractExecutedTests(File[] xmlReports)
-			throws FileNotFoundException, XPathExpressionException, IOException {
-		XPath xpath = XPathFactory.newInstance().newXPath();
+	private Set<String> extractExecutedTests(File[] xmlReports) throws Exception {
 		Set<String> actualTests = new HashSet<>();
 		for (File xmlReportFile : xmlReports) {
-			NodeList testCaseNodes;
-			try (FileInputStream xmlStream = new FileInputStream(xmlReportFile)) {
-				testCaseNodes = (NodeList) xpath.evaluate("/testsuite/testcase", new InputSource(xmlStream),
-						XPathConstants.NODESET);
-			}
-			for (int i = 0; i < testCaseNodes.getLength(); i++) {
-				Element node = (Element) testCaseNodes.item(i);
-				String testClassName = node.getAttribute("classname");
-				String method = node.getAttribute("name");
+			Document document = XMLTool.parseXMLDocument(xmlReportFile);
+			List<Node> matchingNodes = XMLTool.getMatchingNodes(document, "/testsuite/testcase");
+			for (Node node : matchingNodes) {
+				Element element = (Element) node;
+				String testClassName = element.getAttribute("classname");
+				String method = element.getAttribute("name");
 				actualTests.add(testClassName + "#" + method);
 			}
 		}
