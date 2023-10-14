@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2021 SAP AG
+ * Copyright (c) 2011, 2023 SAP AG
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,24 +12,18 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.jarsigning;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
+import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.XMLTool;
 import org.junit.Test;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 
 public class JarSigningTest extends AbstractTychoIntegrationTest {
 
@@ -57,30 +51,12 @@ public class JarSigningTest extends AbstractTychoIntegrationTest {
 		File repoDir = new File(verifier.getBasedir(), "rcp/target/repository");
 		File artifacts = new File(repoDir, "artifacts.jar");
 		assertTrue(artifacts.isFile());
-		DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document document = null;
-		try (ZipFile artifactsJar = new ZipFile(artifacts)) {
-			ZipEntry artifactsXmlEntry = artifactsJar.getEntry("artifacts.xml");
-			document = parser.parse(artifactsJar.getInputStream(artifactsXmlEntry));
-		}
-		Element repository = document.getDocumentElement();
-		XPath xpath = XPathFactory.newInstance().newXPath();
-		NodeList nodeList = (NodeList) xpath.evaluate("/repository/artifacts/artifact", repository,
-				XPathConstants.NODESET);
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			Element artifactNode = (Element) nodeList.item(i);
-			NodeList properties = (NodeList) xpath.evaluate("properties/property", artifactNode,
-					XPathConstants.NODESET);
-			boolean hasSha256 = false;
-			for (int j = 0; j < properties.getLength(); j++) {
-				Element property = (Element) properties.item(j);
-				String propName = property.getAttribute("name");
-				if ("download.checksum.sha-256".equals(propName)) {
-					hasSha256 = true;
-					break;
-				}
-			}
-			assertTrue("artifact does not have a 'download.checksum.sha-256' attribute", hasSha256);
+		Document document = XMLTool.parseXMLDocumentFromJar(artifacts, "artifacts.xml");
+		List<Node> artifactNodes = XMLTool.getMatchingNodes(document, "/repository/artifacts/artifact");
+		for (Node artifact : artifactNodes) {
+			List<Node> checksumProperties = XMLTool.getMatchingNodes(artifact,
+					"properties/property[@name='download.checksum.sha-256']");
+			assertFalse("artifact does not have a 'download.checksum.sha-256' attribute", checksumProperties.isEmpty());
 		}
 	}
 }
