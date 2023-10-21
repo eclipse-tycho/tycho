@@ -14,13 +14,19 @@ package org.eclipse.tycho.test.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
+import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -35,43 +41,53 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.URIUtil;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Password;
 
 public class HttpServer {
-	private static class MonitoringServlet extends DefaultServlet {
-		private List<String> accessedURIs = new ArrayList<>();
+
+	private class Monitoring implements Filter {
+		@Override
+		public void init(FilterConfig filterConfig) throws ServletException {
+		}
 
 		@Override
-		public String getInitParameter(String name) {
-			// no directory listing allowed
-			if ("dirAllowed".equals(name)) {
-				return "false";
-			} else {
-				return super.getInitParameter(name);
+		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+				throws IOException, ServletException {
+			Request httprequest = Request.getBaseRequest(request);
+			String context = httprequest.getContextPath();
+			assert context.startsWith("/");
+			context = context.substring(1);
+			synchronized (contextName2accessedUrls) {
+				contextName2accessedUrls.add(context, httprequest.getServletPath());
 			}
-		}
-
-		public List<String> getAccessedURIs() {
-			return accessedURIs;
+			chain.doFilter(request, response);
 		}
 
 		@Override
-		protected void doGet(HttpServletRequest request, HttpServletResponse response)
-				throws ServletException, IOException {
-			accessedURIs.add(((Request) request).getHttpURI().toString());
-			super.doGet(request, response);
+		public void destroy() {
+
+		}
+	}
+
+	private static class RedirectServlet extends HttpServlet {
+		private final Function<String, String> relativeUrlToNewUrl;
+
+		public RedirectServlet(Function<String, String> relativeUrlToNewUrl2) {
+			super();
+			this.relativeUrlToNewUrl = relativeUrlToNewUrl2;
 		}
 
 		@Override
-		protected void doPost(HttpServletRequest request, HttpServletResponse response)
-				throws ServletException, IOException {
-			accessedURIs.add(((Request) request).getHttpURI().toString());
-			super.doPost(request, response);
+		protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+			resp.sendRedirect(relativeUrlToNewUrl.apply(req.getServletPath()));
 		}
+
 	}
 
 	private static final int BIND_ATTEMPTS = 20;
@@ -80,7 +96,7 @@ public class HttpServer {
 
 	private final int port;
 
-	private final Map<String, MonitoringServlet> contextName2servletsMap = new HashMap<>();
+	private final MultiMap<String> contextName2accessedUrls = new MultiMap<>();
 
 	private ContextHandlerCollection contexts;
 
@@ -153,18 +169,28 @@ public class HttpServer {
 
 	public String addServer(String contextName, final File content) {
 		ServletContextHandler context = new ServletContextHandler(contexts, URIUtil.SLASH + contextName);
+		context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 		context.setResourceBase(content.getAbsolutePath());
-
-		MonitoringServlet monitoringServlet = new MonitoringServlet();
-		contextName2servletsMap.put(contextName, monitoringServlet);
-		context.addServlet(new ServletHolder(monitoringServlet), URIUtil.SLASH);
-		contexts.addHandler(context);
-		try {
-			context.start();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		context.addServlet(DefaultServlet.class, URIUtil.SLASH);
+		registerContext(context);
 		return getUrl(contextName);
+	}
+
+	/**
+	 * 
+	 * @param contextName         - a path prefix to handle
+	 * @param relativeUrlToNewUrl - redirecting function. Takes a path within
+	 *                            context starting with slash and return an new
+	 *                            absolute URL to redirect to (Location header
+	 *                            value).
+	 * @return an URL prefix to redirect from
+	 */
+	public String addRedirect(String contextName, Function<String, String> relativeUrlToNewUrl) {
+		ServletContextHandler context = new ServletContextHandler(contexts, URIUtil.SLASH + contextName);
+		context.addServlet(new ServletHolder(new RedirectServlet(relativeUrlToNewUrl)), URIUtil.SLASH);
+		registerContext(context);
+		return getUrl(contextName);
+
 	}
 
 	public String getUrl(String contextName) {
@@ -172,7 +198,18 @@ public class HttpServer {
 	}
 
 	public List<String> getAccessedUrls(String contextName) {
-		return contextName2servletsMap.get(contextName).getAccessedURIs();
+		synchronized (contextName2accessedUrls) {
+			return List.copyOf(contextName2accessedUrls.get(contextName));
+		}
 	}
 
+	private void registerContext(ServletContextHandler context) {
+		context.addFilter(new FilterHolder(new Monitoring()), "*", EnumSet.of(DispatcherType.REQUEST));
+		contexts.addHandler(context);
+		try {
+			context.start();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
