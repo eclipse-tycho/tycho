@@ -262,8 +262,16 @@ public class SharedHttpCacheStorage implements HttpCache {
 				}
 				updateHeader(response, code);
 				if (isRedirected(code)) {
-					return SharedHttpCacheStorage.this.getCacheEntry(getRedirect(uri), logger)
+					File cachedFile = SharedHttpCacheStorage.this.getCacheEntry(getRedirect(uri), logger)
 							.getCacheFile(transportFactory);
+					// https://github.com/eclipse-tycho/tycho/issues/2938
+					// Redirect may change extension. P2's SimpleMetadataRepositoryFactory relies on
+					// accurate file extension to be cached.
+					// Copying file to accommodate original request and its file extension.
+					// Once https://github.com/eclipse-equinox/p2/issues/355 is fixed, cachedFile
+					// may be returned directly without copying.
+					FileUtils.copyFile(cachedFile, file);
+					return file;
 				}
 				if (exits) {
 					FileUtils.forceDelete(file);
