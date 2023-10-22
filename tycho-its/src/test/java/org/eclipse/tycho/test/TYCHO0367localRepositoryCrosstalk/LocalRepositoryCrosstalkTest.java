@@ -20,15 +20,16 @@ import org.junit.Test;
 public class LocalRepositoryCrosstalkTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void test() throws Exception {
-		// run e352 test first
+		// run bundle 2 test first with latest eclipse
 		Verifier v01 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle02", false);
 		v01.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_LATEST.toString());
 		v01.executeGoal("install");
 		v01.verifyErrorFreeLog();
 
-		// now run e342 test, it should not "see" e352 artifacts in local repo
+		// now run bundle1 test, it should not "see" artifacts in local repo from newer
+		// update site
 		Verifier v02 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle01", false);
-		v02.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_OXYGEN.toString());
+		v02.addCliOption("-Dp2.repo=https:////download.eclipse.org/releases/photon/");
 		v02.executeGoal("install");
 		v02.verifyErrorFreeLog();
 	}
