@@ -14,6 +14,7 @@ package org.eclipse.tycho.test.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -199,7 +200,7 @@ public class HttpServer {
 
 	public List<String> getAccessedUrls(String contextName) {
 		synchronized (contextName2accessedUrls) {
-			return List.copyOf(contextName2accessedUrls.get(contextName));
+			return List.copyOf(contextName2accessedUrls.getOrDefault(contextName, Collections.emptyList()));
 		}
 	}
 
