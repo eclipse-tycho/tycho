@@ -49,12 +49,12 @@ public class ContentJarTest extends AbstractTychoIntegrationTest {
 	@Before
 	public void startServer() throws Exception {
 		server = HttpServer.startServer();
-		File originalResource = ResourceUtil.resolveTestResource("repositories/content_jar");
-		FileUtils.copyDirectory(originalResource, temporaryFolder.getRoot());
-		verifier = getVerifier("target.content_jar", false);
-		verifier.deleteArtifacts("p2.org.eclipse.update.feature", "issue_2938_reproducer", "1.0.0.202310211419");
 		File repositoryRoot = temporaryFolder.getRoot();
 		this.mainRepoUrl = server.addServer("repoA", repositoryRoot);
+		File originalResource = ResourceUtil.resolveTestResource("repositories/content_jar");
+		FileUtils.copyDirectory(originalResource, repositoryRoot);
+		verifier = getVerifier("target.content_jar", false);
+		verifier.deleteArtifacts("p2.org.eclipse.update.feature", "issue_2938_reproducer", "1.0.0.202310211419");
 	}
 
 	@After
@@ -68,8 +68,8 @@ public class ContentJarTest extends AbstractTychoIntegrationTest {
 	public void noRedirect() throws Exception {
 		configureRepositoryInTargetDefinition(mainRepoUrl);
 		verifier.executeGoal("package");
-		assertVisited(TARGET_FEATURE_PATH);
 		verifier.verifyErrorFreeLog();
+		assertVisited(TARGET_FEATURE_PATH);
 	}
 
 	@Test
@@ -77,8 +77,8 @@ public class ContentJarTest extends AbstractTychoIntegrationTest {
 		String redirectedUrl = server.addRedirect("repoB", originalPath -> mainRepoUrl + originalPath);
 		configureRepositoryInTargetDefinition(redirectedUrl);
 		verifier.executeGoal("package");
-		assertVisited(TARGET_FEATURE_PATH);
 		verifier.verifyErrorFreeLog();
+		assertVisited(TARGET_FEATURE_PATH);
 	}
 
 	@Test
@@ -86,8 +86,8 @@ public class ContentJarTest extends AbstractTychoIntegrationTest {
 		String redirectedUrl = server.addRedirect("repoB", originalPath -> mainRepoUrl + originalPath + "_invalid");
 		configureRepositoryInTargetDefinition(redirectedUrl);
 		Assert.assertThrows(VerificationException.class, () -> verifier.executeGoal("package"));
-		assertVisited("/content.jar_invalid");
 		verifier.verifyTextInLog("No repository found at " + redirectedUrl);
+		assertVisited("/content.jar_invalid");
 	}
 
 	@Test
@@ -101,9 +101,9 @@ public class ContentJarTest extends AbstractTychoIntegrationTest {
 
 		configureRepositoryInTargetDefinition(redirectedUrl);
 		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
 		assertVisited("/content.jar_invalid");
 		assertVisited(TARGET_FEATURE_PATH + "_invalid");
-		verifier.verifyErrorFreeLog();
 	}
 
 	private void assertVisited(String path) {
