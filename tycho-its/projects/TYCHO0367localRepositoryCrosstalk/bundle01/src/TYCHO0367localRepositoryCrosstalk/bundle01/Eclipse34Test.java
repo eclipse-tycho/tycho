@@ -29,7 +29,7 @@ public class Eclipse34Test
         Bundle equinox = getBundle( "org.eclipse.osgi");
 
         assertEquals( 3, equinox.getVersion().getMajor() );
-        assertEquals( 12, equinox.getVersion().getMinor() );
+        assertEquals( 13, equinox.getVersion().getMinor() );
     }
     
     public Bundle getBundle( String id )
