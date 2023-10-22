@@ -92,7 +92,7 @@ public class OfflineModeTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 		assertFalse(server.getAccessedUrls("test").isEmpty());
-		server.getAccessedUrls("test").clear();
+		server.clear();
 	}
 
 }
