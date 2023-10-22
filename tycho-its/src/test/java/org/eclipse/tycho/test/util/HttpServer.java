@@ -203,6 +203,17 @@ public class HttpServer {
 		}
 	}
 
+	/**
+	 * Reset state.
+	 * 
+	 * Clear access logs. Does not affect configuration.
+	 **/
+	public void clear() {
+		synchronized (contextName2accessedUrls) {
+			contextName2accessedUrls.clear();
+		}
+	}
+
 	private void registerContext(ServletContextHandler context) {
 		context.addFilter(new FilterHolder(new Monitoring()), "*", EnumSet.of(DispatcherType.REQUEST));
 		contexts.addHandler(context);
