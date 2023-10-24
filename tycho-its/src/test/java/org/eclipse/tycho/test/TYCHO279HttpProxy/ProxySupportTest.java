@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 SAP AG and others.
+ * Copyright (c) 2010, 2023 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,15 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.jetty.server.NetworkTrafficServerConnector;
@@ -40,6 +35,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.XMLTool;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -182,28 +178,22 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
 	}
 
 	private void configureProxyInSettingsXml(boolean isProxyActive, String user, String password) throws Exception {
-		Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(settings);
-		XPath xpath = XPathFactory.newInstance().newXPath();
-		XPathExpression proxyExpr = xpath.compile("/settings/proxies/proxy");
-		Element proxyNode = (Element) proxyExpr.evaluate(dom.getDocumentElement(), XPathConstants.NODE);
+		Document dom = XMLTool.parseXMLDocument(settings);
+		Element proxyNode = (Element) XMLTool.getFirstMatchingNode(dom, "/settings/proxies/proxy");
 		{
-			XPathExpression portExpr = xpath.compile("/settings/proxies/proxy/port");
-			Element node = (Element) portExpr.evaluate(dom.getDocumentElement(), XPathConstants.NODE);
+			Element node = (Element) XMLTool.getFirstMatchingNode(dom, "/settings/proxies/proxy/port");
 			node.setTextContent(String.valueOf(proxyPort));
 		}
 		{
-			XPathExpression activeExpr = xpath.compile("/settings/proxies/proxy/active");
-			Element activeNode = (Element) activeExpr.evaluate(dom.getDocumentElement(), XPathConstants.NODE);
+			Element activeNode = (Element) XMLTool.getFirstMatchingNode(dom, "/settings/proxies/proxy/active");
 			activeNode.setTextContent(String.valueOf(isProxyActive));
 		}
 		{
-			XPathExpression userExpr = xpath.compile("/settings/proxies/proxy/username");
-			Element userNode = (Element) userExpr.evaluate(dom.getDocumentElement(), XPathConstants.NODE);
+			Element userNode = (Element) XMLTool.getFirstMatchingNode(dom, "/settings/proxies/proxy/username");
 			updateNodeValue("username", userNode, user, dom, proxyNode);
 		}
 		{
-			XPathExpression passwordExpr = xpath.compile("/settings/proxies/proxy/password");
-			Element passwordNode = (Element) passwordExpr.evaluate(dom.getDocumentElement(), XPathConstants.NODE);
+			Element passwordNode = (Element) XMLTool.getFirstMatchingNode(dom, "/settings/proxies/proxy/password");
 			updateNodeValue("password", passwordNode, password, dom, proxyNode);
 		}
 		Transformer xslTransformer = TransformerFactory.newInstance().newTransformer();

@@ -23,7 +23,7 @@
 	<name>Tycho Core</name>
 	<description>Core Tycho components</description>
 	<properties>
-		<jetty.version>11.0.16</jetty.version>
+		<jetty.version>12.0.2</jetty.version>
 	</properties>
 
 	<build>
@@ -306,8 +306,8 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-servlet</artifactId>
+			<groupId>org.eclipse.jetty.ee10</groupId>
+			<artifactId>jetty-ee10-servlet</artifactId>
 			<version>${jetty.version}</version>
 			<scope>test</scope>
 		</dependency>

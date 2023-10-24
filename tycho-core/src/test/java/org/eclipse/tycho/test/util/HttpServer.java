@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2023 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,10 +22,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.rules.ExternalResource;
 
 public class HttpServer extends ExternalResource {
@@ -97,8 +97,8 @@ public class HttpServer extends ExternalResource {
         connector.setPort(port);
         jetty.addConnector(connector);
 
-        ServletContextHandler context;
-        context = new ServletContextHandler(jetty, "/", 0);
+        ServletContextHandler context = new ServletContextHandler("/", 0);
+        jetty.setHandler(context);
         jetty.start();
 
         return new RunningServer(port, jetty, context);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 SAP AG and others.
+ * Copyright (c) 2010, 2023 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -25,36 +25,18 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.XMLTool;
 import org.junit.Test;
 import org.osgi.framework.Constants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 public class Tycho192SourceBundleTest extends AbstractTychoIntegrationTest {
-
-	private final DocumentBuilder docBuilder = createDocBuilder();
-	private final XPath xpath = XPathFactory.newInstance().newXPath();
-
-	private DocumentBuilder createDocBuilder() {
-		try {
-			return DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		} catch (ParserConfigurationException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	@Test
 	public void testDefaultSourceBundleSuffix() throws Exception {
@@ -69,27 +51,25 @@ public class Tycho192SourceBundleTest extends AbstractTychoIntegrationTest {
 
 	private void checkP2ContentXml(File p2Content) throws Exception {
 		assertTrue(p2Content.isFile());
-		Document p2ContentDOM = docBuilder.parse(p2Content);
-		XPathExpression sourceBundleUnitExpression = xpath.compile("/units/unit[@id = 'helloworld.source']");
-		Element sourceBundleUnitNode = (Element) sourceBundleUnitExpression.evaluate(p2ContentDOM.getDocumentElement(),
-				XPathConstants.NODE);
+		Document p2ContentDOM = XMLTool.parseXMLDocument(p2Content);
+		Element sourceBundleUnitNode = (Element) XMLTool.getFirstMatchingNode(p2ContentDOM,
+				"/units/unit[@id = 'helloworld.source']");
 		assertNotNull("unit with id 'helloworld.source' not found", sourceBundleUnitNode);
 		assertHasMavenClassifierProperty(sourceBundleUnitNode);
 	}
 
 	private void assertHasMavenClassifierProperty(Element node) throws XPathExpressionException {
-		XPathExpression classifierNodeExpression = xpath.compile("properties/property[@name = 'maven-classifier']");
-		Element classifierNode = (Element) classifierNodeExpression.evaluate(node, XPathConstants.NODE);
+		Element classifierNode = (Element) XMLTool.getFirstMatchingNode(node,
+				"properties/property[@name = 'maven-classifier']");
 		assertNotNull("property node with name 'maven-classifier' not found", classifierNode);
 		assertEquals("sources", classifierNode.getAttribute("value"));
 	}
 
-	private void checkP2ArtifactsXml(File p2Artifacts) throws SAXException, IOException, XPathExpressionException {
+	private void checkP2ArtifactsXml(File p2Artifacts) throws Exception {
 		assertTrue(p2Artifacts.isFile());
-		Document p2ArtifactsDOM = docBuilder.parse(p2Artifacts);
-		XPathExpression sourceBundleNodeExpression = xpath.compile("/artifacts/artifact[@id = 'helloworld.source']");
-		Element sourceBundleArtifactNode = (Element) sourceBundleNodeExpression
-				.evaluate(p2ArtifactsDOM.getDocumentElement(), XPathConstants.NODE);
+		Document p2ArtifactsDOM = XMLTool.parseXMLDocument(p2Artifacts);
+		Element sourceBundleArtifactNode = (Element) XMLTool.getFirstMatchingNode(p2ArtifactsDOM,
+				"/artifacts/artifact[@id = 'helloworld.source']");
 		assertNotNull("artifact with id 'helloworld.source' not found", sourceBundleArtifactNode);
 		assertHasMavenClassifierProperty(sourceBundleArtifactNode);
 	}

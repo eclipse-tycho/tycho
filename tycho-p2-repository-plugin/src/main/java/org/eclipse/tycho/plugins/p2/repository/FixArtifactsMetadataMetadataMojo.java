@@ -13,6 +13,7 @@
 package org.eclipse.tycho.plugins.p2.repository;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -20,6 +21,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
@@ -36,7 +38,7 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
  */
 @Mojo(name = "fix-artifacts-metadata", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
-    private static final Object LOCK = new Object();
+
     @Parameter(defaultValue = "${project.name}")
     private String repositoryName;
 
@@ -59,24 +61,24 @@ public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
     @Parameter(defaultValue = "true")
     private boolean keepNonXzIndexFiles;
 
-    @Component()
+    @Component
     MirrorApplicationService mirrorApp;
+    @Component
+    private FileLockService fileLockService;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        synchronized (LOCK) {
-            try {
-                File destination = getAssemblyRepositoryLocation();
-                if (!destination.isDirectory()) {
-                    throw new MojoExecutionException(
-                            "Could not update p2 repository, directory does not exist: " + destination);
-                }
-                DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
-                        destination, repositoryName, true, xzCompress, keepNonXzIndexFiles, false, true);
-                mirrorApp.recreateArtifactRepository(destinationRepoDescriptor);
-            } catch (FacadeException e) {
-                throw new MojoExecutionException("Could not update p2 repository", e);
+        File destination = getAssemblyRepositoryLocation();
+        try (var locking = fileLockService.lockVirtually(destination)) {
+            if (!destination.isDirectory()) {
+                throw new MojoExecutionException(
+                        "Could not update p2 repository, directory does not exist: " + destination);
             }
+            DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(destination,
+                    repositoryName, true, xzCompress, keepNonXzIndexFiles, false, true);
+            mirrorApp.recreateArtifactRepository(destinationRepoDescriptor);
+        } catch (IOException | FacadeException e) {
+            throw new MojoExecutionException("Could not update p2 repository", e);
         }
     }
 

@@ -11,25 +11,17 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.junit.Assert;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public class P2RepositoryTool {
 
-    private static final ThreadLocal<XPath> XPATH_TOOL = ThreadLocal
-            .withInitial(() -> XPathFactory.newInstance().newXPath());
     private static final Pattern strictVersionRangePattern = Pattern.compile("\\[([^,]*),\\1\\]");
     private final File repoLocation;
     private final File metadataFile;
@@ -229,36 +221,25 @@ public class P2RepositoryTool {
     }
 
     private void loadMetadata() throws Exception {
-        if (contentXml != null)
+        if (contentXml != null) {
             return;
-        if (metadataFile.getName().endsWith("jar"))
-            throw new UnsupportedOperationException("Can't read compressed p2 repositories yet");
-
-        contentXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(metadataFile);
-    }
-
-    private static XPath getXPathTool() {
-        return XPATH_TOOL.get();
+        }
+        contentXml = metadataFile.getName().endsWith("jar")
+                ? XMLTool.parseXMLDocumentFromJar(metadataFile, "content.xml")
+                : XMLTool.parseXMLDocument(metadataFile);
     }
 
     static List<Node> getNodes(Object startingPoint, String expression) throws XPathExpressionException {
-        NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
-
-        return IntStream.range(0, nodeList.getLength()).mapToObj(nodeList::item).toList();
+        return XMLTool.getMatchingNodes(startingPoint, expression);
     }
 
     static List<String> getValues(Object startingPoint, String expression) throws XPathExpressionException {
-        return getNodes(startingPoint, expression).stream().map(Node::getNodeValue).toList();
+        return XMLTool.getMatchingNodesValue(startingPoint, expression);
     }
 
     static String getAttribute(Node node, String expression) throws XPathExpressionException {
-        Attr attribute = (Attr) getXPathTool().evaluate(expression, node, XPathConstants.NODE);
-
-        if (attribute == null) {
-            return null;
-        } else {
-            return attribute.getValue();
-        }
+        Attr attribute = (Attr) XMLTool.getFirstMatchingNode(node, expression);
+        return attribute != null ? attribute.getValue() : null;
     }
 
     static boolean isStrictRange(String range) {
@@ -279,13 +260,7 @@ public class P2RepositoryTool {
         return range.substring(begin, end);
     }
 
-    public static final class IU {
-
-        private final Node unitElement;
-
-        IU(Node unitElement) {
-            this.unitElement = unitElement;
-        }
+    public static final record IU(Node unitElement) {
 
         public String getVersion() throws Exception {
             return getAttribute(unitElement, "@version");
