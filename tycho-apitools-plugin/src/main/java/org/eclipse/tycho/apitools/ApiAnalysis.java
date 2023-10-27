@@ -47,6 +47,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.launching.LaunchingPlugin;
 import org.eclipse.osgi.service.resolver.ResolverError;
 import org.eclipse.pde.api.tools.internal.BundleListTargetLocation;
@@ -165,6 +166,8 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 			analyzer.dispose();
 			ResourcesPlugin.getWorkspace().save(true, new NullProgressMonitor());
 		}
+		JRTUtil.reset(); // reclaim space due to loaded multiple JRTUtil should better be fixed to not
+							// use that much space
 		return result;
 	}
 
