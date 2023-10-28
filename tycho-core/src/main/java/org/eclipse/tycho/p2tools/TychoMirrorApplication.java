@@ -217,10 +217,13 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
 
     @Override
     protected void finalizeRepositories() {
-        Collection<IRepositoryReference> references = getDestinationMetadataRepository().getReferences();
-        if (!references.isEmpty()) {
-            LOGGER.info("Adding references to the following repositories:");
-            references.stream().map(r -> r.getLocation()).distinct().forEach(loc -> LOGGER.info("  {}", loc));
+        IMetadataRepository repository = getDestinationMetadataRepository();
+        if (repository != null) {
+            Collection<IRepositoryReference> references = repository.getReferences();
+            if (!references.isEmpty()) {
+                LOGGER.info("Adding references to the following repositories:");
+                references.stream().map(r -> r.getLocation()).distinct().forEach(loc -> LOGGER.info("  {}", loc));
+            }
         }
         super.finalizeRepositories();
     }
