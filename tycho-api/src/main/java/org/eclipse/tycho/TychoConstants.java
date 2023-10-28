@@ -10,6 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - Issue #658 - Tycho strips p2 artifact properties (eg PGP, maven info...)
+ *    Marco Lehmann-Mörz - issue #2877 - tycho-versions-plugin:bump-versions does not honor SNAPSHOT suffix
  *******************************************************************************/
 package org.eclipse.tycho;
 
@@ -133,4 +134,8 @@ public interface TychoConstants {
     public String ROOTFILE_EXTENSION = "zip";
 
     String HEADER_TESTCASES = "Test-Cases";
+
+    String SUFFIX_QUALIFIER = ".qualifier";
+
+    String SUFFIX_SNAPSHOT = "-SNAPSHOT";
 }
