@@ -13,10 +13,15 @@
 package org.eclipse.tycho.extras.docbundle;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.Stream.Builder;
 
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
@@ -83,7 +88,7 @@ public class ConvertSchemaToHtmlMojo extends AbstractMojo {
 		// now add all reactor projects,
 		for (MavenProject reactorProject : reactorProjects) {
 			if (reactorProject != project) {
-				if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(reactorProject.getPackaging())) {
+				if (isValidProject(reactorProject)) {
 					// due to how the search works we need to add the
 					// parent (!) directory!
 					String parent = reactorProject.getBasedir().getParent();
@@ -93,8 +98,30 @@ public class ConvertSchemaToHtmlMojo extends AbstractMojo {
 				}
 			}
 		}
+		List<File> manifestList = getManifestList().stream().flatMap(file -> {
+			if (file.isDirectory()) {
+				Builder<File> builder = Stream.builder();
+				File[] files = file.listFiles();
+				for (File dir : files) {
+					File pluginXml = new File(dir, "plugin.xml");
+					if (pluginXml.isFile()) {
+						MavenProject mp = getReactor(dir);
+						if (mp != null && isValidProject(mp)) {
+							try {
+								pluginXml = pluginXml.getCanonicalFile();
+							} catch (IOException e) {
+							}
+							builder.add(pluginXml);
+						}
+					}
+				}
+				return builder.build();
+			} else {
+				return Stream.of(file);
+			}
+		}).toList();
 		try (EclipseFramework framework = application.startFramework(workspace, List.of())) {
-			ConvertSchemaToHtmlResult result = framework.execute(new ConvertSchemaToHtmlRunner(getManifestList(),
+			ConvertSchemaToHtmlResult result = framework.execute(new ConvertSchemaToHtmlRunner(manifestList,
 					destination, cssURL, searchPaths, project.getBasedir()));
 			Log log = getLog();
 			List<String> list = result.errors().toList();
@@ -111,6 +138,25 @@ public class ConvertSchemaToHtmlMojo extends AbstractMojo {
 			}
 			throw new MojoExecutionException(cause);
 		}
+	}
+
+	private boolean isValidProject(MavenProject mp) {
+
+		return PackagingType.TYPE_ECLIPSE_PLUGIN.equals(mp.getPackaging());
+	}
+
+	private MavenProject getReactor(File dir) {
+		Path path = dir.toPath();
+		for (MavenProject mavenProject : reactorProjects) {
+			Path project = mavenProject.getBasedir().toPath();
+			try {
+				if (Files.isSameFile(path, project)) {
+					return mavenProject;
+				}
+			} catch (IOException e) {
+			}
+		}
+		return null;
 	}
 
 	List<String> getSearchPaths() {
