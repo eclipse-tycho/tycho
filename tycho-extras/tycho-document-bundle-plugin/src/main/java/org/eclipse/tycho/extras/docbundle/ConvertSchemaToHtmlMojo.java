@@ -15,6 +15,7 @@ package org.eclipse.tycho.extras.docbundle;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.model.Repository;
@@ -30,6 +31,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.extras.docbundle.runner.ConvertSchemaToHtmlResult;
 import org.eclipse.tycho.extras.docbundle.runner.ConvertSchemaToHtmlRunner;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
@@ -62,6 +64,9 @@ public class ConvertSchemaToHtmlMojo extends AbstractMojo {
 	@Parameter(property = "project")
 	private MavenProject project;
 
+	@Parameter(property = "reactorProjects", required = true, readonly = true)
+	protected List<MavenProject> reactorProjects;
+
 	@Component
 	private EclipseWorkspaceManager workspaceManager;
 	@Component
@@ -72,11 +77,31 @@ public class ConvertSchemaToHtmlMojo extends AbstractMojo {
 		MavenRepositoryLocation repository = PdeApplicationManager.getRepository(pdeToolsRepository);
 		EclipseApplication application = applicationManager.getApplication(repository);
 		EclipseWorkspace<?> workspace = workspaceManager.getWorkspace(repository.getURL(), this);
+		List<String> searchPaths = new ArrayList<>();
+		// first add all userpath...
+		searchPaths.addAll(getSearchPaths());
+		// now add all reactor projects,
+		for (MavenProject reactorProject : reactorProjects) {
+			if (reactorProject != project) {
+				if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(reactorProject.getPackaging())) {
+					// due to how the search works we need to add the
+					// parent (!) directory!
+					String parent = reactorProject.getBasedir().getParent();
+					if (!searchPaths.contains(parent)) {
+						searchPaths.add(parent);
+					}
+				}
+			}
+		}
 		try (EclipseFramework framework = application.startFramework(workspace, List.of())) {
 			ConvertSchemaToHtmlResult result = framework.execute(new ConvertSchemaToHtmlRunner(getManifestList(),
-					destination, cssURL, additionalSearchPaths, project.getBasedir()));
+					destination, cssURL, searchPaths, project.getBasedir()));
 			Log log = getLog();
-			result.errors().forEach(log::error);
+			List<String> list = result.errors().toList();
+			if (!list.isEmpty()) {
+				list.forEach(log::error);
+				throw new MojoFailureException("There are schema generation errors");
+			}
 		} catch (BundleException e) {
 			throw new MojoFailureException("Can't start framework!", e);
 		} catch (InvocationTargetException e) {
@@ -86,6 +111,18 @@ public class ConvertSchemaToHtmlMojo extends AbstractMojo {
 			}
 			throw new MojoExecutionException(cause);
 		}
+	}
+
+	List<String> getSearchPaths() {
+		if (additionalSearchPaths == null || additionalSearchPaths.isBlank()) {
+			return List.of();
+		}
+		String[] paths = additionalSearchPaths.split(","); //$NON-NLS-1$
+		List<String> result = new ArrayList<>(paths.length);
+		for (String pathString : paths) {
+			result.add(pathString);
+		}
+		return result;
 	}
 
 	private List<File> getManifestList() {
