@@ -25,7 +25,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -58,11 +57,11 @@ public class ConvertSchemaToHtmlRunner implements Callable<ConvertSchemaToHtmlRe
 	private List<File> manifests;
 	private File destination;
 	private URL cssURL;
-	private String additionalSearchPaths;
+	private List<String> additionalSearchPaths;
 	private File baseDir;
 
-	public ConvertSchemaToHtmlRunner(List<File> manifests, File destination, URL cssURL, String additionalSearchPaths,
-			File baseDir) {
+	public ConvertSchemaToHtmlRunner(List<File> manifests, File destination, URL cssURL,
+			List<String> additionalSearchPaths, File baseDir) {
 		this.manifests = manifests;
 		this.destination = destination;
 		this.cssURL = cssURL;
@@ -86,8 +85,6 @@ public class ConvertSchemaToHtmlRunner implements Callable<ConvertSchemaToHtmlRe
 				pluginID = getPluginID(manifest);
 			}
 
-			List<IPath> searchPaths = getSearchPaths();
-
 			IPluginExtensionPoint[] extPoints = model.getPluginBase().getExtensionPoints();
 			for (IPluginExtensionPoint extPoint : extPoints) {
 				String schemaLocation = extPoint.getSchema();
@@ -103,7 +100,14 @@ public class ConvertSchemaToHtmlRunner implements Callable<ConvertSchemaToHtmlRe
 							.parse(schemaFile, handler);
 					@SuppressWarnings("deprecation")
 					URL url = schemaFile.toURL();
-					SchemaDescriptor desc = new SchemaDescriptor(extPoint.getFullId(), url, searchPaths);
+					SchemaDescriptor desc = new SchemaDescriptor(extPoint.getFullId(), url,
+							additionalSearchPaths.stream().map(pathString -> {
+								IPath path = IPath.fromOSString(pathString);
+								if (!path.isAbsolute()) {
+									return IPath.fromOSString(baseDir.getPath()).append(path);
+								}
+								return path;
+							}).toList());
 					schema = (Schema) desc.getSchema(false);
 
 					// Check that all included schemas are available
@@ -162,30 +166,6 @@ public class ConvertSchemaToHtmlRunner implements Callable<ConvertSchemaToHtmlRe
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * @return user specified search paths or <code>null</code>
-	 */
-	private List<IPath> getSearchPaths() {
-		if (this.additionalSearchPaths == null) {
-			return null;
-		}
-		String[] paths = this.additionalSearchPaths.split(","); //$NON-NLS-1$
-		List<IPath> result = new ArrayList<>(paths.length);
-		for (String pathString : paths) {
-			IPath path = IPath.fromOSString(pathString);
-			if (path.isValidPath(pathString)) {
-				if (!path.isAbsolute()) {
-					path = IPath.fromOSString(baseDir.getPath()).append(path);
-				}
-				result.add(path);
-			} else {
-				System.out
-						.println(NLS.bind(PDECoreMessages.ConvertSchemaToHTML_InvalidAdditionalSearchPath, pathString));
-			}
-		}
-		return result;
 	}
 
 	private IPluginModelBase readManifestFile(File manifest) throws IOException, CoreException {
