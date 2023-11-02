@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Resources
+Bundle-SymbolicName: org.eclipse.tycho.test.linked.resources
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.eclipse.tycho.test.linked.resources
+Bundle-RequiredExecutionEnvironment: JavaSE-17
