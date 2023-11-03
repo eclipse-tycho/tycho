@@ -41,8 +41,8 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -50,7 +50,9 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -68,6 +70,7 @@ import org.eclipse.tycho.IRawArtifactFileProvider;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenArtifactKey;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.ResolvedArtifactKey;
@@ -261,6 +264,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 return Optional.empty();
             }).ifPresent(externalUIs::add);
         }
+        //add p2.inf items...
+        gatherP2InfUnits(project, externalUIs);
 
         Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectUIs = getPreliminaryReactorProjectUIs(
                 reactorProjects);
@@ -289,6 +294,31 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
 
         return targetPlatform;
+    }
+
+    private void gatherP2InfUnits(ReactorProject reactorProject, Set<IInstallableUnit> externalUIs) {
+        if (reactorProject == null) {
+            return;
+        }
+        AdviceFileAdvice advice;
+        if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(reactorProject.getPackaging())) {
+            advice = new AdviceFileAdvice(reactorProject.getArtifactId(), Version.parseVersion("1.0.0"),
+                    new Path(reactorProject.getBasedir().getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
+        } else if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(reactorProject.getPackaging())) {
+            advice = new AdviceFileAdvice(reactorProject.getArtifactId(), Version.parseVersion("1.0.0"),
+                    new Path(reactorProject.getBasedir().getAbsolutePath()), new Path("p2.inf"));
+        } else {
+            //not a project with advice...
+            return;
+        }
+        if (advice.containsAdvice()) {
+            InstallableUnitDescription[] descriptions = advice.getAdditionalInstallableUnitDescriptions(null);
+            if (descriptions != null && descriptions.length > 0) {
+                for (InstallableUnitDescription desc : descriptions) {
+                    externalUIs.add(MetadataFactory.createInstallableUnit(desc));
+                }
+            }
+        }
     }
 
     private List<MavenArtifactKey> getMissingJunitBundles(ReactorProject project, Set<IInstallableUnit> externalUIs) {
