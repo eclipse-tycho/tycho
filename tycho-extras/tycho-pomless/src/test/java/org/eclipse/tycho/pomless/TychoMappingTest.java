@@ -15,12 +15,21 @@ package org.eclipse.tycho.pomless;
 
 import java.io.File;
 
+import org.codehaus.plexus.ContainerConfiguration;
+import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusTestCase;
 import org.sonatype.maven.polyglot.PolyglotModelManager;
 
 public class TychoMappingTest extends PlexusTestCase {
 
     private PolyglotModelManager polyglotModelManager;
+
+    @Override
+    protected void customizeContainerConfiguration(ContainerConfiguration configuration) {
+        super.customizeContainerConfiguration(configuration);
+        configuration.setAutoWiring(true);
+        configuration.setClassPathScanning(PlexusConstants.SCANNING_ON);
+    }
 
     @Override
     protected void setUp() throws Exception {
