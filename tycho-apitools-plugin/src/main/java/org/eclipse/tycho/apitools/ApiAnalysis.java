@@ -16,12 +16,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -63,6 +69,11 @@ import org.eclipse.pde.api.tools.internal.provisional.IApiFilterStore;
 import org.eclipse.pde.api.tools.internal.provisional.model.IApiBaseline;
 import org.eclipse.pde.api.tools.internal.provisional.model.IApiComponent;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblem;
+import org.eclipse.pde.core.build.IBuild;
+import org.eclipse.pde.core.build.IBuildEntry;
+import org.eclipse.pde.core.build.IBuildModel;
+import org.eclipse.pde.core.plugin.IPluginModelBase;
+import org.eclipse.pde.core.plugin.PluginRegistry;
 import org.eclipse.pde.core.target.ITargetDefinition;
 import org.eclipse.pde.core.target.ITargetLocation;
 import org.eclipse.pde.core.target.ITargetPlatformService;
@@ -74,6 +85,9 @@ import org.eclipse.pde.internal.core.target.TargetPlatformService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
+/**
+ * Performs the API Analysis inside the embedded OSGi Frameworks
+ */
 public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 
 	private Collection<String> baselineBundles;
@@ -86,7 +100,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 	private String binaryArtifact;
 	private String outputDir;
 
-	public ApiAnalysis(Collection<Path> baselineBundles, Collection<Path> dependencyBundles, String baselineName,
+	ApiAnalysis(Collection<Path> baselineBundles, Collection<Path> dependencyBundles, String baselineName,
 			Path apiFilterFile, Path apiPreferences, Path projectDir, boolean debug, Path binaryArtifact,
 			Path outputDir) {
 		this.targetBundles = dependencyBundles.stream().map(ApiAnalysis::pathAsString).toList();
@@ -222,32 +236,126 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 	}
 
 	private void createOutputFolder(IProject project, IPath projectPath) throws IOException, CoreException {
+		Map<String, String> outputJars = computeOutputJars(project);
 		IJavaProject javaProject = JavaCore.create(project);
 		if (javaProject != null) {
-			IPath fullPath = project.getFolder(outputDir).getFullPath();
+			IFolder outputFolder = project.getFolder(outputDir);
 			// FIXME see bug https://github.com/eclipse-pde/eclipse.pde/issues/801
 			// it can happen that project output location != maven compiled classes, usually
 			// eclipse uses output = bin/ while maven uses target/classes if not
 			// specifically configured to be even
-			javaProject.setOutputLocation(fullPath, null);
-			makeOutputFolder(javaProject.getOutputLocation(), projectPath);
+			IPath mainOutputLocation = javaProject.getOutputLocation();
+			IPath mainRealPath = getRealPath(mainOutputLocation, outputJars, outputFolder);
+			makeOutputFolder(mainOutputLocation, mainRealPath);
 			IClasspathEntry[] classpath = javaProject.getRawClasspath();
 			for (IClasspathEntry entry : classpath) {
-				// FIXME see bug https://github.com/eclipse-pde/eclipse.pde/issues/791
-				makeOutputFolder(entry.getOutputLocation(), projectPath);
+				IPath entryOutputLocation = entry.getOutputLocation();
+				if (entryOutputLocation != null) {
+					IPath realEntryPath = getRealPath(entryOutputLocation, outputJars, outputFolder);
+					makeOutputFolder(entryOutputLocation, realEntryPath);
+				}
 			}
 		}
 	}
 
-	private void makeOutputFolder(IPath outputLocation, IPath projectPath) throws CoreException, IOException {
-		if (outputLocation != null) {
+	private Map<String, String> computeOutputJars(IProject project) throws CoreException {
+		Map<String, String> outputJars = new HashMap<String, String>();
+		IPluginModelBase base = PluginRegistry.findModel(project);
+		if (base != null) {
+			IBuildModel model = PluginRegistry.createBuildModel(base);
+			if (model != null) {
+				IBuild ibuild = model.getBuild();
+				IBuildEntry[] entries = ibuild.getBuildEntries();
+				for (IBuildEntry entry : entries) {
+					String name = entry.getName();
+					if (name.startsWith(IBuildEntry.OUTPUT_PREFIX)) {
+						String key = name.substring(IBuildEntry.OUTPUT_PREFIX.length());
+						for (String token : entry.getTokens()) {
+							outputJars.put(token, key);
+						}
+					}
+				}
+			}
+		}
+		return outputJars;
+	}
+
+	private IPath getRealPath(IPath eclipseOutputLocation, Map<String, String> outputJars, IFolder mavenOutputFolder) {
+		if (eclipseOutputLocation == null) {
+			return null;
+		}
+		IFolder projectFolder = getProjectFolder(eclipseOutputLocation);
+		for (Entry<String, String> entry : outputJars.entrySet()) {
+			IFolder jarFolder = projectFolder.getProject().getFolder(entry.getKey());
+			if (jarFolder.equals(projectFolder)) {
+				String jarOutputPath = entry.getValue();
+				if (".".equals(jarOutputPath)) {
+					return mavenOutputFolder.getFullPath();
+				}
+				return mavenOutputFolder.getParent()
+						.getFolder(new org.eclipse.core.runtime.Path(jarOutputPath + "-classes")).getFullPath();
+			}
+		}
+		return eclipseOutputLocation;
+	}
+
+	private IFolder makeOutputFolder(IPath eclipseOutputLocation, IPath mavenOutputLocation)
+			throws CoreException, IOException {
+		if (eclipseOutputLocation != null) {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			IFolder folder = workspace.getRoot().getFolder(outputLocation);
+			IFolder folder = workspace.getRoot().getFolder(eclipseOutputLocation);
 			if (!folder.exists()) {
 				folder.create(true, true, new NullProgressMonitor());
 			}
+			if (mavenOutputLocation != null && !eclipseOutputLocation.equals(mavenOutputLocation)) {
+				copy(getFile(mavenOutputLocation), getFile(eclipseOutputLocation));
+			}
+			folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+			return folder;
 		}
+		return null;
+	}
 
+	private File getFile(IPath path) {
+		if (path == null) {
+			return null;
+		}
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IPath location = workspace.getRoot().getFolder(path).getLocation();
+		if (location == null) {
+			return null;
+		}
+		return location.toFile();
+	}
+
+	private void copy(File from, File to) throws IOException {
+		if (from == null || to == null || !from.isDirectory() || !to.isDirectory()) {
+			return;
+		}
+		final Path targetPath = to.toPath();
+		Files.walkFileTree(from.toPath(), new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
+					throws IOException {
+				Files.createDirectories(targetPath.resolve(from.toPath().relativize(dir)));
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+				Files.copy(file, targetPath.resolve(from.toPath().relativize(file)),
+						StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	}
+
+	private IFolder getProjectFolder(IPath path) {
+		if (path != null) {
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			return workspace.getRoot().getFolder(path);
+		}
+		return null;
 	}
 
 	private void deleteAllProjects() throws CoreException {
