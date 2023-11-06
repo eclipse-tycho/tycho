@@ -33,7 +33,7 @@ import de.pdark.decentxml.XMLParser;
 public class ApiToolsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testGenerate() throws Exception {
-		Verifier verifier = getVerifier("api-tools", true, true);
+		Verifier verifier = getVerifier("api-tools/api-break", true, true);
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File descriptionFile = new File(verifier.getBasedir(), "bundle1/target/.api_description");
@@ -44,8 +44,8 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	public void testVerify() throws Exception {
-		Verifier verifier = getVerifier("api-tools", true, true);
+	public void testApiBreak() throws Exception {
+		Verifier verifier = getVerifier("api-tools/api-break", true, true);
 		File repo = ResourceUtil.resolveTestResource("repositories/api-tools");
 		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
 
