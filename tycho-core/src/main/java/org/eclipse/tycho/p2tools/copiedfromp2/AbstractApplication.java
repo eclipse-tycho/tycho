@@ -277,11 +277,19 @@ public abstract class AbstractApplication {
     }
 
     public boolean hasArtifactSources() {
-        return ((ICompositeRepository<?>) getCompositeArtifactRepository()).getChildren().size() > 0;
+        IArtifactRepository repository = getCompositeArtifactRepository();
+        if (repository instanceof ICompositeRepository<?> composite) {
+            return composite.getChildren().size() > 0;
+        }
+        return false;
     }
 
     public boolean hasMetadataSources() {
-        return ((ICompositeRepository<?>) getCompositeMetadataRepository()).getChildren().size() > 0;
+        IMetadataRepository repository = getCompositeMetadataRepository();
+        if (repository instanceof ICompositeRepository<?> composite) {
+            return composite.getChildren().size() > 0;
+        }
+        return false;
     }
 
     public abstract IStatus run(IProgressMonitor monitor) throws ProvisionException;
