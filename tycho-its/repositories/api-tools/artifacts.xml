@@ -40,5 +40,17 @@
         <property name='download.checksum.sha-256' value='780ebdadec5d49c4ba4805fa4166b58b9e823924f066970cb57709a94ad31baf'/>
       </properties>
     </artifact>
+        <artifact classifier='osgi.bundle' id='org.eclipse.pde.build' version='3.12.100.v20230825-1354'>
+    	<properties size='10'>
+	      <property name='artifact.size' value='520063'/>
+	      <property name='download.size' value='520063'/>
+	      <property name='download.checksum.sha-256' value='937c5b78be0146141a7062fbf7cdf2795264d259a17e0147088650628a53707e'/>
+	      <property name='maven-groupId' value='org.eclipse.pde'/>
+	      <property name='maven-artifactId' value='org.eclipse.pde.build'/>
+	      <property name='maven-version' value='3.12.100-SNAPSHOT'/>
+	      <property name='maven-type' value='eclipse-plugin'/>
+	      <property name='download.stats' value='org.eclipse.pde.build/3.12.100.v20230825-1354'/>
+    	</properties>
+    </artifact>
   </artifacts>
 </repository>
