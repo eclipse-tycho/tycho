@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.pde.build">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.pde.build" id="fetchFactories" name="Fetch Script Factory"/>
+      </appInfo>
+      <documentation>
+         This extension point provides factories for constructing repository specific fetch script during the PDE Build fetch process (eclipse.fetch Ant task).
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <complexType>
+         <sequence>
+            <element ref="factory" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="factory">
+      <annotation>
+         <appInfo>
+            <meta.element labelAttribute="id"/>
+         </appInfo>
+         <documentation>
+            Defines a fetch factory being used in the eclipse.fetch Ant task.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The id identifying the repository. This value is used in the map files.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The factory implementation. It must implement &lt;code&gt;org.eclipse.pde.build.IFetchFactory&lt;/code&gt;.
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="org.eclipse.pde.build.IFetchFactory"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         3.2
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         &lt;pre&gt;
+&lt;extension point=&quot;org.eclipse.pde.build.fetchFactories&quot;&gt;
+    &lt;factory
+        class=&quot;org.eclipse.pde.internal.build.fetch.CVSFetchTaskFactory&quot;
+        id=&quot;CVS&quot;/&gt;
+    &lt;factory
+        class=&quot;org.eclipse.pde.internal.build.fetch.COPYFetchTasksFactory&quot;
+        id=&quot;COPY&quot;/&gt;
+&lt;/extension&gt;
+&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         See the &lt;code&gt;org.eclipse.pde.build.IFetchFactory&lt;/code&gt; interface.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         The following fetch task factories are provided by PDE Build.
+&lt;ul&gt;
+&lt;li&gt;a CVS fetch task factory for fetching features and plug-ins from CVS repositories.&lt;/li&gt;
+&lt;li&gt;a COPY fetch task factory for copying features and plug-ins from arbitrary file system locations.&lt;/li&gt;
+&lt;/ul&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2004, 2006 Eclipse Foundation and others.
+     All rights reserved.   This program and the accompanying materials
+          are made available under the terms of the Eclipse Public License v1.0
+          which accompanies this distribution, and is available at
+          http://www.eclipse.org/legal/epl-v10.html
+          Contributors:
+               Gunnar Wagenknecht - Initial API and implementation
+               IBM Corporation - Initial API and implementation
+      </documentation>
+   </annotation>
+
+</schema>
