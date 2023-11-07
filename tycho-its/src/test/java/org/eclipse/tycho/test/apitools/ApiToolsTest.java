@@ -88,4 +88,22 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		// TODO: check with api-filter
 		// TODO: check with second plugin with BREE?
 	}
+
+	/**
+	 * This test an api compare where there are only embedded jars but nothing in
+	 * the output folder, the expectation is that everything works and no API errors
+	 * are reported, in case of problems some invalid API error are reported similar
+	 * to "The type org.eclipse.pde.build.Constants has been removed from
+	 * org.eclipse.pde.build_3.12.200"
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testEmbeddedJars() throws Exception {
+		Verifier verifier = getVerifier("api-tools/embedded-jars", true, true);
+		File repo = ResourceUtil.resolveTestResource("repositories/api-tools");
+		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+	}
 }
