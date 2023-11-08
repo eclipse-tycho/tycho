@@ -106,4 +106,22 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 	}
+
+	/**
+	 * This test an api compare where there are missing bin entry for the main
+	 * source, the expectation is that everything works and no API errors are
+	 * reported, in case of problems some invalid API error are reported similar to
+	 * "The type org.eclipse.equinox.p2.ui.RevertProfilePage has been removed from
+	 * org.eclipse.equinox.p2.ui"
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testNoBin() throws Exception {
+		Verifier verifier = getVerifier("api-tools/missing-bin", true, true);
+		File repo = ResourceUtil.resolveTestResource("repositories/api-tools");
+		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+	}
 }
