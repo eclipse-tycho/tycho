@@ -124,4 +124,22 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 	}
+
+	/**
+	 * This test an api compare where there is a single jar that makes up the
+	 * bundle, the expectation is that everything works and no API errors are
+	 * reported, in case of problems some invalid API error are reported similar to
+	 * "The type org.eclipse.jdt.debug.eval.IEvaluationResult has been removed from
+	 * org.eclipse.jdt.debug"
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testSingleJar() throws Exception {
+		Verifier verifier = getVerifier("api-tools/single-jar", true, true);
+		File repo = ResourceUtil.resolveTestResource("repositories/api-tools");
+		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+	}
 }
