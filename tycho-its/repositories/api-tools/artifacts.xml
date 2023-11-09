@@ -66,5 +66,18 @@
         <property name='download.stats' value='org.eclipse.equinox.p2.ui/2.8.100.v20230728-2010'/>
       </properties>
     </artifact>
+    <artifact classifier='osgi.bundle' id='org.eclipse.jdt.debug' version='3.21.100.v20230728-0612'>
+      <properties size='9'>
+        <property name='artifact.size' value='948292'/>
+        <property name='download.size' value='948292'/>
+        <property name='download.checksum.sha-512' value='72dd43156590c29101161e8a670dcdab383460d909e3ce6f32e6ba2d1f4d6d5e09924112a1d529e5064ccf139efb3d36d1cc43f4425b31dcc5de10d5372d363c'/>
+        <property name='download.checksum.sha-256' value='f4204662f7bbf3bba25dddafa23f04dec0e09e426164fe0ceff6ca2c43e50e92'/>
+        <property name='maven-groupId' value='org.eclipse.jdt'/>
+        <property name='maven-artifactId' value='org.eclipse.jdt.debug'/>
+        <property name='maven-version' value='3.21.100-SNAPSHOT'/>
+        <property name='maven-type' value='eclipse-plugin'/>
+        <property name='download.stats' value='org.eclipse.jdt.debug/3.21.100.v20230728-0612'/>
+      </properties>
+  </artifact>
   </artifacts>
 </repository>
