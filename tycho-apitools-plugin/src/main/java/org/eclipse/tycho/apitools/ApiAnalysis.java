@@ -273,6 +273,32 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 						for (String token : entry.getTokens()) {
 							outputJars.put(token, key);
 						}
+					} else if (name.startsWith(IBuildEntry.JAR_PREFIX)) {
+						// Actually each source.<jar> should have a corresponding output.<jar> but there
+						// are some cases where this is not true... lets cheat and look at the
+						// classpath instead...
+						String key = name.substring(IBuildEntry.JAR_PREFIX.length());
+						IJavaProject javaProject = JavaCore.create(project);
+						if (javaProject != null) {
+							IClasspathEntry[] rawClasspath = javaProject.getRawClasspath();
+							for (String token : entry.getTokens()) {
+								IPath srcPath = project.getFolder(token).getFullPath();
+								for (IClasspathEntry classpathEntry : rawClasspath) {
+									if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+										IPath path = classpathEntry.getPath();
+										if (srcPath.equals(path)) {
+											IPath outputLocation = classpathEntry.getOutputLocation();
+											if (outputLocation == null) {
+												outputLocation = javaProject.getOutputLocation();
+											}
+											IFolder folder = getProjectFolder(outputLocation);
+											String output = folder.getProjectRelativePath().toString();
+											outputJars.putIfAbsent(output, key);
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			}
