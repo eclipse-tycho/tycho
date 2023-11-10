@@ -236,9 +236,9 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 	}
 
 	private void createOutputFolder(IProject project, IPath projectPath) throws IOException, CoreException {
-		Map<String, String> outputJars = computeOutputJars(project);
 		IJavaProject javaProject = JavaCore.create(project);
 		if (javaProject != null) {
+			Map<String, String> outputJars = computeOutputJars(project, javaProject);
 			IFolder outputFolder = project.getFolder(outputDir);
 			// FIXME see bug https://github.com/eclipse-pde/eclipse.pde/issues/801
 			// it can happen that project output location != maven compiled classes, usually
@@ -258,7 +258,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		}
 	}
 
-	private Map<String, String> computeOutputJars(IProject project) throws CoreException {
+	private Map<String, String> computeOutputJars(IProject project, IJavaProject javaProject) throws CoreException {
 		Map<String, String> outputJars = new HashMap<String, String>();
 		IPluginModelBase base = PluginRegistry.findModel(project);
 		if (base != null) {
@@ -271,30 +271,27 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 					if (name.startsWith(IBuildEntry.OUTPUT_PREFIX)) {
 						String key = name.substring(IBuildEntry.OUTPUT_PREFIX.length());
 						for (String token : entry.getTokens()) {
-							outputJars.put(token, key);
+							outputJars.put(normalizeOutputPath(token), key);
 						}
 					} else if (name.startsWith(IBuildEntry.JAR_PREFIX)) {
 						// Actually each source.<jar> should have a corresponding output.<jar> but there
 						// are some cases where this is not true... lets cheat and look at the
 						// classpath instead...
 						String key = name.substring(IBuildEntry.JAR_PREFIX.length());
-						IJavaProject javaProject = JavaCore.create(project);
-						if (javaProject != null) {
-							IClasspathEntry[] rawClasspath = javaProject.getRawClasspath();
-							for (String token : entry.getTokens()) {
-								IPath srcPath = project.getFolder(token).getFullPath();
-								for (IClasspathEntry classpathEntry : rawClasspath) {
-									if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-										IPath path = classpathEntry.getPath();
-										if (srcPath.equals(path)) {
-											IPath outputLocation = classpathEntry.getOutputLocation();
-											if (outputLocation == null) {
-												outputLocation = javaProject.getOutputLocation();
-											}
-											IFolder folder = getProjectFolder(outputLocation);
-											String output = folder.getProjectRelativePath().toString();
-											outputJars.putIfAbsent(output, key);
+						IClasspathEntry[] rawClasspath = javaProject.getRawClasspath();
+						for (String token : entry.getTokens()) {
+							IPath srcPath = project.getFolder(token).getFullPath();
+							for (IClasspathEntry classpathEntry : rawClasspath) {
+								if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+									IPath path = classpathEntry.getPath();
+									if (srcPath.equals(path)) {
+										IPath outputLocation = classpathEntry.getOutputLocation();
+										if (outputLocation == null) {
+											outputLocation = javaProject.getOutputLocation();
 										}
+										IFolder folder = getProjectFolder(outputLocation);
+										String tokenOutput = folder.getProjectRelativePath().toString();
+										outputJars.putIfAbsent(normalizeOutputPath(tokenOutput), key);
 									}
 								}
 							}
@@ -306,6 +303,13 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		return outputJars;
 	}
 
+	private String normalizeOutputPath(String path) {
+		if (path != null && path.endsWith("/")) {
+			return path.substring(0, path.length() - 1);
+		}
+		return path;
+	}
+
 	private IPath getRealPath(IPath eclipseOutputLocation, Map<String, String> outputJars, IFolder mavenOutputFolder) {
 		if (eclipseOutputLocation == null) {
 			return null;
@@ -315,7 +319,9 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 			IFolder jarFolder = projectFolder.getProject().getFolder(entry.getKey());
 			if (jarFolder.equals(projectFolder)) {
 				String jarOutputPath = entry.getValue();
-				if (".".equals(jarOutputPath)) {
+				if (".".equals(jarOutputPath) || outputJars.size() == 1) {
+					// special case of one classpath entry which is not ".", Tycho also use standard
+					// maven output dir
 					return mavenOutputFolder.getFullPath();
 				}
 				return mavenOutputFolder.getParent()
