@@ -10,8 +10,12 @@
 package org.eclipse.tycho.test.p2Inf;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -21,24 +25,22 @@ import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLParser;
 
-import java.io.File;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 /**
- * Test that a virtual IU created just with metadata in a p2.inf file can be required
- * in the same p2.inf file.
+ * Test that a virtual IU created just with metadata in a p2.inf file can be
+ * required in the same p2.inf file.
  * <p>
- * It used to work until 3.0.5 (using <code><pomDependencies>consider</pomDependencies></code>)
- * but since 4.0.0 failed with:
+ * It used to work until 3.0.5 (using
+ * <code><pomDependencies>consider</pomDependencies></code>) but since 4.0.0
+ * failed with:
+ * 
  * <pre>
  * Cannot resolve project dependencies:
  *   Software being installed: pvu.bundle 1.0.0.qualifier
  *   Missing requirement: pvu.bundle 1.0.0.qualifier requires 'org.eclipse.equinox.p2.iu; configure.pvu.bundle 0.0.0' but it could not be found
  * </pre>
  *
- * See https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md#mixed-reactor-setups-require-the-new-resolver-now
+ * See
+ * https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md#mixed-reactor-setups-require-the-new-resolver-now
  * and https://github.com/eclipse-tycho/tycho/issues/2977
  */
 public class VirtualUnitTest extends AbstractTychoIntegrationTest {
@@ -68,9 +70,7 @@ public class VirtualUnitTest extends AbstractTychoIntegrationTest {
 	}
 
 	private static Optional<Element> findUnit(List<Element> units, String hostUnitId) {
-		return units.stream()
-				.filter(elem -> hostUnitId.equals(elem.getAttributeValue("id")))
-				.findFirst();
+		return units.stream().filter(elem -> hostUnitId.equals(elem.getAttributeValue("id"))).findFirst();
 	}
 
 	private static Stream<Element> findRequirements(Optional<Element> hostUnit) {
