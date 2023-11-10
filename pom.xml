@@ -341,6 +341,13 @@
 					<configuration>
 						<extractors>class</extractors>
 					</configuration>
+					<dependencies>
+						<dependency>
+						    <groupId>org.ow2.asm</groupId>
+						    <artifactId>asm</artifactId>
+						    <version>9.6</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
