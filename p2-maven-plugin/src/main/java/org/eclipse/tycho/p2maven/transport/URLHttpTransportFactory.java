@@ -63,7 +63,7 @@ public class URLHttpTransportFactory implements HttpTransportFactory {
 		public Response<InputStream> get() throws IOException {
 			HttpURLConnection connection = createConnection();
 			connection.connect();
-			return new HttpResponse<InputStream>(connection) {
+			return new HttpResponse<>(connection) {
 
 				@Override
 				public void close() {
@@ -111,7 +111,7 @@ public class URLHttpTransportFactory implements HttpTransportFactory {
 			HttpURLConnection connection = createConnection();
 			connection.setRequestMethod("HEAD");
 			connection.connect();
-			return new HttpResponse<Void>(connection) {
+			return new HttpResponse<>(connection) {
 
 				@Override
 				public void close() {

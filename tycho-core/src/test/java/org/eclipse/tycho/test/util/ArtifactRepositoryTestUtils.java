@@ -41,7 +41,7 @@ public class ArtifactRepositoryTestUtils {
     }
 
     public static Matcher<? super IArtifactDescriptor> inCanonicalFormat() {
-        return new TypeSafeMatcher<IArtifactDescriptor>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {

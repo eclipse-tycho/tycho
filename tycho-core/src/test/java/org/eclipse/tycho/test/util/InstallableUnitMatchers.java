@@ -31,7 +31,7 @@ public class InstallableUnitMatchers {
     private static final String TYPE = "IInstallableUnit";
 
     public static Matcher<IInstallableUnit> unitWithId(final String id) {
-        return new TypeSafeMatcher<IInstallableUnit>(IInstallableUnit.class) {
+        return new TypeSafeMatcher<>(IInstallableUnit.class) {
 
             @Override
             public void describeTo(Description description) {
@@ -169,7 +169,7 @@ public class InstallableUnitMatchers {
 
     public static Matcher<? super IRequirement> requirement(final String id, final String version) {
         final IInstallableUnit unit = InstallableUnitUtil.createIU(id, version);
-        return new TypeSafeMatcher<IRequirement>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -201,7 +201,7 @@ public class InstallableUnitMatchers {
 
     public static Matcher<? super ITouchpointData> configureTouchpointInstructionThat(
             final Matcher<String> instructionMatcher) {
-        return new TypeSafeMatcher<ITouchpointData>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
