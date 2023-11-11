@@ -44,6 +44,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -56,6 +57,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
@@ -104,7 +106,6 @@ import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.repository.MirroringArtifactProvider;
 import org.eclipse.tycho.p2.repository.ProviderOnlyArtifactRepository;
 import org.eclipse.tycho.p2.repository.PublishingRepository;
-import org.eclipse.tycho.p2.repository.QueryableCollection;
 import org.eclipse.tycho.p2.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
 import org.eclipse.tycho.p2.resolver.BundlePublisher;
@@ -333,7 +334,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                         Collection<ProjectClasspathEntry> entries = eclipseProject.getClasspathEntries();
                         for (ProjectClasspathEntry entry : entries) {
                             if (entry instanceof JUnitClasspathContainerEntry junit) {
-                                QueryableCollection queriable = new QueryableCollection(externalUIs);
+                                IQueryable<IInstallableUnit> queriable = new QueryableArray(externalUIs);
                                 Collection<JUnitBundle> artifacts = junit.getArtifacts();
                                 for (JUnitBundle bundle : artifacts) {
                                     MavenArtifactKey maven = ClasspathReader.toMaven(bundle);

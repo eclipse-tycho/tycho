@@ -443,8 +443,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
             return performResolution(monitor);
 
         Slicer slicer = createSlicer(slicingOptions);
-        IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]),
-                monitor);
+        IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs, monitor);
 
         if (slice != null && slicingOptions.latestVersionOnly()) {
             IQueryResult<IInstallableUnit> queryResult = slice.query(QueryUtil.createLatestIUQuery(), monitor);
