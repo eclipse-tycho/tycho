@@ -12,28 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools;
 
-public class RepositoryReference {
-    private final String name;
-    private final String location;
-    private final boolean enable;
+import java.net.URI;
 
-    public RepositoryReference(String name, String location, boolean enable) {
-        super();
-        this.name = name;
-        this.location = location;
-        this.enable = enable;
+public record RepositoryReference(String name, String location, boolean enable) {
+
+    public URI locationURINormalized() {
+        // P2 does the same before loading the repo and thus IRepository.getLocation() returns the normalized URL.
+        // In order to avoid stripping of slashes from URI instances do it now before URIs are created.
+        return URI.create(location.endsWith("/") ? location.substring(0, location.length() - 1) : location);
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public boolean isEnable() {
-        return enable;
-    }
-
 }
