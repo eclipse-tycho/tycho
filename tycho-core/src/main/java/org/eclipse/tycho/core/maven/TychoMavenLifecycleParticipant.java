@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -41,11 +40,8 @@ import java.util.stream.Collectors;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.project.MavenProject;
@@ -158,28 +154,13 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                             //do not inject additional dependencies for non Tycho managed projects!
                             continue;
                         }
-                        Model model = project.getModel();
-                        Set<String> existingDependencies = model.getDependencies().stream()
-                                .map(TychoMavenLifecycleParticipant::getKey)
-                                .collect(Collectors.toCollection(HashSet::new));
                         Collection<MavenProject> dependencyProjects = closure.getDependencyProjects(project);
-                        for (MavenProject dependencyProject : dependencyProjects) {
-                            Dependency dependency = new Dependency();
-                            dependency.setArtifactId(dependencyProject.getArtifactId());
-                            dependency.setGroupId(dependencyProject.getGroupId());
-                            dependency.setVersion(dependencyProject.getVersion());
-                            String packaging = dependencyProject.getPackaging();
-                            dependency.setType(packaging);
-                            dependency.setScope(Artifact.SCOPE_COMPILE);
-                            dependency.setOptional(false);
-                            if (existingDependencies.add(getKey(dependency))) {
-                                model.addDependency(dependency);
-                            }
-                        }
+                        MavenDependencyInjector.injectMavenProjectDependencies(project, dependencyProjects);
                         if (DUMP_DATA) {
                             try {
                                 Set<MavenProject> visited = new HashSet<>();
-                                modelWriter.write(new File(project.getBasedir(), "pom-model.xml"), Map.of(), model);
+                                modelWriter.write(new File(project.getBasedir(), "pom-model.xml"), Map.of(),
+                                        project.getModel());
                                 try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
                                         new FileOutputStream(new File(project.getBasedir(), "requirements.txt"))))) {
                                     writer.write(project.getId() + ":\r\n");
@@ -221,13 +202,6 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                         visited);
             }
         }
-    }
-
-    private static String getKey(Dependency dependency) {
-
-        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":"
-                + Objects.requireNonNullElse(dependency.getType(), "jar") + ":" + dependency.getVersion() + ":"
-                + Objects.requireNonNullElse(dependency.getClassifier(), "");
     }
 
     @Override
