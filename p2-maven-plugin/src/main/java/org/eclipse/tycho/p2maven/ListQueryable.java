@@ -77,7 +77,8 @@ public final class ListQueryable<T> implements IQueryable<T> {
 			return stream().iterator();
 		}
 
-		private Stream<R> stream() {
+		@Override
+		public Stream<R> stream() {
 			return resultList.stream().flatMap(r -> StreamSupport
 					.stream(Spliterators.spliteratorUnknownSize(r.iterator(), Spliterator.ORDERED), false));
 		}

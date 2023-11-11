@@ -84,7 +84,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
                 new HashSet<>(), false);
         projector.encode(createUnitRequiring("tycho", seedUnits, seedRequires),
                 EMPTY_IU_ARRAY /* alreadyExistingRoots */,
-                new QueryableArray(EMPTY_IU_ARRAY) /* installedIUs */, seedUnits /* newRoots */, monitor);
+                new QueryableArray(List.of()) /* installedIUs */, seedUnits /* newRoots */, monitor);
         IStatus s = projector.invokeSolver(monitor);
         if (s.getSeverity() == IStatus.ERROR) {
             Set<Explanation> explanation = getExplanation(projector); // suppress "Cannot complete the request.  Generating details."
