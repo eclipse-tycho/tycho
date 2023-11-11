@@ -12,10 +12,7 @@ package org.eclipse.tycho.gpg;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -188,9 +185,8 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
             }
 
             var artifactKeys = artifactRepository.query(ArtifactKeyQuery.ALL_KEYS, null);
-            var descriptors = StreamSupport.stream(artifactKeys.spliterator(), false)
-                    .map(artifactRepository::getArtifactDescriptors).map(Arrays::asList).flatMap(Collection::stream)
-                    .collect(Collectors.toList());
+            var descriptors = artifactKeys.stream().map(artifactRepository::getArtifactDescriptors)
+                    .flatMap(Arrays::stream).toList();
             descriptors.parallelStream()
                     .forEach(it -> handle(it, artifactRepository.getArtifactFile(it), signer, keys));
 
@@ -281,7 +277,7 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
             try {
                 var signatures = signer.generateSignature(artifact);
                 var signerKeys = signatures.all().stream().map(PGPSignature::getKeyID)
-                        .flatMap(id -> signer.getPublicKeys().getKeys(id).stream()).collect(Collectors.toList());
+                        .flatMap(id -> signer.getPublicKeys().getKeys(id).stream()).toList();
                 var keyStore = KeyStore.create(existingKeys);
                 keyStore.add(signerKeys);
                 allKeys.add(keyStore);

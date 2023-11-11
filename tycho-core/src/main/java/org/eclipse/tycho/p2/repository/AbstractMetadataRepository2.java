@@ -64,6 +64,12 @@ public abstract class AbstractMetadataRepository2 extends AbstractRepository<IIn
     }
 
     @Override
+    public boolean removeReferences(Collection<? extends IRepositoryReference> references) {
+        // not supported
+        return false;
+    }
+
+    @Override
     public Collection<IRepositoryReference> getReferences() {
         // not supported
         return Collections.emptyList();

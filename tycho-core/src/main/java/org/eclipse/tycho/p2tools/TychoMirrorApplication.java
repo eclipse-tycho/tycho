@@ -18,8 +18,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -32,7 +30,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
@@ -40,7 +37,6 @@ import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
@@ -51,7 +47,6 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.CollectionResult;
-import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -162,13 +157,13 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
             }
 
             @Override
-            public IQueryable<IInstallableUnit> slice(IInstallableUnit[] ius, IProgressMonitor monitor) {
+            public IQueryable<IInstallableUnit> slice(Collection<IInstallableUnit> ius, IProgressMonitor monitor) {
                 IQueryable<IInstallableUnit> slice = super.slice(ius, monitor);
                 if (includeAllSource && targetPlatform != null) {
                     Set<IInstallableUnit> collected = slice.query(QueryUtil.ALL_UNITS, null).toSet();
                     Set<IInstallableUnit> result = new HashSet<>(collected);
                     var allUnits = targetPlatform.getMetadataRepository().query(QueryUtil.ALL_UNITS, null);
-                    Map<String, List<IInstallableUnit>> sourceIus = stream(allUnits)
+                    Map<String, List<IInstallableUnit>> sourceIus = allUnits.stream()
                             .filter(iu -> iu.getId().endsWith(SOURCE_SUFFIX))
                             .collect(groupingBy(IInstallableUnit::getId));
                     for (IInstallableUnit iu : collected) {
@@ -269,7 +264,7 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
             }
             try {
                 URI location = reference.getLocation();
-                IRepository<T> repository = loadRepository(repoManager, location, monitor);
+                IRepository<T> repository = repoManager.loadRepository(location, monitor);
                 referencedRepositories.add(repository);
             } catch (IllegalArgumentException e) {
                 if (e.getCause() instanceof URISyntaxException uriException) {
@@ -279,7 +274,7 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
                 }
             }
         }
-        allElements.removeIf(e -> referencedRepositories.stream().anyMatch(repo -> contains(repo, e)));
+        allElements.removeIf(e -> referencedRepositories.stream().anyMatch(repo -> repo.contains(e)));
         return referencedRepositories;
     }
 
@@ -287,8 +282,7 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
             List<IRepository<IInstallableUnit>> metadataRepositories, Set<URI> removableReferenceURIs) {
         Map<URI, Set<IInstallableUnit>> usedRepositoryItems = new HashMap<>();
         for (IRepository<IInstallableUnit> repo : metadataRepositories) {
-            IQueryResult<IInstallableUnit> allUnits = repo.query(QueryUtil.ALL_UNITS, null);
-            Set<IInstallableUnit> usedRepoContent = stream(allUnits)
+            Set<IInstallableUnit> usedRepoContent = repo.query(QueryUtil.ALL_UNITS, null).stream()
                     .filter(a -> fullRepositoryContent.getOrDefault(a.getId(), List.of()).contains(a.getVersion()))
                     .collect(Collectors.toSet());
             usedRepositoryItems.put(repo.getLocation(), usedRepoContent);
@@ -306,53 +300,7 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
         IMetadataRepository repository = getDestinationMetadataRepository();
         List<IRepositoryReference> discardedReferences = repository.getReferences().stream()
                 .filter(rr -> !usedRepositoryItems.keySet().contains(rr.getLocation())).toList();
-        removeRepositoryReferences(repository, discardedReferences);
-    }
-
-    //TODO: Just call IMetadataRepository.removeReferences once available: https://github.com/eclipse-equinox/p2/pull/338
-    private static void removeRepositoryReferences(IMetadataRepository metadataRepository,
-            Collection<? extends IRepositoryReference> references) {
-        if (metadataRepository instanceof LocalMetadataRepository localRepo) {
-            try {
-                Field repositoriesField = LocalMetadataRepository.class.getDeclaredField("repositories");
-                repositoriesField.trySetAccessible();
-                Method save = LocalMetadataRepository.class.getDeclaredMethod("save");
-                save.trySetAccessible();
-                @SuppressWarnings("unchecked")
-                Set<IRepositoryReference> repositories = (Set<IRepositoryReference>) repositoriesField.get(localRepo);
-                repositories.removeAll(references);
-                save.invoke(localRepo);
-            } catch (ReflectiveOperationException e) {
-                throw new IllegalStateException("Failed to clean-up references from assembled repository", e);
-            }
-        }
-    }
-
-    //TODO: just call IRepositoryManager.loadRepository() once available: https://github.com/eclipse-equinox/p2/pull/311
-    @SuppressWarnings("unchecked")
-    private static <T> IRepository<T> loadRepository(IRepositoryManager<T> mgr, URI location, IProgressMonitor monitor)
-            throws ProvisionException {
-        if (mgr instanceof IArtifactRepositoryManager artifactRepoManager) {
-            return (IRepository<T>) artifactRepoManager.loadRepository(location, monitor);
-        } else if (mgr instanceof IMetadataRepositoryManager metadataMangager) {
-            return (IRepository<T>) metadataMangager.loadRepository(location, monitor);
-        }
-        throw new AssertionError("Unsupported IRepositoryManager type" + mgr.getClass());
-    }
-
-    //TODO: just call IRepositoryManager.contains() once available: https://github.com/eclipse-equinox/p2/pull/314
-    private static <T> boolean contains(IRepository<T> repository, T element) {
-        if (repository instanceof IArtifactRepository artifactRepository) {
-            return artifactRepository.contains((IArtifactKey) element);
-        } else if (repository instanceof IMetadataRepository metadataRepository) {
-            return !metadataRepository.query(QueryUtil.createIUQuery((IInstallableUnit) element), null).isEmpty();
-        }
-        throw new AssertionError("Unsupported IRepository type" + repository.getClass());
-    }
-
-    //TODO: use query.stream() once available: https://github.com/eclipse-equinox/p2/pull/312 is available
-    private static <T> Stream<T> stream(IQueryResult<T> result) {
-        return StreamSupport.stream(result.spliterator(), false);
+        repository.removeReferences(discardedReferences);
     }
 
     public void setIncludeSources(boolean includeAllSource, TargetPlatform targetPlatform) {
