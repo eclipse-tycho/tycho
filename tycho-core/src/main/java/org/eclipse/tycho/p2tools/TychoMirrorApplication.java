@@ -202,17 +202,10 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
     private static Stream<org.eclipse.equinox.p2.repository.spi.RepositoryReference> toSpiRepositoryReferences(
             RepositoryReference rr) {
         return Stream.of(IRepository.TYPE_METADATA, IRepository.TYPE_ARTIFACT).map(type -> {
-            URI location = getNormalizedLocation(rr);
-            int options = rr.isEnable() ? IRepository.ENABLED : IRepository.NONE;
-            return new org.eclipse.equinox.p2.repository.spi.RepositoryReference(location, rr.getName(), type, options);
+            URI location = rr.locationURINormalized();
+            int options = rr.enable() ? IRepository.ENABLED : IRepository.NONE;
+            return new org.eclipse.equinox.p2.repository.spi.RepositoryReference(location, rr.name(), type, options);
         });
-    }
-
-    private static URI getNormalizedLocation(RepositoryReference r) {
-        // P2 does the same before loading the repo and thus IRepository.getLocation() returns the normalized URL.
-        // In order to avoid stripping of slashes from URI instances do it now before URIs are created.
-        String location = r.getLocation();
-        return URI.create(location.endsWith("/") ? location.substring(0, location.length() - 1) : location);
     }
 
     @Override
@@ -251,8 +244,8 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
 
             if (addOnlyProvidingRepoReferences) {
                 Set<URI> removableReferences = destination.getFilterableRepositoryReferences().stream()
-                        .map(TychoMirrorApplication::getNormalizedLocation).collect(Collectors.toSet());
-                destination.getRepositoryReferences().stream().map(TychoMirrorApplication::getNormalizedLocation)
+                        .map(RepositoryReference::locationURINormalized).collect(Collectors.toSet());
+                destination.getRepositoryReferences().stream().map(RepositoryReference::locationURINormalized)
                         .forEach(removableReferences::remove); // keep reference if explicitly added to the repository
                 if (!removableReferences.isEmpty()) {
                     // Assume that for all units that correspond to artifacts the metadata either has a co-located artifact repository or a references to to one that contains it.
