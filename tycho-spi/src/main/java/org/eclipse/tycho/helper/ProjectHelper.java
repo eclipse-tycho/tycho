@@ -86,7 +86,7 @@ public class ProjectHelper {
      * @param goal
      * @param project
      * @param mavenSession
-     * @return <code>true</code> if an execution was found or <code>false</code> otherwhise.
+     * @return <code>true</code> if an execution was found or <code>false</code> otherwise.
      */
     public boolean hasPluginExecution(String pluginGroupId, String pluginArtifactId, String goal, MavenProject project,
             MavenSession mavenSession) {
@@ -127,11 +127,14 @@ public class ProjectHelper {
                 if (goal == null) {
                     return getDom(plugin.getConfiguration());
                 }
+                //first check for goal specific configuration
                 for (PluginExecution execution : plugin.getExecutions()) {
                     if (execution.getGoals().contains(goal)) {
                         return getDom(execution.getConfiguration());
                     }
                 }
+                //get plugin config
+                return getDom(plugin.getConfiguration());
             }
         }
         return null;

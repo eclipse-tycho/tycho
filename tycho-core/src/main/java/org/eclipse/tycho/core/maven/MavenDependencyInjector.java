@@ -63,6 +63,41 @@ import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 public final class MavenDependencyInjector {
 
     /**
+     * Injects a set of additional project dependencies into an existing maven project.
+     * 
+     * @param project
+     * @param dependencyProjects
+     */
+    public static void injectMavenProjectDependencies(MavenProject project, Iterable<MavenProject> dependencyProjects) {
+        Model model = project.getModel();
+        Set<String> existingDependencies = model.getDependencies().stream().map(MavenDependencyInjector::getProjectKey)
+                .collect(Collectors.toCollection(HashSet::new));
+        for (MavenProject dependencyProject : dependencyProjects) {
+            if (dependencyProject == project) {
+                continue;
+            }
+            Dependency dependency = new Dependency();
+            dependency.setArtifactId(dependencyProject.getArtifactId());
+            dependency.setGroupId(dependencyProject.getGroupId());
+            dependency.setVersion(dependencyProject.getVersion());
+            String packaging = dependencyProject.getPackaging();
+            dependency.setType(packaging);
+            dependency.setScope(Artifact.SCOPE_COMPILE);
+            dependency.setOptional(false);
+            if (existingDependencies.add(getProjectKey(dependency))) {
+                model.addDependency(dependency);
+            }
+        }
+    }
+
+    private static String getProjectKey(Dependency dependency) {
+
+        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":"
+                + Objects.requireNonNullElse(dependency.getType(), "jar") + ":" + dependency.getVersion() + ":"
+                + Objects.requireNonNullElse(dependency.getClassifier(), "");
+    }
+
+    /**
      * Injects the dependencies of a project (as determined by the p2 dependency resolver) back into
      * the Maven model.
      * 
