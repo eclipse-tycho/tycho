@@ -67,24 +67,14 @@ class ExpandedProduct implements IProductDescriptor {
     }
 
     @Override
-    public List<IVersionedId> getBundles(boolean includeFragments) {
-        if (includeFragments == false) {
-            // currently not needed -> omitted for simplicity
-            throw new UnsupportedOperationException();
-        }
+    public List<IVersionedId> getBundles() {
         if (getProductContentType() == ProductContentType.FEATURES) {
             // don't expand versions if bundles are not included in the product
             // TODO why is this method called anyway?
-            return defaults.getBundles(includeFragments);
+            return defaults.getBundles();
         }
 
         return expandedBundles;
-    }
-
-    @Override
-    public List<IVersionedId> getFragments() {
-        // currently not needed -> omitted for simplicity
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -111,7 +101,7 @@ class ExpandedProduct implements IProductDescriptor {
         ProductVersionExpansionRun resolver = new ProductVersionExpansionRun(targetPlatform, getLocation());
         if (contentType != ProductContentType.FEATURES) {
             expandedBundles = resolver.resolveReferences("plugin", ArtifactType.TYPE_ECLIPSE_PLUGIN,
-                    defaults.getBundles(true));
+                    defaults.getBundles());
         }
         if (contentType != ProductContentType.BUNDLES) {
             expandedFeatures = resolver.resolveReferences("feature", ArtifactType.TYPE_ECLIPSE_FEATURE,
@@ -143,9 +133,9 @@ class ExpandedProduct implements IProductDescriptor {
     // delegating methods
 
     @Override
-    public boolean hasBundles(boolean includeFragments) {
+    public boolean hasBundles() {
         // don't need to expand versions for this check
-        return defaults.hasBundles(includeFragments);
+        return defaults.hasBundles();
     }
 
     @Override

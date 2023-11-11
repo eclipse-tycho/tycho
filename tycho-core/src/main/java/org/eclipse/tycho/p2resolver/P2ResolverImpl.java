@@ -34,6 +34,7 @@ import java.util.function.Consumer;
 
 import org.apache.felix.resolver.util.CopyOnWriteSet;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -72,7 +73,6 @@ import org.eclipse.tycho.core.shared.LoggingProgressMonitor;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.p2.publisher.AuthoredIUAction;
-import org.eclipse.tycho.p2.repository.QueryableCollection;
 import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
@@ -143,7 +143,7 @@ public class P2ResolverImpl implements P2Resolver {
             Collection<? extends ArtifactKey> artifacts) {
         P2TargetPlatform targetPlatform = getTargetFromContext(context);
         Collection<IInstallableUnit> roots = new ArrayList<>();
-        QueryableCollection queriable = new QueryableCollection(targetPlatform.getInstallableUnits());
+        IQueryable<IInstallableUnit> queriable = new QueryableArray(targetPlatform.getInstallableUnits());
         for (ArtifactKey artifactKey : artifacts) {
             VersionRange range = new VersionRange(artifactKey.getVersion());
             IQuery<IInstallableUnit> query = ArtifactTypeHelper.createQueryFor(artifactKey.getType(),
@@ -327,7 +327,7 @@ public class P2ResolverImpl implements P2Resolver {
     public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String versionRange) {
 
         P2TargetPlatform targetPlatform = getTargetFromContext(context);
-        QueryableCollection queriable = new QueryableCollection(targetPlatform.getInstallableUnits());
+        IQueryable<IInstallableUnit> queriable = new QueryableArray(targetPlatform.getInstallableUnits());
 
         VersionRange range = new VersionRange(versionRange);
         IRequirement requirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null,
