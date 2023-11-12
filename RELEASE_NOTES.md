@@ -6,6 +6,25 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+### support for PDE Api Tools Annotations
+
+Tycho now supports PDE Api Tools Annotations to be added to the project automatically.
+
+To enable this add
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-apitools-plugin</artifactId>
+	<version>${tycho-version}</version>
+</plugin>	
+```
+
+to your project and make sure it has the `org.eclipse.pde.api.tools.apiAnalysisNature` nature enabled in the `.project` file, for details how to use these see:
+
+- https://help.eclipse.org/latest/topic/org.eclipse.pde.doc.user/reference/api-tooling/api_javadoc_tags.htm
+- https://help.eclipse.org/latest/topic/org.eclipse.pde.doc.user/reference/api/org/eclipse/pde/api/tools/annotations/package-summary.html
+
 ### new tycho-repository-plugin
 
 Tycho now contains a new `tycho-repository-plugin` that can be used to package OSGi repositories.
