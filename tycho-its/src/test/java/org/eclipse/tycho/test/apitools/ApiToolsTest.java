@@ -142,4 +142,11 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 	}
+
+	@Test
+	public void testAnnotations() throws Exception {
+		Verifier verifier = getVerifier("api-tools/annotations", true, true);
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+	}
 }

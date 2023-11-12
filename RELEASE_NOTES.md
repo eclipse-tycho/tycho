@@ -2,6 +2,16 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 4.0.5
+
+### backports:
+- support for PDE Api Tools Annotations
+- api tools fixes
+
+## 4.0.4
+
+Various bugfixes and backports
+
 ## 4.0.3
 
 ### new option to filter added repository-references when assembling a p2-repository

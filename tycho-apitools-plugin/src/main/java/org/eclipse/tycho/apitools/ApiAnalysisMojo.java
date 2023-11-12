@@ -138,7 +138,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		}
 		Optional<EclipseProject> eclipseProject = projectManager.getEclipseProject(project);
 		if (eclipseProject.isEmpty()
-				|| !eclipseProject.get().hasNature("org.eclipse.pde.api.tools.apiAnalysisNature")) {
+				|| !eclipseProject.get().hasNature(ApiPlugin.NATURE_ID)) {
 			return;
 		}
 
