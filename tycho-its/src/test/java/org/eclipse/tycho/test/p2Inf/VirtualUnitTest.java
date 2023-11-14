@@ -13,6 +13,7 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -54,10 +55,7 @@ public class VirtualUnitTest extends AbstractTychoIntegrationTest {
 		String hostUnitId = "pvu.bundle";
 		String configureUnitId = "configure.pvu.bundle";
 
-		File p2Content = new File(verifier.getBasedir(), "bundle/target/p2content.xml");
-		Document doc = XMLParser.parse(p2Content);
-
-		List<Element> units = doc.getChild("units").getChildren("unit");
+		List<Element> units = getUnits(verifier.getBasedir(), "bundle/target/p2content.xml");
 		Optional<Element> hostUnit = findUnit(units, hostUnitId);
 		Optional<Element> configureUnit = findUnit(units, configureUnitId);
 
@@ -67,6 +65,47 @@ public class VirtualUnitTest extends AbstractTychoIntegrationTest {
 		assertTrue("Configure IU " + configureUnitId + " not found", configureUnit.isPresent());
 		assertTrue("Requirement of IU " + configureUnitId + " not found in IU " + hostUnitId,
 				hostUnitRequirements.anyMatch(elem -> configureUnitId.equals(elem.getAttributeValue("name"))));
+	}
+
+	@Test
+	public void testVirtualUnitMultiBundleWithRequirementDoesNotFailBuild() throws Exception {
+		Verifier verifier = getVerifier("/p2Inf.virtualUnit.multiBundle", false);
+		verifier.executeGoals(asList("verify"));
+		verifier.verifyErrorFreeLog();
+
+		// Host bundle and virtual IU assertions
+		String hostUnitId = "pvumb.bundle1";
+		String configureUnitId = "configure.pvumb.bundle1";
+
+		List<Element> units = getUnits(verifier.getBasedir(), "bundle1/target/p2content.xml");
+		Optional<Element> hostUnit = findUnit(units, hostUnitId);
+		Optional<Element> configureUnit = findUnit(units, configureUnitId);
+
+		Stream<Element> hostUnitRequirements = findRequirements(hostUnit);
+
+		assertTrue("Host IU " + hostUnitId + " not found", hostUnit.isPresent());
+		assertTrue("Configure IU " + configureUnitId + " not found", configureUnit.isPresent());
+		assertTrue("Requirement of IU " + configureUnitId + " not found in IU " + hostUnitId,
+				hostUnitRequirements.anyMatch(elem -> configureUnitId.equals(elem.getAttributeValue("name"))));
+
+		// Client bundle assertions
+		String clientUnitId = "pvumb.bundle2";
+
+		units = getUnits(verifier.getBasedir(), "bundle2/target/p2content.xml");
+		Optional<Element> clientUnit = findUnit(units, clientUnitId);
+
+		Stream<Element> clientUnitRequirements = findRequirements(clientUnit);
+
+		assertTrue("Client IU " + clientUnitId + " not found", clientUnit.isPresent());
+		assertTrue("Requirement of IU " + hostUnitId + " not found in IU " + clientUnitId,
+				clientUnitRequirements.anyMatch(elem -> hostUnitId.equals(elem.getAttributeValue("name"))));
+	}
+
+	private static List<Element> getUnits(String baseDir, String filePath) throws IOException {
+		File p2Content = new File(baseDir, filePath);
+		Document doc = XMLParser.parse(p2Content);
+
+		return doc.getChild("units").getChildren("unit");
 	}
 
 	private static Optional<Element> findUnit(List<Element> units, String hostUnitId) {
