@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: pvumb.bundle1
+Bundle-SymbolicName: pvumb.bundle1;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: TEST
+Bundle-RequiredExecutionEnvironment: JavaSE-17
