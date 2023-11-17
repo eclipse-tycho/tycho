@@ -12,11 +12,21 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.target;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertEquals;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.maven.it.Verifier;
+import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
+import org.eclipse.tycho.test.util.P2RepositoryTool;
+import org.eclipse.tycho.test.util.P2RepositoryTool.RepositoryReference;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -48,6 +58,7 @@ public class TargetVariableResolutionTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(Arrays.asList("package"));
 		verifier.verifyErrorFreeLog();
 		verifier.verifyTextInLog("validate-target-platform");
+		verifyResolution(verifier);
 	}
 
 	@Test
@@ -57,5 +68,22 @@ public class TargetVariableResolutionTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(Arrays.asList("package"));
 		verifier.verifyErrorFreeLog();
 		verifier.verifyTextInLog("validate-target-platform");
+		verifyResolution(verifier);
+	}
+
+	/**
+	 * Verify that the update site has the target platform variables resolved
+	 * correctly.
+	 */
+	private void verifyResolution(Verifier verifier) throws Exception {
+		final Path sitePath = Paths.get(verifier.getBasedir(), "site");
+		P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(sitePath.toFile());
+		List<RepositoryReference> allRepositoryReferences = p2Repo.getAllRepositoryReferences();
+		// artifact + metadata
+		assertEquals(2, allRepositoryReferences.size());
+		final String REPO = baseurl + "/repo";
+		assertThat(allRepositoryReferences,
+				containsInAnyOrder(new RepositoryReference(REPO, IRepository.TYPE_ARTIFACT, IRepository.ENABLED),
+						new RepositoryReference(REPO, IRepository.TYPE_METADATA, IRepository.ENABLED)));
 	}
 }

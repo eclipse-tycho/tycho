@@ -4,7 +4,6 @@
     <locations>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <repository location="${system_property:myMirror}/repo"/>
-
             <unit id="javax.xml" version="0.0.0"/>
         </location>
     </locations>
