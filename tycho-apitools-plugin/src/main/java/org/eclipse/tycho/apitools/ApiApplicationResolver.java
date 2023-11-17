@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -31,8 +32,11 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
+import org.eclipse.tycho.osgi.framework.Bundles;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
 import org.eclipse.tycho.osgi.framework.EclipseApplicationFactory;
+import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
+import org.eclipse.tycho.osgi.framework.Features;
 import org.osgi.framework.BundleException;
 import org.osgi.service.log.LogEntry;
 
@@ -43,14 +47,6 @@ import org.osgi.service.log.LogEntry;
 @Component(role = ApiApplicationResolver.class)
 public class ApiApplicationResolver {
 
-	private static final String FRAGMENT_COMPATIBILITY = "org.eclipse.osgi.compatibility.state";
-
-	private static final String BUNDLE_API_TOOLS = "org.eclipse.pde.api.tools";
-
-	private static final String BUNDLE_LAUNCHING_MACOS = "org.eclipse.jdt.launching.macosx";
-
-	private static final String FILTER_MACOS = "(osgi.os=macosx)";
-
 	private final Map<URI, EclipseApplication> cache = new ConcurrentHashMap<>();
 
 	@Requirement
@@ -58,6 +54,9 @@ public class ApiApplicationResolver {
 
 	@Requirement
 	private EclipseApplicationFactory applicationFactory;
+
+	@Requirement
+	private EclipseApplicationManager applicationManager;
 
 	public Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
 			ArtifactKey artifactKey) throws IllegalArtifactReferenceException {
@@ -77,16 +76,11 @@ public class ApiApplicationResolver {
 	}
 
 	public EclipseApplication getApiApplication(MavenRepositoryLocation apiToolsRepo) {
-		return cache.computeIfAbsent(apiToolsRepo.getURL().normalize(), x -> {
-			logger.info("Resolve API tools runtime from " + apiToolsRepo + "...");
-			EclipseApplication application = applicationFactory.createEclipseApplication(apiToolsRepo,
-					"ApiToolsApplication");
-			application.addBundle(BUNDLE_API_TOOLS);
-			application.addBundle(FRAGMENT_COMPATIBILITY);
-			application.addConditionalBundle(BUNDLE_LAUNCHING_MACOS, FILTER_MACOS);
-			application.setLoggingFilter(ApiApplicationResolver::isOnlyDebug);
-			return application;
-		});
+
+		EclipseApplication application = applicationManager.getApplication(apiToolsRepo, new Bundles(Set.of(Bundles.BUNDLE_API_TOOLS)),
+				new Features(Set.of()), "Api Tools");
+		application.setLoggingFilter(ApiApplicationResolver::isOnlyDebug);
+		return application;
 	}
 
 	private static boolean isOnlyDebug(LogEntry entry) {
