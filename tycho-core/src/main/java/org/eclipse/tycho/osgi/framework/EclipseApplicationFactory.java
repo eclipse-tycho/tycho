@@ -42,14 +42,6 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 @SessionScoped
 public class EclipseApplicationFactory {
 
-    static final String BUNDLE_APP = "org.eclipse.equinox.app";
-
-    static final String BUNDLE_SCR = "org.apache.felix.scr";
-
-    static final String BUNDLE_CORE = "org.eclipse.core.runtime";
-
-    private static final String BUNDLE_LAUNCHER = "org.eclipse.equinox.launcher";
-
     @Requirement
     private ToolchainManager toolchainManager;
 
@@ -67,15 +59,17 @@ public class EclipseApplicationFactory {
     }
 
     public EclipseApplication createEclipseApplication(MavenRepositoryLocation repositoryLocation, String name) {
+        return createEclipseApplication(createTargetPlatform(List.of(repositoryLocation)), name);
+    }
+
+    public EclipseApplication createEclipseApplication(TargetPlatform targetPlatform, String name) {
         P2Resolver resolver = createResolver();
-        List<MavenRepositoryLocation> locations = List.of(repositoryLocation);
-        TargetPlatform targetPlatform = createTargetPlatform(locations);
         EclipseApplication application = new EclipseApplication(name, resolver, targetPlatform, logger);
         //add the bare minimum required ...
-        application.addBundle(BUNDLE_CORE);
-        application.addBundle(BUNDLE_SCR);
-        application.addBundle(BUNDLE_APP);
-        application.addBundle(BUNDLE_LAUNCHER);
+        application.addBundle(Bundles.BUNDLE_CORE);
+        application.addBundle(Bundles.BUNDLE_SCR);
+        application.addBundle(Bundles.BUNDLE_APP);
+        application.addBundle(Bundles.BUNDLE_LAUNCHER);
         return application;
     }
 

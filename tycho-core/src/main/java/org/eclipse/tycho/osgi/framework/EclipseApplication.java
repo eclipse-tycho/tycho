@@ -61,8 +61,8 @@ public class EclipseApplication {
 
     public static final String ARG_APPLICATION = "-application";
 
-    private static final Set<String> ALWAYS_START_BUNDLES = Set.of(EclipseApplicationFactory.BUNDLE_CORE,
-            EclipseApplicationFactory.BUNDLE_SCR, EclipseApplicationFactory.BUNDLE_APP);
+    private static final Set<String> ALWAYS_START_BUNDLES = Set.of(Bundles.BUNDLE_CORE,
+            Bundles.BUNDLE_SCR, Bundles.BUNDLE_APP);
     private P2Resolver resolver;
     private TargetPlatform targetPlatform;
     private Logger logger;

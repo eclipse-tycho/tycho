@@ -14,9 +14,14 @@ package org.eclipse.tycho.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
@@ -31,18 +36,28 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ResolvedArtifactKey;
+import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
+import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 
@@ -71,6 +86,15 @@ public class TychoProjectManager {
 
     @Requirement
     ToolchainManager toolchainManager;
+
+    @Requirement
+    PluginRealmHelper pluginRealmHelper;
+
+    @Requirement
+    MavenBundleResolver mavenBundleResolver;
+
+    @Requirement
+    TargetPlatformService targetPlatformService;
 
     private final Map<File, Optional<EclipseProject>> eclipseProjectCache = new ConcurrentHashMap<>();
 
@@ -201,6 +225,69 @@ public class TychoProjectManager {
             return Optional.of(processor);
         }
         return Optional.empty();
+    }
+
+    /**
+     * Determine the list of dependencies for a given project as a collection of path items
+     * 
+     * @param project
+     *            the project to use to determine the dependencies
+     * @return a Collection of pathes describing the project dependencies
+     * @throws Exception
+     */
+    public Collection<Path> getProjectDependencies(MavenProject project) throws Exception {
+        Set<Path> dependencySet = new HashSet<>();
+        TychoProject tychoProject = getTychoProject(project).get();
+        List<ArtifactDescriptor> dependencies = TychoProjectUtils
+                .getDependencyArtifacts(DefaultReactorProject.adapt(project)).getArtifacts();
+        for (ArtifactDescriptor descriptor : dependencies) {
+            File location = descriptor.fetchArtifact().get();
+            if (location.equals(project.getBasedir())) {
+                continue;
+            }
+            ReactorProject reactorProject = descriptor.getMavenProject();
+            if (reactorProject == null) {
+                writeLocation(location, dependencySet);
+            } else {
+                writeLocation(reactorProject.getArtifact(descriptor.getClassifier()), dependencySet);
+            }
+        }
+        if (tychoProject instanceof OsgiBundleProject bundleProject) {
+            MavenSession session = getMavenSession();
+            pluginRealmHelper.visitPluginExtensions(project, session, ClasspathContributor.class, cpc -> {
+                List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(project, Artifact.SCOPE_COMPILE);
+                if (list != null && !list.isEmpty()) {
+                    for (ClasspathEntry entry : list) {
+                        for (File locations : entry.getLocations()) {
+                            writeLocation(locations, dependencySet);
+                        }
+                    }
+                }
+            });
+            // This is a hack because "org.eclipse.osgi.services" exports the annotation
+            // package and might then be resolved by Tycho as a dependency, but then PDE
+            // can't find the annotations here, so we always add this as a dependency
+            // manually here, once "org.eclipse.osgi.services" is gone we can remove this
+            // again!
+            Optional<ResolvedArtifactKey> bundle = mavenBundleResolver.resolveMavenBundle(project, session, "org.osgi",
+                    "org.osgi.service.component.annotations", "1.3.0");
+            bundle.ifPresent(key -> {
+                writeLocation(key.getLocation(), dependencySet);
+            });
+        }
+        return dependencySet;
+    }
+
+    private void writeLocation(File location, Collection<Path> consumer) {
+        if (location == null) {
+            return;
+        }
+        consumer.add(location.getAbsoluteFile().toPath());
+    }
+
+    public Optional<TargetPlatform> getTargetPlatform(MavenProject project) {
+        return targetPlatformService.getTargetPlatform(DefaultReactorProject.adapt(project));
+
     }
 
 }
