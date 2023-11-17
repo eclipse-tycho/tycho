@@ -39,10 +39,13 @@ import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.extras.docbundle.runner.ConvertSchemaToHtmlResult;
 import org.eclipse.tycho.extras.docbundle.runner.ConvertSchemaToHtmlRunner;
+import org.eclipse.tycho.osgi.framework.Bundles;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
+import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.EclipseFramework;
 import org.eclipse.tycho.osgi.framework.EclipseWorkspace;
 import org.eclipse.tycho.osgi.framework.EclipseWorkspaceManager;
+import org.eclipse.tycho.osgi.framework.Features;
 import org.osgi.framework.BundleException;
 
 /**
@@ -75,12 +78,13 @@ public class ConvertSchemaToHtmlMojo extends AbstractMojo {
 	@Component
 	private EclipseWorkspaceManager workspaceManager;
 	@Component
-	private PdeApplicationManager applicationManager;
+	private EclipseApplicationManager applicationManager;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		MavenRepositoryLocation repository = PdeApplicationManager.getRepository(pdeToolsRepository);
-		EclipseApplication application = applicationManager.getApplication(repository);
+		MavenRepositoryLocation repository = EclipseApplicationManager.getRepository(pdeToolsRepository);
+		EclipseApplication application = applicationManager.getApplication(repository,
+				Bundles.of(Bundles.BUNDLE_PDE_CORE), Features.of(), "Schema to Html");
 		EclipseWorkspace<?> workspace = workspaceManager.getWorkspace(repository.getURL(), this);
 		List<String> searchPaths = new ArrayList<>();
 		// first add all userpath...

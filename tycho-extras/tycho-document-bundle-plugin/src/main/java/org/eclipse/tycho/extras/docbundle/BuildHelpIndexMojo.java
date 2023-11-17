@@ -28,10 +28,13 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.extras.docbundle.runner.BuildHelpIndexRunner;
+import org.eclipse.tycho.osgi.framework.Bundles;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
+import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.EclipseFramework;
 import org.eclipse.tycho.osgi.framework.EclipseWorkspace;
 import org.eclipse.tycho.osgi.framework.EclipseWorkspaceManager;
+import org.eclipse.tycho.osgi.framework.Features;
 import org.osgi.framework.BundleException;
 
 /**
@@ -51,7 +54,7 @@ public class BuildHelpIndexMojo extends AbstractMojo {
 	private Repository buildToolsRepository;
 
 	@Component
-	private DocApplicationManager applicationManager;
+	private EclipseApplicationManager applicationManager;
 
 	@Component
 	private EclipseWorkspaceManager workspaceManager;
@@ -61,8 +64,9 @@ public class BuildHelpIndexMojo extends AbstractMojo {
 		if (manifest == null || !manifest.exists()) {
 			throw new MojoExecutionException("Manifest is not a file: " + manifest);
 		}
-		MavenRepositoryLocation repository = DocApplicationManager.getRepository(buildToolsRepository);
-		EclipseApplication application = applicationManager.getBuildIndexApplication(repository);
+		MavenRepositoryLocation repository = EclipseApplicationManager.getRepository(buildToolsRepository);
+		EclipseApplication application = applicationManager.getApplication(repository,
+				Bundles.of(Bundles.BUNDLE_ECLIPSE_HELP_BASE), Features.of(), "Build Document Index");
 		EclipseWorkspace<?> workspace = workspaceManager.getWorkspace(repository.getURL(), this);
 		try (EclipseFramework framework = application.startFramework(workspace, List.of())) {
 			outputDirectory.mkdirs();
