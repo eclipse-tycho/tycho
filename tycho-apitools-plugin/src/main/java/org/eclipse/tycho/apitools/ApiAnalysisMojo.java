@@ -16,7 +16,6 @@ import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,23 +40,13 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.pde.api.tools.internal.IApiCoreConstants;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblem;
-import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
-import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.classpath.ClasspathContributor;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
-import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
 import org.eclipse.tycho.osgi.framework.EclipseFramework;
@@ -123,12 +112,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	private ApiApplicationResolver resolver;
 
 	@Component
-	private PluginRealmHelper pluginRealmHelper;
-
-	@Component
-	protected MavenBundleResolver mavenBundleResolver;
-
-	@Component
 	private ApiApplicationResolver applicationResolver;
 
 	@Override
@@ -158,7 +141,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			}
 			Collection<Path> dependencyBundles;
 			try {
-				dependencyBundles = getProjectDependencies();
+				dependencyBundles = projectManager.getProjectDependencies(project);
 			} catch (Exception e) {
 				throw new MojoFailureException("Can't fetch dependencies!", e);
 			}
@@ -277,56 +260,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		}
 		long sec = ms / 1000;
 		return sec + " s";
-	}
-
-	private Collection<Path> getProjectDependencies() throws Exception {
-		Set<Path> dependencySet = new HashSet<>();
-		TychoProject tychoProject = projectManager.getTychoProject(project).get();
-		List<ArtifactDescriptor> dependencies = TychoProjectUtils
-				.getDependencyArtifacts(DefaultReactorProject.adapt(project)).getArtifacts();
-		for (ArtifactDescriptor descriptor : dependencies) {
-			File location = descriptor.fetchArtifact().get();
-			if (location.equals(project.getBasedir())) {
-				continue;
-			}
-			ReactorProject reactorProject = descriptor.getMavenProject();
-			if (reactorProject == null) {
-				writeLocation(location, dependencySet);
-			} else {
-				ReactorProject otherProject = reactorProject;
-				writeLocation(otherProject.getArtifact(descriptor.getClassifier()), dependencySet);
-			}
-		}
-		if (tychoProject instanceof OsgiBundleProject bundleProject) {
-			pluginRealmHelper.visitPluginExtensions(project, session, ClasspathContributor.class, cpc -> {
-				List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(project, Artifact.SCOPE_COMPILE);
-				if (list != null && !list.isEmpty()) {
-					for (ClasspathEntry entry : list) {
-						for (File locations : entry.getLocations()) {
-							writeLocation(locations, dependencySet);
-						}
-					}
-				}
-			});
-			// This is a hack because "org.eclipse.osgi.services" exports the annotation
-			// package and might then be resolved by Tycho as a dependency, but then PDE
-			// can't find the annotations here, so we always add this as a dependency
-			// manually here, once "org.eclipse.osgi.services" is gone we can remove this
-			// again!
-			Optional<ResolvedArtifactKey> bundle = mavenBundleResolver.resolveMavenBundle(project, session, "org.osgi",
-					"org.osgi.service.component.annotations", "1.3.0");
-			bundle.ifPresent(key -> {
-				writeLocation(key.getLocation(), dependencySet);
-			});
-		}
-		return dependencySet;
-	}
-
-	private void writeLocation(File location, Collection<Path> consumer) {
-		if (location == null) {
-			return;
-		}
-		consumer.add(location.getAbsoluteFile().toPath());
 	}
 
 	private static final class ApiAppKey {
