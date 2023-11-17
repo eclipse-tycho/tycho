@@ -2,6 +2,37 @@
 
 Thanks for your interest in this project.
 
+## Table of Contents
+1. [Try SNAPSHOTs and report issues](#try-snapshots-and-report-issues)
+2. [Development Environment](#development-environment)
+    1. [Prerequisites](#prerequisites)
+    2. [Using the Eclipse Installer (Oomph)](#using-the-eclipse-installer-oomph)
+    3. [Manual Setup](#manual-setup)
+3. [Tests](#tests)
+    1. [Tycho Integration Tests](#tycho-integration-tests)
+    2. [Writing Tycho Integration Tests](#writing-tycho-integration-tests)
+        1. [Tips on the naming of integration tests](#tips-on-the-naming-of-integration-tests)
+4. [🏗️ Build & Test](#🏗️-build--test)
+5. [Debugging](#debugging)
+6. [Commits](#commits)
+    1. [Message Guidelines](#message-guidelines)
+    2. [Granularity](#granularity)
+7. [Submit Patch](#submit-patch)
+8. [Increasing Versions](#increasing-versions)
+9. [Backporting](#backporting)
+10. [Advanced development tricks](#advanced-development-tricks)
+    1. [Building Tycho against a locally built version of p2](#building-tycho-against-a-locally-built-version-of-p2)
+    2. [Running with a locally built version of the JDT compiler](#running-with-a-locally-built-version-of-the-jdt-compiler)
+    3. [Updating the Equinox and JDT dependencies of Tycho](#updating-the-equinox-and-jdt-dependencies-of-tycho)
+    4. [Profiling the Tycho build](#profiling-the-tycho-build)
+        1. [Add timestamps to Maven logging](#add-timestamps-to-maven-logging)
+        2. [Add Maven profile](#add-maven-profiler)
+        3. [Yourkit YouMonitor](#yourkit-youmonitor)
+11. [Contact](#contact)
+12. [👔 Process and Legal](#👔-process-and-legal)
+    1. [Eclipse Development Process](#eclipse-development-process)
+    2. [Eclipse Contributor Agreement](#eclipse-contributor-agreement)
+
 ## Try SNAPSHOTs and report issues
 
 To enable SNAPSHOTs, make sure the following Maven plugin-repository is available to your build: https://repo.eclipse.org/content/repositories/tycho-snapshots/.
@@ -51,7 +82,7 @@ Step-by-step instructions:
 10. Once the _Executing startup task_ job is finished you should have all the Tycho and Tycho Extras projects imported into 2 working sets called _Tycho_ and _Tycho Extras_ .
 11. Some Projects might still have errors. Select them (or all) and choose _Maven > Update Project.._ from the context menu. De-select _Clean projects_ in the shown dialog and press _OK_ to update the projects. After that, no more errors should be present.
 
-### Manual setup
+### Manual Setup
 
 The preferred and easier way is to follow the instructions above, but you could also setup your environment manually:
 
@@ -71,9 +102,17 @@ Tycho has two types of tests: unit tests (locally in each module) and a global i
 
 Unit tests are preferred if possible because they are in general much faster and better targeted at the functionality under test. Integration tests generally invoke a forked Maven build on a sample project (stored under projects/) and then do some assertions on the build results.
 
-### Tycho integration tests
+### Tycho Integration Tests
 
-The Tycho integration tests are located in the project `tycho-its`. To run all Tycho integration tests, execute `mvn clean install -f tycho-its/pom.xml`. To run a single integration test, select the test class in Eclipse and run it as ''JUnit Test''.
+The Tycho integration tests are located in the project `tycho-its`. To run all Tycho integration tests, execute
+```
+$ mvn clean install -f tycho-its/pom.xml`
+``` 
+To run a single integration test, select the test class in Eclipse and run it as "JUnit Test", or run
+```
+$ mvn clean verify -f tycho-its/pom.xml -Dtest=MyTestClass
+``` 
+from the command line, replacing `MyTestClass` with the test class to run (without `.java`).
 
 _Background information on the Tycho integration tests_
 
@@ -81,7 +120,7 @@ The integration tests trigger sample builds that use Tycho. These builds expect 
 
 Alternatively, e.g. if you are only interested in modifying an integration test and do not want to patch Tycho itself, you can configure the integration tests to download the current Tycho snapshot produced by the [Tycho CI builds](https://hudson.eclipse.org/tycho/view/CI). To do this, you need to edit the Maven settings stored in `tycho-its/settings.xml` and add the tycho-snapshots repository as described in [[Getting Tycho]]. (Advanced note: The integration tests can also be pointed to a different settings.xml with the system property `tycho.testSettings`.)
 
-### Writing Tycho integration tests
+### Writing Tycho Integration Tests
 
 The tycho integration tests are located in the [tycho-its](https://github.com/eclipse-tycho/tycho/tree/master/tycho-its) subfolder of the repository. Creating a new integration test usually includes the following steps:
 
@@ -96,7 +135,12 @@ public void test() throws Exception {
 }
 ```
 3. You might want to check for additional constraints. See the [Verifier](https://maven.apache.org/shared/maven-verifier/apidocs/index.html) for available options.
-4. If you don't want to run the full integration build you can simply go to the project directory and run `mvn clean verify -Dtycho-version=<version of tycho where you see the issue>` to see the outcome of your created test.
+4. If you don't want to run the full integration build you can simply go to the project directory and run
+
+```
+$ mvn clean verify -Dtycho-version=<version of tycho where you see the issue>
+```
+to see the outcome of your created test.
 
 
 #### Tips on the naming of integration tests
@@ -104,10 +148,95 @@ public void test() throws Exception {
 The hardest part of writing Tycho integration tests is the naming. While names are mostly important for readability, there were also cases where the ID "feature" was used multiple times, and hence a test used the build result of a different integration test.
 
 Therefore, here are a few tips for writing good integration tests:
-* Test project name: Although many existing tests have a bug number in the name, this is '''not''' the recommended naming scheme. Since integration tests can take some time to execute, it may be a good idea to test related things in one test. <br>So name the test projects in a way that they can be found, and that related tests are sorted next to each other, e.g. in the form <tt>&lt;component&gt;.&lt;aspect&gt;</tt>.
+* Test project name: Although many existing tests have a bug number in the name, this is **not** the recommended naming scheme. Since integration tests can take some time to execute, it may be a good idea to test related things in one test. <br>So name the test projects in a way that they can be found, and that related tests are sorted next to each other, e.g. in the form <tt>&lt;component&gt;.&lt;aspect&gt;</tt>.
 * Package: Should be <tt>org.eclipse.tycho.test.&lt;component&gt;</tt> (without the aspect so that we don't get an excessive number of packages)
 * Test project groupIds: Should be <tt>tycho-its-project.&lt;component&gt;.&lt;aspect&gt;</tt> plus a segment for the reactor in case of multi-reactor tests. The groupId is particularly important if the test project is installed in the local Maven repository. Avoid `install`, use `verify` if possible.
 * Test project artifact ids have to be the same as the ID of the feature/bundle and need a unique prefix, e.g. the first letters of each segment of the project name.
+
+## 🏗️ Build & Test
+
+From the root directory of your local Tycho git-repository clone run the following Maven commands...
+* to check if the compilation and all tests succeed:
+    * `mvn clean verify -Pits`
+* to install your version of Tycho into your local Maven repository (skips all tests for faster installation):
+    * `mvn clean install -DskipTests`
+
+In order to test your changes of Tycho locally in a project-build, install your modified Tycho locally as described above
+and use the corresponding Tycho (probably snapshot) version in the project being build.
+You can also debug that build with the steps below (from here you can jump to step 3 immediately).
+
+## Debugging
+
+In order to debug Tycho plugins inside Eclipse:
+
+1. Get the Tycho sources in Eclipse.
+2. Create/get a project that highlights the bug.
+
+Inside the Eclipse IDE:
+
+3. Create a Maven Run-Configuration in your Tycho Eclipse workspace to build the project and specify goals, profiles and properties as required.
+4. Launch the Maven configuration from your Eclipse in Debug mode.
+
+Or on the command-line interface:
+
+3. Run the project-build using `mvnDebug` (instead of `mvn`) and specify goals, profiles and properties as required.
+4. Go into your Eclipse, use `Debug > Remote Java Application` and select `port 8000` to attach the Eclipse Debugger.
+
+Before debugging a build, make sure that your local Tycho sources correspond to the Tycho version used by the project being build.
+Otherwise, the debugger might show unexpected behavior.
+
+## Commits
+
+### Message Guidelines
+
+Start with `Bug: <number>` stating the bug number the change is related to; this will enable the Eclipse genie bot to automatically cross-link bug and pull request.
+
+Also in the first line, provide a clear and concise description of the change.
+
+Add one blank line, followed by more details about the change. This could include a motivation for the change and/or reasons why things were done in the particular way they are done in the change.
+
+### Granularity
+
+Make small commits, yet self-contained commits. This makes them easy to review.
+
+Do not mix concerns in commits: have a commit do a single thing. This makes them reviewable 'in isolation'. This is particularly important if you need to do refactorings to the existing code: Refactorings tend to lead to large diffs which are difficult to review. Therefore make sure to have separate commits for refactorings and for functional changes.
+
+## Submit patch
+
+As a GitHub pull request. Create a branch off of `master` with a helpful name, like `issue_<issue number>_reproducer` if you are providing an integration test for an existing issue, or `compiler-plugin-bug` if you are fixing a bug with the compiler plugin.
+
+Create a branch off of master even for small bug fixes. Changes from `master` can be backported automatically to older versions, and it's important that master not miss any fixes that older versions have. See [Backporting](#backporting) for more information.
+
+## Increasing versions
+
+The micro version will only be used for critical bug-fix releases, in most other cases we will have increased the current minor version already so nothing has to be done.
+
+The following list contains changes that only can happen between major version updates:
+
+- changing the Java version to run the build
+- requiring a new minimum maven version (e.g. once we require maven 4.x)
+- requiring to change their pom.xml in a non-trivial way (e.g. besides
+changing some configuration value in an existing mojo, or providing a drop-in replacement in the migration guide)
+
+If you require such a change, please note that in the issue and we will assign the next major release to it. Those changes would not be merged until the next major release. Keep your changes small and local as it possibly takes some time and you probably have to catch up with minor changes in the meantime.
+
+## Backporting
+
+In general, we do not backport fixes but recommend using the current [tycho snapshot](https://github.com/eclipse/tycho/wiki#getting-tycho-snapshots) builds to help move things forward and have safe releases.
+
+Still backporting is possible with mainly two options:
+
+1. You prepare the necessary things  with PR so they can be reviewed and merged
+2. You pay someone to perform the required steps and drive the release, see https://github.com/eclipse-tycho/tycho#getting-support for details.
+
+If you choose one of the first options, backporting usually includes the following steps:
+
+1. Check out the branch you are interested in, they are always named `tycho-<major>.<minor>.x`.
+2. Make sure the branch is at the next version, e.g. the last release was `3.0.0` the next version should be `3.0.1-SNAPSHOT`, if not use the following command to update the version and create a PR with the changed files: `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<NEXT_VERSION>-SNAPSHOT`.
+3. Backport the fix to the branch and add a hint to the RELEASE_NOTES.md of that branch that describes what was backported and create a PR targeting your branch of interest so it could be verified, reviewed an merged.
+4. Once it is merged and the SNAPSHOT is available, test your fix
+5. Look through the issues that were fixed after your target release and identify more items that seem useful and repeat with step 3.
+6. Once there is a noticeable amount of things backported that could justify a release create an issue asking for a bugfix release to be performed.
 
 ## Advanced development tricks
 
@@ -173,101 +302,20 @@ To use the profiler, [set the system property](https://github.com/jcgay/maven-pr
 
 To get started with YouMonitor, you need to install and run the application. It will ask you for a repository, which is how you aggregate builds (e.g. use one repository per different project that you want to investigate). Afterward, select the [Monitoring in IDE or command line](https://www.yourkit.com/docs/youmonitor/help/ide_and_command_line.jsp) and use the button `Open Instructions`. That will show you the project and machine-specific argument which needs to be added to the Java command line. For example, if you want to profile tests, you might want to add it to the [argLine configuration of Tycho Surefire](https://www.eclipse.org/tycho/sitedocs/tycho-surefire-plugin/test-mojo.html#argLine).
 
-## 🏗️ Build & Test
-
-From the root directory of your local Tycho git-repository clone run the following Maven commands...
-* to check if the compilation and all tests succeed:
-    * `mvn clean verify -Pits`
-* to install your version of Tycho into your local Maven repository (skips all tests for faster installation):
-    * `mvn clean install -DSkipTests`
-
-In order to test your changes of Tycho locally in a project-build, install your modified Tycho locally as described above
-and use the corresponding Tycho (probably snapshot) version in the project being build.
-You can also debug that build with the steps below (from here you can jump to step 3 immediately).
-
-## Debugging
-
-In order to debug Tycho plugins inside Eclipse:
-
-1. Get the Tycho sources in Eclipse.
-2. Create/get a project that highlights the bug.
-
-Inside the Eclipse IDE:
-
-3. Create a Maven Run-Configuration in your Tycho Eclipse workspace to build the project and specify goals, profiles and properties as required.
-4. Launch the Maven configuration from your Eclipse in Debug mode.
-
-Or on the command-line interface:
-
-3. Run the project-build using `mvnDebug` (instead of `mvn`) and specify goals, profiles and properties as required.
-4. Go into your Eclipse, use `Debug > Remote Java Application` and select `port 8000` to attach the Eclipse Debugger.
-
-Before debugging a build, make sure that your local Tycho sources correspond to the Tycho version used by the project being build.
-Otherwise, the debugger might show unexpected behavior.
-
-## Commits
-
-### Message Guidelines
-
-Start with `Bug: <number>` stating the bug number the change is related to; this will enable the Eclipse genie bot to automatically cross-link bug and pull request.
-
-Also in the first line, provide a clear and concise description of the change.
-
-Add one blank line, followed by more details about the change. This could include a motivation for the change and/or reasons why things were done in the particular way they are done in the change.
-
-### Granularity
-
-Make small commits, yet self-contained commits. This makes them easy to review.
-
-Do not mix concerns in commits: have a commit do a single thing. This makes them reviewable 'in isolation'. This is particularly important if you need to do refactorings to the existing code: Refactorings tend to lead to large diffs which are difficult to review. Therefore make sure to have separate commits for refactorings and for functional changes.
-
-## Submit patch
-
-As a GitHub pull request.
-
 ## Contact
 
-Contact the project developers via the project's "dev" list: https://dev.eclipse.org/mailman/listinfo/tycho-dev
+Contact the project developers via the project's "dev" list: https://dev.eclipse.org/mailman/listinfo/tycho-dev.
 
-## Increasing versions
-
-The micro version will only be used for critical bug-fix releases, in most other cases we will have increased the current minor version already so nothing has to be done.
-
-The following list contains changes that only can happen between major version updates:
-
-- changing the Java version to run the build
-- requiring a new minimum maven version (e.g. once we require maven 4.x)
-- requiring to change their pom.xml in a non-trivial way (e.g. besides
-changing some configuration value in an existing mojo, or providing a drop-in replacement in the migration guide)
-
-If you require such a change, please note that in the issue and we will assign the next major release to it. Those changes would not be merged until the next major release. Keep your changes small and local as it possibly takes some time and you probably have to catch up with minor changes in the meantime.
-
-## Backporting
-
-In general, we do not backport fixes but recommend using the current [tycho snapshot](https://github.com/eclipse/tycho/wiki#getting-tycho-snapshots) builds to help move things forward and have safe releases.
-
-Still backporting is possible with mainly two options:
-
-1. You prepare the necessary things  with PR so they can be reviewed and merged
-2. You pay someone to perform the required steps and drive the release, see https://github.com/eclipse-tycho/tycho#getting-support for details.
-
-If you choose one of the first options, backporting usually includes the following steps:
-
-1. Check out the branch you are interested in, they are always named `tycho-<major>.<minor>.x`.
-2. Make sure the branch is at the next version, e.g. the last release was `3.0.0` the next version should be `3.0.1-SNAPSHOT`, if not use the following command to update the version and create a PR with the changed files: `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<NEXT_VERSION>-SNAPSHOT`.
-3. Backport the fix to the branch and add a hint to the RELEASE_NOTES.md of that branch that describes what was backported and create a PR targeting your branch of interest so it could be verified, reviewed an merged.
-4. Once it is merged and the SNAPSHOT is available, test your fix
-5. Look through the issues that were fixed after your target release and identify more items that seem useful and repeat with step 3.
-6. Once there is a noticeable amount of things backported that could justify a release create an issue asking for a bugfix release to be performed.
+You can also post questions in the [Discussions](https://github.com/eclipse-tycho/tycho/discussions) section of this repository.
 
 ## 👔 Process and Legal
 
-## Eclipse Development Process
+### Eclipse Development Process
 
 This Eclipse Foundation open project is governed by the Eclipse Foundation
 Development Process and operates under the terms of the Eclipse IP Policy.
 
-## Eclipse Contributor Agreement
+### Eclipse Contributor Agreement
 
 Before your contribution can be accepted by the project team contributors must
 electronically sign the Eclipse Contributor Agreement (ECA): https://www.eclipse.org/legal/ECA.php
