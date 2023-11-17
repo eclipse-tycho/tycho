@@ -44,6 +44,7 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
+import org.eclipse.tycho.p2resolver.TargetDefinitionVariableResolver;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 
@@ -307,6 +308,9 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Component
     MirrorApplicationService mirrorApp;
 
+    @Component
+    private TargetDefinitionVariableResolver varResolver;
+
     @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
     private EclipseRepositoryProject eclipseRepositoryProject;
 
@@ -349,8 +353,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                             .flatMap(tpFile -> tpFile.getLocations().stream())
                             .filter(InstallableUnitLocation.class::isInstance).map(InstallableUnitLocation.class::cast)
                             .flatMap(iu -> iu.getRepositories().stream())
-                            .filter(iuRepo -> autoReferencesFilter.test(iuRepo.getLocation()))
-                            .map(iuRepo -> new RepositoryReference(null, iuRepo.getLocation(), true))
+                            .map(iuRepo -> varResolver.resolve(iuRepo.getLocation())).filter(autoReferencesFilter)
+                            .map(location -> new RepositoryReference(null, location, true))
                             .forEach(autoRepositoryRefeferences::add);
                 }
                 DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
