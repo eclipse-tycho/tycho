@@ -15,6 +15,8 @@ package org.eclipse.tycho.helper;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -129,11 +131,7 @@ public class PluginConfigurationHelper {
 
         public Optional<String> getString(String name) {
             return getChild(name).map(child -> {
-                String value = child.configuration.getValue();
-                if (value == null) {
-                    return child.configuration.getAttribute("default-value");
-                }
-                return value;
+                return getValue(child.configuration);
             });
         }
 
@@ -158,6 +156,22 @@ public class PluginConfigurationHelper {
             return configuration == null ? "-empty configuration-" : String.valueOf(configuration);
         }
 
+        public Optional<List<String>> getStringList(String name) {
+            return getChild(name).map(child -> {
+                return Arrays.stream(child.configuration.getChildren()).map(PluginConfigurationHelper::getValue)
+                        .toList();
+            });
+
+        }
+
+    }
+
+    private static String getValue(Xpp3Dom dom) {
+        String value = dom.getValue();
+        if (value == null) {
+            return dom.getAttribute("default-value");
+        }
+        return value;
     }
 
 }

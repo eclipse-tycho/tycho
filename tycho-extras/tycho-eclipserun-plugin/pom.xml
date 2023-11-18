@@ -23,6 +23,13 @@
   	<prerequisites>
 		<maven>${minimal-maven-version}</maven>
 	</prerequisites>
+   <distributionManagement>
+    <relocation>
+      <groupId>org.eclipse.tycho</groupId>
+      <artifactId>tycho-eclipse-plugin</artifactId>
+      <message>The eclipse-run mojo is now part of the tycho-eclipse-plugin</message>
+    </relocation>
+  </distributionManagement>
   <name>Tycho Eclipserun Plugin</name>
       <dependencies>
 		<dependency>
@@ -57,15 +64,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-testing-harness</artifactId>
-			<scope>test</scope>
+			<artifactId>tycho-eclipse-plugin</artifactId>
+			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+      </dependencies>
 	<profiles>
 		<profile>
 			<id>its</id>

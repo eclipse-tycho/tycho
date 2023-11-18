@@ -5,8 +5,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 ## 4.0.5
 
 ### backports:
+
 - support for PDE Api Tools Annotations
 - api tools fixes
+- new `tycho-eclipse-plugin`
 
 ## 4.0.4
 

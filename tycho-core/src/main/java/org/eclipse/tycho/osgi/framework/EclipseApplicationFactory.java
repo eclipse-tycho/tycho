@@ -15,11 +15,14 @@ package org.eclipse.tycho.osgi.framework;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -64,7 +67,8 @@ public class EclipseApplicationFactory {
 
     public EclipseApplication createEclipseApplication(TargetPlatform targetPlatform, String name) {
         P2Resolver resolver = createResolver();
-        EclipseApplication application = new EclipseApplication(name, resolver, targetPlatform, logger);
+        EclipseApplication application = new EclipseApplication(name, resolver, targetPlatform, logger, mavenSession
+                .getAllProjects().stream().collect(Collectors.toMap(MavenProject::getBasedir, Function.identity())));
         //add the bare minimum required ...
         application.addBundle(Bundles.BUNDLE_CORE);
         application.addBundle(Bundles.BUNDLE_SCR);
