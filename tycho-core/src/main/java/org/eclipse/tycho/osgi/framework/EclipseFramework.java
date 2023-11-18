@@ -182,4 +182,13 @@ public class EclipseFramework implements AutoCloseable {
         }
     }
 
+    public boolean hasBundle(String bsn) {
+        for (Bundle bundle : framework.getBundleContext().getBundles()) {
+            if (bundle.getSymbolicName().equals(bsn)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -6,6 +6,32 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+### new `tycho-eclipse-plugin`
+
+Tycho now contains a new `tycho-eclipse-plugin` that is dedicated to executing "tasks like eclipse", this currently includes
+- the former tycho-extras `tycho-eclipserun-plugin` and its mojos
+- a new `eclipse-build` mojo that allows to take a literal eclipse project and execute the build on it
+
+#### new `eclipse-build` mojo
+
+The `eclipse-build` mojo can be used like this
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho-eclipse-plugin</artifactId>
+		<version>${tycho-version}</version>
+		<executions>
+			<execution>
+				<id>eclipse-build</id>
+				<goals>
+					<goal>eclipse-build</goal>
+				</goals>
+			</execution>
+		</executions>
+</plugin>
+```
+
 ### support for PDE Api Tools Annotations
 
 Tycho now supports PDE Api Tools Annotations to be added to the project automatically.

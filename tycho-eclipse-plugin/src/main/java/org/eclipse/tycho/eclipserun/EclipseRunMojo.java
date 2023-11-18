@@ -11,7 +11,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Marc-Andre Laperle - EclipseRunMojo inspired by TestMojo
  *******************************************************************************/
-package org.eclipse.tycho.extras.eclipserun;
+package org.eclipse.tycho.eclipserun;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,7 +57,6 @@ import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
-import org.eclipse.tycho.plugins.p2.extras.Repository;
 
 /**
  * Launch an eclipse process with arbitrary commandline arguments. The eclipse
@@ -371,7 +370,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		return installationFactory.createInstallation(installationDesc, work);
 	}
 
-	void runEclipse(EquinoxInstallation runtime) throws MojoExecutionException {
+	public void runEclipse(EquinoxInstallation runtime) throws MojoExecutionException {
 		try {
 			File workspace = new File(work, "data").getAbsoluteFile();
 			synchronized (WORKSPACE_LOCKS.computeIfAbsent(workspace.getAbsolutePath(), k -> new Object())) {
@@ -392,7 +391,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		}
 	}
 
-	LaunchConfiguration createCommandLine(EquinoxInstallation runtime) throws MojoExecutionException {
+	public LaunchConfiguration createCommandLine(EquinoxInstallation runtime) throws MojoExecutionException {
 		EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(runtime);
 
 		String executable = null;

@@ -36,6 +36,7 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
+import org.eclipse.tycho.eclipserun.EclipseRunMojo;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.eclipse.tycho.version.TychoVersion;
@@ -53,7 +54,7 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 
-		runMojo = (EclipseRunMojo) lookupMojo("org.eclipse.tycho.extras", "tycho-eclipserun-plugin",
+		runMojo = (EclipseRunMojo) lookupMojo("org.eclipse.tycho", "tycho-eclipse-plugin",
 				TychoVersion.getTychoVersion(), "eclipse-run", null);
 		runMojo.setLog(new SilentLog());
 		MavenSession mavenSession = newMavenSession(mock(MavenProject.class));
