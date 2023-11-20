@@ -27,8 +27,10 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.jar.JarFile;
 
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -130,12 +132,25 @@ public class EclipseApplication {
      */
     public synchronized void addBundle(String bundleSymbolicName) {
         try {
-            resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, bundleSymbolicName, "0.0.0");
+            resolver.addDependency(ArtifactType.TYPE_ECLIPSE_PLUGIN, bundleSymbolicName, "0.0.0");
             needResolve = true;
         } catch (IllegalArtifactReferenceException e) {
             throw new TargetPlatformConfigurationException("Can't add API tools requirement", e);
         }
+    }
 
+    /**
+     * Add a feature to the application
+     * 
+     * @param featureId
+     */
+    public synchronized void addFeature(String featureId) {
+        try {
+            resolver.addDependency(ArtifactType.TYPE_ECLIPSE_FEATURE, featureId, "0.0.0");
+            needResolve = true;
+        } catch (IllegalArtifactReferenceException e) {
+            throw new TargetPlatformConfigurationException("Can't add API tools requirement", e);
+        }
     }
 
     /**
@@ -205,6 +220,17 @@ public class EclipseApplication {
                 //not installed yet...
                 if (Files.isDirectory(bundleFile)) {
                     bundle = systemBundleContext.installBundle(location);
+                } else if (isDirectoryBundly(bundleFile)) {
+                    Path explodePath = workspace.getWorkDir().resolve("exploded").resolve(bundleFile.getFileName());
+                    try {
+                        Files.createDirectories(explodePath);
+                        ZipUnArchiver unArchiver = new ZipUnArchiver(bundleFile.toFile());
+                        unArchiver.setDestDirectory(explodePath.toFile());
+                        unArchiver.extract();
+                    } catch (IOException e) {
+                        throw new BundleException("can't explode bundle " + bundleFile, e);
+                    }
+                    bundle = systemBundleContext.installBundle(explodePath.toUri().toASCIIString());
                 } else {
                     try (InputStream stream = Files.newInputStream(bundleFile)) {
                         bundle = systemBundleContext.installBundle(location, stream);
@@ -220,6 +246,14 @@ public class EclipseApplication {
         FrameworkWiring wiring = framework.adapt(FrameworkWiring.class);
         wiring.resolveBundles(Collections.emptyList());
         return new EclipseFramework(framework, configuration, this, connector);
+    }
+
+    private boolean isDirectoryBundly(Path bundleFile) {
+        try (JarFile jarFile = new JarFile(bundleFile.toFile())) {
+            return "dir".equals(jarFile.getManifest().getMainAttributes().getValue("Eclipse-BundleShape"));
+        } catch (IOException e1) {
+        }
+        return false;
     }
 
     private void setupLogging(BundleContext bundleContext) {
