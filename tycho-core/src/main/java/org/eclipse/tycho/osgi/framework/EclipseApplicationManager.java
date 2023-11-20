@@ -79,7 +79,7 @@ public class EclipseApplicationManager {
             application.addBundle(bsn);
         }
         for (String feature : features.features()) {
-            //TODO application.addFeature(feature);
+            application.addFeature(feature);
         }
     }
 

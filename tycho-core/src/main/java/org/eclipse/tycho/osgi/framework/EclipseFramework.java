@@ -14,6 +14,8 @@ package org.eclipse.tycho.osgi.framework;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -189,6 +191,12 @@ public class EclipseFramework implements AutoCloseable {
             }
         }
         return false;
+    }
+
+    public Bundle install(File file) throws IOException, BundleException {
+        try (FileInputStream stream = new FileInputStream(file)) {
+            return framework.getBundleContext().installBundle(file.getAbsolutePath(), stream);
+        }
     }
 
 }

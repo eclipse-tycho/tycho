@@ -77,6 +77,9 @@ public class EclipseBuildMojo extends AbstractMojo {
 	@Parameter
 	private List<String> bundles;
 
+	@Parameter
+	private List<String> features;
+
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
@@ -101,7 +104,7 @@ public class EclipseBuildMojo extends AbstractMojo {
         EclipseApplication application;
         //TODO configureable by parameters!
         Bundles bundles = new Bundles(getBundles());
-        Features features = new Features(Set.of());
+		Features features = new Features(getFeatures());
         if (local) {
             TargetPlatform targetPlatform = projectManager.getTargetPlatform(project).orElseThrow(
                     () -> new MojoFailureException("Can't get target platform for project " + project.getId()));
@@ -145,8 +148,16 @@ public class EclipseBuildMojo extends AbstractMojo {
         }
     }
 
+	private Set<String> getFeatures() {
+		Set<String> set = new HashSet<>();
+		if (features != null) {
+			set.addAll(features);
+		}
+		return set;
+	}
+
 	private Set<String> getBundles() {
-		HashSet<String> set = new HashSet<>();
+		Set<String> set = new HashSet<>();
 		set.add("org.eclipse.core.resources");
 		set.add("org.eclipse.core.runtime");
 		set.add("org.eclipse.core.jobs");
