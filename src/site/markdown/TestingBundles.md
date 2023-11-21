@@ -1,12 +1,15 @@
 ## Testing Bundles / Plugins with Tycho
 
-There are different ways to test Bundles / Plugins with Tycho:
+There are different ways to test bundles / plug-ins with Tycho:
 
 ### maven-surefire-plugin
 
-Using [maven-surefire-plugin](https://maven.apache.org/surefire/maven-surefire-plugin/) is the preferred way whenever you want to write a plain unit-test,
-that is one that either don't need a running OSGi, use some kind of mocking technique (e.g. [Apache Sling OSGi Mocks](https://sling.apache.org/documentation/development/osgi-mock.html))
-or starts an embedded OSGi Framework (e.g. [osgi-test-framework](https://github.com/laeubisoft/osgi-test-framework)).
+Using [maven-surefire-plugin](https://maven.apache.org/surefire/maven-surefire-plugin/) is the preferred way whenever you want to write a plain unit-test.
+This is a unit test that either:
+
+* don't need a OSGi runtime
+* use some kind of mocking technique for OSGi (e.g. [Apache Sling OSGi Mocks](https://sling.apache.org/documentation/development/osgi-mock.html))
+* or starts an embedded OSGi Framework (e.g. [osgi-test-framework](https://github.com/laeubisoft/osgi-test-framework)).
 
 This requires:
 - setting up your project using a test-source folder (see below), alternatively using the [standard maven layout](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html)
@@ -37,7 +40,8 @@ A sample snippet looks like this:
  </project>
 ```
 
-To execute the tests, one has to invoke maven with `mvn test`, the following demo projects are provided as an example:
+To execute the tests, one has to invoke maven with `mvn test`.
+The following demo projects are provided as an example:
 
 - Project with a configured source folder: https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/surefire/with-source-folder
 - Project using maven standard layout: https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/surefire/with-maven-layout
