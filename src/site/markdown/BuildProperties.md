@@ -1,15 +1,18 @@
 ## Build Properties
 
-Tycho uses the `build.properties` file [as defined by PDE](https://help.eclipse.org/luna/index.jsp?topic=/org.eclipse.pde.doc.user/reference/pde_feature_generating_build.htm) to configure various aspects of the build.
+Tycho uses the `build.properties` file [as defined by PDE](https://help.eclipse.org/latest/index.jsp?topic=/org.eclipse.pde.doc.user/reference/pde_feature_generating_build.htm) to configure various aspects of the build.
 
-Note that Tycho only supports a subset of keys defined by PDE. If a key is not supported, this may be because
+Note that Tycho only supports a subset of keys defined by PDE. 
+If a key is not supported, this may be because:
 
 * it's legacy/deprecated
 * it doesn't fit into the maven project model or the way maven is generally expected to work
 * there are other ways to achieve the desired configuration (e.g. using pom.xml)
 * it's a missing feature
 
-In addition to PDE, Tycho supports using maven property expressions like `${project.version}` in `build.properties` values. Note that these expressions will only be replaced in a Tycho build, not when using the eclipse IDE incremental build.  
+In additional to the PDE properties, Tycho supports property expressions like `${project.version}` in `build.properties` values. 
+These expressions are only used in a Tycho build, not when using the Eclipse IDE incremental build.  
+
 See the table below for which keys in `build.properties` defined by PDE are supported by Tycho or if not, whether there are alternatives when using Tycho.
 
 ### Common Properties
