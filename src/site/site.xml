@@ -6,6 +6,7 @@
 			<item name="Structured Build Layout and Pomless Builds" href="StructuredBuild.html" />
 			<item name="BND Workspace and Pomless Builds" href="BndBuild.html" />
 			<item name="Packaging Types" href="PackagingTypes.html" />
+			<item name="Target Platform" href="TargetPlatform.html" />
 			<item name="Testing Bundles" href="TestingBundles.html" />
 			<item name="Tycho CI Friendly Versions" href="TychoCiFriendly.html" />
 			<item name="Creating update sites using category.xml" href="Category.html" />
