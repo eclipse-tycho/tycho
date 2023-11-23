@@ -66,7 +66,7 @@ In order to add the content of a target definition file (see "Content" tab of th
 </plugin>
 ```
 
-Since Tycho 0.17.0, it is also possible to configure multiple target files by specifying more than one <artifact> reference. Tycho interprets these target files independently and in the same way as in Eclipse: Each of the configured target files need to resolve successfully when opened in the Eclipse Target Editor. Note that the use of this Tycho feature is limited because the Eclipse PDE currently does not support activating more than one target file at once (see bug 392652).
+Since Tycho 0.17.0, it is also possible to configure multiple target files by specifying more than one `<artifact>` reference. Tycho interprets these target files independently and in the same way as in Eclipse: Each of the configured target files need to resolve successfully when opened in the Eclipse Target Editor. Note that the use of this Tycho feature is limited because the Eclipse PDE currently does not support activating more than one target file at once (see bug 392652).
 
 Note: Tycho's interpretation of the target definition file format differs from the PDE in the following aspects:
 
