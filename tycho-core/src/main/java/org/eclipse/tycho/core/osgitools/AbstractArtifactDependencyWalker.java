@@ -39,7 +39,6 @@ import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.ProductConfiguration.ProductType;
-import org.eclipse.tycho.model.UpdateSite;
 
 public abstract class AbstractArtifactDependencyWalker implements ArtifactDependencyWalker {
 
@@ -54,15 +53,6 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
     protected AbstractArtifactDependencyWalker(DependencyArtifacts artifacts, TargetEnvironment[] environments) {
         this.artifacts = artifacts;
         this.environments = environments;
-    }
-
-    @Override
-    public void traverseUpdateSite(UpdateSite site, ArtifactDependencyVisitor visitor) {
-        WalkbackPath visited = new WalkbackPath();
-
-        for (FeatureRef ref : site.getFeatures()) {
-            traverseFeature(ref, visitor, visited);
-        }
     }
 
     @Override
@@ -109,11 +99,6 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
             }
         }
         return null;
-    }
-
-    @Override
-    public void traverseProduct(ProductConfiguration product, ArtifactDependencyVisitor visitor) {
-        traverseProduct(product, visitor, new WalkbackPath());
     }
 
     protected void traverseProduct(ProductConfiguration product, ArtifactDependencyVisitor visitor,

@@ -128,6 +128,7 @@ If filtering provided artifacts is enabled, the repository references automatica
 using exclusion and inclusion patterns and therefore allows more fine-grained control which references are added.
 Additionally the automatically added references can be filter based on if they provide any of the filtered units or not.
 If `addOnlyProviding` is `true` repositories that don't provide any filtered unit are not added to the assembled repo.
+
 ```xml
 <plugin>
 	<groupId>org.eclipse.tycho</groupId>
@@ -147,6 +148,14 @@ If `addOnlyProviding` is `true` repositories that don't provide any filtered uni
 </plugin>
 	
 ```
+
+### Remove support for deployableFeature option
+
+The deployableFeature option will create "standard eclipse update site directory with feature content will
+be created under target folder" but we already removed site-packaging from Tycho for a while, if one wants to
+archive similar a category.xml with eclipse-repository packaging gives much more control and power to the user.
+Alternativly new `mirror-target-platform` mojo can be used.
+
 
 ## 4.0.4
 

@@ -40,7 +40,6 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
 import org.eclipse.osgi.internal.framework.FilterImpl;
@@ -61,11 +60,9 @@ import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
-import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
@@ -77,9 +74,6 @@ import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProjectImpl;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.model.Feature;
-import org.eclipse.tycho.model.ProductConfiguration;
-import org.eclipse.tycho.model.UpdateSite;
 import org.eclipse.tycho.model.classpath.JUnitBundle;
 import org.eclipse.tycho.model.classpath.JUnitClasspathContainerEntry;
 import org.eclipse.tycho.model.classpath.LibraryClasspathEntry;
@@ -122,40 +116,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public ArtifactDependencyWalker getDependencyWalker(ReactorProject project) {
-        final DependencyArtifacts artifacts = getDependencyArtifacts(project);
-
-        final List<ClasspathEntry> cp = getClasspath(project);
-
-        return new ArtifactDependencyWalker() {
-            @Override
-            public void walk(ArtifactDependencyVisitor visitor) {
-                for (ClasspathEntry entry : cp) {
-                    ArtifactDescriptor artifact = artifacts.getArtifact(entry.getArtifactKey());
-                    ArtifactKey key = artifact.getKey();
-                    File location = artifact.getLocation(true);
-                    ReactorProject project = artifact.getMavenProject();
-                    String classifier = artifact.getClassifier();
-                    Collection<IInstallableUnit> installableUnits = artifact.getInstallableUnits();
-
-                    PluginDescription plugin = new DefaultPluginDescription(key, location, project, classifier, null,
-                            installableUnits);
-
-                    visitor.visitPlugin(plugin);
-                }
-            }
-
-            @Override
-            public void traverseFeature(File location, Feature feature, ArtifactDependencyVisitor visitor) {
-            }
-
-            @Override
-            public void traverseUpdateSite(UpdateSite site, ArtifactDependencyVisitor artifactDependencyVisitor) {
-            }
-
-            @Override
-            public void traverseProduct(ProductConfiguration productConfiguration, ArtifactDependencyVisitor visitor) {
-            }
-        };
+        throw new UnsupportedOperationException();
     }
 
     @Override
