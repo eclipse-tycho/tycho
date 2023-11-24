@@ -34,8 +34,6 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.model.Feature;
-import org.eclipse.tycho.model.ProductConfiguration;
-import org.eclipse.tycho.model.UpdateSite;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
 @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION)
@@ -47,16 +45,6 @@ public class TargetPlatformProject extends AbstractTychoProject {
 
             @Override
             public void walk(ArtifactDependencyVisitor visitor) {
-
-            }
-
-            @Override
-            public void traverseUpdateSite(UpdateSite site, ArtifactDependencyVisitor visitor) {
-
-            }
-
-            @Override
-            public void traverseProduct(ProductConfiguration productConfiguration, ArtifactDependencyVisitor visitor) {
 
             }
 
@@ -78,8 +66,7 @@ public class TargetPlatformProject extends AbstractTychoProject {
             DefaultDependencyArtifacts artifacts = new DefaultDependencyArtifacts(reactorProject);
             MavenSession mavenSession = getMavenSession(reactorProject);
             MavenProject mavenProject = getMavenProject(reactorProject);
-            TargetPlatform targetPlatform = dependencyResolver.getPreliminaryTargetPlatform(mavenSession,
-                    mavenProject);
+            TargetPlatform targetPlatform = dependencyResolver.getPreliminaryTargetPlatform(mavenSession, mavenProject);
             if (targetPlatform instanceof P2TargetPlatform p2) {
                 Set<IInstallableUnit> installableUnits = p2.getInstallableUnits();
                 for (IInstallableUnit iu : installableUnits) {

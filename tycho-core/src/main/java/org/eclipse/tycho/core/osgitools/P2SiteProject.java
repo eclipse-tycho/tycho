@@ -21,7 +21,6 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.TychoProject;
 
@@ -29,13 +28,7 @@ import org.eclipse.tycho.core.TychoProject;
 public class P2SiteProject extends AbstractArtifactBasedProject {
     @Override
     protected ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment) {
-        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment),
-                getEnvironments(project, environment)) {
-            @Override
-            public void walk(ArtifactDependencyVisitor visitor) {
-                //Nothing to do
-            }
-        };
+        throw new UnsupportedOperationException();
     }
 
     @Override
