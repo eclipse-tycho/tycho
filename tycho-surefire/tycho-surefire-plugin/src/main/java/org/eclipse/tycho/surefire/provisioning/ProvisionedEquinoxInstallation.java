@@ -17,7 +17,6 @@ import java.io.File;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxInstallationLaunchConfiguration;
-import org.eclipse.tycho.core.osgitools.BundleReader;
 
 /**
  * This class provides an implementation of an {@link EquinoxInstallation} which represents an RCP
@@ -32,9 +31,9 @@ public class ProvisionedEquinoxInstallation implements EquinoxInstallation {
     private File configurationLocation;
     private EquinoxInstallationDescription description;
 
-    public ProvisionedEquinoxInstallation(File location, BundleReader bundleReader) {
+    public ProvisionedEquinoxInstallation(File location) {
         this.location = location;
-        description = new ProvisionedInstallationDescription(location, bundleReader);
+        description = new ProvisionedInstallationDescription(location, null);
     }
 
     @Override
