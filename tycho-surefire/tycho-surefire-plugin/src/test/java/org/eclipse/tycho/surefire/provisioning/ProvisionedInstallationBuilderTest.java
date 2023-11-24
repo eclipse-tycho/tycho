@@ -27,7 +27,7 @@ public class ProvisionedInstallationBuilderTest {
 
     @Test
     public void setDestination_LayoutNormal() throws Exception {
-        ProvisionedInstallationBuilder builder = new ProvisionedInstallationBuilder(null, null, null);
+        ProvisionedInstallationBuilder builder = new ProvisionedInstallationBuilder(null, null);
 
         File work = tempDir.newFolder("work");
         builder.setDestination(work);
@@ -36,7 +36,7 @@ public class ProvisionedInstallationBuilderTest {
 
     @Test
     public void setDestination_LayoutMacOS() throws Exception {
-        ProvisionedInstallationBuilder builder = new ProvisionedInstallationBuilder(null, null, null);
+        ProvisionedInstallationBuilder builder = new ProvisionedInstallationBuilder(null, null);
 
         File work = tempDir.newFolder("work.app");
         builder.setDestination(work);

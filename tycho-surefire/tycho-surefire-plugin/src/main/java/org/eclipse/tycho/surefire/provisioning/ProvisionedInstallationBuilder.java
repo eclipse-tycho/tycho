@@ -22,15 +22,14 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
+import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
 public class ProvisionedInstallationBuilder {
 
     private Logger log;
-    private BundleReader bundleReader;
     private DirectorRuntime directorRuntime;
 
     private List<URI> metadataRepos = new ArrayList<>();
@@ -48,9 +47,8 @@ public class ProvisionedInstallationBuilder {
         this.workingDir = workingDir;
     }
 
-    public ProvisionedInstallationBuilder(BundleReader bundleReader, DirectorRuntime directorRuntime, Logger log) {
+    public ProvisionedInstallationBuilder(DirectorRuntime directorRuntime, Logger log) {
         this.log = log;
-        this.bundleReader = bundleReader;
         this.directorRuntime = directorRuntime;
         this.bundlesPublisher = new BundlesPublisher(log);
     }
@@ -97,11 +95,11 @@ public class ProvisionedInstallationBuilder {
         this.installFeatures = installFeatures;
     }
 
-    public EquinoxInstallation install() throws Exception {
+    public EquinoxInstallation install(TargetEnvironment main) throws Exception {
         validate();
         publishPlainBundleJars();
-        executeDirector();
-        return new ProvisionedEquinoxInstallation(effectiveDestination, bundleReader);
+        executeDirector(main);
+        return new ProvisionedEquinoxInstallation(getFinalDestination(main));
     }
 
     private void publishPlainBundleJars() throws Exception {
@@ -121,23 +119,32 @@ public class ProvisionedInstallationBuilder {
         artifactRepos.add(bundlesRepoURI);
     }
 
-    private void executeDirector() throws MojoFailureException {
+    private void executeDirector(TargetEnvironment env) throws MojoFailureException {
         DirectorRuntime.Command command = directorRuntime.newInstallCommand();
         command.addMetadataSources(metadataRepos);
         command.addArtifactSources(artifactRepos);
         for (String iu : ius) {
             command.addUnitToInstall(iu);
         }
-        command.setDestination(effectiveDestination);
+        command.setDestination(getFinalDestination(env));
         command.setProfileName(profileName);
         command.setInstallFeatures(installFeatures);
-        command.setEnvironment(TargetEnvironment.getRunningEnvironment());
+        command.setEnvironment(env);
         log.info("Installing IUs " + ius + " to " + effectiveDestination);
         try {
             command.execute();
         } catch (DirectorCommandException e) {
             throw new MojoFailureException("Installation of IUs " + ius + " failed", e);
         }
+    }
+
+    private File getFinalDestination(TargetEnvironment env) {
+        if (PlatformPropertiesUtils.OS_MACOSX.equals(env.getOs())) {
+            if (!effectiveDestination.getName().endsWith(".app")) {
+                return new File(effectiveDestination, "Eclipse.app/Contents/Eclipse/");
+            }
+        }
+        return effectiveDestination;
     }
 
     private void validate() {
