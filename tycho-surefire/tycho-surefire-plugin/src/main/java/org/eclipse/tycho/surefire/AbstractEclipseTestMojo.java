@@ -639,17 +639,11 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             File workingDir = new File(project.getBuild().getDirectory(), "p2temp");
             workingDir.mkdirs();
             installationBuilder.setWorkingDir(workingDir);
-            TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
-            if (PlatformPropertiesUtils.OS_MACOSX.equals(runningEnvironment.getOs())) {
-                if (work.getName().endsWith(".app")) {
-                    installationBuilder.setDestination(work);
-                } else {
-                    installationBuilder.setDestination(new File(work, "Eclipse.app/Contents/Eclipse/"));
-                }
-            } else {
-                installationBuilder.setDestination(work);
-            }
-            return installationBuilder.install();
+            installationBuilder.setDestination(work);
+            List<TargetEnvironment> list = getTestTargetEnvironments();
+            TargetEnvironment env = list.get(0);
+            getLog().info("Provisioning with environment " + env + "...");
+            return installationBuilder.install(env);
         } catch (Exception ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }
@@ -1054,7 +1048,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         addProgramArgs(cli, "-data", osgiDataDirectory.getAbsolutePath(), //
                 "-install", testRuntime.getLocation().getAbsolutePath(), //
                 "-configuration", testRuntime.getConfigurationLocation().getAbsolutePath(), //
-                "-application", getTestApplication(testRuntime.getInstallationDescription()), //
+                "-application", getTestApplication(), //
                 "-testproperties", surefireProperties.getAbsolutePath());
         if (application != null) {
             cli.addProgramArguments("-testApplication", application);
@@ -1122,7 +1116,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         }
     }
 
-    private String getTestApplication(EquinoxInstallationDescription testRuntime) {
+    private String getTestApplication() {
         if (useUIHarness) {
             return "org.eclipse.tycho.surefire.osgibooter.uitest";
         } else {
