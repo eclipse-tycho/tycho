@@ -139,12 +139,27 @@ public class ProvisionedInstallationBuilder {
     }
 
     private File getFinalDestination(TargetEnvironment env) {
-        if (PlatformPropertiesUtils.OS_MACOSX.equals(env.getOs())) {
-            if (!effectiveDestination.getName().endsWith(".app")) {
-                return new File(effectiveDestination, "Eclipse.app/Contents/Eclipse/");
-            }
+        if (PlatformPropertiesUtils.OS_MACOSX.equals(env.getOs()) && !hasRequiredMacLayout(effectiveDestination)) {
+            return new File(effectiveDestination, "Eclipse.app/Contents/Eclipse/");
         }
         return effectiveDestination;
+    }
+
+    private static boolean hasRequiredMacLayout(File folder) {
+        //TODO if we do not have this exact layout then director fails with:
+        //The framework persistent data location (/work/MacOS/configuration) is not the same as the framework configuration location /work/Contents/Eclipse/configuration)
+        //maybe we can simply configure the "persistent data location" to point to the expected one?
+        //or the "configuration location" must be configured and look like /work/Contents/<work>/configuration ?
+        //the actual values seem even depend on if this is an empty folder where one installs or an existing one
+        //e.g. if one installs multiple env Equinox finds the launcher and then set the location different...
+        if ("Eclipse".equals(folder.getName())) {
+            File folder2 = folder.getParentFile();
+            if (folder2 != null && "Contents".equals(folder2.getName())) {
+                File parent = folder2.getParentFile();
+                return parent != null && parent.getName().endsWith(".app");
+            }
+        }
+        return false;
     }
 
     private void validate() {

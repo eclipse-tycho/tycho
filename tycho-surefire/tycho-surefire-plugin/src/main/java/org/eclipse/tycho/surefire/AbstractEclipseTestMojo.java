@@ -305,6 +305,12 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private BundleStartLevel defaultStartLevel;
 
     /**
+     * If {@link #testRuntime} is <code>p2Installed</code> installs all configured environments
+     */
+    @Parameter
+    private boolean installAllEnvironments;
+
+    /**
      * Flaky tests will re-run until they pass or the number of reruns has been exhausted. See
      * surefire documentation for details.
      * <p>
@@ -641,9 +647,24 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             installationBuilder.setWorkingDir(workingDir);
             installationBuilder.setDestination(work);
             List<TargetEnvironment> list = getTestTargetEnvironments();
-            TargetEnvironment env = list.get(0);
-            getLog().info("Provisioning with environment " + env + "...");
-            return installationBuilder.install(env);
+            TargetEnvironment testEnvironment = list.get(0);
+            if (installAllEnvironments) {
+                TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
+                List<TargetEnvironment> targetEnvironments = configuration.getEnvironments();
+                EquinoxInstallation installation = null;
+                for (TargetEnvironment targetEnvironment : targetEnvironments) {
+                    getLog().info("Provisioning with environment " + targetEnvironment + "...");
+                    installationBuilder.setProfileName(targetEnvironment.toString());
+                    EquinoxInstallation current = installationBuilder.install(targetEnvironment);
+                    if (targetEnvironment == testEnvironment) {
+                        installation = current;
+                    }
+                }
+                return installation;
+            } else {
+                getLog().info("Provisioning with environment " + testEnvironment + "...");
+                return installationBuilder.install(testEnvironment);
+            }
         } catch (Exception ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }
