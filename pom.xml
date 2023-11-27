@@ -72,10 +72,10 @@
 		<ecjVersion>3.35.0</ecjVersion>
 		<bnd.version>7.0.0</bnd.version>
 	    <!-- these are referenced from src/main/resources/META-INF/plexus/components.xml -->
-		<resources-plugin.version>2.4.3</resources-plugin.version>
-		<install-plugin.version>2.3.1</install-plugin.version>
-		<deploy-plugin.version>2.5</deploy-plugin.version>
-		<clean-plugin.version>2.4.1</clean-plugin.version>
+		<resources-plugin.version>3.3.1</resources-plugin.version>
+		<install-plugin.version>3.1.1</install-plugin.version>
+		<deploy-plugin.version>3.1.1</deploy-plugin.version>
+		<clean-plugin.version>3.3.2</clean-plugin.version>
 		<surefire-plugin.version>${surefire-version}</surefire-plugin.version>
 	</properties>
 	<dependencyManagement>
