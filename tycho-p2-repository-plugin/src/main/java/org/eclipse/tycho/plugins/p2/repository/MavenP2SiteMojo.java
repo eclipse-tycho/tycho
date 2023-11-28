@@ -34,12 +34,14 @@ import java.util.stream.Stream.Builder;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -66,6 +68,7 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.PGPService;
 import org.eclipse.tycho.p2maven.tools.TychoFeaturesAndBundlesPublisherApplication;
@@ -214,6 +217,9 @@ public class MavenP2SiteMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = INCLUDE_PGP_DEFAULT + "")
     private boolean includePGPSignature = INCLUDE_PGP_DEFAULT;
+
+    @Parameter(property = "mojoExecution", readonly = true)
+    MojoExecution execution;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -399,7 +405,14 @@ public class MavenP2SiteMojo extends AbstractMojo {
         } catch (IOException e) {
             throw new MojoExecutionException("failed to create archive", e);
         }
-        projectHelper.attachArtifact(project, "zip", "p2site", destFile);
+        if (PackagingType.TYPE_P2_SITE.equals(project.getPackaging())
+                && execution.getExecutionId().startsWith("default-")) {
+            Artifact artifact = project.getArtifact();
+            artifact.setFile(destFile);
+            artifact.setArtifactHandler(new DefaultArtifactHandler("zip"));
+        } else {
+            projectHelper.attachArtifact(project, "zip", "p2site", destFile);
+        }
     }
 
     private List<String> getKeyServers() {
