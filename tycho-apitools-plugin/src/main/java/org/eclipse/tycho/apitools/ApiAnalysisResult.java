@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.osgi.service.resolver.ResolverError;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblem;
 
@@ -33,8 +34,8 @@ public class ApiAnalysisResult implements Serializable {
 		return resolveError.stream();
 	}
 
-	public void addProblem(IApiProblem problem) {
-		problems.add(new ApiProblemDTO(problem));
+	public void addProblem(IApiProblem problem, IProject project) {
+		problems.add(new ApiProblemDTO(problem, project));
 	}
 
 	public void addResolverError(ResolverError error) {
