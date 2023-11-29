@@ -156,7 +156,9 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		disableJVMDiscovery();
 		setTargetPlatform();
 		deleteAllProjects();
-		BundleComponent projectComponent = importProject();
+		IPath projectPath = IPath.fromOSString(projectDir);
+		IProject project = getProject(projectPath);
+		BundleComponent projectComponent = getApiComponent(project, projectPath);
 		IApiBaseline baseline = createBaseline(baselineBundles, baselineName + " - baseline");
 		ResolverError[] resolverErrors = projectComponent.getErrors();
 		if (resolverErrors != null && resolverErrors.length > 0) {
@@ -173,7 +175,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 					new NullProgressMonitor());
 			IApiProblem[] problems = analyzer.getProblems();
 			for (IApiProblem problem : problems) {
-				result.addProblem(problem);
+				result.addProblem(problem, project);
 				debug(String.valueOf(problem));
 			}
 		} finally {
@@ -191,21 +193,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		instanceNode.putBoolean(LaunchingPlugin.PREF_DETECT_VMS_AT_STARTUP, false);
 	}
 
-	private BundleComponent importProject() throws CoreException, IOException {
-		IPath projectPath = IPath.fromOSString(projectDir);
-		IPath projectDescriptionFile = projectPath.append(IProjectDescription.DESCRIPTION_FILE_NAME);
-		IProjectDescription projectDescription = ResourcesPlugin.getWorkspace()
-				.loadProjectDescription(projectDescriptionFile);
-		projectDescription.setLocation(projectPath);
-		projectDescription.setBuildSpec(new ICommand[0]);
-		// FIXME ApiTools wrongly assumes that the location matches the project name
-		// see: https://github.com/eclipse-pde/eclipse.pde/issues/789
-		// therefore we here must not use projectDescription.getName() but
-		// projectPath.lastSegment() ...
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectPath.lastSegment());
-		project.create(projectDescription, new NullProgressMonitor());
-		project.open(new NullProgressMonitor());
-		createOutputFolder(project, projectPath);
+	private BundleComponent getApiComponent(IProject project, IPath projectPath) throws CoreException, IOException {
 		IApiBaseline workspaceBaseline = ApiPlugin.getDefault().getApiBaselineManager().getWorkspaceBaseline();
 		IApiComponent component = workspaceBaseline.getApiComponent(project);
 		if (component instanceof ProjectComponent projectComponent) {
@@ -233,6 +221,23 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 
 		}
 		throw new RuntimeException("Can't import project");
+	}
+
+	private IProject getProject(IPath projectPath) throws CoreException, IOException {
+		IPath projectDescriptionFile = projectPath.append(IProjectDescription.DESCRIPTION_FILE_NAME);
+		IProjectDescription projectDescription = ResourcesPlugin.getWorkspace()
+				.loadProjectDescription(projectDescriptionFile);
+		projectDescription.setLocation(projectPath);
+		projectDescription.setBuildSpec(new ICommand[0]);
+		// FIXME ApiTools wrongly assumes that the location matches the project name
+		// see: https://github.com/eclipse-pde/eclipse.pde/issues/789
+		// therefore we here must not use projectDescription.getName() but
+		// projectPath.lastSegment() ...
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectPath.lastSegment());
+		project.create(projectDescription, new NullProgressMonitor());
+		project.open(new NullProgressMonitor());
+		createOutputFolder(project, projectPath);
+		return project;
 	}
 
 	private void createOutputFolder(IProject project, IPath projectPath) throws IOException, CoreException {

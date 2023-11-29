@@ -14,6 +14,9 @@ package org.eclipse.tycho.apitools;
 
 import java.io.Serializable;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.pde.api.tools.internal.problems.ApiProblemFactory;
+import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblem;
 
 public class ApiProblemDTO implements IApiProblem, Serializable {
@@ -34,8 +37,8 @@ public class ApiProblemDTO implements IApiProblem, Serializable {
 	private final int flags;
 	private final String toString;
 
-	public ApiProblemDTO(IApiProblem problem) {
-		severity = problem.getSeverity();
+	public ApiProblemDTO(IApiProblem problem, IProject project) {
+		severity = ApiPlugin.getDefault().getSeverityLevel(ApiProblemFactory.getProblemSeverityId(problem), project);
 		elementKind = problem.getElementKind();
 		messageid = problem.getMessageid();
 		resourcePath = problem.getResourcePath();
