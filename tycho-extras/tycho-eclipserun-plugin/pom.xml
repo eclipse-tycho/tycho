@@ -27,6 +27,7 @@
     <relocation>
       <groupId>org.eclipse.tycho</groupId>
       <artifactId>tycho-eclipse-plugin</artifactId>
+      <version>4.0.5-SNAPSHOT</version>
       <message>The eclipse-run mojo is now part of the tycho-eclipse-plugin</message>
     </relocation>
   </distributionManagement>
