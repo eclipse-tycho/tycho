@@ -118,7 +118,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
      * The hint of an available {@link ArtifactComparator} component to use for comparison of
      * artifacts with same version.
      */
-    @Parameter(defaultValue = BytesArtifactComparator.HINT, readonly = true)
+    @Parameter(defaultValue = BytesArtifactComparator.HINT)
     private String comparator;
     @Component(role = ArtifactComparator.class)
     protected Map<String, ArtifactComparator> artifactComparators;
