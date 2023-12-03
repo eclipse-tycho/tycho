@@ -36,7 +36,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    @Parameter(property = "buildQualifier", readonly = true)
+    @Parameter(property = "buildQualifier")
     private String qualifier;
 
     @Component
