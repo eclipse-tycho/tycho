@@ -359,7 +359,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     }
 
-    private final class MappingRule {
+    private static final class MappingRule {
         public final String filter;
         public final String urlPattern;
 
