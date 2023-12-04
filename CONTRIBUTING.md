@@ -47,7 +47,7 @@ This can be accomplished by adding the following snippet to your (parent) pom.xm
 ```
 Make sure you have set the property for the Tycho version (e.g. `tycho-version`) to `<version-under-development>-SNAPSHOT` in the project being built.
 
-For documentation of the most recent snapshot build, see the [Snapshot Tycho Site](https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifact/target/staging/index.html).
+For documentation of the most recent snapshot build, see the [Snapshot Tycho Site](https://tycho.eclipseprojects.io/doc/master/index.html).
 
 If you identify an issue, please try to reduce the case to the minimal project and steps to reproduce, and then report the bug with details to reproduce
 and the minimal reproducer project to Tycho's [issue tracker](https://github.com/eclipse-tycho/tycho/issues).
