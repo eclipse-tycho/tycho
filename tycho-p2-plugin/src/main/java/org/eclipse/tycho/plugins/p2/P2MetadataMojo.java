@@ -202,10 +202,10 @@ public class P2MetadataMojo extends AbstractMojo {
             File contentsXml = new File(targetDir, TychoConstants.FILE_NAME_P2_METADATA);
             File artifactsXml = new File(targetDir, TychoConstants.FILE_NAME_P2_ARTIFACTS);
             p2generator.persistMetadata(generatedMetadata, contentsXml, artifactsXml);
-            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_METADATA,
-                    TychoConstants.CLASSIFIER_P2_METADATA, contentsXml);
-            projectHelper.attachArtifact(project, TychoConstants.EXTENSION_P2_ARTIFACTS,
-                    TychoConstants.CLASSIFIER_P2_ARTIFACTS, artifactsXml);
+            attachArtifact(project, TychoConstants.EXTENSION_P2_METADATA, TychoConstants.CLASSIFIER_P2_METADATA,
+                    contentsXml);
+            attachArtifact(project, TychoConstants.EXTENSION_P2_ARTIFACTS, TychoConstants.CLASSIFIER_P2_ARTIFACTS,
+                    artifactsXml);
 
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
@@ -229,6 +229,21 @@ public class P2MetadataMojo extends AbstractMojo {
 
         File localArtifactsFile = new File(project.getBuild().getDirectory(), TychoConstants.FILE_NAME_LOCAL_ARTIFACTS);
         writeArtifactLocations(localArtifactsFile, getAllProjectArtifacts(project));
+    }
+
+    /**
+     * Performs an add or replace of the specified artifact, even though javadoc of
+     * {@link MavenProjectHelper} claims it can replace artifacts that generates a warning in recent
+     * maven versions.
+     */
+    private void attachArtifact(MavenProject project, String type, String classifier, File file) {
+        for (Artifact artifact : project.getAttachedArtifacts()) {
+            if (classifier.equals(artifact.getClassifier()) && type.equals(artifact.getType())) {
+                artifact.setFile(file);
+                return;
+            }
+        }
+        projectHelper.attachArtifact(project, type, classifier, file);
     }
 
     private static boolean hasAttachedArtifact(MavenProject project, String classifier) {
