@@ -107,11 +107,11 @@ public class FeatureRootfileArtifactRepositoryTest {
     }
 
     private void assertMavenProperties(IArtifactDescriptor descriptor, String root) {
-        Assert.assertEquals(descriptor.getProperty("maven-groupId"), "artifactGroupId");
-        Assert.assertEquals(descriptor.getProperty("maven-artifactId"), "artifactId");
-        Assert.assertEquals(descriptor.getProperty("maven-version"), "artifactVersion");
-        Assert.assertEquals(descriptor.getProperty("maven-classifier"), root);
-        Assert.assertEquals(descriptor.getProperty("maven-extension"), "zip");
+        Assert.assertEquals("artifactGroupId", descriptor.getProperty("maven-groupId"));
+        Assert.assertEquals("artifactId", descriptor.getProperty("maven-artifactId"));
+        Assert.assertEquals("artifactVersion", descriptor.getProperty("maven-version"));
+        Assert.assertEquals(root, descriptor.getProperty("maven-classifier"));
+        Assert.assertEquals("zip", descriptor.getProperty("maven-extension"));
     }
 
     private void assertAttachedArtifact(Map<String, IP2Artifact> attachedArtifacts, int expectedSize,
