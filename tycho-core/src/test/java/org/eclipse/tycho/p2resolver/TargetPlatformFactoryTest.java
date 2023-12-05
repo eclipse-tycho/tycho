@@ -44,8 +44,9 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.IRawArtifactFileProvider;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.IRawArtifactFileProvider;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetEnvironment;
@@ -328,12 +329,12 @@ public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
     private ReactorProject createReactorProject(String artifactId, String[] primaryUnitIds, String[] secondaryUnitIds) {
         File basedir = new File("tychotestdummy"); // not dereferenced in the code under test, so the path doesn't need to exist
         ReactorProjectStub result = new ReactorProjectStub(basedir, artifactId);
+        result.setPackagingType(PackagingType.TYPE_ECLIPSE_PLUGIN);
 
         DependencyMetadata dependencyMetadata = new DependencyMetadata();
         dependencyMetadata.setDependencyMetadata(DependencyMetadataType.SEED, createUnits(primaryUnitIds));
         dependencyMetadata.setDependencyMetadata(DependencyMetadataType.RESOLVE, createUnits(secondaryUnitIds));
         result.setDependencyMetadata(dependencyMetadata);
-
         return result;
     }
 
