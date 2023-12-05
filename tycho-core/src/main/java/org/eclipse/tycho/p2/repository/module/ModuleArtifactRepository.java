@@ -212,7 +212,7 @@ public class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleA
     @Override
     protected void internalStore(IProgressMonitor monitor) {
         try {
-            internalStoreWithException();
+            saveToDisk();
         } catch (IOException e) {
             String message = "Error while writing repository to " + p2DataFile;
             // TODO 393004 Use a specific type?
@@ -222,7 +222,7 @@ public class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleA
 
     private void storeOrProvisioningException() throws ProvisionException {
         try {
-            internalStoreWithException();
+            saveToDisk();
         } catch (IOException e) {
             String message = "Error while writing repository to " + p2DataFile;
             int code = ProvisionException.REPOSITORY_FAILED_WRITE;
@@ -231,7 +231,7 @@ public class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleA
         }
     }
 
-    private void internalStoreWithException() throws IOException {
+    public void saveToDisk() throws IOException {
         ArtifactsIO io = new ArtifactsIO();
         io.writeXML(flattenedValues().collect(toSet()), p2DataFile);
     }
