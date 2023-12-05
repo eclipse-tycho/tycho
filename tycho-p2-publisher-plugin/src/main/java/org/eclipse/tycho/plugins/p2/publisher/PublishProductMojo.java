@@ -14,9 +14,17 @@
 package org.eclipse.tycho.plugins.p2.publisher;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HexFormat;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -24,6 +32,12 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DependencyArtifacts;
@@ -33,14 +47,18 @@ import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.TychoInterpolator;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.ProductConfiguration;
+import org.eclipse.tycho.p2.repository.PublishingRepository;
+import org.eclipse.tycho.p2.repository.module.ModuleArtifactRepository;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
+import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.osgi.framework.Version;
 
 /**
@@ -71,6 +89,9 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
     private EclipseRepositoryProject eclipseRepositoryProject;
 
+    @Component
+    private ReactorRepositoryManager reactorRepoManager;
+
     /**
      * The directory where <code>.product</code> files are located.
      * <p>
@@ -87,6 +108,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 getEnvironments(), getQualifier(), interpolator);
 
         List<DependencySeed> seeds = new ArrayList<>();
+        boolean hasLaunchers = false;
         for (final File productFile : eclipseRepositoryProject.getProductFiles(productsDirectory)) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
@@ -98,14 +120,73 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                             + " does not contain the mandatory attribute 'version'. Please ensure you entered a version in the product file.");
                 }
 
+                boolean includeLaunchers = productConfiguration.includeLaunchers();
                 seeds.addAll(publisher.publishProduct(productFile,
-                        productConfiguration.includeLaunchers() ? getExpandedLauncherBinaries() : null, FLAVOR));
+                        includeLaunchers ? getExpandedLauncherBinaries() : null, FLAVOR));
+                hasLaunchers |= includeLaunchers;
             } catch (IOException e) {
                 throw new MojoExecutionException(
                         "I/O exception while writing product definition or copying launcher icons", e);
             }
         }
+        if (hasLaunchers) {
+            //We must calculate checksums!
+            File artifactsXml = new File(getProject().getBuild().getDirectory(), TychoConstants.FILE_NAME_P2_ARTIFACTS);
+            if (artifactsXml.isFile()) {
+                PublishingRepository publishingRepository = reactorRepoManager
+                        .getPublishingRepository(getReactorProject().getIdentities());
+                IFileArtifactRepository repository = publishingRepository.getArtifactRepository();
+                repository.descriptorQueryable().query(new IQuery<IArtifactDescriptor>() {
+
+                    @Override
+                    public IQueryResult<IArtifactDescriptor> perform(Iterator<IArtifactDescriptor> iterator) {
+                        while (iterator.hasNext()) {
+                            IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
+                            File artifactFile = repository.getArtifactFile(descriptor);
+                            if (artifactFile != null) {
+                                try {
+                                    String digest = digest(artifactFile);
+                                    updateCheckSum(descriptor, digest);
+                                } catch (NoSuchAlgorithmException e) {
+                                } catch (IOException e) {
+                                }
+                            }
+                        }
+                        return new Collector<IArtifactDescriptor>();
+                    }
+
+                    @Override
+                    public IExpression getExpression() {
+                        return null;
+                    }
+                }, null);
+                if (repository instanceof ModuleArtifactRepository module) {
+                    try {
+                        module.saveToDisk();
+                    } catch (IOException e) {
+                    }
+                }
+            }
+        }
         return seeds;
+    }
+
+    private void updateCheckSum(IArtifactDescriptor descriptor, String digest) {
+        if (descriptor instanceof org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor arti) {
+            arti.setProperty("download.checksum.sha-256", digest);
+        }
+    }
+
+    private String digest(File artifactFile) throws IOException, NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        try (InputStream stream = new DigestInputStream(new FileInputStream(artifactFile), md)) {
+            try {
+                stream.transferTo(OutputStream.nullOutputStream());
+            } finally {
+                stream.close();
+            }
+        }
+        return HexFormat.of().formatHex(md.digest());
     }
 
     private File getExpandedLauncherBinaries() throws MojoExecutionException, MojoFailureException {
@@ -119,7 +200,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                     "Unable to locate feature 'org.eclipse.equinox.executable'. This feature is required for native product launchers.");
         }
         checkMacOSLauncherCompatibility(artifact);
-        File equinoxExecFeature = artifact.getLocation(true);
+        File equinoxExecFeature = artifact.fetchArtifact().join();
         if (equinoxExecFeature.isDirectory()) {
             return equinoxExecFeature.getAbsoluteFile();
         } else {
