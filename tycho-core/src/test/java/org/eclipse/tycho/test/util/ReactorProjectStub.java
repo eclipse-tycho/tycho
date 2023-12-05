@@ -98,6 +98,10 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
         return unlessNull(packagingType);
     }
 
+    public void setPackagingType(String packagingType) {
+        this.packagingType = packagingType;
+    }
+
     @Override
     public Set<IInstallableUnit> getDependencyMetadata(DependencyMetadataType type) {
         return switch (type) {

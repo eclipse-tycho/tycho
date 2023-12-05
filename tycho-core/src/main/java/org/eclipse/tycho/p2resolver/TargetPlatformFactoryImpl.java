@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -264,8 +265,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 return Optional.empty();
             }).ifPresent(externalUIs::add);
         }
-        //add p2.inf items...
-        gatherP2InfUnits(project, externalUIs);
+        //add p2.inf extra units from all projects...
+        for (ReactorProject reactorProject : Objects.requireNonNullElse(reactorProjects, List.<ReactorProject> of())) {
+            gatherP2InfUnits(reactorProject, externalUIs);
+        }
 
         Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectUIs = getPreliminaryReactorProjectUIs(
                 reactorProjects);
