@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?metadataRepository version='1.1.0'?>
-<repository name='packgz' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+<repository name='e342_3' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
     <property name='p2.timestamp' value='1338060413234'/>
@@ -267,46 +267,58 @@
       </provides>
       <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
     </unit>
-    <unit id='org.eclipse.ecf' version='3.1.300.v20120319-0616'>
-      <update id='org.eclipse.ecf' range='[0.0.0,3.1.300.v20120319-0616)' severity='0'/>
-      <properties size='2'>
-        <property name='org.eclipse.equinox.p2.name' value='%plugin.name'/>
-        <property name='org.eclipse.equinox.p2.provider' value='%plugin.provider'/>
+    <unit id="org.eclipse.swt" version="3.6.1.v3655c">
+      <update id="org.eclipse.swt" range="[0.0.0,3.6.1.v3655c)" severity="0" />
+      <properties size="5">
+        <property name="df_LT.providerName" value="Eclipse.org" />
+        <property name="df_LT.pluginName" value="Standard Widget Toolkit" />
+        <property name="org.eclipse.equinox.p2.name" value="%pluginName" />
+        <property name="org.eclipse.equinox.p2.provider" value="%providerName" />
+        <property name="org.eclipse.equinox.p2.bundle.localization" value="plugin" />
       </properties>
-      <provides size='13'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.ecf' version='3.1.300.v20120319-0616'/>
-        <provided namespace='osgi.bundle' name='org.eclipse.ecf' version='3.1.300.v20120319-0616'/>
-        <provided namespace='java.package' name='org.eclipse.ecf.core' version='3.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.ecf.core.events' version='0.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.ecf.core.jobs' version='1.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.ecf.core.provider' version='0.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.ecf.core.security' version='0.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.ecf.core.start' version='0.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.ecf.core.status' version='1.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.ecf.core.user' version='0.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.ecf.core.util' version='0.0.0'/>
-        <provided namespace='java.package' name='org.eclipse.ecf.internal.core' version='0.0.0'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      <provides size="20">
+        <provided name="org.eclipse.swt" version="3.6.1.v3655c" namespace="org.eclipse.equinox.p2.iu" />
+        <provided name="org.eclipse.swt" version="3.6.1.v3655c" namespace="osgi.bundle" />
+        <provided name="org.eclipse.swt" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.accessibility" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.awt" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.browser" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.custom" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.dnd" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.events" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.graphics" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.layout" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.opengl" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.printing" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.program" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.widgets" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.internal" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.internal.image" version="0.0.0" namespace="java.package" />
+        <provided name="org.eclipse.swt.internal.theme" version="0.0.0" namespace="java.package" />
+        <provided name="bundle" version="1.0.0" namespace="org.eclipse.equinox.p2.eclipse.type" />
+        <provided name="df_LT" version="1.0.0" namespace="org.eclipse.equinox.p2.localization" />
       </provides>
-      <requires size='8'>
-        <required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.eclipse.equinox.registry' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.eclipse.ecf.identity' range='0.0.0'/>
-        <required namespace='java.package' name='org.eclipse.core.runtime.jobs' range='0.0.0'/>
-        <required namespace='java.package' name='org.eclipse.equinox.concurrent.future' range='1.0.0' optional='true'/>
-        <required namespace='java.package' name='org.osgi.framework' range='1.3.0'/>
-        <required namespace='java.package' name='org.osgi.service.log' range='1.3.0'/>
-        <required namespace='java.package' name='org.osgi.util.tracker' range='1.3.2'/>
+      <requires size="2">
+        <required range="0.0.0" greedy="false" optional="true" name="org.eclipse.swt.accessibility2" namespace="java.package" />
+        <required range="0.0.0" greedy="false" optional="true" name="org.mozilla.xpcom" namespace="java.package" />
       </requires>
-      <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='org.eclipse.ecf' version='3.1.300.v20120319-0616'/>
+      <artifacts size="1">
+        <artifact id="org.eclipse.swt" classifier="osgi.bundle" version="3.6.1.v3655c" />
       </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='1'>
-          <instruction key='manifest'>
-            Import-Package: org.eclipse.core.runtime.jobs,org.eclipse.equinox.concurrent.future;version=&quot;1.0.0&quot;;resolution:=optional,org.osgi.framework;version=&quot;1.3.0&quot;,org.osgi.service.log;version=&quot;1.3.0&quot;,org.osgi.util.tracker;version=&quot;1.3.2&quot;&#xA;Bundle-ManifestVersion: 2&#xA;Created-By: 1.5.0_22-b03 (Sun Microsystems Inc.)&#xA;Manifest-Version: 1.0&#xA;Bundle-Name: %plugin.name&#xA;Bundle-Vendor: %plugin.provider&#xA;Bundle-ActivationPolicy: lazy&#xA;Ant-Version: Apache Ant 1.7.1&#xA;Bundle-Version: 3.1.300.v20120319-0616&#xA;Export-Package: org.eclipse.ecf.core;version=&quot;3.0.0&quot;,org.eclipse.ecf.core.events,org.eclipse.ecf.core.jobs;version=&quot;1.0&quot;;x-internal:=true,org.eclipse.ecf.core.provider,org.eclipse.ecf.core.security,org.eclipse.ecf.core.start,org.eclipse.ecf.core.status;version=&quot;1.0&quot;;x-internal:=true,org.eclipse.ecf.core.user,org.eclipse.ecf.core.util,org.eclipse.ecf.internal.core;x-internal:=true&#xA;Require-Bundle: org.eclipse.equinox.common,org.eclipse.equinox.registry,org.eclipse.ecf.identity;visibility:=reexport&#xA;Bundle-Activator: org.eclipse.ecf.internal.core.ECFPlugin&#xA;Bundle-SymbolicName: org.eclipse.ecf;singleton:=true&#xA;Eclipse-LazyStart: true&#xA;Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,J2SE-1.4&#xA;Bundle-Localization: plugin&#xA;
-          </instruction>
+      <touchpoint id="org.eclipse.equinox.p2.osgi" version="1.0.0" />
+      <touchpointData size="1">
+        <instructions size="1">
+          <instruction key="manifest">Bundle-Vendor: %providerName
+Bundle-ManifestVersion: 2
+Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,J2SE-1.3
+Bundle-Name: %pluginName
+Bundle-Localization: plugin
+Eclipse-ExtensibleAPI: true
+Manifest-Version: 1.0
+DynamicImport-Package: org.eclipse.swt.accessibility2, org.mozilla.xpcom
+Bundle-SymbolicName: org.eclipse.swt; singleton:=true
+Bundle-Version: 3.6.1.v3655c
+Export-Package: org.eclipse.swt,org.eclipse.swt.accessibility,org.eclipse.swt.awt,org.eclipse.swt.browser,org.eclipse.swt.custom,org.eclipse.swt.dnd,org.eclipse.swt.events,org.eclipse.swt.graphics,org.eclipse.swt.layout,org.eclipse.swt.opengl,org.eclipse.swt.printing,org.eclipse.swt.program,org.eclipse.swt.widgets,org.eclipse.swt.internal; x-internal:=true,org.eclipse.swt.internal.image; x-internal:=true,org.eclipse.swt.internal.theme; x-internal:=true</instruction>
         </instructions>
       </touchpointData>
     </unit>
