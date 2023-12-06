@@ -280,7 +280,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
      * Collect all artifacts from the IUs that should be mirrored
      * 
      * @param ius
-     *                the IUs that are selected for mirroring
+     *            the IUs that are selected for mirroring
      * @return a (modifiable) list of {@link IArtifactKey}s that must be mirrored
      */
     protected List<IArtifactKey> collectArtifactKeys(Collection<IInstallableUnit> ius, IProgressMonitor monitor)
@@ -315,21 +315,20 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
      * Collect all IUS from the slice that should be mirrored
      * 
      * @param slice
-     *                  the slice for mirroring
+     *            the slice for mirroring
      * @return a (modifiable) set of {@link IInstallableUnit}s that must be mirrored
      * @throws ProvisionException
      */
     protected Set<IInstallableUnit> collectUnits(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor)
             throws ProvisionException {
         IQueryResult<IInstallableUnit> allIUs = slice.query(QueryUtil.createIUAnyQuery(), monitor);
-        Set<IInstallableUnit> units = allIUs.toSet();
-        return units;
+        return allIUs.toSet();
     }
 
     /*
-     * Ensure all mandatory parameters have been set. Throw an exception if there are any missing. We
-     * don't require the user to specify the artifact repository here, we will default to the ones
-     * already registered in the manager. (callers are free to add more if they wish)
+     * Ensure all mandatory parameters have been set. Throw an exception if there are any missing.
+     * We don't require the user to specify the artifact repository here, we will default to the
+     * ones already registered in the manager. (callers are free to add more if they wish)
      */
     private void validate() throws ProvisionException {
         if (sourceRepositories.isEmpty())
@@ -362,7 +361,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
             while (queryResult.hasNext())
                 sourceIUs.add(queryResult.next());
             /* old metadata mirroring app did not throw an exception here */
-            if (sourceIUs.size() == 0 && destinationMetadataRepository != null && metadataOrArtifacts == null)
+            if (sourceIUs.isEmpty() && destinationMetadataRepository != null && metadataOrArtifacts == null)
                 throw new ProvisionException(Messages.MirrorApplication_no_IUs);
         }
     }
@@ -443,8 +442,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
             return performResolution(monitor);
 
         Slicer slicer = createSlicer(slicingOptions);
-        IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]),
-                monitor);
+        IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs, monitor);
 
         if (slice != null && slicingOptions.latestVersionOnly()) {
             IQueryResult<IInstallableUnit> queryResult = slice.query(QueryUtil.createLatestIUQuery(), monitor);
@@ -460,10 +458,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
     }
 
     protected Slicer createSlicer(SlicingOptions options) {
-        PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), options.getFilter(),
+        return new PermissiveSlicer(getCompositeMetadataRepository(), options.getFilter(),
                 options.includeOptionalDependencies(), options.isEverythingGreedy(), options.forceFilterTo(),
                 options.considerStrictDependencyOnly(), options.followOnlyFilteredRequirements());
-        return slicer;
     }
 
     public void setEnvironments(List<TargetEnvironment> environments) {

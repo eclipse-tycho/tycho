@@ -162,7 +162,7 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
             }
 
             @Override
-            public IQueryable<IInstallableUnit> slice(IInstallableUnit[] ius, IProgressMonitor monitor) {
+            public IQueryable<IInstallableUnit> slice(Collection<IInstallableUnit> ius, IProgressMonitor monitor) {
                 IQueryable<IInstallableUnit> slice = super.slice(ius, monitor);
                 if (includeAllSource && targetPlatform != null) {
                     Set<IInstallableUnit> collected = slice.query(QueryUtil.ALL_UNITS, null).toSet();

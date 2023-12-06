@@ -57,7 +57,7 @@ public class InstallableUnitSlicer {
 			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
 		NullProgressMonitor monitor = new NullProgressMonitor();
 		PermissiveSlicer slicer = new TychoSlicer(avaiableIUs);
-		IQueryable<IInstallableUnit> slice = slicer.slice(rootIus.toArray(IInstallableUnit[]::new), monitor);
+		IQueryable<IInstallableUnit> slice = slicer.slice(rootIus, monitor);
 		IStatus sliceStatus = slicer.getStatus();
 		if (sliceStatus.matches(IStatus.ERROR)) {
 			throw new CoreException(sliceStatus);

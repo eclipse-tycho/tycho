@@ -42,7 +42,6 @@ import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
-import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -96,22 +95,18 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         }
 
         QueryableCollection baseIUCollection = new QueryableCollection(availableIUs);
-        Slicer slicer = newSlicer(new IQueryable<IInstallableUnit>() {
+        Slicer slicer = newSlicer((query, monitor1) -> {
 
-            @Override
-            public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-
-                IQueryResult<IInstallableUnit> queryResult = baseIUCollection.query(query, monitor);
-                if (queryResult.isEmpty()) {
-                    IQueryable<IInstallableUnit> additionalUnitStore = data.getAdditionalUnitStore();
-                    if (additionalUnitStore != null) {
-                        return additionalUnitStore.query(query, monitor);
-                    }
+            IQueryResult<IInstallableUnit> queryResult = baseIUCollection.query(query, monitor1);
+            if (queryResult.isEmpty()) {
+                IQueryable<IInstallableUnit> additionalUnitStore = data.getAdditionalUnitStore();
+                if (additionalUnitStore != null) {
+                    return additionalUnitStore.query(query, monitor1);
                 }
-                return queryResult;
             }
+            return queryResult;
         }, properties);
-        IQueryable<IInstallableUnit> slice = slicer.slice(seedIUs.toArray(EMPTY_IU_ARRAY), monitor);
+        IQueryable<IInstallableUnit> slice = slicer.slice(seedIUs, monitor);
         MultiStatus slicerStatus = slicer.getStatus();
         if (slice == null || isSlicerError(slicerStatus)) {
             throw new ResolverException(StatusTool.toLogMessage(slicerStatus), properties.toString(),
@@ -175,8 +170,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
                         IMatchExpression<IInstallableUnit> matches = propertiesMatch.getMatches();
                         Map<String, Object> properties = new HashMap<>();
                         Object p = matches.getParameters()[1];
-                        if (p instanceof IExpression) {
-                            IExpression expression = (IExpression) p;
+                        if (p instanceof IExpression expression) {
                             IExpression operand = ExpressionUtil.getOperand(expression);
                             IExpression[] operands = ExpressionUtil.getOperands(operand);
                             for (IExpression eq : operands) {
@@ -222,8 +216,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         int min = 1;
         int max = Integer.MAX_VALUE;
         boolean greedy = true;
-        IRequirement requirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(),
-                strictRange, unit.getFilter(), min, max, greedy);
-        return requirement;
+        return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(), strictRange,
+                unit.getFilter(), min, max, greedy);
     }
 }
