@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -81,28 +82,27 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     private static final Set<String> ARTIFACT_A_CONTENT = TestRepositoryContent.BUNDLE_A_FILES;
 
     private static final IArtifactDescriptor ARTIFACT_A_CANONICAL = localCanonicalDescriptorFor(ARTIFACT_A_KEY);
-    private static final IArtifactDescriptor ARTIFACT_A_PACKED = localPackedDescriptorFor(ARTIFACT_A_KEY);
-    private static final IArtifactDescriptor ARTIFACT_B_PACKED = localPackedDescriptorFor(ARTIFACT_B_KEY);
-    // not in the repository!
+    private static final IArtifactDescriptor ARTIFACT_A_PACKED = localPackedDescriptorFor(ARTIFACT_A_KEY); // not in the repository!
     private static final IArtifactDescriptor ARTIFACT_B_CANONICAL = localCanonicalDescriptorFor(ARTIFACT_B_KEY);
+    private static final IArtifactDescriptor ARTIFACT_B_PACKED = localPackedDescriptorFor(ARTIFACT_B_KEY); // not in the repository!
 
     private static final String ARTIFACT_A_CANONICAL_MD5 = TestRepositoryContent.BUNDLE_A_CONTENT_MD5;
 
     private static final IArtifactDescriptor ARTIFACT_A_DESCRIPTOR_1 = ARTIFACT_A_CANONICAL;
-    private static final IArtifactDescriptor ARTIFACT_A_DESCRIPTOR_2 = ARTIFACT_A_PACKED;
-    private static final IArtifactDescriptor ARTIFACT_B_DESCRIPTOR = ARTIFACT_B_PACKED;
+    private static final IArtifactDescriptor ARTIFACT_A_DESCRIPTOR_2 = ARTIFACT_A_PACKED; // not in the repository!
+    private static final IArtifactDescriptor ARTIFACT_B_DESCRIPTOR = ARTIFACT_B_CANONICAL;
 
     // not in the repository
     private static final IArtifactKey OTHER_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
-    private static final IArtifactDescriptor OTHER_DESCRIPTOR = ARTIFACT_B_CANONICAL;
+    private static final IArtifactDescriptor OTHER_DESCRIPTOR = ARTIFACT_B_PACKED;
 
     // not (yet) in the repository
     private static final IArtifactKey NEW_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
     private static final IArtifactDescriptor NEW_DESCRIPTOR = localPackedDescriptorFor(NEW_KEY);
 
     private static final Set<IArtifactKey> ORIGINAL_KEYS = new HashSet<>(Arrays.asList(ARTIFACT_A_KEY, ARTIFACT_B_KEY));
-    private static final Set<IArtifactDescriptor> ORIGINAL_DESCRIPTORS = new HashSet<>(
-            Arrays.asList(ARTIFACT_A_CANONICAL, ARTIFACT_A_PACKED, ARTIFACT_B_PACKED));
+    private static final Set<IArtifactDescriptor> ORIGINAL_DESCRIPTORS = Set.of( //
+            ARTIFACT_A_CANONICAL, ARTIFACT_B_CANONICAL);
 
     @Rule
     public TemporaryLocalMavenRepository temporaryLocalMavenRepo = new TemporaryLocalMavenRepository();
@@ -159,8 +159,8 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
         List<IArtifactDescriptor> result = Arrays.asList(subject.getArtifactDescriptors(ARTIFACT_A_KEY));
 
         assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_1));
-        assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_2));
-        assertEquals(2, result.size());
+        assertThat(result, not(hasItem(ARTIFACT_A_DESCRIPTOR_2)));
+        assertEquals(1, result.size());
     }
 
     @Test
@@ -185,7 +185,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
         Set<IArtifactDescriptor> result = allDescriptorsIn(subject);
 
         assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_1));
-        assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_2));
+        assertThat(result, not(hasItem(ARTIFACT_A_DESCRIPTOR_2)));
         assertThat(result, hasItem(ARTIFACT_B_DESCRIPTOR));
         assertEquals(ORIGINAL_DESCRIPTORS, result);
     }
@@ -200,23 +200,13 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     }
 
     @Test
-    public void testRemoveOneOfDescriptorsOfKey() {
-        subject.removeDescriptor(ARTIFACT_A_DESCRIPTOR_1);
-
-        assertFalse(subject.contains(ARTIFACT_A_DESCRIPTOR_1));
-        assertTrue(subject.contains(ARTIFACT_A_DESCRIPTOR_2));
-        assertTrue(subject.contains(ARTIFACT_A_KEY));
-        assertTotal(0, -1);
-    }
-
-    @Test
     public void testRemoveAllDescriptorsOfKey() {
         subject.removeDescriptors(new IArtifactDescriptor[] { ARTIFACT_A_DESCRIPTOR_1, ARTIFACT_A_DESCRIPTOR_2 });
 
         assertFalse(subject.contains(ARTIFACT_A_DESCRIPTOR_1));
         assertFalse(subject.contains(ARTIFACT_A_DESCRIPTOR_2));
         assertFalse(subject.contains(ARTIFACT_A_KEY));
-        assertTotal(-1, -2);
+        assertTotal(-1, -1);
     }
 
     @Test
@@ -244,7 +234,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
         assertFalse(subject.contains(ARTIFACT_A_KEY));
         assertFalse(subject.contains(ARTIFACT_A_DESCRIPTOR_1));
         assertFalse(subject.contains(ARTIFACT_A_DESCRIPTOR_2));
-        assertTotal(-1, -2);
+        assertTotal(-1, -1);
     }
 
     @Test
@@ -253,7 +243,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
 
         assertFalse(subject.contains(ARTIFACT_A_KEY));
         assertFalse(subject.contains(ARTIFACT_B_KEY));
-        assertTotal(-2, -3);
+        assertTotal(-2, -2);
     }
 
     @Test
@@ -271,7 +261,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
 
         assertTrue(allKeysIn(subject).isEmpty());
         assertTrue(allDescriptorsIn(subject).isEmpty());
-        assertTotal(-2, -3);
+        assertTotal(-2, -2);
     }
 
     @Test
@@ -289,24 +279,15 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     }
 
     @Test
-    public void testGetArtifactFileOfKeyWithoutCanonicalFormat() {
-        assertFalse(subject.contains(ARTIFACT_B_CANONICAL)); // self-test
-
-        File result = subject.getArtifactFile(ARTIFACT_B_KEY);
-
-        assertNull(result);
-    }
-
-    @Test
     public void testGetRawArtifactFile() {
-        File result = subject.getArtifactFile(ARTIFACT_B_PACKED);
+        File result = subject.getArtifactFile(ARTIFACT_B_CANONICAL);
 
         assertThat(result, is(artifactLocationOf(ARTIFACT_B_KEY, ".jar")));
     }
 
     @Test
     public void testGetRawArtifactFileOfNonContainedFormat() {
-        File result = subject.getArtifactFile(ARTIFACT_B_CANONICAL);
+        File result = subject.getArtifactFile(ARTIFACT_B_PACKED);
 
         assertNull(result);
     }
@@ -333,7 +314,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     @Test
     public void testGetCorruptedArtifact() throws Exception {
         // simulate corruption of the artifact in the file system
-        assertTrue(artifactLocationOf(ARTIFACT_B_KEY, "-pack200.jar.pack.gz").delete()); // this is the only format
+        assertTrue(artifactLocationOf(ARTIFACT_B_KEY, ".jar").delete()); // this is the only format
 
         testSink = newArtifactSinkFor(ARTIFACT_B_KEY);
         status = subject.getArtifact(testSink, null);
@@ -409,11 +390,11 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
 
     @Test
     public void testGetRawArtifactOfNonContainedFormat() throws Exception {
-        assertTrue(subject.contains(ARTIFACT_B_PACKED));
-        assertFalse(subject.contains(ARTIFACT_B_CANONICAL));
+        assertTrue(subject.contains(ARTIFACT_B_CANONICAL));
+        assertFalse(subject.contains(ARTIFACT_B_PACKED));
 
-        // getRawArtifact does not convert from packed to canonical format
-        rawTestSink = newRawArtifactSinkFor(ARTIFACT_B_CANONICAL);
+        // getRawArtifact does not convert from canonical to packed format
+        rawTestSink = newRawArtifactSinkFor(ARTIFACT_B_PACKED);
         status = subject.getRawArtifact(rawTestSink, null);
 
         assertFalse(rawTestSink.writeIsStarted());
@@ -424,7 +405,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     @Test
     public void testGetCorruptedRawArtifact() throws Exception {
         // simulate corruption of the artifact in the file system
-        assertTrue(artifactLocationOf(ARTIFACT_B_KEY, "-pack200.jar.pack.gz").delete());
+        assertTrue(artifactLocationOf(ARTIFACT_B_KEY, ".jar").delete());
 
         rawTestSink = newRawArtifactSinkFor(ARTIFACT_B_PACKED);
         status = subject.getRawArtifact(rawTestSink, null);
@@ -450,10 +431,10 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     @SuppressWarnings("deprecation")
     @Test
     public void testGetRawArtifactOfNonContainedFormatToStream() {
-        assertFalse(subject.contains(ARTIFACT_B_CANONICAL));
+        assertFalse(subject.contains(ARTIFACT_B_PACKED));
 
-        // getRawArtifact does not convert from packed to canonical format
-        status = subject.getRawArtifact(ARTIFACT_B_CANONICAL, testOutputStream, null);
+        // getRawArtifact does not convert from canonical to packed format
+        status = subject.getRawArtifact(ARTIFACT_B_PACKED, testOutputStream, null);
 
         assertEquals(0, testOutputStream.writtenBytes());
         assertThat(testOutputStream.getStatus(), is(errorStatus())); // from IStateful

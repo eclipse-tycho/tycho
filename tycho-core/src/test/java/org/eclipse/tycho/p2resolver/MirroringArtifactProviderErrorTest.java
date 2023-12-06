@@ -16,6 +16,7 @@ import static java.util.Collections.singletonList;
 import static org.eclipse.tycho.test.util.ProbeArtifactSink.newArtifactSinkFor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -36,7 +37,7 @@ import org.junit.Test;
 
 public class MirroringArtifactProviderErrorTest extends TychoPlexusTestCase {
 
-    private static final IArtifactKey CORRUPT_ARTIFACT = TestRepositoryContent.BUNDLE_B_KEY;
+    private static final IArtifactKey CORRUPT_ARTIFACT = TestRepositoryContent.BUNDLE_A_KEY;
 
     @Rule
     public LogVerifier logVerifier = new LogVerifier();
@@ -58,19 +59,15 @@ public class MirroringArtifactProviderErrorTest extends TychoPlexusTestCase {
                 new MockMavenContext(null, logVerifier.getLogger()));
     }
 
-    @Test(expected = MirroringFailedException.class)
+    @Test
     public void testMirrorCorruptArtifact() throws Exception {
         logVerifier.expectError(CORRUPT_ARTIFACT.toString());
 
         testSink = newArtifactSinkFor(CORRUPT_ARTIFACT);
-        try {
-            // here we expect an exception, an not (!) an error status, to be consistent with other methods that mirror but don't return a status
-            subject.getArtifact(testSink, null);
-
-        } finally {
-            assertNotMirrored(CORRUPT_ARTIFACT);
-            assertFalse(testSink.writeIsStarted());
-        }
+        // here we expect an exception, an not (!) an error status, to be consistent with other methods that mirror but don't return a status
+        assertThrows(MirroringFailedException.class, () -> subject.getArtifact(testSink, null));
+        assertNotMirrored(CORRUPT_ARTIFACT);
+        assertFalse(testSink.writeIsStarted());
     }
 
     private void assertNotMirrored(IArtifactKey key) {
