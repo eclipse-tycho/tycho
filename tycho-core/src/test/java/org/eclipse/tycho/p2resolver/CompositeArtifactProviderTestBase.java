@@ -244,13 +244,13 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         List<IArtifactDescriptor> result = Arrays.asList(subject.getArtifactDescriptors(BUNDLE_A_KEY));
 
         assertThat(result, hasItem(inCanonicalFormat()));
-        assertEquals(2, result.size()); // no duplicates
+        assertEquals(1, result.size()); // no duplicates
     }
 
     @Test
     public void testContainsArtifactDescriptor() {
         assertTrue(subject.contains(canonicalDescriptorFor(BUNDLE_A_KEY)));
-        assertFalse(subject.contains(canonicalDescriptorFor(BUNDLE_B_KEY)));
+        assertTrue(subject.contains(canonicalDescriptorFor(BUNDLE_B_KEY)));
     }
 
     @Test

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<artifacts size='1'>
+  <artifact classifier='osgi.bundle' id='org.eclipse.swt' version='3.6.1.v3655c'>
+    <properties size='2'>
+      <property name='artifact.size' value='17322'/>
+      <property name='download.size' value='17322'/>
+    </properties>
+  </artifact>
+</artifacts>

@@ -26,8 +26,8 @@ public final class TestRepositoryContent {
 
     public static final IArtifactKey BUNDLE_A_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.osgi",
             Version.parseVersion("3.4.3.R34x_v20081215-1030"));
-    public static final IArtifactKey BUNDLE_B_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.ecf",
-            Version.parseVersion("3.1.300.v20120319-0616"));
+    public static final IArtifactKey BUNDLE_B_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.swt",
+            Version.parseVersion("3.6.1.v3655c"));
 
     public static final Set<String> BUNDLE_A_FILES = new HashSet<>(Arrays.asList("about_files/", "META-INF/",
             "META-INF/MANIFEST.MF", "org/", "org/eclipse/", "org/eclipse/core/", "org/eclipse/core/runtime/",
@@ -73,13 +73,10 @@ public final class TestRepositoryContent {
     // repositories (of regular p2 type) containing the test data
 
     /** Repository with bundle A */
-    public static final URI REPO_BUNDLE_A = P2Repositories.ECLIPSE_342.toURI();
+    public static final URI REPO_BUNDLE_A = ResourceUtil.resourceFile("repositories/e342").toURI();
     public static final URI REPO2_BUNDLE_A = ResourceUtil.resourceFile("repositories2/e342").toURI();
-    /**
-     * Repository with bundles A and B. Bundle A is available both in packed and canonical format,
-     * bundle B only in packed format.
-     */
-    public static final URI REPO_BUNDLE_AB = P2Repositories.PACK_GZ.toURI();
+    /** Repository with bundles A and B. Both bundles are available in canonical format. */
+    public static final URI REPO_BUNDLE_AB = ResourceUtil.resourceFile("repositories/e342_3").toURI();
 
     /** Repository that claims to contain bundle A, but accesses to the artifact file will fail */
     public static final URI REPO_BUNDLE_A_CORRUPT = ResourceUtil.resourceFile("repositories/e342_missing_file").toURI();
@@ -88,7 +85,7 @@ public final class TestRepositoryContent {
      * format, but the artifact is broken. Bundle A is contained in packed format (artifact missing)
      * and in canonical format (working).
      */
-    public static final URI REPO_BUNLDE_AB_PACK_CORRUPT = ResourceUtil.resourceFile("repositories/packgz_corrupt")
+    public static final URI REPO_BUNLDE_AB_PACK_CORRUPT = ResourceUtil.resourceFile("repositories/e342_corrupt")
             .toURI();
 
 }
