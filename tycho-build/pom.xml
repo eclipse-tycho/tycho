@@ -88,7 +88,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
-			<version>1.2.800</version>
+			<version>1.2.900</version>
 		</dependency>
 
 
