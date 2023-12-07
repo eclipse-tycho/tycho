@@ -19,6 +19,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.tools.publisher.PublishProductToolImpl;
@@ -40,9 +41,9 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
     @Override
     public PublisherService createPublisher(ReactorProject project, List<TargetEnvironment> environments) {
-        P2TargetPlatform targetPlatform = (P2TargetPlatform) reactorRepoManager.getFinalTargetPlatform(project);
+        P2TargetPlatform targetPlatform = (P2TargetPlatform) getFinalTargetPlatform(project);
         PublisherActionRunner publisherRunner = getPublisherRunnerForProject(targetPlatform, environments);
-        PublishingRepository publishingRepository = reactorRepoManager.getPublishingRepository(project.getIdentities());
+        PublishingRepository publishingRepository = reactorRepoManager.getPublishingRepository(project);
 
         return new PublisherServiceImpl(publisherRunner, project.getBuildQualifier(), publishingRepository);
     }
@@ -50,12 +51,24 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
     @Override
     public PublishProductTool createProductPublisher(ReactorProject project, List<TargetEnvironment> environments,
             String buildQualifier, Interpolator interpolator) {
-        P2TargetPlatform targetPlatform = (P2TargetPlatform) reactorRepoManager.getFinalTargetPlatform(project);
+        P2TargetPlatform targetPlatform = (P2TargetPlatform) getFinalTargetPlatform(project);
         PublisherActionRunner publisherRunner = getPublisherRunnerForProject(targetPlatform, environments);
-        PublishingRepository publishingRepository = reactorRepoManager.getPublishingRepository(project.getIdentities());
+        PublishingRepository publishingRepository = reactorRepoManager.getPublishingRepository(project);
 
         return new PublishProductToolImpl(publisherRunner, publishingRepository, targetPlatform, buildQualifier,
                 interpolator, mavenContext.getLogger());
+    }
+
+    /**
+     * Returns the target platform with final p2 metadata for the given project.
+     */
+    private TargetPlatform getFinalTargetPlatform(ReactorProject project) {
+        TargetPlatform targetPlatform = (TargetPlatform) project
+                .getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
+        if (targetPlatform == null) {
+            throw new IllegalStateException("Target platform is missing");
+        }
+        return targetPlatform;
     }
 
     private PublisherActionRunner getPublisherRunnerForProject(P2TargetPlatform targetPlatform,

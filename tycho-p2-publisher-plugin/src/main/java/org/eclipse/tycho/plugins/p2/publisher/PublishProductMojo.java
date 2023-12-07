@@ -137,7 +137,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
             File artifactsXml = new File(getProject().getBuild().getDirectory(), TychoConstants.FILE_NAME_P2_ARTIFACTS);
             if (artifactsXml.isFile()) {
                 PublishingRepository publishingRepository = reactorRepoManager
-                        .getPublishingRepository(getReactorProject().getIdentities());
+                        .getPublishingRepository(getReactorProject());
                 IFileArtifactRepository repository = publishingRepository.getArtifactRepository();
                 repository.descriptorQueryable().query(new IQuery<IArtifactDescriptor>() {
 

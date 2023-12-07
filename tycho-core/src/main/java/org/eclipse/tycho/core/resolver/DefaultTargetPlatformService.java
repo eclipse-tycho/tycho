@@ -36,7 +36,10 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
+import org.eclipse.tycho.p2resolver.PreliminaryTargetPlatformImpl;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
 @Component(role = TargetPlatformService.class)
@@ -53,6 +56,10 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
 
     @Requirement
     ReactorRepositoryManager repositoryManager;
+
+    @Requirement
+    P2ResolverFactory p2ResolverFactory;
+    private TargetPlatformFactory tpFactory;
 
     @Override
     public Optional<TargetPlatform> getTargetPlatform() throws DependencyResolutionException {
@@ -81,10 +88,71 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
             List<ReactorProjectIdentities> upstreamProjects = getReferencedTychoProjects(project);
             PomDependencyCollector pomDependenciesCollector = dependencyResolver.resolvePomDependencies(session,
                     project.adapt(MavenProject.class));
-            TargetPlatform finalTargetPlatform = repositoryManager.computeFinalTargetPlatform(project, upstreamProjects,
+            TargetPlatform finalTargetPlatform = computeFinalTargetPlatform(project, upstreamProjects,
                     pomDependenciesCollector);
             return Optional.ofNullable(finalTargetPlatform);
         }
+    }
+
+    /**
+     * Computes the (immutable) target platform with final p2 metadata and attaches it to the given
+     * project.
+     * 
+     * @param project
+     *            the reactor project to compute the target platform for.
+     * @param upstreamProjects
+     *            Other projects in the reactor which have already been built and may be referenced
+     *            by the given project.
+     */
+    private TargetPlatform computeFinalTargetPlatform(ReactorProject project,
+            List<? extends ReactorProjectIdentities> upstreamProjects, PomDependencyCollector pomDependencyCollector) {
+        synchronized (project) {
+            PreliminaryTargetPlatformImpl preliminaryTargetPlatform = getRegisteredPreliminaryTargetPlatform(project);
+            if (preliminaryTargetPlatform == null) {
+                MavenSession session = project.adapt(MavenSession.class);
+                if (session == null) {
+                    session = legacySupport.getSession();
+                    if (session == null) {
+                        return null;
+                    }
+                }
+                MavenProject mavenProject = project.adapt(MavenProject.class);
+                if (mavenProject == null) {
+                    return null;
+                }
+                preliminaryTargetPlatform = (PreliminaryTargetPlatformImpl) dependencyResolver
+                        .computePreliminaryTargetPlatform(session, mavenProject, DefaultReactorProject.adapt(session));
+
+            }
+            List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
+            TargetPlatform result = getTpFactory().createTargetPlatformWithUpdatedReactorContent(
+                    preliminaryTargetPlatform, upstreamProjectResults, pomDependencyCollector);
+
+            project.setContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY, result);
+            return result;
+        }
+    }
+
+    private List<PublishingRepository> getBuildResults(List<? extends ReactorProjectIdentities> projects) {
+        List<PublishingRepository> results = new ArrayList<>(projects.size());
+        for (ReactorProjectIdentities project : projects) {
+            results.add(repositoryManager.getPublishingRepository(project));
+        }
+        return results;
+    }
+
+    public synchronized TargetPlatformFactory getTpFactory() {
+        if (tpFactory == null) {
+            tpFactory = p2ResolverFactory.getTargetPlatformFactory();
+        }
+        return tpFactory;
+    }
+
+    private PreliminaryTargetPlatformImpl getRegisteredPreliminaryTargetPlatform(ReactorProject project) {
+        return project.getContextValue(
+                TargetPlatform.PRELIMINARY_TARGET_PLATFORM_KEY) instanceof PreliminaryTargetPlatformImpl preliminaryTargetPlatformImpl
+                        ? preliminaryTargetPlatformImpl
+                        : null;
     }
 
     private List<ReactorProjectIdentities> getReferencedTychoProjects(ReactorProject reactorProject)
