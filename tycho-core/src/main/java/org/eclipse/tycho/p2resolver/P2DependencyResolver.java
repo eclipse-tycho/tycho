@@ -59,6 +59,7 @@ import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
+import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.OptionalResolutionAction;
@@ -91,9 +92,11 @@ import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.resolver.P2MetadataProvider;
+import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
 @Component(role = DependencyResolver.class, hint = P2DependencyResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
@@ -139,6 +142,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     @Requirement
     private MavenDependenciesResolver dependenciesResolver;
+
+    private TargetPlatformFactory tpFactory;
 
     @Override
     public void setupProjects(final MavenSession session, final MavenProject project,
@@ -212,8 +217,39 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 .setIgnoreLocalArtifacts(configuration.getIgnoreLocalArtifacts() == LocalArtifactHandling.ignore);
         tpConfiguration.setReferencedRepositoryMode(configuration.getReferencedRepositoryMode());
 
-        return reactorRepositoryManager.computePreliminaryTargetPlatform(reactorProject, tpConfiguration, ee,
-                reactorProjects);
+        return computePreliminaryTargetPlatform(reactorProject, tpConfiguration, ee, reactorProjects);
+    }
+
+    /**
+     * Computes the target platform with dependency-only p2 metadata and attaches it to the given
+     * project.
+     * 
+     * @param project
+     *            the reactor project to compute the target platform for.
+     * @param resolvedEnvironment
+     */
+    private TargetPlatform computePreliminaryTargetPlatform(ReactorProject project,
+            TargetPlatformConfigurationStub tpConfiguration, ExecutionEnvironmentConfiguration eeConfiguration,
+            List<ReactorProject> reactorProjects) {
+        //
+        // at this point, there is only incomplete ("dependency-only") metadata for the reactor projects
+        TargetPlatform result = getTpFactory().createTargetPlatform(tpConfiguration, eeConfiguration, reactorProjects,
+                project);
+        project.setContextValue(TargetPlatform.PRELIMINARY_TARGET_PLATFORM_KEY, result);
+
+        List<MavenArtifactRepositoryReference> repositoryReferences = tpConfiguration.getTargetDefinitions().stream()
+                .flatMap(definition -> definition.getLocations().stream()).filter(MavenGAVLocation.class::isInstance)
+                .map(MavenGAVLocation.class::cast).flatMap(location -> location.getRepositoryReferences().stream())
+                .toList();
+        project.setContextValue(TychoConstants.CTX_REPOSITORY_REFERENCE, repositoryReferences);
+        return result;
+    }
+
+    public synchronized TargetPlatformFactory getTpFactory() {
+        if (tpFactory == null) {
+            tpFactory = resolverFactory.getTargetPlatformFactory();
+        }
+        return tpFactory;
     }
 
     private ReactorProject getThisReactorProject(MavenSession session, MavenProject project,
