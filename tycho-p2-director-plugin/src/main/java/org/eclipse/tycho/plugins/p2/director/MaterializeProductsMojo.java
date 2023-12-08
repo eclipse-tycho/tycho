@@ -36,7 +36,7 @@ import org.eclipse.tycho.plugins.p2.director.runtime.StandaloneDirectorRuntimeFa
  * </p>
  */
 @Mojo(name = "materialize-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
-public final class DirectorMojo extends AbstractProductMojo {
+public final class MaterializeProductsMojo extends AbstractProductMojo {
     private static final Object LOCK = new Object();
 
     public enum InstallationSource {
