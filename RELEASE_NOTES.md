@@ -6,6 +6,34 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+### new `director` mojo
+
+This mojo can be used in two ways:
+
+1. As a commandline invocation passing arguments as properties using `mvn org.eclipse.tycho:tycho-p2-director-plugin:director -Ddestination=[target] ... -D...`
+2. as an execution inside a pom
+
+```xml
+ <plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-p2-director-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+       <execution>
+          <goals>
+             <goal>director</goal>
+          </goals>
+          <phase>package</phase>
+          <configuration>
+             <destination>...</destination>
+             ... other arguments ...
+          </configuration>
+       </execution>
+    </executions>
+ </plugin>
+ ```
+
+
 ### new `tycho-eclipse-plugin`
 
 Tycho now contains a new `tycho-eclipse-plugin` that is dedicated to executing "tasks like eclipse", this currently includes

@@ -14,7 +14,6 @@ package org.eclipse.tycho.p2.tools.director.shared;
 
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,7 @@ import java.util.stream.Collectors;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.p2.CommandLineArguments;
 
 /**
  * Base class for calling a p2 director via command line arguments.
@@ -142,26 +142,4 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         return args.asList();
     }
 
-    private static class CommandLineArguments {
-        List<String> arguments = new ArrayList<>();
-
-        void add(String flag) {
-            arguments.add(flag);
-        }
-
-        void add(String parameterName, String parameterValue) {
-            arguments.add(parameterName);
-            arguments.add(parameterValue);
-        }
-
-        void addUnlessEmpty(String parameterName, StringJoiner parameterValue) {
-            if (parameterValue.length() > 0) {
-                add(parameterName, parameterValue.toString());
-            }
-        }
-
-        public List<String> asList() {
-            return new ArrayList<>(arguments);
-        }
-    }
 }
