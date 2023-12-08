@@ -34,24 +34,6 @@ public class TychoProjectUtils {
     public static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
     public static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
 
-    /**
-     * Returns the {@link DependencyArtifacts} instance associated with the given project.
-     * 
-     * @param project
-     *            a Tycho project
-     * @return the resolved dependencies of the given project; never <code>null</code>
-     * @throws IllegalStateException
-     *             if the given project does not have the resolved project dependencies stored
-     */
-    public static DependencyArtifacts getDependencyArtifacts(ReactorProject project) throws IllegalStateException {
-        DependencyArtifacts resolvedDependencies = (DependencyArtifacts) project
-                .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
-        if (resolvedDependencies == null) {
-            throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
-        }
-        return resolvedDependencies;
-    }
-
     public static Optional<DependencyArtifacts> getOptionalDependencyArtifacts(ReactorProject project) {
         DependencyArtifacts resolvedDependencies = (DependencyArtifacts) project
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
@@ -92,25 +74,6 @@ public class TychoProjectUtils {
             project.setContextValue(TychoConstants.CTX_DEPENDENCY_SEEDS, dependencySeeds);
         }
         return dependencySeeds;
-    }
-
-    /**
-     * Returns the {@link DependencyArtifacts} instance associated with the given project and its
-     * tests.
-     * 
-     * @param project
-     *            a Tycho project
-     * @return the resolved test dependencies of the given project; never <code>null</code>
-     * @throws IllegalStateException
-     *             if the given project does not have the resolved project dependencies stored
-     */
-    public static DependencyArtifacts getTestDependencyArtifacts(ReactorProject project) throws IllegalStateException {
-        DependencyArtifacts resolvedDependencies = (DependencyArtifacts) project
-                .getContextValue(TychoConstants.CTX_TEST_DEPENDENCY_ARTIFACTS);
-        if (resolvedDependencies == null) {
-            throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
-        }
-        return resolvedDependencies;
     }
 
     /**

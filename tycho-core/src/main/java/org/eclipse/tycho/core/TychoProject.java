@@ -41,6 +41,12 @@ public interface TychoProject {
     public DependencyArtifacts getDependencyArtifacts(ReactorProject project);
 
     /**
+     * Returns resolved project dependencies. For projects targeting multiple runtime environments,
+     * returned collection includes artifacts for all supported runtime environments.
+     */
+    public DependencyArtifacts getTestDependencyArtifacts(ReactorProject project);
+
+    /**
      * Returns resolved project dependencies resolved for specified runtime environment.
      */
     public DependencyArtifacts getDependencyArtifacts(ReactorProject project, TargetEnvironment environment);

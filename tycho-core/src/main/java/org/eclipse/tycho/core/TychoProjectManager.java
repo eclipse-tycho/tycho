@@ -56,7 +56,6 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
@@ -238,7 +237,7 @@ public class TychoProjectManager {
     public Collection<Path> getProjectDependencies(MavenProject project) throws Exception {
         Set<Path> dependencySet = new HashSet<>();
         TychoProject tychoProject = getTychoProject(project).get();
-        List<ArtifactDescriptor> dependencies = TychoProjectUtils
+        List<ArtifactDescriptor> dependencies = tychoProject
                 .getDependencyArtifacts(DefaultReactorProject.adapt(project)).getArtifacts();
         for (ArtifactDescriptor descriptor : dependencies) {
             File location = descriptor.fetchArtifact().get();
