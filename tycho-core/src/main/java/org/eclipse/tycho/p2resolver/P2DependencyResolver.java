@@ -41,7 +41,6 @@ import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
@@ -59,7 +58,6 @@ import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
-import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.OptionalResolutionAction;
@@ -72,10 +70,10 @@ import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.InjectP2MavenMetadataHandling;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.LocalArtifactHandling;
+import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
-import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
@@ -96,11 +94,10 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.resolver.P2MetadataProvider;
-import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
 @Component(role = DependencyResolver.class, hint = P2DependencyResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
-public class P2DependencyResolver extends AbstractLogEnabled implements DependencyResolver, Initializable {
+public class P2DependencyResolver implements DependencyResolver, Initializable {
 
     public static final String ROLE_HINT = "p2";
 
@@ -144,6 +141,9 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     private MavenDependenciesResolver dependenciesResolver;
 
     private TargetPlatformFactory tpFactory;
+
+    @Requirement
+    private Logger logger;
 
     @Override
     public void setupProjects(final MavenSession session, final MavenProject project,
@@ -198,54 +198,33 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects) {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
-        ExecutionEnvironmentConfiguration ee = projectManager.getExecutionEnvironmentConfiguration(project);
+        return reactorProject.computeContextValue(TargetPlatform.PRELIMINARY_TARGET_PLATFORM_KEY, () -> {
+            logger.debug("Computing preliminary target platform for " + project);
+            TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
+            ExecutionEnvironmentConfiguration ee = projectManager.getExecutionEnvironmentConfiguration(project);
 
-        TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
-        for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
-            addEntireP2RepositoryToTargetPlatform(repository, tpConfiguration);
-        }
+            TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
+            for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
+                addEntireP2RepositoryToTargetPlatform(repository, tpConfiguration);
+            }
 
-        tpConfiguration.setEnvironments(configuration.getEnvironments());
-        for (TargetDefinitionFile target : configuration.getTargets()) {
-            tpConfiguration.addTargetDefinition(target);
-        }
+            tpConfiguration.setEnvironments(configuration.getEnvironments());
+            for (TargetDefinitionFile target : configuration.getTargets()) {
+                tpConfiguration.addTargetDefinition(target);
+            }
 
-        tpConfiguration.addFilters(configuration.getFilters());
-        tpConfiguration.setIncludeSourceMode(configuration.getTargetDefinitionIncludeSourceMode());
-        tpConfiguration
-                .setIgnoreLocalArtifacts(configuration.getIgnoreLocalArtifacts() == LocalArtifactHandling.ignore);
-        tpConfiguration.setReferencedRepositoryMode(configuration.getReferencedRepositoryMode());
-
-        return computePreliminaryTargetPlatform(reactorProject, tpConfiguration, ee, reactorProjects);
+            tpConfiguration.addFilters(configuration.getFilters());
+            tpConfiguration.setIncludeSourceMode(configuration.getTargetDefinitionIncludeSourceMode());
+            tpConfiguration
+                    .setIgnoreLocalArtifacts(configuration.getIgnoreLocalArtifacts() == LocalArtifactHandling.ignore);
+            tpConfiguration.setReferencedRepositoryMode(configuration.getReferencedRepositoryMode());
+            TargetPlatform result = getTpFactory().createTargetPlatform(tpConfiguration, ee, reactorProjects,
+                    reactorProject);
+            return result;
+        });
     }
 
-    /**
-     * Computes the target platform with dependency-only p2 metadata and attaches it to the given
-     * project.
-     * 
-     * @param project
-     *            the reactor project to compute the target platform for.
-     * @param resolvedEnvironment
-     */
-    private TargetPlatform computePreliminaryTargetPlatform(ReactorProject project,
-            TargetPlatformConfigurationStub tpConfiguration, ExecutionEnvironmentConfiguration eeConfiguration,
-            List<ReactorProject> reactorProjects) {
-        //
-        // at this point, there is only incomplete ("dependency-only") metadata for the reactor projects
-        TargetPlatform result = getTpFactory().createTargetPlatform(tpConfiguration, eeConfiguration, reactorProjects,
-                project);
-        project.setContextValue(TargetPlatform.PRELIMINARY_TARGET_PLATFORM_KEY, result);
-
-        List<MavenArtifactRepositoryReference> repositoryReferences = tpConfiguration.getTargetDefinitions().stream()
-                .flatMap(definition -> definition.getLocations().stream()).filter(MavenGAVLocation.class::isInstance)
-                .map(MavenGAVLocation.class::cast).flatMap(location -> location.getRepositoryReferences().stream())
-                .toList();
-        project.setContextValue(TychoConstants.CTX_REPOSITORY_REFERENCE, repositoryReferences);
-        return result;
-    }
-
-    public synchronized TargetPlatformFactory getTpFactory() {
+    private synchronized TargetPlatformFactory getTpFactory() {
         if (tpFactory == null) {
             tpFactory = resolverFactory.getTargetPlatformFactory();
         }
@@ -316,7 +295,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             if (repository.getLayout() instanceof P2ArtifactRepositoryLayout) {
                 URI url = new URI(TargetDefinitionResolver.convertRawToUri(repository.getUrl()));
                 resolutionContext.addP2Repository(new MavenRepositoryLocation(repository.getId(), url));
-                getLogger().debug("Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
+                logger.debug("Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
             }
         } catch (URISyntaxException e) {
             throw new RuntimeException("Invalid repository URI: " + repository.getUrl(), e);
@@ -431,7 +410,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     }
 
     @Override
-    public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
+    public void injectDependenciesIntoMavenModel(MavenProject project, TychoProject projectType,
             DependencyArtifacts dependencyArtifacts, DependencyArtifacts testDependencyArtifacts, Logger logger) {
         Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping;
         TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
@@ -444,7 +423,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         }
         MavenDependencyInjector.injectMavenDependencies(project, dependencyArtifacts, testDependencyArtifacts,
                 bundleReader, descriptorMapping, logger, repositorySystem, context.getSession().getSettings(),
-                buildPropertiesParser);
+                buildPropertiesParser, configuration);
     }
 
     private MavenDependencyDescriptor resolveDescriptorWithValidation(MavenProject project, Logger logger,

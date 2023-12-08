@@ -56,9 +56,11 @@ import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
+import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 
 public final class MavenDependencyInjector {
 
@@ -110,7 +112,8 @@ public final class MavenDependencyInjector {
     public static void injectMavenDependencies(MavenProject project, DependencyArtifacts dependencies,
             DependencyArtifacts testDependencies, BundleReader bundleReader,
             Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger,
-            RepositorySystem repositorySystem, Settings settings, BuildPropertiesParser buildPropertiesParser) {
+            RepositorySystem repositorySystem, Settings settings, BuildPropertiesParser buildPropertiesParser,
+            TargetPlatformConfiguration configuration) {
         MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, descriptorMapping,
                 logger);
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
@@ -148,9 +151,10 @@ public final class MavenDependencyInjector {
             return dependency;
         }).filter(Objects::nonNull).toList();
         generator.addDependencyList(extraJars);
-        @SuppressWarnings("unchecked")
-        Collection<MavenArtifactRepositoryReference> repositoryReferences = (Collection<MavenArtifactRepositoryReference>) reactorProject
-                .getContextValue(TychoConstants.CTX_REPOSITORY_REFERENCE);
+        Collection<MavenArtifactRepositoryReference> repositoryReferences = configuration.getTargets().stream()
+                .flatMap(definition -> definition.getLocations().stream()).filter(MavenGAVLocation.class::isInstance)
+                .map(MavenGAVLocation.class::cast).flatMap(location -> location.getRepositoryReferences().stream())
+                .toList();
         if (repositoryReferences != null && !repositoryReferences.isEmpty()) {
             Map<String, ArtifactRepository> repositoryMap = project.getRemoteArtifactRepositories().stream()
                     .collect(Collectors.toMap(MavenDependencyInjector::getId, Function.identity(), (a, b) -> a,

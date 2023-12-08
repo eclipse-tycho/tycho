@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -37,7 +38,6 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 
 /**
@@ -79,14 +79,15 @@ public class ListDependenciesMojo extends AbstractMojo {
         } catch (IOException ex) {
             throw new MojoFailureException(ex.getMessage(), ex);
         }
-        if (projectManager.getTychoProject(project).isEmpty()) {
+        Optional<TychoProject> tychoProject = projectManager.getTychoProject(project);
+        if (tychoProject.isEmpty()) {
             return;
         }
 
         Set<String> written = new HashSet<>();
         try (BufferedWriter writer = Files.newBufferedWriter(outputFile.toPath())) {
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-            List<ArtifactDescriptor> dependencies = TychoProjectUtils.getDependencyArtifacts(reactorProject)
+            List<ArtifactDescriptor> dependencies = tychoProject.get().getDependencyArtifacts(reactorProject)
                     .getArtifacts().stream().filter(desc -> !desc.getLocation(true).equals(project.getBasedir())) // remove self
                     .toList();
             for (ArtifactDescriptor dependnecy : dependencies) {
