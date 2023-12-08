@@ -6,6 +6,7 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### backports:
 
+- new director mojo
 - support for PDE Api Tools Annotations
 - api tools fixes
 - new `tycho-eclipse-plugin`
