@@ -28,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -83,7 +84,6 @@ import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
@@ -140,6 +140,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
     @Requirement
     private MavenDependenciesResolver dependenciesResolver;
 
+    @Requirement
     private TargetPlatformFactory tpFactory;
 
     @Requirement
@@ -195,9 +196,14 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
     }
 
     @Override
-    public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
+    public TargetPlatform computePreliminaryTargetPlatform(MavenProject project, List<ReactorProject> reactorProjects) {
+        return computePreliminaryTargetPlatform(DefaultReactorProject.adapt(project), reactorProjects);
+    }
+
+    @Override
+    public TargetPlatform computePreliminaryTargetPlatform(ReactorProject reactorProject,
             List<ReactorProject> reactorProjects) {
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        MavenProject project = reactorProject.adapt(MavenProject.class);
         return reactorProject.computeContextValue(TargetPlatform.PRELIMINARY_TARGET_PLATFORM_KEY, () -> {
             logger.debug("Computing preliminary target platform for " + project);
             TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
@@ -218,17 +224,10 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
             tpConfiguration
                     .setIgnoreLocalArtifacts(configuration.getIgnoreLocalArtifacts() == LocalArtifactHandling.ignore);
             tpConfiguration.setReferencedRepositoryMode(configuration.getReferencedRepositoryMode());
-            TargetPlatform result = getTpFactory().createTargetPlatform(tpConfiguration, ee, reactorProjects,
+            TargetPlatform result = tpFactory.createTargetPlatform(tpConfiguration, ee, reactorProjects,
                     reactorProject);
             return result;
         });
-    }
-
-    private synchronized TargetPlatformFactory getTpFactory() {
-        if (tpFactory == null) {
-            tpFactory = resolverFactory.getTargetPlatformFactory();
-        }
-        return tpFactory;
     }
 
     private ReactorProject getThisReactorProject(MavenSession session, MavenProject project,
@@ -306,17 +305,9 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
             TargetPlatform targetPlatform, List<ReactorProject> reactorProjects,
             DependencyResolverConfiguration resolverConfiguration, List<TargetEnvironment> environments) {
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        if (targetPlatform == null) {
-            targetPlatform = TychoProjectUtils.getTargetPlatform(reactorProject);
-        }
-
-        // TODO 364134 For compatibility reasons, target-platform-configuration includes settings for the dependency resolution
-        // --> split this information logically, e.g. through two distinct interfaces
+        Objects.requireNonNull(targetPlatform);
         TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
-
         P2Resolver osgiResolverImpl = resolverFactory.createResolver(environments);
-
         return doResolveDependencies(session, project, reactorProjects, resolverConfiguration, targetPlatform,
                 osgiResolverImpl, configuration);
     }

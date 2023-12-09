@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
@@ -31,9 +30,13 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
-import org.eclipse.tycho.*;
+import org.eclipse.tycho.ArtifactDescriptor;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 @Component(role = WorkspaceReader.class, hint = "TychoWorkspaceReader")
 public class TychoWorkspaceReader implements MavenWorkspaceReader {
@@ -47,6 +50,9 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
 
     @Requirement
     private ModelWriter modelWriter;
+
+    @Requirement
+    private TychoProjectManager projectManager;
 
     public TychoWorkspaceReader() {
         repository = new WorkspaceRepository("tycho", null);
@@ -137,13 +143,12 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
         if (session != null) {
             final MavenProject currentProject = session.getCurrentProject();
             final ReactorProject reactorProject = DefaultReactorProject.adapt(currentProject);
-            final Optional<DependencyArtifacts> dependencyMetadata =
-                    TychoProjectUtils.getOptionalDependencyArtifacts(reactorProject);
-
-            if (dependencyMetadata.isPresent()) {
+            final DependencyArtifacts dependencyMetadata = (DependencyArtifacts) reactorProject
+                    .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
+            if (dependencyMetadata != null) {
                 logger.debug("Attempting to resolve " + artifact + " for project " + currentProject);
 
-                for (final ArtifactDescriptor descriptor : dependencyMetadata.get().getArtifacts()) {
+                for (final ArtifactDescriptor descriptor : dependencyMetadata.getArtifacts()) {
                     if (isArtifactMatch(descriptor.getKey(), artifact)) {
                         return descriptor.getLocation(true);
                     }
@@ -157,9 +162,8 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
     private boolean isArtifactMatch(final ArtifactKey artifactKey, final Artifact artifact) {
         final String groupId = artifact.getGroupId();
         final String type = groupId.substring(TychoConstants.P2_GROUPID_PREFIX.length()).replace('.', '-');
-        return artifactKey.getType().equals(type) &&
-                artifactKey.getId().equals(artifact.getArtifactId()) &&
-                artifactKey.getVersion().equals(artifact.getVersion());
+        return artifactKey.getType().equals(type) && artifactKey.getId().equals(artifact.getArtifactId())
+                && artifactKey.getVersion().equals(artifact.getVersion());
     }
 
     private File findMavenArtifact(@SuppressWarnings("unused") final Artifact artifact) {
@@ -176,16 +180,8 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
         final RepositorySystemSession repositorySession = legacySupport.getRepositorySession();
         final LocalRepository localRepository = repositorySession.getLocalRepository();
         final File basedir = localRepository.getBasedir();
-        final String repositoryPath = "p2/osgi/bundle/" +
-                artifact.getArtifactId() +
-                "/" +
-                artifact.getVersion() +
-                "/" +
-                artifact.getArtifactId() +
-                "-" +
-                artifact.getVersion() +
-                "." +
-                artifact.getExtension();
+        final String repositoryPath = "p2/osgi/bundle/" + artifact.getArtifactId() + "/" + artifact.getVersion() + "/"
+                + artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getExtension();
 
         return new File(basedir, repositoryPath);
     }

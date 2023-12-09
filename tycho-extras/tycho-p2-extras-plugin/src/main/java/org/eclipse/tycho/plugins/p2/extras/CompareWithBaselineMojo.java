@@ -46,6 +46,7 @@ import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.osgi.framework.Version;
 
 /**
@@ -114,6 +115,9 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Component
     private TychoProjectManager projectManager;
 
+    @Component
+    private TargetPlatformFactory platformFactory;
+
     /**
      * The hint of an available {@link ArtifactComparator} component to use for comparison of
      * artifacts with same version.
@@ -151,8 +155,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
         }
         ExecutionEnvironmentConfiguration eeConfiguration = projectManager
                 .getExecutionEnvironmentConfiguration(project);
-        TargetPlatform baselineTP = resolverFactory.getTargetPlatformFactory().createTargetPlatform(baselineTPStub,
-                eeConfiguration, null);
+        TargetPlatform baselineTP = platformFactory.createTargetPlatform(baselineTPStub, eeConfiguration, null);
 
         for (IInstallableUnit item : dependencyMetadata) {
             try {

@@ -35,7 +35,6 @@ import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 /**
  * {@link MavenBundleResolver} helps in gathering bundles that are living in P2 and maven world and
@@ -71,7 +70,7 @@ public class MavenBundleResolver {
         if (project == null) {
             return Optional.empty();
         }
-        TargetPlatform tp = TychoProjectUtils.getTargetPlatformIfAvailable(DefaultReactorProject.adapt(project));
+        TargetPlatform tp = getCurrentTargetPlatform(project);
         String type = mavenArtifactKey.getType();
         String resolvedType = PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(type) ? ArtifactType.TYPE_ECLIPSE_PLUGIN
                 : type;
@@ -114,6 +113,16 @@ public class MavenBundleResolver {
                     + mavenArtifactKey.getVersion() + ": " + e);
         }
         return Optional.empty();
+    }
+
+    private TargetPlatform getCurrentTargetPlatform(MavenProject project) {
+        //As this method is also called while the preliminary phase we can not simply use
+        // projectManager.getTargetPlatform(project).orElse(null);
+        if (DefaultReactorProject.adapt(project).getContextValue(
+                TargetPlatform.FINAL_TARGET_PLATFORM_KEY) instanceof TargetPlatform finalTargetPlatform) {
+            return finalTargetPlatform;
+        }
+        return null;
     }
 
     public Optional<ResolvedArtifactKey> resolveMavenBundle(MavenProject project, MavenSession mavenSession,

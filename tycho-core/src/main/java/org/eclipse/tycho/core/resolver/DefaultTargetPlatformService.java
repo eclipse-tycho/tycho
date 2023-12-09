@@ -55,10 +55,12 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
     private DependencyResolver dependencyResolver;
 
     @Requirement
-    ReactorRepositoryManager repositoryManager;
+    private ReactorRepositoryManager repositoryManager;
 
     @Requirement
-    P2ResolverFactory p2ResolverFactory;
+    private P2ResolverFactory p2ResolverFactory;
+
+    @Requirement
     private TargetPlatformFactory tpFactory;
 
     @Override
@@ -76,11 +78,7 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
 
     @Override
     public Optional<TargetPlatform> getTargetPlatform(ReactorProject project) throws DependencyResolutionException {
-        synchronized (project) {
-            Object contextValue = project.getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
-            if (contextValue instanceof TargetPlatform) {
-                return Optional.of((TargetPlatform) contextValue);
-            }
+        return project.computeContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY, () -> {
             MavenSession session = legacySupport.getSession();
             if (repositoryManager == null || session == null) {
                 return Optional.empty();
@@ -91,7 +89,7 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
             TargetPlatform finalTargetPlatform = computeFinalTargetPlatform(project, upstreamProjects,
                     pomDependenciesCollector);
             return Optional.ofNullable(finalTargetPlatform);
-        }
+        });
     }
 
     /**
@@ -106,31 +104,16 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
      */
     private TargetPlatform computeFinalTargetPlatform(ReactorProject project,
             List<? extends ReactorProjectIdentities> upstreamProjects, PomDependencyCollector pomDependencyCollector) {
-        synchronized (project) {
-            PreliminaryTargetPlatformImpl preliminaryTargetPlatform = getRegisteredPreliminaryTargetPlatform(project);
-            if (preliminaryTargetPlatform == null) {
-                MavenSession session = project.adapt(MavenSession.class);
-                if (session == null) {
-                    session = legacySupport.getSession();
-                    if (session == null) {
-                        return null;
-                    }
-                }
-                MavenProject mavenProject = project.adapt(MavenProject.class);
-                if (mavenProject == null) {
-                    return null;
-                }
-                preliminaryTargetPlatform = (PreliminaryTargetPlatformImpl) dependencyResolver
-                        .computePreliminaryTargetPlatform(session, mavenProject, DefaultReactorProject.adapt(session));
-
-            }
-            List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
-            TargetPlatform result = getTpFactory().createTargetPlatformWithUpdatedReactorContent(
-                    preliminaryTargetPlatform, upstreamProjectResults, pomDependencyCollector);
-
-            project.setContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY, result);
-            return result;
+        MavenSession session = project.adapt(MavenSession.class);
+        if (session == null) {
+            session = legacySupport.getSession();
         }
+        PreliminaryTargetPlatformImpl preliminaryTargetPlatform = (PreliminaryTargetPlatformImpl) dependencyResolver
+                .computePreliminaryTargetPlatform(project, DefaultReactorProject.adapt(session));
+        List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
+        TargetPlatform result = tpFactory.createTargetPlatformWithUpdatedReactorContent(preliminaryTargetPlatform,
+                upstreamProjectResults, pomDependencyCollector);
+        return result;
     }
 
     private List<PublishingRepository> getBuildResults(List<? extends ReactorProjectIdentities> projects) {
@@ -139,20 +122,6 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
             results.add(repositoryManager.getPublishingRepository(project));
         }
         return results;
-    }
-
-    public synchronized TargetPlatformFactory getTpFactory() {
-        if (tpFactory == null) {
-            tpFactory = p2ResolverFactory.getTargetPlatformFactory();
-        }
-        return tpFactory;
-    }
-
-    private PreliminaryTargetPlatformImpl getRegisteredPreliminaryTargetPlatform(ReactorProject project) {
-        return project.getContextValue(
-                TargetPlatform.PRELIMINARY_TARGET_PLATFORM_KEY) instanceof PreliminaryTargetPlatformImpl preliminaryTargetPlatformImpl
-                        ? preliminaryTargetPlatformImpl
-                        : null;
     }
 
     private List<ReactorProjectIdentities> getReferencedTychoProjects(ReactorProject reactorProject)

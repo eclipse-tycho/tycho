@@ -142,10 +142,11 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
 		P2Resolver mockP2Resolver = mock(P2Resolver.class);
 
 		P2ResolverFactory mockP2ResolverFactory = mock(P2ResolverFactory.class);
-		when(mockP2ResolverFactory.getTargetPlatformFactory()).thenReturn(mockTargetPlatformFactory);
+//		when(mockP2ResolverFactory.getTargetPlatformFactory()).thenReturn(mockTargetPlatformFactory);
 		when(mockP2ResolverFactory.createResolver(any())).thenReturn(mockP2Resolver);
 
 		setVariableValueToObject(runMojo, "resolverFactory", mockP2ResolverFactory);
+		setVariableValueToObject(runMojo, "platformFactory", mockTargetPlatformFactory);
 
 		setVariableValueToObject(runMojo, "executionEnvironment", "custom-ee");
 
