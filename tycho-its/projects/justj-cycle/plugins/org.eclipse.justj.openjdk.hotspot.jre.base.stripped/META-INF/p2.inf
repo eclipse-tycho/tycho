@@ -1,0 +1,751 @@
+# Copyright (c) 2020 Eclipse contributors and others.
+# 
+# This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License 2.0
+# which accompanies this distribution, and is available at
+# https://www.eclipse.org/legal/epl-2.0/
+# 
+# SPDX-License-Identifier: EPL-2.0
+#
+
+# Define an a.jre unit that can be used as a profile ID in a Tycho build.
+
+units.0.id = a.jre.org.eclipse.justj.openjdk.hotspot.jre.base.stripped
+units.0.version = 17.0.0
+
+units.0.provides.0.namespace = org.eclipse.equinox.p2.iu
+units.0.provides.0.name = a.jre.org.eclipse.justj.openjdk.hotspot.jre.base.stripped
+units.0.provides.0.version = 17.0.0
+
+units.0.provides.1.namespace = osgi.ee
+units.0.provides.1.name = OSGi/Minimum
+units.0.provides.1.version = 1.0
+
+units.0.provides.2.namespace = osgi.ee
+units.0.provides.2.name = OSGi/Minimum
+units.0.provides.2.version = 1.1
+
+units.0.provides.3.namespace = osgi.ee
+units.0.provides.3.name = OSGi/Minimum
+units.0.provides.3.version = 1.2
+
+units.0.provides.4.namespace = osgi.ee
+units.0.provides.4.name = JRE
+units.0.provides.4.version = 1.0
+
+units.0.provides.5.namespace = osgi.ee
+units.0.provides.5.name = JRE
+units.0.provides.5.version = 1.1
+
+units.0.provides.6.namespace = osgi.ee
+units.0.provides.6.name = JavaSE
+units.0.provides.6.version = 1.0
+
+units.0.provides.7.namespace = osgi.ee
+units.0.provides.7.name = JavaSE
+units.0.provides.7.version = 1.1
+
+units.0.provides.8.namespace = osgi.ee
+units.0.provides.8.name = JavaSE
+units.0.provides.8.version = 1.2
+
+units.0.provides.9.namespace = osgi.ee
+units.0.provides.9.name = JavaSE
+units.0.provides.9.version = 1.3
+
+units.0.provides.10.namespace = osgi.ee
+units.0.provides.10.name = JavaSE
+units.0.provides.10.version = 1.4
+
+units.0.provides.11.namespace = osgi.ee
+units.0.provides.11.name = JavaSE
+units.0.provides.11.version = 1.5
+
+units.0.provides.12.namespace = osgi.ee
+units.0.provides.12.name = JavaSE
+units.0.provides.12.version = 1.6
+
+units.0.provides.13.namespace = osgi.ee
+units.0.provides.13.name = JavaSE
+units.0.provides.13.version = 1.7
+
+units.0.provides.14.namespace = osgi.ee
+units.0.provides.14.name = JavaSE
+units.0.provides.14.version = 1.8
+
+units.0.provides.15.namespace = osgi.ee
+units.0.provides.15.name = JavaSE
+units.0.provides.15.version = 9.0
+
+units.0.provides.16.namespace = osgi.ee
+units.0.provides.16.name = JavaSE
+units.0.provides.16.version = 10.0
+
+units.0.provides.17.namespace = osgi.ee
+units.0.provides.17.name = JavaSE
+units.0.provides.17.version = 11.0
+
+units.0.provides.18.namespace = osgi.ee
+units.0.provides.18.name = JavaSE
+units.0.provides.18.version = 12.0
+
+units.0.provides.19.namespace = osgi.ee
+units.0.provides.19.name = JavaSE
+units.0.provides.19.version = 13.0
+
+units.0.provides.20.namespace = osgi.ee
+units.0.provides.20.name = JavaSE
+units.0.provides.20.version = 14.0
+
+units.0.provides.21.namespace = osgi.ee
+units.0.provides.21.name = JavaSE
+units.0.provides.21.version = 15.0
+
+units.0.provides.22.namespace = osgi.ee
+units.0.provides.22.name = JavaSE
+units.0.provides.22.version = 16.0
+
+units.0.provides.23.namespace = osgi.ee
+units.0.provides.23.name = JavaSE
+units.0.provides.23.version = 17.0
+
+units.0.provides.24.namespace = osgi.ee
+units.0.provides.24.name = JavaSE/compact1
+units.0.provides.24.version = 1.8
+
+units.0.provides.25.namespace = osgi.ee
+units.0.provides.25.name = JavaSE/compact1
+units.0.provides.25.version = 9.0
+
+units.0.provides.26.namespace = osgi.ee
+units.0.provides.26.name = JavaSE/compact1
+units.0.provides.26.version = 10.0
+
+units.0.provides.27.namespace = osgi.ee
+units.0.provides.27.name = JavaSE/compact1
+units.0.provides.27.version = 11.0
+
+units.0.provides.28.namespace = osgi.ee
+units.0.provides.28.name = JavaSE/compact1
+units.0.provides.28.version = 12.0
+
+units.0.provides.29.namespace = osgi.ee
+units.0.provides.29.name = JavaSE/compact1
+units.0.provides.29.version = 13.0
+
+units.0.provides.30.namespace = osgi.ee
+units.0.provides.30.name = JavaSE/compact1
+units.0.provides.30.version = 14.0
+
+units.0.provides.31.namespace = osgi.ee
+units.0.provides.31.name = JavaSE/compact1
+units.0.provides.31.version = 15.0
+
+units.0.provides.32.namespace = osgi.ee
+units.0.provides.32.name = JavaSE/compact1
+units.0.provides.32.version = 16.0
+
+units.0.provides.33.namespace = osgi.ee
+units.0.provides.33.name = JavaSE/compact1
+units.0.provides.33.version = 17.0
+
+units.0.provides.34.namespace = osgi.ee
+units.0.provides.34.name = JavaSE/compact2
+units.0.provides.34.version = 1.8
+
+units.0.provides.35.namespace = osgi.ee
+units.0.provides.35.name = JavaSE/compact2
+units.0.provides.35.version = 9.0
+
+units.0.provides.36.namespace = osgi.ee
+units.0.provides.36.name = JavaSE/compact2
+units.0.provides.36.version = 10.0
+
+units.0.provides.37.namespace = osgi.ee
+units.0.provides.37.name = JavaSE/compact2
+units.0.provides.37.version = 11.0
+
+units.0.provides.38.namespace = osgi.ee
+units.0.provides.38.name = JavaSE/compact2
+units.0.provides.38.version = 12.0
+
+units.0.provides.39.namespace = osgi.ee
+units.0.provides.39.name = JavaSE/compact2
+units.0.provides.39.version = 13.0
+
+units.0.provides.40.namespace = osgi.ee
+units.0.provides.40.name = JavaSE/compact2
+units.0.provides.40.version = 14.0
+
+units.0.provides.41.namespace = osgi.ee
+units.0.provides.41.name = JavaSE/compact2
+units.0.provides.41.version = 15.0
+
+units.0.provides.42.namespace = osgi.ee
+units.0.provides.42.name = JavaSE/compact2
+units.0.provides.42.version = 16.0
+
+units.0.provides.43.namespace = osgi.ee
+units.0.provides.43.name = JavaSE/compact2
+units.0.provides.43.version = 17.0
+
+units.0.provides.44.namespace = osgi.ee
+units.0.provides.44.name = JavaSE/compact3
+units.0.provides.44.version = 1.8
+
+units.0.provides.45.namespace = osgi.ee
+units.0.provides.45.name = JavaSE/compact3
+units.0.provides.45.version = 9.0
+
+units.0.provides.46.namespace = osgi.ee
+units.0.provides.46.name = JavaSE/compact3
+units.0.provides.46.version = 10.0
+
+units.0.provides.47.namespace = osgi.ee
+units.0.provides.47.name = JavaSE/compact3
+units.0.provides.47.version = 11.0
+
+units.0.provides.48.namespace = osgi.ee
+units.0.provides.48.name = JavaSE/compact3
+units.0.provides.48.version = 12.0
+
+units.0.provides.49.namespace = osgi.ee
+units.0.provides.49.name = JavaSE/compact3
+units.0.provides.49.version = 13.0
+
+units.0.provides.50.namespace = osgi.ee
+units.0.provides.50.name = JavaSE/compact3
+units.0.provides.50.version = 14.0
+
+units.0.provides.51.namespace = osgi.ee
+units.0.provides.51.name = JavaSE/compact3
+units.0.provides.51.version = 15.0
+
+units.0.provides.52.namespace = osgi.ee
+units.0.provides.52.name = JavaSE/compact3
+units.0.provides.52.version = 16.0
+
+units.0.provides.53.namespace = osgi.ee
+units.0.provides.53.name = JavaSE/compact3
+units.0.provides.53.version = 17.0
+
+units.0.provides.54.namespace = java.package
+units.0.provides.54.name = com.sun.nio.file
+units.0.provides.54.version = 0.0.0
+
+units.0.provides.55.namespace = java.package
+units.0.provides.55.name = java.io
+units.0.provides.55.version = 0.0.0
+
+units.0.provides.56.namespace = java.package
+units.0.provides.56.name = java.lang
+units.0.provides.56.version = 0.0.0
+
+units.0.provides.57.namespace = java.package
+units.0.provides.57.name = java.lang.annotation
+units.0.provides.57.version = 0.0.0
+
+units.0.provides.58.namespace = java.package
+units.0.provides.58.name = java.lang.constant
+units.0.provides.58.version = 0.0.0
+
+units.0.provides.59.namespace = java.package
+units.0.provides.59.name = java.lang.invoke
+units.0.provides.59.version = 0.0.0
+
+units.0.provides.60.namespace = java.package
+units.0.provides.60.name = java.lang.module
+units.0.provides.60.version = 0.0.0
+
+units.0.provides.61.namespace = java.package
+units.0.provides.61.name = java.lang.ref
+units.0.provides.61.version = 0.0.0
+
+units.0.provides.62.namespace = java.package
+units.0.provides.62.name = java.lang.reflect
+units.0.provides.62.version = 0.0.0
+
+units.0.provides.63.namespace = java.package
+units.0.provides.63.name = java.lang.runtime
+units.0.provides.63.version = 0.0.0
+
+units.0.provides.64.namespace = java.package
+units.0.provides.64.name = java.math
+units.0.provides.64.version = 0.0.0
+
+units.0.provides.65.namespace = java.package
+units.0.provides.65.name = java.net
+units.0.provides.65.version = 0.0.0
+
+units.0.provides.66.namespace = java.package
+units.0.provides.66.name = java.net.spi
+units.0.provides.66.version = 0.0.0
+
+units.0.provides.67.namespace = java.package
+units.0.provides.67.name = java.nio
+units.0.provides.67.version = 0.0.0
+
+units.0.provides.68.namespace = java.package
+units.0.provides.68.name = java.nio.channels
+units.0.provides.68.version = 0.0.0
+
+units.0.provides.69.namespace = java.package
+units.0.provides.69.name = java.nio.channels.spi
+units.0.provides.69.version = 0.0.0
+
+units.0.provides.70.namespace = java.package
+units.0.provides.70.name = java.nio.charset
+units.0.provides.70.version = 0.0.0
+
+units.0.provides.71.namespace = java.package
+units.0.provides.71.name = java.nio.charset.spi
+units.0.provides.71.version = 0.0.0
+
+units.0.provides.72.namespace = java.package
+units.0.provides.72.name = java.nio.file
+units.0.provides.72.version = 0.0.0
+
+units.0.provides.73.namespace = java.package
+units.0.provides.73.name = java.nio.file.attribute
+units.0.provides.73.version = 0.0.0
+
+units.0.provides.74.namespace = java.package
+units.0.provides.74.name = java.nio.file.spi
+units.0.provides.74.version = 0.0.0
+
+units.0.provides.75.namespace = java.package
+units.0.provides.75.name = java.security
+units.0.provides.75.version = 0.0.0
+
+units.0.provides.76.namespace = java.package
+units.0.provides.76.name = java.security.cert
+units.0.provides.76.version = 0.0.0
+
+units.0.provides.77.namespace = java.package
+units.0.provides.77.name = java.security.interfaces
+units.0.provides.77.version = 0.0.0
+
+units.0.provides.78.namespace = java.package
+units.0.provides.78.name = java.security.spec
+units.0.provides.78.version = 0.0.0
+
+units.0.provides.79.namespace = java.package
+units.0.provides.79.name = java.text
+units.0.provides.79.version = 0.0.0
+
+units.0.provides.80.namespace = java.package
+units.0.provides.80.name = java.text.spi
+units.0.provides.80.version = 0.0.0
+
+units.0.provides.81.namespace = java.package
+units.0.provides.81.name = java.time
+units.0.provides.81.version = 0.0.0
+
+units.0.provides.82.namespace = java.package
+units.0.provides.82.name = java.time.chrono
+units.0.provides.82.version = 0.0.0
+
+units.0.provides.83.namespace = java.package
+units.0.provides.83.name = java.time.format
+units.0.provides.83.version = 0.0.0
+
+units.0.provides.84.namespace = java.package
+units.0.provides.84.name = java.time.temporal
+units.0.provides.84.version = 0.0.0
+
+units.0.provides.85.namespace = java.package
+units.0.provides.85.name = java.time.zone
+units.0.provides.85.version = 0.0.0
+
+units.0.provides.86.namespace = java.package
+units.0.provides.86.name = java.util
+units.0.provides.86.version = 0.0.0
+
+units.0.provides.87.namespace = java.package
+units.0.provides.87.name = java.util.concurrent
+units.0.provides.87.version = 0.0.0
+
+units.0.provides.88.namespace = java.package
+units.0.provides.88.name = java.util.concurrent.atomic
+units.0.provides.88.version = 0.0.0
+
+units.0.provides.89.namespace = java.package
+units.0.provides.89.name = java.util.concurrent.locks
+units.0.provides.89.version = 0.0.0
+
+units.0.provides.90.namespace = java.package
+units.0.provides.90.name = java.util.function
+units.0.provides.90.version = 0.0.0
+
+units.0.provides.91.namespace = java.package
+units.0.provides.91.name = java.util.jar
+units.0.provides.91.version = 0.0.0
+
+units.0.provides.92.namespace = java.package
+units.0.provides.92.name = java.util.logging
+units.0.provides.92.version = 0.0.0
+
+units.0.provides.93.namespace = java.package
+units.0.provides.93.name = java.util.random
+units.0.provides.93.version = 0.0.0
+
+units.0.provides.94.namespace = java.package
+units.0.provides.94.name = java.util.regex
+units.0.provides.94.version = 0.0.0
+
+units.0.provides.95.namespace = java.package
+units.0.provides.95.name = java.util.spi
+units.0.provides.95.version = 0.0.0
+
+units.0.provides.96.namespace = java.package
+units.0.provides.96.name = java.util.stream
+units.0.provides.96.version = 0.0.0
+
+units.0.provides.97.namespace = java.package
+units.0.provides.97.name = java.util.zip
+units.0.provides.97.version = 0.0.0
+
+units.0.provides.98.namespace = java.package
+units.0.provides.98.name = javax.crypto
+units.0.provides.98.version = 0.0.0
+
+units.0.provides.99.namespace = java.package
+units.0.provides.99.name = javax.crypto.interfaces
+units.0.provides.99.version = 0.0.0
+
+units.0.provides.100.namespace = java.package
+units.0.provides.100.name = javax.crypto.spec
+units.0.provides.100.version = 0.0.0
+
+units.0.provides.101.namespace = java.package
+units.0.provides.101.name = javax.net
+units.0.provides.101.version = 0.0.0
+
+units.0.provides.102.namespace = java.package
+units.0.provides.102.name = javax.net.ssl
+units.0.provides.102.version = 0.0.0
+
+units.0.provides.103.namespace = java.package
+units.0.provides.103.name = javax.security.auth
+units.0.provides.103.version = 0.0.0
+
+units.0.provides.104.namespace = java.package
+units.0.provides.104.name = javax.security.auth.callback
+units.0.provides.104.version = 0.0.0
+
+units.0.provides.105.namespace = java.package
+units.0.provides.105.name = javax.security.auth.login
+units.0.provides.105.version = 0.0.0
+
+units.0.provides.106.namespace = java.package
+units.0.provides.106.name = javax.security.auth.spi
+units.0.provides.106.version = 0.0.0
+
+units.0.provides.107.namespace = java.package
+units.0.provides.107.name = javax.security.auth.x500
+units.0.provides.107.version = 0.0.0
+
+units.0.provides.108.namespace = java.package
+units.0.provides.108.name = javax.security.cert
+units.0.provides.108.version = 0.0.0
+
+units.0.provides.109.namespace = java.package
+units.0.provides.109.name = javax.xml
+units.0.provides.109.version = 0.0.0
+
+units.0.provides.110.namespace = java.package
+units.0.provides.110.name = javax.xml.catalog
+units.0.provides.110.version = 0.0.0
+
+units.0.provides.111.namespace = java.package
+units.0.provides.111.name = javax.xml.datatype
+units.0.provides.111.version = 0.0.0
+
+units.0.provides.112.namespace = java.package
+units.0.provides.112.name = javax.xml.namespace
+units.0.provides.112.version = 0.0.0
+
+units.0.provides.113.namespace = java.package
+units.0.provides.113.name = javax.xml.parsers
+units.0.provides.113.version = 0.0.0
+
+units.0.provides.114.namespace = java.package
+units.0.provides.114.name = javax.xml.stream
+units.0.provides.114.version = 0.0.0
+
+units.0.provides.115.namespace = java.package
+units.0.provides.115.name = javax.xml.stream.events
+units.0.provides.115.version = 0.0.0
+
+units.0.provides.116.namespace = java.package
+units.0.provides.116.name = javax.xml.stream.util
+units.0.provides.116.version = 0.0.0
+
+units.0.provides.117.namespace = java.package
+units.0.provides.117.name = javax.xml.transform
+units.0.provides.117.version = 0.0.0
+
+units.0.provides.118.namespace = java.package
+units.0.provides.118.name = javax.xml.transform.dom
+units.0.provides.118.version = 0.0.0
+
+units.0.provides.119.namespace = java.package
+units.0.provides.119.name = javax.xml.transform.sax
+units.0.provides.119.version = 0.0.0
+
+units.0.provides.120.namespace = java.package
+units.0.provides.120.name = javax.xml.transform.stax
+units.0.provides.120.version = 0.0.0
+
+units.0.provides.121.namespace = java.package
+units.0.provides.121.name = javax.xml.transform.stream
+units.0.provides.121.version = 0.0.0
+
+units.0.provides.122.namespace = java.package
+units.0.provides.122.name = javax.xml.validation
+units.0.provides.122.version = 0.0.0
+
+units.0.provides.123.namespace = java.package
+units.0.provides.123.name = javax.xml.xpath
+units.0.provides.123.version = 0.0.0
+
+units.0.provides.124.namespace = java.package
+units.0.provides.124.name = org.w3c.dom
+units.0.provides.124.version = 0.0.0
+
+units.0.provides.125.namespace = java.package
+units.0.provides.125.name = org.w3c.dom.bootstrap
+units.0.provides.125.version = 0.0.0
+
+units.0.provides.126.namespace = java.package
+units.0.provides.126.name = org.w3c.dom.events
+units.0.provides.126.version = 0.0.0
+
+units.0.provides.127.namespace = java.package
+units.0.provides.127.name = org.w3c.dom.ls
+units.0.provides.127.version = 0.0.0
+
+units.0.provides.128.namespace = java.package
+units.0.provides.128.name = org.w3c.dom.ranges
+units.0.provides.128.version = 0.0.0
+
+units.0.provides.129.namespace = java.package
+units.0.provides.129.name = org.w3c.dom.traversal
+units.0.provides.129.version = 0.0.0
+
+units.0.provides.130.namespace = java.package
+units.0.provides.130.name = org.w3c.dom.views
+units.0.provides.130.version = 0.0.0
+
+units.0.provides.131.namespace = java.package
+units.0.provides.131.name = org.xml.sax
+units.0.provides.131.version = 0.0.0
+
+units.0.provides.132.namespace = java.package
+units.0.provides.132.name = org.xml.sax.ext
+units.0.provides.132.version = 0.0.0
+
+units.0.provides.133.namespace = java.package
+units.0.provides.133.name = org.xml.sax.helpers
+units.0.provides.133.version = 0.0.0
+
+units.0.provides.134.namespace = java.package
+units.0.provides.134.name = sun.misc
+units.0.provides.134.version = 0.0.0
+
+units.0.provides.135.namespace = java.package
+units.0.provides.135.name = sun.reflect
+units.0.provides.135.version = 0.0.0
+
+# Ensure that the a.jre IU is published to the update site.
+
+requires.0.namespace = org.eclipse.equinox.p2.iu
+requires.0.name = a.jre.org.eclipse.justj.openjdk.hotspot.jre.base.stripped
+requires.0.range = [17.0.0,17.0.0]
+requires.0.filter = (org.eclipse.justj.assembletime=true)
+requires.0.greedy = true
+requires.0.optional = true
+
+# Ensure that the applicable implementation fragment gets installed automatically.
+
+requires.1.namespace = org.eclipse.equinox.p2.iu
+requires.1.name = org.eclipse.justj.openjdk.hotspot.jre.base.stripped.linux.aarch64
+requires.1.range = [$version$,$version$]
+requires.1.filter = (&(osgi.os=linux)(osgi.arch=aarch64)(!(org.eclipse.justj.buildtime=true)))
+
+requires.2.namespace = org.eclipse.equinox.p2.iu
+requires.2.name = org.eclipse.justj.openjdk.hotspot.jre.base.stripped.linux.ppc64le
+requires.2.range = [$version$,$version$]
+requires.2.filter = (&(osgi.os=linux)(osgi.arch=ppc64le)(!(org.eclipse.justj.buildtime=true)))
+
+requires.3.namespace = org.eclipse.equinox.p2.iu
+requires.3.name = org.eclipse.justj.openjdk.hotspot.jre.base.stripped.linux.x86_64
+requires.3.range = [$version$,$version$]
+requires.3.filter = (&(osgi.os=linux)(osgi.arch=x86_64)(!(org.eclipse.justj.buildtime=true)))
+
+requires.4.namespace = org.eclipse.equinox.p2.iu
+requires.4.name = org.eclipse.justj.openjdk.hotspot.jre.base.stripped.macosx.aarch64
+requires.4.range = [$version$,$version$]
+requires.4.filter = (&(osgi.os=macosx)(osgi.arch=aarch64)(!(org.eclipse.justj.buildtime=true)))
+
+requires.5.namespace = org.eclipse.equinox.p2.iu
+requires.5.name = org.eclipse.justj.openjdk.hotspot.jre.base.stripped.macosx.x86_64
+requires.5.range = [$version$,$version$]
+requires.5.filter = (&(osgi.os=macosx)(osgi.arch=x86_64)(!(org.eclipse.justj.buildtime=true)))
+
+requires.6.namespace = org.eclipse.equinox.p2.iu
+requires.6.name = org.eclipse.justj.openjdk.hotspot.jre.base.stripped.win32.x86_64
+requires.6.range = [$version$,$version$]
+requires.6.filter = (&(osgi.os=win32)(osgi.arch=x86_64)(!(org.eclipse.justj.buildtime=true)))
+
+# Exclude the synthetic a.jre IUs from the p2 repositories; Tycho gets confused by negative requirements so filter this to avoid it at build time.
+requires.7.namespace = org.eclipse.equinox.p2.iu
+requires.7.name = a.jre
+requires.7.min = 0
+requires.7.max = 0
+requires.7.filter = (!(org.eclipse.justj.buildtime=true))
+
+# Exclude the synthetic a.jre.javase IUs from the p2 repositories; Tycho gets confused by negative requirements so filter this to avoid it at build time.
+requires.8.namespace = org.eclipse.equinox.p2.iu
+requires.8.name = a.jre.javase
+requires.8.min = 0
+requires.8.max = 0
+requires.8.filter = (!(org.eclipse.justj.buildtime=true))
+
+# Declare a capability that can be used to ensure mutually exclusive installation of IUs that set the -vm option.
+provides.0.namespace = org.eclipse.justj
+provides.0.name = jre
+provides.0.version = $version$
+
+# Exclude all other providers of this capability; the site depends on all the features so exclude this requirement at build time.
+requires.9.matchExp = providedCapabilities.exists(x | x.name == 'jre' && x.namespace == 'org.eclipse.justj') && !providedCapabilities.exists(x | x.name == 'org.eclipse.justj.openjdk.hotspot.jre.base.stripped' && x.namespace == 'org.eclipse.equinox.p2.iu')
+requires.9.min = 0
+requires.9.max = 0
+requires.9.filter = (!(org.eclipse.justj.buildtime=true))
+
+properties.0.name = org.eclipse.justj.model
+properties.0.value = <?xml version="1.0" encoding="UTF-8"?>\n\
+ <model:JVM xmlns:model="http://www.eclipse.org/just/2020/Model"\n\
+\    name="openjdk.hotspot.jre.base.stripped"\n\
+\    label="Adoptium OpenJDK Hotspot JRE Base Stripped"\n\
+\    version="17.0.9">\n\
+\  <annotation\n\
+\      source="https://www.eclipse.org/justj/Properties">\n\
+\    <detail\n\
+\        key="java.class.version">\n\
+\      <value>61.0</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.runtime.name">\n\
+\      <value>OpenJDK Runtime Environment</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.runtime.version">\n\
+\      <value>17.0.9+9</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.specification.name">\n\
+\      <value>Java Platform API Specification</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.specification.vendor">\n\
+\      <value>Oracle Corporation</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.specification.version">\n\
+\      <value>17</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.vendor">\n\
+\      <value>Eclipse Adoptium</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.vendor.url">\n\
+\      <value>https://adoptium.net/</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.vendor.url.bug">\n\
+\      <value>https://github.com/adoptium/adoptium-support/issues</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.vendor.version">\n\
+\      <value>Temurin-17.0.9+9</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.version">\n\
+\      <value>17.0.9</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.version.date">\n\
+\      <value>2023-10-17</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.vm.info">\n\
+\      <value>mixed mode</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.vm.name">\n\
+\      <value>OpenJDK 64-Bit Server VM</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.vm.specification.name">\n\
+\      <value>Java Virtual Machine Specification</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.vm.specification.vendor">\n\
+\      <value>Oracle Corporation</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.vm.specification.version">\n\
+\      <value>17</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.vm.vendor">\n\
+\      <value>Eclipse Adoptium</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="java.vm.version">\n\
+\      <value>17.0.9+9</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="org.eclipse.justj.description">\n\
+\      <value>Provides the minimal modules needed to launch Equinox with logging and without reflection warnings, stripped of debug information.</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="org.eclipse.justj.jlink.args">\n\
+\      <value>--compress=2 --vm=server --strip-debug</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="org.eclipse.justj.label">\n\
+\      <value>Adoptium OpenJDK Hotspot JRE Base Stripped</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="org.eclipse.justj.modules">\n\
+\      <value>java.base,java.logging,java.xml,jdk.unsupported</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="org.eclipse.justj.name">\n\
+\      <value>openjdk.hotspot.jre.base.stripped</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="org.eclipse.justj.url.vendor">\n\
+\      <value>https://adoptium.net/</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="org.osgi.framework.system.capabilities">\n\
+\      <value>osgi.ee; osgi.ee=&quot;OSGi/Minimum&quot;; version:List&lt;Version>=&quot;1.0, 1.1, 1.2&quot;, osgi.ee; osgi.ee=&quot;JRE&quot;; version:List&lt;Version>=&quot;1.0, 1.1&quot;, osgi.ee; osgi.ee=&quot;JavaSE&quot;; version:List&lt;Version>=&quot;1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0&quot;,osgi.ee; osgi.ee=&quot;JavaSE/compact1&quot;; version:List&lt;Version>=&quot;1.8, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0&quot;,osgi.ee; osgi.ee=&quot;JavaSE/compact2&quot;; version:List&lt;Version>=&quot;1.8, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0&quot;,osgi.ee; osgi.ee=&quot;JavaSE/compact3&quot;; version:List&lt;Version>=&quot;1.8, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0&quot;</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="org.osgi.framework.system.packages">\n\
+\      <value>com.sun.nio.file, java.io, java.lang, java.lang.annotation, java.lang.constant, java.lang.invoke, java.lang.module, java.lang.ref, java.lang.reflect, java.lang.runtime, java.math, java.net, java.net.spi, java.nio, java.nio.channels, java.nio.channels.spi, java.nio.charset, java.nio.charset.spi, java.nio.file, java.nio.file.attribute, java.nio.file.spi, java.security, java.security.cert, java.security.interfaces, java.security.spec, java.text, java.text.spi, java.time, java.time.chrono, java.time.format, java.time.temporal, java.time.zone, java.util, java.util.concurrent, java.util.concurrent.atomic, java.util.concurrent.locks, java.util.function, java.util.jar, java.util.logging, java.util.random, java.util.regex, java.util.spi, java.util.stream, java.util.zip, javax.crypto, javax.crypto.interfaces, javax.crypto.spec, javax.net, javax.net.ssl, javax.security.auth, javax.security.auth.callback, javax.security.auth.login, javax.security.auth.spi, javax.security.auth.x500, javax.security.cert, javax.xml, javax.xml.catalog, javax.xml.datatype, javax.xml.namespace, javax.xml.parsers, javax.xml.stream, javax.xml.stream.events, javax.xml.stream.util, javax.xml.transform, javax.xml.transform.dom, javax.xml.transform.sax, javax.xml.transform.stax, javax.xml.transform.stream, javax.xml.validation, javax.xml.xpath, org.w3c.dom, org.w3c.dom.bootstrap, org.w3c.dom.events, org.w3c.dom.ls, org.w3c.dom.ranges, org.w3c.dom.traversal, org.w3c.dom.views, org.xml.sax, org.xml.sax.ext, org.xml.sax.helpers, sun.misc, sun.reflect</value>\n\
+\    </detail>\n\
+\    <detail\n\
+\        key="org.osgi.framework.version">\n\
+\      <value>1.10.0</value>\n\
+\    </detail>\n\
+\  </annotation>\n\
+\  <description>Provides the minimal modules needed to launch Equinox with logging and without reflection warnings, stripped of debug information.</description>\n\
+\  <aboutTextExtra>\n\n    Visit https://eclipse.dev/justj\n\n    Provides Java Runtimes derived from https://adoptium.net/.\n\
+\  </aboutTextExtra>\n\
+ </model:JVM>\n
+

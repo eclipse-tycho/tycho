@@ -93,7 +93,11 @@ public class InstallableUnitSlicer {
 		}).toList();
 		for (IInstallableUnit iu : avaiableIUs.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet()) {
 			for (IRequirement requirement : collect) {
-				if (iu.satisfies(requirement)) {
+				// Negative requirements should not create a dependency.
+				// If there is a filter, we need more context, e.g, see
+				// org.eclipse.equinox.internal.p2.director.Slicer.isApplicable(IRequirement)
+				// Failing that, we need to assume the filter isn't applicable.
+				if (requirement.getMax() != 0 && requirement.getFilter() == null && iu.satisfies(requirement)) {
 					result.add(iu);
 					// TODO remove the requirement from the set so we only collect exactly one
 					// provider for a requirement?
