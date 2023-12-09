@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.eclipse.justj.openjdk.hotspot.jre.base.stripped;singleton:=true
+Bundle-Version: 17.0.9.qualifier
+Bundle-ClassPath: .
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Automatic-Module-Name: org.eclipse.justj.openjdk.hotspot.jre.base.stripped
