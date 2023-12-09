@@ -88,7 +88,7 @@ public class ExecutionEnvironmentUtils {
                     }).map(map::get).filter(Objects::nonNull).findFirst().orElse(null);
             if (higherEE != null) {
                 logger.warn("Using " + higherEE.getProfileName() + " to fulfill requested profile of " + profileName
-                        + " this might lead to faulty dependency resolution, consider define a suitable JDK in the toolchains.xml");
+                        + ". This might lead to faulty dependency resolution, consider defining a suitable JDK in the toolchains.xml.");
                 return getSurrogate(profileName, higherEE);
             }
         }
