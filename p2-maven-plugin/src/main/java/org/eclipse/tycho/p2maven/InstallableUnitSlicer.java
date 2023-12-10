@@ -15,11 +15,9 @@ package org.eclipse.tycho.p2maven;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -31,8 +29,6 @@ import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
-import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -87,10 +83,9 @@ public class InstallableUnitSlicer {
 	 * @return the result of the slicing
 	 * @throws CoreException if there is any error
 	 */
-	public IQueryResult<IInstallableUnit> computeDirectDependencies(Collection<IInstallableUnit> rootIus,
-			IQueryable<IInstallableUnit> avaiableIUs, Collection<IInstallableUnit> contextIUs) throws CoreException {
-		Collection<IInstallableUnit> result = new LinkedHashSet<>();
-		Map<Boolean, List<IRequirement>> collect = rootIus.stream().flatMap(iu -> iu.getRequirements().stream())
+	public DirectDependenciesResult computeDirectDependencies(Collection<IInstallableUnit> rootIus,
+			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
+		List<IRequirement> collect = rootIus.stream().flatMap(iu -> iu.getRequirements().stream())
 				.filter(req -> {
 					for (IInstallableUnit unit : rootIus) {
 						if (unit.satisfies(req)) {
@@ -98,40 +93,18 @@ public class InstallableUnitSlicer {
 							return false;
 						}
 					}
-					return isMatch(req.getFilter(), contextIUs);
-				}).collect(Collectors.partitioningBy(req -> req.getMax() == 0));
-		List<IRequirement> negativeRequirements = collect.get(true);
-		List<IRequirement> requirements = new ArrayList<>(collect.get(false));
-
+					return true;
+				}).toList();
+		Map<IRequirement, List<IInstallableUnit>> unitMap = new LinkedHashMap<>();
 		for (IInstallableUnit iu : avaiableIUs.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet()) {
-			for (Iterator<IRequirement> iterator = requirements.iterator(); iterator.hasNext();) {
-				IRequirement requirement = iterator.next();
+			for (IRequirement requirement : collect) {
 				if (iu.satisfies(requirement)) {
-					result.add(iu);
-					if (requirement.getMax() == 1) {
-						// only one provider allowed
-						iterator.remove();
-					}
-					break;
-				}
-			}
-			// now check if the IU satisfies any negative one, then we need to remove it
-			// from the set...
-			for (IRequirement requirement : negativeRequirements) {
-				if (iu.satisfies(requirement)) {
-					result.remove(iu);
-					break;
+					// need to add it to the book
+					unitMap.computeIfAbsent(requirement, nil -> new ArrayList<>()).add(iu);
 				}
 			}
 		}
-		return new CollectionResult<>(result);
-	}
-
-	private boolean isMatch(IMatchExpression<IInstallableUnit> filter, Collection<IInstallableUnit> contextIUs) {
-		if (filter == null || contextIUs.isEmpty()) {
-			return true;
-		}
-		return contextIUs.stream().anyMatch(contextIU -> filter.isMatch(contextIU));
+		return new DirectDependenciesResult(unitMap);
 	}
 
 	private final class TychoSlicer extends PermissiveSlicer {

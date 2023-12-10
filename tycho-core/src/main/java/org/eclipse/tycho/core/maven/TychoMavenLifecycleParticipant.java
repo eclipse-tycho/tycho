@@ -155,6 +155,10 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                             continue;
                         }
                         Collection<MavenProject> dependencyProjects = closure.getDependencyProjects(project);
+                        System.out.println("=== " + project + " ===");
+                        for (MavenProject mavenProject : projects) {
+                            System.out.println(mavenProject);
+                        }
                         MavenDependencyInjector.injectMavenProjectDependencies(project, dependencyProjects);
                         if (DUMP_DATA) {
                             try {
