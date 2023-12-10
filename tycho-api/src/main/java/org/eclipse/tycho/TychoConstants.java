@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 public interface TychoConstants {
 
-    public static final String ECLIPSE_LATEST = "https://download.eclipse.org/releases/2023-09/";
+    public static final String ECLIPSE_LATEST = "https://download.eclipse.org/releases/2023-12/";
 
     static final String ANY_QUALIFIER = "qualifier";
 
