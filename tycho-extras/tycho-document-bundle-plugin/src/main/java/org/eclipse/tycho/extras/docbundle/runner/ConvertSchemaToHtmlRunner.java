@@ -41,12 +41,15 @@ import org.eclipse.pde.internal.core.PDECoreMessages;
 import org.eclipse.pde.internal.core.XMLDefaultHandler;
 import org.eclipse.pde.internal.core.builders.SchemaTransformer;
 import org.eclipse.pde.internal.core.ischema.ISchema;
+import org.eclipse.pde.internal.core.ischema.ISchemaDescriptor;
 import org.eclipse.pde.internal.core.ischema.ISchemaInclude;
 import org.eclipse.pde.internal.core.plugin.ExternalFragmentModel;
 import org.eclipse.pde.internal.core.plugin.ExternalPluginModel;
 import org.eclipse.pde.internal.core.plugin.ExternalPluginModelBase;
+import org.eclipse.pde.internal.core.schema.PathSchemaProvider;
 import org.eclipse.pde.internal.core.schema.Schema;
 import org.eclipse.pde.internal.core.schema.SchemaDescriptor;
+import org.eclipse.pde.internal.core.schema.SchemaProvider;
 import org.eclipse.pde.internal.core.util.HeaderMap;
 import org.osgi.framework.Constants;
 
@@ -100,7 +103,7 @@ public class ConvertSchemaToHtmlRunner implements Callable<ConvertSchemaToHtmlRe
 							.parse(schemaFile, handler);
 					@SuppressWarnings("deprecation")
 					URL url = schemaFile.toURL();
-					SchemaDescriptor desc = new SchemaDescriptor(extPoint.getFullId(), url,
+					PathSchemaProvider pathSchemaProvider = new PathSchemaProvider(
 							additionalSearchPaths.stream().map(pathString -> {
 								IPath path = IPath.fromOSString(pathString);
 								if (!path.isAbsolute()) {
@@ -108,6 +111,15 @@ public class ConvertSchemaToHtmlRunner implements Callable<ConvertSchemaToHtmlRe
 								}
 								return path;
 							}).toList());
+					SchemaDescriptor desc = new SchemaDescriptor(extPoint.getFullId(), url, new SchemaProvider() {
+
+						@Override
+						public ISchema createSchema(ISchemaDescriptor descriptor, String location) {
+							// TODO if the path return null we should search inside the bundle target
+							// platform for the schema!
+							return pathSchemaProvider.createSchema(descriptor, schemaLocation);
+						}
+					});
 					schema = (Schema) desc.getSchema(false);
 
 					// Check that all included schemas are available
