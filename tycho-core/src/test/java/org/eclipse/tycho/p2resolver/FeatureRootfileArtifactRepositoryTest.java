@@ -29,12 +29,13 @@ import org.eclipse.tycho.core.publisher.FeatureRootfileArtifactRepository;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
+import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class FeatureRootfileArtifactRepositoryTest {
+public class FeatureRootfileArtifactRepositoryTest extends TychoPlexusTestCase {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
