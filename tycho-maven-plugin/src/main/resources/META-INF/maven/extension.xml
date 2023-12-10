@@ -11,6 +11,8 @@
     <!-- P2 Stuff TODO add more? -->
     <exportedPackage>org.eclipse.equinox.internal.p2.updatesite</exportedPackage>
     <exportedPackage>org.eclipse.equinox.internal.p2.artifact.repository.simple</exportedPackage>
+    <exportedPackage>org.eclipse.equinox.internal.provisional.p2.core.eventbus</exportedPackage>
+    <exportedPackage>org.eclipse.equinox.internal.p2.core.helpers</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.core</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.metadata</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.publisher</exportedPackage>
