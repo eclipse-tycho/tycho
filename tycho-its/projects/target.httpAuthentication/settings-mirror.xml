@@ -1,0 +1,11 @@
+<settings>
+  <mirrors>
+    <mirror>
+      <id>test-mirror</id>      
+      <url>${p2.mirror}</url>	
+      <mirrorOf>test-server</mirrorOf>
+      <layout>p2</layout>
+      <mirrorOfLayouts>p2</mirrorOfLayouts>
+	</mirror>	  
+  </mirrors>
+</settings>
