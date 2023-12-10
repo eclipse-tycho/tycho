@@ -1,0 +1,18 @@
+<settings>
+  <servers>
+    <server>
+      <id>test-auth-mirror</id>
+      <username>mirror-user</username>
+      <password>mirror-password</password>
+    </server>
+  </servers>
+  <mirrors>
+    <mirror>
+      <id>test-auth-mirror</id>      
+      <url>${p2.authMirror}</url>
+      <mirrorOf>test-server</mirrorOf>
+      <layout>p2</layout>
+      <mirrorOfLayouts>p2</mirrorOfLayouts>
+	</mirror>	  
+  </mirrors>
+</settings>

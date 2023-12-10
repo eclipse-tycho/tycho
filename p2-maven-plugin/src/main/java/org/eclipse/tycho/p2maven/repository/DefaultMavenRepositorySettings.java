@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
@@ -157,5 +158,10 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 			settings = new Settings();
 			mirrors = Collections.emptyList();
 		}
+	}
+
+	@Override
+	public Stream<MavenRepositoryLocation> getMirrors() {
+		return mirrors.stream().map(m -> new MavenRepositoryLocation(m.getId(), URI.create(m.getUrl())));
 	}
 }
