@@ -54,12 +54,13 @@ import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
@@ -224,6 +225,9 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Component
     private Logger logger;
 
+    @Component
+    private TychoProjectManager projectManager;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging()) || skip) {
@@ -321,8 +325,8 @@ public class SourceFeatureMojo extends AbstractMojo {
 
         final Feature sourceFeature = createSourceFeatureSkeleton(feature, mergedSourceFeatureProps,
                 sourceTemplateProps);
-        fillReferences(sourceFeature, feature,
-                TychoProjectUtils.getTargetPlatform(DefaultReactorProject.adapt(project)));
+        fillReferences(sourceFeature, feature, projectManager.getTargetPlatform(project)
+                .orElseThrow(() -> new MojoExecutionException(TychoConstants.TYCHO_NOT_CONFIGURED + project)));
 
         Feature.write(sourceFeature, sourceFeatureXml, "  ");
         return sourceFeatureXml;

@@ -56,7 +56,6 @@ import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.classpath.JUnitBundle;
 import org.eclipse.tycho.model.classpath.JUnitClasspathContainerEntry;
 import org.eclipse.tycho.surefire.bnd.ArtifactKeyRepository;
@@ -244,7 +243,10 @@ public class BndTestMojo extends AbstractTestMojo {
                 for (RepositoryPlugin rp : workspace.getRepositories()) {
                     workspace.removeBasicPlugin(rp);
                 }
-                workspace.addBasicPlugin(new TargetPlatformRepository(getReactorProject()));
+                projectManager.getTargetPlatform(project).ifPresent(tp -> {
+                    workspace.addBasicPlugin(new TargetPlatformRepository(getReactorProject(), tp));
+                });
+
                 if (scanResult instanceof BundleScanResult bundleScanResult) {
                     workspace.addBasicPlugin(new ArtifactKeyRepository(bundleScanResult.pomBundles, "pom-dependencies",
                             project.getFile()));
@@ -487,24 +489,28 @@ public class BndTestMojo extends AbstractTestMojo {
                 }
             }
         }
-        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(getReactorProject());
         if (bundles != null) {
-            for (String bundle : bundles) {
-                try {
-                    ArtifactKey key = targetPlatform.resolveArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, bundle,
-                            Version.emptyVersion.toString());
-                    File file = targetPlatform.getArtifactLocation(key);
-                    if (file != null) {
-                        OsgiManifest manifest = bundleReader.loadManifest(file);
-                        String header = manifest.getValue(TychoConstants.HEADER_TESTCASES);
-                        for (String test : getDeclaredTests(header, key)) {
-                            bundleTestCases.add(test);
+            TargetPlatform targetPlatform = projectManager.getTargetPlatform(project).orElse(null);
+            if (targetPlatform == null) {
+                getLog().warn("No target platform, can't resolve additionally specified bundles!");
+            } else {
+                for (String bundle : bundles) {
+                    try {
+                        ArtifactKey key = targetPlatform.resolveArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, bundle,
+                                Version.emptyVersion.toString());
+                        File file = targetPlatform.getArtifactLocation(key);
+                        if (file != null) {
+                            OsgiManifest manifest = bundleReader.loadManifest(file);
+                            String header = manifest.getValue(TychoConstants.HEADER_TESTCASES);
+                            for (String test : getDeclaredTests(header, key)) {
+                                bundleTestCases.add(test);
+                            }
                         }
+                    } catch (DependencyResolutionException | IllegalArtifactReferenceException
+                            | OsgiManifestParserException e) {
+                        //nothing we can use...
+                        getLog().debug("Bundle " + bundle + " was not found in target platform: " + e);
                     }
-                } catch (DependencyResolutionException | IllegalArtifactReferenceException
-                        | OsgiManifestParserException e) {
-                    //nothing we can use...
-                    getLog().debug("Bundle " + bundle + " was not found in target platform: " + e);
                 }
             }
         }
