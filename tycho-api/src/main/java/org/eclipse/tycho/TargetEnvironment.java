@@ -13,7 +13,6 @@
 package org.eclipse.tycho;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -88,7 +87,7 @@ public final class TargetEnvironment {
      * Returns the target environment as map. The keys are "osgi.ws", "osgi.os", and "osgi.arch".
      * This format is used by the p2 slicer to filter installable units by environments.
      * 
-     * @return a new instance of {@link HashMap} with the target environment set
+     * @return a new instance of {@link LinkedHashMap} with the target environment set
      */
     public Map<String, String> toFilterProperties() {
         //for nicer debug output, use an ordered map here
