@@ -36,6 +36,8 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ClasspathEntry;
@@ -43,6 +45,7 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ResolvedArtifactKey;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.TychoConstants;
@@ -141,6 +144,25 @@ public class TychoProjectManager {
             sink.setProfileConfiguration(configuredDefaultProfile,
                     "target-platform-configuration <executionEnvironmentDefault>");
         }
+    }
+
+    public List<IInstallableUnit> getContextIUs(MavenProject project) {
+        TargetPlatformConfiguration configuration = getTargetPlatformConfiguration(project);
+        return configuration.getEnvironments().stream().map(env -> getProfileProperties(env, configuration))
+                .map(InstallableUnit::contextIU).toList();
+    }
+
+    public Map<String, String> getProfileProperties(MavenProject project, TargetEnvironment environment) {
+        TargetPlatformConfiguration configuration = getTargetPlatformConfiguration(project);
+        return getProfileProperties(environment, configuration);
+    }
+
+    private Map<String, String> getProfileProperties(TargetEnvironment environment,
+            TargetPlatformConfiguration configuration) {
+        Map<String, String> properties = environment.toFilterProperties();
+        properties.put("org.eclipse.update.install.features", "true");
+        properties.putAll(configuration.getProfileProperties());
+        return properties;
     }
 
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenProject project) {
