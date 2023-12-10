@@ -152,7 +152,10 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		try {
 			ProjectDependencyClosure dependencyClosure;
 			try {
-				dependencyClosure = dependencyProcessor.computeProjectDependencyClosure(projects, session);
+				// here we don't use filters, the worst that can happen is that we get more
+				// projects to consider...
+				dependencyClosure = dependencyProcessor.computeProjectDependencyClosure(projects, session,
+						always -> List.of());
 			} catch (CoreException e) {
 				log.error("Cannot resolve projects", e);
 				return Result.error(graph, toProblems(e.getStatus(), new ArrayList<>()));

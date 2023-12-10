@@ -12,10 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -27,6 +31,7 @@ import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -76,36 +81,57 @@ public class InstallableUnitSlicer {
 	 * @param rootIus     the root {@link InstallableUnit}s to take into account
 	 * @param avaiableIUs the {@link IQueryable} of all units that could be used for
 	 *                    fulfilling a requirement
+	 * @param contextIUs  context IUs that represent the the profile properties to
+	 *                    consider during resolution, can be empty in which case a
+	 *                    filter is always considered a match
 	 * @return the result of the slicing
 	 * @throws CoreException if there is any error
 	 */
 	public IQueryResult<IInstallableUnit> computeDirectDependencies(Collection<IInstallableUnit> rootIus,
-			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
+			IQueryable<IInstallableUnit> avaiableIUs, Collection<IInstallableUnit> contextIUs) throws CoreException {
 		Collection<IInstallableUnit> result = new LinkedHashSet<>();
-		List<IRequirement> collect = rootIus.stream().flatMap(iu -> iu.getRequirements().stream()).filter(req -> {
-			for (IInstallableUnit unit : rootIus) {
-				if (unit.satisfies(req)) {
-					// self full filled requirement
-					return false;
+		Map<Boolean, List<IRequirement>> collect = rootIus.stream().flatMap(iu -> iu.getRequirements().stream())
+				.filter(req -> {
+					for (IInstallableUnit unit : rootIus) {
+						if (unit.satisfies(req)) {
+							// self full filled requirement
+							return false;
+						}
+					}
+					return isMatch(req.getFilter(), contextIUs);
+				}).collect(Collectors.partitioningBy(req -> req.getMax() == 0));
+		List<IRequirement> negativeRequirements = collect.get(true);
+		List<IRequirement> requirements = new ArrayList<>(collect.get(false));
+
+		for (IInstallableUnit iu : avaiableIUs.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet()) {
+			for (Iterator<IRequirement> iterator = requirements.iterator(); iterator.hasNext();) {
+				IRequirement requirement = iterator.next();
+				if (iu.satisfies(requirement)) {
+					result.add(iu);
+					if (requirement.getMax() == 1) {
+						// only one provider allowed
+						iterator.remove();
+					}
+					break;
 				}
 			}
-			return true;
-		}).toList();
-		for (IInstallableUnit iu : avaiableIUs.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet()) {
-			for (IRequirement requirement : collect) {
-				// Negative requirements should not create a dependency.
-				// If there is a filter, we need more context, e.g, see
-				// org.eclipse.equinox.internal.p2.director.Slicer.isApplicable(IRequirement)
-				// Failing that, we need to assume the filter isn't applicable.
-				if (requirement.getMax() != 0 && requirement.getFilter() == null && iu.satisfies(requirement)) {
-					result.add(iu);
-					// TODO remove the requirement from the set so we only collect exactly one
-					// provider for a requirement?
+			// now check if the IU satisfies any negative one, then we need to remove it
+			// from the set...
+			for (IRequirement requirement : negativeRequirements) {
+				if (iu.satisfies(requirement)) {
+					result.remove(iu);
 					break;
 				}
 			}
 		}
 		return new CollectionResult<>(result);
+	}
+
+	private boolean isMatch(IMatchExpression<IInstallableUnit> filter, Collection<IInstallableUnit> contextIUs) {
+		if (filter == null || contextIUs.isEmpty()) {
+			return true;
+		}
+		return contextIUs.stream().anyMatch(contextIU -> filter.isMatch(contextIU));
 	}
 
 	private final class TychoSlicer extends PermissiveSlicer {

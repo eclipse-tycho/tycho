@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -72,19 +73,25 @@ public class MavenProjectDependencyProcessor {
 	 * Computes the {@link ProjectDependencyClosure} of the given collection of
 	 * projects.
 	 * 
-	 * @param projects the projects to include in the closure
-	 * @param session  the maven session for this request
+	 * @param projects                  the projects to include in the closure
+	 * @param session                   the maven session for this request
+	 * @param profilePropertiesSupplier supplier of context IUs for a project that
+	 *                                  represent the the profile properties to
+	 *                                  consider during resolution, can be empty in
+	 *                                  which case a filter is always considered a
+	 *                                  match
 	 * @return the computed {@link ProjectDependencyClosure}
 	 * @throws CoreException if computation failed
 	 */
 	public ProjectDependencyClosure computeProjectDependencyClosure(Collection<MavenProject> projects,
-			MavenSession session) throws CoreException {
+			MavenSession session, Function<MavenProject, Collection<IInstallableUnit>> profilePropertiesSupplier)
+			throws CoreException {
 		Objects.requireNonNull(session);
 		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = generator.getInstallableUnits(projects, session);
 		Collection<IInstallableUnit> availableIUs = projectIUMap.values().stream().flatMap(Collection::stream)
 				.collect(Collectors.toSet());
 		Map<MavenProject, ProjectDependencies> projectDependenciesMap = computeProjectDependencies(projects,
-				new CollectionResult<>(availableIUs), projectIUMap);
+				new CollectionResult<>(availableIUs), projectIUMap, profilePropertiesSupplier);
 		Map<IInstallableUnit, MavenProject> iuProjectMap = new HashMap<>();
 		for (var entry : projectIUMap.entrySet()) {
 			MavenProject mavenProject = entry.getKey();
@@ -138,14 +145,15 @@ public class MavenProjectDependencyProcessor {
 	 * @throws CoreException if computation failed
 	 */
 	private Map<MavenProject, ProjectDependencies> computeProjectDependencies(Collection<MavenProject> projects,
-			IQueryable<IInstallableUnit> avaiableIUs, Map<MavenProject, Collection<IInstallableUnit>> projectIUMap)
+			IQueryable<IInstallableUnit> avaiableIUs, Map<MavenProject, Collection<IInstallableUnit>> projectIUMap,
+			Function<MavenProject, Collection<IInstallableUnit>> profilePropertiesSupplier)
 			throws CoreException {
 		List<CoreException> errors = new CopyOnWriteArrayList<>();
 		Map<MavenProject, ProjectDependencies> result = new ConcurrentHashMap<>();
 		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
 			try {
 				ProjectDependencies projectDependencies = computeProjectDependencies(projectIUMap.get(project),
-						avaiableIUs);
+						avaiableIUs, profilePropertiesSupplier.apply(project));
 				result.put(project, projectDependencies);
 				if (DUMP_DATA) {
 					File file = new File(project.getBasedir(), "project-dependencies.xml");
@@ -182,12 +190,13 @@ public class MavenProjectDependencyProcessor {
 	 * @throws CoreException if computation failed
 	 */
 	private ProjectDependencies computeProjectDependencies(Collection<IInstallableUnit> projectUnits,
-			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
+			IQueryable<IInstallableUnit> avaiableIUs, Collection<IInstallableUnit> profileProperties)
+			throws CoreException {
 		if (projectUnits.isEmpty()) {
 			return EMPTY_DEPENDENCIES;
 		}
 		Set<IInstallableUnit> resolved = new LinkedHashSet<>(
-				slicer.computeDirectDependencies(projectUnits, avaiableIUs).toSet());
+				slicer.computeDirectDependencies(projectUnits, avaiableIUs, profileProperties).toSet());
 		resolved.removeAll(projectUnits);
 		// now we need to filter all fragments that we are a host!
 		// for example SWT creates an explicit requirement to its fragments and we don't

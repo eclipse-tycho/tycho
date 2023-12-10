@@ -21,9 +21,7 @@ public class JustJCycleTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testCustomBundleParent() throws Exception {
 		Verifier verifier = getVerifier("justj-cycle");
-		verifier.setForkJvm(false);
-		verifier.setSystemProperty("user.home", System.getProperty("user.home"));
-		verifier.executeGoal("verify");
+		verifier.executeGoal("initialize");
 		verifier.verifyErrorFreeLog();
 	}
 }
