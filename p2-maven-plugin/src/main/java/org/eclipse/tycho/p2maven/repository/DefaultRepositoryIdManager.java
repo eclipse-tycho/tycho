@@ -118,9 +118,10 @@ public class DefaultRepositoryIdManager implements IRepositoryIdManager {
 
     @Override
 	public Stream<MavenRepositoryLocation> getKnownMavenRepositoryLocations() {
-        return knownMavenRepositoryIds.entrySet().stream()
-                .map(e -> new MavenRepositoryLocation(e.getValue(), e.getKey()));
-    }
+		// Returns both repository and mirror locations
+		return Stream.concat(knownMavenRepositoryIds.entrySet().stream()
+				.map(e -> new MavenRepositoryLocation(e.getValue(), e.getKey())), settings.getMirrors());
+	}
 
 	@Override
 	public MavenRepositorySettings getSettings() {
