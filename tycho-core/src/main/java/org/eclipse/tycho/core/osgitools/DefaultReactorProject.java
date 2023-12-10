@@ -104,6 +104,9 @@ public class DefaultReactorProject implements ReactorProject {
     }
 
     public static List<ReactorProject> adapt(MavenSession session) {
+        if (session == null) {
+            return List.of();
+        }
         ArrayList<ReactorProject> result = new ArrayList<>();
         for (MavenProject project : session.getProjects()) {
             ReactorProject reactorProject = adapt(project, session);

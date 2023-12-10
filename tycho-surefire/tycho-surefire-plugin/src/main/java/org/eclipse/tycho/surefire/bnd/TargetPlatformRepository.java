@@ -31,7 +31,6 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.resource.InstallableUnitResource;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
@@ -46,9 +45,9 @@ public class TargetPlatformRepository extends ResourcesRepository implements Rep
     private ReactorProject reactorProject;
     private TargetPlatform targetPlatform;
 
-    public TargetPlatformRepository(ReactorProject reactorProject) {
+    public TargetPlatformRepository(ReactorProject reactorProject, TargetPlatform targetPlatform) {
         this.reactorProject = reactorProject;
-        this.targetPlatform = TychoProjectUtils.getTargetPlatform(reactorProject);
+        this.targetPlatform = targetPlatform;
         IArtifactRepository artifactRepository = targetPlatform.getArtifactRepository();
         Set<IInstallableUnit> allUnits = targetPlatform.getMetadataRepository().query(QueryUtil.ALL_UNITS, null)
                 .toSet();
@@ -112,7 +111,6 @@ public class TargetPlatformRepository extends ResourcesRepository implements Rep
     @Override
     public SortedSet<Version> versions(String bsn) throws Exception {
         SortedSet<Version> set = new TreeSet<>();
-        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatformIfAvailable(reactorProject);
         for (IInstallableUnit iu : targetPlatform.getMetadataRepository().query(QueryUtil.createIUQuery(bsn), null)) {
             for (IArtifactKey artifactKey : iu.getArtifacts()) {
                 if (BundlesAction.OSGI_BUNDLE_CLASSIFIER.equals(artifactKey.getClassifier())) {

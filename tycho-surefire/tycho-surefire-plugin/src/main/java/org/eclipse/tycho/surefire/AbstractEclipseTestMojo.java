@@ -797,7 +797,9 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             }
 
         };
-        DependencyArtifacts testRuntimeArtifacts = dependencyResolver.resolveDependencies(session, project, null,
+        DependencyArtifacts testRuntimeArtifacts = dependencyResolver.resolveDependencies(session, project,
+                projectManager.getTargetPlatform(project)
+                        .orElseThrow(() -> new MojoExecutionException(TychoConstants.TYCHO_NOT_CONFIGURED + project)),
                 getReactorProjects(), resolverConfiguration, getTestTargetEnvironments());
         if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException(
