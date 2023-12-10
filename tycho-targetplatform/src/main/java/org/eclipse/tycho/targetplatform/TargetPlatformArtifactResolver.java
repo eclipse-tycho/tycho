@@ -92,23 +92,7 @@ public class TargetPlatformArtifactResolver {
             if (groupId.equals(project.getGroupId()) && artifactId.equals(project.getArtifactId())
                     && version.equals(project.getVersion())) {
 				if (classifier == null || classifier.isBlank()) {
-                    File[] targetFiles = TargetDefinitionFile
-                            .listTargetFiles(project.getBasedir());
-					if (targetFiles == null || targetFiles.length == 0) {
-						throw new TargetResolveException(
-								"No target definition file(s) found in project '" + project.getName() + "'.");
-					}
-					if (targetFiles.length == 1) {
-						return Optional.of(targetFiles[0]);
-					}
-                    for (File targetFile : targetFiles) {
-						String baseName = FilenameUtils.getBaseName(targetFile.getName());
-						if (baseName.equalsIgnoreCase(project.getArtifactId())) {
-							return Optional.of(targetFile);
-                        }
-                    }
-					throw new TargetResolveException("One target file must be named  '" + project.getArtifactId()
-							+ TargetDefinitionFile.FILE_EXTENSION + "' when multiple targets are present");
+					return Optional.of(getMainTargetFile(project));
                 } else {
                     File target = new File(project.getBasedir(),
                             classifier + TargetDefinitionFile.FILE_EXTENSION);
@@ -122,6 +106,26 @@ public class TargetPlatformArtifactResolver {
             }
         }
 		return Optional.empty();
+	}
+
+	public static File getMainTargetFile(MavenProject project) throws TargetResolveException {
+		File[] targetFiles = TargetDefinitionFile
+		        .listTargetFiles(project.getBasedir());
+		if (targetFiles == null || targetFiles.length == 0) {
+			throw new TargetResolveException(
+					"No target definition file(s) found in project '" + project.getName() + "'.");
+		}
+		if (targetFiles.length == 1) {
+			return targetFiles[0];
+		}
+		for (File targetFile : targetFiles) {
+			String baseName = FilenameUtils.getBaseName(targetFile.getName());
+			if (baseName.equalsIgnoreCase(project.getArtifactId())) {
+				return targetFile;
+		    }
+		}
+		throw new TargetResolveException("One target file must be named  '" + project.getArtifactId()
+				+ TargetDefinitionFile.FILE_EXTENSION + "' when multiple targets are present");
 	}
 
 }

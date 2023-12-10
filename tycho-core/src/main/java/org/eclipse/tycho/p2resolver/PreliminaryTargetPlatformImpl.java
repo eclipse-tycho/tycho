@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,6 +33,7 @@ import org.eclipse.tycho.core.resolver.target.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
+import org.eclipse.tycho.p2.repository.ProviderOnlyArtifactRepository;
 
 public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
@@ -53,6 +55,8 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     private final boolean includeLocalRepo;
 
+    private IArtifactRepository artifactRepository;
+
     public PreliminaryTargetPlatformImpl(Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs,
             Collection<IInstallableUnit> externalIUs, ExecutionEnvironmentResolutionHints executionEnvironment,
             TargetPlatformFilterEvaluator filter, LocalMetadataRepository localMetadataRepository,
@@ -65,6 +69,7 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
         this.localMetadataRepository = localMetadataRepository;
         this.includeLocalRepo = includeLocalRepo;
         this.logger = logger;
+        this.artifactRepository = new ProviderOnlyArtifactRepository(artifacts, null, URI.create("preliminary:/"));
     }
 
     public static LinkedHashSet<IInstallableUnit> collectAllInstallableUnits(
@@ -128,8 +133,7 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     @Override
     public IArtifactRepository getArtifactRepository() {
-        // the preliminary TP shall not be used to create build results, so this method is not needed
-        throw new UnsupportedOperationException();
+        return artifactRepository;
     }
 
 }

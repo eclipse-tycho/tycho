@@ -37,10 +37,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 
 /**
@@ -60,20 +60,24 @@ public class DependenciesTreeMojo extends AbstractMojo {
     @Component
     private LegacySupport legacySupport;
 
+    @Component
+    private TychoProjectManager projectManager;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         //TODO maybe we can compute a org.apache.maven.shared.dependency.graph.DependencyNode and reuse org.apache.maven.plugins.dependency.tree.TreeMojo wich has a getSerializingDependencyNodeVisitor
 
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        Optional<DependencyArtifacts> optional = TychoProjectUtils.getOptionalDependencyArtifacts(reactorProject);
-        if (optional.isEmpty()) {
+        Optional<TychoProject> tychoProject = projectManager.getTychoProject(project);
+        if (tychoProject.isEmpty()) {
             return;
         }
+
         Set<String> written = new HashSet<String>();
         written.add(project.getId());
         getLog().info(project.getId());
 
-        List<ArtifactDescriptor> artifacts = optional.get().getArtifacts();
+        List<ArtifactDescriptor> artifacts = tychoProject.get()
+                .getDependencyArtifacts(DefaultReactorProject.adapt(project)).getArtifacts();
         Map<IInstallableUnit, Set<ReactorProject>> projectMap = artifacts.stream()
                 .filter(a -> a.getMavenProject() != null).flatMap(a -> {
                     return a.getInstallableUnits().stream().map(iu -> new SimpleEntry<>(iu, a.getMavenProject()));
@@ -81,7 +85,6 @@ public class DependenciesTreeMojo extends AbstractMojo {
                 .collect(Collectors.groupingBy(Entry::getKey, Collectors.mapping(Entry::getValue, Collectors.toSet())));
         Set<IInstallableUnit> units = artifacts.stream().flatMap(d -> d.getInstallableUnits().stream())
                 .collect(Collectors.toCollection(HashSet::new));
-        reactorProject.getDependencyMetadata();
         List<IInstallableUnit> initial;
         try {
             initial = new ArrayList<IInstallableUnit>(
