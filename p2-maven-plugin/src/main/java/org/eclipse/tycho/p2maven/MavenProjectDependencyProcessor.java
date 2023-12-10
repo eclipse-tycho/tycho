@@ -44,6 +44,7 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -57,7 +58,7 @@ import org.eclipse.tycho.p2maven.io.MetadataIO;
 public class MavenProjectDependencyProcessor {
 
 	private static final ProjectDependencies EMPTY_DEPENDENCIES = new ProjectDependencies(Collections.emptyList(),
-			Collections.emptyList());
+			Collections.emptyList(), Map.of(), Set.of());
 
 	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump")
 			|| Boolean.getBoolean("tycho.p2.dump.dependencies");
@@ -72,13 +73,19 @@ public class MavenProjectDependencyProcessor {
 	 * Computes the {@link ProjectDependencyClosure} of the given collection of
 	 * projects.
 	 * 
-	 * @param projects the projects to include in the closure
-	 * @param session  the maven session for this request
+	 * @param projects                  the projects to include in the closure
+	 * @param session                   the maven session for this request
+	 * @param profilePropertiesSupplier supplier of context IUs for a project that
+	 *                                  represent the the profile properties to
+	 *                                  consider during resolution, can be empty in
+	 *                                  which case a filter is always considered a
+	 *                                  match
 	 * @return the computed {@link ProjectDependencyClosure}
 	 * @throws CoreException if computation failed
 	 */
 	public ProjectDependencyClosure computeProjectDependencyClosure(Collection<MavenProject> projects,
-			MavenSession session) throws CoreException {
+			MavenSession session)
+			throws CoreException {
 		Objects.requireNonNull(session);
 		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = generator.getInstallableUnits(projects, session);
 		Collection<IInstallableUnit> availableIUs = projectIUMap.values().stream().flatMap(Collection::stream)
@@ -144,7 +151,8 @@ public class MavenProjectDependencyProcessor {
 		Map<MavenProject, ProjectDependencies> result = new ConcurrentHashMap<>();
 		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
 			try {
-				ProjectDependencies projectDependencies = computeProjectDependencies(projectIUMap.get(project),
+				ProjectDependencies projectDependencies = computeProjectDependencies(
+						Set.copyOf(projectIUMap.get(project)),
 						avaiableIUs);
 				result.put(project, projectDependencies);
 				if (DUMP_DATA) {
@@ -181,17 +189,28 @@ public class MavenProjectDependencyProcessor {
 	 * @return the collection of dependent {@link InstallableUnit}s
 	 * @throws CoreException if computation failed
 	 */
-	private ProjectDependencies computeProjectDependencies(Collection<IInstallableUnit> projectUnits,
-			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
+	private ProjectDependencies computeProjectDependencies(Set<IInstallableUnit> projectUnits,
+			IQueryable<IInstallableUnit> avaiableIUs)
+			throws CoreException {
 		if (projectUnits.isEmpty()) {
 			return EMPTY_DEPENDENCIES;
 		}
-		Set<IInstallableUnit> resolved = new LinkedHashSet<>(
-				slicer.computeDirectDependencies(projectUnits, avaiableIUs).toSet());
-		resolved.removeAll(projectUnits);
+		Map<IRequirement, Collection<IInstallableUnit>> dependencies = slicer.computeDirectDependencies(projectUnits,
+				avaiableIUs);
+		// first collect the maximum desired number
+		Set<IInstallableUnit> resolved = new LinkedHashSet<>();
+		for (Entry<IRequirement, Collection<IInstallableUnit>> entry : dependencies.entrySet()) {
+			IRequirement requirement = entry.getKey();
+			Collection<IInstallableUnit> units = entry.getValue();
+			List<IInstallableUnit> limit = units.stream().filter(unit -> !projectUnits.contains(unit))
+					.limit(requirement.getMax()).toList();
+			resolved.addAll(limit);
+		}
 		// now we need to filter all fragments that we are a host!
 		// for example SWT creates an explicit requirement to its fragments and we don't
 		// want them included directly
+		// TODO reevaluate, this is where filters come into place we probabbly no longer
+		// need this part!
 		Set<IInstallableUnit> projectFragments = new HashSet<>();
 		for (Iterator<IInstallableUnit> iterator = resolved.iterator(); iterator.hasNext();) {
 			IInstallableUnit unit = iterator.next();
@@ -200,7 +219,7 @@ public class MavenProjectDependencyProcessor {
 				iterator.remove();
 			}
 		}
-		return new ProjectDependencies(resolved, projectFragments);
+		return new ProjectDependencies(resolved, projectFragments, dependencies, projectUnits);
 	}
 
 	private static boolean hasAnyHost(IInstallableUnit unit, Iterable<IInstallableUnit> collection) {
@@ -238,14 +257,27 @@ public class MavenProjectDependencyProcessor {
 		}).filter(Objects::nonNull);
 	}
 
+	private static boolean isMatch(IRequirement requirement, Collection<IInstallableUnit> contextIUs) {
+		IMatchExpression<IInstallableUnit> filter = requirement.getFilter();
+		if (filter == null || contextIUs.isEmpty()) {
+			return true;
+		}
+		return contextIUs.stream().anyMatch(contextIU -> filter.isMatch(contextIU));
+	}
+
 	public static final class ProjectDependencies {
 
 		private final Collection<IInstallableUnit> dependencies;
 		private final Collection<IInstallableUnit> fragments;
+		private Map<IRequirement, Collection<IInstallableUnit>> requirementsMap;
+		private Set<IInstallableUnit> projectUnits;
 
-		private ProjectDependencies(Collection<IInstallableUnit> dependencies, Collection<IInstallableUnit> fragments) {
+		ProjectDependencies(Collection<IInstallableUnit> dependencies, Collection<IInstallableUnit> fragments,
+				Map<IRequirement, Collection<IInstallableUnit>> requirementsMap, Set<IInstallableUnit> projectUnits) {
 			this.dependencies = dependencies;
 			this.fragments = fragments;
+			this.requirementsMap = requirementsMap;
+			this.projectUnits = projectUnits;
 		}
 
 		public Collection<IInstallableUnit> getDependencies() {
@@ -255,6 +287,14 @@ public class MavenProjectDependencyProcessor {
 		public Collection<IInstallableUnit> getFragments() {
 			return fragments;
 		}
+
+		public Collection<IInstallableUnit> getDependencies(Collection<IInstallableUnit> contextIUs) {
+			return requirementsMap.entrySet().stream().filter(entry -> isMatch(entry.getKey(), contextIUs))
+					.flatMap(entry -> entry.getValue().stream().filter(unit -> !projectUnits.contains(unit))
+							.limit(entry.getKey().getMax()))
+					.distinct().toList();
+		}
+
 
 	}
 
