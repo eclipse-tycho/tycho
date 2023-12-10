@@ -16,7 +16,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -26,10 +28,12 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.equinox.app.IApplication;
-import org.eclipse.equinox.internal.p2.director.app.DirectorApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.osgi.service.environment.EnvironmentInfo;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.CommandLineArguments;
+import org.eclipse.tycho.p2tools.TychoDirectorApplication;
 
 /**
  * Allows to run the <a href=
@@ -65,11 +69,14 @@ import org.eclipse.tycho.p2.CommandLineArguments;
  * </li>
  * </ol>
  */
-@Mojo(name = "director", defaultPhase = LifecyclePhase.NONE, threadSafe = true, requiresProject = false)
+@Mojo(name = "director", defaultPhase = LifecyclePhase.NONE, threadSafe = true, requiresProject = true)
 public class DirectorMojo extends AbstractMojo {
 
     @Component
     private IProvisioningAgent agent;
+
+    @Component
+    private IProvisioningAgentProvider agentProvider;
 
     /**
      * The folder in which the targeted product is located.
@@ -321,9 +328,6 @@ public class DirectorMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        //TODO should be able to control agent creation see https://github.com/eclipse-equinox/p2/pull/398
-        //Until now we need to fetch a service to trigger loading of the internal osgi framework...
-        agent.getService(IArtifactRepositoryManager.class);
         CommandLineArguments args = new CommandLineArguments();
         args.addNonNull("-destination", destination);
         args.addNonNull("-metadatarepository", metadatarepositories);
@@ -364,7 +368,7 @@ public class DirectorMojo extends AbstractMojo {
         args.addNonNull("-trustedAuthorities", trustedAuthorities);
         args.addNonNull("-trustedPGPKeys", trustedPGPKeys);
         args.addNonNull("-trustedCertificates", trustedCertificates);
-        Object exitCode = new DirectorApplication().run(args.toArray());
+        Object exitCode = new TychoDirectorApplication(agentProvider, agent).run(args.toArray());
         if (!(IApplication.EXIT_OK.equals(exitCode))) {
             throw new MojoFailureException("Call to p2 director application failed with exit code " + exitCode
                     + ". Program arguments were: '" + args + "'.");
@@ -395,8 +399,8 @@ public class DirectorMojo extends AbstractMojo {
                 list.add(iu.trim());
             }
         }
-        if (install != null) {
-            for (IU iu : install) {
+        if (units != null) {
+            for (IU iu : units) {
                 String id = iu.id;
                 if (iu.feature) {
                     id += ".feature.group";
