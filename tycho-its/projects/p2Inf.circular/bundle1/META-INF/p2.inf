@@ -1,0 +1,5 @@
+# Require build2 at runtime but not at builtime.
+requires.0.namespace=org.eclipse.equinox.p2.iu
+requires.0.name=circular.bundle2
+requires.0.range=0.0.0
+requires.0.filter = (!(org.eclipse.circular.buildtime=true))
