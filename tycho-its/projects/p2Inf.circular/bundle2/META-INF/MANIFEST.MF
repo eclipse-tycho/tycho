@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: circular.bundle2
+Bundle-SymbolicName: circular.bundle2;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: TEST
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: circular.bundle1
