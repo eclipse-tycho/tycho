@@ -28,6 +28,7 @@ import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.eclipserun.Repository;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 
 /**
  * Launch an eclipse process with arbitrary commandline arguments. The eclipse
@@ -43,6 +44,8 @@ public class EclipseRunMojo extends org.eclipse.tycho.eclipserun.EclipseRunMojo 
 
 	/**
 	 * Constructor for use of EclipseRunMojo in other Mojos.
+	 * 
+	 * @param platformFactory
 	 */
 	public EclipseRunMojo(File work, boolean clearWorkspaceBeforeLaunch, MavenProject project,
 			List<Dependency> dependencies, boolean addDefaultDependencies, String executionEnvironment,
@@ -50,10 +53,10 @@ public class EclipseRunMojo extends org.eclipse.tycho.eclipserun.EclipseRunMojo 
 			List<String> applicationArgs, int forkedProcessTimeoutInSeconds, Map<String, String> environmentVariables,
 			EquinoxInstallationFactory installationFactory, EquinoxLauncher launcher,
 			ToolchainProvider toolchainProvider, P2ResolverFactory resolverFactory, Logger logger,
-			ToolchainManager toolchainManager) {
+			ToolchainManager toolchainManager, TargetPlatformFactory platformFactory) {
 		super(work, clearWorkspaceBeforeLaunch, project, dependencies, addDefaultDependencies, executionEnvironment,
 				repositories, session, jvmArgs, skip, applicationArgs, forkedProcessTimeoutInSeconds,
 				environmentVariables, installationFactory, launcher, toolchainProvider, resolverFactory, logger,
-				toolchainManager);
+				toolchainManager, platformFactory);
 	}
 }

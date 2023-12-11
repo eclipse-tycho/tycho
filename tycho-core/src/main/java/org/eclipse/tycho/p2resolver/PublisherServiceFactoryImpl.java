@@ -19,7 +19,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.tools.publisher.PublishProductToolImpl;
@@ -39,9 +39,14 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
     @Requirement
     private ReactorRepositoryManager reactorRepoManager;
 
+    @Requirement
+    private TargetPlatformService targetPlatformService;
+
     @Override
     public PublisherService createPublisher(ReactorProject project, List<TargetEnvironment> environments) {
-        P2TargetPlatform targetPlatform = (P2TargetPlatform) getFinalTargetPlatform(project);
+        P2TargetPlatform targetPlatform = targetPlatformService.getTargetPlatform(project)
+                .filter(P2TargetPlatform.class::isInstance).map(P2TargetPlatform.class::cast)
+                .orElseThrow(() -> new IllegalStateException("Target platform is missing"));
         PublisherActionRunner publisherRunner = getPublisherRunnerForProject(targetPlatform, environments);
         PublishingRepository publishingRepository = reactorRepoManager.getPublishingRepository(project);
 
@@ -51,7 +56,9 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
     @Override
     public PublishProductTool createProductPublisher(ReactorProject project, List<TargetEnvironment> environments,
             String buildQualifier, Interpolator interpolator) {
-        P2TargetPlatform targetPlatform = (P2TargetPlatform) getFinalTargetPlatform(project);
+        P2TargetPlatform targetPlatform = targetPlatformService.getTargetPlatform(project)
+                .filter(P2TargetPlatform.class::isInstance).map(P2TargetPlatform.class::cast)
+                .orElseThrow(() -> new IllegalStateException("Target platform is missing"));
         PublisherActionRunner publisherRunner = getPublisherRunnerForProject(targetPlatform, environments);
         PublishingRepository publishingRepository = reactorRepoManager.getPublishingRepository(project);
 
@@ -59,40 +66,10 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
                 interpolator, mavenContext.getLogger());
     }
 
-    /**
-     * Returns the target platform with final p2 metadata for the given project.
-     */
-    private TargetPlatform getFinalTargetPlatform(ReactorProject project) {
-        TargetPlatform targetPlatform = (TargetPlatform) project
-                .getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
-        if (targetPlatform == null) {
-            throw new IllegalStateException("Target platform is missing");
-        }
-        return targetPlatform;
-    }
-
     private PublisherActionRunner getPublisherRunnerForProject(P2TargetPlatform targetPlatform,
             List<TargetEnvironment> environments) {
-        checkCollaborators();
-
         return new PublisherActionRunner(targetPlatform.getMetadataRepository(), environments,
                 mavenContext.getLogger());
-    }
-
-    // setters for DS
-
-    public void setMavenContext(MavenContext mavenContext) {
-        this.mavenContext = mavenContext;
-    }
-
-    public void setReactorRepositoryManager(ReactorRepositoryManager reactorRepoManager) {
-        this.reactorRepoManager = reactorRepoManager;
-    }
-
-    private void checkCollaborators() {
-        if (mavenContext == null || reactorRepoManager == null) {
-            throw new IllegalStateException(); // shoudn't happen; see OSGI-INF/publisherfactory.xml
-        }
     }
 
 }

@@ -36,6 +36,7 @@ import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 
 /**
  * Component that resolves all the bundles that make up an Eclipse Application to run from a given
@@ -50,6 +51,9 @@ public class EclipseApplicationFactory {
 
     @Requirement
     private P2ResolverFactory resolverFactory;
+
+    @Requirement
+    private TargetPlatformFactory platformFactory;
 
     @Requirement
     private Logger logger;
@@ -88,8 +92,7 @@ public class EclipseApplicationFactory {
         ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger, false,
                 toolchainManager, mavenSession);
         eeConfiguration.setProfileConfiguration("JavaSE-" + javaVersion, "tycho-eclipse-application-resolver");
-        TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration,
-                eeConfiguration, null);
+        TargetPlatform targetPlatform = platformFactory.createTargetPlatform(tpConfiguration, eeConfiguration, null);
         return targetPlatform;
     }
 

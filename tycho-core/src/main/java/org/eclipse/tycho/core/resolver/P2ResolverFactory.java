@@ -21,7 +21,6 @@ import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 
 public interface P2ResolverFactory {
 
@@ -30,9 +29,6 @@ public interface P2ResolverFactory {
      */
     // TODO move to a PomDependencyCollectorFactory interface?
     public PomDependencyCollector newPomDependencyCollector(ReactorProject project);
-
-    // TODO directly register as service
-    public TargetPlatformFactory getTargetPlatformFactory();
 
     /**
      * Create a resolver for the given environments
