@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import java.io.File;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,19 +52,12 @@ import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
-import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
-import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 
 @Component(role = P2ResolverFactory.class)
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
-
-    // TODO cache these instances in an p2 agent, and not here
-    private LocalMetadataRepository localMetadataRepository;
-    private LocalArtifactRepository localArtifactRepository;
 
     @Requirement
     IProvisioningAgent agent;
@@ -93,26 +85,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     @Requirement
     private MavenBundleResolver bundleResolver;
 
-    private synchronized LocalMetadataRepository getLocalMetadataRepository(MavenContext context,
-            LocalRepositoryP2Indices localRepoIndices) {
-        if (localMetadataRepository == null) {
-            File localMavenRepoRoot = context.getLocalRepositoryRoot();
-            RepositoryReader contentLocator = new LocalRepositoryReader(context);
-            localMetadataRepository = new LocalMetadataRepository(getAgent(), localMavenRepoRoot.toURI(),
-                    localRepoIndices.getMetadataIndex(), contentLocator);
-
-        }
-        return localMetadataRepository;
-    }
-
-    private synchronized LocalArtifactRepository getLocalArtifactRepository(MavenContext mavenContext,
-            LocalRepositoryP2Indices localRepoIndices) {
-        if (localArtifactRepository == null) {
-            RepositoryReader contentLocator = new LocalRepositoryReader(mavenContext);
-            localArtifactRepository = new LocalArtifactRepository(getAgent(), localRepoIndices, contentLocator);
-        }
-        return localArtifactRepository;
-    }
+    @Requirement
+    private TargetPlatformFactory targetPlatformFactory;
 
     private IProvisioningAgent getAgent() {
         //force triggering service loads... just in case not initialized yet ...
@@ -130,17 +104,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     }
 
     @Override
-    public TargetPlatformFactoryImpl getTargetPlatformFactory() {
-        // TODO should be plexus-components!
-        LocalMetadataRepository localMetadataRepo = getLocalMetadataRepository(mavenContext, localRepoIndices);
-        LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(mavenContext, localRepoIndices);
-        return new TargetPlatformFactoryImpl(mavenContext, agent, localArtifactRepo, localMetadataRepo,
-                targetDefinitionResolverService, repositoryIdManager, projectManager, bundleResolver);
-    }
-
-    @Override
     public P2Resolver createResolver(Collection<TargetEnvironment> environments) {
-        return new P2ResolverImpl(getTargetPlatformFactory(), this, mavenContext.getLogger(), environments);
+        return new P2ResolverImpl(targetPlatformFactory, this, mavenContext.getLogger(), environments);
     }
 
     public Set<IInstallableUnit> calculateDependencyFragments(ResolutionData data,

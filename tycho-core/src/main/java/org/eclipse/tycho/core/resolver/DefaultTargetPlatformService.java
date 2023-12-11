@@ -55,10 +55,12 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
     private DependencyResolver dependencyResolver;
 
     @Requirement
-    ReactorRepositoryManager repositoryManager;
+    private ReactorRepositoryManager repositoryManager;
 
     @Requirement
-    P2ResolverFactory p2ResolverFactory;
+    private P2ResolverFactory p2ResolverFactory;
+
+    @Requirement
     private TargetPlatformFactory tpFactory;
 
     @Override
@@ -125,8 +127,8 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
 
             }
             List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
-            TargetPlatform result = getTpFactory().createTargetPlatformWithUpdatedReactorContent(
-                    preliminaryTargetPlatform, upstreamProjectResults, pomDependencyCollector);
+            TargetPlatform result = tpFactory.createTargetPlatformWithUpdatedReactorContent(preliminaryTargetPlatform,
+                    upstreamProjectResults, pomDependencyCollector);
 
             project.setContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY, result);
             return result;
@@ -139,13 +141,6 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
             results.add(repositoryManager.getPublishingRepository(project));
         }
         return results;
-    }
-
-    public synchronized TargetPlatformFactory getTpFactory() {
-        if (tpFactory == null) {
-            tpFactory = p2ResolverFactory.getTargetPlatformFactory();
-        }
-        return tpFactory;
     }
 
     private PreliminaryTargetPlatformImpl getRegisteredPreliminaryTargetPlatform(ReactorProject project) {

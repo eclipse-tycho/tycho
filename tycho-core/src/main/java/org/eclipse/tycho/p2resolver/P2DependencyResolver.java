@@ -28,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -140,6 +141,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
     @Requirement
     private MavenDependenciesResolver dependenciesResolver;
 
+    @Requirement
     private TargetPlatformFactory tpFactory;
 
     @Requirement
@@ -218,17 +220,10 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
             tpConfiguration
                     .setIgnoreLocalArtifacts(configuration.getIgnoreLocalArtifacts() == LocalArtifactHandling.ignore);
             tpConfiguration.setReferencedRepositoryMode(configuration.getReferencedRepositoryMode());
-            TargetPlatform result = getTpFactory().createTargetPlatform(tpConfiguration, ee, reactorProjects,
+            TargetPlatform result = tpFactory.createTargetPlatform(tpConfiguration, ee, reactorProjects,
                     reactorProject);
             return result;
         });
-    }
-
-    private synchronized TargetPlatformFactory getTpFactory() {
-        if (tpFactory == null) {
-            tpFactory = resolverFactory.getTargetPlatformFactory();
-        }
-        return tpFactory;
     }
 
     private ReactorProject getThisReactorProject(MavenSession session, MavenProject project,
