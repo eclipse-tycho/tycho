@@ -19,23 +19,31 @@ package org.eclipse.tycho.core.shared;
  */
 public interface MavenLogger {
 
-    public void error(String message);
+    default void error(String message) {
+        error(message, null);
+    }
 
-    public void error(String message, Throwable cause);
+    default void warn(String message) {
+        warn(message, null);
+    }
 
-    public void warn(String message);
+    default void debug(String message) {
+        debug(message, null);
+    }
 
-    public void warn(String message, Throwable cause);
+    void error(String message, Throwable cause);
 
-    public void info(String message);
+    void warn(String message, Throwable cause);
 
-    public void debug(String message);
+    void info(String message);
 
-    public void debug(String message, Throwable cause);
+    void debug(String message, Throwable cause);
 
-    public boolean isDebugEnabled();
+    boolean isDebugEnabled();
 
-    public boolean isExtendedDebugEnabled();
+    default boolean isExtendedDebugEnabled() {
+        return false;
+    }
 
     <T> T adapt(Class<T> adapt);
 
