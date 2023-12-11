@@ -25,13 +25,13 @@ public class ExplodedTestDependenciesTest extends AbstractTychoIntegrationTest {
 	public void testLocalMavenRepository() throws Exception {
 		// project that marks org.apache.ant as "exploded" (unpacked) for the test
 		// runtime -> supported since TYCHO-340
-		Verifier v01 = getVerifier("surefire.bundleUnpack", true);
+		Verifier v01 = getVerifier("surefire.bundleUnpack");
 		v01.executeGoal("install");
 		v01.verifyErrorFreeLog();
 		// TODO this is only an indirect test; it should test that the bundles nested
 		// jars are accessible as file URLs
 		File antHome = new File(v01.getBasedir(),
-				"tycho340.test/target/work/plugins/org.apache.ant_1.10.12.v20211102-1452");
+				"tycho340.test/target/work/plugins/org.apache.ant_1.10.14.v20230922-1200");
 		Assert.assertTrue(antHome.isDirectory());
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2023 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 
 /**
@@ -35,8 +36,6 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 public class EnvironmentUtil {
 
     private static final String MAVEN_HOME_INFO = "Maven home:";
-
-    public static final String ECLIPSE_LATEST = "https:////download.eclipse.org/releases/2023-09/";
 
     private static final Properties props;
 
@@ -85,7 +84,7 @@ public class EnvironmentUtil {
     }
 
     public static String getTargetPlatform() {
-        return ECLIPSE_LATEST;
+        return TychoConstants.ECLIPSE_LATEST;
     }
 
     public static String getTestSettings() {
