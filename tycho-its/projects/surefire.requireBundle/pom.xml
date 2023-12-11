@@ -19,7 +19,7 @@
 		<repository>
 			<id>oxygen</id>
 			<layout>p2</layout>
-			<url>${oxygen-repo}</url>
+			<url>${target-platform}</url>
 		</repository>
 	</repositories>
 

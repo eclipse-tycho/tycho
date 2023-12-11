@@ -11,10 +11,6 @@
     <module>tycho340.test</module>
   </modules>
 
-  <properties>
-    <target-platform>http://download.eclipse.org/releases/latest</target-platform>
-  </properties>
-
   <repositories>
     <repository>
       <id>p2</id>
@@ -35,9 +31,6 @@
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>target-platform-configuration</artifactId>
         <version>${tycho-version}</version>
-        <configuration>
-          <resolver>p2</resolver>
-        </configuration>
       </plugin>
     </plugins>
   </build>

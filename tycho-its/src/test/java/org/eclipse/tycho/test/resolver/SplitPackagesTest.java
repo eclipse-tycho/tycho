@@ -11,7 +11,6 @@ package org.eclipse.tycho.test.resolver;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class SplitPackagesTest extends AbstractTychoIntegrationTest {
@@ -19,7 +18,6 @@ public class SplitPackagesTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testSplitPackage() throws Exception {
 		Verifier verifier = getVerifier("/resolver.split/org.eclipse.equinox.security");
-		verifier.addCliOption("-Drepo=" + P2Repositories.ECLIPSE_LATEST.toString());
 		verifier.executeGoal("compile");
 		verifier.verifyErrorFreeLog();
 	}

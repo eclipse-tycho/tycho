@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 Christoph Läubrich and others.
+ * Copyright (c) 2021, 2023 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.EnvironmentUtil;
 import org.junit.Test;
 
 public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
@@ -76,7 +76,7 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testDSComponents() throws Exception {
 		Verifier verifier = getVerifier("tycho-ds", false, true);
-		verifier.setSystemProperty("repo-url", EnvironmentUtil.ECLIPSE_LATEST);
+		verifier.setSystemProperty("repo-url", TychoConstants.ECLIPSE_LATEST);
 		// first test to consume from target platform
 		verifyDs(verifier);
 		// now test consume from maven directly
