@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2023 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -52,13 +52,13 @@ public class Feature {
      */
     public static final String MATCH_GREATER_OR_EQUAL = "greaterOrEqual";
     /**
-     * dependent plug-in version must be at least at the version specified, or at a higher service
-     * level or minor level (major version level must equal the specified version).
+     * dependent plug-in version must be at least at the version specified, or at a higher service level
+     * or minor level (major version level must equal the specified version).
      */
     public static final String MATCH_COMPATIBLE = "compatible";
     /**
-     * dependent plug-in version must be at least at the version specified, or at a higher service
-     * level (major and minor version levels must equal the specified version).
+     * dependent plug-in version must be at least at the version specified, or at a higher service level
+     * (major and minor version levels must equal the specified version).
      */
     public static final String MATCH_EQUIVALENT = "equivalent";
     /**
@@ -316,7 +316,7 @@ public class Feature {
      * Convenience method to load feature.xml file from either feature jar file or directory.
      * 
      * @throws RuntimeException
-     *             if feature descriptor can not be read or parsed.
+     *                              if feature descriptor can not be read or parsed.
      */
     public static Feature loadFeature(File location) {
         try {
@@ -564,17 +564,5 @@ public class Feature {
             featureJar.addContentCapability(source.toURI(), sha256, source.length(), "application/eclipse-feature");
         }
         return featureJar.build();
-    }
-
-    private boolean isVersionedRef(ImportRef importRef) {
-        String version = importRef.getVersion();
-        if (version == null || version.isEmpty()) {
-            return false;
-        }
-        String match = importRef.getMatch();
-        if (match == null || match.isEmpty()) {
-            return false;
-        }
-        return true;
     }
 }

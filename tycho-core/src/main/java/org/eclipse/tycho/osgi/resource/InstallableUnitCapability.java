@@ -33,7 +33,6 @@ import org.osgi.resource.Resource;
  */
 public class InstallableUnitCapability implements Capability {
 
-    private static final String P2_NS_IDENTITY = "osgi.identity";
     private IProvidedCapability capability;
     private InstallableUnitResource resource;
     private Map<String, Object> attributes;

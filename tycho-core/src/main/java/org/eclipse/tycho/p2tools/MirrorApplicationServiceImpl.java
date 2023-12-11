@@ -162,7 +162,6 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         mirrorApp.setIncludeSources(includeAllSource, sources.getTargetPlatform());
         mirrorApp.setIncludeRequiredBundles(includeRequiredBundles);
         mirrorApp.setIncludeRequiredFeatures(includeRequiredFeatures);
-        mirrorApp.setIncludePacked(false); // no way, Tycho do no longer support packed artifacts anyways
         mirrorApp.setFilterProvided(filterProvided);
         mirrorApp.setAddOnlyProvidingRepoReferences(addOnlyProvidingRepoReferences);
         mirrorApp.setEnvironments(context.getEnvironments());
@@ -360,7 +359,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     }
 
-    private final class MappingRule {
+    private static final class MappingRule {
         public final String filter;
         public final String urlPattern;
 

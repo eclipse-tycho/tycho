@@ -330,7 +330,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * And a configuration:
      * 
      * &lt;configuration&gt;
-     *   &lt;logEnabled&gt;true&lt;/logEnabled&gt;
      *   &lt;logDirectory&gt;${project.build.directory}/logfiles&lt;/logDirectory&gt;
      *   &lt;log&gt;xml&lt;/log&gt; 
      * &lt;/configuration&gt;
@@ -883,12 +882,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     @Override
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         List<ClasspathEntry> classpath;
         String dependencyScope = getDependencyScope();
         if (Artifact.SCOPE_TEST.equals(dependencyScope)) {
             classpath = new ArrayList<>(getBundleProject().getTestClasspath(DefaultReactorProject.adapt(project)));
         } else {
+            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
             classpath = new ArrayList<>(getBundleProject().getClasspath(reactorProject));
         }
         if (extraClasspathElements != null) {
@@ -940,7 +939,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                 }
             }
         }
-        List<ClasspathEntry> uniqueClasspath = classpathMap.entrySet().stream().flatMap(entry -> {
+        return classpathMap.entrySet().stream().flatMap(entry -> {
             List<ClasspathEntry> list = entry.getValue();
             if (list.isEmpty()) {
                 return Stream.empty();
@@ -949,7 +948,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                 return list.stream();
             }
             ArtifactKey key = entry.getKey();
-            ReactorProject compositeProject = findProjectForKey(reactorProject, key);
+            ReactorProject compositeProject = findProjectForKey(key);
             List<File> compositeFiles = list.stream().flatMap(cpe -> cpe.getLocations().stream()).toList();
             Collection<AccessRule> compositeRules = mergeRules(list);
             return Stream.of(new ClasspathEntry() {
@@ -984,7 +983,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
             });
         }).toList();
-        return uniqueClasspath;
     }
 
     private ArtifactKey normalizedKey(ArtifactKey key) {
@@ -1014,7 +1012,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return joinedRules;
     }
 
-    private ReactorProject findProjectForKey(ReactorProject root, ArtifactKey key) {
+    private ReactorProject findProjectForKey(ArtifactKey key) {
         for (MavenProject p : session.getProjects()) {
             ReactorProject rp = DefaultReactorProject.adapt(p);
             try {

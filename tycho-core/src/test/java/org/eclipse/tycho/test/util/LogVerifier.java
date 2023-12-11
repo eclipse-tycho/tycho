@@ -38,7 +38,7 @@ public class LogVerifier extends Verifier {
 
     private static boolean WRITE_TO_CONSOLE = false;
 
-    private class MemoryLog implements Logger {
+    private static class MemoryLog implements Logger {
 
         final StringBuilder errors = new StringBuilder();
         final StringBuilder warnings = new StringBuilder();

@@ -12,8 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
-import java.io.File;
-import java.io.FileFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.toolchain.java.JavaToolchain;
@@ -21,10 +22,10 @@ import org.eclipse.tycho.TargetEnvironment;
 
 final class JavaHomeToolchain implements JavaToolchain {
 
-    private String javaHome;
+    private Path javaHome;
 
     public JavaHomeToolchain(String javaHome) {
-        this.javaHome = javaHome;
+        this.javaHome = Path.of(javaHome).toAbsolutePath();
     }
 
     @Override
@@ -34,35 +35,25 @@ final class JavaHomeToolchain implements JavaToolchain {
 
     @Override
     public String findTool(String toolName) {
-        File bin = new File(javaHome, "bin");
-        if (bin.exists()) {
-            File tool;
-            if (TargetEnvironment.getRunningEnvironment().isWindows()) {
-                tool = new File(bin, toolName + ".exe");
-            } else {
-                tool = new File(bin, toolName);
-            }
-            if (tool.exists()) {
-                return tool.getAbsolutePath();
+        Path bin = javaHome.resolve("bin");
+        if (Files.isDirectory(bin)) {
+            Path tool = bin.resolve(toolName + (TargetEnvironment.getRunningEnvironment().isWindows() ? ".exe" : ""));
+            if (Files.isRegularFile(tool)) {
+                return tool.toString();
             }
             //last resort just in case other extension or case-sensitive file-system...
-            File[] listFiles = bin.listFiles(new FileFilter() {
-
-                @Override
-                public boolean accept(File pathname) {
-                    return pathname.isFile()
-                            && FilenameUtils.getBaseName(pathname.getName().toLowerCase()).equals(toolName);
-                }
-            });
-            if (listFiles != null && listFiles.length > 0) {
-                return listFiles[0].getAbsolutePath();
+            try (var files = Files.list(bin).filter(Files::isRegularFile)) {
+                return files.map(Path::toString)
+                        .filter(pathname -> FilenameUtils.getBaseName(pathname).equalsIgnoreCase(toolName)).findFirst()
+                        .orElse(null);
+            } catch (IOException e) {
             }
         }
         return null;
     }
 
     public String getJavaHome() {
-        return javaHome;
+        return javaHome.toString();
     }
 
     @Override

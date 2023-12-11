@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP SE and others.
+ * Copyright (c) 2011, 2023 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,29 +13,21 @@
 
 package org.eclipse.tycho.test.util;
 
+import java.io.Closeable;
 import java.io.File;
 
 import org.eclipse.tycho.FileLockService;
-import org.eclipse.tycho.FileLocker;
-import org.eclipse.tycho.LockTimeoutException;
 
 public class NoopFileLockService implements FileLockService {
 
     @Override
-    public FileLocker getFileLocker(File file) {
-        return new FileLocker() {
+    public Closeable lock(File file, long timeout) {
+        return lockVirtually(file);
+    }
 
-            @Override
-            public void release() {
-            }
-
-            @Override
-            public void lock() {
-            }
-
-            @Override
-            public void lock(long timeout) throws LockTimeoutException {
-            }
+    @Override
+    public Closeable lockVirtually(File file) {
+        return () -> {
         };
     }
 

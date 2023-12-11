@@ -27,7 +27,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.tycho.FileLockService;
-import org.eclipse.tycho.FileLocker;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
 
 public class LocalMavenRepositoryTool {
@@ -59,12 +58,8 @@ public class LocalMavenRepositoryTool {
 
 	public Set<String> getArtifactIndexLines() throws IOException {
 		File indexFile = getArtifactIndexFile();
-		FileLocker locker = fileLockService.getFileLocker(indexFile);
-		locker.lock();
-		try {
+		try (var locked = fileLockService.lock(indexFile)) {
 			return readLines(indexFile);
-		} finally {
-			locker.release();
 		}
 	}
 
@@ -95,14 +90,10 @@ public class LocalMavenRepositoryTool {
 
 	private void filterLinesFromIndex(File indexFile, Set<String> toBeRemoved)
 			throws FileNotFoundException, IOException {
-		FileLocker locker = fileLockService.getFileLocker(indexFile);
-		locker.lock();
-		try {
+		try (var locked = fileLockService.lock(indexFile)) {
 			Set<String> currentLines = readLines(indexFile);
 			currentLines.removeAll(toBeRemoved);
 			writeLines(indexFile, currentLines);
-		} finally {
-			locker.release();
 		}
 	}
 
