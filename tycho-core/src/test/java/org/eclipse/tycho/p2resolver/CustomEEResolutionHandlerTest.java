@@ -24,17 +24,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.ExecutionEnvironment;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.SystemCapability;
 import org.eclipse.tycho.SystemCapability.Type;
-import org.eclipse.tycho.core.resolver.MavenTargetLocationFactory;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.test.util.TestResolverFactory;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,8 +47,7 @@ public class CustomEEResolutionHandlerTest extends TychoPlexusTestCase {
 
     @Before
     public void setUpContext() throws Exception {
-        tpFactory = new TestResolverFactory(logVerifier.getMavenLogger(), logVerifier.getLogger(),
-                lookup(IProvisioningAgent.class), lookup(MavenTargetLocationFactory.class)).getTargetPlatformFactory();
+        tpFactory = lookup(TargetPlatformFactory.class);
         tpConfig = new TargetPlatformConfigurationStub();
     }
 

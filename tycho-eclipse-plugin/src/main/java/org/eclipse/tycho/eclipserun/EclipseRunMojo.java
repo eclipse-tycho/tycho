@@ -57,6 +57,7 @@ import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 
 /**
  * Launch an eclipse process with arbitrary commandline arguments. The eclipse
@@ -265,6 +266,9 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Component
 	private ToolchainManager toolchainManager;
 
+	@Component
+	private TargetPlatformFactory platformFactory;
+
 	public EclipseRunMojo() {
 		// default constructor
 	}
@@ -278,7 +282,7 @@ public class EclipseRunMojo extends AbstractMojo {
 			List<String> applicationArgs, int forkedProcessTimeoutInSeconds, Map<String, String> environmentVariables,
 			EquinoxInstallationFactory installationFactory, EquinoxLauncher launcher,
 			ToolchainProvider toolchainProvider, P2ResolverFactory resolverFactory, Logger logger,
-			ToolchainManager toolchainManager) {
+			ToolchainManager toolchainManager, TargetPlatformFactory platformFactory) {
 		this.work = work;
 		this.clearWorkspaceBeforeLaunch = clearWorkspaceBeforeLaunch;
 		this.project = project;
@@ -298,6 +302,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		this.resolverFactory = resolverFactory;
 		this.logger = logger;
 		this.toolchainManager = toolchainManager;
+		this.platformFactory = platformFactory;
 	}
 
 	@Override
@@ -340,8 +345,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger, false,
 				toolchainManager, session);
 		eeConfiguration.setProfileConfiguration(executionEnvironment, "tycho-eclipserun-plugin <executionEnvironment>");
-		TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration,
-				eeConfiguration, null);
+		TargetPlatform targetPlatform = platformFactory.createTargetPlatform(tpConfiguration, eeConfiguration, null);
 		P2Resolver resolver = resolverFactory
 				.createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
 		for (Dependency dependency : dependencies) {
