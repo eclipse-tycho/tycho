@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2023 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -119,7 +119,7 @@ public abstract class AbstractTychoIntegrationTest {
         tmpDir.mkdirs();
         verifier.addCliOption("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
         if (setTargetPlatform) {
-            verifier.addCliOption("-Dtarget-platform=" + getTargetPlatform());
+            verifier.addCliOption("-Dtarget-platform=" + getTargetPlatform().replace("/", "//"));
         }
         if (ignoreLocalArtifacts) {
             verifier.addCliOption("-Dtycho.localArtifacts=ignore");

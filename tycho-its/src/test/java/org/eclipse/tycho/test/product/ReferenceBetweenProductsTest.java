@@ -22,15 +22,13 @@ import java.io.File;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
-import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class ReferenceBetweenProductsTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testProductCanReferenceProductFromDifferentModule() throws Exception {
-		Verifier verifier = getVerifier("product.crossReference", false);
-		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		Verifier verifier = getVerifier("product.crossReference");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 
