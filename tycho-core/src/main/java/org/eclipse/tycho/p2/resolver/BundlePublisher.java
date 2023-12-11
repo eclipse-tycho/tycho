@@ -19,15 +19,24 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import org.apache.commons.io.FileUtils;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
 import org.osgi.framework.BundleException;
@@ -79,6 +88,44 @@ public class BundlePublisher extends BundlesAction {
             }
         }
         return iu;
+    }
+
+    /**
+     * Creates a new bundle repository at the given location, if the location already exits it is
+     * deleted before performing the operation.
+     * 
+     * @param repositoryLocation
+     *            the location where the repository should be stored
+     * @param name
+     *            the name of the repository
+     * @param files
+     *            the files to consider as bundles to be installed in the new repository
+     * @param monitor
+     *            the monitor to use for the operation
+     * @throws ProvisionException
+     *             if creation of the repository failed
+     */
+    public static void createBundleRepository(File repositoryLocation, String name, File[] files,
+            IProgressMonitor monitor) throws ProvisionException {
+        if (repositoryLocation.exists()) {
+            FileUtils.deleteQuietly(repositoryLocation);
+        }
+        SimpleMetadataRepositoryFactory metadataRepositoryFactory = new SimpleMetadataRepositoryFactory();
+        SimpleArtifactRepositoryFactory artifactRepositoryFactory = new SimpleArtifactRepositoryFactory();
+        IArtifactRepository artifactRepository = artifactRepositoryFactory.create(repositoryLocation.toURI(), name,
+                null, Map.of());
+        IMetadataRepository metadataRepository = metadataRepositoryFactory.create(repositoryLocation.toURI(), name,
+                null, Map.of());
+        metadataRepository.executeBatch(m1 -> {
+            artifactRepository.executeBatch(m2 -> {
+                PublisherInfo publisherInfo = new PublisherInfo();
+                publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
+                publisherInfo.setArtifactRepository(artifactRepository);
+                publisherInfo.setMetadataRepository(metadataRepository);
+                Publisher publisher = new Publisher(publisherInfo);
+                publisher.publish(new IPublisherAction[] { new BundlesAction(files) }, m2);
+            }, m1);
+        }, monitor);
     }
 
 }
