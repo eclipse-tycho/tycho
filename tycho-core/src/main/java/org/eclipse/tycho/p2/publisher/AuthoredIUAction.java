@@ -29,7 +29,6 @@ import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
-import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -39,7 +38,7 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.repository.MetadataIO;
 
-public class AuthoredIUAction extends AbstractPublisherAction implements IPublisherAction {
+public class AuthoredIUAction extends AbstractPublisherAction {
     public static final String IU_TYPE = "org.eclipse.equinox.p2.type.iu";
 
     public File iuProject;

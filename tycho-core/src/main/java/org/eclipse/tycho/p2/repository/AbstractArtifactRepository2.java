@@ -233,7 +233,7 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
         }
     }
 
-    private class CommittingArtifactOutputStream extends OutputStream implements IStateful {
+    private static class CommittingArtifactOutputStream extends OutputStream implements IStateful {
         final IArtifactSink artifactSink;
         final OutputStream artifactOutputStream;
 

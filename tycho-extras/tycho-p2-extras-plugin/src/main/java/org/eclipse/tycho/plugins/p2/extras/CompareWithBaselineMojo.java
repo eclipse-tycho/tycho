@@ -30,8 +30,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
@@ -52,16 +52,16 @@ import org.osgi.framework.Version;
  * This mojo compares versions the output artifacts of your module build with the version of the
  * same artifacts available in configured baselines, in order to detect version inconsistencies
  * (version moved back, or not correctly bumped since last release).
- * 
+ *
  * Rules for "illegal" versions are:
  * <li>version decreased compared to baseline</li>
  * <li>same fully-qualified version as baseline, but with different binary content</li>
  * <li>same major.minor.micro as baseline, with different qualifier (at least micro should be
  * increased)</li>
- * 
+ *
  * This mojo doesn't allow to use qualifier as a versioning segment and will most likely drive to
  * false-positive errors if your qualifier has means to show versioniterations.
- * 
+ *
  * @author mistria
  */
 @Mojo(defaultPhase = LifecyclePhase.VERIFY, requiresProject = false, name = "compare-version-with-baselines", threadSafe = true)
@@ -87,14 +87,14 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     /**
      * A list of file path patterns that are ignored when comparing the build artifact against the
      * baseline version.
-     * 
+     *
      * {@code
      * <ignoredPatterns>
      *   <pattern>META-INF/ECLIPSE_.RSA<pattern>
      *   <pattern>META-INF/ECLIPSE_.SF</pattern>
      * </ignoredPatterns>
      * }
-     * 
+     *
      */
     @Parameter
     private List<String> ignoredPatterns;
@@ -169,7 +169,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                     getLog().debug("Found " + foundInBaseline.getId() + "/" + foundInBaseline.getVersion()
                             + " with delta: " + versionDelta);
                     if (version.compareTo(baselineVersion) < 0) {
-                        String message = "Version have moved backwards for (" + id + "/" + version + "). Baseline has "
+                        String message = "Version has moved backwards for (" + id + "/" + version + "). Baseline has "
                                 + baselineVersion + ") with delta: " + versionDelta;
                         if (this.onIllegalVersion == ReportBehavior.warn) {
                             getLog().warn(message);

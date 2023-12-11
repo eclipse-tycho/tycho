@@ -15,6 +15,7 @@ package org.eclipse.tycho.packaging;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
@@ -31,7 +32,6 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.FileLockService;
-import org.eclipse.tycho.FileLocker;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.model.Feature;
@@ -177,14 +177,20 @@ public class FeatureXmlTransformer {
 	}
 
 	protected long getInstallSize(File location) {
-		FileLocker locker = fileLockService.getFileLocker(location);
-		locker.lock();
-		try (JarFile jar = new JarFile(location)) {
-			return jar.stream().mapToLong(JarEntry::getSize).filter(s -> s > 0).sum();
+		long installSize = 0;
+		try (var locked = fileLockService.lock(location); //
+				JarFile jar = new JarFile(location);) {
+			Enumeration<JarEntry> entries = jar.entries();
+			while (entries.hasMoreElements()) {
+				JarEntry entry = entries.nextElement();
+				long entrySize = entry.getSize();
+				if (entrySize > 0) {
+					installSize += entrySize;
+				}
+			}
 		} catch (IOException e) {
 			throw new RuntimeException("Could not determine installation size of file " + location, e);
-		} finally {
-			locker.release();
 		}
+		return installSize;
 	}
 }

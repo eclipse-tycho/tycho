@@ -45,6 +45,10 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.StringUtils;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.osgi.framework.Bundle;
@@ -152,8 +156,8 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		for (EquinoxLifecycleListener listener : lifecycleListeners.values()) {
 			connectFramework.debug("Calling " + listener);
 			try {
-			listener.afterFrameworkStarted(connectFramework);
-			} catch(RuntimeException e) {
+				listener.afterFrameworkStarted(connectFramework);
+			} catch (RuntimeException e) {
 				log.warn("Internal error in EquinoxLifecycleListener " + listener, e);
 			}
 		}
@@ -238,6 +242,62 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 
 	private static void printFrameworkState(Framework framework, Logger log) {
 		Bundle[] bundles = printBundles(framework, log);
+		printComponents(framework, log);
+		printExtensions(framework, log);
+		printServices(log, bundles);
+	}
+
+	private static void printExtensions(Framework framework, Logger log) {
+		log.info("============ Extension Registry ==================");
+		ServiceTracker<IExtensionRegistry, IExtensionRegistry> st = new ServiceTracker<>(framework.getBundleContext(),
+				IExtensionRegistry.class, null);
+		st.open(true);
+		try {
+			IExtensionRegistry registry = st.getService();
+			if (registry == null) {
+				log.info("No IExtensionRegistry installed (or started) in this framework");
+				return;
+			}
+			IExtensionPoint[] extensionPoints = registry.getExtensionPoints();
+			for (IExtensionPoint point : extensionPoints) {
+				log.info(point.getUniqueIdentifier() + " [contributed by " + point.getContributor() + "]");
+				for (IExtension extention : point.getExtensions()) {
+					log.info("\t" + extention.getUniqueIdentifier() + " [from " + extention.getContributor().getName()
+							+ "]");
+					for (IConfigurationElement element : extention.getConfigurationElements()) {
+						printConfigElement(element, 2, log);
+					}
+				}
+			}
+		} finally {
+			st.close();
+		}
+	}
+
+
+
+	private static void printConfigElement(IConfigurationElement element, int level, Logger log) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("\t".repeat(level));
+		sb.append(element.getName());
+		for (String attr : element.getAttributeNames()) {
+			sb.append(' ');
+			sb.append(attr);
+			sb.append('=');
+			sb.append(element.getAttribute(attr));
+		}
+		String value = element.getValue();
+		if (value != null) {
+			sb.append(" @value = ");
+			sb.append(value);
+		}
+		log.info(sb.toString());
+		for (IConfigurationElement child : element.getChildren()) {
+			printConfigElement(child, level + 1, log);
+		}
+	}
+
+	private static void printComponents(Framework framework, Logger log) {
 		ServiceTracker<ServiceComponentRuntime, ServiceComponentRuntime> st = new ServiceTracker<>(
 				framework.getBundleContext(), ServiceComponentRuntime.class, null);
 		st.open();
@@ -268,6 +328,9 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 		} finally {
 			st.close();
 		}
+	}
+
+	private static void printServices(Logger log, Bundle[] bundles) {
 		log.info("============ Registered Services ==================");
 		Arrays.stream(bundles).map(Bundle::getRegisteredServices).filter(Objects::nonNull).flatMap(Arrays::stream)
 				.forEach(reference -> {

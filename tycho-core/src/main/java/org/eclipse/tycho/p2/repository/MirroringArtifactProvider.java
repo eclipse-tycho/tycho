@@ -88,13 +88,14 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
      * Creates a new {@link MirroringArtifactProvider} instance.
      *
      * @param localArtifactRepository
-     *            The local Maven repository
+     *                                    The local Maven repository
      * @param remoteProviders
-     *            The provider that will be queried by this instance when it is asked for an
-     *            artifact which is not (yet) available in the local Maven repository. Typically
-     *            this provider is backed by remote p2 repositories.
+     *                                    The provider that will be queried by this instance when it is
+     *                                    asked for an artifact which is not (yet) available in the
+     *                                    local Maven repository. Typically this provider is backed by
+     *                                    remote p2 repositories.
      * @param logger
-     *            a logger for progress output
+     *                                    a logger for progress output
      */
     public static MirroringArtifactProvider createInstance(LocalArtifactRepository localArtifactRepository,
             IRawArtifactProvider remoteProviders, MavenContext context) {
@@ -198,7 +199,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
      * @return <code>false</code> if the artifact is neither already cached locally nor available
      *         remotely.
      * @throws MirroringFailedException
-     *             if a fatal error occurred while downloading the artifact.
+     *                                      if a fatal error occurred while downloading the artifact.
      */
     private boolean makeLocallyAvailable(IArtifactKey key) throws MirroringFailedException {
         // TODO 397355 cache artifactDescriptors for the key so that only one synchronization is necessary to figure out if a download is needed
@@ -207,10 +208,9 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
             if (isAvailable) {
                 /*
-                 * Always execute this step so that a local repository that only contains the packed
-                 * format of an artifact is automatically corrected. We need the canonical format in
-                 * the local repository so that {@link
-                 * IArtifactFileProvider#getArtifactFile(IArtifactKey)} does not return null.
+                 * Always execute this step so that a local repository that only contains the packed format of an
+                 * artifact is automatically corrected. We need the canonical format in the local repository so that
+                 * {@link IArtifactFileProvider#getArtifactFile(IArtifactKey)} does not return null.
                  */
                 ensureArtifactIsPresentInCanonicalFormat(key);
             }
@@ -370,8 +370,8 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     }
 
     /**
-     * Returns an {@link IProgressMonitor} which translates p2's status updates into a reasonable
-     * log output.
+     * Returns an {@link IProgressMonitor} which translates p2's status updates into a reasonable log
+     * output.
      */
     final IProgressMonitor monitorForDownload() {
         // create a new instance for each call - DuplicateFilteringLoggingProgressMonitor is not thread-safe
@@ -394,7 +394,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     }
 
-    private static final class MirrorArtifactDescriptor extends ArtifactDescriptor implements IArtifactDescriptor {
+    private static final class MirrorArtifactDescriptor extends ArtifactDescriptor {
 
         final MirroringArtifactProvider provider;
         private IArtifactDescriptor base;

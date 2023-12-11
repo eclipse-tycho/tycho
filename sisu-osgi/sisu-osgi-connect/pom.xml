@@ -35,6 +35,11 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.registry</artifactId>
+			<version>3.11.400</version>
+		</dependency>
   </dependencies>
   
   <build>

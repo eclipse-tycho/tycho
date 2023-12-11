@@ -220,6 +220,7 @@
         <provided namespace='osgi.ee' name='JavaSE' version='1.8.0'/>
         <provided namespace='osgi.ee' name='JavaSE/compact1' version='1.8.0'/>
         <provided namespace='osgi.ee' name='JavaSE' version='11'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='17'/>
       </provides>
       <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
     </unit>

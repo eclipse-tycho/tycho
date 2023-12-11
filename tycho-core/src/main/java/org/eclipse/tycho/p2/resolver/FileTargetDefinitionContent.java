@@ -43,7 +43,7 @@ import org.osgi.framework.BundleException;
 
 public class FileTargetDefinitionContent implements TargetDefinitionContent {
 
-    private Map<IArtifactDescriptor, IInstallableUnit> repositoryContent = new HashMap<IArtifactDescriptor, IInstallableUnit>();
+    private Map<IArtifactDescriptor, IInstallableUnit> repositoryContent = new HashMap<>();
     private final SupplierMetadataRepository metadataRepository;
     private final FileArtifactRepository artifactRepository;
     private File location;

@@ -126,7 +126,7 @@ public class DependencyComputer {
         }
     }
 
-    private final class VisiblePackages {
+    private static final class VisiblePackages {
         private final Map<BundleRevision, Set<AccessRule>> visiblePackages = new HashMap<>();
         private final BundleRevision consumerHost;
 

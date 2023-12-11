@@ -71,7 +71,7 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 		Map<MavenProject, Project> bndProjects = getProjects(session);
 		Map<String, MavenProject> manifestFirstProjects = getManifestFirstProjects(session, bndProjects.keySet());
 		Map<String, MavenProject> bndWorkspaceProjects = bndProjects.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getValue().getName(), e -> e.getKey(), (a, b) -> {
+				.collect(Collectors.toMap(e -> e.getValue().getName(), Entry<MavenProject, Project>::getKey, (a, b) -> {
 					logger.warn(
 							"Your reactor build contains duplicate BND projects from different workspace, build order might be insufficient!");
 					logger.warn("\tProject 1 (selected): " + a.getBasedir());
@@ -166,8 +166,8 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 	}
 
 	private Map<MavenProject, Project> getProjects(MavenSession session) {
-		Set<Workspace> workspaces = new HashSet<Workspace>();
-		HashMap<MavenProject, Project> result = new HashMap<MavenProject, Project>();
+		Set<Workspace> workspaces = new HashSet<>();
+		HashMap<MavenProject, Project> result = new HashMap<>();
 		for (MavenProject mavenProject : session.getProjects()) {
 			if (isBNDProject(mavenProject)) {
 				try {
@@ -200,13 +200,6 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 			return bndFile.isFile() && Workspace.findWorkspace(basedir) != null;
 		} catch (Exception e) {
 			return false;
-		}
-	}
-
-	private void setProperty(Project project, String key, String value) {
-		String property = project.getProperty(key);
-		if (property == null || property.isBlank()) {
-			project.setProperty(key, value);
 		}
 	}
 

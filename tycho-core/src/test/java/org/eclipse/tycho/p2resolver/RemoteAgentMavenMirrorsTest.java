@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2023 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,6 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2maven.repository.DefaultMavenRepositorySettings;
-import org.eclipse.tycho.p2maven.transport.DefaultTransportCacheConfig;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
@@ -46,7 +45,6 @@ public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
     public HttpServer localServer = new HttpServer();
 
     private IProvisioningAgent subject;
-    private DefaultTransportCacheConfig transportConfig;
 
     @Before
     public void initSubject() throws Exception {
