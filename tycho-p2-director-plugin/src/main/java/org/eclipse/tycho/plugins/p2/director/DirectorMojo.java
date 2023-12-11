@@ -16,23 +16,29 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
-import org.eclipse.osgi.service.environment.EnvironmentInfo;
-import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.p2.CommandLineArguments;
+import org.eclipse.tycho.p2.resolver.BundlePublisher;
 import org.eclipse.tycho.p2tools.TychoDirectorApplication;
 
 /**
@@ -69,7 +75,7 @@ import org.eclipse.tycho.p2tools.TychoDirectorApplication;
  * </li>
  * </ol>
  */
-@Mojo(name = "director", defaultPhase = LifecyclePhase.NONE, threadSafe = true, requiresProject = true)
+@Mojo(name = "director", defaultPhase = LifecyclePhase.NONE, threadSafe = true, requiresProject = false)
 public class DirectorMojo extends AbstractMojo {
 
     @Component
@@ -77,6 +83,12 @@ public class DirectorMojo extends AbstractMojo {
 
     @Component
     private IProvisioningAgentProvider agentProvider;
+
+    @Component
+    private LegacySupport legacySupport;
+
+    @Component
+    private MojoExecution execution;
 
     /**
      * The folder in which the targeted product is located.
@@ -326,13 +338,20 @@ public class DirectorMojo extends AbstractMojo {
     @Parameter(property = "trustedCertificates")
     private String trustedCertificates;
 
+    /**
+     * If specified, the current project and its artifacts are included as part of the repository
+     * that is used to install units
+     */
+    @Parameter()
+    private boolean includeProjectRepository;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         CommandLineArguments args = new CommandLineArguments();
         args.addNonNull("-destination", destination);
         args.addNonNull("-metadatarepository", metadatarepositories);
         args.addNonNull("-artifactrepository", artifactrepositories);
-        args.addNonNull("-repository", repositories);
+        args.addNonNull("-repository", getRepositories());
         args.addNotEmpty("-installIU", getUnitParameterList(installIUs, install), ",");
         args.addNotEmpty("-uninstallIU", getUnitParameterList(uninstallIUs, uninstall), ",");
         args.addNonNull("-revert", revert);
@@ -373,6 +392,52 @@ public class DirectorMojo extends AbstractMojo {
             throw new MojoFailureException("Call to p2 director application failed with exit code " + exitCode
                     + ". Program arguments were: '" + args + "'.");
         }
+    }
+
+    private String getRepositories() {
+        File projectRepository = getProjectRepository();
+        if (projectRepository != null) {
+            if (repositories == null) {
+                return projectRepository.getAbsoluteFile().toURI().toASCIIString();
+            }
+            List<String> list = new ArrayList<String>();
+            for (String repo : repositories.split(",")) {
+                list.add(repo.trim());
+            }
+            list.add(projectRepository.getAbsoluteFile().toURI().toASCIIString());
+            return list.stream().collect(Collectors.joining(","));
+        }
+        return repositories;
+    }
+
+    private File getProjectRepository() {
+        if (includeProjectRepository) {
+            MavenSession session = legacySupport.getSession();
+            if (session != null) {
+                MavenProject currentProject = session.getCurrentProject();
+                if (currentProject != null) {
+
+                    File[] files = Stream
+                            .concat(Stream.of(currentProject.getArtifact()),
+                                    Stream.concat(currentProject.getAttachedArtifacts().stream(),
+                                            currentProject.getArtifacts().stream()))
+                            .filter(Objects::nonNull).distinct().map(Artifact::getFile).filter(Objects::nonNull)
+                            .filter(File::isFile).toArray(File[]::new);
+                    if (files.length > 0) {
+                        try {
+                            File projectRepository = new File(currentProject.getBuild().getDirectory(),
+                                    execution.getExecutionId() + "-repo");
+                            BundlePublisher.createBundleRepository(projectRepository, execution.getExecutionId(), files,
+                                    null);
+                            return projectRepository;
+                        } catch (ProvisionException e) {
+                            getLog().warn("Can't create the project repository!", e);
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private Map<String, String> getPropertyMap(String csvPropertiesMap, Map<String, String> properties) {
