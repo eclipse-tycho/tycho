@@ -400,7 +400,7 @@ public class DirectorMojo extends AbstractMojo {
             if (repositories == null) {
                 return projectRepository.getAbsoluteFile().toURI().toASCIIString();
             }
-            List<String> list = new ArrayList<String>();
+            List<String> list = new ArrayList<>();
             for (String repo : repositories.split(",")) {
                 list.add(repo.trim());
             }
@@ -441,7 +441,7 @@ public class DirectorMojo extends AbstractMojo {
     }
 
     private Map<String, String> getPropertyMap(String csvPropertiesMap, Map<String, String> properties) {
-        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
         if (csvPropertiesMap != null) {
             for (String keyValue : csvPropertiesMap.split(",")) {
                 String[] split = keyValue.split("=");
@@ -458,7 +458,7 @@ public class DirectorMojo extends AbstractMojo {
     }
 
     private List<String> getUnitParameterList(String csvlist, List<IU> units) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         if (csvlist != null) {
             for (String iu : csvlist.split(",")) {
                 list.add(iu.trim());
@@ -477,13 +477,6 @@ public class DirectorMojo extends AbstractMojo {
             }
         }
         return list;
-    }
-
-    private void add(String key, String value, List<String> args) {
-        if (metadatarepositories != null) {
-            args.add("-metadatarepository");
-            args.add(metadatarepositories);
-        }
     }
 
     public static final class IU {

@@ -292,9 +292,7 @@ public class TychoProjectManager {
             // again!
             Optional<ResolvedArtifactKey> bundle = mavenBundleResolver.resolveMavenBundle(project, session, "org.osgi",
                     "org.osgi.service.component.annotations", "1.3.0");
-            bundle.ifPresent(key -> {
-                writeLocation(key.getLocation(), dependencySet);
-            });
+            bundle.ifPresent(key -> writeLocation(key.getLocation(), dependencySet));
         }
         return dependencySet;
     }

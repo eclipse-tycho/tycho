@@ -60,6 +60,7 @@ public class FileTargetDefinitionContent implements TargetDefinitionContent {
         artifactRepository.setLocation(location.toURI());
     }
 
+    @Override
     public IMetadataRepository getMetadataRepository() {
         preload(null);
         return metadataRepository;
@@ -100,6 +101,7 @@ public class FileTargetDefinitionContent implements TargetDefinitionContent {
         loaded = true;
     }
 
+    @Override
     public IArtifactRepository getArtifactRepository() {
         preload(null);
         return artifactRepository;
@@ -110,7 +112,7 @@ public class FileTargetDefinitionContent implements TargetDefinitionContent {
     }
 
     private static void readFeatures(File path, BiConsumer<IArtifactDescriptor, IInstallableUnit> consumer,
-            IProgressMonitor monitor) throws ResolverException {
+            IProgressMonitor monitor) {
         PublisherInfo publisherInfo = new PublisherInfo();
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
         if (path.isDirectory()) {

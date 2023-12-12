@@ -28,7 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -220,9 +219,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
             tpConfiguration
                     .setIgnoreLocalArtifacts(configuration.getIgnoreLocalArtifacts() == LocalArtifactHandling.ignore);
             tpConfiguration.setReferencedRepositoryMode(configuration.getReferencedRepositoryMode());
-            TargetPlatform result = tpFactory.createTargetPlatform(tpConfiguration, ee, reactorProjects,
-                    reactorProject);
-            return result;
+            return tpFactory.createTargetPlatform(tpConfiguration, ee, reactorProjects, reactorProject);
         });
     }
 
@@ -348,10 +345,9 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
         for (String additionalBundle : additionalBundles) {
             resolver.addAdditionalBundleDependency(additionalBundle);
         }
-        projectManager.getBndTychoProject(project).ifPresent(processor -> {
-            AdditionalBundleRequirementsInstallableUnitProvider.getBndClasspathRequirements(processor)
-                    .forEach(req -> resolver.addRequirement(req));
-        });
+        projectManager.getBndTychoProject(project)
+                .ifPresent(processor -> AdditionalBundleRequirementsInstallableUnitProvider
+                        .getBndClasspathRequirements(processor).forEach(resolver::addRequirement));
         // get reactor project with prepared optional dependencies // TODO use original IU and have the resolver create the modified IUs
         ReactorProject optionalDependencyPreparedProject = getThisReactorProject(session, project, configuration);
 
