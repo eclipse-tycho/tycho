@@ -19,7 +19,7 @@ pipeline {
 	}
 	tools {
 		maven 'apache-maven-3.9.1'
-		jdk 'openjdk-jdk17-latest'
+		jdk 'temurin-jdk17-latest'
 	}
 	stages {
 		stage('Build') {
