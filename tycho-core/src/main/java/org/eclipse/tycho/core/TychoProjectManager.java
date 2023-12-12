@@ -146,7 +146,7 @@ public class TychoProjectManager {
         }
     }
 
-    public List<IInstallableUnit> getContextIUs(MavenProject project) {
+    public Collection<IInstallableUnit> getContextIUs(MavenProject project) {
         TargetPlatformConfiguration configuration = getTargetPlatformConfiguration(project);
         return configuration.getEnvironments().stream().map(env -> getProfileProperties(env, configuration))
                 .map(InstallableUnit::contextIU).toList();
