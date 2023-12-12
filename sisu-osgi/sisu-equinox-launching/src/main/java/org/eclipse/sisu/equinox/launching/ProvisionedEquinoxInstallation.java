@@ -10,12 +10,10 @@
  * Contributors:
  *    Mickael Istria (Red Hat Inc.) - 386988 Support for provisioned applications
  ******************************************************************************/
-package org.eclipse.tycho.surefire.provisioning;
+package org.eclipse.sisu.equinox.launching;
 
 import java.io.File;
 
-import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxInstallationLaunchConfiguration;
 
 /**
@@ -33,7 +31,7 @@ public class ProvisionedEquinoxInstallation implements EquinoxInstallation {
 
     public ProvisionedEquinoxInstallation(File location) {
         this.location = location;
-        description = new ProvisionedInstallationDescription(location, null);
+        description = new ProvisionedInstallationDescription(location);
     }
 
     @Override
