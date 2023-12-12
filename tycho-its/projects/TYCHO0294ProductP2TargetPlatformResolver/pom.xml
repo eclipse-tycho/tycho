@@ -13,16 +13,11 @@
     <module>product.bundle-based</module>
   </modules>
 
-  <properties>
-    <tycho-version>0.8.0-SNAPSHOT</tycho-version>
-    <p2.repo>http://download.eclipse.org/eclipse/updates/4.23</p2.repo>
-  </properties>
-  
   <repositories>
     <repository>
       <id>p2</id>
       <layout>p2</layout>
-      <url>${p2.repo}</url>
+      <url>${target-platform}</url>
     </repository>
   </repositories>
 

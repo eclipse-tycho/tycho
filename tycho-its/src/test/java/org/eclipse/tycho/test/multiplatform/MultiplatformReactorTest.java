@@ -16,15 +16,13 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class MultiplatformReactorTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testMultiplatformReactorBuild() throws Exception {
-		Verifier verifier = getVerifier("multiPlatform.reactor", false);
-		verifier.addCliOption("-Dtarget-platform=" + P2Repositories.ECLIPSE_LATEST.toString());
+		Verifier verifier = getVerifier("multiPlatform.reactor");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 
