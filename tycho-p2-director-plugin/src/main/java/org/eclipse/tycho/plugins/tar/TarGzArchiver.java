@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.archivers.tar.TarConstants;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
@@ -70,12 +71,11 @@ public class TarGzArchiver {
     public void createArchive() throws IOException {
         validate();
         log.info("Building tar: " + destFile);
-        TarArchiveOutputStream tarStream = null;
-        try {
-            destFile.getAbsoluteFile().getParentFile().mkdirs();
-            GzipCompressorOutputStream gzipStream = new GzipCompressorOutputStream(
-                    new BufferedOutputStream(new FileOutputStream(destFile)));
-            tarStream = new TarArchiveOutputStream(gzipStream, "UTF-8");
+        destFile.getAbsoluteFile().getParentFile().mkdirs();
+        try (GzipCompressorOutputStream gzipStream = new GzipCompressorOutputStream(
+                new BufferedOutputStream(new FileOutputStream(destFile)));
+                TarArchiveOutputStream tarStream = new TarArchiveOutputStream(gzipStream, "UTF-8");) {
+
             // allow "long" file paths (> 100 chars)
             tarStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
             tarStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
@@ -83,10 +83,6 @@ public class TarGzArchiver {
                 for (File child : sourceDir.listFiles()) {
                     addToTarRecursively(sourceDir, child, tarStream);
                 }
-            }
-        } finally {
-            if (tarStream != null) {
-                tarStream.close();
             }
         }
     }
@@ -123,7 +119,7 @@ public class TarGzArchiver {
         TarArchiveEntry tarEntry;
         if (isSymbolicLink(source) && resolvesBelow(source, tarRootDir)) {
             // only create symlink entry if link target is inside archive
-            tarEntry = new TarArchiveEntry(pathInTar, TarArchiveEntry.LF_SYMLINK);
+            tarEntry = new TarArchiveEntry(pathInTar, TarConstants.LF_SYMLINK);
             tarEntry.setLinkName(slashify(getRelativeSymLinkTarget(source, source.getParentFile())));
         } else {
             tarEntry = new TarArchiveEntry(source, pathInTar);
