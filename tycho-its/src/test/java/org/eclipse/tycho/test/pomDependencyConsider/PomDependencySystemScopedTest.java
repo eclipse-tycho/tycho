@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.pomDependencyConsider;
 
-import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_LATEST;
-
 import java.util.List;
 
 import org.apache.maven.it.Verifier;
@@ -25,8 +23,7 @@ public class PomDependencySystemScopedTest extends AbstractTychoIntegrationTest 
 	@Test
 	public void testSystemScopedDependenciesIgnored() throws Exception {
 		// project with pomDependency=consider and checked-in nested jar
-		Verifier verifier = getVerifier("pomDependencyConsider.systemScope", false);
-		verifier.addCliOption("-Drepo.url=" + ECLIPSE_LATEST.toString());
+		Verifier verifier = getVerifier("pomDependencyConsider.systemScope");
 		// fails on second resolver invocation in TestMojo
 		// if (injected) system-scoped dependencies are not filtered out for
 		// pomDependency=consider

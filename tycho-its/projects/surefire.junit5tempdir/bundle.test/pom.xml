@@ -10,7 +10,7 @@
     <repository>
       <id>2019-09</id>
       <layout>p2</layout>
-      <url>${2019-09-repo}</url>
+      <url>${target-platform}</url>
     </repository>
   </repositories>
   
