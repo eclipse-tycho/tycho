@@ -26,7 +26,7 @@
 
 	<properties>
 		<!-- Default value, to override to test different OSGi versions -->
-		<other.p2.repo.url>${p2.repo.url}</other.p2.repo.url>
+		<other.p2.repo.url>${target-platform}</other.p2.repo.url>
 	</properties>
 
 	<repositories>

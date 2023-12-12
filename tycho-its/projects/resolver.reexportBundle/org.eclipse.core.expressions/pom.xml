@@ -24,7 +24,7 @@
     <repository>
       <id>repository</id>
       <layout>p2</layout>
-      <url>${repo}</url>
+      <url>${target-platform}</url>
     </repository>
   </repositories>
 
