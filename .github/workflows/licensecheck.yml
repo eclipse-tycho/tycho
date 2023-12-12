@@ -5,11 +5,11 @@ name: License vetting status check
 on:
   push:
     branches: 
-      - 'master'
+      - 'main'
       - 'tycho-*'
   pull_request:
     branches: 
-     - 'master'
+     - 'main'
      - 'tycho-*'
   issue_comment:
     types: [created]
