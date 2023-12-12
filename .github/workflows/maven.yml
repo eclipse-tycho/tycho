@@ -8,11 +8,11 @@ concurrency:
 on:
   push:
     branches: 
-      - 'master'
+      - 'main'
       - 'tycho-*'
   pull_request:
     branches: 
-     - 'master'
+     - 'main'
      - 'tycho-*'
 
 jobs:
