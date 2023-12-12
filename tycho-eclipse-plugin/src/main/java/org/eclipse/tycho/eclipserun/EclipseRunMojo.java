@@ -43,6 +43,7 @@ import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
+import org.eclipse.sisu.equinox.launching.ProvisionedEquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
@@ -83,6 +84,13 @@ public class EclipseRunMojo extends AbstractMojo {
 	 */
 	@Parameter(defaultValue = "${project.build.directory}/eclipserun-work")
 	private File work;
+
+	/**
+	 * Allows to use a prebuild installation to perform the run instead of one
+	 * assembled by Tycho
+	 */
+	@Parameter
+	private File installation;
 
 	/**
 	 * Whether the workspace should be cleared before running eclipse.
@@ -139,7 +147,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	 * &lt;/repositories&gt;
 	 * </pre>
 	 */
-	@Parameter(required = true)
+	@Parameter
 	private List<Repository> repositories;
 
 	@Parameter(property = "session", readonly = true, required = true)
@@ -282,7 +290,7 @@ public class EclipseRunMojo extends AbstractMojo {
 			List<String> applicationArgs, int forkedProcessTimeoutInSeconds, Map<String, String> environmentVariables,
 			EquinoxInstallationFactory installationFactory, EquinoxLauncher launcher,
 			ToolchainProvider toolchainProvider, P2ResolverFactory resolverFactory, Logger logger,
-			ToolchainManager toolchainManager, TargetPlatformFactory platformFactory) {
+			ToolchainManager toolchainManager, TargetPlatformFactory platformFactory, File installation) {
 		this.work = work;
 		this.clearWorkspaceBeforeLaunch = clearWorkspaceBeforeLaunch;
 		this.project = project;
@@ -303,6 +311,7 @@ public class EclipseRunMojo extends AbstractMojo {
 		this.logger = logger;
 		this.toolchainManager = toolchainManager;
 		this.platformFactory = platformFactory;
+		this.installation = installation;
 	}
 
 	@Override
@@ -312,8 +321,12 @@ public class EclipseRunMojo extends AbstractMojo {
 			return;
 		}
 		EquinoxInstallation installation;
-		synchronized (CREATE_LOCK) {
-			installation = createEclipseInstallation();
+		if (this.installation != null) {
+			installation = new ProvisionedEquinoxInstallation(this.installation);
+		} else {
+			synchronized (CREATE_LOCK) {
+				installation = createEclipseInstallation();
+			}
 		}
 		runEclipse(installation);
 	}
@@ -339,8 +352,11 @@ public class EclipseRunMojo extends AbstractMojo {
 		TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
 		// we want to resolve from remote repos only
 		tpConfiguration.setIgnoreLocalArtifacts(true);
-		for (Repository repository : repositories) {
-			tpConfiguration.addP2Repository(new MavenRepositoryLocation(repository.getId(), repository.getLocation()));
+		if (repositories != null) {
+			for (Repository repository : repositories) {
+				tpConfiguration
+						.addP2Repository(new MavenRepositoryLocation(repository.getId(), repository.getLocation()));
+			}
 		}
 		ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger, false,
 				toolchainManager, session);

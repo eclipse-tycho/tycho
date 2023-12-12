@@ -53,10 +53,10 @@ public class EclipseRunMojo extends org.eclipse.tycho.eclipserun.EclipseRunMojo 
 			List<String> applicationArgs, int forkedProcessTimeoutInSeconds, Map<String, String> environmentVariables,
 			EquinoxInstallationFactory installationFactory, EquinoxLauncher launcher,
 			ToolchainProvider toolchainProvider, P2ResolverFactory resolverFactory, Logger logger,
-			ToolchainManager toolchainManager, TargetPlatformFactory platformFactory) {
+			ToolchainManager toolchainManager, TargetPlatformFactory platformFactory, File installation) {
 		super(work, clearWorkspaceBeforeLaunch, project, dependencies, addDefaultDependencies, executionEnvironment,
 				repositories, session, jvmArgs, skip, applicationArgs, forkedProcessTimeoutInSeconds,
 				environmentVariables, installationFactory, launcher, toolchainProvider, resolverFactory, logger,
-				toolchainManager, platformFactory);
+				toolchainManager, platformFactory, installation);
 	}
 }
