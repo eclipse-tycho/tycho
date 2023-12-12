@@ -10,23 +10,22 @@
  * Contributors:
  *    Mickael Istria (Red Hat Inc.) - 386988 Support for provisioned applications
  ******************************************************************************/
-package org.eclipse.tycho.surefire.provisioning;
+package org.eclipse.sisu.equinox.launching;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.JarFile;
 
 import org.eclipse.osgi.internal.framework.EquinoxContainer;
-import org.eclipse.sisu.equinox.launching.BundleReference;
-import org.eclipse.sisu.equinox.launching.BundleStartLevel;
-import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.osgi.framework.Constants;
 
 /**
  * A "read-only" equinox installation (no bundles can be added, nothing configured). All
@@ -36,11 +35,9 @@ public class ProvisionedInstallationDescription implements EquinoxInstallationDe
 
     private File location;
     private BundleReference systemBundleDescriptor;
-    private BundleReader bundleReader;
 
-    ProvisionedInstallationDescription(File location, BundleReader bundleReader) {
+    ProvisionedInstallationDescription(File location) {
         this.location = location;
-        this.bundleReader = bundleReader;
     }
 
     @Override
@@ -61,27 +58,31 @@ public class ProvisionedInstallationDescription implements EquinoxInstallationDe
         } else {
             systemBundle = systemBundles[0];
         }
-        String version = bundleReader.loadManifest(systemBundle).getBundleVersion();
-        ArtifactKey systemBundleKey = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, EquinoxContainer.NAME,
-                version);
-        systemBundleDescriptor = new BundleReference() {
+        try (JarFile jarFile = new JarFile(systemBundle)) {
+            String version = jarFile.getManifest().getMainAttributes().getValue(Constants.BUNDLE_VERSION);
+            ArtifactKey systemBundleKey = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN,
+                    EquinoxContainer.NAME, version);
+            systemBundleDescriptor = new BundleReference() {
 
-            @Override
-            public String getVersion() {
-                return systemBundleKey.getVersion();
-            }
+                @Override
+                public String getVersion() {
+                    return systemBundleKey.getVersion();
+                }
 
-            @Override
-            public File getLocation() {
-                return systemBundle;
-            }
+                @Override
+                public File getLocation() {
+                    return systemBundle;
+                }
 
-            @Override
-            public String getId() {
-                return systemBundleKey.getId();
-            }
-        };
-        return systemBundleDescriptor;
+                @Override
+                public String getId() {
+                    return systemBundleKey.getId();
+                }
+            };
+            return systemBundleDescriptor;
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Can't read system bundle " + systemBundle.getAbsolutePath());
+        }
     }
 
     @Override
