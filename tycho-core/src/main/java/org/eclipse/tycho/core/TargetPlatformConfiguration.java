@@ -119,7 +119,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private InjectP2MavenMetadataHandling p2MavenMetadataHandling;
 
-    private ReferencedRepositoryMode referencedRepositoryMode = ReferencedRepositoryMode.ignore;
+    private ReferencedRepositoryMode referencedRepositoryMode = ReferencedRepositoryMode.include;
 
     /**
      * Returns the list of configured target environments, or the running environment if no
