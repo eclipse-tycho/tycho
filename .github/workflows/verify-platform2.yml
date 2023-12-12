@@ -45,7 +45,7 @@ jobs:
     - name: Set up Maven
       uses: stCarolas/setup-maven@07fbbe97d97ef44336b7382563d66743297e442f # v4.5
       with:
-        maven-version: 3.9.2
+        maven-version: 3.9.6
     - name: Build Tycho
       env:
        JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
