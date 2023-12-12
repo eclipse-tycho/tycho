@@ -18,9 +18,6 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -57,8 +55,7 @@ import org.eclipse.tycho.p2maven.io.MetadataIO;
 @Component(role = MavenProjectDependencyProcessor.class)
 public class MavenProjectDependencyProcessor {
 
-	private static final ProjectDependencies EMPTY_DEPENDENCIES = new ProjectDependencies(Collections.emptyList(),
-			Collections.emptyList(), Map.of(), Set.of());
+	private static final ProjectDependencies EMPTY_DEPENDENCIES = new ProjectDependencies(Map.of(), Set.of());
 
 	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump")
 			|| Boolean.getBoolean("tycho.p2.dump.dependencies");
@@ -112,9 +109,11 @@ public class MavenProjectDependencyProcessor {
 			}
 
 			@Override
-			public Stream<Entry<MavenProject, Collection<IInstallableUnit>>> dependencies() {
+			public Stream<Entry<MavenProject, Collection<IInstallableUnit>>> dependencies(
+					Function<MavenProject, Collection<IInstallableUnit>> contextIuSupplier) {
 				return projectDependenciesMap.entrySet().stream()
-						.map(pd -> new SimpleEntry<>(pd.getKey(), pd.getValue().dependencies));
+						.map(pd -> new SimpleEntry<>(pd.getKey(),
+								pd.getValue().getDependencies(contextIuSupplier.apply(pd.getKey()))));
 			}
 
 			@Override
@@ -158,7 +157,8 @@ public class MavenProjectDependencyProcessor {
 				if (DUMP_DATA) {
 					File file = new File(project.getBasedir(), "project-dependencies.xml");
 					try {
-						new MetadataIO().writeXML(Collections.unmodifiableCollection(projectDependencies.dependencies),
+						new MetadataIO().writeXML(
+								Collections.unmodifiableCollection(projectDependencies.getDependencies(List.of())),
 								file);
 					} catch (IOException e) {
 					}
@@ -197,29 +197,7 @@ public class MavenProjectDependencyProcessor {
 		}
 		Map<IRequirement, Collection<IInstallableUnit>> dependencies = slicer.computeDirectDependencies(projectUnits,
 				avaiableIUs);
-		// first collect the maximum desired number
-		Set<IInstallableUnit> resolved = new LinkedHashSet<>();
-		for (Entry<IRequirement, Collection<IInstallableUnit>> entry : dependencies.entrySet()) {
-			IRequirement requirement = entry.getKey();
-			Collection<IInstallableUnit> units = entry.getValue();
-			List<IInstallableUnit> limit = units.stream().filter(unit -> !projectUnits.contains(unit))
-					.limit(requirement.getMax()).toList();
-			resolved.addAll(limit);
-		}
-		// now we need to filter all fragments that we are a host!
-		// for example SWT creates an explicit requirement to its fragments and we don't
-		// want them included directly
-		// TODO reevaluate, this is where filters come into place we probabbly no longer
-		// need this part!
-		Set<IInstallableUnit> projectFragments = new HashSet<>();
-		for (Iterator<IInstallableUnit> iterator = resolved.iterator(); iterator.hasNext();) {
-			IInstallableUnit unit = iterator.next();
-			if (hasAnyHost(unit, projectUnits)) {
-				projectFragments.add(unit);
-				iterator.remove();
-			}
-		}
-		return new ProjectDependencies(resolved, projectFragments, dependencies, projectUnits);
+		return new ProjectDependencies(dependencies, projectUnits);
 	}
 
 	private static boolean hasAnyHost(IInstallableUnit unit, Iterable<IInstallableUnit> collection) {
@@ -267,25 +245,13 @@ public class MavenProjectDependencyProcessor {
 
 	public static final class ProjectDependencies {
 
-		private final Collection<IInstallableUnit> dependencies;
-		private final Collection<IInstallableUnit> fragments;
-		private Map<IRequirement, Collection<IInstallableUnit>> requirementsMap;
-		private Set<IInstallableUnit> projectUnits;
+		private final Map<IRequirement, Collection<IInstallableUnit>> requirementsMap;
+		private final Set<IInstallableUnit> projectUnits;
 
-		ProjectDependencies(Collection<IInstallableUnit> dependencies, Collection<IInstallableUnit> fragments,
-				Map<IRequirement, Collection<IInstallableUnit>> requirementsMap, Set<IInstallableUnit> projectUnits) {
-			this.dependencies = dependencies;
-			this.fragments = fragments;
+		ProjectDependencies(Map<IRequirement, Collection<IInstallableUnit>> requirementsMap,
+				Set<IInstallableUnit> projectUnits) {
 			this.requirementsMap = requirementsMap;
 			this.projectUnits = projectUnits;
-		}
-
-		public Collection<IInstallableUnit> getDependencies() {
-			return dependencies;
-		}
-
-		public Collection<IInstallableUnit> getFragments() {
-			return fragments;
 		}
 
 		public Collection<IInstallableUnit> getDependencies(Collection<IInstallableUnit> contextIUs) {
@@ -319,31 +285,38 @@ public class MavenProjectDependencyProcessor {
 		/**
 		 * @return a stream of all contained maven projects with dependecies
 		 */
-		Stream<Entry<MavenProject, Collection<IInstallableUnit>>> dependencies();
+		Stream<Entry<MavenProject, Collection<IInstallableUnit>>> dependencies(
+				Function<MavenProject, Collection<IInstallableUnit>> contextIuSupplier);
 
 		/**
 		 * Given a maven project returns all other maven projects this one (directly)
 		 * depends on
 		 * 
-		 * @param mavenProject
+		 * @param mavenProject the maven project for which all direct dependent projects
+		 *                     should be collected
+		 * @param contextIUs   the context IUs to filter dependencies
 		 * @return the collection of projects this maven project depend on in this
 		 *         closure
 		 */
-		default Collection<MavenProject> getDependencyProjects(MavenProject mavenProject) {
+		default Collection<MavenProject> getDependencyProjects(MavenProject mavenProject,
+				Collection<IInstallableUnit> contextIUs) {
 			ProjectDependencies projectDependecies = getProjectDependecies(mavenProject);
-			List<MavenProject> list = projectDependecies.getDependencies().stream()
+			List<MavenProject> list = projectDependecies.getDependencies(contextIUs).stream()
 					.flatMap(dependency -> getProject(dependency).stream()).distinct().toList();
 			if (isFragment(mavenProject)) {
+				// for projects that are fragments don't do any special processing...
 				return list;
 			}
+			// for regular projects we must check if they have any fragment requirements
+			// that must be attached here, example is SWT that defines a requirement to its
+			// fragments and if build inside the same reactor with a consumer (e.g. JFace)
+			// has to be applied
 			return list.stream().flatMap(project -> {
 				ProjectDependencies dependecies = getProjectDependecies(project);
-				if (dependecies.getFragments().isEmpty()) {
-					return Stream.of(project);
-				}
-				return Stream.concat(Stream.of(project),
-						dependecies.getFragments().stream().flatMap(dependency -> getProject(dependency).stream()));
-			}).distinct().toList();
+				return Stream.concat(Stream.of(project), dependecies.getDependencies(contextIUs).stream()
+						.filter(dep -> hasAnyHost(dep, dependecies.projectUnits))
+						.flatMap(dependency -> getProject(dependency).stream()));
+			}).toList();
 		}
 
 		/**

@@ -154,7 +154,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                             //do not inject additional dependencies for non Tycho managed projects!
                             continue;
                         }
-                        Collection<MavenProject> dependencyProjects = closure.getDependencyProjects(project);
+                        Collection<MavenProject> dependencyProjects = closure.getDependencyProjects(project,
+                                projectManager.getContextIUs(project));
                         MavenDependencyInjector.injectMavenProjectDependencies(project, dependencyProjects);
                         if (DUMP_DATA) {
                             try {
@@ -198,7 +199,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                         writer.write(indent2 + "provides " + satIU + " that satisfies " + requirement + "\r\n");
                     }
                 }
-                dumpProjectRequirements(dependency, writer, closure, closure.getDependencyProjects(dependency), indent2,
+                dumpProjectRequirements(dependency, writer, closure,
+                        closure.getDependencyProjects(dependency, projectManager.getContextIUs(project)), indent2,
                         visited);
             }
         }
