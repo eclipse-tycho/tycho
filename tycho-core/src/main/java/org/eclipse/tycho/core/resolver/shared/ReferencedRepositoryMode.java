@@ -15,12 +15,12 @@ package org.eclipse.tycho.core.resolver.shared;
 public enum ReferencedRepositoryMode {
 
     /**
-     * Repository references are ignored
-     */
-    ignore,
-    /**
      * Repository references are included
      */
-    include;
+    include,
+    /**
+     * Repository references are ignored
+     */
+    ignore;
 
 }
