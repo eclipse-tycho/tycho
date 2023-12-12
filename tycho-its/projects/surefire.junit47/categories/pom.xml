@@ -12,7 +12,7 @@
     <repository>
       <id>kepler</id>
       <layout>p2</layout>
-      <url>${kepler-repo}</url>
+      <url>${target-platform}</url>
     </repository>
   </repositories>
 

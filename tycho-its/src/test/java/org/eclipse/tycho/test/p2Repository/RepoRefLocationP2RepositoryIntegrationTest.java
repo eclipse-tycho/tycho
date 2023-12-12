@@ -39,8 +39,8 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 	public void testRefLocation() throws Exception {
 
 		List<RepositoryReference> allRepositoryReferences = buildAndGetRepositoryReferences(
-				"/p2Repository.repositoryRef.location",
-				v -> v.addCliOption("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString()));
+				"/p2Repository.repositoryRef.location", v -> v.addCliOption("-Dtest-data-repo="
+						+ ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString().replace("/", "//")));
 
 		assertEquals(4, allRepositoryReferences.size());
 		assertThat(allRepositoryReferences,
