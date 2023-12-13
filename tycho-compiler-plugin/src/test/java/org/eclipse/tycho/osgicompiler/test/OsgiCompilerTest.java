@@ -16,6 +16,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -527,18 +528,15 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir);
 
         MavenProject project = projects.get(0);
-        try {
-            getMojo(projects, project).execute();
-            fail();
-        } catch (MojoExecutionException e) {
-            // assert that the compiler mojo checks the target levels of all BREEs (and not just the first or "minimal" one) 
-            assertThat(e.getMessage(), containsString(
-                    "The effective compiler target level 1.5 is incompatible with the following OSGi execution environments"));
-            assertThat(e.getMessage(), containsString("J2SE-1.2"));
-            assertThat(e.getMessage(), containsString("CDC-1.0/Foundation-1.0"));
-            assertThat(e.getMessage(), containsString("OSGi/Minimum-1.2"));
-            assertThat(e.getMessage(), not(containsString("JavaSE-1.6")));
-        }
+        MojoExecutionException e = assertThrows(MojoExecutionException.class,
+                () -> getMojo(projects, project).execute());
+        // assert that the compiler mojo checks the target levels of all BREEs (and not just the first or "minimal" one) 
+        assertThat(e.getMessage(), containsString(
+                "The effective compiler target level 1.5 is incompatible with the following OSGi execution environments"));
+        assertThat(e.getMessage(), containsString("J2SE-1.2"));
+        assertThat(e.getMessage(), containsString("CDC-1.0/Foundation-1.0"));
+        assertThat(e.getMessage(), containsString("OSGi/Minimum-1.2"));
+        assertThat(e.getMessage(), not(containsString("JavaSE-1.6")));
     }
 
     public void test386210_compilerConfigurationCrosstalk() throws Exception {
@@ -587,13 +585,10 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/logs/customCompilerArgsAndLog");
         List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
-        try {
-            lookupConfiguredMojo(project, "compile").execute();
-            fail();
-        } catch (MojoFailureException e) {
-            assertThat(e.getMessage(), containsString("Compiler logging is configured by the 'log' compiler"
-                    + " plugin parameter and the custom compiler argument '-log'. Only either of them is allowed."));
-        }
+        MojoFailureException e = assertThrows(MojoFailureException.class,
+                () -> lookupConfiguredMojo(project, "compile").execute());
+        assertThat(e.getMessage(), containsString("Compiler logging is configured by the 'log' compiler"
+                + " plugin parameter and the custom compiler argument '-log'. Only either of them is allowed."));
     }
 
     public void testJreCompilationProfile() throws Exception {
