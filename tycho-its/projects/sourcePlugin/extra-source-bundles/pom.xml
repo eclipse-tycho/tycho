@@ -44,6 +44,19 @@
 					<forceContextQualifier>123abc</forceContextQualifier>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<!-- The default is now include, and this would lead to
+						failures of the shape
+						Failed to load p2 repository from location http://download.eclipse.org/dsdp/dd/updates:
+						No repository found at http://download.eclipse.org/dsdp/dd/updates -->
+					<referencedRepositoryMode>ignore</referencedRepositoryMode>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
