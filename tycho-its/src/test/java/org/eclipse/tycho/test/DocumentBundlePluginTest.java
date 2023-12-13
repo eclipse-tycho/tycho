@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -26,15 +26,11 @@ public class DocumentBundlePluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testGenerateIndex() throws Exception {
 		Verifier verifier = getVerifier("document-bundle-plugin/build-help-index", true, true);
-		try {
-			verifier.executeGoal("package");
-			fail();
-		} catch (VerificationException e) {
-			// a full test seems rather complex, so what we can do here is call the test and
-			// check that the mojo was executed successful (even though it produces an
-			// error)
-			verifier.verifyTextInLog("Help documentation could not be indexed completely");
-		}
+		assertThrows(VerificationException.class, () -> verifier.executeGoal("package"));
+		// a full test seems rather complex, so what we can do here is call the test and
+		// check that the mojo was executed successful (even though it produces an
+		// error)
+		verifier.verifyTextInLog("Help documentation could not be indexed completely");
 	}
 
 	@Test

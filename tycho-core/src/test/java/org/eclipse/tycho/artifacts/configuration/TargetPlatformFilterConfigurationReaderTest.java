@@ -17,6 +17,7 @@ import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPa
 import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithoutVersion;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,9 +36,9 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
-import org.eclipse.tycho.targetplatform.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter.FilterAction;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.version.TychoVersion;
 
 public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTestCase {
@@ -51,30 +52,18 @@ public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTes
     }
 
     public void testMissingTypeException() throws Exception {
-        try {
-            Xpp3Dom filterConfig = getTargetFilters("targetfilter/missing_scope_type/pom.xml");
-            subject.parseFilterConfiguration(filterConfig);
-            fail();
-        } catch (TargetPlatformFilterSyntaxException e) {
-        }
+        Xpp3Dom filterConfig = getTargetFilters("targetfilter/missing_scope_type/pom.xml");
+        assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.parseFilterConfiguration(filterConfig));
     }
 
     public void testMissingIdException() throws Exception {
-        try {
-            Xpp3Dom filterConfig = getTargetFilters("targetfilter/missing_scope_id/pom.xml");
-            subject.parseFilterConfiguration(filterConfig);
-            fail();
-        } catch (TargetPlatformFilterSyntaxException e) {
-        }
+        Xpp3Dom filterConfig = getTargetFilters("targetfilter/missing_scope_id/pom.xml");
+        assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.parseFilterConfiguration(filterConfig));
     }
 
     public void testMissingActionException() throws Exception {
-        try {
-            Xpp3Dom filterConfig = getTargetFilters("targetfilter/missing_action/pom.xml");
-            subject.parseFilterConfiguration(filterConfig);
-            fail();
-        } catch (TargetPlatformFilterSyntaxException e) {
-        }
+        Xpp3Dom filterConfig = getTargetFilters("targetfilter/missing_action/pom.xml");
+        assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.parseFilterConfiguration(filterConfig));
     }
 
     public void testValidRemoveAllFilters() throws Exception {
@@ -94,12 +83,8 @@ public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTes
     }
 
     public void testDuplicateVersionException() throws Exception {
-        try {
-            Xpp3Dom filterConfig = getTargetFilters("targetfilter/duplicate_scope_version/pom.xml");
-            subject.parseFilterConfiguration(filterConfig);
-            fail();
-        } catch (TargetPlatformFilterSyntaxException e) {
-        }
+        Xpp3Dom filterConfig = getTargetFilters("targetfilter/duplicate_scope_version/pom.xml");
+        assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.parseFilterConfiguration(filterConfig));
     }
 
     public void testValidRestrictToFilters() throws Exception {
@@ -134,12 +119,8 @@ public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTes
     }
 
     public void testDuplicateActionException() throws Exception {
-        try {
-            Xpp3Dom filterConfig = getTargetFilters("targetfilter/duplicate_action/pom.xml");
-            subject.parseFilterConfiguration(filterConfig);
-            fail();
-        } catch (TargetPlatformFilterSyntaxException e) {
-        }
+        Xpp3Dom filterConfig = getTargetFilters("targetfilter/duplicate_action/pom.xml");
+        assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.parseFilterConfiguration(filterConfig));
     }
 
     private Xpp3Dom getTargetFilters(String pomFile) throws IOException, Exception, ProjectBuildingException {
@@ -184,8 +165,7 @@ public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTes
         List<Plugin> plugins = project.getBuild().getPlugins();
         for (Plugin plugin : plugins) {
             if (artifactId.equals(plugin.getArtifactId())) {
-                Xpp3Dom config = (Xpp3Dom) plugin.getConfiguration();
-                return config;
+                return (Xpp3Dom) plugin.getConfiguration();
             }
         }
         return null;
