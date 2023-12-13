@@ -83,9 +83,10 @@ to your project and make sure it has the `org.eclipse.pde.api.tools.apiAnalysisN
 
 Tycho now contains a new `tycho-repository-plugin` that can be used to package OSGi repositories.
 
-### new option to include referenced repositories when resolving the target platform
+### referenced repositories are considered by default when resolving the target platform
 
-Repositories can contain references to other repositories (e.g. to find additional dependencies), from now on there is a new option to also consider these references:
+The option `referencedRepositoryMode`, introduced in Tycho 4.0.2, now defaults to `include`: referenced repositories are considered by default when resolving the target platform, as PDE already does.
+To restore the old behavior of Tycho 4.0.2, you need to explicitly set the option to `ignore`:
 
 ```xml
 <plugin>
@@ -94,7 +95,7 @@ Repositories can contain references to other repositories (e.g. to find addition
 	<version>${tycho-version}</version>
 	<configuration>
 		... other configuration options ...
-		<referencedRepositoryMode>include</referencedRepositoryMode>
+		<referencedRepositoryMode>ignore</referencedRepositoryMode>
 	</configuration>
 </plugin>
 	
@@ -155,7 +156,21 @@ If `addOnlyProviding` is `true` repositories that don't provide any filtered uni
 ```
 
 ## 4.0.2
-- new option to include referenced repositories when resolving the target platform
+- new option to include referenced repositories when resolving the target platform:
+Repositories can contain references to other repositories (e.g. to find additional dependencies), from now on there is a new option, `referencedRepositoryMode`, to also consider these references. By default, it is set to `ignore`; to enable referenced repositories in target platform resolution, set it to `include`:
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>target-platform-configuration</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		... other configuration options ...
+		<referencedRepositoryMode>include</referencedRepositoryMode>
+	</configuration>
+</plugin>
+```
+
 - Add dummy parameter to prevent warnings with jgit as timestamp provider
 
 ## 4.0.1
