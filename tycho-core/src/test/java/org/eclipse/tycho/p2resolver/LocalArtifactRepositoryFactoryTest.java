@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import static org.junit.Assert.assertThrows;
+
 import java.net.URI;
 
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -46,9 +48,9 @@ public class LocalArtifactRepositoryFactoryTest extends TychoPlexusTestCase {
         };
     }
 
-    @Test(expected = ProvisionException.class)
+    @Test
     public void testCreate() throws ProvisionException {
-        subject.create(null, null, null, null);
+        assertThrows(ProvisionException.class, () -> subject.create(null, null, null, null));
     }
 
     @Test

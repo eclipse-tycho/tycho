@@ -12,26 +12,22 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.limitations;
 
+import static org.junit.Assert.assertThrows;
+
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class NonUniqueBasedirsTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testNonUniqueBasedirFailure() throws Exception {
-        Verifier verifier = getVerifier("limitations.uniqueBaseDirs", false);
-        try {
-            verifier.executeGoal("clean");
-            Assert.fail("build failure expected");
-        } catch (VerificationException e) {
-            // expected
-        }
+	@Test
+	public void testNonUniqueBasedirFailure() throws Exception {
+		Verifier verifier = getVerifier("limitations.uniqueBaseDirs", false);
+		assertThrows(VerificationException.class, () -> verifier.executeGoal("clean"));
 
-        // expect a clear error message -> requested in bug 366967
-        verifier.verifyTextInLog("Multiple modules within the same basedir are not supported");
-    }
+		// expect a clear error message -> requested in bug 366967
+		verifier.verifyTextInLog("Multiple modules within the same basedir are not supported");
+	}
 
 }

@@ -1,5 +1,6 @@
 package org.eclipse.tycho.test.packaging;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -97,11 +98,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
 		File corruptedBaselineRepo = new File("projects/packaging.reproducibleArtifacts/baseline/repository_corrupted")
 				.getCanonicalFile();
 		Verifier verifier = getVerifier("baseline/src", corruptedBaselineRepo);
-		try {
-			verifier.executeGoals(List.of("clean", "package"));
-			Assert.fail("should not reach here");
-		} catch (VerificationException expected) {
-		}
+		assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("clean", "package")));
 		File locallyBuiltJar = new File(verifier.getBasedir(), "bundle01/target/baseline.bundle01-1.0.0-SNAPSHOT.jar");
 		assertTrue(locallyBuiltJar.isFile());
 		// locally built jar must not be replaced with corrupted 0-byte baseline jar

@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -25,11 +25,8 @@ public class InvalidProductTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_342.toString());
 
 		// run build and verify we get a proper error message instead of an NPE
-		try {
-			verifier.executeGoal("package");
-			fail("We expect to fail on malformed product definitions");
-		} catch (VerificationException e) {
-			verifier.verifyTextInLog("The product file invalid.product does not contain the mandatory attribute");
-		}
+		assertThrows("We expect to fail on malformed product definitions", VerificationException.class,
+				() -> verifier.executeGoal("package"));
+		verifier.verifyTextInLog("The product file invalid.product does not contain the mandatory attribute");
 	}
 }

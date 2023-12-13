@@ -22,9 +22,9 @@ public class OsgiManifestTest {
         assertEquals(13, manifest.getHeaders().size());
     }
 
-    @Test(expected = OsgiManifestParserException.class)
+    @Test
     public void testInvalidManifest() throws OsgiManifestParserException, URISyntaxException {
-        parseManifest("invalid.mf");
+        assertThrows(OsgiManifestParserException.class, () -> parseManifest("invalid.mf"));
     }
 
     @Test

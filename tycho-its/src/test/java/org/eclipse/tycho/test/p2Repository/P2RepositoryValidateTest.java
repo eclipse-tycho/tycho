@@ -13,7 +13,7 @@
 package org.eclipse.tycho.test.p2Repository;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.util.Arrays;
@@ -30,15 +30,10 @@ public class P2RepositoryValidateTest extends AbstractTychoIntegrationTest {
 	public void testValidate() throws Exception {
 		Verifier verifier = getVerifier("p2Repository.unresolvableIU", false);
 		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_352.toString());
-		try {
-			// validate is not always enough here as only in the prepare-package there is
-			// the first mojo that requires classpath resolving and we want to delay it
-			// until there...
-			verifier.executeGoal("prepare-package");
-			fail("Expected build failure");
-		} catch (VerificationException ex) {
-			// expected
-		}
+		// validate is not always enough here as only in the prepare-package there is
+		// the first mojo that requires classpath resolving and we want to delay it
+		// until there...
+		assertThrows(VerificationException.class, () -> verifier.executeGoal("prepare-package"));
 		verifier.verifyTextInLog("non.existing.iu");
 	}
 

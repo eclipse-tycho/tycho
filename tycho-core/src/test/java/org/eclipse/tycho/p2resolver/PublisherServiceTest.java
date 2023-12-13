@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -116,9 +117,10 @@ public class PublisherServiceTest extends TychoPlexusTestCase {
         assertTrue(unitsById(seeds).keySet().contains("config.a.jre.virgo"));
     }
 
-    @Test(expected = FacadeException.class)
+    @Test
     public void testValidateProfileFile() throws Exception {
-        ((PublisherServiceImpl) subject).validateProfile(resourceFile("publishers/inconsistentname-1.0.profile"));
+        assertThrows(FacadeException.class, () -> ((PublisherServiceImpl) subject)
+                .validateProfile(resourceFile("publishers/inconsistentname-1.0.profile")));
     }
 
     /**

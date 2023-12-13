@@ -15,8 +15,8 @@ package org.eclipse.tycho.core.locking;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,9 +54,9 @@ public class FileLockServiceTest {
         assertFalse(isLocked(file));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNegativeTimeout() throws IOException {
-        subject.lock(newTestFile(), -1L);
+        assertThrows(IllegalArgumentException.class, () -> subject.lock(newTestFile(), -1L));
     }
 
     @Test
@@ -87,12 +87,11 @@ public class FileLockServiceTest {
     @Test
     public void testLockReentranceDifferentLocker() throws IOException {
         final File testFile = newTestFile();
-        try (var locked = subject.lock(testFile)) {
-            subject.lock(testFile, 0L);
-            fail("lock already held by same VM but could be acquired a second time");
-        } catch (LockTimeoutException e) {
-            // expected
-        }
+        assertThrows("lock already held by same VM but could be acquired a second time", LockTimeoutException.class,
+                () -> {
+                    subject.lock(testFile);
+                    subject.lock(testFile, 0L);
+                });
     }
 
     @Test
@@ -100,11 +99,8 @@ public class FileLockServiceTest {
         File testFile = newTestFile();
         LockProcess lockProcess = new LockProcess(testFile, 200L);
         lockProcess.lockFileInForkedProcess();
-        try (var locked = subject.lock(testFile, 0L)) {
-            fail("lock already held by other VM but could be acquired a second time");
-        } catch (LockTimeoutException e) {
-            // expected
-        }
+        assertThrows("lock already held by other VM but could be acquired a second time", LockTimeoutException.class,
+                () -> subject.lock(testFile, 0L));
         lockProcess.cleanup();
     }
 
