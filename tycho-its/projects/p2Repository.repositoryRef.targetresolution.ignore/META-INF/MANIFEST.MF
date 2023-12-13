@@ -1,0 +1,6 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: p2Repository.repositoryRef.target;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.epsilon.picto
+Bundle-Name: p2Repository.repositoryRef.target

@@ -19,6 +19,7 @@ import static org.eclipse.equinox.p2.repository.IRepository.TYPE_METADATA;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.List;
@@ -82,6 +83,25 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 				new RepositoryReference("https://download.eclipse.org/eclipse/updates/4.29", TYPE_METADATA, ENABLED),
 				new RepositoryReference("https://download.eclipse.org/cbi/updates/license", TYPE_ARTIFACT, ENABLED),
 				new RepositoryReference("https://download.eclipse.org/cbi/updates/license", TYPE_METADATA, ENABLED)));
+	}
+
+	@Test
+	public void testTargetResolutionWithReferencedRepositoryInclude() throws Exception {
+		// <referencedRepositoryMode>include</referencedRepositoryMode> is the default
+		Verifier verifier = getVerifier("/p2Repository.repositoryRef.targetresolution.include", false);
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
+	public void testTargetResolutionWithReferencedRepositoryIgnore() throws Exception {
+		Verifier verifier = getVerifier("/p2Repository.repositoryRef.targetresolution.ignore", false);
+		try {
+			verifier.executeGoal("package");
+			fail("Build should fail due to missing transitive dependency dependency");
+		} catch (VerificationException e) {
+			verifier.verifyTextInLog("requires 'osgi.bundle; org.eclipse.emf.ecore 0.0.0' but it could not be found");
+		}
 	}
 
 	private List<RepositoryReference> buildAndGetRepositoryReferences(String buildRoot, Consumer<Verifier> setup)

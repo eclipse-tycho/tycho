@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho-its-project.p2Repository.repositoryRef.targetresolution</groupId>
+	<artifactId>p2Repository.repositoryRef.target</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>eclipse-plugin</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<target>
+						<file>
+							${project.basedir}/test-target.target
+						</file>
+					</target>
+					<!-- The default is
+					<referencedRepositoryMode>include</referencedRepositoryMode>
+					The project requires a bundle from Epsilon and Eclipse.
+					The target platform only uses the Epsilon update site.
+					Epsilon update site uses referenced repositories so using its update site alone
+					should be enough to resolve the transitive dependencies-->
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
