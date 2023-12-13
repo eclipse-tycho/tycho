@@ -15,6 +15,7 @@ package org.eclipse.tycho.core.ee;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -196,9 +197,10 @@ public class StandardExecutionEnvironmentTest {
         }
     }
 
-    @Test(expected = UnknownEnvironmentException.class)
+    @Test
     public void testUnknownEnv() throws Throwable {
-        ExecutionEnvironmentUtils.getExecutionEnvironment("foo", null, null, new SilentLog());
+        assertThrows(UnknownEnvironmentException.class,
+                () -> ExecutionEnvironmentUtils.getExecutionEnvironment("foo", null, null, new SilentLog()));
     }
 
     @Test

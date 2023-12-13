@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -61,12 +62,9 @@ public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		for (String bundle : bundles) {
-			try {
-				verifier.verifyTextInLog("Writing P2 metadata for osgi.bundle," + bundle);
-				fail(bundle + " is fetched twice!");
-			} catch (VerificationException e) {
-				assertTrue(e.getMessage().contains("Text not found"));
-			}
+			VerificationException e = assertThrows(bundle + " is fetched twice!", VerificationException.class,
+					() -> verifier.verifyTextInLog("Writing P2 metadata for osgi.bundle," + bundle));
+			assertTrue(e.getMessage().contains("Text not found"));
 		}
 	}
 

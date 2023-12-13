@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import static org.junit.Assert.assertThrows;
+
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -78,14 +80,14 @@ public class FeatureRootfileArtifactRepositoryTest extends TychoPlexusTestCase {
         assertMavenProperties(descriptor, "root.win32.win32.x86");
     }
 
-    @Test(expected = ProvisionException.class)
+    @Test
     public void testRepoWithoutMavenAdvice() throws Exception {
         FeatureRootfileArtifactRepository subject = new FeatureRootfileArtifactRepository(createPublisherInfo(false),
                 tempFolder.newFolder("testrootfiles"));
 
         IArtifactDescriptor artifactDescriptor = createArtifactDescriptor(PublisherHelper.BINARY_ARTIFACT_CLASSIFIER,
                 "org.eclipse.tycho.test.p2");
-        subject.getOutputStream(artifactDescriptor).close();
+        assertThrows(ProvisionException.class, () -> subject.getOutputStream(artifactDescriptor).close());
     }
 
     @Test

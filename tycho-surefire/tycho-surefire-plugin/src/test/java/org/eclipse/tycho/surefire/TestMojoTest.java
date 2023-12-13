@@ -16,8 +16,8 @@ package org.eclipse.tycho.surefire;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -58,12 +58,9 @@ public class TestMojoTest {
     @Test
     public void testSplitArgLineUnbalancedQuotes() throws Exception {
         AbstractEclipseTestMojo testMojo = new TestPluginMojo();
-        try {
-            testMojo.splitArgLine("\"'missing closing double-quote'");
-            fail("unreachable code");
-        } catch (MojoExecutionException e) {
-            assertTrue(e.getMessage().contains("unbalanced quotes"));
-        }
+        MojoExecutionException e = assertThrows(MojoExecutionException.class,
+                () -> testMojo.splitArgLine("\"'missing closing double-quote'"));
+        assertTrue(e.getMessage().contains("unbalanced quotes"));
     }
 
     @Test
@@ -138,12 +135,8 @@ public class TestMojoTest {
     public void testParallelModeMissingThreadCountParameter() throws Exception {
         AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
-        try {
-            testMojo.getMergedProviderProperties();
-            fail("MojoExecutionException expected since threadCount parameter is missing");
-        } catch (MojoExecutionException e) {
-            // Success
-        }
+        assertThrows("MojoExecutionException expected since threadCount parameter is missing",
+                MojoExecutionException.class, () -> testMojo.getMergedProviderProperties());
     }
 
     @Test
@@ -151,12 +144,8 @@ public class TestMojoTest {
         AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "threadCount", 1);
-        try {
-            testMojo.getMergedProviderProperties();
-            fail("MojoExecutionException expected since threadCount parameter is missing");
-        } catch (MojoExecutionException e) {
-            // Success
-        }
+        assertThrows("MojoExecutionException expected since threadCount parameter is missing",
+                MojoExecutionException.class, () -> testMojo.getMergedProviderProperties());
     }
 
     @Test

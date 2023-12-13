@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.reactor.makeBehaviour;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.util.List;
 
@@ -136,14 +136,11 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testSingleProjectNoOptionFails() throws Exception {
-		try {
-			verifier.addCliOption("-pl feature1");
-			verifier.executeGoals(List.of("clean", "verify"));
-			fail("Build should fail due to missing reactor dependency");
-		} catch (VerificationException e) {
-			verifier.verifyTextInLog(
-					"Missing requirement: feature1.feature.group 1.0.0.qualifier requires 'org.eclipse.equinox.p2.iu; bundle1 0.0.0' but it could not be found");
-		}
+		verifier.addCliOption("-pl feature1");
+		assertThrows("Build should fail due to missing reactor dependency", VerificationException.class,
+				() -> verifier.executeGoals(List.of("clean", "verify")));
+		verifier.verifyTextInLog(
+				"Missing requirement: feature1.feature.group 1.0.0.qualifier requires 'org.eclipse.equinox.p2.iu; bundle1 0.0.0' but it could not be found");
 	}
 
 }
