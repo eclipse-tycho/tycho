@@ -13,7 +13,11 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 4.0.4
 
-Various bugfixes and backports
+Backports:
+- Add schema-to-html mojo as a replacement for ant ConvertSchemaToHTML
+- Only set download/install-size attributes in features if they exist
+- Call the API tools directly without using ApiAnalysisApplication
+- Make additional P2 units from p2.inf available to the target-platform 
 
 ## 4.0.3
 
