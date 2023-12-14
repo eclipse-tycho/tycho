@@ -127,6 +127,14 @@ If `addOnlyProviding` is `true` repositories that don't provide any filtered uni
 	
 ```
 
+## 4.0.4
+
+Backports:
+- Add schema-to-html mojo as a replacement for ant ConvertSchemaToHTML
+- Only set download/install-size attributes in features if they exist
+- Call the API tools directly without using ApiAnalysisApplication
+- Make additional P2 units from p2.inf available to the target-platform 
+
 ## 4.0.3
 
 ### new option to filter added repository-references when assembling a p2-repository
