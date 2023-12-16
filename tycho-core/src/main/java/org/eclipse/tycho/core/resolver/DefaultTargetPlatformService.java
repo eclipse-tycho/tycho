@@ -123,7 +123,7 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
                     return null;
                 }
                 preliminaryTargetPlatform = (PreliminaryTargetPlatformImpl) dependencyResolver
-                        .computePreliminaryTargetPlatform(session, mavenProject, DefaultReactorProject.adapt(session));
+                        .computePreliminaryTargetPlatform(session, mavenProject);
 
             }
             List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
