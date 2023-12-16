@@ -800,7 +800,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         DependencyArtifacts testRuntimeArtifacts = dependencyResolver.resolveDependencies(session, project,
                 projectManager.getTargetPlatform(project)
                         .orElseThrow(() -> new MojoExecutionException(TychoConstants.TYCHO_NOT_CONFIGURED + project)),
-                getReactorProjects(), resolverConfiguration, getTestTargetEnvironments());
+                resolverConfiguration, getTestTargetEnvironments());
         if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException(
                     "Cannot determinate build target platform location -- not executing tests");

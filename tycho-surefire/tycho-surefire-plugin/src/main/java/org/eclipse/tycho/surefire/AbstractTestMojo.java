@@ -310,10 +310,6 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return DefaultReactorProject.adapt(project);
     }
 
-    protected List<ReactorProject> getReactorProjects() {
-        return DefaultReactorProject.adapt(session);
-    }
-
     /**
      * This generates a bundle that is a fragment to the host that enhances the original bundle by
      * the following items:

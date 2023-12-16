@@ -691,7 +691,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             logger.info("Resolving test dependencies of " + reactorProject);
             MavenSession mavenSession = getMavenSession(reactorProject);
             MavenProject mavenProject = getMavenProject(reactorProject);
-            List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(mavenSession);
             TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(mavenProject);
             DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
             DependencyResolverConfiguration testResolverConfiguration = new DependencyResolverConfiguration() {
@@ -713,9 +712,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 }
             };
             TargetPlatform preliminaryTargetPlatform = dependencyResolver.computePreliminaryTargetPlatform(mavenSession,
-                    mavenProject, reactorProjects);
+                    mavenProject);
             return dependencyResolver.resolveDependencies(mavenSession, mavenProject, preliminaryTargetPlatform,
-                    reactorProjects, testResolverConfiguration, configuration.getEnvironments());
+                    testResolverConfiguration, configuration.getEnvironments());
         });
     }
 
