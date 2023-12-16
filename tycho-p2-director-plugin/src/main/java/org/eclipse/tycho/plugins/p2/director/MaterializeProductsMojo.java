@@ -23,6 +23,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
@@ -59,7 +60,7 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
     /**
      * The name of the p2 profile to be created.
      */
-    @Parameter(defaultValue = "DefaultProfile")
+    @Parameter(defaultValue = TychoConstants.DEFAULT_PROFILE)
     private String profile;
 
     // TODO 405785 the syntax of this parameter doesn't work well with configuration inheritance; replace with new generic envSpecificConfiguration parameter syntax
