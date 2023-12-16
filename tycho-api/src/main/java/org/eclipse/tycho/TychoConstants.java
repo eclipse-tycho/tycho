@@ -82,6 +82,7 @@ public interface TychoConstants {
 
     String PROP_PGP_SIGNATURES = "pgp.signatures";
 
+    String DEFAULT_PROFILE = "DefaultProfile";
     /**
      * @deprecated this is deprecated but can't be removed as we otherwise loose compatibility for
      *             older repository format, this should never be used in new code and usage should
