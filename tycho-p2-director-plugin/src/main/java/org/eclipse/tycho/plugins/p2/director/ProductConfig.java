@@ -20,7 +20,7 @@ import java.util.Set;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.DependencySeed;
 
 /**
  * Effective product configuration for this Maven plug-in. This is the configuration provided by the

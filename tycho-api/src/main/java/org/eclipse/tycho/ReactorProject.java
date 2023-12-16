@@ -14,6 +14,8 @@
 package org.eclipse.tycho;
 
 import java.io.File;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 /**
@@ -69,6 +71,14 @@ public interface ReactorProject extends IDependencyMetadata {
     public String getBuildQualifier();
 
     public String getExpandedVersion();
+
+    /**
+     * Returns the (editable) list of {@link DependencySeed}s for the given project.
+     */
+    @SuppressWarnings("unchecked")
+    default List<DependencySeed> getDependencySeeds() {
+        return computeContextValue(TychoConstants.CTX_DEPENDENCY_SEEDS, () -> new CopyOnWriteArrayList<>());
+    }
 
     /**
      * human-readable id used in error messages

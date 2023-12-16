@@ -26,7 +26,6 @@ import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 abstract class AbstractProductMojo extends AbstractMojo {
 
@@ -161,7 +160,7 @@ abstract class AbstractProductMojo extends AbstractMojo {
     }
 
     ProductConfig getProductConfig() throws MojoFailureException {
-        return new ProductConfig(products, TychoProjectUtils.getDependencySeeds(DefaultReactorProject.adapt(project)));
+        return new ProductConfig(products, DefaultReactorProject.adapt(project).getDependencySeeds());
     }
 
     static String getOsWsArch(TargetEnvironment env, char separator) {

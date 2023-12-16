@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.utils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -25,7 +23,6 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
 public class TychoProjectUtils {
     private static final String TYCHO_NOT_CONFIGURED = "Tycho build extension not configured for ";
@@ -60,20 +57,6 @@ public class TychoProjectUtils {
      */
     public static TargetPlatform getTargetPlatformIfAvailable(ReactorProject project) {
         return (TargetPlatform) project.getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
-    }
-
-    /**
-     * Returns the (editable) list of {@link DependencySeed}s for the given project.
-     */
-    @SuppressWarnings("unchecked")
-    public static List<DependencySeed> getDependencySeeds(ReactorProject project) {
-        List<DependencySeed> dependencySeeds = (List<DependencySeed>) project
-                .getContextValue(TychoConstants.CTX_DEPENDENCY_SEEDS);
-        if (dependencySeeds == null) {
-            dependencySeeds = new ArrayList<>();
-            project.setContextValue(TychoConstants.CTX_DEPENDENCY_SEEDS, dependencySeeds);
-        }
-        return dependencySeeds;
     }
 
     /**

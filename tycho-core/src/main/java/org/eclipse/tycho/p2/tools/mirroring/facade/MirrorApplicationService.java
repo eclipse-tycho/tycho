@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.tycho.BuildDirectory;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;

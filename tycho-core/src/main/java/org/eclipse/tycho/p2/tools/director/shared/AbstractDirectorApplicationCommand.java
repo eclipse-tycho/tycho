@@ -21,8 +21,8 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.CommandLineArguments;
 
 /**

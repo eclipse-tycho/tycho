@@ -51,7 +51,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildDirectory;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
