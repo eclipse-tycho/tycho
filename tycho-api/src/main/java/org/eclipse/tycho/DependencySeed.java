@@ -10,10 +10,9 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.resolver.shared;
+package org.eclipse.tycho;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.tycho.ArtifactType;
 
 /**
  * Handle on a unit which defines dependencies of a project. There may be more than one dependency

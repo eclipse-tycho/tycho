@@ -17,9 +17,8 @@ import java.util.Collection;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
+import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 
@@ -60,6 +59,6 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
      * assembly p2 repository.
      */
     private void postPublishedIUs(Collection<DependencySeed> units) {
-        TychoProjectUtils.getDependencySeeds(getReactorProject()).addAll(units);
+        getReactorProject().getDependencySeeds().addAll(units);
     }
 }
