@@ -522,8 +522,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
      *
      * @since 0.19.0
      */
-    // default value should be kept the same as DirectorMojo#profile default value
-    @Parameter(defaultValue = "DefaultProfile")
+    @Parameter(defaultValue = TychoConstants.DEFAULT_PROFILE)
     private String profileName;
 
     /**

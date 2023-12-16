@@ -37,6 +37,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.CommandLineArguments;
 import org.eclipse.tycho.p2.resolver.BundlePublisher;
 import org.eclipse.tycho.p2tools.TychoDirectorApplication;
@@ -205,7 +206,7 @@ public class DirectorMojo extends AbstractMojo {
     /**
      * Defines what profile to use for the actions.
      */
-    @Parameter(property = "profile")
+    @Parameter(property = "profile", defaultValue = TychoConstants.DEFAULT_PROFILE)
     private String profile;
 
     /**
@@ -216,7 +217,7 @@ public class DirectorMojo extends AbstractMojo {
     @Parameter(property = "profileproperties")
     private String profileproperties;
 
-    @Parameter(property = "installFeatures")
+    @Parameter(property = "installFeatures", defaultValue = "true")
     private boolean installFeatures;
 
     /**
