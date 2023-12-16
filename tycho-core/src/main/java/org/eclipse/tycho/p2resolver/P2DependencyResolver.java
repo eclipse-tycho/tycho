@@ -84,7 +84,6 @@ import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
@@ -197,16 +196,16 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
     }
 
     @Override
-    public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
-            List<ReactorProject> reactorProjects) {
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+    public TargetPlatform computePreliminaryTargetPlatform(MavenSession mavenSession, MavenProject mavenProject) {
+        ReactorProject reactorProject = DefaultReactorProject.adapt(mavenProject);
         return reactorProject.computeContextValue(TargetPlatform.PRELIMINARY_TARGET_PLATFORM_KEY, () -> {
-            logger.debug("Computing preliminary target platform for " + project);
-            TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
-            ExecutionEnvironmentConfiguration ee = projectManager.getExecutionEnvironmentConfiguration(project);
+            logger.debug("Computing preliminary target platform for " + mavenProject);
+            List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(mavenSession);
+            TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(mavenProject);
+            ExecutionEnvironmentConfiguration ee = projectManager.getExecutionEnvironmentConfiguration(mavenProject);
 
             TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
-            for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
+            for (ArtifactRepository repository : mavenProject.getRemoteArtifactRepositories()) {
                 addEntireP2RepositoryToTargetPlatform(repository, tpConfiguration);
             }
 
@@ -299,19 +298,13 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
 
     @Override
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
-            TargetPlatform targetPlatform, List<ReactorProject> reactorProjects,
-            DependencyResolverConfiguration resolverConfiguration, List<TargetEnvironment> environments) {
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        if (targetPlatform == null) {
-            targetPlatform = TychoProjectUtils.getTargetPlatform(reactorProject);
-        }
-
-        // TODO 364134 For compatibility reasons, target-platform-configuration includes settings for the dependency resolution
-        // --> split this information logically, e.g. through two distinct interfaces
+            TargetPlatform targetPlatform, DependencyResolverConfiguration resolverConfiguration,
+            List<TargetEnvironment> environments) {
+        Objects.requireNonNull(targetPlatform);
         TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
 
         P2Resolver osgiResolverImpl = resolverFactory.createResolver(environments);
-
+        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
         return doResolveDependencies(session, project, reactorProjects, resolverConfiguration, targetPlatform,
                 osgiResolverImpl, configuration);
     }
@@ -435,4 +428,5 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
         }
         return result;
     }
+
 }
