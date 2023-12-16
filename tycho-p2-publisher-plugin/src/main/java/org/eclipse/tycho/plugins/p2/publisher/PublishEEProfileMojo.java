@@ -21,7 +21,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;

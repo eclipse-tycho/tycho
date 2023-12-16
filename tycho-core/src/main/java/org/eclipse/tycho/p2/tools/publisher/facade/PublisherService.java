@@ -15,8 +15,8 @@ package org.eclipse.tycho.p2.tools.publisher.facade;
 import java.io.File;
 import java.util.Collection;
 
+import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.ExecutionEnvironment;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.FacadeException;
 
 public interface PublisherService {

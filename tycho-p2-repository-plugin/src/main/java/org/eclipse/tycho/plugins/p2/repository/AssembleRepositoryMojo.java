@@ -31,14 +31,13 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.MatchPattern;
+import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
@@ -326,7 +325,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
             copyResources(destination);
 
             final ReactorProject reactorProject = getReactorProject();
-            Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(reactorProject);
+            Collection<DependencySeed> projectSeeds = reactorProject.getDependencySeeds();
             if (projectSeeds.isEmpty()) {
                 getLog().warn("No content specified for p2 repository");
                 return;
