@@ -71,7 +71,6 @@ import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -215,8 +214,7 @@ public class EquinoxResolver implements DependenciesResolver {
         //FIXME formally we should resolve the configuration for ALL declared environments!
         TargetEnvironment environment = configuration.getEnvironments().get(0);
         logger.debug("Using TargetEnvironment " + environment.toFilterExpression() + " to create resolver properties");
-        Properties properties = new Properties();
-        properties.putAll(TychoProjectUtils.getMergedProperties(project.adapt(MavenProject.class), mavenSession));
+        Properties properties = computeMergedProperties(project.adapt(MavenProject.class), mavenSession);
         return getPlatformProperties(properties, mavenSession, environment, ee);
     }
 
@@ -578,4 +576,15 @@ public class EquinoxResolver implements DependenciesResolver {
         };
     }
 
+    public static Properties computeMergedProperties(MavenProject mavenProject, MavenSession mavenSession) {
+        Properties properties = new Properties();
+        properties.putAll(mavenProject.getProperties());
+        if (mavenSession != null) {
+            properties.putAll(mavenSession.getSystemProperties()); // session wins
+            properties.putAll(mavenSession.getUserProperties());
+        } else {
+            properties.putAll(System.getProperties());
+        }
+        return properties;
+    }
 }

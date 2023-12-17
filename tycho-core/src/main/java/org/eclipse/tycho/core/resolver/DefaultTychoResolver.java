@@ -15,6 +15,7 @@
 package org.eclipse.tycho.core.resolver;
 
 import java.util.Optional;
+import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
@@ -23,6 +24,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TychoProject;
@@ -30,6 +32,7 @@ import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.resolver.TychoResolver;
 
 @Component(role = TychoResolver.class)
@@ -37,6 +40,9 @@ public class DefaultTychoResolver implements TychoResolver {
 
     private static final String SETUP_MARKER = "DefaultTychoResolver/Setup";
     private static final String RESOLVE_MARKER = "DefaultTychoResolver/Resolve";
+    private static final String TYCHO_ENV_OSGI_WS = "tycho.env.osgi.ws";
+    private static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
+    private static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
 
     @Requirement
     private Logger logger;
@@ -58,6 +64,17 @@ public class DefaultTychoResolver implements TychoResolver {
                     return;
                 }
                 reactorProject.setContextValue(SETUP_MARKER, true);
+
+                //enhance the current project properties with the currently used environment
+                Properties properties = EquinoxResolver.computeMergedProperties(project, session);
+                String arch = PlatformPropertiesUtils.getArch(properties);
+                String os = PlatformPropertiesUtils.getOS(properties);
+                String ws = PlatformPropertiesUtils.getWS(properties);
+                Properties projectProperties = project.getProperties();
+                projectProperties.put(TYCHO_ENV_OSGI_WS, ws);
+                projectProperties.put(TYCHO_ENV_OSGI_OS, os);
+                projectProperties.put(TYCHO_ENV_OSGI_ARCH, arch);
+
                 //FIXME this should actually happen lazy on first access so we do not require more here than bootstrap the project with a session above 
                 dr.setupProject(session, project);
                 dependencyResolver.setupProjects(session, project, reactorProject);

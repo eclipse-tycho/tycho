@@ -85,7 +85,6 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -1046,11 +1045,10 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         }
 
         cli.addVMArguments("-Dosgi.noShutdown=false");
-
-        Properties properties = TychoProjectUtils.getMergedProperties(project, session);
-        cli.addVMArguments("-Dosgi.os=" + PlatformPropertiesUtils.getOS(properties), //
-                "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
-                "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));
+        TargetEnvironment environment = TargetEnvironment.getRunningEnvironment();
+        cli.addVMArguments("-Dosgi.os=" + environment.getOs(), //
+                "-Dosgi.ws=" + environment.getWs(), //
+                "-Dosgi.arch=" + environment.getArch());
         addCustomProfileArg(cli);
         cli.addVMArguments(splitArgLine(argLine));
 
