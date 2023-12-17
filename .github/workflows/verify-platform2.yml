@@ -8,7 +8,7 @@ concurrency:
 on:
   pull_request:
     branches: 
-     - 'master'
+     - 'tycho-4.0.x'
 
 jobs:
   build:
@@ -69,6 +69,6 @@ jobs:
         -Pbuild-individual-bundles
         -Pbree-libs
         -Dmaven.test.failure.ignore=true
-        -Dtycho.version=4.0.0-SNAPSHOT
+        -Dtycho.version=4.0.5-SNAPSHOT
         -T1C
         clean verify
