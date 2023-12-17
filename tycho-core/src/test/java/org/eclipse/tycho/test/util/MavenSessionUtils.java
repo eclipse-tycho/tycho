@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.utils;
+package org.eclipse.tycho.test.util;
 
 import java.io.File;
 import java.util.HashMap;
