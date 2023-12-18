@@ -33,6 +33,10 @@ public interface TargetPlatform {
      * Key under which the final target platform is stored in the reactor project instances.
      */
     String FINAL_TARGET_PLATFORM_KEY = "org.eclipse.tycho.core.TychoConstants/targetPlatform";
+
+    /**
+     * Key under which the preliminary target platform is stored in the reactor project instances.
+     */
     String PRELIMINARY_TARGET_PLATFORM_KEY = "org.eclipse.tycho.core.TychoConstants/dependencyOnlyTargetPlatform";
 
     /**

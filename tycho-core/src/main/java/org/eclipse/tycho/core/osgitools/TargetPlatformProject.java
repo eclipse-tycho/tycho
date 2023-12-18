@@ -78,7 +78,7 @@ public class TargetPlatformProject extends AbstractTychoProject {
             DefaultDependencyArtifacts artifacts = new DefaultDependencyArtifacts(reactorProject);
             MavenSession mavenSession = getMavenSession(reactorProject);
             MavenProject mavenProject = getMavenProject(reactorProject);
-            TargetPlatform targetPlatform = dependencyResolver.computePreliminaryTargetPlatform(mavenSession,
+            TargetPlatform targetPlatform = dependencyResolver.getPreliminaryTargetPlatform(mavenSession,
                     mavenProject);
             if (targetPlatform instanceof P2TargetPlatform p2) {
                 Set<IInstallableUnit> installableUnits = p2.getInstallableUnits();

@@ -711,7 +711,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     return resolverConfiguration.getAdditionalRequirements();
                 }
             };
-            TargetPlatform preliminaryTargetPlatform = dependencyResolver.computePreliminaryTargetPlatform(mavenSession,
+            TargetPlatform preliminaryTargetPlatform = dependencyResolver.getPreliminaryTargetPlatform(mavenSession,
                     mavenProject);
             return dependencyResolver.resolveDependencies(mavenSession, mavenProject, preliminaryTargetPlatform,
                     testResolverConfiguration, configuration.getEnvironments());
