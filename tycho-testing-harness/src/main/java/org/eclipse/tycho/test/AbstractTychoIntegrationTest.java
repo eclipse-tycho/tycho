@@ -91,7 +91,7 @@ public abstract class AbstractTychoIntegrationTest {
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
         verifier.setForkJvm(isForked());
         if (isDisableMirrors()) {
-            verifier.setSystemProperty("tycho.disableP2Mirrors", "true");
+            verifier.setSystemProperty("eclipse.p2.mirrors", "false");
         }
         String debug = System.getProperty("tycho.mvnDebug");
         if (debug != null) {
