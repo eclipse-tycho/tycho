@@ -90,6 +90,9 @@ public abstract class AbstractTychoIntegrationTest {
 
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
         verifier.setForkJvm(isForked());
+        if (isDisableMirrors()) {
+            verifier.setSystemProperty("eclipse.p2.mirrors", "false");
+        }
         String debug = System.getProperty("tycho.mvnDebug");
         if (debug != null) {
             System.out.println("Preparing to execute Maven in debug mode");
@@ -144,6 +147,14 @@ public abstract class AbstractTychoIntegrationTest {
 
         return verifier;
 
+    }
+    
+    /**
+     * can be overridden by subclass to explicitly enable mirrors, by default they are disabled.
+     * 
+     */
+    protected boolean isDisableMirrors() {
+        return true;
     }
 
     protected boolean isForked() {
