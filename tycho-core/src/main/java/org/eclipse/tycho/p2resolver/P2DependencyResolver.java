@@ -204,7 +204,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
     }
 
     @Override
-    public TargetPlatform computePreliminaryTargetPlatform(MavenSession mavenSession, MavenProject mavenProject) {
+    public TargetPlatform getPreliminaryTargetPlatform(MavenSession mavenSession, MavenProject mavenProject) {
         ReactorProject reactorProject = DefaultReactorProject.adapt(mavenProject);
         return reactorProject.computeContextValue(TargetPlatform.PRELIMINARY_TARGET_PLATFORM_KEY, () -> {
             logger.debug("Computing preliminary target platform for " + mavenProject);

@@ -80,7 +80,7 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
             }
             MavenSession mavenSession = getMavenSession(reactorProject);
             MavenProject mavenProject = getMavenProject(reactorProject);
-            TargetPlatform preliminaryTargetPlatform = dependencyResolver.computePreliminaryTargetPlatform(mavenSession,
+            TargetPlatform preliminaryTargetPlatform = dependencyResolver.getPreliminaryTargetPlatform(mavenSession,
                     mavenProject);
             TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(mavenProject);
             DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();

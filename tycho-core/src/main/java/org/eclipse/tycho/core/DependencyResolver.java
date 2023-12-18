@@ -33,7 +33,7 @@ public interface DependencyResolver {
 
     PomDependencyCollector resolvePomDependencies(MavenSession session, MavenProject project);
 
-    public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project);
+    public TargetPlatform getPreliminaryTargetPlatform(MavenSession session, MavenProject project);
 
     /**
      * @param targetPlatform
