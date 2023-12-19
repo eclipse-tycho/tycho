@@ -21,7 +21,11 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -83,7 +87,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
 
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertEquals(2, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
+        assertEquals(2, getResultSet(content).size());
     }
 
     @Test
@@ -96,7 +100,12 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
 
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertEquals(2, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
+        assertEquals(2, getResultSet(content).size());
+    }
+
+    private Set<IInstallableUnit> getResultSet(TargetDefinitionContent content) {
+        return content.query(QueryUtil.ALL_UNITS, null).stream()
+                .filter(iu -> !iu.getId().startsWith("generated.target.category.")).collect(Collectors.toSet());
     }
 
     @Test
@@ -108,7 +117,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
                 lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
-        assertEquals(1, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
+        assertEquals(1, getResultSet(content).size());
     }
 
     @Test
@@ -120,7 +129,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
                 lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
-        assertEquals(1, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
+        assertEquals(1, getResultSet(content).size());
     }
 
     @Test
@@ -134,7 +143,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
         assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertEquals(3, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
+        assertEquals(3, getResultSet(content).size());
     }
 
     @Test
@@ -148,7 +157,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
         assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertEquals(3, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
+        assertEquals(3, getResultSet(content).size());
     }
 
     static class WithSourceLocationStub extends LocationStub {

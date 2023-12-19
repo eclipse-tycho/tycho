@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -61,7 +62,8 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
             Collection<IInstallableUnit> externalIUs, ExecutionEnvironmentResolutionHints executionEnvironment,
             TargetPlatformFilterEvaluator filter, LocalMetadataRepository localMetadataRepository,
             IRawArtifactFileProvider externalArtifacts, LocalArtifactRepository localArtifactRepository,
-            boolean includeLocalRepo, MavenLogger logger, Set<IInstallableUnit> shadowed) {
+            boolean includeLocalRepo, MavenLogger logger, Set<IInstallableUnit> shadowed,
+            IProvisioningAgent remoteAgent) {
         super(collectAllInstallableUnits(reactorProjectIUs, externalIUs, executionEnvironment), executionEnvironment,
                 externalArtifacts, localArtifactRepository, reactorProjectIUs, new HashMap<>(), shadowed);
         this.externalIUs = externalIUs;
@@ -69,7 +71,8 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
         this.localMetadataRepository = localMetadataRepository;
         this.includeLocalRepo = includeLocalRepo;
         this.logger = logger;
-        this.artifactRepository = new ProviderOnlyArtifactRepository(artifacts, null, URI.create("preliminary:/"));
+        this.artifactRepository = new ProviderOnlyArtifactRepository(artifacts, remoteAgent,
+                URI.create("preliminary:/"));
     }
 
     public static LinkedHashSet<IInstallableUnit> collectAllInstallableUnits(

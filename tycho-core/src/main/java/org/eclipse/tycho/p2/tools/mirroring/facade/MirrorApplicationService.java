@@ -17,6 +17,8 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.p2.tools.BuildContext;
@@ -106,6 +108,22 @@ public interface MirrorApplicationService {
     void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<IUDescription> seedUnits, MirrorOptions mirrorOptions, BuildDirectory tempDirectory)
             throws FacadeException;
+
+    /**
+     * Mirrors the given sources to the destination, if the destination exits it will be delete
+     * beforehand.
+     * 
+     * @param sourceArtifactRepository
+     *            the source artifact repository
+     * @param sourceMetadataRepository
+     *            the source metadata repository
+     * @param repositoryDestination
+     *            the destination
+     * @param repositoryName
+     *            the name of the new repository
+     */
+    void mirrorDirect(IArtifactRepository sourceArtifactRepository, IMetadataRepository sourceMetadataRepository,
+            File repositoryDestination, String repositoryName) throws FacadeException;
 
     /**
      * Modifies the artifact repository to add mapping rules to download Maven released artifacts

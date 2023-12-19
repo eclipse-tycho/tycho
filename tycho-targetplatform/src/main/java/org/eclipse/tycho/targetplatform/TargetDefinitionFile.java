@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -197,11 +198,13 @@ public final class TargetDefinitionFile implements TargetDefinition {
         private final DependencyDepth dependencyDepth;
         private final Collection<MavenArtifactRepositoryReference> repositoryReferences;
         private final Element featureTemplate;
+		private String label;
 
         public MavenLocation(Collection<MavenDependency> roots, Collection<String> includeDependencyScopes,
                 MissingManifestStrategy manifestStrategy, boolean includeSource,
                 Collection<BNDInstructions> instructions, DependencyDepth dependencyDepth,
-                Collection<MavenArtifactRepositoryReference> repositoryReferences, Element featureTemplate) {
+				Collection<MavenArtifactRepositoryReference> repositoryReferences, Element featureTemplate,
+				String label) {
             this.roots = roots;
             this.includeDependencyScopes = includeDependencyScopes;
             this.manifestStrategy = manifestStrategy;
@@ -209,6 +212,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
             this.instructions = instructions;
             this.dependencyDepth = dependencyDepth;
             this.repositoryReferences = repositoryReferences;
+			this.label = label;
             this.featureTemplate = featureTemplate == null ? null : (Element) featureTemplate.cloneNode(true);
         }
 
@@ -264,6 +268,30 @@ public final class TargetDefinitionFile implements TargetDefinition {
         public DependencyDepth getIncludeDependencyDepth() {
             return dependencyDepth;
         }
+
+		@Override
+		public String getLabel() {
+			if (label != null && !label.isBlank()) {
+				return label;
+			}
+			if (featureTemplate != null) {
+				String featureLabel = featureTemplate.getAttribute("label");
+				if (featureLabel != null && !featureLabel.isBlank()) {
+					return featureLabel;
+				}
+				String featureId = featureTemplate.getAttribute("id");
+				if (featureId != null && !featureId.isBlank()) {
+					return featureId;
+				}
+			}
+			if (roots.size() == 1) {
+				MavenDependency dependency = roots.iterator().next();
+				return MessageFormat.format("{0}:{1} ({2})", dependency.getGroupId(), dependency.getArtifactId(),
+						dependency.getVersion());
+			} else {
+				return MessageFormat.format("{0} Maven Dependencies", roots.size());
+			}
+		}
 
     }
 
@@ -668,7 +696,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
         Element featureTemplate = getChild(dom, "feature");
         return new MavenLocation(parseRoots(dom, globalExcludes), scopes, parseManifestStrategy(dom),
                 Boolean.parseBoolean(dom.getAttribute("includeSource")), parseInstructions(dom),
-                parseDependencyDepth(dom, scope), parseRepositoryReferences(dom), featureTemplate);
+				parseDependencyDepth(dom, scope), parseRepositoryReferences(dom), featureTemplate,
+				dom.getAttribute("label"));
     }
 
     private static IULocation parseIULocation(Element dom) {

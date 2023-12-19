@@ -14,28 +14,45 @@
 package org.eclipse.tycho.p2tools;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.mirroring.IArtifactMirrorLog;
+import org.eclipse.equinox.p2.internal.repository.mirroring.Mirroring;
+import org.eclipse.equinox.p2.internal.repository.tools.Activator;
+import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.internal.repository.tools.RecreateRepositoryApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
@@ -44,9 +61,11 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ArtifactType;
@@ -65,6 +84,8 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
 
 @Component(role = MirrorApplicationService.class)
 public class MirrorApplicationServiceImpl implements MirrorApplicationService {
+
+    private static final String P2_INDEX_FILE = "p2.index";
 
     private static final String MIRROR_FAILURE_MESSAGE = "Mirroring failed";
 
@@ -435,5 +456,87 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                 new File(repository, "artifacts.xml.xz").exists(), new File(repository, "artifacts.xml.xz").exists(),
                 true, false, false);
         xzCompress(desc);
+    }
+
+    @Override
+    public void mirrorDirect(IArtifactRepository sourceArtifactRepository, IMetadataRepository sourceMetadataRepository,
+            File repositoryDestination, String repositoryName) throws FacadeException {
+        if (repositoryDestination.exists()) {
+            FileUtils.deleteQuietly(repositoryDestination);
+        }
+        //See https://github.com/eclipse-equinox/p2/pull/418
+        Objects.requireNonNull(sourceArtifactRepository.getProvisioningAgent(),
+                "Source repository needs to have an agent");
+        SimpleMetadataRepositoryFactory metadataRepositoryFactory = new SimpleMetadataRepositoryFactory();
+        metadataRepositoryFactory.setAgent(agent);
+        SimpleArtifactRepositoryFactory artifactRepositoryFactory = new SimpleArtifactRepositoryFactory();
+        artifactRepositoryFactory.setAgent(agent);
+        IArtifactRepository destinationArtifactRepository = artifactRepositoryFactory
+                .create(repositoryDestination.toURI(), repositoryName, null, Map.of());
+        IMetadataRepository destinationMetadataRepository = metadataRepositoryFactory
+                .create(repositoryDestination.toURI(), repositoryName, null, Map.of());
+        MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_mirroringStatus, null);
+        Set<IArtifactKey> toMirror = new TreeSet<>(Comparator.comparing(IArtifactKey::getId).thenComparing(
+                Comparator.comparing(IArtifactKey::getVersion).thenComparing(IArtifactKey::getClassifier)));
+        multiStatus.add(destinationMetadataRepository.executeBatch(monitor -> {
+            IQueryResult<IInstallableUnit> result = sourceMetadataRepository.query(QueryUtil.ALL_UNITS, monitor);
+            Set<IInstallableUnit> units = result.toUnmodifiableSet();
+            destinationMetadataRepository.addInstallableUnits(units);
+            for (IInstallableUnit unit : units) {
+                toMirror.addAll(unit.getArtifacts());
+            }
+        }, null));
+        multiStatus.add(destinationArtifactRepository.executeBatch(monitor -> {
+            Mirroring mirroring = new Mirroring(sourceArtifactRepository, destinationArtifactRepository, true);
+            mirroring.setCompare(false);
+            mirroring.setValidate(false);
+            mirroring.setTransport(agent.getService(Transport.class));
+            IArtifactKey[] keys = toMirror.toArray(IArtifactKey[]::new);
+            mirroring.setArtifactKeys(keys);
+            multiStatus.addAll(mirroring.run(false, false));
+        }, null));
+        if (!multiStatus.isOK()) {
+            String logMessage = StatusTool.toLogMessage(multiStatus);
+            if (multiStatus.getSeverity() == IStatus.INFO) {
+                logger.info(logMessage, StatusTool.findException(multiStatus));
+            } else if (multiStatus.getSeverity() == IStatus.WARNING) {
+                logger.warn(logMessage, StatusTool.findException(multiStatus));
+            }
+            throw new FacadeException(logMessage, new CoreException(multiStatus));
+        }
+        writeP2Index(repositoryDestination);
+        compressXml(repositoryDestination, "artifacts");
+        compressXml(repositoryDestination, "content");
+        try {
+            XZCompressor xzCompressor = new XZCompressor();
+            xzCompressor.setPreserveOriginalFile(true);
+            xzCompressor.setRepoFolder(repositoryDestination.getAbsolutePath());
+            xzCompressor.compressRepo();
+        } catch (IOException e) {
+            throw new FacadeException("XZ compression failed", e);
+        }
+    }
+
+    private void writeP2Index(File repositoryDestination) throws FacadeException {
+        Properties properties = new Properties();
+        properties.setProperty("version", "1");
+        properties.setProperty("artifact.repository.factory.order", "artifacts.xml,!");
+        properties.setProperty("metadata.repository.factory.order", "content.xml,!");
+        try (FileOutputStream stream = new FileOutputStream(new File(repositoryDestination, P2_INDEX_FILE))) {
+            properties.store(stream, null);
+        } catch (IOException e) {
+            throw new FacadeException("writing index file failed", e);
+        }
+    }
+
+    private void compressXml(File repositoryDestination, String name) throws FacadeException {
+        File jarFile = new File(repositoryDestination, name + ".jar");
+        File xmlFile = new File(repositoryDestination, name + ".xml");
+        try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile))) {
+            jarOutputStream.putNextEntry(new JarEntry(xmlFile.getName()));
+            Files.copy(xmlFile.toPath(), jarOutputStream);
+        } catch (IOException e) {
+            throw new FacadeException("compression failed", e);
+        }
     }
 }

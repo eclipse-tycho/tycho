@@ -115,6 +115,8 @@ public interface TargetDefinition {
 
 		Element getFeatureTemplate();
 
+		String getLabel();
+
 		@Override
 		public default String getTypeDescription() {
 			return TYPE;
