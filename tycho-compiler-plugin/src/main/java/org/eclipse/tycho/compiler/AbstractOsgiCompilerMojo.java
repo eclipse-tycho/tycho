@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
@@ -610,12 +611,24 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                     .filter(a -> includedPathes.add(a.getFile().getAbsolutePath())) //
                     .toList();
             for (Artifact artifact : additionalClasspathEntries) {
-                String path = artifact.getFile().getAbsolutePath();
-                getLog().debug("Add a pom only classpath entry: " + artifact + " @ " + path);
-                classpath.add(path);
+                ArtifactHandler artifactHandler = artifact.getArtifactHandler();
+                if (artifactHandler.isAddedToClasspath() && inScope(artifact.getScope())) {
+                    String path = artifact.getFile().getAbsolutePath();
+                    getLog().debug("Add a pom only classpath entry: " + artifact + " @ " + path);
+                    classpath.add(path);
+                }
             }
         }
         return classpath;
+    }
+
+    private boolean inScope(String dependencyScope) {
+        if (Artifact.SCOPE_COMPILE.equals(getDependencyScope())) {
+            if (Artifact.SCOPE_TEST.equals(dependencyScope)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean isValidLocation(File location) {
