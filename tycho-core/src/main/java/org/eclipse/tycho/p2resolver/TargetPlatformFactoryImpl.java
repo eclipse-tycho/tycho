@@ -294,7 +294,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 externalArtifactFileProvider, //
                 localArtifactRepository, //
                 includeLocalMavenRepo, //
-                logger, shadowed);
+                logger, shadowed, remoteAgent);
         eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
 
         return targetPlatform;

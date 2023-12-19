@@ -6,6 +6,27 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+### new `mirror-target-platform`
+
+There is a new `mirror-target-platform` that allows to mirror the current target platform of a project into a P2 update site, this can b enabled for a project like this:
+
+```xml
+<plugin>
+  <groupId>org.eclipse.tycho</groupId>
+  <artifactId>target-platform-configuration</artifactId>
+  <executions>
+	  <execution>
+		  <id>inject</id>
+		  <goals>
+			  <goal>mirror-target-platform</goal>
+		  </goals>
+	  </execution>
+  </executions>
+</plugin>
+ ```
+
+the most usual use-case for this is to transform an existing target-file into a standalone repository.
+
 ### new `director` mojo
 
 This mojo can be used in two ways:

@@ -23,14 +23,21 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.updatesite.SiteCategory;
+import org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -76,6 +83,8 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
  * @see TargetDefinitionResolverService
  */
 public final class TargetDefinitionResolver {
+
+    private static final SiteXMLAction CATEGORY_FACTORY = new SiteXMLAction((URI) null, (String) null);
 
     private final MavenLogger logger;
 
@@ -148,7 +157,11 @@ public final class TargetDefinitionResolver {
                                     location, repository.getId(), referencedRepositoryMode)));
                 }
                 IQueryable<IInstallableUnit> locationUnits = QueryUtil.compoundQueryable(locations);
-                installableUnitResolver.addLocation((InstallableUnitLocation) locationDefinition, locationUnits);
+                Collection<IInstallableUnit> rootUnits = installableUnitResolver
+                        .addLocation((InstallableUnitLocation) locationDefinition, locationUnits);
+                unitResultSet.accept(
+                        createCategory(installableUnitLocation.getRepositories().stream().map(r -> r.getLocation())
+                                .collect(Collectors.joining(", ")), new CollectionResult<>(rootUnits)));
             } else if (locationDefinition instanceof PathLocation pathLocation) {
                 String resolvePath = resolvePath(pathLocation.getPath(), definition);
                 File fileLocation;
@@ -161,32 +174,38 @@ public final class TargetDefinitionResolver {
                     FileTargetDefinitionContent fileRepositoryRolver = fileRepositories.computeIfAbsent(
                             fileLocation.getAbsolutePath(),
                             key -> new FileTargetDefinitionContent(provisioningAgent, fileLocation));
+                    IQueryResult<IInstallableUnit> result;
                     if (pathLocation instanceof DirectoryLocation || pathLocation instanceof ProfileLocation) {
-                        unitResultSet.addAll(
-                                fileRepositoryRolver.query(QueryUtil.ALL_UNITS, new LoggingProgressMonitor(logger)));
+                        result = fileRepositoryRolver.query(QueryUtil.ALL_UNITS, new LoggingProgressMonitor(logger));
                     } else if (pathLocation instanceof FeaturesLocation featuresLocation) {
                         IArtifactKey key = org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction
                                 .createFeatureArtifactKey(featuresLocation.getId(), featuresLocation.getVersion());
-                        unitResultSet.addAll(fileRepositoryRolver.query(QueryUtil.createIUQuery(key),
-                                new LoggingProgressMonitor(logger)));
+                        result = fileRepositoryRolver.query(QueryUtil.createIUQuery(key),
+                                new LoggingProgressMonitor(logger));
+                    } else {
+                        continue;
                     }
+                    unitResultSet.addAll(result);
+                    unitResultSet.accept(createCategory(resolvePath, result));
                 } else {
                     logger.warn("Target location path '" + fileLocation.getAbsolutePath()
                             + "' does not exist, target resolution might be incomplete.");
                 }
-            } else if (locationDefinition instanceof MavenGAVLocation location) {
+            } else if (locationDefinition instanceof MavenGAVLocation mavenLocation) {
                 TargetDefinitionContent targetDefinitionContent = mavenDependenciesResolver
-                        .resolveTargetDefinitionContent(location, includeSourceMode);
+                        .resolveTargetDefinitionContent(mavenLocation, includeSourceMode);
                 mavenLocations.add(targetDefinitionContent);
                 IQueryResult<IInstallableUnit> result = targetDefinitionContent.query(QueryUtil.ALL_UNITS,
                         new LoggingProgressMonitor(logger));
                 unitResultSet.addAll(result);
+                Set<IInstallableUnit> locationUnits = result.toUnmodifiableSet();
                 if (logger.isDebugEnabled()) {
-                    logger.debug("The following artifacts were resolved from location " + location);
-                    for (IInstallableUnit iu : result.toUnmodifiableSet()) {
+                    logger.debug("The following artifacts were resolved from location " + mavenLocation);
+                    for (IInstallableUnit iu : locationUnits) {
                         logger.debug("\t" + iu);
                     }
                 }
+                unitResultSet.accept(createCategory(mavenLocation.getLabel(), result));
             } else if (locationDefinition instanceof TargetReferenceLocation referenceLocation) {
                 logger.info("Resolving " + referenceLocation.getUri());
                 String resolvePath = resolvePath(referenceLocation.getUri(), definition);
@@ -219,6 +238,7 @@ public final class TargetDefinitionResolver {
                 IQueryResult<IInstallableUnit> result = content.query(QueryUtil.ALL_UNITS,
                         new LoggingProgressMonitor(logger));
                 unitResultSet.addAll(result);
+                unitResultSet.accept(createCategory(uri, result));
             } else {
                 logger.warn("Target location type '" + locationDefinition.getTypeDescription() + "' is not supported");
             }
@@ -292,6 +312,14 @@ public final class TargetDefinitionResolver {
             }
 
         };
+    }
+
+    private static IInstallableUnit createCategory(String label, IQueryResult<IInstallableUnit> result) {
+        SiteCategory category = new SiteCategory();
+        category.setLabel(label);
+        category.setName("generated.target.category." + UUID.randomUUID());
+        return CATEGORY_FACTORY.createCategoryIU(category,
+                result.stream().filter(iu -> !iu.getId().endsWith(".feature.jar")).collect(Collectors.toSet()));
     }
 
     /**
