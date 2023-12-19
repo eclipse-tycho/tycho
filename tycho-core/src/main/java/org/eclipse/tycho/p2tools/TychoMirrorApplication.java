@@ -85,9 +85,12 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
     protected IArtifactRepository initializeDestination(RepositoryDescriptor toInit, IArtifactRepositoryManager mgr)
             throws ProvisionException {
         IArtifactRepository result = super.initializeDestination(toInit, mgr);
-        // simple.SimpleArtifactRepository.PUBLISH_PACK_FILES_AS_SIBLINGS is not public
-        result.setProperty("publishPackFilesAsSiblings", "true");
-        destination.getExtraArtifactRepositoryProperties().forEach(result::setProperty);
+        Map<String, String> extraArtifactRepositoryProperties = destination.getExtraArtifactRepositoryProperties();
+        if (!extraArtifactRepositoryProperties.isEmpty()) {
+            result.executeBatch(nil -> {
+                extraArtifactRepositoryProperties.forEach(result::setProperty);
+            }, null);
+        }
         return result;
     }
 
