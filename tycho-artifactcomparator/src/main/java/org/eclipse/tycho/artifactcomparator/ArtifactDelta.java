@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.artifactcomparator;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.eclipse.tycho.zipcomparator.internal.SimpleArtifactDelta;
 
 /**
@@ -48,5 +51,13 @@ public interface ArtifactDelta {
      * @return detailed description of the delta, never null.
      */
     public String getDetailedMessage();
+
+    /**
+     * Writes some details about this delta to the given destination
+     * 
+     * @param destination
+     * @throws IOException
+     */
+    void writeDetails(File destination) throws IOException;
 
 }
