@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.zipcomparator.internal;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -47,7 +48,7 @@ public class ClassfileComparator implements ContentsComparator {
             if (baselineDisassemble.equals(reactorDisassemble)) {
                 return ArtifactDelta.NO_DIFFERENCE;
             }
-            return new SimpleArtifactDelta("different", baselineDisassemble, reactorDisassemble);
+            return new ClassfileArtifactDelta(baselineDisassemble, reactorDisassemble, baseline, reactor);
         } catch (RuntimeException e) {
             return baseline.compare(reactor);
         }
@@ -57,7 +58,7 @@ public class ClassfileComparator implements ContentsComparator {
     private String disassemble(byte[] bytes) {
         ClassReader reader = new ClassReader(bytes);
         ClassNode clazz = new ClassNode();
-        reader.accept(clazz, Opcodes.ASM9 | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+        reader.accept(clazz, Opcodes.ASM9 | ClassReader.SKIP_FRAMES);
 
         // inner class list gets reordered during pack200 normalization
         if (clazz.innerClasses != null && !clazz.innerClasses.isEmpty()) {
@@ -78,5 +79,27 @@ public class ClassfileComparator implements ContentsComparator {
     @Override
     public boolean matches(String extension) {
         return TYPE.equalsIgnoreCase(extension);
+    }
+
+    private static final class ClassfileArtifactDelta extends SimpleArtifactDelta {
+
+        private ComparatorInputStream baselineStream;
+        private ComparatorInputStream reactorStream;
+
+        public ClassfileArtifactDelta(String baseline, String reactor, ComparatorInputStream baselineStream,
+                ComparatorInputStream reactorStream) {
+            super("different", baseline, reactor);
+            this.baselineStream = baselineStream;
+            this.reactorStream = reactorStream;
+        }
+
+        @Override
+        public void writeDetails(File destination) throws IOException {
+            super.writeDetails(destination);
+            File basedir = destination.getParentFile();
+            writeFile(basedir, destination.getName() + "-baseline.class", baselineStream);
+            writeFile(basedir, destination.getName() + "-build.class", reactorStream);
+        }
+
     }
 }

@@ -14,7 +14,6 @@ package org.eclipse.tycho.zipcomparator.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -62,26 +61,12 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
         }
     }
 
+    @Override
     public void writeDetails(File basedir) throws IOException {
         for (Map.Entry<String, ArtifactDelta> member : members.entrySet()) {
             ArtifactDelta memberDelta = member.getValue();
-            if (memberDelta instanceof CompoundArtifactDelta compoundDelta) {
-                compoundDelta.writeDetails(new File(basedir, member.getKey()));
-            } else if (memberDelta instanceof SimpleArtifactDelta delta) {
-                if (delta.getBaseline() != null) {
-                    writeFile(basedir, member.getKey() + "-baseline", delta.getBaseline());
-                }
-                if (delta.getReactor() != null) {
-                    writeFile(basedir, member.getKey() + "-build", delta.getReactor());
-                }
-            }
+            memberDelta.writeDetails(new File(basedir, member.getKey()));
         }
-    }
-
-    private void writeFile(File basedir, String path, String data) throws IOException {
-        File file = new File(basedir, path).getAbsoluteFile();
-        file.getParentFile().mkdirs();
-        Files.writeString(file.toPath(), data);
     }
 
 }
