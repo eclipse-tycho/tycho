@@ -58,7 +58,7 @@
 		<min.jdk.version>17</min.jdk.version>
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
 		<commonsCompressVersion>1.25.0</commonsCompressVersion>
-		<plexusVersion>2.1.1</plexusVersion>
+		<plexusVersion>2.2.0</plexusVersion>
 		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
 		<plexusCompilerVersion>2.14.2</plexusCompilerVersion>
 		<cipherVersion>2.1.0</cipherVersion>
