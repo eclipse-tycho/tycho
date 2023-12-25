@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -99,9 +100,16 @@ public class ZipComparatorImpl implements ArtifactComparator {
 
         @Override
         public void writeDetails(File basedir) throws IOException {
+            basedir.mkdirs();
             super.writeDetails(basedir);
-            Files.copy(baseline.toPath(), basedir.toPath().resolve("baseline-" + baseline.getName()));
-            Files.copy(reactor.toPath(), basedir.toPath().resolve("build-" + reactor.getName()));
+            if (baseline.isFile()) {
+                Files.copy(baseline.toPath(), basedir.toPath().resolve("baseline-" + baseline.getName()),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
+            if (reactor.isFile()) {
+                Files.copy(reactor.toPath(), basedir.toPath().resolve("build-" + reactor.getName()),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
         }
 
     }
