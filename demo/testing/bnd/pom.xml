@@ -7,7 +7,7 @@
 	<version>1.0.0</version>
 	<properties>
 		<target-platform>https://download.eclipse.org/releases/2022-12/</target-platform>
-		<tycho-version>4.0.0-SNAPSHOT</tycho-version>
+		<tycho-version>4.0.4</tycho-version>
 		<bnd-version>6.4.0</bnd-version>
 	</properties>
 	<repositories>
