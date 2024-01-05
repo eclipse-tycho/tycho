@@ -23,11 +23,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.eclipse.tycho.pomless.NoParentPomFound;
+import org.eclipse.tycho.pomless.ParentModel;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
 import aQute.bnd.build.Project;
@@ -123,12 +123,12 @@ public class BndWorkspaceMapping extends AbstractTychoMapping {
 	}
 
 	@Override
-	protected Parent findParent(Path projectRoot, Map<String, ?> projectOptions) throws IOException {
+	protected ParentModel findParent(Path projectRoot, Map<String, ?> projectOptions) throws IOException {
 		try {
 			return super.findParent(projectRoot, projectOptions);
 		} catch (NoParentPomFound e) {
 			// this can happen in 100% pomless mode!
-			return null;
+			return new ParentModel(null, null);
 		}
 	}
 }

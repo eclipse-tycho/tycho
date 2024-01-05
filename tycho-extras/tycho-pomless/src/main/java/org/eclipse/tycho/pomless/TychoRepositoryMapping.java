@@ -99,7 +99,7 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
             model.setArtifactId(getRequiredXMLAttributeValue(xml, PRODUCT_UID_ATTRIBUTE));
             String version = getXMLAttributeValue(xml, PRODUCT_VERSION_ATTRIBUTE);
             if (version != null) {
-                model.setVersion(getPomVersion(version));
+                model.setVersion(getPomVersion(version, model, artifactFile));
             }
             String name = getXMLAttributeValue(xml, PRODUCT_NAME_ATTRIBUTE);
             model.setName(PRODUCT_NAME_PREFIX + (name != null ? name : model.getArtifactId()));
