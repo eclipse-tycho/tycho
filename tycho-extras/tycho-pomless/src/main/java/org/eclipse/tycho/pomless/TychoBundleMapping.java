@@ -95,7 +95,7 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         // groupId is inherited from parent pom
         model.setArtifactId(bundleSymbolicName);
         String bundleVersion = getRequiredHeaderValue("Bundle-Version", manifestHeaders, manifestFile);
-        model.setVersion(getPomVersion(bundleVersion));
+        model.setVersion(getPomVersion(bundleVersion, model, artifactFile));
         String prefix;
         if (isTestBundle(bundleSymbolicName, bundleRoot)) {
             model.setPackaging(PACKAGING_TEST);
