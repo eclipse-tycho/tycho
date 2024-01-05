@@ -47,7 +47,7 @@ public class TychoFeatureMapping extends AbstractXMLTychoMapping {
     @Override
     protected void initModelFromXML(Model model, Element xml, Path artifactFile) throws IOException {
         model.setArtifactId(getRequiredXMLAttributeValue(xml, "id"));
-        model.setVersion(getPomVersion(getRequiredXMLAttributeValue(xml, "version")));
+        model.setVersion(getPomVersion(getRequiredXMLAttributeValue(xml, "version"), model, artifactFile));
 
         Path featureProperties = artifactFile.getParent().resolve("feature.properties");
         Supplier<Properties> properties = getPropertiesSupplier(featureProperties);

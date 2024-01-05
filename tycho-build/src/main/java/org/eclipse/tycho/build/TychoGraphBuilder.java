@@ -84,7 +84,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 				if (properties.getProperty(TychoCiFriendlyVersions.PROPERTY_BUILDQUALIFIER_FORMAT) != null
 						|| properties.getProperty(TychoCiFriendlyVersions.PROPERTY_FORCE_QUALIFIER) != null
 						|| properties.getProperty(TychoCiFriendlyVersions.BUILD_QUALIFIER) != null) {
-					tychoMapping.setSnapshotFormat("${" + TychoCiFriendlyVersions.BUILD_QUALIFIER + "}");
+					tychoMapping.setSnapshotProperty(TychoCiFriendlyVersions.BUILD_QUALIFIER);
 				}
 			}
 		}
