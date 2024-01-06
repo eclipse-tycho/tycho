@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.FilenameUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -85,7 +86,8 @@ public class BaselineServiceImpl implements BaselineService {
         Map<String, IP2Artifact> result = new LinkedHashMap<>();
 
         for (Map.Entry<String, IP2Artifact> reactorArtifact : reactor.entrySet()) {
-            IArtifactDescriptor descriptor = reactorArtifact.getValue().getArtifactDescriptor();
+            IP2Artifact value = reactorArtifact.getValue();
+            IArtifactDescriptor descriptor = value.getArtifactDescriptor();
 
             Entry<IArtifactRepository, IArtifactDescriptor> baselineDescriptorEntry = getBaselineDescriptor(
                     baselineArtifacts, descriptor);
@@ -93,10 +95,10 @@ public class BaselineServiceImpl implements BaselineService {
                 continue;
             }
             IArtifactDescriptor baselineDescriptor = baselineDescriptorEntry.getValue();
-            IArtifactKey baslineKey = baselineDescriptor.getArtifactKey();
+            IArtifactKey baselineKey = baselineDescriptor.getArtifactKey();
             String format = baselineDescriptor.getProperty(IArtifactDescriptor.FORMAT);
-            File baselineArtifact = new File(target, baslineKey.getClassifier() + "/" + baslineKey.getId() + "/"
-                    + baslineKey.getVersion() + (format != null ? "." + format : ""));
+            File baselineArtifact = new File(target, baselineKey.getClassifier() + "/" + baselineKey.getId() + "-"
+                    + baselineKey.getVersion() + (format != null ? "." + format : "") + getExtension(value));
 
             baselineArtifact.getParentFile().mkdirs();
             try (OutputStream os = new BufferedOutputStream(new FileOutputStream(baselineArtifact))) {
@@ -114,7 +116,7 @@ public class BaselineServiceImpl implements BaselineService {
             }
 
             List<IInstallableUnit> units = new ArrayList<>();
-            for (IInstallableUnit unit : reactorArtifact.getValue().getInstallableUnits()) {
+            for (IInstallableUnit unit : value.getInstallableUnits()) {
                 IInstallableUnit baselineUnit = getBaselineUnit(baselineUnits, unit.getId(), unit.getVersion());
                 if (baselineUnit != null) {
                     units.add(baselineUnit);
@@ -124,6 +126,17 @@ public class BaselineServiceImpl implements BaselineService {
         }
 
         return !result.isEmpty() ? result : null;
+    }
+
+    private String getExtension(IP2Artifact value) {
+        File location = value.getLocation();
+        if (location != null) {
+            String extension = FilenameUtils.getExtension(location.getName());
+            if (!extension.isBlank()) {
+                return "." + extension;
+            }
+        }
+        return "";
     }
 
     private Entry<IArtifactRepository, IArtifactDescriptor> getBaselineDescriptor(
