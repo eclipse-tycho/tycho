@@ -57,6 +57,7 @@ import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -109,7 +110,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
      * Build qualifier. Recommended way to set this parameter is using build-qualifier goal. Only
      * used when creating a source bundle.
      */
-    @Parameter(property = "buildQualifier")
+    @Parameter(property = TychoProperties.BUILD_QUALIFIER)
     private String qualifier;
 
     /**
@@ -362,8 +363,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
             addLocalicationHeaders(mavenArchiveConfiguration::addManifestEntry);
         } else {
-            getLog().info(
-                    "NOT adding source bundle MANIFEST.MF entries. Incomplete or absent bundle information");
+            getLog().info("NOT adding source bundle MANIFEST.MF entries. Incomplete or absent bundle information");
         }
     }
 
