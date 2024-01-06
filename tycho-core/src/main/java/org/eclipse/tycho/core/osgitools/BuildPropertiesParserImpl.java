@@ -25,12 +25,13 @@ import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.Interpolator;
@@ -38,12 +39,13 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.BuildPropertiesImpl;
 import org.eclipse.tycho.core.maven.TychoInterpolator;
 
-@Component(role = BuildPropertiesParser.class)
-public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposable {
+@Named
+@Singleton
+public class BuildPropertiesParserImpl implements BuildPropertiesParser {
 
     private final Map<String, BuildPropertiesImpl> cache = new HashMap<>();
 
-    @Requirement
+    @Inject
     LegacySupport legacySupport;
 
     @Override
@@ -90,11 +92,6 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
             cache.put(filePath, buildProperties);
         }
         return buildProperties;
-    }
-
-    @Override
-    public void dispose() {
-        cache.clear();
     }
 
     protected static Properties readProperties(File propsFile, MavenProject mavenProject) {

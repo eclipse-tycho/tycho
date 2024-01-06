@@ -506,6 +506,20 @@
 					<artifactId>maven-invoker-plugin</artifactId>
 					<version>3.6.1</version>
 				</plugin>
+	            <plugin>
+		        	<groupId>org.eclipse.sisu</groupId>
+		        	<artifactId>sisu-maven-plugin</artifactId>
+		        	<version>0.9.0.M2</version>
+		        	<executions>
+			          <execution>
+			            <id>index-project</id>
+			            <goals>
+			              <goal>main-index</goal>
+			              <goal>test-index</goal>
+			            </goals>
+			          </execution>
+			        </executions>
+	            </plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
