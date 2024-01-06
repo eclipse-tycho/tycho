@@ -33,6 +33,7 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.AbstractScanner;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
@@ -58,7 +59,7 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
     /**
      * Build qualifier. Recommended way to set this parameter is using build-qualifier goal.
      */
-    @Parameter(property = "buildQualifier")
+	@Parameter(property = TychoProperties.BUILD_QUALIFIER)
     protected String qualifier;
 
     /**

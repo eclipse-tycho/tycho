@@ -58,6 +58,8 @@ public interface TychoConstants {
 
     static final String PDE_BND = "pde.bnd";
 
+    public static final String BUILD_TIMESTAMP = CTX_BASENAME + "/buildTimestamp";
+
     public String JAR_EXTENSION = "jar";
 
     String PROP_GROUP_ID = "maven-groupId";
