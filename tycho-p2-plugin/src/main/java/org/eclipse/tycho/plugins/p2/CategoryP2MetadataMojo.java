@@ -13,15 +13,20 @@
 package org.eclipse.tycho.plugins.p2;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryPublisherApplication;
+import org.eclipse.equinox.p2.internal.repository.tools.XZCompressor;
 
 /**
  * Adds category IUs to existing metadata repository.
@@ -42,16 +47,49 @@ public class CategoryP2MetadataMojo extends AbstractP2MetadataMojo {
 
     @Override
     protected void addArguments(List<String> arguments) throws IOException, MalformedURLException {
+        File location = getUpdateSiteLocation();
         arguments.add("-metadataRepository");
-        arguments.add(getUpdateSiteLocation().toURL().toExternalForm());
+        arguments.add(location.toURI().toURL().toExternalForm());
         arguments.add("-categoryDefinition");
-        arguments.add(categoryDefinition.toURL().toExternalForm());
+        arguments.add(categoryDefinition.toURI().toURL().toExternalForm());
     }
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
+            File location = getUpdateSiteLocation();
+            File xmlFile = new File(location, "content.xml");
+            File jarFile = new File(location, "content.jar");
+            File xzFile = new File(location, "content.xml.xz");
+            boolean jar = jarFile.isFile();
+            boolean xz = xzFile.isFile();
+            if (xmlFile.isFile()) {
+                if (jar) {
+                    jarFile.delete();
+                }
+            }
+            if (xz) {
+                xzFile.delete();
+            }
             super.execute();
+            try {
+                if (jar && xmlFile.exists()) {
+                    //need to recreate the jar
+                    try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile))) {
+                        jarOutputStream.putNextEntry(new JarEntry(xmlFile.getName()));
+                        Files.copy(xmlFile.toPath(), jarOutputStream);
+                    }
+                }
+                if (xz) {
+                    //need to recreate the xz
+                    XZCompressor xzCompressor = new XZCompressor();
+                    xzCompressor.setPreserveOriginalFile(true);
+                    xzCompressor.setRepoFolder(location.getAbsolutePath());
+                    xzCompressor.compressRepo();
+                }
+            } catch (IOException e) {
+                throw new MojoFailureException("compress content failed", e);
+            }
         }
     }
 }
