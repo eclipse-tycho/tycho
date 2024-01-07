@@ -103,10 +103,13 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     private String finalName;
 
     /**
-     * If set to <code>true</code>, standard eclipse update site directory with feature content will
-     * be created under target folder.
-     */
+	 * If set to <code>true</code>, standard eclipse update site directory with
+	 * feature content will be created under target folder.
+	 * 
+	 * @deprecated use the new <code>mirror-target-platform</code> instead.
+	 */
     @Parameter(defaultValue = "false")
+	@Deprecated
     private boolean deployableFeature = false;
 
     @Parameter(defaultValue = "${project.build.directory}/site")

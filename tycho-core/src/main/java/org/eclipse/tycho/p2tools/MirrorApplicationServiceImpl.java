@@ -62,6 +62,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -459,8 +460,9 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     }
 
     @Override
-    public void mirrorDirect(IArtifactRepository sourceArtifactRepository, IMetadataRepository sourceMetadataRepository,
-            File repositoryDestination, String repositoryName) throws FacadeException {
+    public void mirrorDirect(IArtifactRepository sourceArtifactRepository,
+            IQueryable<IInstallableUnit> sourceMetadataRepository, File repositoryDestination, String repositoryName)
+            throws FacadeException {
         if (repositoryDestination.exists()) {
             FileUtils.deleteQuietly(repositoryDestination);
         }
