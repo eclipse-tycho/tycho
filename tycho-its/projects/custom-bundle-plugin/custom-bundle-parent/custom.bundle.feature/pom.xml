@@ -15,11 +15,20 @@
     <plugins>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-packaging-plugin</artifactId>
+        <artifactId>target-platform-configuration</artifactId>
         <version>${tycho-version}</version>
-        <configuration>
-          <deployableFeature>true</deployableFeature>
-        </configuration>
+        <executions>
+			  <execution>
+				  <id>inject</id>
+				  <goals>
+					  <goal>mirror-target-platform</goal>
+				  </goals>
+			  </execution>
+		</executions>
+		<configuration>
+			<destination>${project.build.directory}/site</destination>
+			<includeCategories>false</includeCategories>
+		</configuration>
       </plugin>
     </plugins>
   </build>
