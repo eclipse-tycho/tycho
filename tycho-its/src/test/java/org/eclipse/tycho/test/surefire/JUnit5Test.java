@@ -93,4 +93,15 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 		// make sure test tagged as 'slow' was skipped
 		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit59Test", 4);
 	}
+
+	@Test
+	public void testJUnit5Suite() throws Exception {
+		final Verifier verifier = getVerifier("/surefire.junit5suite/bundle.test");
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+		final String projectBasedir = verifier.getBasedir();
+		// make sure tests from suite were executed
+		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.SuiteWithAllTests", 1);
+	}
+
 }
