@@ -14,20 +14,27 @@ package org.eclipse.tycho.test.versionsplugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Properties;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.maven.it.Verifier;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.version.TychoVersion;
 import org.junit.Test;
+import org.osgi.framework.Constants;
 
 public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
@@ -97,6 +104,38 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		String versionProperty = properties.getProperty("Bundle-Version");
 		assertNotNull("Bundle-Version is null", versionProperty);
 		assertEquals("Bundle-Version is not as expected!", expectedNewVersion, versionProperty);
+	}
+
+	@Test
+	public void updateProjectVersionWithNestedPom() throws Exception {
+		String expectedNewVersion = "1.1.0";
+
+		Verifier verifier = getVerifier("tycho-version-plugin/set-version/nested_modules", true);
+
+		verifier.addCliOption("-DnewVersion=" + expectedNewVersion);
+		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
+
+		verifier.verifyErrorFreeLog();
+		String bundlePom = "bundle/pom.xml";
+		List<String> poms = List.of("pom.xml", "parent/pom.xml", bundlePom);
+		for (String pom : poms) {
+			MavenXpp3Reader pomReader = new MavenXpp3Reader();
+			Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), pom)));
+			if (bundlePom.equals(pom)) {
+				assertNull("child should inherit version from parent", pomModel.getVersion());
+				Parent parent = pomModel.getParent();
+				assertNotNull("project > parent is null", parent);
+				assertEquals("project > parent > version in " + pom + " has not been changed!", expectedNewVersion,
+						parent.getVersion());
+			} else {
+				assertEquals("project > version in " + pom + " has not been changed!", expectedNewVersion,
+						pomModel.getVersion());
+			}
+		}
+		Manifest manifest = new Manifest(
+				new FileInputStream(new File(verifier.getBasedir(), "bundle/" + JarFile.MANIFEST_NAME)));
+		assertEquals("version in manifest was not updated!", expectedNewVersion,
+				manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
 	}
 
 	@Test

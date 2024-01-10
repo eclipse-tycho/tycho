@@ -12,8 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -26,12 +33,29 @@ public class VersionChangesDescriptor {
     private final Set<PackageVersionChange> packageVersionChanges;
 
     private final VersionRangeUpdateStrategy versionRangeUpdateStrategy;
+    private Collection<ProjectMetadata> projects;
 
     public VersionChangesDescriptor(Set<PomVersionChange> originalVersionChanges,
-            VersionRangeUpdateStrategy versionRangeUpdateStrategy) {
-        this.aritfactsVersionChanges = new HashSet<>(originalVersionChanges);
+            VersionRangeUpdateStrategy versionRangeUpdateStrategy, Collection<ProjectMetadata> projects) {
+        this.projects = projects;
+        this.aritfactsVersionChanges = new LinkedHashSet<>(originalVersionChanges);
         this.versionRangeUpdateStrategy = versionRangeUpdateStrategy;
-        this.packageVersionChanges = new HashSet<>();
+        this.packageVersionChanges = new LinkedHashSet<>();
+    }
+
+    public Optional<ProjectMetadata> findMetadataByBasedir(File baseDir) {
+        Path path = baseDir.toPath();
+        for (ProjectMetadata meta : projects) {
+            Path projectPath = meta.getBasedir().toPath();
+            try {
+                if (Files.isSameFile(projectPath, path)) {
+                    return Optional.of(meta);
+                }
+            } catch (IOException e) {
+            }
+        }
+        return Optional.empty();
+
     }
 
     public Set<PomVersionChange> getVersionChanges() {
