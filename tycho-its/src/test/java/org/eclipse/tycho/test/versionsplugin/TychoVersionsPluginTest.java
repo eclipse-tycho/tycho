@@ -19,13 +19,17 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.maven.it.Verifier;
 import org.apache.maven.model.Model;
@@ -35,10 +39,14 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.version.TychoVersion;
 import org.junit.Test;
 import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 
 public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 	private static final String VERSION = TychoVersion.getTychoVersion();
+
+	private static final Pattern VERSION_PATTERN = Pattern.compile("version=\"(.*)\"");
 
 	/**
 	 * <p>
@@ -132,10 +140,60 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 						pomModel.getVersion());
 			}
 		}
-		Manifest manifest = new Manifest(
-				new FileInputStream(new File(verifier.getBasedir(), "bundle/" + JarFile.MANIFEST_NAME)));
+		Manifest manifest = getManifest(verifier, "bundle");
 		assertEquals("version in manifest was not updated!", expectedNewVersion,
 				manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+	}
+
+	@Test
+	public void updateVersionRanges() throws Exception {
+		String expectedNewMavenVersion = "1.1.0-SNAPSHOT";
+		String expectedNewOSGiVersion = "1.1.0.qualifier";
+		String expectedPackageVersion = "1.1.0";
+		String expectedNarrowVersionRange = "[" + expectedPackageVersion + ",1.2.0)";
+		String expectedWideVersionRange = "[" + expectedPackageVersion + ",2)";
+		// example call:
+		// mvn org.eclipse.tycho:tycho-versions-plugin:5.0.0-SNAPSHOT:set-version
+		// -DnewVersion=1.1.0-SNAPSHOT
+		// -DupdateVersionRangeMatchingBounds
+		Verifier verifier = getVerifier("tycho-version-plugin/set-version/version_ranges", true);
+		verifier.addCliOption("-DnewVersion=" + expectedNewMavenVersion);
+		verifier.addCliOption("-DupdateVersionRangeMatchingBounds");
+		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
+		{// check the package itself is updated
+			Manifest provider = getManifest(verifier, "provider.bundle");
+			assertEquals("version in manifest was not updated for provider bundle!", expectedNewOSGiVersion,
+					provider.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertVersion(provider, expectedPackageVersion, Constants.EXPORT_PACKAGE);
+		}
+		{// check open range is updated
+			Manifest consumerOpen = getManifest(verifier, "consumer.open");
+			assertEquals("version in manifest was not updated for open consumer bundle!", expectedNewOSGiVersion,
+					consumerOpen.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertVersion(consumerOpen, expectedPackageVersion, Constants.IMPORT_PACKAGE);
+			assertVersion(consumerOpen, expectedPackageVersion, Constants.REQUIRE_BUNDLE);
+		}
+		{// check wide version range is updated
+			Manifest consumerWide = getManifest(verifier, "consumer.wide");
+			assertEquals("version in manifest was not updated for wide consumer bundle!", expectedNewOSGiVersion,
+					consumerWide.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertVersionRange(consumerWide, expectedWideVersionRange, Constants.IMPORT_PACKAGE);
+			assertVersionRange(consumerWide, expectedWideVersionRange, Constants.REQUIRE_BUNDLE);
+		}
+		{// check narrow version range is updated
+			Manifest consumerNarrow = getManifest(verifier, "consumer.narrow");
+			assertEquals("version in manifest was not updated for narrow consumer bundle!", expectedNewOSGiVersion,
+					consumerNarrow.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertVersionRange(consumerNarrow, expectedNarrowVersionRange, Constants.IMPORT_PACKAGE);
+			assertVersionRange(consumerNarrow, expectedNarrowVersionRange, Constants.REQUIRE_BUNDLE);
+		}
+	}
+
+	private Manifest getManifest(Verifier verifier, String bundle) throws IOException, FileNotFoundException {
+		try (FileInputStream stream = new FileInputStream(
+				new File(verifier.getBasedir(), bundle + "/" + JarFile.MANIFEST_NAME))) {
+			return new Manifest(stream);
+		}
 	}
 
 	@Test
@@ -261,6 +319,28 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 	public static File file(Verifier verifier, String... path) {
 		return Path.of(verifier.getBasedir(), path).toFile();
+	}
+
+	private static void assertVersionRange(Manifest manifest, String versionRange, String header) {
+		String value = manifest.getMainAttributes().getValue(header);
+		assertNotNull("Header " + header + " not found", value);
+		Matcher matcher = VERSION_PATTERN.matcher(value);
+		assertTrue("no version found on " + value, matcher.find());
+		VersionRange expected = VersionRange.valueOf(versionRange);
+		VersionRange actual = VersionRange.valueOf(matcher.group(1));
+		assertTrue(header + " " + value + ": expected version range = " + expected + " but actual version range = "
+				+ actual, expected.equals(actual));
+	}
+
+	private static void assertVersion(Manifest manifest, String version, String header) {
+		String value = manifest.getMainAttributes().getValue(header);
+		assertNotNull("Header " + header + " not found", value);
+		Matcher matcher = VERSION_PATTERN.matcher(value);
+		assertTrue("no version found on " + value, matcher.find());
+		Version expected = Version.valueOf(version);
+		Version actual = Version.valueOf(matcher.group(1));
+		assertTrue(header + " " + value + ": expected version = " + expected + " but actual version = " + actual,
+				expected.equals(actual));
 	}
 
 }
