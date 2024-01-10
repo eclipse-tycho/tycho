@@ -35,11 +35,23 @@ public class SurefireUtil {
 
 	public static void assertTestMethodWasSuccessfullyExecuted(String baseDir, String className, String methodName,
 			int iterations) throws Exception {
-		File resultFile = getTestResultFile(baseDir, className);
-		Document document = readDocument(resultFile);
+		assertTestMethodWasSuccessfullyExecuted(baseDir, className, className, methodName, iterations);
+	}
+
+	public static void assertTestMethodWasSuccessfullyExecuted(String baseDir, String suiteClassSimpleName,
+			String testClassQualifiedName, String methodName) throws Exception {
+		String testClassSimpleName = testClassQualifiedName.substring(testClassQualifiedName.lastIndexOf(".") + 1);
+		assertTestMethodWasSuccessfullyExecuted(baseDir, testClassQualifiedName,
+				String.join(" ", suiteClassSimpleName, testClassSimpleName), methodName, 1);
+	}
+
+	private static void assertTestMethodWasSuccessfullyExecuted(String baseDir, String qualifiedClassName,
+			String classNameInReport, String methodName, int iterations) throws Exception {
 		// surefire-test-report XML schema:
 		// https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd
-		String testCaseXPath = String.format("/testsuite/testcase[@classname='%s' and @name='%s']", className,
+		File resultFile = getTestResultFile(baseDir, qualifiedClassName);
+		Document document = readDocument(resultFile);
+		String testCaseXPath = String.format("/testsuite/testcase[@classname='%s' and @name='%s']", classNameInReport,
 				methodName);
 		List<Node> testCaseNodes2 = XMLTool.getMatchingNodes(document, testCaseXPath);
 		assertEquals(resultFile.getAbsolutePath() + " with xpath " + testCaseXPath
