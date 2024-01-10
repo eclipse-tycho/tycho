@@ -112,7 +112,7 @@ public class VersionsEngine {
     public void apply() throws IOException {
 
         VersionChangesDescriptor versionChangeContext = new VersionChangesDescriptor(originalVersionChanges,
-                new DefaultVersionRangeUpdateStrategy(updateVersionRangeMatchingBounds), projects);
+                new DefaultVersionRangeUpdateStrategy(isUpdateVersionRangeMatchingBounds()), projects);
 
         // collecting secondary changes
         boolean newChanges = true;
