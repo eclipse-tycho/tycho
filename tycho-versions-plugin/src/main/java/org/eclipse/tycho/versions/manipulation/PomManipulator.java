@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,9 +45,11 @@ import org.eclipse.tycho.versions.pom.Property;
 
 @Component(role = MetadataManipulator.class, hint = PomManipulator.HINT)
 public class PomManipulator extends AbstractMetadataManipulator {
+    private static final String POM = "pom";
+
     private static final String NULL = "<null>";
 
-    public static final String HINT = "pom";
+    public static final String HINT = POM;
 
     private static final Pattern CI_FRIENDLY_EXPRESSION = Pattern.compile("\\$\\{(.+?)\\}");
 
@@ -53,20 +57,47 @@ public class PomManipulator extends AbstractMetadataManipulator {
     public boolean addMoreChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         PomFile pom = project.getMetadata(PomFile.class);
         if (pom == null) {
-            throw new RuntimeException("no pom avaiable for " + project.getBasedir());
+            throw new RuntimeException("no pom available for " + project.getBasedir());
         }
         GAV parent = pom.getParent();
 
-        boolean moreChanges = false;
-        for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
-            if (parent != null && isGavEquals(parent, change)) {
-                if (isVersionEquals(pom.getVersion(), change.getVersion())) {
-                    moreChanges |= versionChangeContext
-                            .addVersionChange(new PomVersionChange(pom, change.getVersion(), change.getNewVersion()));
+        AtomicBoolean moreChanges = new AtomicBoolean();
+        if (parent != null) {
+            for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
+                if (isGavEquals(parent, change)) {
+                    if (isVersionEquals(pom.getVersion(), change.getVersion())) {
+                        if (versionChangeContext.addVersionChange(
+                                new PomVersionChange(pom, change.getVersion(), change.getNewVersion()))) {
+                            moreChanges.set(true);
+                        }
+                    }
                 }
             }
         }
-        return moreChanges;
+        //if we are about to change we need to check the submodule
+        if (POM.equals(pom.getPackaging())) {
+            Optional<PomVersionChange> thisChange = versionChangeContext.getVersionChanges().stream()
+                    .filter(change -> change.getProject() == pom).findFirst();
+            if (thisChange.isPresent()) {
+                PomVersionChange change = thisChange.get();
+                List<String> modules = pom.getModules();
+                for (String module : modules) {
+                    versionChangeContext.findMetadataByBasedir(new File(project.getBasedir(), module))
+                            .ifPresent(moduleMeta -> {
+                                PomFile modulePom = moduleMeta.getMetadata(PomFile.class);
+                                if (modulePom != null && modulePom.isMutable()
+                                        && POM.equals(modulePom.getPackaging())) {
+                                    if (versionChangeContext.addVersionChange(
+                                            new PomVersionChange(modulePom, change.getNewVersion()))) {
+                                        moreChanges.set(true);
+                                    }
+                                }
+                            });
+                }
+            }
+        }
+
+        return moreChanges.get();
     }
 
     @Override
@@ -115,10 +146,9 @@ public class PomManipulator extends AbstractMetadataManipulator {
                     pom.setVersion(newVersion);
                 }
             } else {
-
                 GAV parent = pom.getParent();
                 if (parent != null && isGavEquals(parent, change) && !isCiFriendly(parent.getVersion())) {
-                    logger.info("  %s//project/version: %s => %s".formatted(pomName, version, newVersion));
+                    logger.info("  %s//project/parent/version: %s => %s".formatted(pomName, version, newVersion));
                     parent.setVersion(newVersion);
                 }
             }
