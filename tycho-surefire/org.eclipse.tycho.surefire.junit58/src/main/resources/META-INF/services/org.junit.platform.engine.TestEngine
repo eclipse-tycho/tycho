@@ -1,1 +1,2 @@
 org.junit.jupiter.engine.JupiterTestEngine
+org.junit.platform.suite.engine.SuiteTestEngine

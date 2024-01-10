@@ -2,3 +2,4 @@
 # otherwise only one of the two files would win when extracting dependencies
 org.junit.jupiter.engine.JupiterTestEngine
 org.junit.vintage.engine.VintageTestEngine
+org.junit.platform.suite.engine.SuiteTestEngine
