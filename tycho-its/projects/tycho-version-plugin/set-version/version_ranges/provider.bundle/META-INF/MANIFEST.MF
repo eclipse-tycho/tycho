@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test Bundle
+Bundle-SymbolicName: provider.bundle
+Bundle-Version: 1.0.0.qualifier
+Export-Package: my.pkg;version="1.0.0"
+
