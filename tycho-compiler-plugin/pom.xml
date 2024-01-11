@@ -86,6 +86,11 @@
 			<artifactId>bcel</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+		    <groupId>org.codehaus.plexus</groupId>
+		    <artifactId>plexus-compiler-javac</artifactId>
+		    <version>2.14.2</version>
+		</dependency>
 	</dependencies>
 
 </project>
