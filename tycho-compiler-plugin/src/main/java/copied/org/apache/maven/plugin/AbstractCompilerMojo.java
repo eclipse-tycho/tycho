@@ -57,6 +57,8 @@ import org.codehaus.plexus.util.StringUtils;
  */
 public abstract class AbstractCompilerMojo extends AbstractMojo {
 
+    protected static final String JDT_COMPILER_ID = "jdt";
+
     public static final String DEFAULT_SOURCE_VERSION = "11";
 
     public static final String DEFAULT_TARGET_VERSION = "11";
@@ -144,8 +146,8 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
     /**
      * The compiler id of the compiler to use.
      */
-    @Parameter(property = "maven.compiler.compilerId", defaultValue = "jdt")
-    private String compilerId;
+    @Parameter(property = "maven.compiler.compilerId", defaultValue = JDT_COMPILER_ID)
+    protected String compilerId;
 
     /**
      * Version of the compiler to use, ex. "1.3", "1.5", if fork is set to true

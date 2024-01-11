@@ -6,6 +6,22 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+### using javac as the compiler for Tycho
+
+You can now use `javac` as the compiler backend for Tycho by adding the following configuration:
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-compiler-plugin</artifactId>
+	<version>${tycho.version}</version>
+	<configuration>
+		<compilerId>javac</compilerId>
+	</configuration>
+</plugin>
+ ```
+
+
 ### new `mirror-target-platform`
 
 There is a new `mirror-target-platform` that allows to mirror the current target platform of a project into a P2 update site, this can b enabled for a project like this:
