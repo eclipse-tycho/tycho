@@ -15,6 +15,7 @@
 package org.eclipse.tycho.build;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +84,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 				if (properties.getProperty(TychoCiFriendlyVersions.PROPERTY_BUILDQUALIFIER_FORMAT) != null
 						|| properties.getProperty(TychoCiFriendlyVersions.PROPERTY_FORCE_QUALIFIER) != null
 						|| properties.getProperty(TychoCiFriendlyVersions.BUILD_QUALIFIER) != null) {
-					tychoMapping.setSnapshotFormat("${" + TychoCiFriendlyVersions.BUILD_QUALIFIER + "}");
+					tychoMapping.setSnapshotProperty(TychoCiFriendlyVersions.BUILD_QUALIFIER);
 				}
 			}
 		}
@@ -161,11 +162,14 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			if (DEBUG) {
 				for (MavenProject project : projects) {
 					ProjectDependencies depends = dependencyClosure.getProjectDependecies(project);
-					if (depends.getDependencies().isEmpty()) {
+					// we fetch all dependencies here without filtering, because the goal is to find
+					// as many projects that are maybe required
+					Collection<IInstallableUnit> dependencies = depends.getDependencies(List.of());
+					if (dependencies.isEmpty()) {
 						continue;
 					}
 					log.info("[[ project " + project.getName() + " depends on: ]]");
-					for (IInstallableUnit dependency : depends.getDependencies()) {
+					for (IInstallableUnit dependency : dependencies) {
 						Optional<MavenProject> mavenProject = dependencyClosure.getProject(dependency);
 						if (mavenProject.isEmpty()) {
 							log.info(" IU: " + dependency);
@@ -186,7 +190,10 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 				ProjectRequest projectRequest = queue.poll();
 				if (selectedProjects.add(projectRequest.mavenProject)) {
 					if (projectRequest.addDependencies) {
-						dependencyClosure.getDependencyProjects(projectRequest.mavenProject).forEach(project -> {
+						// we fetch all dependencies here without filtering for the context, because the
+						// goal is to find as many projects that are might be required
+						dependencyClosure.getDependencyProjects(projectRequest.mavenProject, List.of())
+								.forEach(project -> {
 							if (DEBUG) {
 								log.info(" + add dependency project '" + project.getId() + "' of project '"
 									+ projectRequest.mavenProject.getId() + "'");
@@ -196,7 +203,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 						});
 					}
 					if (projectRequest.addRequires) {
-						dependencyClosure.dependencies()//
+						dependencyClosure.dependencies(always -> List.of())//
 								.filter(entry -> entry.getValue().stream()//
 										.flatMap(dependency -> dependencyClosure.getProject(dependency).stream())//
 										.anyMatch(projectRequest::matches))//

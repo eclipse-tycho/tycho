@@ -34,6 +34,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.BuildPropertiesParser;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.build.BuildTimestampProvider;
 import org.eclipse.tycho.core.VersioningHelper;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -116,11 +117,25 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     @Parameter(property = "mojoExecution", readonly = true)
     protected MojoExecution execution;
 
-    @Component(role = BuildTimestampProvider.class)
-    protected Map<String, BuildTimestampProvider> timestampProviders;
+	@Component(role = BuildTimestampProvider.class)
+	protected Map<String, BuildTimestampProvider> timestampProviders;
 
 	@Component
 	private BuildPropertiesParser buildPropertiesParser;
+
+	/**
+	 * This is only a dummy parameter used to prevent maven from complaining about
+	 * "unknown" parameters when using the jgit extension
+	 */
+	@Parameter(alias = "jgit.dirtyWorkingTree")
+	private String dummy1;
+
+	/**
+	 * This is only a dummy parameter used to prevent maven from complaining about
+	 * "unknown" parameters when using the jgit extension
+	 */
+	@Parameter(alias = "jgit.ignore")
+	private String dummy2;
 
     // setter is needed to make sure we always use UTC
     public void setFormat(String formatString) {
@@ -130,14 +145,18 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-		TychoProjectVersion projectVersion = calculateQualifiedVersion();
+		Date timestamp = getBuildTimestamp();
+		TychoProjectVersion projectVersion = calculateQualifiedVersion(timestamp);
 		project.getProperties().put(BUILD_QUALIFIER, projectVersion.qualifier);
 		project.getProperties().put(UNQUALIFIED_VERSION, projectVersion.unqualifiedVersion);
 		project.getProperties().put(QUALIFIED_VERSION, projectVersion.getOSGiVersion());
 		getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
+		DefaultReactorProject.adapt(project).setContextValue(TychoConstants.BUILD_TIMESTAMP, projectVersion);
     }
 
-    private TychoProjectVersion calculateQualifiedVersion() throws MojoFailureException, MojoExecutionException {
+	private TychoProjectVersion calculateQualifiedVersion(Date timestamp)
+			throws MojoFailureException, MojoExecutionException {
+
         Version osgiVersion = getParsedOSGiVersion();
         if (osgiVersion != null) {
 
@@ -148,7 +167,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
                 return new TychoProjectVersion(unqualifiedVersion, osgiVersion.getQualifier());
             }
         }
-		String qualifier = getDesiredQualifier();
+		String qualifier = getDesiredQualifier(timestamp);
 
         validateQualifier(qualifier);
 
@@ -161,7 +180,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 		return new TychoProjectVersion(pomOSGiVersion, qualifier);
     }
 
-	protected String getDesiredQualifier() throws MojoExecutionException {
+	protected String getDesiredQualifier(Date timestamp) throws MojoExecutionException {
 		String qualifier = forceContextQualifier;
 
         if (qualifier == null) {
@@ -169,7 +188,6 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         }
 
         if (qualifier == null) {
-            Date timestamp = getBuildTimestamp();
             qualifier = getQualifier(timestamp);
         }
 		return qualifier;

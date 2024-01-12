@@ -60,6 +60,11 @@ public class BaselineValidator {
         public String getDetailedMessage() {
             return getMessage();
         }
+
+        @Override
+        public void writeDetails(File destination) throws IOException {
+
+        }
     }
 
     @Requirement
@@ -97,9 +102,7 @@ public class BaselineValidator {
                         File logdir = new File(project.getBuild().getDirectory(), "artifactcomparison");
                         log.info("Artifact comparison detailed log directory " + logdir.getAbsolutePath());
                         for (Map.Entry<String, ArtifactDelta> classifier : delta.getMembers().entrySet()) {
-                            if (classifier.getValue() instanceof CompoundArtifactDelta compoundDelta) {
-                                compoundDelta.writeDetails(new File(logdir, classifier.getKey()));
-                            }
+                            classifier.getValue().writeDetails(new File(logdir, classifier.getKey()));
                         }
                     }
                     if (baselineMode == fail || (baselineMode == failCommon && !isMissingOnlyDelta(delta))) {

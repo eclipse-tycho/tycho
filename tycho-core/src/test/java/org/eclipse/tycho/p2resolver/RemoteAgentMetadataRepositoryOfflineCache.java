@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
 import java.net.URI;
 
@@ -56,10 +58,10 @@ public class RemoteAgentMetadataRepositoryOfflineCache extends TychoPlexusTestCa
         mavenSession.getRequest().setOffline(true);
     }
 
-    @Test(expected = ProvisionException.class)
+    @Test
     public void testOfflineLoadingWithoutCacheFails() throws Exception {
         IProvisioningAgent offlineAgent = newOfflineAgent();
-        loadHttpRepository(offlineAgent);
+        assertThrows(ProvisionException.class, () -> loadHttpRepository(offlineAgent));
     }
 
     private IProvisioningAgent newOfflineAgent() throws Exception {

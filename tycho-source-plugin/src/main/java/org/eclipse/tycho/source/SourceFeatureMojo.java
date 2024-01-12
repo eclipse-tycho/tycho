@@ -9,7 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Bachmann GmbH. - Bug 538395 Generate valid feature xml 
+ *    Bachmann GmbH. - Bug 538395 Generate valid feature xml
  *    Christoph Läubrich - Bug 568359 - move tycho-extras SourceFeatureMojo to tycho-source-feature
  *******************************************************************************/
 package org.eclipse.tycho.source;
@@ -54,12 +54,13 @@ import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
@@ -83,13 +84,13 @@ import de.pdark.decentxml.Element;
  * <li>Includes the original feature. This ensures that binaries and corresponding sources
  * match.</li>
  * </ul>
- * 
+ *
  * Source feature generation can be customized by adding files under path
  * <code>sourceTemplateFeature/</code>. Files added here will be added to the root of the source
  * feature jar. Especially, if file <code>sourceTemplateFeature/feature.properties</code> is found,
  * values in this file override values of respective keys in
  * <code>&lt;originalFeature&gt;/feature.properties</code>.
- * 
+ *
  */
 @Mojo(name = SourceFeatureMojo.GOAL, defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class SourceFeatureMojo extends AbstractMojo {
@@ -159,14 +160,14 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     /**
      * Bundles and features that do not have corresponding sources. Example:
-     * 
+     *
      * <pre>
      * &lt;excludes&gt;
      *   &lt;plugin id="plugin.nosource"/&gt;
      *   &lt;feature id="feature.nosource"/&gt;
      * &lt;/excludes&gt;
      * </pre>
-     * 
+     *
      */
     @Parameter
     private PlexusConfiguration excludes;
@@ -179,7 +180,7 @@ public class SourceFeatureMojo extends AbstractMojo {
      * <p>
      * <strong>WARNING</strong> This experimental parameter may be removed from future
      * source-feature mojo versions without prior notice.
-     * 
+     *
      */
     @Parameter
     private PlexusConfiguration plugins;
@@ -223,6 +224,9 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     @Component
     private Logger logger;
+
+    @Component
+    private TychoProjectManager projectManager;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -321,8 +325,8 @@ public class SourceFeatureMojo extends AbstractMojo {
 
         final Feature sourceFeature = createSourceFeatureSkeleton(feature, mergedSourceFeatureProps,
                 sourceTemplateProps);
-        fillReferences(sourceFeature, feature,
-                TychoProjectUtils.getTargetPlatform(DefaultReactorProject.adapt(project)));
+        fillReferences(sourceFeature, feature, projectManager.getTargetPlatform(project)
+                .orElseThrow(() -> new MojoExecutionException(TychoConstants.TYCHO_NOT_CONFIGURED + project)));
 
         Feature.write(sourceFeature, sourceFeatureXml, "  ");
         return sourceFeatureXml;
@@ -378,7 +382,7 @@ public class SourceFeatureMojo extends AbstractMojo {
                     mergedFeatureProperties.setProperty(labelKey,
                             mergedFeatureProperties.getProperty(labelKey) + labelSuffix);
                 } else {
-                    // keep source template value 
+                    // keep source template value
                 }
             } else {
                 sourceFeature.setLabel(originalLabel + labelSuffix);
@@ -428,7 +432,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     /**
      * Returns the value for a field. In case the value is a reference to feature.properties, verify
      * that the entry exist in the feature.properties file for source
-     * 
+     *
      * @param fieldValue
      * @param sourceFeatureProperties
      * @return
@@ -447,7 +451,7 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     /**
      * Added all references to sourceFeature, as deduced by feature and resolved by targetPlatform
-     * 
+     *
      * @param sourceFeature
      * @param feature
      * @param targetPlatform
@@ -533,9 +537,9 @@ public class SourceFeatureMojo extends AbstractMojo {
 
                 throw new MojoExecutionException(sb.toString());
             } else {
-                reportMissing("The following referenced plugins has missing sources", missingSourcePlugins);
-                reportMissing("The following referenced features has missing sources", missingSourceFeatures);
-                reportMissing("The following referenced extra plugins has missing sources", missingExtraPlugins);
+                reportMissing("The following referenced plugins have missing sources", missingSourcePlugins);
+                reportMissing("The following referenced features have missing sources", missingSourceFeatures);
+                reportMissing("The following referenced extra plugins have missing sources", missingExtraPlugins);
             }
         }
 

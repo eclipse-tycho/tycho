@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
-import org.eclipse.equinox.p2.query.CompoundQueryable;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -52,6 +52,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.tycho.TargetEnvironment;
 
 public class MirrorApplication extends AbstractApplication implements IApplication, IExecutableExtension {
     private static final String DEFAULT_COMPARATOR = ArtifactChecksumComparator.COMPARATOR_ID + ".sha-256"; //$NON-NLS-1$
@@ -59,6 +60,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
     private static final String MIRROR_MODE = "metadataOrArtifacts"; //$NON-NLS-1$
 
     protected SlicingOptions slicingOptions = new SlicingOptions();
+    protected List<TargetEnvironment> environments = new ArrayList<>();
 
     private URI baseline;
     private String comparatorID;
@@ -71,7 +73,6 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
     private boolean mirrorReferences = true;
     private String metadataOrArtifacts = null;
     private String[] rootIUs = null;
-    private boolean includePacked = true;
     private boolean mirrorProperties = false;
 
     private File mirrorLogFile; // file to log mirror output to (optional)
@@ -279,7 +280,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
      * Collect all artifacts from the IUs that should be mirrored
      * 
      * @param ius
-     *            the IUs that are selected for mirroring
+     *                the IUs that are selected for mirroring
      * @return a (modifiable) list of {@link IArtifactKey}s that must be mirrored
      */
     protected List<IArtifactKey> collectArtifactKeys(Collection<IInstallableUnit> ius, IProgressMonitor monitor)
@@ -314,7 +315,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
      * Collect all IUS from the slice that should be mirrored
      * 
      * @param slice
-     *            the slice for mirroring
+     *                  the slice for mirroring
      * @return a (modifiable) set of {@link IInstallableUnit}s that must be mirrored
      * @throws ProvisionException
      */
@@ -326,9 +327,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
     }
 
     /*
-     * Ensure all mandatory parameters have been set. Throw an exception if there are any missing.
-     * We don't require the user to specify the artifact repository here, we will default to the
-     * ones already registered in the manager. (callers are free to add more if they wish)
+     * Ensure all mandatory parameters have been set. Throw an exception if there are any missing. We
+     * don't require the user to specify the artifact repository here, we will default to the ones
+     * already registered in the manager. (callers are free to add more if they wish)
      */
     private void validate() throws ProvisionException {
         if (sourceRepositories.isEmpty())
@@ -397,22 +398,35 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
     }
 
     private IQueryable<IInstallableUnit> performResolution(IProgressMonitor monitor) throws ProvisionException {
+        List<Map<String, String>> filters = getContextFilters();
         IProfileRegistry registry = getProfileRegistry();
         String profileId = "MirrorApplication-" + System.currentTimeMillis(); //$NON-NLS-1$
-        IProfile profile = registry.addProfile(profileId, slicingOptions.getFilter());
-        IPlanner planner = agent.getService(IPlanner.class);
-        if (planner == null)
-            throw new IllegalStateException();
-        IProfileChangeRequest pcr = planner.createChangeRequest(profile);
-        pcr.addAll(sourceIUs);
-        IProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, monitor);
-        registry.removeProfile(profileId);
-        @SuppressWarnings("unchecked")
-        IQueryable<IInstallableUnit>[] arr = new IQueryable[plan.getInstallerPlan() == null ? 1 : 2];
-        arr[0] = plan.getAdditions();
-        if (plan.getInstallerPlan() != null)
-            arr[1] = plan.getInstallerPlan().getAdditions();
-        return new CompoundQueryable<>(arr);
+        List<IQueryable<IInstallableUnit>> queryables = new ArrayList<>();
+        for (Map<String, String> filter : filters) {
+            IProfile profile = registry.addProfile(profileId, filter);
+            IPlanner planner = agent.getService(IPlanner.class);
+            if (planner == null) {
+                throw new IllegalStateException();
+            }
+            IProfileChangeRequest pcr = planner.createChangeRequest(profile);
+            pcr.addAll(sourceIUs);
+            IProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, monitor);
+            registry.removeProfile(profileId);
+            queryables.add(plan.getAdditions());
+            IProvisioningPlan installerPlan = plan.getInstallerPlan();
+            if (installerPlan != null) {
+                queryables.add(installerPlan.getAdditions());
+            }
+        }
+        return QueryUtil.compoundQueryable(queryables);
+    }
+
+    protected List<Map<String, String>> getContextFilters() {
+        return environments.isEmpty() ? List.of(slicingOptions.getFilter()) : environments.stream().map(environment -> {
+            Map<String, String> filter = new HashMap<>(slicingOptions.getFilter());
+            filter.putAll(environment.toFilterProperties());
+            return filter;
+        }).toList();
     }
 
     private IProfileRegistry getProfileRegistry() throws ProvisionException {
@@ -429,8 +443,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
             return performResolution(monitor);
 
         Slicer slicer = createSlicer(slicingOptions);
-        IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]),
-                monitor);
+        IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs, monitor);
 
         if (slice != null && slicingOptions.latestVersionOnly()) {
             IQueryResult<IInstallableUnit> queryResult = slice.query(QueryUtil.createLatestIUQuery(), monitor);
@@ -450,6 +463,10 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
                 options.includeOptionalDependencies(), options.isEverythingGreedy(), options.forceFilterTo(),
                 options.considerStrictDependencyOnly(), options.followOnlyFilteredRequirements());
         return slicer;
+    }
+
+    public void setEnvironments(List<TargetEnvironment> environments) {
+        this.environments = environments;
     }
 
     public void setSlicingOptions(SlicingOptions options) {
@@ -537,10 +554,6 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
     public void setComparatorExclusions(IQuery<IArtifactDescriptor> exclusions) {
         compareExclusions = exclusions;
-    }
-
-    public void setIncludePacked(boolean includePacked) {
-        this.includePacked = includePacked;
     }
 
     public void setMirrorProperties(boolean mirrorProperties) {

@@ -17,8 +17,11 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.BuildDirectory;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -54,7 +57,11 @@ public interface MirrorApplicationService {
      *            Whether to include bundles mentioned in the require section of a feature
      * @param includeRequiredFeatures
      *            Whether to include features mentioned in the require section of a feature
-     * @param filterProvided Whether to filter IU/artifacts that are already provided by a referenced repository
+     * @param filterProvided
+     *            Whether to filter IU/artifacts that are already provided by a referenced
+     *            repository
+     * @param addOnlyProvidingRepoReferences
+     *            Whether to add only repository-references that provide any relevant IU
      * @param filterProperties
      *            additional filter properties to be set in the p2 slicing options. May be
      *            <code>null</code>
@@ -64,7 +71,8 @@ public interface MirrorApplicationService {
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<DependencySeed> seeds, BuildContext context, boolean includeAllDependencies,
             boolean includeAllSource, boolean includeRequiredBundles, boolean includeRequiredFeatures,
-            boolean filterProvided, Map<String, String> filterProperties) throws FacadeException;
+            boolean filterProvided, boolean addOnlyProvidingRepoReferences, Map<String, String> filterProperties)
+            throws FacadeException;
 
     /**
      * recreates the metadata of an existing repository e.g. to account for changes in the contained
@@ -100,6 +108,24 @@ public interface MirrorApplicationService {
      */
     void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<IUDescription> seedUnits, MirrorOptions mirrorOptions, BuildDirectory tempDirectory)
+            throws FacadeException;
+
+    /**
+     * Mirrors the given sources to the destination, if the destination exits it will be delete
+     * beforehand.
+     * 
+     * @param sourceArtifactRepository
+     *            the source artifact repository
+     * @param sourceMetadataRepository
+     *            the source metadata repository
+     * @param repositoryDestination
+     *            the destination
+     * @param repositoryName
+     *            the name of the new repository
+     * @throws FacadeException
+     */
+    void mirrorDirect(IArtifactRepository sourceArtifactRepository,
+            IQueryable<IInstallableUnit> sourceMetadataRepository, File repositoryDestination, String repositoryName)
             throws FacadeException;
 
     /**

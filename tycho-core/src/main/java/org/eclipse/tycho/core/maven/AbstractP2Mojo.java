@@ -23,6 +23,7 @@ import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
@@ -36,7 +37,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    @Parameter(property = "buildQualifier", readonly = true)
+    @Parameter(property = TychoProperties.BUILD_QUALIFIER)
     private String qualifier;
 
     @Component

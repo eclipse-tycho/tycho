@@ -28,8 +28,6 @@ public final class EclipseWorkspace<T> {
 
     private T key;
 
-    private boolean init;
-
     private Logger logger;
 
     private Thread thread;

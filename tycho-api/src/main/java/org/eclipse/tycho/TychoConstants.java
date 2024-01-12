@@ -10,12 +10,18 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich - Issue #658 - Tycho strips p2 artifact properties (eg PGP, maven info...)
+ *    Marco Lehmann-Mörz - issue #2877 - tycho-versions-plugin:bump-versions does not honor SNAPSHOT suffix
  *******************************************************************************/
 package org.eclipse.tycho;
 
 import java.util.regex.Pattern;
 
 public interface TychoConstants {
+
+    public static final String ECLIPSE_LATEST = "https://download.eclipse.org/releases/2023-12/";
+
+    public static final String TYCHO_NOT_CONFIGURED = "Tycho build extension not configured for ";
+
     static final String ANY_QUALIFIER = "qualifier";
 
     static final boolean USE_SMART_BUILDER = Boolean
@@ -34,7 +40,6 @@ public interface TychoConstants {
 
     // static final String CTX_TARGET_PLATFORM -> moved to TargetPlatform.FINAL_TARGET_PLATFORM_KEY;
     static final String CTX_DEPENDENCY_ARTIFACTS = CTX_BASENAME + "/dependencyArtifacts";
-    static final String CTX_REPOSITORY_REFERENCE = CTX_BASENAME + "/repositoryReference";
     static final String CTX_METADATA_ARTIFACT_LOCATION = CTX_BASENAME + "/metadataArtifactLocation";
 
     /**
@@ -52,6 +57,8 @@ public interface TychoConstants {
     static final Pattern PLATFORM_URL_PATTERN = Pattern.compile("platform:/(plugin|fragment)/([^/]*)(/)*.*");
 
     static final String PDE_BND = "pde.bnd";
+
+    public static final String BUILD_TIMESTAMP = CTX_BASENAME + "/buildTimestamp";
 
     public String JAR_EXTENSION = "jar";
 
@@ -77,6 +84,7 @@ public interface TychoConstants {
 
     String PROP_PGP_SIGNATURES = "pgp.signatures";
 
+    String DEFAULT_PROFILE = "DefaultProfile";
     /**
      * @deprecated this is deprecated but can't be removed as we otherwise loose compatibility for
      *             older repository format, this should never be used in new code and usage should
@@ -130,4 +138,8 @@ public interface TychoConstants {
     public String ROOTFILE_EXTENSION = "zip";
 
     String HEADER_TESTCASES = "Test-Cases";
+
+    String SUFFIX_QUALIFIER = ".qualifier";
+
+    String SUFFIX_SNAPSHOT = "-SNAPSHOT";
 }

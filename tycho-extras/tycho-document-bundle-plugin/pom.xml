@@ -9,13 +9,14 @@
 - Contributors:
 -    IBH SYSTEMS GmbH - initial API and implementation
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.eclipse.tycho.extras</groupId>
 		<artifactId>tycho-extras</artifactId>
-		<version>4.0.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>tycho-document-bundle-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
@@ -58,7 +59,12 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.help.base</artifactId>
-			<version>4.4.0</version>
+			<version>4.4.200</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.pde</groupId>
+			<artifactId>org.eclipse.pde.core</artifactId>
+			<version>3.17.200</version>
 		</dependency>
 	</dependencies>
 	<build>

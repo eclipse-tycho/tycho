@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="aProduct" id="org.eclipse.platform.ide" version="1.0.0" type="mixed" includeLaunchers="false" autoIncludeRequirements="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <features>
+      <feature id="org.eclipse.equinox.p2.core.feature"/>
+   </features>
+
+   <repositories>
+      <repository location="https://foo.bar.org" enabled="true" />
+      <repository location="https://foo.bar.org/releases" name="Latest release" enabled="true" />
+      <repository location="https://foo.bar.org/snapshots" name="Latest snapshot" enabled="false" />
+   </repositories>
+
+</product>

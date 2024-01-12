@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import static org.junit.Assert.assertThrows;
+
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -29,12 +31,13 @@ import org.eclipse.tycho.core.publisher.FeatureRootfileArtifactRepository;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
+import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class FeatureRootfileArtifactRepositoryTest {
+public class FeatureRootfileArtifactRepositoryTest extends TychoPlexusTestCase {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
@@ -77,14 +80,14 @@ public class FeatureRootfileArtifactRepositoryTest {
         assertMavenProperties(descriptor, "root.win32.win32.x86");
     }
 
-    @Test(expected = ProvisionException.class)
+    @Test
     public void testRepoWithoutMavenAdvice() throws Exception {
         FeatureRootfileArtifactRepository subject = new FeatureRootfileArtifactRepository(createPublisherInfo(false),
                 tempFolder.newFolder("testrootfiles"));
 
         IArtifactDescriptor artifactDescriptor = createArtifactDescriptor(PublisherHelper.BINARY_ARTIFACT_CLASSIFIER,
                 "org.eclipse.tycho.test.p2");
-        subject.getOutputStream(artifactDescriptor).close();
+        assertThrows(ProvisionException.class, () -> subject.getOutputStream(artifactDescriptor).close());
     }
 
     @Test
@@ -107,11 +110,11 @@ public class FeatureRootfileArtifactRepositoryTest {
     }
 
     private void assertMavenProperties(IArtifactDescriptor descriptor, String root) {
-        Assert.assertEquals(descriptor.getProperty("maven-groupId"), "artifactGroupId");
-        Assert.assertEquals(descriptor.getProperty("maven-artifactId"), "artifactId");
-        Assert.assertEquals(descriptor.getProperty("maven-version"), "artifactVersion");
-        Assert.assertEquals(descriptor.getProperty("maven-classifier"), root);
-        Assert.assertEquals(descriptor.getProperty("maven-extension"), "zip");
+        Assert.assertEquals("artifactGroupId", descriptor.getProperty("maven-groupId"));
+        Assert.assertEquals("artifactId", descriptor.getProperty("maven-artifactId"));
+        Assert.assertEquals("artifactVersion", descriptor.getProperty("maven-version"));
+        Assert.assertEquals(root, descriptor.getProperty("maven-classifier"));
+        Assert.assertEquals("zip", descriptor.getProperty("maven-extension"));
     }
 
     private void assertAttachedArtifact(Map<String, IP2Artifact> attachedArtifacts, int expectedSize,

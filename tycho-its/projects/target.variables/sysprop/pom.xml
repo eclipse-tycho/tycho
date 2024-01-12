@@ -54,6 +54,7 @@
     <modules>
         <module>targetplatform</module>
         <module>project</module>
+        <module>site</module>
     </modules>
 
 </project>

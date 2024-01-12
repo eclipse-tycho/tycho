@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -27,18 +28,23 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.ArchivedFileSet;
 import org.codehaus.plexus.archiver.util.DefaultArchivedFileSet;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.BuildPropertiesImpl;
+import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 
 @Component(role = LicenseFeatureHelper.class)
 public class LicenseFeatureHelper {
+
+	@Requirement()
+	TychoProjectManager projectManager;
 
     public LicenseFeatureHelper() {
     }
@@ -60,8 +66,12 @@ public class LicenseFeatureHelper {
         if (id == null) {
             return null;
         }
+		Optional<TychoProject> tychoProject = projectManager.getTychoProject(mavenProject);
+		if (tychoProject.isEmpty()) {
+			return null;
+		}
 
-        ArtifactDescriptor licenseFeature = TychoProjectUtils
+		ArtifactDescriptor licenseFeature = tychoProject.get()
                 .getDependencyArtifacts(DefaultReactorProject.adapt(mavenProject))
                 .getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE, id, feature.getLicenseFeatureVersion());
 

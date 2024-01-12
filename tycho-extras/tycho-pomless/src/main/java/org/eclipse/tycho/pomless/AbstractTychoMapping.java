@@ -67,7 +67,8 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     private static final String PARENT_POM_DEFAULT_VALUE = System.getProperty(TYCHO_POMLESS_PARENT_PROPERTY, "..");
     private static final String QUALIFIER_SUFFIX = ".qualifier";
-    private static final String MODEL_PARENT = "TychoMapping.model.parent";
+
+    private Map<Path, ParentModel> parentModelCache = new HashMap<Path, ParentModel>();
 
     @Requirement
     protected PlexusContainer container;
@@ -79,7 +80,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     private boolean extensionMode;
     @SuppressWarnings("unused")
     private File multiModuleProjectDirectory;
-    private String snapshotFormat;
+    private String snapshotProperty;
 
     @Override
     public File locatePom(File dir) {
@@ -155,7 +156,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         model.setPackaging(getPackaging());
         initModel(model, artifactReader, artifactFile);
         if (model.getParent() == null) {
-            model.setParent(findParent(artifactFile.getParent(), options));
+            model.setParent(findParent(artifactFile.getParent(), options).parentReference());
         }
         if (model.getVersion() == null && model.getParent() != null) {
             //inherit version from parent if not given
@@ -172,11 +173,10 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         return polyglotArtifactFile;
     }
 
-    protected Parent findParent(Path projectRoot, Map<String, ?> projectOptions) throws IOException {
-        Parent parent = (Parent) projectOptions.get(MODEL_PARENT);
-        if (parent != null) {
-            //if the parent is given by the options we don't need to search it!
-            return parent;
+    protected synchronized ParentModel findParent(Path projectRoot, Map<String, ?> projectOptions) throws IOException {
+        ParentModel cached = parentModelCache.get(projectRoot);
+        if (cached != null) {
+            return cached;
         }
         Properties buildProperties = getBuildProperties(projectRoot);
         // assumption parent pom must be physically located in parent directory if not given by build.properties
@@ -198,16 +198,17 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         Model parentModel = parentPom.getReader().read(parentPom.getPomFile(), options);
         Parent parentReference = new Parent();
         String groupId = parentModel.getGroupId();
-        if (groupId == null) {
+        Parent grandParent = parentModel.getParent();
+        if (groupId == null && grandParent != null) {
             // must be inherited from grandparent
-            groupId = parentModel.getParent().getGroupId();
+            groupId = grandParent.getGroupId();
         }
         parentReference.setGroupId(groupId);
         parentReference.setArtifactId(parentModel.getArtifactId());
         String version = parentModel.getVersion();
-        if (version == null) {
+        if (version == null && grandParent != null) {
             // must be inherited from grandparent
-            version = parentModel.getParent().getVersion();
+            version = grandParent.getVersion();
         }
         parentReference.setVersion(version);
         parentReference
@@ -215,7 +216,9 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         logger.debug("Derived parent for path " + projectRoot + " is groupId: " + parentReference.getGroupId()
                 + ", artifactId: " + parentReference.getArtifactId() + ", relativePath: "
                 + parentReference.getRelativePath());
-        return parentReference;
+        ParentModel model = new ParentModel(parentReference, parentModel);
+        parentModelCache.put(projectRoot, model);
+        return model;
     }
 
     /**
@@ -342,16 +345,40 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         model.setLocation("", new InputLocation(0, 0, inputSource));
     }
 
-    protected String getPomVersion(String pdeVersion) {
+    protected String getPomVersion(String pdeVersion, Model model, Path projectRoot) {
         String pomVersion = pdeVersion;
         if (pdeVersion.endsWith(QUALIFIER_SUFFIX)) {
             String unqualifiedVersion = pdeVersion.substring(0, pdeVersion.length() - QUALIFIER_SUFFIX.length());
-            if (isExtensionMode() && snapshotFormat != null) {
-                return unqualifiedVersion + snapshotFormat;
+            //we need to check that this property is actually defined!
+            if (isExtensionMode() && modelHasProperty(snapshotProperty, model, projectRoot)) {
+                return unqualifiedVersion + "${" + snapshotProperty + "}";
             }
             return unqualifiedVersion + "-SNAPSHOT";
         }
         return pomVersion;
+    }
+
+    private boolean modelHasProperty(String property, Model model, Path projectRoot) {
+        if (property == null) {
+            //nothing we can check assume it is NOT present...
+            return false;
+        }
+        Properties properties = model.getProperties();
+        String string = properties.getProperty(property);
+        if (string != null) {
+            return true;
+        }
+        try {
+            ParentModel parent = findParent(projectRoot.getParent(), Map.of());
+            Model parentModel = parent.parentModel();
+            if (parentModel != null) {
+                return modelHasProperty(property, parentModel,
+                        projectRoot.resolve(parent.parentReference().getRelativePath()));
+            }
+        } catch (IOException e) {
+            //in this case we can't find the parent or there is no more parent...
+        }
+        return false;
     }
 
     public boolean isExtensionMode() {
@@ -367,8 +394,8 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         this.multiModuleProjectDirectory = multiModuleProjectDirectory;
     }
 
-    public void setSnapshotFormat(String snapshotFormat) {
-        this.snapshotFormat = snapshotFormat;
+    public void setSnapshotProperty(String snapshotFormat) {
+        this.snapshotProperty = snapshotFormat;
     }
 
     static Optional<Path> getLocation(Map<String, ?> options) {

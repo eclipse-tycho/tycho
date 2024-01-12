@@ -22,6 +22,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.build.BuildListener;
 import org.eclipse.tycho.core.exceptions.VersionBumpRequiredException;
 import org.eclipse.tycho.helper.ProjectHelper;
@@ -31,7 +32,7 @@ import org.eclipse.tycho.versions.engine.VersionsEngine;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.osgi.framework.Version;
 
-@Component(role = BuildListener.class)
+@Component(role = BuildListener.class, hint = "version-bump")
 public class VersionBumpBuildListener implements BuildListener {
 
     @Requirement
@@ -78,6 +79,10 @@ public class VersionBumpBuildListener implements BuildListener {
                             String newVersion = suggestedVersion.map(String::valueOf)
                                     .orElseGet(() -> Versions.incrementVersion(currentVersion,
                                             VersionBumpMojo.getIncrement(session, project, projectHelper)));
+                            boolean isSnapshot = currentVersion.endsWith(TychoConstants.SUFFIX_SNAPSHOT);
+                            if (isSnapshot) {
+                                newVersion += TychoConstants.SUFFIX_SNAPSHOT;
+                            }
                             logger.info(project.getId() + " requires a version bump from " + currentVersion + " => "
                                     + newVersion);
                             engine.setProjects(metadataReader.getProjects());

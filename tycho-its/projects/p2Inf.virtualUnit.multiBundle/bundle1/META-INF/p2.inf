@@ -1,0 +1,11 @@
+# Create the virtual IU
+units.0.id=configure.pvumb.bundle1
+units.0.version=1.0.0
+units.0.provides.1.namespace=org.eclipse.equinox.p2.iu
+units.0.provides.1.name=configure.pvumb.bundle1
+units.0.provides.1.version=1.0.0
+
+# Require in this bundle the created virtual IU
+requires.0.namespace=org.eclipse.equinox.p2.iu
+requires.0.name=configure.pvumb.bundle1
+requires.0.range=0.0.0

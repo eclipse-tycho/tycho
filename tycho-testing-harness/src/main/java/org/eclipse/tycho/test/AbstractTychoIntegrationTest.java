@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2023 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -90,6 +90,9 @@ public abstract class AbstractTychoIntegrationTest {
 
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
         verifier.setForkJvm(isForked());
+        if (isDisableMirrors()) {
+            verifier.setSystemProperty("eclipse.p2.mirrors", "false");
+        }
         String debug = System.getProperty("tycho.mvnDebug");
         if (debug != null) {
             System.out.println("Preparing to execute Maven in debug mode");
@@ -119,7 +122,7 @@ public abstract class AbstractTychoIntegrationTest {
         tmpDir.mkdirs();
         verifier.addCliOption("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
         if (setTargetPlatform) {
-            verifier.addCliOption("-Dtarget-platform=" + getTargetPlatform());
+            verifier.addCliOption("-Dtarget-platform=" + getTargetPlatform().replace("/", "//"));
         }
         if (ignoreLocalArtifacts) {
             verifier.addCliOption("-Dtycho.localArtifacts=ignore");
@@ -144,6 +147,14 @@ public abstract class AbstractTychoIntegrationTest {
 
         return verifier;
 
+    }
+
+    /**
+     * can be overridden by subclass to explicitly enable mirrors, by default they are disabled.
+     * 
+     */
+    protected boolean isDisableMirrors() {
+        return true;
     }
 
     protected boolean isForked() {

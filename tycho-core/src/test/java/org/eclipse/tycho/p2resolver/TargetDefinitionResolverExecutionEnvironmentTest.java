@@ -34,6 +34,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.ee.impl.StandardEEResolutionHints;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentStub;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverIncludeModeTest.PlannerLocationStub;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.RepositoryStub;
@@ -60,7 +61,7 @@ public class TargetDefinitionResolverExecutionEnvironmentTest extends TychoPlexu
         MavenContext mavenCtx = new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger());
         return new TargetDefinitionResolver(defaultEnvironments(),
                 new StandardEEResolutionHints(new ExecutionEnvironmentStub(executionEnvironmentName, systemPackages)),
-                IncludeSourceMode.honor, mavenCtx, null,
+                IncludeSourceMode.honor, ReferencedRepositoryMode.ignore, mavenCtx, null,
                 new DefaultTargetDefinitionVariableResolver(mavenCtx, logVerifier.getLogger()));
     }
 

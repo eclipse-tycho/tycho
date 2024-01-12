@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
-		<version>4.0.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>org.eclipse.tycho.surefire.osgibooter</artifactId>
@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.app</artifactId>
-			<version>1.6.200</version>
+			<version>1.6.400</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.e4.ui.workbench3</artifactId>
-			<version>0.17.0</version>
+			<version>0.17.200</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>

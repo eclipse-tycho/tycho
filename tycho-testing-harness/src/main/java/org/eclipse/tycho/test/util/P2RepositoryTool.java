@@ -7,29 +7,21 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.junit.Assert;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public class P2RepositoryTool {
 
-    private static final ThreadLocal<XPath> xPathTool = ThreadLocal
-            .withInitial(() -> XPathFactory.newInstance().newXPath());
     private static final Pattern strictVersionRangePattern = Pattern.compile("\\[([^,]*),\\1\\]");
     private final File repoLocation;
     private final File metadataFile;
@@ -213,47 +205,41 @@ public class P2RepositoryTool {
         return getValues(contentXml, "/repository/units/unit/provides/provided[@namespace='java.package']/@name");
     }
 
-    private void loadMetadata() throws Exception {
-        if (contentXml != null)
-            return;
-        if (metadataFile.getName().endsWith("jar"))
-            throw new UnsupportedOperationException("Can't read compressed p2 repositories yet");
+    public List<RepositoryReference> getAllRepositoryReferences() throws Exception {
+        loadMetadata();
+        // See MetadataRepositoryIO.Writer#writeRepositoryReferences
+        List<Node> references = getNodes(contentXml, "/repository/references/repository");
+        List<RepositoryReference> result = new ArrayList<>();
+        for (Node reference : references) {
+            String uri = getAttribute(reference, "@uri");
+            int type = Integer.parseInt(getAttribute(reference, "@type"));
+            int options = Integer.parseInt(getAttribute(reference, "@options"));
+            result.add(new RepositoryReference(uri, type, options));
+        }
 
-        contentXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(metadataFile);
+        return result;
     }
 
-    private static XPath getXPathTool() {
-        return xPathTool.get();
+    private void loadMetadata() throws Exception {
+        if (contentXml != null) {
+            return;
+        }
+        contentXml = metadataFile.getName().endsWith("jar")
+                ? XMLTool.parseXMLDocumentFromJar(metadataFile, "content.xml")
+                : XMLTool.parseXMLDocument(metadataFile);
     }
 
     static List<Node> getNodes(Object startingPoint, String expression) throws XPathExpressionException {
-        NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
-
-        List<Node> result = new ArrayList<>(nodeList.getLength());
-        for (int ix = 0; ix < nodeList.getLength(); ++ix) {
-            result.add(nodeList.item(ix));
-        }
-        return result;
+        return XMLTool.getMatchingNodes(startingPoint, expression);
     }
 
     static List<String> getValues(Object startingPoint, String expression) throws XPathExpressionException {
-        NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
-
-        List<String> result = new ArrayList<>(nodeList.getLength());
-        for (int ix = 0; ix < nodeList.getLength(); ++ix) {
-            result.add(nodeList.item(ix).getNodeValue());
-        }
-        return result;
+        return XMLTool.getMatchingNodesValue(startingPoint, expression);
     }
 
     static String getAttribute(Node node, String expression) throws XPathExpressionException {
-        Attr attribute = (Attr) getXPathTool().evaluate(expression, node, XPathConstants.NODE);
-
-        if (attribute == null) {
-            return null;
-        } else {
-            return attribute.getValue();
-        }
+        Attr attribute = (Attr) XMLTool.getFirstMatchingNode(node, expression);
+        return attribute != null ? attribute.getValue() : null;
     }
 
     static boolean isStrictRange(String range) {
@@ -274,13 +260,7 @@ public class P2RepositoryTool {
         return range.substring(begin, end);
     }
 
-    public static final class IU {
-
-        private final Node unitElement;
-
-        IU(Node unitElement) {
-            this.unitElement = unitElement;
-        }
+    public static final record IU(Node unitElement) {
 
         public String getVersion() throws Exception {
             return getAttribute(unitElement, "@version");
@@ -300,14 +280,7 @@ public class P2RepositoryTool {
         }
 
         public List<String> getRequiredIds() throws Exception {
-            List<String> result = new ArrayList<>();
-
-            List<Node> requiredIds = getNodes(unitElement, "requires/required/@name");
-            for (Node id : requiredIds) {
-                result.add(id.getNodeValue());
-            }
-
-            return result;
+            return getValues(unitElement, "requires/required/@name");
         }
 
         /**
@@ -371,33 +344,10 @@ public class P2RepositoryTool {
         }
     }
 
-    public static final class IdAndVersion {
-        public final String id;
-        public final String version;
+    public static final record IdAndVersion(String id, String version) {
+    }
 
-        public IdAndVersion(String id, String version) {
-            this.id = id;
-            this.version = version;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, version);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return this == obj || //
-                    (obj instanceof IdAndVersion other && //
-                            Objects.equals(id, other.id) && //
-                            Objects.equals(version, other.version));
-        }
-
-        @Override
-        public String toString() {
-            return "id=" + id + ", version=" + version;
-        }
-
+    public static final record RepositoryReference(String uri, int type, int options) {
     }
 
     public static IdAndVersion withIdAndVersion(String id, String version) {

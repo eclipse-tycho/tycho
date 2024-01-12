@@ -46,7 +46,7 @@
 		</repository>
 		<repository>
 			<id>repo-with-test-runtime</id>
-			<url>${test-runtime-repo}</url>
+			<url>${target-platform}</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>

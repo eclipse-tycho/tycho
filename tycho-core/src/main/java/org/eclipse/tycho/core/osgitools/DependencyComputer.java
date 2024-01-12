@@ -119,9 +119,14 @@ public class DependencyComputer {
         public Version getVersion() {
             return getRevision().getVersion();
         }
+
+        @Override
+        public String toString() {
+            return "DependencyEntry [module=" + module + ", rules=" + rules + "]";
+        }
     }
 
-    private final class VisiblePackages {
+    private static final class VisiblePackages {
         private final Map<BundleRevision, Set<AccessRule>> visiblePackages = new HashMap<>();
         private final BundleRevision consumerHost;
 
@@ -164,7 +169,7 @@ public class DependencyComputer {
      * @see #DependencyComputer(ModuleContainer)
      */
     public List<DependencyEntry> computeDependencies(ModuleRevision module) {
-        if (module == null) {
+        if (module == null || module.getWiring() == null) {
             return Collections.emptyList();
         }
 
@@ -182,7 +187,7 @@ public class DependencyComputer {
         // sort by symbolicName_version to get a consistent order
         Map<String, BundleRevision> resolvedImportPackages = new TreeMap<>();
         for (BundleRevision bundle : visiblePackages.getParticipatingModules()) {
-            resolvedImportPackages.put(bundle.getSymbolicName(), bundle);
+            resolvedImportPackages.put(bundle.getSymbolicName() + "_" + bundle.getVersion(), bundle);
         }
         for (BundleRevision bundle : resolvedImportPackages.values()) {
             addDependencyViaImportPackage(bundle, added, visiblePackages, entries);

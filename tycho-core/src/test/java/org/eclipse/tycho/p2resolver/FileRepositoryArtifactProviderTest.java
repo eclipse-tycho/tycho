@@ -16,6 +16,7 @@ package org.eclipse.tycho.p2resolver;
 import static org.eclipse.tycho.test.util.TestRepositoryContent.BUNDLE_A_KEY;
 import static org.eclipse.tycho.test.util.TestRepositoryContent.REPO_BUNDLE_AB;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
@@ -56,12 +57,12 @@ public class FileRepositoryArtifactProviderTest extends TychoPlexusTestCase {
         assertEquals(artifactInLocalRepo(BUNDLE_A_KEY, TestRepositoryContent.REPO2_BUNDLE_A, ".jar"), result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testConstructionWithNonArtifactFileRepository() throws Exception {
         IArtifactRepository repository = mock(IArtifactRepository.class); // i.e. not an IFileArtifactRepository
 
         subject = new FileRepositoryArtifactProvider(loaderFor(repository), TRANSFER_POLICY);
-        subject.getArtifactFile(BUNDLE_A_KEY);
+        assertThrows(IllegalArgumentException.class, () -> subject.getArtifactFile(BUNDLE_A_KEY));
     }
 
     private static File artifactInLocalRepo(IArtifactKey key, URI localRepository, String extension) {

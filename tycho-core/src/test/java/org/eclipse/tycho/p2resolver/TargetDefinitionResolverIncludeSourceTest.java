@@ -21,17 +21,22 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
-import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
+import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
@@ -59,7 +64,8 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
     public void initSubject() throws Exception {
         MavenContext mavenCtx = new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger());
         subject = new TargetDefinitionResolver(defaultEnvironments(),
-                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, IncludeSourceMode.honor, mavenCtx, null,
+                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, IncludeSourceMode.honor,
+                ReferencedRepositoryMode.ignore, mavenCtx, null,
                 new DefaultTargetDefinitionVariableResolver(mavenCtx, logVerifier.getLogger()));
     }
 
@@ -81,7 +87,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
 
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertEquals(2, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
+        assertEquals(2, getResultSet(content).size());
     }
 
     @Test
@@ -94,7 +100,12 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
 
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertEquals(2, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
+        assertEquals(2, getResultSet(content).size());
+    }
+
+    private Set<IInstallableUnit> getResultSet(TargetDefinitionContent content) {
+        return content.query(QueryUtil.ALL_UNITS, null).stream()
+                .filter(iu -> !iu.getId().startsWith("generated.target.category.")).collect(Collectors.toSet());
     }
 
     @Test
@@ -106,7 +117,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
                 lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
-        assertEquals(1, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
+        assertEquals(1, getResultSet(content).size());
     }
 
     @Test
@@ -118,7 +129,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
                 lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
-        assertEquals(1, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
+        assertEquals(1, getResultSet(content).size());
     }
 
     @Test
@@ -132,7 +143,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
         assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertEquals(3, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
+        assertEquals(3, getResultSet(content).size());
     }
 
     @Test
@@ -146,7 +157,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
         assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
-        assertEquals(3, content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
+        assertEquals(3, getResultSet(content).size());
     }
 
     static class WithSourceLocationStub extends LocationStub {

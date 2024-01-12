@@ -29,11 +29,15 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
@@ -51,22 +55,28 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 	// see https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3
 	// per RFC there are three different formats:
 	private static final List<ThreadLocal<DateFormat>> DATE_PATTERNS = List.of(//
-			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz")), // RFC 1123
-			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE, dd-MMM-yy HH:mm:ss zzz")), // RFC 1036
-			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE MMMd HH:mm:ss yyyy")) // ANSI C's asctime() format
-	);
+			// RFC 1123
+			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH)),
+			// RFC 1036
+			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE, dd-MMM-yy HH:mm:ss zzz", Locale.ENGLISH)),
+			// ANSI C's asctime() format
+			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE MMMd HH:mm:ss yyyy", Locale.ENGLISH)));
 
 	static final String HINT = "Java11Client";
 	@Requirement
 	ProxyHelper proxyHelper;
 	@Requirement
 	MavenAuthenticator authenticator;
+	@Requirement
+	Logger logger;
 
 	private HttpClient client;
+	private HttpClient clientHttp1;
 
 	@Override
 	public HttpTransport createTransport(URI uri) {
-		Java11HttpTransport transport = new Java11HttpTransport(client, HttpRequest.newBuilder().uri(uri));
+		Java11HttpTransport transport = new Java11HttpTransport(client, clientHttp1, HttpRequest.newBuilder().uri(uri),
+				logger);
 		authenticator.preemtiveAuth((k, v) -> transport.setHeader(k, v), uri);
 		return transport;
 	}
@@ -75,10 +85,14 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 
 		private Builder builder;
 		private HttpClient client;
+		private Logger logger;
+		private HttpClient clientHttp1;
 
-		public Java11HttpTransport(HttpClient client, Builder builder) {
+		public Java11HttpTransport(HttpClient client, HttpClient clientHttp1, Builder builder, Logger logger) {
 			this.client = client;
+			this.clientHttp1 = clientHttp1;
 			this.builder = builder;
+			this.logger = logger;
 		}
 
 		@Override
@@ -89,7 +103,7 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 		@Override
 		public Response<InputStream> get() throws IOException {
 			try {
-				HttpResponse<InputStream> response = client.send(builder.GET().build(), BodyHandlers.ofInputStream());
+				HttpResponse<InputStream> response = performGet();
 				return new ResponseImplementation<>(response) {
 
 					@Override
@@ -123,10 +137,26 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 			}
 		}
 
+		private HttpResponse<InputStream> performGet() throws IOException, InterruptedException {
+			HttpRequest request = builder.GET().timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).build();
+			try {
+				return client.send(request, BodyHandlers.ofInputStream());
+			} catch (IOException e) {
+				if (isGoaway(e)) {
+					logger.warn("Received GOAWAY from server " + request.uri().getHost()
+							+ " will retry after one second with Http/1...");
+					TimeUnit.SECONDS.sleep(1);
+					return clientHttp1.send(request, BodyHandlers.ofInputStream());
+				}
+				throw e;
+			}
+		}
+
 		@Override
 		public Response<Void> head() throws IOException {
 			try {
-				HttpResponse<Void> response = client.send(builder.method("HEAD", null).build(),
+				HttpResponse<Void> response = client.send(
+						builder.method("HEAD", null).timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).build(),
 						BodyHandlers.discarding());
 				return new ResponseImplementation<>(response) {
 					@Override
@@ -197,22 +227,48 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 
 	@Override
 	public void initialize() throws InitializationException {
-		client = HttpClient.newBuilder().followRedirects(Redirect.NEVER).authenticator(authenticator)
-				.proxy(new ProxySelector() {
+		ProxySelector proxySelector = new ProxySelector() {
 
-					@Override
-					public List<Proxy> select(URI uri) {
-						Proxy proxy = proxyHelper.getProxy(uri);
-						return List.of(proxy);
-					}
+			@Override
+			public List<Proxy> select(URI uri) {
+				Proxy proxy = proxyHelper.getProxy(uri);
+				return List.of(proxy);
+			}
 
-					@Override
-					public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
-						// anything useful we can do here?
+			@Override
+			public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+				// anything useful we can do here?
 
-					}
-				}).build();
+			}
+		};
+		client = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(TIMEOUT_SECONDS))
+				.followRedirects(Redirect.NEVER)
+				.proxy(proxySelector).build();
+		clientHttp1 = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(TIMEOUT_SECONDS))
+				.version(Version.HTTP_1_1).followRedirects(Redirect.NEVER)
+				.proxy(proxySelector).build();
 
+	}
+
+	private static boolean isGoaway(Throwable e) {
+		if (e == null) {
+			return false;
+		}
+		if (e instanceof IOException) {
+			// first check the message
+			String message = e.getMessage();
+			if (message != null && message.contains("GOAWAY received")) {
+				return true;
+			}
+			// maybe it is in the stack?!?
+			for (StackTraceElement stack : e.getStackTrace()) {
+				if ("jdk.internal.net.http.Http2Connection.handleGoAway".equals(stack.getMethodName())) {
+					return true;
+				}
+			}
+		}
+		// look further in the chain...
+		return isGoaway(e.getCause());
 	}
 
 }

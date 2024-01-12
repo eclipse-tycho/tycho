@@ -56,11 +56,48 @@ import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
+import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 
 public final class MavenDependencyInjector {
+
+    /**
+     * Injects a set of additional project dependencies into an existing maven project.
+     * 
+     * @param project
+     * @param dependencyProjects
+     */
+    public static void injectMavenProjectDependencies(MavenProject project, Iterable<MavenProject> dependencyProjects) {
+        Model model = project.getModel();
+        Set<String> existingDependencies = model.getDependencies().stream().map(MavenDependencyInjector::getProjectKey)
+                .collect(Collectors.toCollection(HashSet::new));
+        for (MavenProject dependencyProject : dependencyProjects) {
+            if (dependencyProject == project) {
+                continue;
+            }
+            Dependency dependency = new Dependency();
+            dependency.setArtifactId(dependencyProject.getArtifactId());
+            dependency.setGroupId(dependencyProject.getGroupId());
+            dependency.setVersion(dependencyProject.getVersion());
+            String packaging = dependencyProject.getPackaging();
+            dependency.setType(packaging);
+            dependency.setScope(Artifact.SCOPE_COMPILE);
+            dependency.setOptional(false);
+            if (existingDependencies.add(getProjectKey(dependency))) {
+                model.addDependency(dependency);
+            }
+        }
+    }
+
+    private static String getProjectKey(Dependency dependency) {
+
+        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":"
+                + Objects.requireNonNullElse(dependency.getType(), "jar") + ":" + dependency.getVersion() + ":"
+                + Objects.requireNonNullElse(dependency.getClassifier(), "");
+    }
 
     /**
      * Injects the dependencies of a project (as determined by the p2 dependency resolver) back into
@@ -75,7 +112,8 @@ public final class MavenDependencyInjector {
     public static void injectMavenDependencies(MavenProject project, DependencyArtifacts dependencies,
             DependencyArtifacts testDependencies, BundleReader bundleReader,
             Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger,
-            RepositorySystem repositorySystem, Settings settings, BuildPropertiesParser buildPropertiesParser) {
+            RepositorySystem repositorySystem, Settings settings, BuildPropertiesParser buildPropertiesParser,
+            TargetPlatformConfiguration configuration) {
         MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, descriptorMapping,
                 logger);
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
@@ -113,9 +151,10 @@ public final class MavenDependencyInjector {
             return dependency;
         }).filter(Objects::nonNull).toList();
         generator.addDependencyList(extraJars);
-        @SuppressWarnings("unchecked")
-        Collection<MavenArtifactRepositoryReference> repositoryReferences = (Collection<MavenArtifactRepositoryReference>) reactorProject
-                .getContextValue(TychoConstants.CTX_REPOSITORY_REFERENCE);
+        Collection<MavenArtifactRepositoryReference> repositoryReferences = configuration.getTargets().stream()
+                .flatMap(definition -> definition.getLocations().stream()).filter(MavenGAVLocation.class::isInstance)
+                .map(MavenGAVLocation.class::cast).flatMap(location -> location.getRepositoryReferences().stream())
+                .toList();
         if (repositoryReferences != null && !repositoryReferences.isEmpty()) {
             Map<String, ArtifactRepository> repositoryMap = project.getRemoteArtifactRepositories().stream()
                     .collect(Collectors.toMap(MavenDependencyInjector::getId, Function.identity(), (a, b) -> a,
@@ -312,7 +351,10 @@ public final class MavenDependencyInjector {
         return dependency;
     }
 
-    private boolean isValidMavenDescriptor(MavenDependencyDescriptor dependencyDescriptor) {
+    public static boolean isValidMavenDescriptor(MavenDependencyDescriptor dependencyDescriptor) {
+        if (dependencyDescriptor == null) {
+            return false;
+        }
         //TODO we should make this configurable maybe on the tycho plugin level e.g.
         //        <plugin>
         //            <groupId>org.eclipse.tycho</groupId>

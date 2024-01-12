@@ -46,12 +46,7 @@ public class ProductFile2 extends ProductFile {
         if (os != null || ws != null || arch != null) {
             entry.setEnvironment(os, ws, arch, null);
         }
-
-        if (isFragment) {
-            fragments.add(entry);
-        } else {
-            plugins.add(entry);
-        }
+        plugins.add(entry);
     }
 
     @Override

@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -31,8 +32,8 @@ import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.repository.ImmutableInMemoryMetadataRepository;
 import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.repository.module.PublishingRepositoryImpl;
@@ -116,9 +117,10 @@ public class PublisherServiceTest extends TychoPlexusTestCase {
         assertTrue(unitsById(seeds).keySet().contains("config.a.jre.virgo"));
     }
 
-    @Test(expected = FacadeException.class)
+    @Test
     public void testValidateProfileFile() throws Exception {
-        ((PublisherServiceImpl) subject).validateProfile(resourceFile("publishers/inconsistentname-1.0.profile"));
+        assertThrows(FacadeException.class, () -> ((PublisherServiceImpl) subject)
+                .validateProfile(resourceFile("publishers/inconsistentname-1.0.profile")));
     }
 
     /**

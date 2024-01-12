@@ -97,8 +97,7 @@ public class PdeInstallableUnitProvider implements InstallableUnitProvider {
                             Version version = new MavenVersion(project.getVersion()).getOSGiVersion();
                             pr.setProperty(Constants.BUNDLE_VERSION, version.toString());
                         }
-                        Collection<Dependency> dependencies = collectInitial(project, new HashMap<String, Dependency>())
-                                .values();
+                        Collection<Dependency> dependencies = collectInitial(project, new HashMap<>()).values();
                         return generateWithProcessor(project, pr, mavenDependenciesResolver.resolve(project,
                                 dependencies, Set.of(Artifact.SCOPE_COMPILE, Artifact.SCOPE_TEST), session));
                     } catch (Exception e) {

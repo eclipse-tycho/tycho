@@ -30,11 +30,15 @@ public class RemoteMetadataRepositoryManagerAgentFactory implements IAgentServic
 	@Requirement
 	IRepositoryIdManager repositoryIdManager;
 
+	@Requirement
+	MavenAuthenticator mavenAuthenticator;
+
     @Override
     public Object createService(IProvisioningAgent agent) {
         IMetadataRepositoryManager plainMetadataRepoManager = (IMetadataRepositoryManager) new MetadataRepositoryComponent()
                 .createService(agent);
-		return new RemoteMetadataRepositoryManager(plainMetadataRepoManager, repositoryIdManager, logger);
+		return new RemoteMetadataRepositoryManager(plainMetadataRepoManager, repositoryIdManager, logger,
+				mavenAuthenticator);
     }
 
 }

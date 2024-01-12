@@ -66,16 +66,22 @@ public abstract class AbstractSpecificationClasspathContributor implements Class
 
     @Override
     public final List<ClasspathEntry> getAdditionalClasspathEntries(MavenProject project, String scope) {
-        VersionRange specificationVersion = getSpecificationVersion(project);
-        Optional<ResolvedArtifactKey> mavenBundle = findBundle(project, specificationVersion);
-        if (mavenBundle.isPresent()) {
-            ResolvedArtifactKey resolved = mavenBundle.get();
-            logger.debug("Resolved " + packageName + " to " + resolved.getId() + " " + resolved.getVersion() + " @ "
-                    + resolved.getLocation());
-            return List.of(new DefaultClasspathEntry(resolved, List.of(accessRule)));
+        if (isValidProject(project)) {
+            VersionRange specificationVersion = getSpecificationVersion(project);
+            Optional<ResolvedArtifactKey> mavenBundle = findBundle(project, specificationVersion);
+            if (mavenBundle.isPresent()) {
+                ResolvedArtifactKey resolved = mavenBundle.get();
+                logger.debug("Resolved " + packageName + " to " + resolved.getId() + " " + resolved.getVersion() + " @ "
+                        + resolved.getLocation());
+                return List.of(new DefaultClasspathEntry(resolved, List.of(accessRule)));
+            }
+            logger.warn("Cannot resolve specification package " + packageName + ", classpath might be incomplete");
         }
-        logger.warn("Cannot resolve specification package " + packageName + ", classpath might be incomplete");
         return Collections.emptyList();
+    }
+
+    protected boolean isValidProject(MavenProject project) {
+        return true;
     }
 
     protected Optional<ResolvedArtifactKey> findBundle(MavenProject project, VersionRange specificationVersion) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Rapicorp, Inc. and others.
+ * Copyright (c) 2015, 2023 Rapicorp, Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Rapicorp, Inc. - initial API and implementation
+ *    Marco Lehmann-Mörz - issue #2877 - tycho-versions-plugin:bump-versions does not honor SNAPSHOT suffix
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
@@ -23,6 +24,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.model.IU;
 
 import de.pdark.decentxml.Element;
@@ -72,7 +74,7 @@ public class IUXmlTransformer {
     private boolean hasQualifier(String v) {
         if (v == null)
             return false;
-        return v.endsWith(".qualifier");
+        return v.endsWith(TychoConstants.SUFFIX_QUALIFIER);
     }
 
     public void replaceQualifierInRequirements(IU iu, TargetPlatform targetPlatform) throws MojoFailureException {
@@ -81,7 +83,7 @@ public class IUXmlTransformer {
             return;
         for (Element req : requirements) {
             String range = req.getAttributeValue(IU.RANGE);
-            if (range != null && range.endsWith(".qualifier")
+            if (range != null && range.endsWith(TychoConstants.SUFFIX_QUALIFIER)
                     && IU.P2_IU_NAMESPACE.equals(req.getAttributeValue(IU.NAMESPACE))) {
                 ArtifactKey artifact = resolveRequirementReference(targetPlatform, req.getAttributeValue(IU.NAME),
                         range, req.toString());

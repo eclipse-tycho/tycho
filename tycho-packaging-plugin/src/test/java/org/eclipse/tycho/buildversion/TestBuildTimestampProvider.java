@@ -27,7 +27,7 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
 @Component(role = BuildTimestampProvider.class, hint = "test")
 public class TestBuildTimestampProvider implements BuildTimestampProvider {
 
-    public static final String PROP_TESTBUILDTIMESTAMPE = "testbuildtimestamp";
+	public static final String PROP_TESTBUILDTIMESTAMPE = "testbuildtimestamp";
 
     private final SimpleDateFormat format;
 
@@ -39,11 +39,11 @@ public class TestBuildTimestampProvider implements BuildTimestampProvider {
     @Override
     public Date getTimestamp(MavenSession session, MavenProject project, MojoExecution execution)
             throws MojoExecutionException {
-        String prop = session.getCurrentProject().getProperties().getProperty(PROP_TESTBUILDTIMESTAMPE);
+		String prop = session.getCurrentProject().getProperties().getProperty(PROP_TESTBUILDTIMESTAMPE);
 
-        if (prop == null) {
-            throw new IllegalArgumentException("Build timestamp property is not set.");
-        }
+		if (prop == null) {
+			return new Date();
+		}
 
         try {
             return format.parse(prop);

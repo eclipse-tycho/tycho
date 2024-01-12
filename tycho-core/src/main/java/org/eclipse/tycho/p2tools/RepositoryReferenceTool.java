@@ -34,8 +34,6 @@ import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProjectManager;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 
@@ -114,8 +112,8 @@ public class RepositoryReferenceTool {
             repositoryLocation.mkdirs();
             try (FileOutputStream stream = new FileOutputStream(new File(repositoryLocation, "content.xml"))) {
 
-                ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-                TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(reactorProject);
+                TargetPlatform targetPlatform = projectManager.getTargetPlatform(project)
+                        .orElseThrow(() -> new MojoFailureException(TychoConstants.TYCHO_NOT_CONFIGURED + project));
 
                 TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
 
@@ -123,8 +121,7 @@ public class RepositoryReferenceTool {
                         .getDependencyResolverConfiguration();
 
                 DependencyArtifacts dependencyArtifacts = dependencyResolver.resolveDependencies(session, project,
-                        targetPlatform, DefaultReactorProject.adapt(session), resolverConfiguration,
-                        configuration.getEnvironments());
+                        targetPlatform, resolverConfiguration, configuration.getEnvironments());
                 dependencyArtifacts.getArtifacts().forEach(artifact -> artifact.getLocation(true)); // ensure artifacts are available locally
 
                 // this contains dependency-only metadata for 'this' project

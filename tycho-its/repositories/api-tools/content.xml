@@ -5,7 +5,7 @@
     <property name='p2.timestamp' value='1664006024494'/>
     <property name='p2.compressed' value='true'/>
   </properties>
-  <units size='4'>
+  <units size='5'>
     <unit id='202209240753.Default' version='1.0.0.0-3d2w---7E7EE7gEM7YQI'>
       <properties size='3'>
         <property name='org.eclipse.equinox.p2.name' value='Uncategorized'/>
@@ -99,6 +99,156 @@
         </instructions>
       </touchpointData>
     </unit>
+    <unit id='org.eclipse.pde.build' version='3.12.100.v20230825-1354' generation='2'>
+	    <update id='org.eclipse.pde.build' range='[0.0.0,3.12.100.v20230825-1354)' severity='0'/>
+	    <properties size='9'>
+	      <property name='df_LT.pluginName' value='Plug-in Development Environment Build Support'/>
+	      <property name='df_LT.providerName' value='Eclipse.org'/>
+	      <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+	      <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+	      <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+	      <property name='maven-groupId' value='org.eclipse.pde'/>
+	      <property name='maven-artifactId' value='org.eclipse.pde.build'/>
+	      <property name='maven-version' value='3.12.200-SNAPSHOT'/>
+	      <property name='maven-type' value='eclipse-plugin'/>
+	    </properties>
+	    <provides size='16'>
+	      <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.pde.build' version='3.12.100.v20230825-1354'/>
+	      <provided namespace='osgi.bundle' name='org.eclipse.pde.build' version='3.12.100.v20230825-1354'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.build' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.ant' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.builder' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.fetch' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.packager' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.properties' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.publisher.compatibility' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.site' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.site.compatibility' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.tasks' version='0.0.0'/>
+	      <provided namespace='osgi.identity' name='org.eclipse.pde.build' version='3.12.100.v20230825-1354'>
+	        <properties size='1'>
+	          <property name='type' value='osgi.bundle'/>
+	        </properties>
+	      </provided>
+	      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+	      <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+	    </provides>
+	    <artifacts size='1'>
+	      <artifact classifier='osgi.bundle' id='org.eclipse.pde.build' version='3.12.100.v20230825-1354'/>
+	    </artifacts>
+	    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+	    <touchpointData size='1'>
+	      <instructions size='2'>
+	        <instruction key='zipped'>
+	          true
+	        </instruction>
+	        <instruction key='manifest'>
+	          Bundle-SymbolicName: org.eclipse.pde.build;singleton:=true&#xA;Bundle-Version: 3.12.100.v20230825-1354&#xA;
+	        </instruction>
+	      </instructions>
+	    </touchpointData>
+	  </unit>
+	  <unit id='org.eclipse.equinox.p2.ui' version='2.8.100.v20230728-2010' generation='2'>
+	    <update id='org.eclipse.equinox.p2.ui' range='[0.0.0,2.8.100.v20230728-2010)' severity='0'/>
+	    <properties size='9'>
+	      <property name='df_LT.bundleName' value='Equinox Provisioning UI Support'/>
+	      <property name='df_LT.providerName' value='Eclipse.org - Equinox'/>
+	      <property name='org.eclipse.equinox.p2.name' value='%bundleName'/>
+	      <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+	      <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+	      <property name='maven-groupId' value='org.eclipse.tycho.tycho-its'/>
+	      <property name='maven-artifactId' value='org.eclipse.equinox.p2.ui'/>
+	      <property name='maven-version' value='2.8.200-SNAPSHOT'/>
+	      <property name='maven-type' value='eclipse-plugin'/>
+	    </properties>
+	    <provides size='12'>
+	      <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.p2.ui' version='2.8.100.v20230728-2010'/>
+	      <provided namespace='osgi.bundle' name='org.eclipse.equinox.p2.ui' version='2.8.100.v20230728-2010'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.internal.p2.ui' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.internal.p2.ui.actions' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.internal.p2.ui.dialogs' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.internal.p2.ui.model' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.internal.p2.ui.query' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.internal.p2.ui.viewers' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.p2.ui' version='2.6.0'/>
+	      <provided namespace='osgi.identity' name='org.eclipse.equinox.p2.ui' version='2.8.100.v20230728-2010'>
+		<properties size='1'>
+		  <property name='type' value='osgi.bundle'/>
+		</properties>
+	      </provided>
+	      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+	      <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+	    </provides>
+	    <artifacts size='1'>
+	      <artifact classifier='osgi.bundle' id='org.eclipse.equinox.p2.ui' version='2.8.100.v20230728-2010'/>
+	    </artifacts>
+	    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+	    <touchpointData size='1'>
+	      <instructions size='1'>
+		<instruction key='manifest'>
+		  Bundle-SymbolicName: org.eclipse.equinox.p2.ui;singleton:=true&#xA;Bundle-Version: 2.8.100.v20230728-2010&#xA;
+		</instruction>
+	      </instructions>
+	    </touchpointData>
+	  </unit>
+	<unit id='org.eclipse.jdt.debug' version='3.21.100.v20230728-0612' generation='2'>
+	    <update id='org.eclipse.jdt.debug' range='[0.0.0,3.21.100.v20230728-0612)' severity='0'/>
+	    <properties size='9'>
+	      <property name='df_LT.pluginName' value='JDI Debug Model'/>
+	      <property name='df_LT.providerName' value='Eclipse.org'/>
+	      <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+	      <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+	      <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+	      <property name='maven-groupId' value='org.eclipse.tycho.tycho-its'/>
+	      <property name='maven-artifactId' value='org.eclipse.jdt.debug'/>
+	      <property name='maven-version' value='3.22.0-SNAPSHOT'/>
+	      <property name='maven-type' value='eclipse-plugin'/>
+	    </properties>
+	    <provides size='23'>
+	      <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.jdt.debug' version='3.21.100.v20230728-0612'/>
+	      <provided namespace='osgi.bundle' name='org.eclipse.jdt.debug' version='3.21.100.v20230728-0612'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.hcr' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.internal' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.internal.connect' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.internal.event' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.internal.jdwp' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.internal.request' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.internal.spy' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.debug.core' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.debug.eval' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.core' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.core.breakpoints' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.core.hcr' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.core.logicalstructures' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.core.model' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.eval' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.eval.ast.engine' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.eval.ast.instructions' version='0.0.0'/>
+	      <provided namespace='osgi.identity' name='org.eclipse.jdt.debug' version='3.21.100.v20230728-0612'>
+		<properties size='1'>
+		  <property name='type' value='osgi.bundle'/>
+		</properties>
+	      </provided>
+	      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+	      <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+	    </provides>
+	    <artifacts size='1'>
+	      <artifact classifier='osgi.bundle' id='org.eclipse.jdt.debug' version='3.21.100.v20230728-0612'/>
+	    </artifacts>
+	    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+	    <touchpointData size='1'>
+	      <instructions size='2'>
+		<instruction key='zipped'>
+		  true
+		</instruction>
+		<instruction key='manifest'>
+		  Bundle-SymbolicName: org.eclipse.jdt.debug; singleton:=true&#xA;Bundle-Version: 3.21.100.v20230728-0612&#xA;
+		</instruction>
+	      </instructions>
+	    </touchpointData>
+	  </unit>
     <unit id='a.jre.javase' version='17.0.0' singleton='false'>
       <provides size='275'>
         <provided namespace='org.eclipse.equinox.p2.iu' name='a.jre.javase' version='17.0.0'/>

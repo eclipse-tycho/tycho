@@ -36,9 +36,9 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
@@ -101,13 +101,13 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
         Collection<DependencySeed> noSeeds = Collections.emptyList();
 
         subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, noSeeds, context, false, false, false,
-                false, false, null);
+                false, false, false, null);
     }
 
     @Test
     public void testMirrorFeatureWithContent() throws Exception {
         subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false,
-                false, false, false, false, null);
+                false, false, false, false, false, null);
 
         logVerifier.expectNoWarnings();
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
@@ -121,9 +121,10 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
         extraArtifactRepositoryProperties.put("p2.mirrorsURL", "http://some.where.else");
         extraArtifactRepositoryProperties.put("foo", "bar");
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest2"), DEFAULT_NAME, false, false,
-                false, false, true, extraArtifactRepositoryProperties, Collections.emptyList());
+                false, false, true, extraArtifactRepositoryProperties, Collections.emptyList(),
+                Collections.emptyList());
         subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false,
-                false, false, false, false, null);
+                false, false, false, false, false, null);
 
         logVerifier.expectNoWarnings();
         File artifactsXml = repoFile(destinationRepo, "artifacts.xml");
@@ -146,7 +147,7 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
     @Test
     public void testMirrorPatch() throws Exception {
         subject.mirrorReactor(sourceRepos("patch", "e352"), destinationRepo, seedFor(FEATURE_PATCH_IU), context, false,
-                false, false, false, false, null);
+                false, false, false, false, false, null);
 
         //TODO why mirror tool emits a warning here?        logVerifier.expectNoWarnings();
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.5.0.v20090525.jar").exists());
@@ -156,7 +157,7 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
     @Test
     public void testMirrorFeatureAndPatch() throws Exception {
         subject.mirrorReactor(sourceRepos("patch", "e352"), destinationRepo,
-                seedFor(SIMPLE_FEATURE_IU, FEATURE_PATCH_IU), context, false, false, false, false, false, null);
+                seedFor(SIMPLE_FEATURE_IU, FEATURE_PATCH_IU), context, false, false, false, false, false, false, null);
 
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.5.0.v20090525.jar").exists());
         assertTrue(repoFile(destinationRepo, "features/" + SIMPLE_FEATURE + "_1.0.0.jar").exists());
@@ -175,7 +176,7 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
          * warning is issued.
          */
         subject.mirrorReactor(sourceRepos("patch"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false, false,
-                false, false, false, null);
+                false, false, false, false, null);
 
         logVerifier.expectWarning(not(is("")));
     }
@@ -189,7 +190,8 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
         List<DependencySeed> seeds = Collections
                 .singletonList(new DependencySeed(null, "org.eclipse.core.runtime", null));
 
-        subject.mirrorReactor(sourceRepos("e342"), destinationRepo, seeds, context, false, false, false, false, false, null);
+        subject.mirrorReactor(sourceRepos("e342"), destinationRepo, seeds, context, false, false, false, false, false,
+                false, null);
 
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
     }

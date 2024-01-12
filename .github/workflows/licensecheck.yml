@@ -5,17 +5,19 @@ name: License vetting status check
 on:
   push:
     branches: 
-      - 'master'
+      - 'main'
       - 'tycho-*'
   pull_request:
     branches: 
-     - 'master'
+     - 'main'
      - 'tycho-*'
   issue_comment:
     types: [created]
 
 jobs:
   call-license-check:
+    permissions:
+      pull-requests: write
     uses: eclipse/dash-licenses/.github/workflows/mavenLicenseCheck.yml@master
     with:
       projectId: technology.tycho

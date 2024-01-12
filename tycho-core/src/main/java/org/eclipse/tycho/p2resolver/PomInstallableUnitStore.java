@@ -31,6 +31,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
@@ -45,7 +46,6 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
-import org.eclipse.tycho.p2.repository.QueryableCollection;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.resolver.WrappedArtifact;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
@@ -53,7 +53,7 @@ import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
 
     private static final IQueryResult<IInstallableUnit> EMPTY_RESULT = new CollectionResult<>(Collections.emptyList());
-    private QueryableCollection collection;
+    private IQueryable<IInstallableUnit> collection;
     private TychoProject tychoProject;
     private ReactorProject reactorProject;
     private Map<IInstallableUnit, PomDependency> installableUnitLookUp = new HashMap<>();
@@ -200,7 +200,7 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
                     }
                 });
             }
-            collection = new QueryableCollection(installableUnitLookUp.keySet());
+            collection = new QueryableArray(installableUnitLookUp.keySet());
         }
         return collection;
     }

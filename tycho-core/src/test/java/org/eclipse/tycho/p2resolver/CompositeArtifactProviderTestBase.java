@@ -37,6 +37,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
@@ -191,9 +192,9 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         assertThat(status.getMessage(), containsString("An error occurred while transferring artifact")); // original message from p2 as top-level status
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGetArtifactToClosedSink() throws Exception {
-        subject.getArtifact(new NonStartableArtifactSink(), null);
+        assertThrows(IllegalArgumentException.class, () -> subject.getArtifact(new NonStartableArtifactSink(), null));
     }
 
     @Test
@@ -233,9 +234,10 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         assertTrue(status.isOK());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGetRawArtifactToClosedSink() throws Exception {
-        subject.getRawArtifact(new NonStartableArtifactSink(), null);
+        assertThrows(IllegalArgumentException.class,
+                () -> subject.getRawArtifact(new NonStartableArtifactSink(), null));
     }
 
     @Test
@@ -244,13 +246,13 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         List<IArtifactDescriptor> result = Arrays.asList(subject.getArtifactDescriptors(BUNDLE_A_KEY));
 
         assertThat(result, hasItem(inCanonicalFormat()));
-        assertEquals(2, result.size()); // no duplicates
+        assertEquals(1, result.size()); // no duplicates
     }
 
     @Test
     public void testContainsArtifactDescriptor() {
         assertTrue(subject.contains(canonicalDescriptorFor(BUNDLE_A_KEY)));
-        assertFalse(subject.contains(canonicalDescriptorFor(BUNDLE_B_KEY)));
+        assertTrue(subject.contains(canonicalDescriptorFor(BUNDLE_B_KEY)));
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 SAP AG and others.
+ * Copyright (c) 2010, 2023 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -237,8 +238,8 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 		}
 	}
 
-	static private void assertRepositoryArtifacts(Verifier verifier) {
-		verifier.assertArtifactPresent(GROUP_ID, ARTIFACT_ID, VERSION, "zip");
+	static private void assertRepositoryArtifacts(Verifier verifier) throws VerificationException {
+		verifier.verifyArtifactPresent(GROUP_ID, ARTIFACT_ID, VERSION, "zip");
 	}
 
 	static private void assertTotalZipArtifacts(final Verifier verifier, final int expectedArtifacts) {

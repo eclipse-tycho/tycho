@@ -15,8 +15,8 @@ package org.eclipse.tycho.core.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 
@@ -129,51 +129,38 @@ public class DefaultBundleReaderTest extends TychoPlexusTestCase {
     public void testLoadManifestFromInvalidDir() throws Exception {
         // dir has no META-INF/MANIFEST.MF nor plugin.xml/fragment.xml
         File dir = new File("src/test/resources/bundlereader/invalid");
-        try {
-            bundleReader.loadManifest(dir);
-            fail();
-        } catch (OsgiManifestParserException e) {
-            assertTrue(e.getMessage().contains("Manifest file not found"));
-        }
+        OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
+                () -> bundleReader.loadManifest(dir));
+        assertTrue(e.getMessage().contains("Manifest file not found"));
     }
 
     @Test
     public void testLoadManifestFromCorruptedJar() throws Exception {
         File jar = new File("src/test/resources/bundlereader/invalid/corrupt.jar");
-        try {
-            bundleReader.loadManifest(jar);
-            fail();
-        } catch (OsgiManifestParserException e) {
-            if (System.getProperty("java.specification.version").compareTo("11") >= 0) {
-                assertTrue(e.getMessage().contains("zip END header not found"));
-            } else {
-                assertTrue(e.getMessage().contains("error in opening zip file"));
-            }
-
+        OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
+                () -> bundleReader.loadManifest(jar));
+        if (System.getProperty("java.specification.version").compareTo("11") >= 0) {
+            assertTrue(e.getMessage().contains("zip END header not found"));
+        } else {
+            assertTrue(e.getMessage().contains("error in opening zip file"));
         }
     }
 
     @Test
     public void testLoadManifestFromNonexistingFile() throws Exception {
         File jar = new File("NON_EXISTING.jar");
-        try {
-            bundleReader.loadManifest(jar);
-            fail();
-        } catch (OsgiManifestParserException e) {
-            assertTrue(e.getMessage().contains("Manifest file not found"));
-        }
+        OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
+                () -> bundleReader.loadManifest(jar));
+        assertTrue(e.getMessage().contains("Manifest file not found"));
     }
 
     @Test
     public void testLoadManifestFromPlainJar() throws Exception {
         File plainJar = new File("src/test/resources/bundlereader/jarshape/plain.jar");
-        try {
-            bundleReader.loadManifest(plainJar);
-            fail();
-        } catch (OsgiManifestParserException e) {
-            assertTrue(e.getMessage().contains("Exception parsing OSGi MANIFEST"));
-            assertTrue(e.getMessage().contains("is missing"));
-        }
+        OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
+                () -> bundleReader.loadManifest(plainJar));
+        assertTrue(e.getMessage().contains("Exception parsing OSGi MANIFEST"));
+        assertTrue(e.getMessage().contains("is missing"));
     }
 
     private File getTestJar() {

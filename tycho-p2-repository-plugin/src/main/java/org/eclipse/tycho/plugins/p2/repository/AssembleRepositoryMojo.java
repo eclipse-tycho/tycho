@@ -19,23 +19,25 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
-import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.MatchPattern;
+import org.eclipse.tycho.DependencySeed;
+import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
@@ -43,10 +45,9 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
+import org.eclipse.tycho.p2resolver.TargetDefinitionVariableResolver;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
-import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
-import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
 import aQute.bnd.osgi.repository.XMLResourceGenerator;
 import aQute.bnd.repository.fileset.FileSetRepository;
@@ -73,7 +74,21 @@ import aQute.bnd.repository.fileset.FileSetRepository;
  */
 @Mojo(name = "assemble-repository", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
-    private static final Object LOCK = new Object();
+
+    public static class RepositoryReferenceFilter {
+        /**
+         * If {@link #filterProvided} is {@code true} and repository references are added
+         * automatically via {@link #addIUTargetRepositoryReferences} or
+         * {@link #addPomRepositoryReferences}, then this property controls if from the
+         * automatically added ones only references to those repositories are added, that provide
+         * relevant content, which is not provided by any other referenced repositories. If this is
+         * set to {@code false} all automatically added references are added as they are available.
+         */
+        public boolean addOnlyProviding = true;
+        /** The list of location patterns that exclude matching repository references. */
+        public List<String> exclude = List.of();
+    }
+
     /**
      * <p>
      * By default, this goal creates a p2 repository. Set this to <code>false</code> if only a p2
@@ -205,24 +220,80 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     private Map<String, String> extraArtifactRepositoryProperties;
 
     /**
-     * if enabled all P2 repositories referenced in the pom are added as referenced sites
+     * If enabled all P2-repositories referenced in the pom are added as referenced repositories.
      */
-    @Parameter()
+    @Parameter
     private boolean addPomRepositoryReferences;
 
     /**
-     * if enabled all P2 repositories referenced in the IU location type of target-files are added
-     * as referenced sites
+     * If enabled all P2 repositories referenced in {@code InstallableUnit}-type locations of the
+     * active target-file are added as referenced repositories.
      */
-    @Parameter()
+    @Parameter
     private boolean addIUTargetRepositoryReferences;
+
+    /**
+     * Filters to exclude automatically derived repository references from being added to the
+     * assembled repository.
+     * 
+     * <p>
+     * Repository references can be filtered based on their location URI using a list of exclusion
+     * pattern:<br>
+     * The location of a reference must not be matched by any pattern, in order to be eventually
+     * added to the assembled repository. An arbitrary number of patterns can be specified.
+     * </p>
+     * <p>
+     * If the sub-property {@code addOnlyProviding} is set to {@code true} (the default), references
+     * to repositories that don't provide any relevant unit are excluded from being added to the
+     * assembled repository.
+     * </p>
+     * <p>
+     * All those filters are only applied to those repository references derived from the
+     * target-definition or pom file, when {@link #addIUTargetRepositoryReferences} respectively
+     * {@link #addPomRepositoryReferences} is set {@code true}. References explicitly listed in the
+     * repository file ({@code category.xml}) are always added.
+     * </p>
+     * <p>
+     * Configuration example 1
+     * 
+     * <pre>
+     * &lt;repositoryReferenceFilter&gt;
+     *   &lt;addOnlyProviding&gt;true&lt;/addOnlyProviding&gt;
+     *   &lt;exclude&gt;https://foo.bar.org/hidden/**&lt;/exclude&gt;
+     * &lt;/repositoryReferenceFilter&gt;
+     * </pre>
+     * 
+     * Configuration example 2
+     * 
+     * <pre>
+     * &lt;repositoryReferenceFilter&gt;
+     *   &lt;addOnlyProviding&gt;false&lt;/addOnlyProviding&gt;
+     *   &lt;exclude&gt;
+     *     &lt;location&gt;https://foo.bar.org/hidden/**&lt;/location&gt;
+     *     &lt;location&gt;%regex[http(s)?:\/\/foo\.bar\.org\/secret\/.*]&lt;/location&gt;
+     *     &lt;location&gt;![https://foo.bar.org/**]&lt;/location&gt;
+     *   &lt;/exclude&gt;
+     * &lt;/repositoryReferenceFilter&gt;
+     * </pre>
+     * 
+     * In the second example the first of the three patterns uses {@code ANT}-style syntax, the
+     * second one uses a {@code Java RegEx} {@link Pattern} (enclosed in
+     * {@code %regex[<the-regex-pattern>]}). <br>
+     * The third pattern is a negated (enclosed in {@code ![<the-negated-pattern>]}), which
+     * effectively makes it an <em>inclusion</em> pattern that all references must match in order to
+     * be added. Unlike in the first example, in the second example all references that pass the
+     * location filter are added, regardless of if the provide any unit or not.
+     * </p>
+     */
+    @Parameter
+    private RepositoryReferenceFilter repositoryReferenceFilter = new RepositoryReferenceFilter();
 
     /**
      * If enabled, an
      * <a href="https://docs.osgi.org/specification/osgi.cmpn/7.0.0/service.repository.html">OSGi
      * Repository</a> is generated out of the content of the P2 repository.
      */
-    @Parameter()
+    @Parameter
     private boolean generateOSGiRepository;
 
     /**
@@ -237,101 +308,99 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Component
     MirrorApplicationService mirrorApp;
 
+    @Component
+    private TargetDefinitionVariableResolver varResolver;
+
     @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
     private EclipseRepositoryProject eclipseRepositoryProject;
 
+    @Component
+    private FileLockService fileLockService;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        synchronized (LOCK) {
-            try {
-                File destination = getAssemblyRepositoryLocation();
-                destination.mkdirs();
-                copyResources(destination);
+        File destination = getAssemblyRepositoryLocation();
+        try (var locking = fileLockService.lockVirtually(destination)) {
+            destination.mkdirs();
+            copyResources(destination);
 
-                final ReactorProject reactorProject = getReactorProject();
-                Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(reactorProject);
-                if (projectSeeds.isEmpty()) {
-                    getLog().warn("No content specified for p2 repository");
-                    return;
-                }
-
-                reactorProject.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, categoriesDirectory);
-                RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(getProject(),
-                        getSession(), RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
-                sources.setTargetPlatform(TychoProjectUtils.getTargetPlatform(getReactorProject()));
-
-                List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory).stream()//
-                        .map(Category::getRepositoryReferences)//
-                        .flatMap(List::stream)//
-                        .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
-                        .collect(Collectors.toCollection(ArrayList::new));
-                if (addPomRepositoryReferences) {
-                    for (Repository pomRepo : getProject().getRepositories()) {
-                        if ("p2".equals(pomRepo.getLayout())) {
-                            repositoryReferences
-                                    .add(new RepositoryReference(pomRepo.getName(), pomRepo.getUrl(), true));
-                        }
-                    }
-                }
-                if (addIUTargetRepositoryReferences) {
-                    for (TargetDefinitionFile targetDefinitionFile : projectManager
-                            .getTargetPlatformConfiguration(getProject()).getTargets()) {
-                        for (Location location : targetDefinitionFile.getLocations()) {
-                            if (location instanceof InstallableUnitLocation iu) {
-                                for (org.eclipse.tycho.targetplatform.TargetDefinition.Repository iuRepo : iu
-                                        .getRepositories()) {
-                                    repositoryReferences.add(new RepositoryReference(null, iuRepo.getLocation(), true));
-                                }
-                            }
-                        }
-                    }
-                }
-                DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
-                        destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
-                        !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryReferences);
-                mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
-                        includeAllDependencies, includeAllSources, includeRequiredPlugins, includeRequiredFeatures,
-                        filterProvided, profileProperties);
-                if (generateOSGiRepository) {
-                    XMLResourceGenerator resourceGenerator = new XMLResourceGenerator();
-                    resourceGenerator.name(repositoryName);
-                    resourceGenerator.base(destination.toURI());
-                    File pluginsResult = new File(destination, "plugins");
-                    if (pluginsResult.isDirectory()) {
-                        File[] files = pluginsResult
-                                .listFiles(pathname -> pathname.isFile() && pathname.getName().endsWith(".jar"));
-                        try {
-                            resourceGenerator.repository(new FileSetRepository("plugins", Arrays.asList(files)));
-                        } catch (Exception e) {
-                            throw new MojoExecutionException("Could not read p2 repository plugins", e);
-                        }
-                    }
-                    File featureResult = new File(destination, "features");
-                    if (featureResult.isDirectory()) {
-                        File[] files = featureResult
-                                .listFiles(pathname -> pathname.isFile() && pathname.getName().endsWith(".jar"));
-                        for (File featureFile : files) {
-                            try {
-                                Feature feature = Feature.readJar(featureFile);
-                                feature.toResource().forEach(resourceGenerator::resource);
-                            } catch (IOException e) {
-                                throw new MojoExecutionException("Could not read feature " + featureFile, e);
-                            }
-                        }
-                    }
-                    try {
-                        if (compress) {
-                            resourceGenerator.save(new File(destination, repositoryFileName + ".gz"));
-                        } else {
-                            resourceGenerator.save(new File(destination, repositoryFileName));
-                        }
-                    } catch (IOException e) {
-                        throw new MojoExecutionException("Could not write OSGi Repository!", e);
-                    }
-                }
-            } catch (FacadeException e) {
-                throw new MojoExecutionException("Could not assemble p2 repository", e);
+            final ReactorProject reactorProject = getReactorProject();
+            Collection<DependencySeed> projectSeeds = reactorProject.getDependencySeeds();
+            if (projectSeeds.isEmpty()) {
+                getLog().warn("No content specified for p2 repository");
+                return;
             }
+
+            reactorProject.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, categoriesDirectory);
+            MavenProject project = getProject();
+            RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(project, getSession(),
+                    RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
+            sources.setTargetPlatform(projectManager.getTargetPlatform(project)
+                    .orElseThrow(() -> new MojoFailureException(TychoConstants.TYCHO_NOT_CONFIGURED + project)));
+
+            List<RepositoryReference> repositoryReferences = getCategories(categoriesDirectory).stream()//
+                    .map(Category::getRepositoryReferences)//
+                    .flatMap(List::stream)//
+                    .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
+                    .toList();
+            Predicate<String> autoReferencesFilter = buildRepositoryReferenceLocationFilter();
+            List<RepositoryReference> autoRepositoryRefeferences = new ArrayList<>();
+            if (addPomRepositoryReferences) {
+                project.getRepositories().stream() //
+                        .filter(pomRepo -> "p2".equals(pomRepo.getLayout()))
+                        .filter(pomRepo -> autoReferencesFilter.test(pomRepo.getUrl()))
+                        .map(pomRepo -> new RepositoryReference(pomRepo.getName(), pomRepo.getUrl(), true))
+                        .forEach(autoRepositoryRefeferences::add);
+            }
+            if (addIUTargetRepositoryReferences) {
+                projectManager.getTargetPlatformConfiguration(project).getTargets().stream()
+                        .flatMap(tpFile -> tpFile.getLocations().stream())
+                        .filter(InstallableUnitLocation.class::isInstance).map(InstallableUnitLocation.class::cast)
+                        .flatMap(iu -> iu.getRepositories().stream())
+                        .map(iuRepo -> varResolver.resolve(iuRepo.getLocation())).filter(autoReferencesFilter)
+                        .map(location -> new RepositoryReference(null, location, true))
+                        .forEach(autoRepositoryRefeferences::add);
+            }
+            DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(destination,
+                    repositoryName, compress, xzCompress, keepNonXzIndexFiles, !createArtifactRepository, true,
+                    extraArtifactRepositoryProperties, repositoryReferences, autoRepositoryRefeferences);
+            mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
+                    includeAllDependencies, includeAllSources, includeRequiredPlugins, includeRequiredFeatures,
+                    filterProvided, repositoryReferenceFilter.addOnlyProviding, profileProperties);
+            if (generateOSGiRepository) {
+                XMLResourceGenerator resourceGenerator = new XMLResourceGenerator();
+                resourceGenerator.name(repositoryName);
+                resourceGenerator.base(destination.toURI());
+                File plugins = new File(destination, "plugins");
+                if (plugins.isDirectory()) {
+                    File[] files = plugins.listFiles(path -> path.getName().endsWith(".jar") && path.isFile());
+                    try {
+                        resourceGenerator.repository(new FileSetRepository("plugins", Arrays.asList(files)));
+                    } catch (Exception e) {
+                        throw new MojoExecutionException("Could not read p2 repository plugins", e);
+                    }
+                }
+                File features = new File(destination, "features");
+                if (features.isDirectory()) {
+                    File[] files = features.listFiles(path -> path.getName().endsWith(".jar") && path.isFile());
+                    for (File featureFile : files) {
+                        try {
+                            Feature feature = Feature.readJar(featureFile);
+                            feature.toResource().forEach(resourceGenerator::resource);
+                        } catch (IOException e) {
+                            throw new MojoExecutionException("Could not read feature " + featureFile, e);
+                        }
+                    }
+                }
+                try {
+                    String filename = compress ? repositoryFileName + ".gz" : repositoryFileName;
+                    resourceGenerator.save(new File(destination, filename));
+                } catch (IOException e) {
+                    throw new MojoExecutionException("Could not write OSGi Repository!", e);
+                }
+            }
+        } catch (IOException | FacadeException e) {
+            throw new MojoExecutionException("Could not assemble p2 repository", e);
         }
     }
 
@@ -349,6 +418,20 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     private List<Category> getCategories(final File categoriesDirectory) {
         return eclipseRepositoryProject.loadCategories(categoriesDirectory);
+    }
+
+    private Predicate<String> buildRepositoryReferenceLocationFilter() {
+        List<Predicate<String>> filters = repositoryReferenceFilter.exclude.stream()
+                .<Predicate<String>> map(exclusionPattern -> {
+                    boolean isNegated = false;
+                    if (exclusionPattern.startsWith("![") && exclusionPattern.endsWith("]")) {
+                        exclusionPattern = exclusionPattern.substring(2, exclusionPattern.length() - 1);
+                        isNegated = true;
+                    }
+                    MatchPattern pattern = MatchPattern.fromString(exclusionPattern);
+                    return isNegated ? ref -> !pattern.matchPath(ref, true) : ref -> pattern.matchPath(ref, true);
+                }).toList();
+        return ref -> filters.stream().noneMatch(f -> f.test(ref));
     }
 
 }

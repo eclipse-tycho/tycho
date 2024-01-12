@@ -75,7 +75,8 @@ public class InstallableUnitResolver {
         this.logger = logger;
     }
 
-    public void addLocation(InstallableUnitLocation iuLocationDefinition, IQueryable<IInstallableUnit> localUnits) {
+    public Collection<IInstallableUnit> addLocation(InstallableUnitLocation iuLocationDefinition,
+            IQueryable<IInstallableUnit> localUnits) {
         //update (and validate) desired global state
         setIncludeMode(iuLocationDefinition.getIncludeMode());
         setIncludeAllEnvironments(iuLocationDefinition.includeAllEnvironments());
@@ -85,7 +86,9 @@ public class InstallableUnitResolver {
         default -> iuLocationDefinition.includeSource();
         });
         //resolve root units and add them
-        rootUnits.add(new RootUnits(getRootIUs(iuLocationDefinition.getUnits(), localUnits), localUnits));
+        Collection<IInstallableUnit> rootIUs = getRootIUs(iuLocationDefinition.getUnits(), localUnits);
+        rootUnits.add(new RootUnits(rootIUs, localUnits));
+        return rootIUs;
     }
 
     private void setIncludeMode(IncludeMode newValue) throws TargetDefinitionResolutionException {

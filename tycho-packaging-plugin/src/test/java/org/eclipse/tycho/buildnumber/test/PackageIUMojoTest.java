@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Rapicorp, Inc. and others.
+ * Copyright (c) 2015, 2023 Rapicorp, Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,6 @@ public class PackageIUMojoTest extends AbstractTychoMojoTestCase {
 
     public void testThatArtifactPayloadIsCorrect() throws Exception {
         File basedir = getBasedir("projects/iuWithPayload/");
-        File platform = new File("src/test/resources/eclipse");
 		List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project = getProject(projects, "iuWithPayload");
@@ -55,7 +54,6 @@ public class PackageIUMojoTest extends AbstractTychoMojoTestCase {
 
     public void testArtifactWithoutPayload() throws Exception {
         File basedir = getBasedir("projects/iuWithoutPayload");
-        File platform = new File("src/test/resources/eclipse");
 		List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project = getProject(projects, "iuWithoutPayload");
@@ -75,7 +73,6 @@ public class PackageIUMojoTest extends AbstractTychoMojoTestCase {
 
     public void testInjectArtifactReference() throws Exception {
         File basedir = getBasedir("projects/iuWithPayloadButNoArtifactReference");
-        File platform = new File("src/test/resources/eclipse");
 		List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project = getProject(projects, "iuWithPayloadButNoArtifactReference");

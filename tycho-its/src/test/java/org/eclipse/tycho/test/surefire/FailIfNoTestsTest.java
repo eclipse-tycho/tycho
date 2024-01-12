@@ -12,10 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.surefire;
 
+import static org.junit.Assert.assertThrows;
+
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class FailIfNoTestsTest extends AbstractTychoIntegrationTest {
@@ -33,12 +34,7 @@ public class FailIfNoTestsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testNoTestsFailureDefaultCase() throws Exception {
 		Verifier verifier = getVerifier("surefire.noTests");
-		try {
-			verifier.executeGoal("integration-test");
-			Assert.fail();
-		} catch (VerificationException e) {
-			// expected
-		}
+		assertThrows(VerificationException.class, () -> verifier.executeGoal("integration-test"));
 		verifier.verifyTextInLog("No tests found");
 	}
 

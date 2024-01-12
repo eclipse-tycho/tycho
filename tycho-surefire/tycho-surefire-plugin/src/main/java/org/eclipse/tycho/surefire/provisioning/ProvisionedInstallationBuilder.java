@@ -22,15 +22,15 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
+import org.eclipse.sisu.equinox.launching.ProvisionedEquinoxInstallation;
+import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
 public class ProvisionedInstallationBuilder {
 
     private Logger log;
-    private BundleReader bundleReader;
     private DirectorRuntime directorRuntime;
 
     private List<URI> metadataRepos = new ArrayList<>();
@@ -48,9 +48,8 @@ public class ProvisionedInstallationBuilder {
         this.workingDir = workingDir;
     }
 
-    public ProvisionedInstallationBuilder(BundleReader bundleReader, DirectorRuntime directorRuntime, Logger log) {
+    public ProvisionedInstallationBuilder(DirectorRuntime directorRuntime, Logger log) {
         this.log = log;
-        this.bundleReader = bundleReader;
         this.directorRuntime = directorRuntime;
         this.bundlesPublisher = new BundlesPublisher(log);
     }
@@ -97,11 +96,11 @@ public class ProvisionedInstallationBuilder {
         this.installFeatures = installFeatures;
     }
 
-    public EquinoxInstallation install() throws Exception {
+    public EquinoxInstallation install(TargetEnvironment main) throws Exception {
         validate();
         publishPlainBundleJars();
-        executeDirector();
-        return new ProvisionedEquinoxInstallation(effectiveDestination, bundleReader);
+        executeDirector(main);
+        return new ProvisionedEquinoxInstallation(getFinalDestination(main));
     }
 
     private void publishPlainBundleJars() throws Exception {
@@ -121,23 +120,47 @@ public class ProvisionedInstallationBuilder {
         artifactRepos.add(bundlesRepoURI);
     }
 
-    private void executeDirector() throws MojoFailureException {
+    private void executeDirector(TargetEnvironment env) throws MojoFailureException {
         DirectorRuntime.Command command = directorRuntime.newInstallCommand();
         command.addMetadataSources(metadataRepos);
         command.addArtifactSources(artifactRepos);
         for (String iu : ius) {
             command.addUnitToInstall(iu);
         }
-        command.setDestination(effectiveDestination);
+        command.setDestination(getFinalDestination(env));
         command.setProfileName(profileName);
         command.setInstallFeatures(installFeatures);
-        command.setEnvironment(TargetEnvironment.getRunningEnvironment());
+        command.setEnvironment(env);
         log.info("Installing IUs " + ius + " to " + effectiveDestination);
         try {
             command.execute();
         } catch (DirectorCommandException e) {
             throw new MojoFailureException("Installation of IUs " + ius + " failed", e);
         }
+    }
+
+    private File getFinalDestination(TargetEnvironment env) {
+        if (PlatformPropertiesUtils.OS_MACOSX.equals(env.getOs()) && !hasRequiredMacLayout(effectiveDestination)) {
+            return new File(effectiveDestination, "Eclipse.app/Contents/Eclipse/");
+        }
+        return effectiveDestination;
+    }
+
+    private static boolean hasRequiredMacLayout(File folder) {
+        //TODO if we do not have this exact layout then director fails with:
+        //The framework persistent data location (/work/MacOS/configuration) is not the same as the framework configuration location /work/Contents/Eclipse/configuration)
+        //maybe we can simply configure the "persistent data location" to point to the expected one?
+        //or the "configuration location" must be configured and look like /work/Contents/<work>/configuration ?
+        //the actual values seem even depend on if this is an empty folder where one installs or an existing one
+        //e.g. if one installs multiple env Equinox finds the launcher and then set the location different...
+        if ("Eclipse".equals(folder.getName())) {
+            File folder2 = folder.getParentFile();
+            if (folder2 != null && "Contents".equals(folder2.getName())) {
+                File parent = folder2.getParentFile();
+                return parent != null && parent.getName().endsWith(".app");
+            }
+        }
+        return false;
     }
 
     private void validate() {

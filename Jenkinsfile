@@ -1,4 +1,4 @@
-def deployBranch = 'master'
+def deployBranch = 'main'
 def agentLabel
 if(env.BRANCH_NAME == deployBranch) {
 	//branches that are deployable must run on eclipse infra
@@ -19,7 +19,7 @@ pipeline {
 	}
 	tools {
 		maven 'apache-maven-3.9.1'
-		jdk 'openjdk-jdk17-latest'
+		jdk 'temurin-jdk17-latest'
 	}
 	stages {
 		stage('Build') {

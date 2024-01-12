@@ -1,8 +1,248 @@
 # Eclipse Tycho: Release notes
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
+If you are reading this in the browser, then you can quickly jump to specific versions by using the rightmost button above the headline: 
+![grafik](https://github.com/eclipse-tycho/tycho/assets/406876/7025e8cb-0cdb-4211-8239-fc01867923af)
 
-## 4.0.0 (under development)
+## 5.0.0 (under development)
+
+### using javac as the compiler for Tycho
+
+You can now use `javac` as the compiler backend for Tycho by adding the following configuration:
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-compiler-plugin</artifactId>
+	<version>${tycho.version}</version>
+	<configuration>
+		<compilerId>javac</compilerId>
+	</configuration>
+</plugin>
+ ```
+
+
+### new `mirror-target-platform`
+
+There is a new `mirror-target-platform` that allows to mirror the current target platform of a project into a P2 update site, this can b enabled for a project like this:
+
+```xml
+<plugin>
+  <groupId>org.eclipse.tycho</groupId>
+  <artifactId>target-platform-configuration</artifactId>
+  <executions>
+	  <execution>
+		  <id>inject</id>
+		  <goals>
+			  <goal>mirror-target-platform</goal>
+		  </goals>
+	  </execution>
+  </executions>
+</plugin>
+ ```
+
+the most usual use-case for this is to transform an existing target-file into a standalone repository.
+
+### new `director` mojo
+
+This mojo can be used in two ways:
+
+1. As a commandline invocation passing arguments as properties using `mvn org.eclipse.tycho:tycho-p2-director-plugin:director -Ddestination=[target] ... -D...`
+2. as an execution inside a pom
+
+```xml
+ <plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-p2-director-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+       <execution>
+          <goals>
+             <goal>director</goal>
+          </goals>
+          <phase>package</phase>
+          <configuration>
+             <destination>...</destination>
+             ... other arguments ...
+          </configuration>
+       </execution>
+    </executions>
+ </plugin>
+ ```
+
+
+### new `tycho-eclipse-plugin`
+
+Tycho now contains a new `tycho-eclipse-plugin` that is dedicated to executing "tasks like eclipse", this currently includes
+- the former tycho-extras `tycho-eclipserun-plugin` and its mojos
+- a new `eclipse-build` mojo that allows to take a literal eclipse project and execute the build on it
+
+#### new `eclipse-build` mojo
+
+The `eclipse-build` mojo can be used like this
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho-eclipse-plugin</artifactId>
+		<version>${tycho-version}</version>
+		<executions>
+			<execution>
+				<id>eclipse-build</id>
+				<goals>
+					<goal>eclipse-build</goal>
+				</goals>
+			</execution>
+		</executions>
+</plugin>
+```
+
+### support for PDE Api Tools Annotations
+
+Tycho now supports PDE Api Tools Annotations to be added to the project automatically.
+
+To enable this add
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-apitools-plugin</artifactId>
+	<version>${tycho-version}</version>
+</plugin>	
+```
+
+to your project and make sure it has the `org.eclipse.pde.api.tools.apiAnalysisNature` nature enabled in the `.project` file, for details how to use these see:
+
+- https://help.eclipse.org/latest/topic/org.eclipse.pde.doc.user/reference/api-tooling/api_javadoc_tags.htm
+- https://help.eclipse.org/latest/topic/org.eclipse.pde.doc.user/reference/api/org/eclipse/pde/api/tools/annotations/package-summary.html
+
+### new tycho-repository-plugin
+
+Tycho now contains a new `tycho-repository-plugin` that can be used to package OSGi repositories.
+
+### referenced repositories are considered by default when resolving the target platform
+
+The option `referencedRepositoryMode`, introduced in Tycho 4.0.2, now defaults to `include`: referenced repositories are considered by default when resolving the target platform, as PDE already does.
+To restore the old behavior of Tycho 4.0.2, you need to explicitly set the option to `ignore`:
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>target-platform-configuration</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		... other configuration options ...
+		<referencedRepositoryMode>ignore</referencedRepositoryMode>
+	</configuration>
+</plugin>
+	
+```
+### new option to filter added repository-references when assembling a p2-repository
+
+If filtering provided artifacts is enabled, the repository references automatically added to a assembled p2-repository
+(via `tycho-p2-repository-plugin`'s `addIUTargetRepositoryReferences` or `addPomRepositoryReferences`) can now be filtered by their location
+using exclusion and inclusion patterns and therefore allows more fine-grained control which references are added.
+Additionally the automatically added references can be filter based on if they provide any of the filtered units or not.
+If `addOnlyProviding` is `true` repositories that don't provide any filtered unit are not added to the assembled repo.
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-p2-repository-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		... other configuration options ...
+		<repositoryReferenceFilter>
+			<addOnlyProviding>true</addOnlyProviding>
+			<exclude>
+				<location>https://foo.bar.org/hidden/**</location>
+				<location> %regex[http(s)?:\/\/foo\.bar\.org\/secret\/.*]</location>
+				<location>![https://foo.bar.org/**]</location>
+			</exclude>
+		</repositoryReferenceFilter>
+	</configuration>
+</plugin>
+	
+```
+
+### Remove support for deployableFeature option
+
+The deployableFeature option will create "standard eclipse update site directory with feature content will
+be created under target folder" but we already removed site-packaging from Tycho for a while, if one wants to
+archive similar a category.xml with eclipse-repository packaging gives much more control and power to the user.
+Alternativly new `mirror-target-platform` mojo can be used.
+
+
+## 4.0.4
+
+Backports:
+- Add schema-to-html mojo as a replacement for ant ConvertSchemaToHTML
+- Only set download/install-size attributes in features if they exist
+- Call the API tools directly without using ApiAnalysisApplication
+- Make additional P2 units from p2.inf available to the target-platform 
+
+## 4.0.3
+
+### new option to filter added repository-references when assembling a p2-repository
+
+If filtering provided artifacts is enabled, the repository references automatically added to a assembled p2-repository
+(via `tycho-p2-repository-plugin`'s `addIUTargetRepositoryReferences` or `addPomRepositoryReferences`) can now be filtered by their location
+using exclusion and inclusion patterns and therefore allows more fine-grained control which references are added.
+Additionally the automatically added references can be filter based on if they provide any of the filtered units or not.
+If `addOnlyProviding` is `true` repositories that don't provide any filtered unit are not added to the assembled repo.
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-p2-repository-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		... other configuration options ...
+		<repositoryReferenceFilter>
+			<addOnlyProviding>true</addOnlyProviding>
+			<exclude>
+				<location>https://foo.bar.org/hidden/**</location>
+				<location>%regex[http(s)?:\/\/foo\.bar\.org\/secret\/.*]</location>
+				<location>![https://foo.bar.org/**]</location>
+			</exclude>
+		</repositoryReferenceFilter>
+	</configuration>
+</plugin>
+```
+
+## 4.0.2
+- new option to include referenced repositories when resolving the target platform:
+Repositories can contain references to other repositories (e.g. to find additional dependencies), from now on there is a new option, `referencedRepositoryMode`, to also consider these references. By default, it is set to `ignore`; to enable referenced repositories in target platform resolution, set it to `include`:
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>target-platform-configuration</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		... other configuration options ...
+		<referencedRepositoryMode>include</referencedRepositoryMode>
+	</configuration>
+</plugin>
+```
+
+- Add dummy parameter to prevent warnings with jgit as timestamp provider
+
+## 4.0.1
+
+backports:
+- new tycho-repository-plugin
+- Non existing but optional dependencies lead to resolving issue in target
+- SharedHttpCacheStorage doesn't resolve redirect correctly if the uri that is given isn't normalized
+- Non existing but optional dependencies lead to resolving issue in target
+- Make comparison of newlines in text files more precise
+- Fix resolving of project if target do not contains JUnit
+- Check if the about to be injected maven coordinates can be resolved
+
+## 4.0.0
+
+### Maven 3.9 required
+
+Tycho 4.x requires Maven Version 3.9.
 
 ### creating maven p2 sites with Tycho packaging
 
@@ -17,19 +257,19 @@ https://github.com/eclipse-tycho/tycho/tree/master/demo/p2-maven-site
 
 There is now a new mojo that replaces the usual ant-based workflow to generate the help index, it can be used like this:
 
-```
+```xml
 <plugin>
-	<groupId>org.eclipse.tycho.extras</groupId>
-	<artifactId>tycho-document-bundle-plugin</artifactId>
-	<version>${tycho-version}</version>
-	<executions>
-		<execution>
-			<id>index</id>
-			<goals>
-				<goal>build-help-index</goal>
-			</goals>
-		</execution>
-	</executions>
+    <groupId>org.eclipse.tycho.extras</groupId>
+    <artifactId>tycho-document-bundle-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+        <execution>
+            <id>index</id>
+            <goals>
+                <goal>build-help-index</goal>
+            </goals>
+        </execution>
+    </executions>
 </plugin>
 ```
 
@@ -38,39 +278,39 @@ There is now a new mojo that replaces the usual ant-based workflow to generate t
 
 There is now a new mojo that replaces the usual ant-based workflow to call the PDE-API tools, it can be used like this:
 
-```
+```xml
 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>tycho-apitools-plugin</artifactId>
-	<version>${tycho-version}</version>
-	<configuration>
-		<baselines>
-			<repository>
-				<url>... your baseline repo ...</url>
-			</repository>
-		</baselines>
-	</configuration>
-	<executions>
-		<execution>
-			<id>generate</id>
-			<goals>
-				<goal>generate</goal>
-			</goals>
-		</execution>
-		<execution>
-			<id>verify</id>
-			<goals>
-				<goal>verify</goal>
-			</goals>
-			<configuration>
-			 	<baselines>
-				 	<repository>
-				 		<url>${previous-release.baseline}</url>
-				 	</repository>
-			 	</baselines>
-			</configuration>
-		</execution>
-	</executions>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-apitools-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <configuration>
+        <baselines>
+            <repository>
+                <url>... your baseline repo ...</url>
+            </repository>
+        </baselines>
+    </configuration>
+    <executions>
+        <execution>
+            <id>generate</id>
+            <goals>
+                <goal>generate</goal>
+            </goals>
+        </execution>
+        <execution>
+            <id>verify</id>
+            <goals>
+                <goal>verify</goal>
+            </goals>
+            <configuration>
+                 <baselines>
+                     <repository>
+                         <url>${previous-release.baseline}</url>
+                     </repository>
+                 </baselines>
+            </configuration>
+        </execution>
+    </executions>
 </plugin>
 ```
 
@@ -89,22 +329,22 @@ details can be found here: https://tycho.eclipseprojects.io/doc/master/BndBuild.
 Previously it was only possible to influence the handling of local artifacts with the `-Dtycho.localArtifacts=<ignore/default>` option, from now on this can be configured through the target platform as well like this:
 
 
-```
+```xml
 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>target-platform-configuration</artifactId>
-	<version>${tycho-version}</version>
-	<configuration>
-		<dependency-resolution>
-			<localArtifacts>ignore</localArtifacts>
-		</dependency-resolution>
-	</configuration>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>target-platform-configuration</artifactId>
+    <version>${tycho-version}</version>
+    <configuration>
+        <dependency-resolution>
+            <localArtifacts>ignore</localArtifacts>
+        </dependency-resolution>
+    </configuration>
 </plugin>
 ```
 
 the supported values are:
 
-- `include` - (default) local artifacts are included and may override items from the target, 
+- `include` - (default) local artifacts are included and may override items from the target,
 - `default` - for backward-compatibility with older documentation, equivalent to `include`
 - `ignore` - local artifacts are ignored
 
@@ -124,7 +364,7 @@ It works the following way:
 
 Updating properties in a project can now be automated with the `tycho-versions-plugin:set-property` mojo. It is very similar to the `tycho-versions-plugin:set-version` mojo but only updates one or more properties, for example:
 
-```
+```shell
 mvn org.eclipse.tycho:tycho-versions-plugin:set-property --non-recursive -Dproperties=releaseVersion -DnewReleaseVersion=1.2.3
 ```
 
@@ -134,7 +374,7 @@ This is mostly useful with [Tycho CI Friendly Versions](https://tycho.eclipsepro
 
 Updating the parent version in a project can now be automated with the `tycho-versions-plugin:set-parent-version` mojo. Similar to the `tycho-versions-plugin:set-version` mojo, this just updates the version of the parent pom, for example:
 
-```
+```shell
 mvn org.eclipse.tycho:tycho-versions-plugin:set-parent-version --non-recursive -DewParentVersion=5.9.3
 ```
 
@@ -153,28 +393,28 @@ Tycho now has a new mojo to perform baseline comparisons similar to the [bnd-bas
 
 A usual configuration looks like this:
 
-```
+```xml
 <plugin>
-   <groupId>org.eclipse.tycho</groupId>
-   <artifactId>tycho-baseline-plugin</artifactId>
-   <version>${tycho.version}</version>
-   <executions>
-     <execution>
-       <id>baseline-check</id>
-       <goals>
-         <goal>verify</goal>
-       </goals>
-       <configuration>
-         <baselines>
-           <repository>
-			   <id>optional, only required for proxy setup or password protected sites</id>
-			   <url>URL of P2 repository that should be used as a baseline</url>
-		   </repository>
-         </baselines>
-       </configuration>
-     </execution>
-   </executions>
- </plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-baseline-plugin</artifactId>
+    <version>${tycho.version}</version>
+    <executions>
+        <execution>
+            <id>baseline-check</id>
+            <goals>
+                <goal>verify</goal>
+            </goals>
+            <configuration>
+                <baselines>
+                    <repository>
+                        <id>optional, only required for proxy setup or password protected sites</id>
+                        <url>URL of P2 repository that should be used as a baseline</url>
+                    </repository>
+                </baselines>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
 ```
 
 Any baseline problems will then be reported to the build:
@@ -197,29 +437,29 @@ This applies to `tycho-surefire-plugin:test` and `tycho-surefire-plugin:plugin-t
 
 From now on one can define targets also in the repository section of the pom, only the URI variant is supported, but actually you can write everything as an URI already, this then looks like this:
 
-```
+```xml
 <project ...>
-	...
-	<repositories>
-		<repository>
-			<id>jetty</id>
-			<layout>target</layout>
-			<url>file:${project.basedir}/jetty.target</url>
-		</repository>
-	</repositories>
-	...
+    ...
+    <repositories>
+        <repository>
+            <id>jetty</id>
+            <layout>target</layout>
+            <url>file:${project.basedir}/jetty.target</url>
+        </repository>
+    </repositories>
+    ...
 </project>
 ```
 
 You might also use https:
 
-```
+```xml
 <url>https://git.eclipse.org/c/lsp4e/lsp4e.git/plain/target-platforms/target-platform-latest/target-platform-latest.target</url>
 ```
 
 or reference a maven deployed artifact
 
-```
+```xml
 <url>mvn:org.eclipse.lsp4e:target-platform-latest:0.13.1-SNAPSHOT</url>
 ```
 
@@ -243,17 +483,17 @@ If you want to include repository references automatically, there are two other 
 so now one can produce a self-contained update-site that only includes what is not already available from the target content used by specify:
 
 
-```
+```xml
 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>tycho-p2-repository-plugin</artifactId>
-	<version>${tycho-version}</version>
-	<configuration>
-		<includeAllDependencies>true</includeAllDependencies>
-		<filterProvided>true</filterProvided>
-		<addPomRepositoryReferences>true</addPomRepositoryReferences>
-		<addIUTargetRepositoryReferences>true</addIUTargetRepositoryReferences>
-	</configuration>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-p2-repository-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <configuration>
+        <includeAllDependencies>true</includeAllDependencies>
+        <filterProvided>true</filterProvided>
+        <addPomRepositoryReferences>true</addPomRepositoryReferences>
+        <addIUTargetRepositoryReferences>true</addIUTargetRepositoryReferences>
+    </configuration>
 </plugin>
 
 ```
@@ -262,14 +502,14 @@ so now one can produce a self-contained update-site that only includes what is n
 
 OSGi defines an own [repository serialization format](https://docs.osgi.org/specification/osgi.cmpn/7.0.0/service.repository.html) Tycho can now produce such repositories to ease integration with these format, the only thing required is specifying the following configuration options:
 
-```
+```xml
 <plugin>
-		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho-p2-repository-plugin</artifactId>
-		<version>${tycho-version}</version>
-		<configuration>
-			<generateOSGiRepository>true</generateOSGiRepository>
-		</configuration>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-p2-repository-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <configuration>
+        <generateOSGiRepository>true</generateOSGiRepository>
+    </configuration>
 </plugin>
 ```
 
@@ -284,14 +524,14 @@ The following headers are currently supported:
 
 This can be disabled with the following configuration in the pom:
 
-```
-  <plugin>
+```xml
+<plugin>
     <groupId>org.eclipse.tycho</groupId>
     <artifactId>tycho-packaging-plugin</artifactId>
-     <configuration>
-		<deriveHeaderFromSource>false</deriveHeaderFromSource>
-	 </configuration>
-  </plugin>
+    <configuration>
+        <deriveHeaderFromSource>false</deriveHeaderFromSource>
+    </configuration>
+</plugin>
 ```
 
 ### Variable resolution in target repository location
@@ -314,14 +554,14 @@ Tycho has already introduced a new mode in Tycho 3.0.0 that was activated with `
 If you see any issues please let us know so we can fix any problem with it, this new mode is now configured through the target platform configuration
 and if you like the old behavior it can be configured in the following way:
 
-```
+```xml
 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>target-platform-configuration</artifactId>
-	<version>${tycho-version}</version>
-	<configuration>
-		<requireEagerResolve>true</requireEagerResolve>
-	</configuration>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>target-platform-configuration</artifactId>
+    <version>${tycho-version}</version>
+    <configuration>
+        <requireEagerResolve>true</requireEagerResolve>
+    </configuration>
 </plugin>
 ```
 
@@ -388,14 +628,14 @@ One example that uses [API-Guardian](https://github.com/apiguardian-team/apiguar
 
 You can disable this feature through the `tycho-compiler-plugin` configuration:
 
-```
+```xml
 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>tycho-compiler-plugin</artifactId>
-	<version>${tycho-version}</version>
-	<configuration>
-		<pomOnlyDependencies>ignore</pomOnlyDependencies>
-	</configuration>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-compiler-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <configuration>
+        <pomOnlyDependencies>ignore</pomOnlyDependencies>
+    </configuration>
 </plugin>
 ```
 
@@ -421,38 +661,37 @@ Some improvements have been made for the test execution with `eclipse-plugin` pa
 
 To restore old behaviour you can add the follwoing snippet to your (master) pom:
 
-```
+```xml
 <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-surefire-plugin</artifactId>
-	<version>${surefire-plugin-version}</version>
-	<executions>
-		<execution>
-			<id>execute-tests</id>
-			<goals>
-				<goal>test</goal>
-			</goals>
-		</execution>
-	</executions>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <version>${surefire-plugin-version}</version>
+    <executions>
+        <execution>
+            <id>execute-tests</id>
+            <goals>
+                <goal>test</goal>
+            </goals>
+        </execution>
+    </executions>
 </plugin>
 
-
 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>tycho-surefire-plugin</artifactId>
-	<version>${tycho-version}</version>
-	<executions>
-		<execution>
-			<id>execute-plugin-tests</id>
-			<configuration>
-				<includes>**/PluginTest*.class,**/*IT.class</includes>
-			</configuration>
-			<goals>
-				<goal>plugin-test</goal>
-				<goal>verify</goal>
-			</goals>
-		</execution>
-	</executions>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-surefire-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+        <execution>
+            <id>execute-plugin-tests</id>
+            <configuration>
+                <includes>**/PluginTest*.class,**/*IT.class</includes>
+            </configuration>
+            <goals>
+                <goal>plugin-test</goal>
+                <goal>verify</goal>
+            </goals>
+        </execution>
+    </executions>
 </plugin>
 ```
 
@@ -461,25 +700,25 @@ To restore old behaviour you can add the follwoing snippet to your (master) pom:
 Tycho has a new mojo to check the consistency of the pom used for your bundle.
 To enable this add the following to your pom (or adjust an existing configuration):
 
-```
+```xml
 <plugin>
     <groupId>org.eclipse.tycho</groupId>
     <artifactId>tycho-packaging-plugin</artifactId>
     <executions>
-      <execution>
-        <id>validate-pom</id>
-        <phase>verify</phase>
-        <goals>
-          <goal>verify-osgi-pom</goal>
-        </goals>
-      </execution>
+        <execution>
+            <id>validate-pom</id>
+            <phase>verify</phase>
+            <goals>
+                <goal>verify-osgi-pom</goal>
+            </goals>
+        </execution>
     </executions>
-      <configuration>
+    <configuration>
         <archive>
-          <addMavenDescriptor>true</addMavenDescriptor>
+            <addMavenDescriptor>true</addMavenDescriptor>
         </archive>
         <mapP2Dependencies>true</mapP2Dependencies>
-      </configuration>
+    </configuration>
 </plugin>
 ```
 This will then:
@@ -495,7 +734,7 @@ The default will now be aligned with maven-surefire-plugin at false and will nee
 
 Old behavior can be restored through configuration of the tycho-surefire-plugin:
 
-```
+```xml
 <plugin>
     <groupId>org.eclipse.tycho</groupId>
     <artifactId>tycho-surefire-plugin</artifactId>
@@ -504,6 +743,23 @@ Old behavior can be restored through configuration of the tycho-surefire-plugin:
     </configuration>
 </plugin>
 ```
+
+## 3.0.5
+
+### Backports
+
+- inject source folders into maven model
+- improve CI friendly versions
+- Report download speed to the caller
+- redirectTestOutputToFile for OsgiSurefireBooter
+
+## 3.0.4
+
+### Backports
+
+- Include smartbuilder (but disabled by default), can be enabled with `-Dtycho.build.smartbuilder=true`
+- tycho-bnd-plugin support
+- Version Mojo Bugfixes
 
 ## 3.0.3
 
@@ -523,16 +779,16 @@ The generated source feature now properly includes the source bundles.
 
 ### EclipseRunMojo `argLine` and `appArgLine` are reintroduced and no longer deprecated.
 
-The `argLine` and `appArgLine` options have long been deprecated and were removed in Tycho 3.0.0. 
+The `argLine` and `appArgLine` options have long been deprecated and were removed in Tycho 3.0.0.
 They are generally inferior to the list-based `jvmArgs` and `applicationArgs` respectively.
 However there are use cases where the arguments need to be extensible via property expansion, in which case the list-based approach is not always a suitable alternative.
 As such, these two options have been re-introduced for Tycho 3.0.2 and are no longer marked deprecated though `jvmArgs` and `applicationArgs` remain the preferred mechanism.
 
 ### Backports
 - Maven Loockup can become really slow and should cache previous requests #1969
-- Provide a "verify-pom-resolves" mojo #1451 
+- Provide a "verify-pom-resolves" mojo #1451
 - JUnit 5.9 support in Tycho 3.0.x #1943
-- Consumer-POM should use packaging-type jar instead of eclipse-plugin #2005 
+- Consumer-POM should use packaging-type jar instead of eclipse-plugin #2005
 - Mirroring of packed artifacts must be disabled
 - Target platform resolved multiple times
 - Support resolving of target projects from the reactor
@@ -562,14 +818,14 @@ Previously forking was not supported, now forking is possible and will be used i
 The `tycho-consumer-pom` mojo has a new option to resolve p2 introduced dependencies to 'real' maven coordinates now, when enabled it queries maven-central with the SHA1 of the file to find out what are the actual maven central coordinates
  and place them in the generated pom consumer-pom.
 
-```
+```xml
 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>tycho-packaging-plugin</artifactId>
-	<version>${tycho-version}</version>
-	<configuration>
-		<mapP2Dependencies>true</mapP2Dependencies>
-	</configuration>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-packaging-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <configuration>
+        <mapP2Dependencies>true</mapP2Dependencies>
+    </configuration>
 </plugin>
 ```
 
@@ -579,7 +835,7 @@ Sometimes it is useful to find out how dependencies of a project are actually pu
 
 Example with Tycho integration test project:
 
-```
+```shell
 tycho-its/projects/reactor.makeBehaviour$ mvn org.eclipse.tycho:tycho-p2-plugin:3.0.0-SNAPSHOT:dependency-tree
 
 ...
@@ -610,32 +866,32 @@ Tycho now provides a new API Tools Mojo, see https://github.com/eclipse/tycho/tr
 ### new sisu-osgi-connect
 
 The new sisu-osgi-connect provides an implementation for plexus according to the [Connect Specification](http://docs.osgi.org/specification/osgi.core/8.0.0/framework.connect.html#framework.connect) that allows to run an embedded OSGi Framework from the classpath of a maven-plugin.
-As both, the maven plugin and the embedded framework, share the same classlaoder you can use the best of both worlds and interact seamless with them. 
+As both, the maven plugin and the embedded framework, share the same classlaoder you can use the best of both worlds and interact seamless with them.
 
 This can be used in the following way:
 
-```
+```java
 @Component(role = MyPlexusComponent.class)
 public class MyPlexusComponent {
-	@Requirement(hint = "connect")
-	private EquinoxServiceFactory serviceFactory;
-	
-	public void helloConnect() {
-		serviceFactory.getService(HelloWorldService.class).sayHello();
-	}
+    @Requirement(hint = "connect")
+    private EquinoxServiceFactory serviceFactory;
+
+    public void helloConnect() {
+        serviceFactory.getService(HelloWorldService.class).sayHello();
+    }
 }
 ```
 
 For the setup you need to do the following:
 
 1. include any bundle you like to make up your plexus-osgi-connect framework as a dependency of your maven plugin
-2. include a file `META-INF/sisu/connect.bundles` that list all your bundles you like to have installed in the format `bsn[,true]`, where `bsn` is the symbolid name and optionally you can control if your bundle has to be started or not
+2. include a file `META-INF/sisu/connect.bundles` that list all your bundles you like to have installed in the format `bsn[,true]`, where `bsn` is the symbolic name and optionally you can control if your bundle has to be started or not
 3. include the following additional dependency
-```
+```xml
 <dependency>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>sisu-osgi-connect</artifactId>
-	<version>${tycho-version}</version>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>sisu-osgi-connect</artifactId>
+    <version>${tycho-version}</version>
 </dependency>
 ```
 
@@ -645,7 +901,7 @@ The `tycho-compiler:compile` and `tycho-compiler:testCompile` option `requireJRE
 
 ### Tycho compiler support for java.* imports
 
-The `tycho-compiler:compile` and `tycho-compiler:testCompile` has a new option `requireJavaPackageImports` (defaults to `false`) that allows to assert importing of packages from the `java.*` namespace. 
+The `tycho-compiler:compile` and `tycho-compiler:testCompile` has a new option `requireJavaPackageImports` (defaults to `false`) that allows to assert importing of packages from the `java.*` namespace.
 This is [allowed since OSGi R7](https://blog.osgi.org/2018/02/osgi-r7-highlights-java-9-support.html) and considered  ǵood practice since the evolving of modular VMs there is no guarantee what packages a JVM offers,
 
 ### Eclipse M2E lifecycle-mapping metadata embedded
@@ -677,23 +933,23 @@ Starting with Maven 3.8.5 Tycho now supports an enhanced form of the [Maven CI F
 
 These uses the usual semantics that you can use them in a version string e.g. `<version>${releaseVersion}${qualifier}</version>` and pass them on the commandline.
 
-Beside this, Tycho supports some useful default calculation for `qualifier` if you give a format on the commandline with `-Dtycho.buildqualifier.format=yyyyMMddHHmm` 
+Beside this, Tycho supports some useful default calculation for `qualifier` if you give a format on the commandline with `-Dtycho.buildqualifier.format=yyyyMMddHHmm`
 (or [any other format supported](https://www.eclipse.org/tycho/sitedocs/tycho-packaging-plugin/build-qualifier-mojo.html#format)). Tycho will also make the build qualifier available in your Maven model!
 
 That way you can configure your pom in the following way:
-```
+```xml
 <project>
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>...</groupId>
-	<artifactId>...</artifactId>
-	<packaging>pom</packaging>
-	<version>1.0.0${qualifier}</version>
-  <properties>
-    <!-- Defines the default Qualifier if no format is given-->
-    <qualifier>-SNAPSHOT</qualifier>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>...</groupId>
+    <artifactId>...</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0${qualifier}</version>
+    <properties>
+        <!-- Defines the default Qualifier if no format is given-->
+        <qualifier>-SNAPSHOT</qualifier>
+        ...
+    </properties>
     ...
-  </properties>
-  ...
 </project>
 ```
 
@@ -701,21 +957,21 @@ What will result in the usual `1.0.0-SNAPSHOT` for a regular `mvn clean install`
 and your artifact will get the `1.0.0-<formatted qualifier>` version when published! This also is supported if you use pomless build.
 
 To use this new feature you need to enable the tycho-build extension with the `.mvn/extensions.xml` file in the root of your project directory:
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <extensions>
-	<extension>
-		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho-build</artifactId>
-		<version>${tycho-version}</version>
-	</extension>
-	<!-- possibly other extensions here -->
+    <extension>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-build</artifactId>
+        <version>${tycho-version}</version>
+    </extension>
+    <!-- possibly other extensions here -->
 </extensions>
 ```
 Please note that we use another new feature from Maven 3.8.5 here, where you can use properties from the file `.mvn/maven.config` in your `.mvn/extensions.xml` file, so if you put in this:
-```
+```shell
 -Dtycho-version=3.0.0-SNAPSHOT
-# probably add more here ..
+(probably add more here ...)
 ```
 
 You can now control your Tycho version for `.mvn/extensions.xml` and your `pom.xml` in one place and still override it on the commandline with `-Dtycho-version=...`
@@ -733,18 +989,18 @@ Tycho now has improved support for this with the following:
 
 1. if there is a `.settings/org.eclipse.pde.ds.annotations.prefs` in the project, tycho adapts the settings there and if `classpath=true` is set no more imports are required.
 2. one can enable a new `tycho-ds-plugin` where global default settings can be configured if project settings are not present, the below shows an example with default values:
-```
+```xml
 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>tycho-ds-plugin</artifactId>
-	<version>${tycho-version}</version>
-	<configuration>
-		<classpath>true</classpath>
-		<dsVersion>1.3</dsVersion>
-		<enabled>false</enabled>
-		<path>OSGI-INF</path>
-		<skip>false</skip>
-	</configuration>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-ds-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <configuration>
+        <classpath>true</classpath>
+        <dsVersion>1.3</dsVersion>
+        <enabled>false</enabled>
+        <path>OSGI-INF</path>
+        <skip>false</skip>
+    </configuration>
 </plugin>
 ```
 If the `tycho-ds-plugin` is enabled for a project it generates the necessary xml files if not already present in the project.
@@ -782,58 +1038,58 @@ If your build contains a mixture of released and 'snapshot' sites you have the f
 PDE requires some special headers to detect a bundle as a "Source Bundle", there is now a new mojo `tycho-source-plugin:generate-pde-source-header` that supports this, it requires the following configuration:
 
 1. Enable the generation of a source-jar with the `maven-source-plugin`. Please note that it needs to be bound to the `prepare-package` phase explicitly!
-```
+```xml
 <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-source-plugin</artifactId>
-	<executions>
-		<execution>
-			<id>attach-sources</id>
-			<goals>
-				<goal>jar</goal>
-			</goals>
-			<phase>prepare-package</phase>
-		</execution>
-	</executions>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-source-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>attach-sources</id>
+            <goals>
+                <goal>jar</goal>
+            </goals>
+            <phase>prepare-package</phase>
+        </execution>
+    </executions>
 </plugin>
 ```
 2. Enable the generation of the appropriate PDE header:
-```
+```xml
 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>tycho-source-plugin</artifactId>
-	<version>${tycho-version}</version>
-	<executions>
-		<execution>
-			<id>generate-pde-source-header</id>
-			<goals>
-				<goal>generate-pde-source-header</goal>
-			</goals>
-		</execution>
-	</executions>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-source-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+        <execution>
+            <id>generate-pde-source-header</id>
+            <goals>
+                <goal>generate-pde-source-header</goal>
+            </goals>
+        </execution>
+    </executions>
 </plugin>
 ```
 3. Finally enable generation of P2 metadata so Tycho can use the source bundle in the build (you can omit this step if you don't want to reference the source bundle in a product, update-site or feature).
-```
+```xml
 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>tycho-p2-plugin</artifactId>
-	<version>${tycho-version}</version>
-	<executions>
-		<execution>
-			<id>attached-p2-metadata</id>
-			<phase>package</phase>
-			<goals>
-				<goal>p2-metadata</goal>
-			</goals>
-			<configuration>
-				<supportedProjectTypes>
-					<value>bundle</value>
-					<value>jar</value>
-				</supportedProjectTypes>
-			</configuration>
-		</execution>
-	</executions>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-p2-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+        <execution>
+            <id>attached-p2-metadata</id>
+            <phase>package</phase>
+            <goals>
+                <goal>p2-metadata</goal>
+            </goals>
+            <configuration>
+                <supportedProjectTypes>
+                    <value>bundle</value>
+                    <value>jar</value>
+                </supportedProjectTypes>
+            </configuration>
+        </execution>
+    </executions>
 </plugin>
 ```
 
@@ -852,19 +1108,19 @@ From 3.x on Tycho requires Java 17 as a runtime VM, but you can still compile co
 
 Previously Tycho uses `zip` for all platforms when packaging a product, now `.tar.gz` is used for linux+mac. If you want you can restore old behaviour by:
 
-```
+```xml
 <execution>
-	<id>archive-products</id>
-	<goals>
-		<goal>archive-products</goal>
-	</goals>
-	<phase>install</phase>
-	<configuration>
-		<formats>
-			<linux>zip</linux>
-			<macosx>zip</macosx>
-		</formats>
-	</configuration>
+    <id>archive-products</id>
+    <goals>
+        <goal>archive-products</goal>
+    </goals>
+    <phase>install</phase>
+    <configuration>
+        <formats>
+            <linux>zip</linux>
+            <macosx>zip</macosx>
+        </formats>
+    </configuration>
 </execution>
 
 ```
@@ -908,18 +1164,18 @@ This mojo is replaced by the `tycho-source-plugin` with execution `feature-sourc
 #### Pack200
 
 Pack200 technology is obsolete and no longer supported after Java 13.
-Tycho removed all support for dealing with pack.gz files including pack200 specific plugins, various options in Mojos and support for resolving fetching in core. 
+Tycho removed all support for dealing with pack.gz files including pack200 specific plugins, various options in Mojos and support for resolving fetching in core.
 
 Omit any pack200 specific plugins, options and in any other way dealing with ***.pack.gz** files.
 The following are removed:
 - Plugins
-	- tycho-pack200a-plugin
-	- tycho-pack200b-plugin
+    - tycho-pack200a-plugin
+    - tycho-pack200b-plugin
 - Mojo options
-	- TargetPlatformConfigurationMojo' `includePackedArtifacts`
-	- MirrorMojo's `includePacked`
-	- PublishFeaturesAndBundlesMojo `reusePack200Files`
-	
+    - TargetPlatformConfigurationMojo' `includePackedArtifacts`
+    - MirrorMojo's `includePacked`
+    - PublishFeaturesAndBundlesMojo `reusePack200Files`
+
 #### BuildQualifierMojo `project.basedir` option removed
 
 It was totally ignored in all latest versions.
@@ -962,31 +1218,33 @@ All Tycho plugins are now shipped with embedded M2E lifecycle-mapping-metadata f
 Therefore M2E now knows by default how to handle them and it is not necessary anymore to install any connector (usually `org.sonatype.tycho.m2e` was used) for them.
 
 ## 2.7.3
+
 Fixes:
--  p2-maven-site includes bundles in the repository https://github.com/eclipse/tycho/issues/932 
+-  p2-maven-site includes bundles in the repository https://github.com/eclipse/tycho/issues/932
 
 ## 2.7.2
+
 Fixes:
-- [2.7.1][regression] Neither raw version nor format was specified https://github.com/eclipse/tycho/issues/876 
-- [2.7.1] 'includePackedArtifacts' must be automatically disabled when running with an incompatible vm https://github.com/eclipse/tycho/issues/885 
+- [2.7.1] (regression) Neither raw version nor format was specified https://github.com/eclipse/tycho/issues/876
+- [2.7.1] 'includePackedArtifacts' must be automatically disabled when running with an incompatible vm https://github.com/eclipse/tycho/issues/885
 - Resolve DS classpath entry and generate component xmls https://github.com/eclipse/tycho/issues/406
 
 ## 2.7.1
 
 Fixes:
-- Access to the Tycho .cache directory is not properly synchronized https://github.com/eclipse/tycho/issues/663 
-- compare-versions-with-baseline failing (since 2.7) when executionEnvironment=none https://github.com/eclipse/tycho/issues/707 
-- JGit packaging build fails with Tycho 2.7.0 https://github.com/eclipse/tycho/issues/723 
+- Access to the Tycho .cache directory is not properly synchronized https://github.com/eclipse/tycho/issues/663
+- compare-versions-with-baseline failing (since 2.7) when executionEnvironment=none https://github.com/eclipse/tycho/issues/707
+- JGit packaging build fails with Tycho 2.7.0 https://github.com/eclipse/tycho/issues/723
 - Backport of https://github.com/eclipse/tycho/issues/767
 - Maven artifacts deployed with Tycho 2.7 are resolved without transitive dependencies by Maven https://github.com/eclipse/tycho/issues/781
-- Slicer warnings are too verboose https://github.com/eclipse/tycho/issues/728 
+- Slicer warnings are too verboose https://github.com/eclipse/tycho/issues/728
 - Performance regression in classpath resolution https://github.com/eclipse/tycho/issues/719
-- If multiple fragments match a bundle all items are added to the classpath while only the one with the highest version should match https://github.com/eclipse/tycho/issues/822 
-- Check Hashsums for local cached artifacts https://github.com/eclipse/tycho/issues/692 
-- JAVA_HOME check is not OS independent https://github.com/eclipse/tycho/issues/849 
-- Bug 571533 - tycho-compiler-plugin with useJDK=BREE and BREE==JavaSE-1.8 fails to find some EE packages https://github.com/eclipse/tycho/issues/51 
-- Failed to resolve dependencies with Tycho 2.7.0 for custom repositories https://github.com/eclipse/tycho/issues/697 
-- Feature restrictions are not taken into account when using emptyVersion https://github.com/eclipse/tycho/issues/845 
+- If multiple fragments match a bundle all items are added to the classpath while only the one with the highest version should match https://github.com/eclipse/tycho/issues/822
+- Check Hashsums for local cached artifacts https://github.com/eclipse/tycho/issues/692
+- JAVA_HOME check is not OS independent https://github.com/eclipse/tycho/issues/849
+- Bug 571533 - tycho-compiler-plugin with useJDK=BREE and BREE==JavaSE-1.8 fails to find some EE packages https://github.com/eclipse/tycho/issues/51
+- Failed to resolve dependencies with Tycho 2.7.0 for custom repositories https://github.com/eclipse/tycho/issues/697
+- Feature restrictions are not taken into account when using emptyVersion https://github.com/eclipse/tycho/issues/845
 
 ## 2.7.0
 
@@ -997,22 +1255,22 @@ Tycho pomless has started as a small experiment in tycho-extras. Over time it ha
 Neverless, the name "pomless" was always a bit misleading, as actually we have reduced the number required poms to one 'main-pom' it is still not pomless and actually allows poms to be used where suitable.
 Because of this, and to not limit the usage to "pomless" with this version a new core-extension is available name 'tycho-build', that effectively does what tycho-extras-pomless does but in the context of 'core' and is open to further improvements (maybe at some time offering an option to not needing a pom at all).
 
-All that needs to be done is to replace the old 
-```
+All that needs to be done is to replace the old
+```xml
 <extension>
-	<groupId>org.eclipse.tycho.extras</groupId>
-	<artifactId>tycho-pomless</artifactId>
-	<version>2.7.0</version>
+    <groupId>org.eclipse.tycho.extras</groupId>
+    <artifactId>tycho-pomless</artifactId>
+    <version>2.7.0</version>
 </extension>
 ```
 
 with
 
-```
+```xml
 <extension>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>tycho-build</artifactId>
-	<version>2.7.0</version>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-build</artifactId>
+    <version>2.7.0</version>
 </extension>
 ```
 Notice the changed artifactId.
@@ -1052,22 +1310,22 @@ Tycho now delays the classpath computation to a later stage (`initialize` phase)
 
 If you want to perform the classpath validation in the `validate` phase of your build you can force classpath computation with the following snippet:
 
-```
+```xml
 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>tycho-compiler-plugin</artifactId>
-	<version>${tycho.version}</version>
-	<executions>
-		<execution>
-			<id>verify-classpath</id>
-			<phase>validate</phase>
-			<goals>
-				<goal>validate-classpath</goal>
-			</goals>
-			<configuration>
-			</configuration>
-		</execution>
-	</executions>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-compiler-plugin</artifactId>
+    <version>${tycho.version}</version>
+    <executions>
+        <execution>
+            <id>verify-classpath</id>
+            <phase>validate</phase>
+            <goals>
+                <goal>validate-classpath</goal>
+            </goals>
+            <configuration>
+            </configuration>
+        </execution>
+    </executions>
 </plugin>
 ```
 
@@ -1084,7 +1342,7 @@ Tycho now supports [pom dependencies inside maven target locations](https://gith
 
 Example:
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.8"?>
 <target name="with-pom-dependency">
@@ -1107,7 +1365,7 @@ Example:
 
 The default for this mojo has been flipped from true to false as pack200 artifacts are irrelevant nowadays. If you want to restore previous behavior put the following into your mojo configuration:
 
-```
+```xml
 <includePacked>true</includePacked>
 ```
 
@@ -1161,18 +1419,18 @@ From now on, this restriction is no longer true and one is able to execute unit-
  - create a source-folder in your `eclipse-plugin` packaged project and marks it as "Contains test sources" in the classpath settings:![grafik](https://user-images.githubusercontent.com/1331477/116801917-b20cb080-ab0e-11eb-8c05-1796196ccb25.png)
  - Create a unit-test inside that folder, either name it with any of the [default-pattern](https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#includes) maven-surefire plugin or configure the include pattern explicitly.
  - Include maven-surefire plugin configuration in your pom to select the appropriate test-providers
-```
+```xml
 <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-surefire-plugin</artifactId>
-	<version>3.0.0-M5</version>
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.maven.surefire</groupId>
-			<artifactId>surefire-junit47</artifactId>
-			<version>3.0.0-M5</version>
-		</dependency>
-	</dependencies>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <version>3.0.0-M5</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-junit47</artifactId>
+            <version>3.0.0-M5</version>
+        </dependency>
+    </dependencies>
 </plugin>
 ```
  - run your it with `mvn test`
@@ -1202,15 +1460,15 @@ for your eclipse-plugin packaged project if they do not match anything (the erro
 ### [Enhanced support for debug output in surefire-tests](https://github.com/eclipse/tycho/issues/52)
 tycho-surefire now support to set .options files for debugging through the new debugOptions parameter, example:
 
-```
+```xml
 <plugin>
-  <groupId>org.eclipse.tycho</groupId>
-  <artifactId>tycho-surefire-plugin</artifactId>
-  <version>${tycho-version}</version>
-  <configuration>
-    <showEclipseLog>true</showEclipseLog>
-    <debugOptions>${project.basedir}/../../debug.options</debugOptions>
-</configuration>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-surefire-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <configuration>
+        <showEclipseLog>true</showEclipseLog>
+        <debugOptions>${project.basedir}/../../debug.options</debugOptions>
+    </configuration>
 </plugin>
   ```
 
@@ -1269,17 +1527,17 @@ The [https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifac
 ### Target files can be specified directly now
 
 [Bug 571520](https://bugs.eclipse.org/bugs/show_bug.cgi?id=571520) allow to specify a target file as an alternative to a target artifact
-```
-  <plugin>
+```xml
+<plugin>
     <groupId>org.eclipse.tycho</groupId>
     <artifactId>target-platform-configuration</artifactId>
     <version>${tycho-version}</version>
     <configuration>
-      <target>
-        <file>jetty.target</file>
-      </target>
+        <target>
+            <file>jetty.target</file>
+        </target>
     </configuration>
-  </plugin>
+</plugin>
 ```
 ### Multi-platform product packaging
 
@@ -1309,31 +1567,29 @@ Note that this is specifically visible for <tt>eclipse-feature</tt> and <tt>ecli
 From now on, the tycho-source-plugin also includes the tycho-source-feature-plugin, the old one is deprecated and will be removed in the next major release.
 
 Migration is rather simple, just add a new execution to the tycho-source-plugin
-```
-<source lang="xml">
+```xml
 <plugin>
-	<groupId>org.eclipse.tycho</groupId>
-	<artifactId>tycho-source-plugin</artifactId>
-	<version>${tycho-version}</version>
-	<executions>
-	    <execution>
-		<id>plugin-source</id>
-		<goals>
-		    <goal>plugin-source</goal>
-		</goals>
-	    </execution>
-	     <execution>
-		<id>feature-source</id>
-		<goals>
-		    <goal>feature-source</goal>
-		</goals>
-		<configuration>
-		<!-- put your configuration here -->
-		</configuration>
-	    </execution>
-	</executions>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-source-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+        <execution>
+        <id>plugin-source</id>
+        <goals>
+            <goal>plugin-source</goal>
+        </goals>
+        </execution>
+         <execution>
+        <id>feature-source</id>
+        <goals>
+            <goal>feature-source</goal>
+        </goals>
+        <configuration>
+        <!-- put your configuration here -->
+        </configuration>
+        </execution>
+    </executions>
 </plugin>
-</source>
 ```
 
 Beside this, the new mojo does support one additional configuration option 'missingSourcesAction' that can have one of the following two values:
@@ -1345,12 +1601,12 @@ Beside this, the new mojo does support one additional configuration option 'miss
 [Bug 398238](https://bugs.eclipse.org/bugs/show_bug.cgi?id=398238) Tycho now supports in target files and in <repository> elements URLs of the form mvn:groupId:artifactId:version[:packaging[:classifier]] to be used for a repository.
 
 For example
-```
- <repository>
-  <id>activiti</id>
-  <layout>p2</layout>
-  <url>mvn:org.activiti.designer:org.activiti.designer.updatesite:5.11.1:zip</url>
- </repository>
+```xml
+<repository>
+    <id>activiti</id>
+    <layout>p2</layout>
+    <url>mvn:org.activiti.designer:org.activiti.designer.updatesite:5.11.1:zip</url>
+</repository>
 ```
 
 ### Support for excluding files in build.properties ===
@@ -1359,11 +1615,11 @@ For example
 
 For example
 ```
- output.mycodelib.jar = bin/
- bin.includes = META-INF/,\
+output.mycodelib.jar = bin/
+bin.includes = META-INF/,\
                mycodelib.jar
 
- source.mycodelib.jar = src/
- exclude.mycodelib.jar = **/*.txt
+source.mycodelib.jar = src/
+exclude.mycodelib.jar = **/*.txt
 ```
 

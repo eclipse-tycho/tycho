@@ -14,21 +14,20 @@ package org.eclipse.tycho.test.TYCHO0367localRepositoryCrosstalk;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class LocalRepositoryCrosstalkTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void test() throws Exception {
-		// run e352 test first
-		Verifier v01 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle02", false);
-		v01.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_LATEST.toString());
+		// run bundle 2 test first with latest eclipse
+		Verifier v01 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle02");
 		v01.executeGoal("install");
 		v01.verifyErrorFreeLog();
 
-		// now run e342 test, it should not "see" e352 artifacts in local repo
+		// now run bundle1 test, it should not "see" artifacts in local repo from newer
+		// update site
 		Verifier v02 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle01", false);
-		v02.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_OXYGEN.toString());
+		v02.addCliOption("-Dp2.repo=https:////download.eclipse.org/releases/photon/");
 		v02.executeGoal("install");
 		v02.verifyErrorFreeLog();
 	}

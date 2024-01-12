@@ -29,8 +29,8 @@ public interface JUnitClasspathContainerEntry extends ClasspathContainerEntry {
     static final JUnitBundle JUNIT4_PLUGIN = JUnitBundle.of("org.junit", "[4.13.0,5.0.0)",
             "org.apache.servicemix.bundles", "org.apache.servicemix.bundles.junit");
 
-    static final JUnitBundle HAMCREST_CORE_PLUGIN = JUnitBundle.of("org.hamcrest.core", "[1.1.0,2.0.0)", "org.hamcrest",
-            "hamcrest-core");
+    static final JUnitBundle HAMCREST_CORE_PLUGIN = JUnitBundle.of("org.hamcrest", "[2.0.0,3.0.0)", "org.hamcrest",
+            "hamcrest");
 
     static final JUnitBundle JUNIT_JUPITER_API_PLUGIN = JUnitBundle.of("junit-jupiter-api", "[5.0.0,6.0.0)",
             "org.junit.jupiter", "junit-jupiter-api");

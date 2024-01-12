@@ -6,7 +6,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
@@ -43,21 +43,20 @@ public class XmlComparator implements ContentsComparator {
             Diff baselineDiff = computeDiff(baseline, reactor);
             if (baselineDiff.hasDifferences()) {
                 String message = baselineDiff.fullDescription();
-                return TextComparator.createDelta(message, baseline, reactor);
+                return TextComparator.createDelta(message, baseline, reactor, data);
             }
             return null;
         } catch (RuntimeException e) {
-            return TextComparator.createDelta(ArtifactDelta.DEFAULT.getMessage(), baseline, reactor);
+            return TextComparator.createDelta(ArtifactDelta.DEFAULT.getMessage(), baseline, reactor, data);
         }
     }
 
     private Diff computeDiff(InputStream baseline, InputStream reactor) {
-        Diff baselineDiff = DiffBuilder.compare(Input.fromStream(baseline))//
+        return DiffBuilder.compare(Input.fromStream(baseline))//
                 .withTest(Input.fromStream(reactor))//
                 .checkForSimilar()//
                 .ignoreComments() //
                 .ignoreWhitespace().build();
-        return baselineDiff;
     }
 
     @Override

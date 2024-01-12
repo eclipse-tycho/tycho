@@ -33,7 +33,6 @@ import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.p2resolver.DefaultTargetDefinitionVariableResolver;
 import org.eclipse.tycho.p2resolver.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2resolver.P2ResolverImpl;
@@ -102,14 +101,9 @@ public class TestResolverFactory implements P2ResolverFactory {
         return newPomDependencyCollector(new ReactorProjectStub(new File("."), "test"));
     }
 
-    @Override
-    public TargetPlatformFactory getTargetPlatformFactory() {
-        return getTargetPlatformFactoryImpl();
-    }
-
     public TargetPlatformFactoryImpl getTargetPlatformFactoryImpl() {
         return new TargetPlatformFactoryImpl(mavenContext, agent, localArtifactRepo, localMetadataRepo,
-                targetDefinitionResolverService, idManager);
+                targetDefinitionResolverService, idManager, null, null);
     }
 
     @Override

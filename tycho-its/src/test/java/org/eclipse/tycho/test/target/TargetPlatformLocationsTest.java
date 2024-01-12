@@ -119,13 +119,10 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		Files.write(annotBundleManifestFile.toPath(), out, StandardOpenOption.WRITE,
 				StandardOpenOption.TRUNCATE_EXISTING);
 
-		try {
-			verifier.executeGoal("verify");
-			Assert.fail("Reference to the not exported package did not fail the build");
-		} catch (VerificationException expected) {
-			verifier.verifyTextInLog(
-					" Missing requirement: test.bundle 0.0.1.qualifier requires 'java.package; tycho.test.package 0.0.0' but it could not be found");
-		}
+		assertThrows("Reference to the not exported package did not fail the build", VerificationException.class,
+				() -> verifier.executeGoal("verify"));
+		verifier.verifyTextInLog(
+				" Missing requirement: test.bundle 0.0.1.qualifier requires 'java.package; tycho.test.package 0.0.0' but it could not be found");
 	}
 
 	@Test
@@ -165,6 +162,8 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("target.maven.eclipse-feature", false, true);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
+		File targetdir = new File(verifier.getBasedir(), "repository/target");
+		assertFileExists(targetdir, "repository/features/org.eclipse.jgit_6.1.0.202203080745-r.jar");
 	}
 
 	@Test
@@ -177,6 +176,13 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testTargetDefinedInRepositories() throws Exception {
 		Verifier verifier = getVerifier("target.userepositories", false, true);
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
+	public void testTargetRepositoryLocation() throws Exception {
+		Verifier verifier = getVerifier("target.repository", false, true);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 	}

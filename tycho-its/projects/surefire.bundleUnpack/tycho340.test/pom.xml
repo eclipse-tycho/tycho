@@ -26,6 +26,7 @@
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
+        <version>${tycho-version}</version>
         <configuration>
           <explodedBundles>
             <bundle>org.apache.ant</bundle>

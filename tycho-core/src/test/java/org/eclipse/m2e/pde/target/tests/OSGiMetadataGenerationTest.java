@@ -40,6 +40,59 @@ import org.osgi.framework.VersionRange;
 public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
 
     @Test
+    public void testBadDependencyInChain() throws Exception {
+        ITargetLocation target = resolveMavenTarget("""
+                <location includeDependencyScope="compile" missingManifest="generate" type="Maven">
+                    <dependencies>
+                        <dependency>
+                            <groupId>edu.ucar</groupId>
+                            <artifactId>cdm</artifactId>
+                            <version>4.5.5</version>
+                            <type>jar</type>
+                        </dependency>
+                    </dependencies>
+                </location>
+                """);
+        assertStatusOk(getTargetStatus(target));
+    }
+
+    @Test
+    public void testBadDependencyDirect() throws Exception {
+        ITargetLocation target = resolveMavenTarget("""
+                <location missingManifest="generate" type="Maven">
+                    <dependencies>
+                        <dependency>
+                              <groupId>com.ibm.icu</groupId>
+                              <artifactId>icu4j</artifactId>
+                              <version>2.6.1</version>
+                            <type>jar</type>
+                        </dependency>
+                    </dependencies>
+                </location>
+                """);
+        IStatus targetStatus = getTargetStatus(target);
+        assertEquals(String.valueOf(targetStatus), IStatus.ERROR, targetStatus.getSeverity());
+    }
+
+    @Test
+    public void testMissingOptionalDependency() throws Exception {
+        ITargetLocation target = resolveMavenTarget(
+                """
+                        <location includeDependencyDepth="none" includeDependencyScopes="compile" missingManifest="generate" type="Maven">
+                            <dependencies>
+                                <dependency>
+                                    <groupId>net.sf.saxon</groupId>
+                                    <artifactId>Saxon-HE</artifactId>
+                                    <version>10.9</version>
+                                    <type>jar</type>
+                                </dependency>
+                            </dependencies>
+                        </location>
+                        """);
+        assertStatusOk(getTargetStatus(target));
+    }
+
+    @Test
     @Ignore("FIXME")
     public void testNonOSGiArtifact_missingArtifactError() throws Exception {
         ITargetLocation target = resolveMavenTarget("""
@@ -115,7 +168,7 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
         assertEquals("Bundle derived from maven artifact com.google.errorprone:error_prone_annotations:2.18.0",
                 attributes.getValue(Constants.BUNDLE_NAME));
         assertEqualManifestHeaders(Constants.IMPORT_PACKAGE, attributes,
-                "javax.lang.model.element;resolution:=optional");
+                "javax.lang.model.element;resolution:=\"optional\", java.lang.annotation;resolution:=\"optional\", java.lang;resolution:=\"optional\"");
         assertEqualManifestHeaders(Constants.EXPORT_PACKAGE, attributes,
                 "com.google.errorprone.annotations;version=\"2.18.0\";uses:=\"javax.lang.model.element\"",
                 "com.google.errorprone.annotations.concurrent;version=\"2.18.0\"");
@@ -170,7 +223,8 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
                 attributes.getValue(Constants.BUNDLE_SYMBOLICNAME));
         assertEquals("Bundle in Test from artifact com.google.errorprone:error_prone_annotations:2.18.0:",
                 attributes.getValue(Constants.BUNDLE_NAME));
-        assertEqualManifestHeaders(Constants.IMPORT_PACKAGE, attributes, "javax.lang.model.element");
+        assertEqualManifestHeaders(Constants.IMPORT_PACKAGE, attributes,
+                "java.lang.annotation, javax.lang.model.element, java.lang");
         assertEqualManifestHeaders(Constants.EXPORT_PACKAGE, attributes,
                 "com.google.errorprone.annotations;version=\"2.18.0\";uses:=\"javax.lang.model.element\"",
                 "com.google.errorprone.annotations.concurrent;version=\"2.18.0\"");

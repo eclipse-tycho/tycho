@@ -16,6 +16,7 @@ package org.eclipse.tycho.core.resolver;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +28,13 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DependencyResolutionException;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetPlatform;
@@ -35,9 +42,13 @@ import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.resolver.target.SupplierMetadataRepository;
 import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
+import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
 @Component(role = TargetPlatformService.class)
 public class DefaultTargetPlatformService implements TargetPlatformService {
@@ -52,7 +63,16 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
     private DependencyResolver dependencyResolver;
 
     @Requirement
-    ReactorRepositoryManager repositoryManager;
+    private ReactorRepositoryManager repositoryManager;
+
+    @Requirement
+    private P2ResolverFactory p2ResolverFactory;
+
+    @Requirement
+    private TargetPlatformFactory tpFactory;
+
+    @Requirement
+    private IProvisioningAgent agent;
 
     @Override
     public Optional<TargetPlatform> getTargetPlatform() throws DependencyResolutionException {
@@ -69,22 +89,75 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
 
     @Override
     public Optional<TargetPlatform> getTargetPlatform(ReactorProject project) throws DependencyResolutionException {
-        synchronized (project) {
-            Object contextValue = project.getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
-            if (contextValue instanceof TargetPlatform) {
-                return Optional.of((TargetPlatform) contextValue);
-            }
-            MavenSession session = legacySupport.getSession();
-            if (repositoryManager == null || session == null) {
-                return Optional.empty();
-            }
-            List<ReactorProjectIdentities> upstreamProjects = getReferencedTychoProjects(project);
-            PomDependencyCollector pomDependenciesCollector = dependencyResolver.resolvePomDependencies(session,
-                    project.adapt(MavenProject.class));
-            TargetPlatform finalTargetPlatform = repositoryManager.computeFinalTargetPlatform(project, upstreamProjects,
-                    pomDependenciesCollector);
-            return Optional.ofNullable(finalTargetPlatform);
+        Object contextValue = project.getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
+        if (contextValue instanceof TargetPlatform) {
+            return Optional.of((TargetPlatform) contextValue);
         }
+        if (repositoryManager == null || project.adapt(MavenSession.class) == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(computeFinalTargetPlatform(project));
+    }
+
+    private TargetPlatform computeFinalTargetPlatform(ReactorProject project) {
+        return project.computeContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY, () -> {
+            MavenProject mavenProject = project.adapt(MavenProject.class);
+            MavenSession mavenSession = project.adapt(MavenSession.class);
+            TargetPlatform preliminaryTargetPlatform = dependencyResolver.getPreliminaryTargetPlatform(mavenSession,
+                    mavenProject);
+            if (PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION.equals(mavenProject.getPackaging())) {
+                IMetadataRepository metadataRepository;
+                if (preliminaryTargetPlatform instanceof P2TargetPlatform p2) {
+                    metadataRepository = new SupplierMetadataRepository(agent,
+                            () -> p2.getInstallableUnits().iterator());
+                } else {
+                    metadataRepository = new SupplierMetadataRepository(agent, () -> Collections.emptyIterator());
+                }
+                return new TargetPlatform() {
+
+                    @Override
+                    public ArtifactKey resolveArtifact(String type, String id, String versionRef)
+                            throws IllegalArtifactReferenceException, DependencyResolutionException {
+                        return preliminaryTargetPlatform.resolveArtifact(type, id, versionRef);
+                    }
+
+                    @Override
+                    public boolean isFileAlreadyAvailable(ArtifactKey artifactKey) {
+                        return preliminaryTargetPlatform.isFileAlreadyAvailable(artifactKey);
+                    }
+
+                    @Override
+                    public IMetadataRepository getMetadataRepository() {
+                        return metadataRepository;
+                    }
+
+                    @Override
+                    public IArtifactRepository getArtifactRepository() {
+                        return preliminaryTargetPlatform.getArtifactRepository();
+                    }
+
+                    @Override
+                    public File getArtifactLocation(ArtifactKey artifact) {
+                        return preliminaryTargetPlatform.getArtifactLocation(artifact);
+                    }
+                };
+            } else {
+                List<ReactorProjectIdentities> upstreamProjects = getReferencedTychoProjects(project);
+                PomDependencyCollector pomDependenciesCollector = dependencyResolver
+                        .resolvePomDependencies(mavenSession, project.adapt(MavenProject.class));
+                List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
+                return tpFactory.createTargetPlatformWithUpdatedReactorContent(preliminaryTargetPlatform,
+                        upstreamProjectResults, pomDependenciesCollector);
+            }
+        });
+    }
+
+    private List<PublishingRepository> getBuildResults(List<? extends ReactorProjectIdentities> projects) {
+        List<PublishingRepository> results = new ArrayList<>(projects.size());
+        for (ReactorProjectIdentities project : projects) {
+            results.add(repositoryManager.getPublishingRepository(project));
+        }
+        return results;
     }
 
     private List<ReactorProjectIdentities> getReferencedTychoProjects(ReactorProject reactorProject)

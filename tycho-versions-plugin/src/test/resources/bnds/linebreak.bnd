@@ -1,0 +1,5 @@
+Bundle-Name: Bnd
+Bundle-SymbolicName: pde.bnd
+Bundle-Vendor: 
+Bundle-Version: \
+	1.0.0.qualifier

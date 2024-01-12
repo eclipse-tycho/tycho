@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event.pull_request.merged == true
-      && contains(github.event.pull_request.labels.*.name, 'backport-to-tycho-3.0.x')
+      && contains(github.event.pull_request.labels.*.name, 'backport-to-tycho-4.0.x')
       && (
-        (github.event.action == 'labeled' && github.event.label.name == 'backport-to-tycho-3.0.x')
+        (github.event.action == 'labeled' && github.event.label.name == 'backport-to-tycho-4.0.x')
         || (github.event.action == 'closed')
       )
     permissions:
@@ -21,7 +21,7 @@ jobs:
       contents: write
     steps:
       - name: Backport Action
-        uses: sqren/backport-github-action@e325a2d70df7264afa24c92b1d5feb2278ff63af # v8.9.7
+        uses: sqren/backport-github-action@848927304bbe2d5d1baa6e14383c12d85caf381e # v9.3.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           auto_backport_label_prefix: backport-to-

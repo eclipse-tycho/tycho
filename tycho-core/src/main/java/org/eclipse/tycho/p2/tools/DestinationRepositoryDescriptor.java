@@ -19,8 +19,8 @@ import java.util.Map;
 
 public class DestinationRepositoryDescriptor {
 
-    final File location;
-    final String name;
+    private final File location;
+    private final String name;
     private final boolean compress;
     private final boolean xzCompress;
     private final boolean keepNonXzIndexFiles;
@@ -28,10 +28,12 @@ public class DestinationRepositoryDescriptor {
     private final boolean append;
     private final Map<String, String> extraArtifactRepositoryProperties;
     private final List<RepositoryReference> repositoryReferences;
+    private final List<RepositoryReference> filterablRepositoryReferences;
 
     public DestinationRepositoryDescriptor(File location, String name, boolean compress, boolean xzCompress,
             boolean keepNonXzIndexFiles, boolean metaDataOnly, boolean append,
-            Map<String, String> extraArtifactRepositoryProperties, List<RepositoryReference> repositoryReferences) {
+            Map<String, String> extraArtifactRepositoryProperties, List<RepositoryReference> repositoryReferences,
+            List<RepositoryReference> filterablRepositoryReferences) {
         this.location = location;
         this.name = name;
         this.compress = compress;
@@ -41,10 +43,17 @@ public class DestinationRepositoryDescriptor {
         this.append = append;
         this.extraArtifactRepositoryProperties = extraArtifactRepositoryProperties;
         this.repositoryReferences = repositoryReferences;
+        this.filterablRepositoryReferences = filterablRepositoryReferences;
+    }
+
+    public DestinationRepositoryDescriptor(File location, String name, boolean compress, boolean xzCompress,
+            boolean keepNonXzIndexFiles, boolean metaDataOnly, boolean append) {
+        this(location, name, compress, xzCompress, keepNonXzIndexFiles, metaDataOnly, append, Collections.emptyMap(),
+                Collections.emptyList(), Collections.emptyList());
     }
 
     public DestinationRepositoryDescriptor(File location, String name) {
-        this(location, name, true, true, false, false, true, Collections.emptyMap(), Collections.emptyList());
+        this(location, name, true, true, false, false, true);
     }
 
     public File getLocation() {
@@ -81,5 +90,9 @@ public class DestinationRepositoryDescriptor {
 
     public List<RepositoryReference> getRepositoryReferences() {
         return repositoryReferences == null ? Collections.emptyList() : repositoryReferences;
+    }
+
+    public List<RepositoryReference> getFilterableRepositoryReferences() {
+        return filterablRepositoryReferences;
     }
 }

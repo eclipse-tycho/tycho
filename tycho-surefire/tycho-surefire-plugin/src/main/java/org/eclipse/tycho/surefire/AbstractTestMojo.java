@@ -30,6 +30,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -78,6 +79,12 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "${project.build.directory}/work")
     protected File work;
+
+    /**
+     * If enabled, deletes the workarea after test execution
+     */
+    @Parameter(property = "tycho.surefire.deleteWorkDir")
+    private boolean deleteWorkDirAfterTest;
 
     @Parameter(property = "project", readonly = true)
     protected MavenProject project;
@@ -222,7 +229,13 @@ public abstract class AbstractTestMojo extends AbstractMojo {
             handleNoTestsFound();
             return;
         }
-        runTests(result);
+        try {
+            runTests(result);
+        } finally {
+            if (deleteWorkDirAfterTest) {
+                FileUtils.deleteQuietly(work);
+            }
+        }
     }
 
     protected ScanResult scanForTests() {
@@ -295,10 +308,6 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     protected ReactorProject getReactorProject() {
         return DefaultReactorProject.adapt(project);
-    }
-
-    protected List<ReactorProject> getReactorProjects() {
-        return DefaultReactorProject.adapt(session);
     }
 
     /**

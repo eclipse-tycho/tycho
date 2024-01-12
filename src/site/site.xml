@@ -6,17 +6,19 @@
 			<item name="Structured Build Layout and Pomless Builds" href="StructuredBuild.html" />
 			<item name="BND Workspace and Pomless Builds" href="BndBuild.html" />
 			<item name="Packaging Types" href="PackagingTypes.html" />
+			<item name="Target Platform" href="TargetPlatform.html" />
 			<item name="Testing Bundles" href="TestingBundles.html" />
 			<item name="Tycho CI Friendly Versions" href="TychoCiFriendly.html" />
+			<item name="Creating update sites using category.xml" href="Category.html" />
 			<item name="Target Platform Configuration" href="target-platform-configuration/plugin-info.html" />
 			<item name="Compiler Plugin" href="tycho-compiler-plugin/plugin-info.html" />
 			<item name="Declarative Services Plugin" href="tycho-ds-plugin/plugin-info.html" />
 			<item name="Packaging Plugin" href="tycho-packaging-plugin/plugin-info.html" />
 			<item name="Surefire Plugin" href="tycho-surefire-plugin/plugin-info.html" />
-			<item name="p2 Publisher Plugin" href="tycho-p2/tycho-p2-publisher-plugin/plugin-info.html" />
-			<item name="p2 Repository Plugin" href="tycho-p2/tycho-p2-repository-plugin/plugin-info.html" />
-			<item name="p2 Director Plugin" href="tycho-p2/tycho-p2-director-plugin/plugin-info.html" />
-			<item name="p2 Metadata Plugin" href="tycho-p2/tycho-p2-plugin/plugin-info.html" />
+			<item name="p2 Publisher Plugin" href="tycho-p2-publisher-plugin/plugin-info.html" />
+			<item name="p2 Repository Plugin" href="tycho-p2-repository-plugin/plugin-info.html" />
+			<item name="p2 Director Plugin" href="tycho-p2-director-plugin/plugin-info.html" />
+			<item name="p2 Metadata Plugin" href="tycho-p2-plugin/plugin-info.html" />
 			<item name="Source Plugin" href="tycho-source-plugin/plugin-info.html" />
 			<item name="GPG Signature Plugin" href="tycho-gpg-plugin/plugin-info.html"/>
 			<item name="Versions Plugin" href="tycho-versions-plugin/plugin-info.html" />

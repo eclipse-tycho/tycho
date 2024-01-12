@@ -34,6 +34,7 @@ import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
 
@@ -69,6 +70,22 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         ignore;
     }
 
+    public enum InjectP2MavenMetadataHandling {
+        /**
+         * ignores P2 maven metadata
+         */
+        ignore,
+        /**
+         * inject if found in P2 metadata
+         */
+        inject,
+        /**
+         * inject if found in P2 metadata, but validate if it is actually valid for the current
+         * build
+         */
+        validate;
+    }
+
     private String resolver;
 
     private List<TargetEnvironment> environments = new ArrayList<>();
@@ -94,11 +111,16 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private Map<String, String> resolverProfileProperties = new HashMap<>();
 
-    List<Supplier<File>> lazyTargetFiles = new ArrayList<>();
+    private final List<Supplier<File>> lazyTargetFiles = new ArrayList<>();
 
     private LocalArtifactHandling localArtifactHandling;
 
     private boolean requireEagerResolve;
+
+    private InjectP2MavenMetadataHandling p2MavenMetadataHandling;
+
+    private ReferencedRepositoryMode referencedRepositoryMode = ReferencedRepositoryMode.include;
+
     /**
      * Returns the list of configured target environments, or the running environment if no
      * environments have been specified explicitly.
@@ -218,10 +240,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     }
 
     public List<TargetPlatformFilter> getFilters() {
-        if (filters == null)
-            return Collections.emptyList();
-        else
-            return filters;
+        return filters == null ? Collections.emptyList() : filters;
     }
 
     public DependencyResolverConfiguration getDependencyResolverConfiguration() {
@@ -277,8 +296,27 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         return localArtifactHandling;
     }
 
+    public InjectP2MavenMetadataHandling getP2MetadataHandling() {
+        if (p2MavenMetadataHandling == null) {
+            return InjectP2MavenMetadataHandling.validate;
+        }
+        return p2MavenMetadataHandling;
+    }
+
+    public void setP2MavenMetadataHandling(InjectP2MavenMetadataHandling p2MavenMetadataHandling) {
+        this.p2MavenMetadataHandling = p2MavenMetadataHandling;
+    }
+
     public void setLocalArtifactHandling(LocalArtifactHandling localArtifactHandling) {
         this.localArtifactHandling = localArtifactHandling;
+    }
+
+    public ReferencedRepositoryMode getReferencedRepositoryMode() {
+        return referencedRepositoryMode;
+    }
+
+    public void setReferencedRepositoryMode(ReferencedRepositoryMode referencedRepositoryMode) {
+        this.referencedRepositoryMode = referencedRepositoryMode;
     }
 
 }

@@ -85,7 +85,6 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -305,6 +304,12 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private BundleStartLevel defaultStartLevel;
 
     /**
+     * If {@link #testRuntime} is <code>p2Installed</code> installs all configured environments
+     */
+    @Parameter
+    private boolean installAllEnvironments;
+
+    /**
      * Flaky tests will re-run until they pass or the number of reruns has been exhausted. See
      * surefire documentation for details.
      * <p>
@@ -343,12 +348,12 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     protected DependencyResolver dependencyResolver;
 
     /**
-     * Normally tycho will automatically determine the test framework provider based on the test
-     * project's classpath. Use this to force using a test framework provider implementation with
-     * the given role hint. Tycho comes with providers
-     * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;,&quot;junit5&quot;. Note that when
-     * specifying a providerHint, you have to make sure the provider is actually available in the
-     * dependencies of tycho-surefire-plugin.
+     * Normally, Tycho will automatically determine the test framework provider based on the test
+     * project's classpath. This options forces the use of a test framework provider implementation
+     * with the given role hint. Tycho comes with providers such as
+     * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;,&quot;junit5&quot;, or
+     * &quot;junit59&quot;. Note that when specifying a providerHint, you have to make sure the
+     * provider is actually available in the dependencies of tycho-surefire-plugin.
      *
      * @since 0.16.0
      */
@@ -516,8 +521,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
      *
      * @since 0.19.0
      */
-    // default value should be kept the same as DirectorMojo#profile default value
-    @Parameter(defaultValue = "DefaultProfile")
+    @Parameter(defaultValue = TychoConstants.DEFAULT_PROFILE)
     private String profileName;
 
     /**
@@ -639,17 +643,26 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             File workingDir = new File(project.getBuild().getDirectory(), "p2temp");
             workingDir.mkdirs();
             installationBuilder.setWorkingDir(workingDir);
-            TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
-            if (PlatformPropertiesUtils.OS_MACOSX.equals(runningEnvironment.getOs())) {
-                if (work.getName().endsWith(".app")) {
-                    installationBuilder.setDestination(work);
-                } else {
-                    installationBuilder.setDestination(new File(work, "Eclipse.app/Contents/Eclipse/"));
+            installationBuilder.setDestination(work);
+            List<TargetEnvironment> list = getTestTargetEnvironments();
+            TargetEnvironment testEnvironment = list.get(0);
+            if (installAllEnvironments) {
+                TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
+                List<TargetEnvironment> targetEnvironments = configuration.getEnvironments();
+                EquinoxInstallation installation = null;
+                for (TargetEnvironment targetEnvironment : targetEnvironments) {
+                    getLog().info("Provisioning with environment " + targetEnvironment + "...");
+                    installationBuilder.setProfileName(targetEnvironment.toString());
+                    EquinoxInstallation current = installationBuilder.install(targetEnvironment);
+                    if (targetEnvironment == testEnvironment) {
+                        installation = current;
+                    }
                 }
+                return installation;
             } else {
-                installationBuilder.setDestination(work);
+                getLog().info("Provisioning with environment " + testEnvironment + "...");
+                return installationBuilder.install(testEnvironment);
             }
-            return installationBuilder.install();
         } catch (Exception ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }
@@ -782,8 +795,10 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             }
 
         };
-        DependencyArtifacts testRuntimeArtifacts = dependencyResolver.resolveDependencies(session, project, null,
-                getReactorProjects(), resolverConfiguration, getTestTargetEnvironments());
+        DependencyArtifacts testRuntimeArtifacts = dependencyResolver.resolveDependencies(session, project,
+                projectManager.getTargetPlatform(project)
+                        .orElseThrow(() -> new MojoExecutionException(TychoConstants.TYCHO_NOT_CONFIGURED + project)),
+                resolverConfiguration, getTestTargetEnvironments());
         if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException(
                     "Cannot determinate build target platform location -- not executing tests");
@@ -1030,11 +1045,10 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         }
 
         cli.addVMArguments("-Dosgi.noShutdown=false");
-
-        Properties properties = TychoProjectUtils.getMergedProperties(project, session);
-        cli.addVMArguments("-Dosgi.os=" + PlatformPropertiesUtils.getOS(properties), //
-                "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
-                "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));
+        TargetEnvironment environment = TargetEnvironment.getRunningEnvironment();
+        cli.addVMArguments("-Dosgi.os=" + environment.getOs(), //
+                "-Dosgi.ws=" + environment.getWs(), //
+                "-Dosgi.arch=" + environment.getArch());
         addCustomProfileArg(cli);
         cli.addVMArguments(splitArgLine(argLine));
 
@@ -1054,7 +1068,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         addProgramArgs(cli, "-data", osgiDataDirectory.getAbsolutePath(), //
                 "-install", testRuntime.getLocation().getAbsolutePath(), //
                 "-configuration", testRuntime.getConfigurationLocation().getAbsolutePath(), //
-                "-application", getTestApplication(testRuntime.getInstallationDescription()), //
+                "-application", getTestApplication(), //
                 "-testproperties", surefireProperties.getAbsolutePath());
         if (application != null) {
             cli.addProgramArguments("-testApplication", application);
@@ -1122,7 +1136,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         }
     }
 
-    private String getTestApplication(EquinoxInstallationDescription testRuntime) {
+    private String getTestApplication() {
         if (useUIHarness) {
             return "org.eclipse.tycho.surefire.osgibooter.uitest";
         } else {

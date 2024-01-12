@@ -25,6 +25,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
+import org.eclipse.tycho.FileLockService;
 
 /**
  * <p>
@@ -33,7 +34,6 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
  */
 @Mojo(name = "archive-repository", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
-    private static final Object LOCK = new Object();
 
     @Component(role = Archiver.class, hint = "zip")
     private Archiver inflater;
@@ -52,27 +52,25 @@ public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter(defaultValue = "false")
     private boolean skipArchive;
 
+    @Component
+    private FileLockService fileLockService;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skipArchive) {
             return;
         }
-
-        synchronized (LOCK) {
-            File destFile = getBuildDirectory().getChild(finalName + ".zip");
-
-            try {
-                inflater.addFileSet(DefaultFileSet.fileSet(getAssemblyRepositoryLocation()).prefixed(""));
-                inflater.setDestFile(destFile);
-                inflater.createArchive();
-            } catch (ArchiverException e) {
-                throw new MojoExecutionException("Error packing p2 repository", e);
-            } catch (IOException e) {
-                throw new MojoExecutionException("Error packing p2 repository", e);
-            }
-
-            getProject().getArtifact().setFile(destFile);
+        File repositoryLocation = getAssemblyRepositoryLocation();
+        File destFile = getBuildDirectory().getChild(finalName + ".zip");
+        try (var repoLock = fileLockService.lockVirtually(repositoryLocation);
+                var destLock = fileLockService.lockVirtually(destFile);) {
+            inflater.addFileSet(DefaultFileSet.fileSet(repositoryLocation).prefixed(""));
+            inflater.setDestFile(destFile);
+            inflater.createArchive();
+        } catch (ArchiverException | IOException e) {
+            throw new MojoExecutionException("Error packing p2 repository", e);
         }
+        getProject().getArtifact().setFile(destFile);
     }
 
 }

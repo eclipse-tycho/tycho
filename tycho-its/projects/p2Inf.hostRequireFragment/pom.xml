@@ -14,16 +14,11 @@
 		<module>fragments</module>
 	</modules>
 	
-	<properties>
-		<tycho-version>0.22.0-SNAPSHOT</tycho-version>
-		<p2Repository>http://download.eclipse.org/eclipse/updates/4.3</p2Repository>
-	</properties>
-
 	<repositories>
 		<repository>
 			<id>junitRuntime</id>
 			<layout>p2</layout>
-			<url>${p2Repository}</url>
+			<url>${target-platform}</url>
 		</repository>
 	</repositories>
 

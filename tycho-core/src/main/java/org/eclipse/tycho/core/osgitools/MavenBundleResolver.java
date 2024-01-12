@@ -31,11 +31,11 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenArtifactKey;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 /**
  * {@link MavenBundleResolver} helps in gathering bundles that are living in P2 and maven world and
@@ -68,7 +68,10 @@ public class MavenBundleResolver {
      */
     public Optional<ResolvedArtifactKey> resolveMavenBundle(MavenProject project, MavenSession mavenSession,
             MavenArtifactKey mavenArtifactKey) {
-        TargetPlatform tp = TychoProjectUtils.getTargetPlatformIfAvailable(DefaultReactorProject.adapt(project));
+        if (project == null) {
+            return Optional.empty();
+        }
+        TargetPlatform tp = getTargetPlatformIfAvailable(DefaultReactorProject.adapt(project));
         String type = mavenArtifactKey.getType();
         String resolvedType = PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(type) ? ArtifactType.TYPE_ECLIPSE_PLUGIN
                 : type;
@@ -88,6 +91,9 @@ public class MavenBundleResolver {
             }
         }
         // then fallback to maven artifact ...
+        if (mavenSession == null) {
+            return Optional.empty();
+        }
         String groupId = mavenArtifactKey.getGroupId();
         String artifactId = mavenArtifactKey.getArtifactId();
         try {
@@ -108,6 +114,17 @@ public class MavenBundleResolver {
                     + mavenArtifactKey.getVersion() + ": " + e);
         }
         return Optional.empty();
+    }
+
+    /**
+     * Returns the final target platform of the given project, or <code>null</code> if the target
+     * platform is not available.
+     * 
+     * Projects with -Dtycho.targetPlatform use the legacy LocalDependencyResolver, which doesn't
+     * provide the {@link TargetPlatform} interface.
+     */
+    private static TargetPlatform getTargetPlatformIfAvailable(ReactorProject project) {
+        return (TargetPlatform) project.getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
     }
 
     public Optional<ResolvedArtifactKey> resolveMavenBundle(MavenProject project, MavenSession mavenSession,

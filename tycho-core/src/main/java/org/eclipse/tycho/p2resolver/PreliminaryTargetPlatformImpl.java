@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -32,6 +34,7 @@ import org.eclipse.tycho.core.resolver.target.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.LocalMetadataRepository;
+import org.eclipse.tycho.p2.repository.ProviderOnlyArtifactRepository;
 
 public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
@@ -53,11 +56,14 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     private final boolean includeLocalRepo;
 
+    private IArtifactRepository artifactRepository;
+
     public PreliminaryTargetPlatformImpl(Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs,
             Collection<IInstallableUnit> externalIUs, ExecutionEnvironmentResolutionHints executionEnvironment,
             TargetPlatformFilterEvaluator filter, LocalMetadataRepository localMetadataRepository,
             IRawArtifactFileProvider externalArtifacts, LocalArtifactRepository localArtifactRepository,
-            boolean includeLocalRepo, MavenLogger logger, Set<IInstallableUnit> shadowed) {
+            boolean includeLocalRepo, MavenLogger logger, Set<IInstallableUnit> shadowed,
+            IProvisioningAgent remoteAgent) {
         super(collectAllInstallableUnits(reactorProjectIUs, externalIUs, executionEnvironment), executionEnvironment,
                 externalArtifacts, localArtifactRepository, reactorProjectIUs, new HashMap<>(), shadowed);
         this.externalIUs = externalIUs;
@@ -65,6 +71,8 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
         this.localMetadataRepository = localMetadataRepository;
         this.includeLocalRepo = includeLocalRepo;
         this.logger = logger;
+        this.artifactRepository = new ProviderOnlyArtifactRepository(artifacts, remoteAgent,
+                URI.create("preliminary:/"));
     }
 
     public static LinkedHashSet<IInstallableUnit> collectAllInstallableUnits(
@@ -128,8 +136,7 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     @Override
     public IArtifactRepository getArtifactRepository() {
-        // the preliminary TP shall not be used to create build results, so this method is not needed
-        throw new UnsupportedOperationException();
+        return artifactRepository;
     }
 
 }

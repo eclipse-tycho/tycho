@@ -104,6 +104,9 @@ public class DefaultReactorProject implements ReactorProject {
     }
 
     public static List<ReactorProject> adapt(MavenSession session) {
+        if (session == null) {
+            return List.of();
+        }
         ArrayList<ReactorProject> result = new ArrayList<>();
         for (MavenProject project : session.getProjects()) {
             ReactorProject reactorProject = adapt(project, session);
@@ -183,15 +186,20 @@ public class DefaultReactorProject implements ReactorProject {
     @Override
     public Object getContextValue(String key) {
         Object value = context.get(key);
+        if (value instanceof LazyValue<?> lazy) {
+            return lazy.get();
+        }
         return (value != null) ? value : project.getContextValue(key);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T computeContextValue(String key, Supplier<T> initalValueSupplier) {
-        return (T) context.computeIfAbsent(key, nil -> {
-            return initalValueSupplier.get();
-        });
+        Object value = context.computeIfAbsent(key, nil -> new LazyValue<>(initalValueSupplier));
+        if (value instanceof LazyValue<?> lazy) {
+            return (T) lazy.get();
+        }
+        return (T) value;
     }
 
     @Override
@@ -282,6 +290,25 @@ public class DefaultReactorProject implements ReactorProject {
             return target.cast(project);
         }
         return null;
+    }
+
+    private static final class LazyValue<T> implements Supplier<T> {
+
+        private Supplier<T> initalValueSupplier;
+        private T value;
+
+        LazyValue(Supplier<T> initalValueSupplier) {
+            this.initalValueSupplier = initalValueSupplier;
+        }
+
+        @Override
+        public synchronized T get() {
+            if (value == null) {
+                value = initalValueSupplier.get();
+            }
+            return value;
+        }
+
     }
 
 }

@@ -35,7 +35,6 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.targetplatform.ArtifactCollection;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.p2maven.InstallableUnitPublisher;
@@ -76,9 +75,13 @@ public class PomUnits {
     }
 
     public void addCollectedUnits(PomDependencyCollector collector, ReactorProject reactorProject) {
+        Optional<TychoProject> tychoProject = tychoProjectManager.getTychoProject(reactorProject);
+        if (tychoProject.isEmpty()) {
+            return;
+        }
         Object contextValue = reactorProject.getContextValue(KEY);
         if (contextValue instanceof PomInstallableUnitStore store) {
-            DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(reactorProject);
+            DependencyArtifacts dependencyArtifacts = tychoProject.get().getDependencyArtifacts(reactorProject);
             store.addPomDependencyConsumer(dependency -> {
                 IArtifactFacade facade = dependency.artifactFacade();
                 Entry<ArtifactKey, IArtifactDescriptor> result = collector.addMavenArtifact(facade,

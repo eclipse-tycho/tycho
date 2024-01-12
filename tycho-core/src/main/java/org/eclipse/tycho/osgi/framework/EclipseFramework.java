@@ -14,6 +14,8 @@ package org.eclipse.tycho.osgi.framework;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -94,7 +96,12 @@ public class EclipseFramework implements AutoCloseable {
         if (returnValue instanceof Integer retCode) {
             return retCode.intValue();
         }
-        throw applicationStartupError(systemBundleContext, null);
+        if (returnValue == null) {
+            throw applicationStartupError(systemBundleContext,
+                    new NullPointerException("Application return value is null!"));
+        }
+        throw applicationStartupError(systemBundleContext, new IllegalStateException(
+                "Unsupported return value: " + returnValue + " of type " + returnValue.getClass().getName()));
     }
 
     private Exception applicationStartupError(BundleContext systemBundleContext, Exception e) {
@@ -174,6 +181,21 @@ public class EclipseFramework implements AutoCloseable {
         logger.info("==== " + application.getName() + " ====");
         for (Bundle bundle : framework.getBundleContext().getBundles()) {
             logger.info(toBundleState(bundle.getState()) + " | " + bundle.getSymbolicName());
+        }
+    }
+
+    public boolean hasBundle(String bsn) {
+        for (Bundle bundle : framework.getBundleContext().getBundles()) {
+            if (bundle.getSymbolicName().equals(bsn)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Bundle install(File file) throws IOException, BundleException {
+        try (FileInputStream stream = new FileInputStream(file)) {
+            return framework.getBundleContext().installBundle(file.getAbsolutePath(), stream);
         }
     }
 

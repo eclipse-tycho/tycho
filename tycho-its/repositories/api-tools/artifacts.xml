@@ -40,5 +40,44 @@
         <property name='download.checksum.sha-256' value='780ebdadec5d49c4ba4805fa4166b58b9e823924f066970cb57709a94ad31baf'/>
       </properties>
     </artifact>
+        <artifact classifier='osgi.bundle' id='org.eclipse.pde.build' version='3.12.100.v20230825-1354'>
+    	<properties size='10'>
+	      <property name='artifact.size' value='520063'/>
+	      <property name='download.size' value='520063'/>
+	      <property name='download.checksum.sha-256' value='937c5b78be0146141a7062fbf7cdf2795264d259a17e0147088650628a53707e'/>
+	      <property name='maven-groupId' value='org.eclipse.pde'/>
+	      <property name='maven-artifactId' value='org.eclipse.pde.build'/>
+	      <property name='maven-version' value='3.12.100-SNAPSHOT'/>
+	      <property name='maven-type' value='eclipse-plugin'/>
+	      <property name='download.stats' value='org.eclipse.pde.build/3.12.100.v20230825-1354'/>
+    	</properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='org.eclipse.equinox.p2.ui' version='2.8.100.v20230728-2010'>
+      <properties size='10'>
+        <property name='artifact.size' value='715643'/>
+        <property name='download.size' value='715643'/>
+        <property name='download.checksum.sha-512' value='221f5a96111237bc18701e8abd12cf508c9ee293d18f40443f8eba47bfa8305564c7e41a98df42e4b0b78cd5dab65676c4d49a8a4ceec64fdc2dea4114a7c196'/>
+        <property name='download.checksum.sha-1' value='2c03fa32130656a5f4179ad277132171fdb34b49'/>
+        <property name='download.checksum.sha-256' value='2a5f9698e257024fe2dda9f1ee21e88b7255a7586804a3baa5c57434c464c135'/>
+        <property name='maven-groupId' value='org.eclipse.equinox.p2'/>
+        <property name='maven-artifactId' value='org.eclipse.equinox.p2.ui'/>
+        <property name='maven-version' value='2.8.100-SNAPSHOT'/>
+        <property name='maven-type' value='eclipse-plugin'/>
+        <property name='download.stats' value='org.eclipse.equinox.p2.ui/2.8.100.v20230728-2010'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='org.eclipse.jdt.debug' version='3.21.100.v20230728-0612'>
+      <properties size='9'>
+        <property name='artifact.size' value='948292'/>
+        <property name='download.size' value='948292'/>
+        <property name='download.checksum.sha-512' value='72dd43156590c29101161e8a670dcdab383460d909e3ce6f32e6ba2d1f4d6d5e09924112a1d529e5064ccf139efb3d36d1cc43f4425b31dcc5de10d5372d363c'/>
+        <property name='download.checksum.sha-256' value='f4204662f7bbf3bba25dddafa23f04dec0e09e426164fe0ceff6ca2c43e50e92'/>
+        <property name='maven-groupId' value='org.eclipse.jdt'/>
+        <property name='maven-artifactId' value='org.eclipse.jdt.debug'/>
+        <property name='maven-version' value='3.21.100-SNAPSHOT'/>
+        <property name='maven-type' value='eclipse-plugin'/>
+        <property name='download.stats' value='org.eclipse.jdt.debug/3.21.100.v20230728-0612'/>
+      </properties>
+  </artifact>
   </artifacts>
 </repository>

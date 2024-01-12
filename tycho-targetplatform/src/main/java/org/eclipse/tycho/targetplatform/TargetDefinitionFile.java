@@ -27,7 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,12 +52,16 @@ import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation.DependencyDepth;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation.MissingManifestStrategy;
+import org.osgi.resource.Requirement;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.resource.CapReqBuilder;
 
 public final class TargetDefinitionFile implements TargetDefinition {
 
@@ -162,6 +166,28 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     }
 
+	private static final class OSGIRepositoryLocation implements TargetDefinition.RepositoryLocation {
+
+		private String uri;
+		private Collection<Requirement> requirements;
+
+		public OSGIRepositoryLocation(String uri, Collection<Requirement> requirements) {
+			this.uri = uri;
+			this.requirements = requirements;
+		}
+
+		@Override
+		public String getUri() {
+			return uri;
+		}
+
+		@Override
+		public Collection<Requirement> getRequirements() {
+			return requirements;
+		}
+
+	}
+
     private static class MavenLocation implements TargetDefinition.MavenGAVLocation {
 
         private final Collection<String> includeDependencyScopes;
@@ -172,11 +198,13 @@ public final class TargetDefinitionFile implements TargetDefinition {
         private final DependencyDepth dependencyDepth;
         private final Collection<MavenArtifactRepositoryReference> repositoryReferences;
         private final Element featureTemplate;
+		private String label;
 
         public MavenLocation(Collection<MavenDependency> roots, Collection<String> includeDependencyScopes,
                 MissingManifestStrategy manifestStrategy, boolean includeSource,
                 Collection<BNDInstructions> instructions, DependencyDepth dependencyDepth,
-                Collection<MavenArtifactRepositoryReference> repositoryReferences, Element featureTemplate) {
+				Collection<MavenArtifactRepositoryReference> repositoryReferences, Element featureTemplate,
+				String label) {
             this.roots = roots;
             this.includeDependencyScopes = includeDependencyScopes;
             this.manifestStrategy = manifestStrategy;
@@ -184,6 +212,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
             this.instructions = instructions;
             this.dependencyDepth = dependencyDepth;
             this.repositoryReferences = repositoryReferences;
+			this.label = label;
             this.featureTemplate = featureTemplate == null ? null : (Element) featureTemplate.cloneNode(true);
         }
 
@@ -239,6 +268,30 @@ public final class TargetDefinitionFile implements TargetDefinition {
         public DependencyDepth getIncludeDependencyDepth() {
             return dependencyDepth;
         }
+
+		@Override
+		public String getLabel() {
+			if (label != null && !label.isBlank()) {
+				return label;
+			}
+			if (featureTemplate != null) {
+				String featureLabel = featureTemplate.getAttribute("label");
+				if (featureLabel != null && !featureLabel.isBlank()) {
+					return featureLabel;
+				}
+				String featureId = featureTemplate.getAttribute("id");
+				if (featureId != null && !featureId.isBlank()) {
+					return featureId;
+				}
+			}
+			if (roots.size() == 1) {
+				MavenDependency dependency = roots.iterator().next();
+				return MessageFormat.format("{0}:{1} ({2})", dependency.getGroupId(), dependency.getArtifactId(),
+						dependency.getVersion());
+			} else {
+				return MessageFormat.format("{0} Maven Dependencies", roots.size());
+			}
+		}
 
     }
 
@@ -582,6 +635,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
                     locations.add(parseMavenLocation(locationDom));
                 } else if ("Target".equals(type)) {
                     locations.add(new TargetRef(locationDom.getAttribute("uri")));
+				} else if (TargetDefinition.RepositoryLocation.TYPE.equals(type)) {
+					locations.add(parseRepositoryLocation(locationDom));
                 } else {
                     locations.add(new OtherLocation(type));
                 }
@@ -589,6 +644,20 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
         return Collections.unmodifiableList(locations);
     }
+
+	private static TargetDefinition.RepositoryLocation parseRepositoryLocation(Element dom) {
+		String uri = dom.getAttribute("uri");
+		NodeList childNodes = dom.getChildNodes();
+		List<Requirement> requirements = IntStream.range(0, childNodes.getLength()).mapToObj(childNodes::item)
+				.filter(Element.class::isInstance).map(Element.class::cast)
+				.filter(element -> element.getNodeName().equalsIgnoreCase("require"))
+				.flatMap(element -> {
+					String textContent = element.getTextContent();
+					Parameters parameters = new Parameters(textContent);
+					return CapReqBuilder.getRequirementsFrom(parameters).stream();
+				}).toList();
+		return new OSGIRepositoryLocation(uri, requirements);
+	}
 
     private static MavenLocation parseMavenLocation(Element dom) {
         Set<String> globalExcludes = new LinkedHashSet<>();
@@ -627,7 +696,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
         Element featureTemplate = getChild(dom, "feature");
         return new MavenLocation(parseRoots(dom, globalExcludes), scopes, parseManifestStrategy(dom),
                 Boolean.parseBoolean(dom.getAttribute("includeSource")), parseInstructions(dom),
-                parseDependencyDepth(dom, scope), parseRepositoryReferences(dom), featureTemplate);
+				parseDependencyDepth(dom, scope), parseRepositoryReferences(dom), featureTemplate,
+				dom.getAttribute("label"));
     }
 
     private static IULocation parseIULocation(Element dom) {

@@ -31,6 +31,7 @@ import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.MavenTargetLocationFactory;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
@@ -62,9 +63,10 @@ public class TargetDefinitionResolverService {
 
     public TargetDefinitionContent getTargetDefinitionContent(TargetDefinition definition,
             List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs,
-            IncludeSourceMode includeSourceMode, IProvisioningAgent agent) {
+            IncludeSourceMode includeSourceMode, ReferencedRepositoryMode referencedRepositoryMode,
+            IProvisioningAgent agent) {
         ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, includeSourceMode,
-                agent);
+                referencedRepositoryMode, agent);
         CompletableFuture<TargetDefinitionContent> future = resolutionCache.computeIfAbsent(arguments,
                 this::resolveFromArguments);
 
@@ -88,7 +90,8 @@ public class TargetDefinitionResolverService {
         }
 
         TargetDefinitionResolver resolver = new TargetDefinitionResolver(arguments.environments, arguments.jreIUs,
-                arguments.includeSourceMode, mavenContext, dependenciesResolver, varResolver);
+                arguments.includeSourceMode, arguments.referencedRepositoryMode, mavenContext, dependenciesResolver,
+                varResolver);
         try {
             return CompletableFuture.completedFuture(resolver.resolveContent(arguments.definition, arguments.agent));
         } catch (Exception e) {
@@ -142,20 +145,22 @@ public class TargetDefinitionResolverService {
         final ExecutionEnvironmentResolutionHints jreIUs;
         final IProvisioningAgent agent;
         private IncludeSourceMode includeSourceMode;
+        private ReferencedRepositoryMode referencedRepositoryMode;
 
         public ResolutionArguments(TargetDefinition definition, List<TargetEnvironment> environments,
                 ExecutionEnvironmentResolutionHints jreIUs, IncludeSourceMode includeSourceMode,
-                IProvisioningAgent agent) {
+                ReferencedRepositoryMode repositoryMode, IProvisioningAgent agent) {
             this.definition = definition;
             this.environments = environments;
             this.jreIUs = jreIUs;
             this.includeSourceMode = includeSourceMode;
+            this.referencedRepositoryMode = repositoryMode;
             this.agent = agent;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(agent, definition, environments, jreIUs, includeSourceMode);
+            return Objects.hash(agent, definition, environments, jreIUs, includeSourceMode, referencedRepositoryMode);
         }
 
         @Override
@@ -165,7 +170,8 @@ public class TargetDefinitionResolverService {
                             && Objects.equals(definition, other.definition) //
                             && Objects.equals(agent, other.agent) // expected to be object identity
                             && Objects.equals(environments, other.environments) //
-                            && Objects.equals(includeSourceMode, other.includeSourceMode));
+                            && Objects.equals(includeSourceMode, other.includeSourceMode)
+                            && Objects.equals(referencedRepositoryMode, other.referencedRepositoryMode));
         }
 
         public List<String> getNonEqualFields(ResolutionArguments other) {
@@ -175,14 +181,16 @@ public class TargetDefinitionResolverService {
             addIfNonEqual(result, "target environments", environments, other.environments);
             addIfNonEqual(result, "remote p2 repository options", agent, other.agent);
             addIfNonEqual(result, "include source mode", includeSourceMode, other.includeSourceMode);
+            addIfNonEqual(result, "include reference mode", referencedRepositoryMode, other.referencedRepositoryMode);
             return result;
         }
 
         @Override
         public String toString() {
             return "target definition " + definition.getOrigin() + " for environments=" + environments
-                    + ", include source mode=" + includeSourceMode + ", execution environment=" + jreIUs
-                    + ", remote p2 repository options=" + agent;
+                    + ", include source mode=" + includeSourceMode + ", referenced repository mode ="
+                    + referencedRepositoryMode + ", execution environment=" + jreIUs + ", remote p2 repository options="
+                    + agent;
         }
 
     }

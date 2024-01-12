@@ -84,18 +84,18 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
                 new HashSet<>(), false);
         projector.encode(createUnitRequiring("tycho", seedUnits, seedRequires),
                 EMPTY_IU_ARRAY /* alreadyExistingRoots */,
-                new QueryableArray(EMPTY_IU_ARRAY) /* installedIUs */, seedUnits /* newRoots */, monitor);
+                new QueryableArray(List.of()) /* installedIUs */, seedUnits /* newRoots */, monitor);
         IStatus s = projector.invokeSolver(monitor);
         if (s.getSeverity() == IStatus.ERROR) {
             Set<Explanation> explanation = getExplanation(projector); // suppress "Cannot complete the request.  Generating details."
             // log all transitive requirements which cannot be satisfied; this doesn't print the dependency chain from the seed to the units with missing requirements, so this is less useful than the "explanation"
-            logger.debug(StatusTool.collectProblems(s));
+            logger.debug(StatusTool.toLogMessage(s));
             explainProblems(explanation, MavenLogger::error);
             throw new ResolverException(explanation.stream().map(Object::toString).collect(Collectors.joining("\n")),
                     selectionContext.toString(), StatusTool.findException(s));
         }
         if (s.getSeverity() == IStatus.WARNING) {
-            logger.warn(StatusTool.collectProblems(s));
+            logger.warn(StatusTool.toLogMessage(s));
         }
         Collection<IInstallableUnit> newState = projector.extractSolution();
 

@@ -4,7 +4,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -22,19 +22,17 @@ public class OsgiManifestTest {
         assertEquals(13, manifest.getHeaders().size());
     }
 
-    @Test(expected = OsgiManifestParserException.class)
+    @Test
     public void testInvalidManifest() throws OsgiManifestParserException, URISyntaxException {
-        parseManifest("invalid.mf");
+        assertThrows(OsgiManifestParserException.class, () -> parseManifest("invalid.mf"));
     }
 
     @Test
     public void testMissingSymbolicName() throws Exception {
-        try {
-            parseManifest("noBsn.mf");
-            fail();
-        } catch (OsgiManifestParserException e) {
-            assertThat(e.getMessage(), containsString("Bundle-SymbolicName header is required"));
-        }
+        OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
+                () -> parseManifest("noBsn.mf"));
+        assertThat(e.getMessage(), containsString("Bundle-SymbolicName header is required"));
+
     }
 
     @Test
@@ -44,34 +42,25 @@ public class OsgiManifestTest {
 
     @Test
     public void testInvalidVersion() throws Exception {
-        try {
-            parseManifest("invalidVersion.mf");
-            fail();
-        } catch (OsgiManifestParserException e) {
-            assertThat(e.getMessage(),
-                    containsString("Invalid Manifest header \"Bundle-Version\": 1.0.0.%invalidQualifier"));
-        }
+        OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
+                () -> parseManifest("invalidVersion.mf"));
+        assertThat(e.getMessage(),
+                containsString("Invalid Manifest header \"Bundle-Version\": 1.0.0.%invalidQualifier"));
     }
 
     @Test
     public void testDuplicateImport() throws Exception {
-        try {
-            parseManifest("duplicateImport.mf");
-            fail();
-        } catch (OsgiManifestParserException e) {
-            assertThat(e.getMessage(), containsString(
-                    "Invalid manifest header Import-Package: \"org.w3c.dom\" : Cannot import a package more than once \"org.w3c.dom\""));
-        }
+        OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
+                () -> parseManifest("duplicateImport.mf"));
+        assertThat(e.getMessage(), containsString(
+                "Invalid manifest header Import-Package: \"org.w3c.dom\" : Cannot import a package more than once \"org.w3c.dom\""));
     }
 
     @Test
     public void testInvalidVersionQualifier() throws Exception {
-        try {
-            parseManifest("invalidVersionQualifier.mf");
-            fail();
-        } catch (OsgiManifestParserException e) {
-            assertThat(e.getMessage(), containsString("Invalid Manifest header \"Bundle-Version\""));
-        }
+        OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
+                () -> parseManifest("invalidVersionQualifier.mf"));
+        assertThat(e.getMessage(), containsString("Invalid Manifest header \"Bundle-Version\""));
     }
 
     @Test

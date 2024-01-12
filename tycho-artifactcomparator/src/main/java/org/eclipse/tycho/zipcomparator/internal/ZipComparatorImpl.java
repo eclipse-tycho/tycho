@@ -16,6 +16,8 @@ package org.eclipse.tycho.zipcomparator.internal;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -82,7 +84,34 @@ public class ZipComparatorImpl implements ArtifactComparator {
             }
             return ArtifactDelta.DEFAULT;
         }
-        return !result.isEmpty() ? new CompoundArtifactDelta("different", result) : null;
+        return !result.isEmpty() ? new ZipArtifactDelta(result, baseline, reactor) : null;
+    }
+
+    private static final class ZipArtifactDelta extends CompoundArtifactDelta {
+
+        private File baseline;
+        private File reactor;
+
+        public ZipArtifactDelta(Map<String, ? extends ArtifactDelta> members, File baseline, File reactor) {
+            super("different", members);
+            this.baseline = baseline;
+            this.reactor = reactor;
+        }
+
+        @Override
+        public void writeDetails(File basedir) throws IOException {
+            basedir.mkdirs();
+            super.writeDetails(basedir);
+            if (baseline.isFile()) {
+                Files.copy(baseline.toPath(), basedir.toPath().resolve("baseline-" + baseline.getName()),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
+            if (reactor.isFile()) {
+                Files.copy(reactor.toPath(), basedir.toPath().resolve("build-" + reactor.getName()),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
+
     }
 
     private ArtifactDelta getDelta(String name, Map<String, ZipEntry> baselineMap, Map<String, ZipEntry> reactorMap,

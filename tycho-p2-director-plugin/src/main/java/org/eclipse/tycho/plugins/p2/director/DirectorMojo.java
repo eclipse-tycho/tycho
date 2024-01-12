@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 SAP SE and others.
+ * Copyright (c) 2023 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -8,178 +8,482 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *     SAP SE - initial API and implementation
+ *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
-import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
-import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
-import org.eclipse.tycho.plugins.p2.director.runtime.StandaloneDirectorRuntimeFactory;
+import org.apache.maven.project.MavenProject;
+import org.eclipse.equinox.app.IApplication;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.p2.CommandLineArguments;
+import org.eclipse.tycho.p2.resolver.BundlePublisher;
+import org.eclipse.tycho.p2tools.TychoDirectorApplication;
 
 /**
- * <p>
- * Creates product installations for the products defined in the project.
- * </p>
+ * Allows to run the <a href=
+ * "https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/guide/p2_director.html?cp=2_0_20_2">director
+ * application</a> to manage Eclipse Installations. This mojo can be used in two ways
+ * 
+ * <ol>
+ * <li>As a commandline invocation passing arguments as properties using
+ * <code>mvn org.eclipse.tycho:tycho-p2-director-plugin:director -Ddestination=[target] ... -D... </code>
+ * </li>
+ * <li>as an execution inside a pom
+ * 
+ * <pre>
+ * &lt;plugin&gt;
+ *    &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
+ *    &lt;artifactId&gt;tycho-p2-director-plugin&lt;/artifactId&gt;
+ *    &lt;version&gt;${tycho-version}&lt;/version&gt;
+ *    &lt;executions&gt;
+ *       &lt;execution&gt;
+ *          &lt;goals&gt;
+ *             &lt;goal&gt;director&lt;/goal&gt;
+ *          &lt;/goals&gt;
+ *          &lt;phase&gt;package&lt;/phase&gt;
+ *          &lt;configuration&gt;
+ *             &lt;destination&gt;...&lt;/destination&gt;
+ *             ... other arguments ...
+ *          &lt;/configuration&gt;
+ *       &lt;/execution&gt;
+ *    &lt;/executions&gt;
+ * &lt;/plugin&gt;
+ * </pre>
+ * 
+ * </li>
+ * </ol>
  */
-@Mojo(name = "materialize-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
-public final class DirectorMojo extends AbstractProductMojo {
-    private static final Object LOCK = new Object();
-
-    public enum InstallationSource {
-        targetPlatform, repository
-    }
-
-    public enum DirectorRuntimeType {
-        internal, standalone
-    }
+@Mojo(name = "director", defaultPhase = LifecyclePhase.NONE, threadSafe = true, requiresProject = false)
+public class DirectorMojo extends AbstractMojo {
 
     @Component
-    private RepositoryReferenceTool repositoryReferenceTool;
+    private IProvisioningAgent agent;
 
     @Component
-    private StandaloneDirectorRuntimeFactory standaloneDirectorFactory;
+    private IProvisioningAgentProvider agentProvider;
 
     @Component
-    DirectorRuntime director;
+    private LegacySupport legacySupport;
+
+    @Component
+    private MojoExecution execution;
 
     /**
-     * The name of the p2 profile to be created.
+     * The folder in which the targeted product is located.
      */
-    @Parameter(defaultValue = "DefaultProfile")
+    @Parameter(property = "destination", required = true)
+    private File destination;
+
+    /**
+     * comma separated list of URLs denoting meta-data repositories
+     */
+    @Parameter(property = "metadatarepositories", alias = "metadatarepository")
+    private String metadatarepositories;
+
+    /**
+     * comma separated list of URLs denoting artifact repositories.
+     */
+    @Parameter(property = "artifactrepositories", alias = "artifactrepository")
+    private String artifactrepositories;
+
+    /**
+     * comma separated list denoting co-located meta-data and artifact repositories
+     */
+    @Parameter(property = "repositories", alias = "repository")
+    private String repositories;
+
+    /**
+     * comma separated list of IUs to install, each entry in the list is in the form <id> [ '/'
+     * <version> ].
+     */
+    @Parameter(property = "installIUs", alias = "installIU")
+    private String installIUs;
+
+    /**
+     * Alternative way to specify the IU to install in a more declarative (but also verbose) way,
+     * example:
+     * 
+     * <pre>
+     * &lt;install&gt;
+     *    &lt;iu&gt;
+     *       &lt;id&gt;...&lt;/id&gt;
+     *       &lt;version&gt;...optional version...&lt;/id&gt;
+     *       &lt;feature&gt;true/false&lt;/feature&gt; &lt;!-- optional if true .feature.group is automatically added to the id  --&gt;
+     * &lt;/install&gt;
+     * </pre>
+     */
+    @Parameter
+    private List<IU> install;
+
+    /**
+     * comma separated list of IUs to install, each entry in the list is in the form <id> [ '/'
+     * <version> ].
+     */
+    @Parameter(property = "uninstallIUs", alias = "uninstallIU")
+    private String uninstallIUs;
+
+    /**
+     * Alternative way to specify the IU to uninstall in a more declarative (but also verbose) way,
+     * example:
+     * 
+     * <pre>
+     * &lt;install&gt;
+     *    &lt;iu&gt;
+     *       &lt;id&gt;...&lt;/id&gt;
+     *       &lt;version&gt;...optional version...&lt;/id&gt;
+     *       &lt;feature&gt;true/false&lt;/feature&gt; &lt;!-- optional if true .feature.group is automatically added to the id  --&gt;
+     * &lt;/install&gt;
+     * </pre>
+     */
+    @Parameter
+    private List<IU> uninstall;
+
+    /**
+     * comma separated list of numbers, revert the installation to a previous state. The number
+     * representing the previous state of the profile as found in
+     * p2/org.eclipse.equinox.p2.engine/<profileId>/.
+     */
+    @Parameter(property = "revert")
+    private String revert;
+
+    /**
+     * Remove the history of the profile registry.
+     */
+    @Parameter(property = "purgeHistory")
+    private boolean purgeHistory;
+
+    /**
+     * Lists all IUs found in the given repositories. IUs can optionally be listed. Each entry in
+     * the list is in the form <id> [ '/' <version> ].
+     */
+    @Parameter(property = "list")
+    private boolean list;
+
+    /**
+     * List the tags available
+     */
+    @Parameter(property = "listTags")
+    private boolean listTags;
+
+    /**
+     * Lists all root IUs found in the given profile. Each entry in the list is in the form <id> [
+     * '/' <version> ].
+     */
+    @Parameter(property = "listInstalledRoots")
+    private boolean listInstalledRoots;
+
+    /**
+     * Formats the list of IUs according to the given string. Use ${property} for variable parts,
+     * e.g. ${org.eclipse.equinox.p2.name} for the IU's name. ID and version of an IU are available
+     * through ${id} and ${version}.
+     */
+    @Parameter(property = "listFormat")
+    private String listFormat;
+
+    /**
+     * Defines what profile to use for the actions.
+     */
+    @Parameter(property = "profile", defaultValue = TychoConstants.DEFAULT_PROFILE)
     private String profile;
 
-    // TODO 405785 the syntax of this parameter doesn't work well with configuration inheritance; replace with new generic envSpecificConfiguration parameter syntax
-    @Parameter
-    private List<ProfileName> profileNames;
-
     /**
-     * Include the feature JARs in installation. (Technically, this sets the property
-     * <tt>org.eclipse.update.install.features</tt> to <tt>true</tt> in the p2 profile.)
+     * A list of properties in the form key=value pairs. Effective only when a new profile is
+     * created. For example <tt>org.eclipse.update.install.features=true</tt> to install the
+     * features into the product.
      */
-    @Parameter(defaultValue = "true")
+    @Parameter(property = "profileproperties")
+    private String profileproperties;
+
+    @Parameter(property = "installFeatures", defaultValue = "true")
     private boolean installFeatures;
 
     /**
      * Additional profile properties to set when materializing the product
      */
     @Parameter
-    private Map<String, String> profileProperties;
+    private Map<String, String> properties;
 
     /**
-     * Source repositories to be used in the director calls. Can be:
-     * <ul>
-     * <li><code>targetPlatform</code> - to use the target platform as source (default)</li>
-     * <li><code>repository</code> - to use the p2 repository in <tt>target/repository/</tt> as
-     * source. With this option, the build implicitly verifies that it would also be possible to
-     * install the product from that repository with an external director application.
-     * </ul>
+     * Path to a properties file containing a list of IU profile properties to set.
      */
-    @Parameter(defaultValue = "targetPlatform")
-    private InstallationSource source;
+    @Parameter(property = "iuProfileproperties")
+    private File iuProfileproperties;
 
     /**
-     * Runtime in which the director application is executed. Can be:
-     * <ul>
-     * <li><code>internal</code> - to use the director application from Tycho's embedded OSGi
-     * runtime (default)</li>
-     * <li><code>standalone</code> - to create and use a stand-alone installation of the director
-     * application. This option is needed if the product to be installed includes artifacts with
-     * meta-requirements (e.g. to a non-standard touchpoint action). Requires that the
-     * <code>source</code> parameter is set to <code>repository</code>.
-     * </ul>
+     * Defines what flavor to use for a newly created profile.
      */
-    @Parameter(defaultValue = "internal")
-    private DirectorRuntimeType directorRuntime;
+    @Parameter(property = "flavor")
+    private String flavor;
+
+    /**
+     * The location where the plug-ins and features will be stored. Effective only when a new
+     * profile is created.
+     */
+    @Parameter(property = "bundlepool")
+    private File bundlepool;
+
+    /**
+     * The OS to use when the profile is created.
+     */
+    @Parameter(property = "p2.os")
+    private String p2os;
+
+    /**
+     * The windowing system to use when the profile is created.
+     */
+    @Parameter(property = "p2.ws")
+    private String p2ws;
+
+    /**
+     * The architecture to use when the profile is created.
+     */
+    @Parameter(property = "p2.arch")
+    private String p2arch;
+
+    /**
+     * The language to use when the profile is created.
+     */
+    @Parameter(property = "p2.nl")
+    private String p2nl;
+
+    /**
+     * Indicates that the product resulting from the installation can be moved. Effective only when
+     * a new profile is created.
+     */
+    @Parameter(property = "roaming")
+    private boolean roaming;
+
+    /**
+     * Use a shared location for the install. The <path> defaults to ${user.home}/.p2
+     */
+    @Parameter(property = "shared")
+    private String shared;
+
+    /**
+     * Tag the provisioning operation for easy referencing when reverting.
+     */
+    @Parameter(property = "tag")
+    private String tag;
+
+    /**
+     * Only verify that the actions can be performed. Don't actually install or remove anything.
+     */
+    @Parameter(property = "verifyOnly")
+    private boolean verifyOnly;
+
+    /**
+     * Only download the artifacts.
+     */
+    @Parameter(property = "downloadOnly")
+    private boolean downloadOnly;
+
+    /**
+     * Follow repository references.
+     */
+    @Parameter(property = "followReferences")
+    private boolean followReferences;
+
+    /**
+     * Whether to print detailed information about the content trust.
+     */
+    @Parameter(property = "verboseTrust")
+    private boolean verboseTrust;
+
+    /**
+     * Whether to trust each artifact only if it is jar-signed or PGP-signed.
+     */
+    @Parameter(property = "trustSignedContentOnly")
+    private boolean trustSignedContentOnly;
+
+    /**
+     * comma separated list of the authorities from which repository content, including repository
+     * metadata, is trusted. An empty value will reject all remote connections.
+     */
+    @Parameter(property = "trustedAuthorities")
+    private String trustedAuthorities;
+
+    /**
+     * comma separated list of the fingerprints of PGP keys to trust as signers of artifacts. An
+     * empty value will reject all PGP keys.
+     */
+    @Parameter(property = "trustedPGPKeys")
+    private String trustedPGPKeys;
+
+    /**
+     * The SHA-256 'fingerprints' of unanchored certficates to trust as signers of artifacts. An
+     * empty value will reject all unanchored certificates.
+     */
+    @Parameter(property = "trustedCertificates")
+    private String trustedCertificates;
+
+    /**
+     * If specified, the current project and its artifacts are included as part of the repository
+     * that is used to install units
+     */
+    @Parameter()
+    private boolean includeProjectRepository;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        synchronized (LOCK) {
-            List<Product> products = getProductConfig().getProducts();
-            if (products.isEmpty()) {
-                getLog().info("No product definitions found, nothing to do");
+        CommandLineArguments args = new CommandLineArguments();
+        args.addNonNull("-destination", destination);
+        args.addNonNull("-metadatarepository", metadatarepositories);
+        args.addNonNull("-artifactrepository", artifactrepositories);
+        args.addNonNull("-repository", getRepositories());
+        args.addNotEmpty("-installIU", getUnitParameterList(installIUs, install), ",");
+        args.addNotEmpty("-uninstallIU", getUnitParameterList(uninstallIUs, uninstall), ",");
+        args.addNonNull("-revert", revert);
+        args.addFlagIfTrue("-purgeHistory", purgeHistory);
+        args.addFlagIfTrue("-list", list);
+        args.addFlagIfTrue("-listTags", listTags);
+        args.addFlagIfTrue("-listInstalledRoots", listInstalledRoots);
+        args.addNonNull("-listFormat", listFormat);
+        args.addNonNull("-profile", profile);
+        args.addNotEmpty("-profileproperties", getPropertyMap(profileproperties, properties), "=", ",");
+        args.addNonNull("-iuProfileproperties", iuProfileproperties);
+        args.addNonNull("-flavor", flavor);
+        args.addNonNull("-bundlepool", bundlepool);
+        args.addNonNull("-p2.os", p2os);
+        args.addNonNull("-p2.ws", p2ws);
+        args.addNonNull("-p2.arch", p2arch);
+        args.addNonNull("-p2.nl", p2nl);
+        args.addFlagIfTrue("-roaming", roaming);
+        args.addNonNull("-trustedAuthorities", trustedAuthorities);
+        if (shared != null) {
+            if (shared.isEmpty()) {
+                args.add("-shared");
+            } else {
+                args.addNonNull("-shared", new File(shared));
             }
-            DirectorRuntime director = getDirectorRuntime();
-            RepositoryReferences sources = getSourceRepositories();
-            for (Product product : products) {
-                for (TargetEnvironment env : getEnvironments()) {
-                    DirectorRuntime.Command command = director.newInstallCommand();
+        }
+        args.addNonNull("-tag", tag);
+        args.addFlagIfTrue("-verifyOnly", verifyOnly);
+        args.addFlagIfTrue("-downloadOnly", downloadOnly);
+        args.addFlagIfTrue("-followReferences", followReferences);
+        args.addFlagIfTrue("-verboseTrust", verboseTrust);
+        args.addFlagIfTrue("-trustSignedContentOnly", trustSignedContentOnly);
+        args.addNonNull("-trustedAuthorities", trustedAuthorities);
+        args.addNonNull("-trustedPGPKeys", trustedPGPKeys);
+        args.addNonNull("-trustedCertificates", trustedCertificates);
+        Object exitCode = new TychoDirectorApplication(agentProvider, agent).run(args.toArray());
+        if (!(IApplication.EXIT_OK.equals(exitCode))) {
+            throw new MojoFailureException("Call to p2 director application failed with exit code " + exitCode
+                    + ". Program arguments were: '" + args + "'.");
+        }
+    }
 
-                    File destination = getProductMaterializeDirectory(product, env);
-                    String rootFolder = product.getRootFolder(env.getOs());
-                    if (rootFolder != null && !rootFolder.isEmpty()) {
-                        destination = new File(destination, rootFolder);
-                    }
+    private String getRepositories() {
+        File projectRepository = getProjectRepository();
+        if (projectRepository != null) {
+            if (repositories == null) {
+                return projectRepository.getAbsoluteFile().toURI().toASCIIString();
+            }
+            List<String> list = new ArrayList<>();
+            for (String repo : repositories.split(",")) {
+                list.add(repo.trim());
+            }
+            list.add(projectRepository.getAbsoluteFile().toURI().toASCIIString());
+            return list.stream().collect(Collectors.joining(","));
+        }
+        return repositories;
+    }
 
-                    command.setBundlePool(getProductBundlePoolDirectory(product));
-                    command.addMetadataSources(sources.getMetadataRepositories());
-                    command.addArtifactSources(sources.getArtifactRepositories());
-                    command.addUnitToInstall(product.getId());
-                    for (DependencySeed seed : product.getAdditionalInstallationSeeds()) {
-                        command.addUnitToInstall(seed);
-                    }
-                    command.setDestination(destination);
-                    command.setProfileName(ProfileName.getNameForEnvironment(env, profileNames, profile));
-                    command.setEnvironment(env);
-                    command.setInstallFeatures(installFeatures);
-                    command.setProfileProperties(profileProperties);
-                    getLog().info("Installing product " + product.getId() + " for environment " + env + " to "
-                            + destination.getAbsolutePath());
+    private File getProjectRepository() {
+        if (includeProjectRepository) {
+            MavenSession session = legacySupport.getSession();
+            if (session != null) {
+                MavenProject currentProject = session.getCurrentProject();
+                if (currentProject != null) {
 
-                    try {
-                        command.execute();
-                    } catch (DirectorCommandException e) {
-                        throw new MojoFailureException(
-                                "Installation of product " + product.getId() + " for environment " + env + " failed",
-                                e);
+                    File[] files = Stream
+                            .concat(Stream.of(currentProject.getArtifact()),
+                                    Stream.concat(currentProject.getAttachedArtifacts().stream(),
+                                            currentProject.getArtifacts().stream()))
+                            .filter(Objects::nonNull).distinct().map(Artifact::getFile).filter(Objects::nonNull)
+                            .filter(File::isFile).toArray(File[]::new);
+                    if (files.length > 0) {
+                        try {
+                            File projectRepository = new File(currentProject.getBuild().getDirectory(),
+                                    execution.getExecutionId() + "-repo");
+                            BundlePublisher.createBundleRepository(projectRepository, execution.getExecutionId(), files,
+                                    null);
+                            return projectRepository;
+                        } catch (ProvisionException e) {
+                            getLog().warn("Can't create the project repository!", e);
+                        }
                     }
                 }
             }
         }
+        return null;
     }
 
-    private DirectorRuntime getDirectorRuntime() throws MojoFailureException, MojoExecutionException {
-        return switch (directorRuntime) {
-        case internal -> director;
-        case standalone -> standaloneDirectorFactory.createStandaloneDirector(getBuildDirectory().getChild("director"),
-                getSession().getLocalRepository(), getForkedProcessTimeoutInSeconds());
-        default -> throw new MojoFailureException(
-                "Unsupported value for attribute 'directorRuntime': \"" + directorRuntime + "\"");
-        };
+    private Map<String, String> getPropertyMap(String csvPropertiesMap, Map<String, String> properties) {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        if (csvPropertiesMap != null) {
+            for (String keyValue : csvPropertiesMap.split(",")) {
+                String[] split = keyValue.split("=");
+                map.put(split[0].trim(), split[1].trim());
+            }
+        }
+        if (properties != null) {
+            map.putAll(properties);
+        }
+        if (installFeatures) {
+            map.put("org.eclipse.update.install.features", "true");
+        }
+        return map;
     }
 
-    private RepositoryReferences getSourceRepositories() throws MojoExecutionException, MojoFailureException {
-        return switch (source) {
-        case targetPlatform -> getTargetPlatformRepositories();
-        case repository -> getBuildOutputRepository();
-        default -> throw new MojoFailureException("Unsupported value for attribute 'source': \"" + source + "\"");
-        };
+    private List<String> getUnitParameterList(String csvlist, List<IU> units) {
+        List<String> list = new ArrayList<>();
+        if (csvlist != null) {
+            for (String iu : csvlist.split(",")) {
+                list.add(iu.trim());
+            }
+        }
+        if (units != null) {
+            for (IU iu : units) {
+                String id = iu.id;
+                if (iu.feature) {
+                    id += ".feature.group";
+                }
+                if (iu.version != null) {
+                    id += "/" + iu.version;
+                }
+                list.add(id);
+            }
+        }
+        return list;
     }
 
-    private RepositoryReferences getBuildOutputRepository() {
-        File buildOutputRepository = getBuildDirectory().getChild("repository");
-
-        RepositoryReferences result = new RepositoryReferences();
-        result.addMetadataRepository(buildOutputRepository);
-        result.addArtifactRepository(buildOutputRepository);
-        return result;
+    public static final class IU {
+        String id;
+        String version;
+        boolean feature;
     }
 
-    private RepositoryReferences getTargetPlatformRepositories() throws MojoExecutionException, MojoFailureException {
-        int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
-        return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
-    }
 }

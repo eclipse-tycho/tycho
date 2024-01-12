@@ -14,7 +14,6 @@ package org.eclipse.tycho.test.surefire;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
 
 public class TestOptionalDependenciesTest extends AbstractTychoIntegrationTest {
@@ -23,8 +22,7 @@ public class TestOptionalDependenciesTest extends AbstractTychoIntegrationTest {
 	// they are conflicting (cf. bug 351842)
 	@Test
 	public void testIgnoreMutuallyExclusiveOptionalDependenciesForTestRuntimeComputation() throws Exception {
-		Verifier verifier = getVerifier("/surefire.optionalDependencies.ignore", false);
-		verifier.addCliOption("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
+		Verifier verifier = getVerifier("/surefire.optionalDependencies.ignore", true);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 	} // see also OptionalDependenciesTest.testOptionallyRequiredBundleCanBeIgnored()
@@ -33,8 +31,7 @@ public class TestOptionalDependenciesTest extends AbstractTychoIntegrationTest {
 	// project (bug 367701)
 	@Test
 	public void reactorIndirectOptionalDependencies() throws Exception {
-		Verifier verifier = getVerifier("/surefire.optionalDependencies.reactor", false);
-		verifier.addCliOption("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
+		Verifier verifier = getVerifier("/surefire.optionalDependencies.reactor", true);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 	}

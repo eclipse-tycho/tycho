@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="test-target.target" sequenceNumber="1">
+	<locations>
+		<!-- Epsilon update site uses referenced repositories so using its update site alone
+			should be enough to resolve the transitive dependencies -->
+		<location includeAllPlatforms="false" includeConfigurePhase="true"
+			includeMode="planner" includeSource="true" type="InstallableUnit">
+			<unit id="org.eclipse.epsilon.picto"
+				version="0.0.0" />
+			<repository
+				location="https://download.eclipse.org/epsilon/updates/2.4/" />
+		</location>
+	</locations>
+</target>

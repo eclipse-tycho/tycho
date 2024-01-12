@@ -18,6 +18,8 @@
 package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,17 +33,34 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
+import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -49,20 +68,33 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.IArtifactFacade;
-import org.eclipse.tycho.IRawArtifactFileProvider;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.IRawArtifactFileProvider;
 import org.eclipse.tycho.IRepositoryIdManager;
+import org.eclipse.tycho.MavenArtifactKey;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.ee.impl.ExecutionEnvironmentResolutionHandler;
+import org.eclipse.tycho.core.osgitools.ClasspathReader;
+import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
+import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
+import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.core.resolver.target.DuplicateReactorIUsException;
 import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
 import org.eclipse.tycho.core.resolver.target.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.core.shared.DuplicateFilteringLoggingProgressMonitor;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.model.classpath.JUnitBundle;
+import org.eclipse.tycho.model.classpath.JUnitClasspathContainerEntry;
+import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 import org.eclipse.tycho.p2.repository.ArtifactRepositoryBlackboard;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
@@ -76,14 +108,17 @@ import org.eclipse.tycho.p2.repository.ProviderOnlyArtifactRepository;
 import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
+import org.eclipse.tycho.p2.resolver.BundlePublisher;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
+import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
+import org.osgi.framework.BundleException;
 
 public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
@@ -104,11 +139,16 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     private final LocalMetadataRepository localMetadataRepository;
 
     private final TargetDefinitionResolverService targetDefinitionResolverService;
+    private TychoProjectManager projectManager;
+    private MavenBundleResolver mavenBundleResolver;
 
     public TargetPlatformFactoryImpl(MavenContext mavenContext, IProvisioningAgent remoteAgent,
             LocalArtifactRepository localArtifactRepo, LocalMetadataRepository localMetadataRepo,
-            TargetDefinitionResolverService targetDefinitionResolverService, IRepositoryIdManager repositoryIdManager) {
+            TargetDefinitionResolverService targetDefinitionResolverService, IRepositoryIdManager repositoryIdManager,
+            TychoProjectManager projectManager, MavenBundleResolver mavenBundleResolver) {
         this.mavenContext = mavenContext;
+        this.projectManager = projectManager;
+        this.mavenBundleResolver = mavenBundleResolver;
         this.logger = mavenContext.getLogger();
         this.monitor = new DuplicateFilteringLoggingProgressMonitor(logger); // entails that this class is not thread-safe
 
@@ -138,6 +178,14 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration, logger), reactorProjects);
     }
 
+    @Override
+    public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
+            ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
+            ReactorProject project) {
+        return createTargetPlatform(tpConfiguration,
+                ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration, logger), reactorProjects, project);
+    }
+
     /**
      * Computes the target platform from the given configuration and content.
      * 
@@ -158,8 +206,15 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      * @see #createTargetPlatform(TargetPlatformConfigurationStub,
      *      ExecutionEnvironmentConfiguration, List, PomDependencyCollector)
      */
+
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<ReactorProject> reactorProjects) {
+        return createTargetPlatform(tpConfiguration, eeResolutionHandler, reactorProjects, null);
+    }
+
+    public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
+            ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<ReactorProject> reactorProjects,
+            ReactorProject project) {
 
         List<TargetDefinitionContent> targetFileContent = resolveTargetDefinitions(tpConfiguration,
                 eeResolutionHandler.getResolutionHints());
@@ -168,9 +223,53 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         registerRepositoryIDs(completeRepositories);
 
         // collect & process metadata
+        Set<URI> artifactRepositories = new LinkedHashSet<>();
         boolean includeLocalMavenRepo = !tpConfiguration.getIgnoreLocalArtifacts();
-        LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories,
-                targetFileContent, includeLocalMavenRepo);
+        Set<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories, targetFileContent,
+                includeLocalMavenRepo, artifactRepositories,
+                tpConfiguration.getIncludeRefererenced() == ReferencedRepositoryMode.include);
+
+        //add maven junit bundles...
+        List<MavenArtifactKey> junitBundles = getMissingJunitBundles(project, externalUIs);
+        MissingBundlesArtifactFileProvider extraMavenBundles = new MissingBundlesArtifactFileProvider();
+        for (MavenArtifactKey mavenArtifactKey : junitBundles) {
+            Optional<ResolvedArtifactKey> mavenBundle = mavenBundleResolver.resolveMavenBundle(
+                    project.adapt(MavenProject.class), project.adapt(MavenSession.class), mavenArtifactKey);
+            mavenBundle.flatMap(key -> {
+                File bundleFile = key.getLocation();
+                try {
+                    MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifactKey.getGroupId(),
+                            mavenArtifactKey.getArtifactId(), key.getVersion());
+                    Optional<IInstallableUnit> iu = BundlePublisher.getBundleIU(bundleFile, advice);
+                    IInstallableUnit unit = iu.orElse(null);
+                    if (unit != null) {
+                        InstallableUnitDescription description = new InstallableUnitDescription();
+                        unit.getProperties().forEach((k, v) -> description.setProperty(k, v));
+                        description.setId(unit.getId());
+                        description.setVersion(unit.getVersion());
+                        description.addProvidedCapabilities(unit.getProvidedCapabilities());
+                        if (!mavenArtifactKey.getId().equals(unit.getId())) {
+                            IProvidedCapability cap = MetadataFactory.createProvidedCapability(
+                                    "org.eclipse.equinox.p2.iu", mavenArtifactKey.getId(), unit.getVersion());
+                            description.addProvidedCapabilities(List.of(cap));
+                        }
+                        IArtifactKey[] artifactKeys = unit.getArtifacts().toArray(IArtifactKey[]::new);
+                        description.setArtifacts(artifactKeys);
+                        for (IArtifactKey mavenkey : artifactKeys) {
+                            extraMavenBundles.add(mavenkey, bundleFile);
+                        }
+                        return Optional.of(MetadataFactory.createInstallableUnit(description));
+                    }
+                } catch (IOException e) {
+                } catch (BundleException e) {
+                }
+                return Optional.empty();
+            }).ifPresent(externalUIs::add);
+        }
+        //add p2.inf extra units from all projects...
+        for (ReactorProject reactorProject : Objects.requireNonNullElse(reactorProjects, List.<ReactorProject> of())) {
+            gatherP2InfUnits(reactorProject, externalUIs);
+        }
 
         Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectUIs = getPreliminaryReactorProjectUIs(
                 reactorProjects);
@@ -185,8 +284,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         applyFilters(filter, externalUIs, reactorProjectUIs.keySet(), eeResolutionHandler.getResolutionHints(),
                 shadowed);
 
-        IRawArtifactFileProvider externalArtifactFileProvider = createExternalArtifactProvider(completeRepositories,
-                targetFileContent);
+        IRawArtifactFileProvider externalArtifactFileProvider = createExternalArtifactProvider(artifactRepositories,
+                targetFileContent, extraMavenBundles);
         PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjectUIs, //
                 externalUIs, //
                 eeResolutionHandler.getResolutionHints(), //
@@ -195,11 +294,64 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 externalArtifactFileProvider, //
                 localArtifactRepository, //
                 includeLocalMavenRepo, //
-                logger, shadowed);
-
+                logger, shadowed, remoteAgent);
         eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
 
         return targetPlatform;
+    }
+
+    private void gatherP2InfUnits(ReactorProject reactorProject, Set<IInstallableUnit> externalUIs) {
+        if (reactorProject == null) {
+            return;
+        }
+        AdviceFileAdvice advice;
+        if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(reactorProject.getPackaging())) {
+            advice = new AdviceFileAdvice(reactorProject.getArtifactId(), Version.parseVersion("1.0.0"),
+                    new Path(reactorProject.getBasedir().getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
+        } else if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(reactorProject.getPackaging())) {
+            advice = new AdviceFileAdvice(reactorProject.getArtifactId(), Version.parseVersion("1.0.0"),
+                    new Path(reactorProject.getBasedir().getAbsolutePath()), new Path("p2.inf"));
+        } else {
+            //not a project with advice...
+            return;
+        }
+        if (advice.containsAdvice()) {
+            InstallableUnitDescription[] descriptions = advice.getAdditionalInstallableUnitDescriptions(null);
+            if (descriptions != null && descriptions.length > 0) {
+                for (InstallableUnitDescription desc : descriptions) {
+                    externalUIs.add(MetadataFactory.createInstallableUnit(desc));
+                }
+            }
+        }
+    }
+
+    private List<MavenArtifactKey> getMissingJunitBundles(ReactorProject project, Set<IInstallableUnit> externalUIs) {
+        List<MavenArtifactKey> missing = new ArrayList<>();
+        if (projectManager != null) {
+            Optional<TychoProject> tychoProject = projectManager.getTychoProject(project);
+            tychoProject.filter(OsgiBundleProject.class::isInstance).map(OsgiBundleProject.class::cast)
+                    .map(obp -> obp.getEclipsePluginProject(project)).ifPresent(eclipseProject -> {
+                        Collection<ProjectClasspathEntry> entries = eclipseProject.getClasspathEntries();
+                        for (ProjectClasspathEntry entry : entries) {
+                            if (entry instanceof JUnitClasspathContainerEntry junit) {
+                                IQueryable<IInstallableUnit> queriable = new QueryableArray(externalUIs);
+                                Collection<JUnitBundle> artifacts = junit.getArtifacts();
+                                for (JUnitBundle bundle : artifacts) {
+                                    MavenArtifactKey maven = ClasspathReader.toMaven(bundle);
+                                    VersionRange range = new VersionRange(maven.getVersion());
+                                    IQuery<IInstallableUnit> query = ArtifactTypeHelper.createQueryFor(maven.getType(),
+                                            maven.getId(), range);
+                                    IQueryResult<IInstallableUnit> result = queriable
+                                            .query(QueryUtil.createLatestQuery(query), monitor);
+                                    if (result.isEmpty()) {
+                                        missing.add(maven);
+                                    }
+                                }
+                            }
+                        }
+                    });
+        }
+        return missing;
     }
 
     private List<TargetDefinitionContent> resolveTargetDefinitions(TargetPlatformConfigurationStub tpConfiguration,
@@ -213,7 +365,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
             TargetDefinitionContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
                     definition, tpConfiguration.getEnvironments(), eeResolutionHints,
-                    tpConfiguration.getIncludeSourceMode(), remoteAgent);
+                    tpConfiguration.getIncludeSourceMode(), tpConfiguration.getIncludeRefererenced(), remoteAgent);
             result.add(targetFileContent);
 
             if (logger.isDebugEnabled()) {
@@ -237,10 +389,12 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     /**
      * External installable units collected from p2 repositories, .target files and local Maven
      * repository.
+     * 
+     * @param artifactRepositories
      */
     private LinkedHashSet<IInstallableUnit> gatherExternalInstallableUnits(
             Set<MavenRepositoryLocation> completeRepositories, List<TargetDefinitionContent> targetDefinitionsContent,
-            boolean includeLocalMavenRepo) {
+            boolean includeLocalMavenRepo, Set<URI> artifactRepositories, boolean includeReferences) {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>();
 
         for (TargetDefinitionContent targetDefinitionContent : targetDefinitionsContent) {
@@ -249,8 +403,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         }
 
         List<IMetadataRepository> metadataRepositories = new ArrayList<>();
+        Set<URI> loaded = new HashSet<>();
         for (MavenRepositoryLocation location : completeRepositories) {
-            metadataRepositories.add(loadMetadataRepository(location));
+            artifactRepositories.add(location.getURL());
+            loadMetadataRepository(location, metadataRepositories, loaded, artifactRepositories, includeReferences);
         }
         if (includeLocalMavenRepo) {
             metadataRepositories.add(localMetadataRepository);
@@ -271,17 +427,32 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         return result;
     }
 
-    private IMetadataRepository loadMetadataRepository(MavenRepositoryLocation location) {
-        try {
-            // TODO always log that a p2 repository is added to the target platform somewhere; used to be either from p2 or the following line
-            // logger.info("Adding repository (cached) " + location.toASCIIString());
-
-            return remoteMetadataRepositoryManager.loadRepository(location.getURL(), monitor);
-
-        } catch (ProvisionException e) {
-            String idMessage = location.getId() == null ? "" : " with ID '" + location.getId() + "'";
-            throw new RuntimeException(
-                    "Failed to load p2 repository" + idMessage + " from location " + location.getURL(), e);
+    private void loadMetadataRepository(MavenRepositoryLocation location,
+            List<IMetadataRepository> metadataRepositories, Set<URI> loaded, Set<URI> artifactRepositories,
+            boolean includeReferences) {
+        if (loaded.add(location.getURL().normalize())) {
+            try {
+                IMetadataRepository repository = remoteMetadataRepositoryManager.loadRepository(location.getURL(),
+                        monitor);
+                metadataRepositories.add(repository);
+                if (includeReferences) {
+                    for (IRepositoryReference reference : repository.getReferences()) {
+                        if ((reference.getOptions() | IRepository.ENABLED) != 0) {
+                            if (reference.getType() == IRepository.TYPE_METADATA) {
+                                loadMetadataRepository(
+                                        new MavenRepositoryLocation(reference.getNickname(), reference.getLocation()),
+                                        metadataRepositories, loaded, artifactRepositories, includeReferences);
+                            } else if (reference.getType() == IRepository.TYPE_ARTIFACT) {
+                                artifactRepositories.add(reference.getLocation());
+                            }
+                        }
+                    }
+                }
+            } catch (ProvisionException e) {
+                String idMessage = location.getId() == null ? "" : " with ID '" + location.getId() + "'";
+                throw new RuntimeException(
+                        "Failed to load p2 repository" + idMessage + " from location " + location.getURL(), e);
+            }
         }
     }
 
@@ -327,8 +498,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     /**
      * Provider for all target platform artifacts from outside the reactor.
      */
-    private IRawArtifactFileProvider createExternalArtifactProvider(Set<MavenRepositoryLocation> completeRepositories,
-            List<TargetDefinitionContent> targetDefinitionsContent) {
+    private IRawArtifactFileProvider createExternalArtifactProvider(Set<URI> completeRepositories,
+            List<TargetDefinitionContent> targetDefinitionsContent, IRawArtifactFileProvider extraMavenBundles) {
         SortedRepositories repos = SortedRepositories
                 .sort(targetDefinitionsContent.stream().map(TargetDefinitionContent::getArtifactRepository).toList());
         RepositoryArtifactProvider remoteArtifactProvider = createRemoteArtifactProvider(completeRepositories,
@@ -339,20 +510,20 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         return new CompositeArtifactProvider(
                 new FileRepositoryArtifactProvider(repos.localRepositories,
                         ArtifactTransferPolicies.forLocalArtifacts()), //
-                remoteArtifactProviderWithCache);
+                remoteArtifactProviderWithCache, extraMavenBundles);
     }
 
     /**
      * Provider for the target platform artifacts not yet available in the local Maven repository.
      */
-    private RepositoryArtifactProvider createRemoteArtifactProvider(Set<MavenRepositoryLocation> mavenRepositories,
+    private RepositoryArtifactProvider createRemoteArtifactProvider(Set<URI> mavenRepositories,
             List<IArtifactRepository> repos) {
         List<IArtifactRepository> artifactRepositories = new ArrayList<>();
 
-        for (MavenRepositoryLocation location : mavenRepositories) {
-            if (!offline || URIUtil.isFileURI(location.getURL())) {
-                artifactRepositories.add(new LazyArtifactRepository(remoteAgent, location.getURL(),
-                        RepositoryArtifactProvider::loadRepository));
+        for (URI location : mavenRepositories) {
+            if (!offline || URIUtil.isFileURI(location)) {
+                artifactRepositories.add(
+                        new LazyArtifactRepository(remoteAgent, location, RepositoryArtifactProvider::loadRepository));
             }
         }
 

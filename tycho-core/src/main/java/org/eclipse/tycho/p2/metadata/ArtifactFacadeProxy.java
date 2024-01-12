@@ -38,26 +38,32 @@ public abstract class ArtifactFacadeProxy implements IArtifactFacade {
         this.proxy = proxy;
     }
 
+    @Override
     public File getLocation() {
         return proxy.getLocation();
     }
 
+    @Override
     public String getGroupId() {
         return proxy.getGroupId();
     }
 
+    @Override
     public String getArtifactId() {
         return proxy.getArtifactId();
     }
 
+    @Override
     public String getClassifier() {
         return proxy.getClassifier();
     }
 
+    @Override
     public String getVersion() {
         return proxy.getVersion();
     }
 
+    @Override
     public String getPackagingType() {
         return proxy.getPackagingType();
     }

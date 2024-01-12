@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.framework;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -26,7 +27,10 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.jar.JarFile;
 
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -61,8 +65,8 @@ public class EclipseApplication {
 
     public static final String ARG_APPLICATION = "-application";
 
-    private static final Set<String> ALWAYS_START_BUNDLES = Set.of(EclipseApplicationFactory.BUNDLE_CORE,
-            EclipseApplicationFactory.BUNDLE_SCR, EclipseApplicationFactory.BUNDLE_APP);
+    private static final Set<String> ALWAYS_START_BUNDLES = Set.of(Bundles.BUNDLE_CORE, Bundles.BUNDLE_SCR,
+            Bundles.BUNDLE_APP);
     private P2Resolver resolver;
     private TargetPlatform targetPlatform;
     private Logger logger;
@@ -72,12 +76,15 @@ public class EclipseApplication {
     private Map<String, String> frameworkProperties = new LinkedHashMap<>();
     private Predicate<LogEntry> loggingFilter = always -> true;
     private Set<String> startBundles = new HashSet<>(ALWAYS_START_BUNDLES);
+    private Map<File, MavenProject> baseDirMap;
 
-    EclipseApplication(String name, P2Resolver resolver, TargetPlatform targetPlatform, Logger logger) {
+    EclipseApplication(String name, P2Resolver resolver, TargetPlatform targetPlatform, Logger logger,
+            Map<File, MavenProject> baseDirMap) {
         this.name = name;
         this.resolver = resolver;
         this.targetPlatform = targetPlatform;
         this.logger = logger;
+        this.baseDirMap = baseDirMap;
     }
 
     public synchronized Collection<Path> getApplicationBundles() {
@@ -100,7 +107,18 @@ public class EclipseApplication {
             for (Entry entry : result.getArtifacts()) {
                 if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())
                         && !"org.eclipse.osgi".equals(entry.getId())) {
-                    resolvedBundles.add(entry.getLocation(true).toPath());
+                    File location = entry.getLocation(true);
+                    Path path = location.toPath();
+                    if (location.isDirectory()) {
+                        MavenProject mavenProject = baseDirMap.get(location);
+                        if (mavenProject != null) {
+                            File artifactFile = mavenProject.getArtifact().getFile();
+                            if (artifactFile != null && artifactFile.exists()) {
+                                path = artifactFile.toPath();
+                            }
+                        }
+                    }
+                    resolvedBundles.add(path);
                 }
             }
         }
@@ -114,12 +132,25 @@ public class EclipseApplication {
      */
     public synchronized void addBundle(String bundleSymbolicName) {
         try {
-            resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, bundleSymbolicName, "0.0.0");
+            resolver.addDependency(ArtifactType.TYPE_ECLIPSE_PLUGIN, bundleSymbolicName, "0.0.0");
             needResolve = true;
         } catch (IllegalArtifactReferenceException e) {
             throw new TargetPlatformConfigurationException("Can't add API tools requirement", e);
         }
+    }
 
+    /**
+     * Add a feature to the application
+     * 
+     * @param featureId
+     */
+    public synchronized void addFeature(String featureId) {
+        try {
+            resolver.addDependency(ArtifactType.TYPE_ECLIPSE_FEATURE, featureId, "0.0.0");
+            needResolve = true;
+        } catch (IllegalArtifactReferenceException e) {
+            throw new TargetPlatformConfigurationException("Can't add API tools requirement", e);
+        }
     }
 
     /**
@@ -187,10 +218,25 @@ public class EclipseApplication {
             Bundle bundle = systemBundleContext.getBundle(location);
             if (bundle == null) {
                 //not installed yet...
-                try (InputStream stream = Files.newInputStream(bundleFile)) {
-                    bundle = systemBundleContext.installBundle(location, stream);
-                } catch (IOException e) {
-                    throw new BundleException("can't read bundle " + bundleFile, e);
+                if (Files.isDirectory(bundleFile)) {
+                    bundle = systemBundleContext.installBundle(location);
+                } else if (isDirectoryBundly(bundleFile)) {
+                    Path explodePath = workspace.getWorkDir().resolve("exploded").resolve(bundleFile.getFileName());
+                    try {
+                        Files.createDirectories(explodePath);
+                        ZipUnArchiver unArchiver = new ZipUnArchiver(bundleFile.toFile());
+                        unArchiver.setDestDirectory(explodePath.toFile());
+                        unArchiver.extract();
+                    } catch (IOException e) {
+                        throw new BundleException("can't explode bundle " + bundleFile, e);
+                    }
+                    bundle = systemBundleContext.installBundle(explodePath.toUri().toASCIIString());
+                } else {
+                    try (InputStream stream = Files.newInputStream(bundleFile)) {
+                        bundle = systemBundleContext.installBundle(location, stream);
+                    } catch (IOException e) {
+                        throw new BundleException("can't read bundle " + bundleFile, e);
+                    }
                 }
             }
             if (startBundles.contains(bundle.getSymbolicName())) {
@@ -200,6 +246,14 @@ public class EclipseApplication {
         FrameworkWiring wiring = framework.adapt(FrameworkWiring.class);
         wiring.resolveBundles(Collections.emptyList());
         return new EclipseFramework(framework, configuration, this, connector);
+    }
+
+    private boolean isDirectoryBundly(Path bundleFile) {
+        try (JarFile jarFile = new JarFile(bundleFile.toFile())) {
+            return "dir".equals(jarFile.getManifest().getMainAttributes().getValue("Eclipse-BundleShape"));
+        } catch (IOException e1) {
+        }
+        return false;
     }
 
     private void setupLogging(BundleContext bundleContext) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2022 SAP AG and others.
+ * Copyright (c) 2011, 2023 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,8 @@ package org.eclipse.tycho.test.util;
 import java.io.File;
 import java.net.URI;
 
+import org.eclipse.tycho.TychoConstants;
+
 /**
  * Helper for accessing test resources.
  */
@@ -22,7 +24,7 @@ public class ResourceUtil {
 
 	public enum P2Repositories {
 		ECLIPSE_342("e342"), ECLIPSE_352("e352"), ECLIPSE_OXYGEN("https:////download.eclipse.org/releases/oxygen/"),
-		ECLIPSE_LATEST(EnvironmentUtil.ECLIPSE_LATEST);
+		ECLIPSE_LATEST(TychoConstants.ECLIPSE_LATEST);
 
 		private final String path;
 

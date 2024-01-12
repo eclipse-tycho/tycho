@@ -22,7 +22,6 @@ import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
-import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 
 /**
@@ -34,8 +33,7 @@ public interface DependencyResolver {
 
     PomDependencyCollector resolvePomDependencies(MavenSession session, MavenProject project);
 
-    public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
-            List<ReactorProject> reactorProjects);
+    public TargetPlatform getPreliminaryTargetPlatform(MavenSession session, MavenProject project);
 
     /**
      * @param targetPlatform
@@ -43,9 +41,9 @@ public interface DependencyResolver {
      *            <code>null</code>, the final target platform of the project will be used.
      */
     public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
-            TargetPlatform targetPlatform, List<ReactorProject> reactorProjects,
-            DependencyResolverConfiguration resolverConfiguration, List<TargetEnvironment> environments);
+            TargetPlatform targetPlatform, DependencyResolverConfiguration resolverConfiguration,
+            List<TargetEnvironment> environments);
 
-    public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
+    public void injectDependenciesIntoMavenModel(MavenProject project, TychoProject projectType,
             DependencyArtifacts resolvedDependencies, DependencyArtifacts testDepedencyArtifacts, Logger logger);
 }

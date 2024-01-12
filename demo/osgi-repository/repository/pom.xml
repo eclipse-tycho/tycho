@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.eclipse.tycho.demo</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+	<artifactId>repository</artifactId>
+	<packaging>repository</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-repository-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<!-- Extensions must be enabled for this mojo to work reliable and for using the custom package type-->
+				<extensions>true</extensions>
+				<!-- EVERYTHING BELOW IS OPTIONAL -->
+				<!-- This is just used to show different options of the configuration and can be ommited if only a bare maven-repository is desired with default settings -->
+				<executions>
+					<!-- Additionally we create another repository using the 'local' layout and place it in a deploy folder -->
+					<execution>
+						<id>local</id>
+						<phase>package</phase>
+						<goals>
+							<goal>package-repository</goal>
+						</goals>
+						<configuration>
+							<repositoryLayout>local</repositoryLayout>
+							<settings>
+								<repositoryFolderName>deploy</repositoryFolderName>
+							</settings>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

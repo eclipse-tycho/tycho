@@ -43,7 +43,7 @@ import org.osgi.framework.BundleException;
 
 public class FileTargetDefinitionContent implements TargetDefinitionContent {
 
-    private Map<IArtifactDescriptor, IInstallableUnit> repositoryContent = new HashMap<IArtifactDescriptor, IInstallableUnit>();
+    private Map<IArtifactDescriptor, IInstallableUnit> repositoryContent = new HashMap<>();
     private final SupplierMetadataRepository metadataRepository;
     private final FileArtifactRepository artifactRepository;
     private File location;
@@ -60,6 +60,7 @@ public class FileTargetDefinitionContent implements TargetDefinitionContent {
         artifactRepository.setLocation(location.toURI());
     }
 
+    @Override
     public IMetadataRepository getMetadataRepository() {
         preload(null);
         return metadataRepository;
@@ -100,6 +101,7 @@ public class FileTargetDefinitionContent implements TargetDefinitionContent {
         loaded = true;
     }
 
+    @Override
     public IArtifactRepository getArtifactRepository() {
         preload(null);
         return artifactRepository;
@@ -110,7 +112,7 @@ public class FileTargetDefinitionContent implements TargetDefinitionContent {
     }
 
     private static void readFeatures(File path, BiConsumer<IArtifactDescriptor, IInstallableUnit> consumer,
-            IProgressMonitor monitor) throws ResolverException {
+            IProgressMonitor monitor) {
         PublisherInfo publisherInfo = new PublisherInfo();
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
         if (path.isDirectory()) {
@@ -164,8 +166,8 @@ public class FileTargetDefinitionContent implements TargetDefinitionContent {
                             consumer.accept(FileArtifactRepository.forFile(bundleLocation, key),
                                     BundlesAction.createBundleIU(bundleDescription, key, publisherInfo));
                         }
-                    } catch (BundleException | IOException e) {
-                        throw new ResolverException("Reading bundle failed", e);
+                    } catch (BundleException | IOException | RuntimeException e) {
+                        throw new ResolverException("Reading " + bundleLocation + " bundle failed", e);
                     }
                     subMonitor.worked(1);
                 }

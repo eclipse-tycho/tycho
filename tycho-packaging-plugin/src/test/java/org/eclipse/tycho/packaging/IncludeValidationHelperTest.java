@@ -14,6 +14,7 @@
 package org.eclipse.tycho.packaging;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -50,35 +51,26 @@ public class IncludeValidationHelperTest {
 
     @Test
     public void testCheckBinIncludesDontExist() throws Exception {
-        BuildPropertiesImpl buildProperties = createBuildProperties("bin.includes", "foo2.txt, bar2*,**/*.me");
-        try {
-            subject.checkBinIncludesExist(createMockProject(), buildProperties, true);
-            fail();
-        } catch (MojoExecutionException e) {
-            assertStringContains("bin.includes value(s) [foo2.txt, bar2*] do not match any files.", e.getMessage());
-        }
-    }
+		BuildPropertiesImpl buildProperties = createBuildProperties("bin.includes", "foo2.txt, bar2*,**/*.me");
+		MojoExecutionException e = assertThrows(MojoExecutionException.class,
+				() -> subject.checkBinIncludesExist(createMockProject(), buildProperties, true));
+		assertStringContains("bin.includes value(s) [foo2.txt, bar2*] do not match any files.", e.getMessage());
+	}
 
     @Test
     public void testCheckBinIncludesNotSpecified() throws Exception {
-        BuildPropertiesImpl buildProperties = createBuildProperties("no.bin.includes", "bin.includes is not specified");
-        try {
-            subject.checkBinIncludesExist(createMockProject(), buildProperties, true);
-            fail();
-        } catch (MojoExecutionException e) {
-            assertStringContains("bin.includes value(s) must be specified", e.getMessage());
-        }
+		BuildPropertiesImpl buildProperties = createBuildProperties("no.bin.includes", "bin.includes is not specified");
+		MojoExecutionException e = assertThrows(MojoExecutionException.class,
+				() -> subject.checkBinIncludesExist(createMockProject(), buildProperties, true));
+		assertStringContains("bin.includes value(s) must be specified", e.getMessage());
     }
 
     @Test
     public void testCheckSourceIncludesDontExist() throws Exception {
-        BuildPropertiesImpl buildProperties = createBuildProperties("src.includes", "foo3, bar3*,**/*.me");
-        try {
-            subject.checkSourceIncludesExist(createMockProject(), buildProperties, true);
-            fail();
-        } catch (MojoExecutionException e) {
-            assertStringContains("src.includes value(s) [foo3, bar3*] do not match any files.", e.getMessage());
-        }
+		BuildPropertiesImpl buildProperties = createBuildProperties("src.includes", "foo3, bar3*,**/*.me");
+		MojoExecutionException e = assertThrows(MojoExecutionException.class,
+				() -> subject.checkSourceIncludesExist(createMockProject(), buildProperties, true));
+		assertStringContains("src.includes value(s) [foo3, bar3*] do not match any files.", e.getMessage());
     }
 
     @Test

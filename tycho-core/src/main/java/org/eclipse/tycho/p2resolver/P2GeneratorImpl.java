@@ -29,14 +29,24 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryParser;
 import org.eclipse.equinox.internal.p2.updatesite.SiteModel;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
+import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
@@ -71,11 +81,11 @@ import org.eclipse.tycho.p2.publisher.DownloadStatsAdvice;
 import org.eclipse.tycho.p2.publisher.FeatureDependenciesAction;
 import org.eclipse.tycho.p2.publisher.P2Artifact;
 import org.eclipse.tycho.p2.publisher.ProductDependenciesAction;
-import org.eclipse.tycho.p2.publisher.ProductFile2;
 import org.eclipse.tycho.p2.publisher.TransientArtifactRepository;
 import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.repository.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.MetadataIO;
+import org.eclipse.tycho.p2maven.actions.ProductFile2;
 import org.osgi.framework.BundleException;
 
 @Component(role = P2Generator.class)
@@ -192,7 +202,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 result.put(classifier, p2artifact);
             }, () -> {
                 logger.debug("Skip generation of secondary metadata for artifact = " + artifact
-                        + ", as it does not has a canonical ArtifactDescriptor");
+                        + ", as it does not have a canonical ArtifactDescriptor");
             });
 
         }
@@ -289,6 +299,31 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                     throw new RuntimeException("Unable to read category File", e);
                 }
             }
+            File p2inf = new File(location, "p2.inf");
+            if (p2inf.isFile()) {
+                AdviceFileAdvice advice = new AdviceFileAdvice(artifact.getArtifactId(), Version.parseVersion("1.0"),
+                        new Path(location.getAbsolutePath()), new Path("p2.inf"));
+                if (advice.containsAdvice()) {
+                    actions.add(new AbstractPublisherAction() {
+
+                        @Override
+                        public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results,
+                                IProgressMonitor monitor) {
+                            InstallableUnitDescription[] descriptions = advice
+                                    .getAdditionalInstallableUnitDescriptions(null);
+                            if (descriptions != null && descriptions.length > 0) {
+                                for (InstallableUnitDescription desc : descriptions) {
+                                    results.addIU(MetadataFactory.createInstallableUnit(desc),
+                                            IPublisherResult.NON_ROOT);
+                                }
+                            }
+//                            publisherInfo.addAdvice(advice);
+                            return Status.OK_STATUS;
+                        }
+
+                    });
+                }
+            }
         } else if (PackagingType.TYPE_P2_SITE.equals(packaging)) {
             //nothing to do at the moment...
         } else if (PackagingType.TYPE_P2_IU.equals(packaging)) {
@@ -330,7 +365,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
     /**
      * Looks for all files at the base of the project that extension is ".product" Duplicated in the
      * EclipseRepositoryProject
-     * 
+     *
      * @param projectLocation
      * @return The list of product files to parse for an eclipse-repository project
      */
