@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2024 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -333,10 +333,10 @@ public class DefaultTargetPlatformConfigurationReader {
 
     /**
      * Take the constraints of the configured execution environment into account when resolving
-     * dependencies or target definitions. These constraints include the list of system packages and
-     * the <tt>Bundle-RequiredExecutionEnvironment</tt> header. When set to <code>true</code>, the
-     * dependency resolution verifies that the bundle and all required bundles can be used in an
-     * OSGi container with the configured execution environment.
+     * dependencies or target definitions. These constraints include the list of system packages and the
+     * <tt>Bundle-RequiredExecutionEnvironment</tt> header. When set to <code>true</code>, the
+     * dependency resolution verifies that the bundle and all required bundles can be used in an OSGi
+     * container with the configured execution environment.
      */
     private void setResolveWithEEContraints(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
         String value = getStringValue(resolverDom.getChild(RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS));
@@ -384,7 +384,7 @@ public class DefaultTargetPlatformConfigurationReader {
                     }
                 }
                 if (!skipped.isEmpty()) {
-                    logger.info(MessageFormat.format(
+                    logger.debug(MessageFormat.format(
                             "Declared TargetEnvironment(s) {0} are skipped for {1} as they do not match the project filter {2}.",
                             skipped.stream().map(TargetEnvironment::toFilterProperties).map(String::valueOf)
                                     .collect(Collectors.joining(", ")),
@@ -594,9 +594,9 @@ public class DefaultTargetPlatformConfigurationReader {
      * 
      * @param project
      * @param targetFile
-     *            the target file to check
+     *                             the target file to check
      * @param otherTargetFiles
-     *            other target files to take into account
+     *                             other target files to take into account
      * @return <code>true</code> if the target file is the primary artifact, <code>false</code>
      *         otherwise
      */
