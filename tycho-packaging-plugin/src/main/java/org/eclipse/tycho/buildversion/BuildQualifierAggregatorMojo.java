@@ -12,17 +12,25 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import java.io.File;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.OptionalLong;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatformService;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
@@ -59,6 +67,15 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
 
 	@Component
 	private TargetPlatformService platformService;
+
+	/**
+	 * Controls if when a aggregation happens the mojo should use the embedded
+	 * timestamps in the jar manifest or finally fall back to the last modified
+	 * timestamps of the jar entries itself if it can't parse the qualifier from the
+	 * file name.
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean useArtifactTimestamps = true;
 
     @Override
     protected Date getBuildTimestamp() throws MojoExecutionException {
@@ -103,49 +120,77 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
             }
 
             private void visitArtifact(ArtifactDescriptor artifact) {
-                ReactorProject otherProject = artifact.getMavenProject();
-                String otherVersion = (otherProject != null) ? otherProject.getExpandedVersion()
-                        : artifact.getKey().getVersion();
-                Version v = Version.parseVersion(otherVersion);
-                String otherQualifier = v.getQualifier();
-                if (otherQualifier != null) {
-                    Date timestamp = parseQualifier(otherQualifier);
-                    if (timestamp != null) {
-                        if (latestTimestamp[0].compareTo(timestamp) < 0) {
-                            if (getLog().isDebugEnabled()) {
-                                getLog().debug("Found '" + format.format(timestamp) + "' from qualifier '"
-                                        + otherQualifier + "' for artifact " + artifact);
-                            }
-                            latestTimestamp[0] = timestamp;
-                        }
-                    } else {
-                        getLog().debug("Could not parse qualifier timestamp " + otherQualifier);
-                    }
-                }
+				Date timestamp = getTimestamp(artifact);
+				if (timestamp != null && latestTimestamp[0].compareTo(timestamp) < 0) {
+					latestTimestamp[0] = timestamp;
+				}
             }
 
-            private Date parseQualifier(String qualifier) {
-                Date timestamp = parseQualifier(qualifier, format);
-                if (timestamp != null) {
-                    return timestamp;
-                }
-                return discoverTimestamp(qualifier);
-            }
-
-            private Date parseQualifier(String qualifier, SimpleDateFormat format) {
-                ParsePosition pos = new ParsePosition(0);
-                Date timestamp = format.parse(qualifier, pos);
-                if (timestamp != null && pos.getIndex() == qualifier.length()) {
-                    return timestamp;
-                }
-                return null;
-            }
-
-            private Date discoverTimestamp(String qualifier) {
-                return timestampFinder.findInString(qualifier);
-            }
         });
 
         return latestTimestamp[0];
     }
+
+	private Date getTimestamp(ArtifactDescriptor artifact) {
+		ReactorProject otherProject = artifact.getMavenProject();
+		if (otherProject != null) {
+			Object contextValue = otherProject.getContextValue(TychoConstants.BUILD_TIMESTAMP);
+			if (contextValue instanceof Date date) {
+				return date;
+			}
+		}
+		String otherVersion = (otherProject != null) ? otherProject.getExpandedVersion()
+				: artifact.getKey().getVersion();
+		Version v = Version.parseVersion(otherVersion);
+		String otherQualifier = v.getQualifier();
+		if (otherQualifier != null) {
+			Date parseQualifier = parseQualifier(otherQualifier);
+			if (parseQualifier != null) {
+				return parseQualifier;
+			}
+		}
+		if (useArtifactTimestamps) {
+			try {
+				File file = artifact.fetchArtifact().get();
+				try (JarFile jarFile = new JarFile(file)) {
+					Manifest manifest = jarFile.getManifest();
+					if (manifest != null) {
+						Attributes attributes = manifest.getMainAttributes();
+						String tychoTs = attributes.getValue(TychoConstants.HEADER_TYCHO_BUILD_TIMESTAMP);
+						if (tychoTs != null) {
+							return new Date(Long.parseLong(tychoTs));
+						}
+						String bndTs = attributes.getValue(TychoConstants.HEADER_BND_LAST_MODIFIED);
+						if (bndTs != null) {
+							return new Date(Long.parseLong(bndTs));
+						}
+					}
+					OptionalLong max = jarFile.stream().mapToLong(JarEntry::getTime).filter(l -> l > 0).max();
+					if (max.isPresent()) {
+						return new Date(max.getAsLong());
+					}
+				}
+			} catch (Exception e) {
+				// can't use it then...
+			}
+		}
+		return null;
+	}
+
+	private Date parseQualifier(String qualifier) {
+		Date timestamp = parseQualifier(qualifier, format);
+		if (timestamp != null) {
+			return timestamp;
+		}
+		return timestampFinder.findInString(qualifier);
+	}
+
+	private Date parseQualifier(String qualifier, SimpleDateFormat format) {
+		ParsePosition pos = new ParsePosition(0);
+		Date timestamp = format.parse(qualifier, pos);
+		if (timestamp != null && pos.getIndex() == qualifier.length()) {
+			return timestamp;
+		}
+		return null;
+	}
 }

@@ -15,11 +15,15 @@ package org.eclipse.tycho.packaging;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.maven.archiver.ManifestConfiguration;
+import org.apache.maven.archiver.MavenArchiver;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -29,10 +33,13 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.archiver.FileSet;
+import org.codehaus.plexus.archiver.jar.Manifest;
+import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.AbstractScanner;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -47,115 +54,145 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
 	@Parameter(property = "project.build.directory", required = true)
 	protected File buildDirectory;
 
-    @Parameter(property = "session", readonly = true)
-    protected MavenSession session;
+	@Parameter(property = "session", readonly = true)
+	protected MavenSession session;
 
-    @Parameter(property = "project", readonly = true)
-    protected MavenProject project;
+	@Parameter(property = "project", readonly = true)
+	protected MavenProject project;
 
-    @Parameter(defaultValue = "true")
-    protected boolean useDefaultExcludes;
+	@Parameter(defaultValue = "true")
+	protected boolean useDefaultExcludes;
 
-    /**
-     * Build qualifier. Recommended way to set this parameter is using build-qualifier goal.
-     */
+	/**
+	 * Build qualifier. Recommended way to set this parameter is using
+	 * build-qualifier goal.
+	 */
 	@Parameter(property = TychoProperties.BUILD_QUALIFIER)
-    protected String qualifier;
+	protected String qualifier;
 
-    /**
-     * If set to <code>true</code> (the default), missing build.properties bin.includes will cause
-     * build failure. If set to <code>false</code>, missing build.properties bin.includes will be
-     * reported as warnings but the build will not fail.
-     */
-    @Parameter(defaultValue = "true")
-    protected boolean strictBinIncludes;
+	/**
+	 * If set to <code>true</code> (the default), missing build.properties
+	 * bin.includes will cause build failure. If set to <code>false</code>, missing
+	 * build.properties bin.includes will be reported as warnings but the build will
+	 * not fail.
+	 */
+	@Parameter(defaultValue = "true")
+	protected boolean strictBinIncludes;
 
-    /**
-     * Additional files to be included in the final <code>.jar</code>.
-     * <p>
-     * A typical usage might be when <code>bin.includes</code> in <code>build.properties</code>
-     * is not flexible enough, e.g., for generated files, as when conflicting additional files
-     * win over <code>bin.includes</code>.
-     * <p>
-     * Example:
-     * <pre>
-     * &lt;additionalFileSets&gt;
-     *  &lt;fileSet&gt;
-     *   &lt;directory&gt;${project.build.directory}/mytool-gen/&lt;/directory&gt;
-     *   &lt;includes&gt;
-     *    &lt;include&gt;&#42;&#42;/*&lt;/include&gt;
-     *   &lt;/includes&gt;
-     *  &lt;/fileSet&gt;
-     * &lt;/additionalFileSets&gt;
-     * </pre>
-     * Note: currently, additional file sets are not used for the <code>package-iu</code> goal.
-     */
-    @Parameter
-    protected DefaultFileSet[] additionalFileSets;
+	/**
+	 * Additional files to be included in the final <code>.jar</code>.
+	 * <p>
+	 * A typical usage might be when <code>bin.includes</code> in
+	 * <code>build.properties</code> is not flexible enough, e.g., for generated
+	 * files, as when conflicting additional files win over
+	 * <code>bin.includes</code>.
+	 * <p>
+	 * Example:
+	 * 
+	 * <pre>
+	 * &lt;additionalFileSets&gt;
+	 *  &lt;fileSet&gt;
+	 *   &lt;directory&gt;${project.build.directory}/mytool-gen/&lt;/directory&gt;
+	 *   &lt;includes&gt;
+	 *    &lt;include&gt;&#42;&#42;/*&lt;/include&gt;
+	 *   &lt;/includes&gt;
+	 *  &lt;/fileSet&gt;
+	 * &lt;/additionalFileSets&gt;
+	 * </pre>
+	 * 
+	 * Note: currently, additional file sets are not used for the
+	 * <code>package-iu</code> goal.
+	 */
+	@Parameter
+	protected DefaultFileSet[] additionalFileSets;
 
-    @Component
-    protected PlexusContainer plexus;
+	@Component
+	protected PlexusContainer plexus;
 
-    @Component
-    protected MavenProjectHelper projectHelper;
+	@Component
+	protected MavenProjectHelper projectHelper;
 
-    @Component(role = TychoProject.class)
-    private Map<String, TychoProject> projectTypes;
+	@Component(role = TychoProject.class)
+	private Map<String, TychoProject> projectTypes;
 
-    @Component
-    private IncludeValidationHelper includeValidationHelper;
+	@Component
+	private IncludeValidationHelper includeValidationHelper;
 
-    /**
-     * @return a {@link FileSet} with the given includes and excludes and the configured default
-     *         excludes. An empty list of includes leads to an empty file set.
-     */
-    protected FileSet getFileSet(File basedir, List<String> includes, List<String> excludes) {
-        DefaultFileSet fileSet = new DefaultFileSet();
-        fileSet.setDirectory(basedir);
+	/**
+	 * @return a {@link FileSet} with the given includes and excludes and the
+	 *         configured default excludes. An empty list of includes leads to an
+	 *         empty file set.
+	 */
+	protected FileSet getFileSet(File basedir, List<String> includes, List<String> excludes) {
+		DefaultFileSet fileSet = new DefaultFileSet();
+		fileSet.setDirectory(basedir);
 
-        if (includes.isEmpty()) {
-            // FileSet interprets empty list as "everything", so we need to express "nothing" in a different way
-            fileSet.setIncludes(new String[] { "" });
-        } else {
-            fileSet.setIncludes(includes.toArray(new String[includes.size()]));
-        }
+		if (includes.isEmpty()) {
+			// FileSet interprets empty list as "everything", so we need to express
+			// "nothing" in a different way
+			fileSet.setIncludes(new String[] { "" });
+		} else {
+			fileSet.setIncludes(includes.toArray(new String[includes.size()]));
+		}
 
-        Set<String> allExcludes = new LinkedHashSet<>();
-        if (excludes != null) {
-            allExcludes.addAll(excludes);
-        }
-        if (useDefaultExcludes) {
-            allExcludes.addAll(Arrays.asList(AbstractScanner.DEFAULTEXCLUDES));
+		Set<String> allExcludes = new LinkedHashSet<>();
+		if (excludes != null) {
+			allExcludes.addAll(excludes);
+		}
+		if (useDefaultExcludes) {
+			allExcludes.addAll(Arrays.asList(AbstractScanner.DEFAULTEXCLUDES));
 			// keep ignoring the following files after
 			// https://github.com/codehaus-plexus/plexus-utils/pull/174
 			allExcludes.add("**/.gitignore");
 			allExcludes.add("**/.gitattributes");
-        }
+		}
 
-        fileSet.setExcludes(allExcludes.toArray(new String[allExcludes.size()]));
+		fileSet.setExcludes(allExcludes.toArray(new String[allExcludes.size()]));
 
-        return fileSet;
-    }
+		return fileSet;
+	}
 
-    protected TychoProject getTychoProjectFacet() {
-        return getTychoProjectFacet(project.getPackaging());
-    }
+	protected TychoProject getTychoProjectFacet() {
+		return getTychoProjectFacet(project.getPackaging());
+	}
 
-    protected TychoProject getTychoProjectFacet(String packaging) {
-        TychoProject facet = projectTypes.get(packaging);
-        if (facet == null) {
-            throw new IllegalStateException("Unknown or unsupported packaging type " + packaging);
-        }
-        return facet;
-    }
+	protected TychoProject getTychoProjectFacet(String packaging) {
+		TychoProject facet = projectTypes.get(packaging);
+		if (facet == null) {
+			throw new IllegalStateException("Unknown or unsupported packaging type " + packaging);
+		}
+		return facet;
+	}
 
-    protected DependencyArtifacts getDependencyArtifacts() {
-        return getTychoProjectFacet().getDependencyArtifacts(DefaultReactorProject.adapt(project));
-    }
+	protected DependencyArtifacts getDependencyArtifacts() {
+		return getTychoProjectFacet().getDependencyArtifacts(DefaultReactorProject.adapt(project));
+	}
 
-    protected void checkBinIncludesExist(BuildProperties buildProperties, String... ignoredIncludes)
-            throws MojoExecutionException {
-        includeValidationHelper.checkBinIncludesExist(project, buildProperties, strictBinIncludes, ignoredIncludes);
-    }
+	protected void checkBinIncludesExist(BuildProperties buildProperties, String... ignoredIncludes)
+			throws MojoExecutionException {
+		includeValidationHelper.checkBinIncludesExist(project, buildProperties, strictBinIncludes, ignoredIncludes);
+	}
+
+	protected static MavenArchiver createMavenArchiver(boolean includeBuildTimestamp) {
+		if (includeBuildTimestamp) {
+			MavenArchiver archiver = new MavenArchiver() {
+				@Override
+				protected Manifest getManifest(MavenSession session, MavenProject project, ManifestConfiguration config,
+						Map<String, String> entries) throws ManifestException, DependencyResolutionRequiredException {
+					Manifest manifest = super.getManifest(session, project, config, entries);
+					Object contextValue = DefaultReactorProject.adapt(project)
+							.getContextValue(TychoConstants.BUILD_TIMESTAMP);
+					if (contextValue instanceof Date timestamp) {
+						Manifest.Attribute attr = new Manifest.Attribute(TychoConstants.HEADER_TYCHO_BUILD_TIMESTAMP,
+								Long.toString(timestamp.getTime()));
+						manifest.addConfiguredAttribute(attr);
+					}
+					return manifest;
+				}
+			};
+			return archiver;
+		}
+		return new MavenArchiver();
+	}
 
 }
