@@ -92,5 +92,31 @@
 		    <version>2.15.0</version>
 		</dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<failOnError>false</failOnError>
+					<filesets>
+						<fileset>
+							<directory>${project.basedir}/src/test/resources/projects</directory>
+							<includes>
+								<include>**/bin/**</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<!-- workaround for https://issues.apache.org/jira/browse/MPLUGIN-504 -->
+				<configuration>
+					<goalPrefix>tycho-compiler</goalPrefix>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

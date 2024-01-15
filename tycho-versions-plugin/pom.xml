@@ -72,6 +72,14 @@
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-component-metadata</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<!-- workaround for https://issues.apache.org/jira/browse/MPLUGIN-504 -->
+				<configuration>
+					<goalPrefix>tycho-versions</goalPrefix>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
