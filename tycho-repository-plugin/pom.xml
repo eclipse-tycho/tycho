@@ -72,6 +72,14 @@
 					<staticMetadataDirectory>${project.build.directory}/filtered/META-INF/plexus/</staticMetadataDirectory>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<!-- workaround for https://issues.apache.org/jira/browse/MPLUGIN-450 -->
+				<configuration>
+					<goalPrefix>tycho-repository</goalPrefix>
+				</configuration>
+			</plugin>
 		</plugins>
 		<resources>
 			<resource>
