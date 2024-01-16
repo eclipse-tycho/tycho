@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import org.apache.maven.plugin.LegacySupport;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -34,6 +35,9 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
 	@Requirement
 	MavenAuthenticator authenticator;
 
+	@Requirement
+	protected LegacySupport mavenContext;
+
 	@Override
 	public Object createService(IProvisioningAgent agent) {
 		IArtifactRepositoryManager plainRepoManager = (IArtifactRepositoryManager) new ArtifactRepositoryComponent()
@@ -45,14 +49,36 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
 	}
 
 	private boolean getDisableP2MirrorsConfiguration() {
-		String key = "tycho.disableP2Mirrors";
-		String value = System.getProperty(key);
-		if (value != null) {
-			logger.info("Using " + key
+		String deprecatedKey = "tycho.disableP2Mirrors";
+		String deprecatedValue = getMirrorProperty(deprecatedKey);
+
+		if (deprecatedValue != null) {
+			logger.info("Using " + deprecatedKey
 					+ " to disable P2 mirrors is deprecated, use the property eclipse.p2.mirrors instead, see https://tycho.eclipseprojects.io/doc/"
 					+ TychoVersion.getTychoVersion() + "/SystemProperties.html for details.");
-			return Boolean.parseBoolean(value);
+			return Boolean.parseBoolean(deprecatedValue);
+		}
+
+		String key = "eclipse.p2.mirrors ";
+		String value = getMirrorProperty(key);
+
+		if (value != null) {
+			// eclipse.p2.mirrors false -> disable mirrors
+			return !Boolean.parseBoolean(value);
 		}
 		return false;
+
+	}
+
+	private String getMirrorProperty(String key) {
+		String value = System.getProperty(key);
+		if (key == null && mavenContext.getSession() != null) {
+			key = mavenContext.getSession().getSystemProperties().getProperty(key);
+
+			if (key == null) {
+				key = mavenContext.getSession().getUserProperties().getProperty(key);
+			}
+		}
+		return value;
 	}
 }
