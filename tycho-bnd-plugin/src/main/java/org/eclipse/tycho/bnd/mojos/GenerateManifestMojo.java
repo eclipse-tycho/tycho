@@ -17,8 +17,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import org.apache.maven.artifact.Artifact;
@@ -32,12 +32,16 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ClasspathEntry;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.bnd.MavenProjectJar;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.bnd.BndPluginManager;
 import org.eclipse.tycho.core.osgitools.BundleClassPath;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
@@ -49,7 +53,6 @@ import aQute.bnd.build.Workspace;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.Processor;
-import aQute.bnd.service.RepositoryPlugin;
 
 /**
  * The mojos support generation of the manifest file like it is done in PDE if
@@ -66,7 +69,7 @@ public class GenerateManifestMojo extends AbstractMojo {
 	};
 
 	@Component
-	private Map<String, RepositoryPlugin> repositoryPlugins;
+	private BndPluginManager bndPluginManager;
 
 	@Parameter(property = "project", readonly = true)
 	protected MavenProject mavenProject;
@@ -87,7 +90,32 @@ public class GenerateManifestMojo extends AbstractMojo {
 			File instructionsFile = new File(basedir, TychoConstants.PDE_BND);
 			if (instructionsFile.isFile()) {
 				try (Project project = new Project(getWorkspace(), basedir, instructionsFile);
-						ProjectBuilder builder = new ProjectBuilder(project);
+						ProjectBuilder builder = new ProjectBuilder(project) {
+							@Override
+							public Jar getJarFromName(String name, String from) {
+								Matcher m = TychoConstants.PLATFORM_URL_PATTERN.matcher(name);
+								if (m.matches()) {
+									TargetPlatform targetPlatform = projectManager.getTargetPlatform(mavenProject)
+											.orElse(null);
+									if (targetPlatform == null) {
+										return null;
+									}
+									String pluginId = m.group(2);
+									try {
+										ArtifactKey artifact = targetPlatform
+												.resolveArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, pluginId, null);
+										File artifactLocation = targetPlatform.getArtifactLocation(artifact);
+										if (artifactLocation == null) {
+											return null;
+										}
+										return new Jar(artifactLocation);
+									} catch (Exception e) {
+										return null;
+									}
+								}
+								return super.getJarFromName(name, from);
+							}
+						};
 						Jar jar = new MavenProjectJar(mavenProject, CLASS_FILTER)) {
 					setupProject(project);
 					BundleClassPath bundleClassPath = osgi
@@ -138,10 +166,7 @@ public class GenerateManifestMojo extends AbstractMojo {
 		run.setProperty(Constants.STANDALONE, "true");
 		Workspace workspace = Workspace.createStandaloneWorkspace(run,
 				new File(mavenProject.getBuild().getDirectory(), Project.BNDCNF).toURI());
-		for (RepositoryPlugin repositoryPlugin : repositoryPlugins.values()) {
-			workspace.addBasicPlugin(repositoryPlugin);
-		}
-		workspace.refresh();
+		bndPluginManager.setupWorkspace(workspace);
 		return workspace;
 	}
 

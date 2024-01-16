@@ -33,11 +33,11 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.core.bnd.BndPluginManager;
 
 import aQute.bnd.build.Project;
 import aQute.bnd.build.Workspace;
 import aQute.bnd.osgi.Constants;
-import aQute.bnd.service.RepositoryPlugin;
 
 /**
  * This component injects information from the BND model into the maven model,
@@ -64,7 +64,7 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 	private Logger logger;
 
 	@Requirement
-	private Map<String, RepositoryPlugin> repositoryPlugins;
+	private BndPluginManager bndPluginManager;
 
 	@Override
 	public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
@@ -174,10 +174,7 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 					File basedir = mavenProject.getBasedir();
 					Workspace ws = Workspace.findWorkspace(basedir.getParentFile());
 					if (workspaces.add(ws)) {
-						for (RepositoryPlugin repositoryPlugin : repositoryPlugins.values()) {
-							ws.addBasicPlugin(repositoryPlugin);
-						}
-						ws.refresh();
+						bndPluginManager.setupWorkspace(ws);
 					}
 					Project project = ws.getProject(basedir.getName());
 					mavenProject.setContextValue(Project.class.getName(), project);
