@@ -72,11 +72,11 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
 
 	private String getMirrorProperty(String key) {
 		String value = System.getProperty(key);
-		if (key == null && mavenContext.getSession() != null) {
-			key = mavenContext.getSession().getSystemProperties().getProperty(key);
+		if (value == null && mavenContext.getSession() != null) {
+			value = mavenContext.getSession().getSystemProperties().getProperty(key);
 
-			if (key == null) {
-				key = mavenContext.getSession().getUserProperties().getProperty(key);
+			if (value == null) {
+				value = mavenContext.getSession().getUserProperties().getProperty(key);
 			}
 		}
 		return value;
