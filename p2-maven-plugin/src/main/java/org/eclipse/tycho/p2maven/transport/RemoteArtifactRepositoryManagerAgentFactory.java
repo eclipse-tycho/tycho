@@ -59,7 +59,7 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
 			return Boolean.parseBoolean(deprecatedValue);
 		}
 
-		String key = "eclipse.p2.mirrors ";
+		String key = "eclipse.p2.mirrors";
 		String value = getMirrorProperty(key);
 
 		if (value != null) {
