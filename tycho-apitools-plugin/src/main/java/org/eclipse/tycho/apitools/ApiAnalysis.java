@@ -116,7 +116,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 
 	@Override
 	public ApiAnalysisResult call() throws Exception {
-		ApiAnalysisResult result = new ApiAnalysisResult();
+
 		Platform.addLogListener((status, plugin) -> debug(status.toString()));
 		IJobManager jobManager = Job.getJobManager();
 		jobManager.addJobChangeListener(new IJobChangeListener() {
@@ -161,6 +161,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		BundleComponent projectComponent = getApiComponent(project, projectPath);
 		IApiBaseline baseline = createBaseline(baselineBundles, baselineName + " - baseline");
 		ResolverError[] resolverErrors = projectComponent.getErrors();
+		ApiAnalysisResult result = new ApiAnalysisResult(getVersion());
 		if (resolverErrors != null && resolverErrors.length > 0) {
 			for (ResolverError error : resolverErrors) {
 				result.addResolverError(error);
@@ -185,6 +186,14 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		JRTUtil.reset(); // reclaim space due to loaded multiple JRTUtil should better be fixed to not
 							// use that much space
 		return result;
+	}
+
+	private String getVersion() {
+		Bundle apiToolsBundle = FrameworkUtil.getBundle(ApiModelFactory.class);
+		if (apiToolsBundle != null) {
+			return apiToolsBundle.getVersion().toString();
+		}
+		return "n/a";
 	}
 
 	private void disableJVMDiscovery() {
@@ -424,10 +433,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 	}
 
 	private void printVersion() {
-		Bundle apiToolsBundle = FrameworkUtil.getBundle(ApiModelFactory.class);
-		if (apiToolsBundle != null) {
-			debug("API Tools version: " + apiToolsBundle.getVersion());
-		}
+		debug("API Tools version: " + getVersion());
 	}
 
 	private IApiBaseline createBaseline(Collection<String> bundles, String name) throws CoreException {
