@@ -25,6 +25,11 @@ public class ApiAnalysisResult implements Serializable {
 
 	private List<IApiProblem> problems = new ArrayList<>();
 	private List<ResolverError> resolveError = new ArrayList<>();
+	private String version;
+
+	public ApiAnalysisResult(String version) {
+		this.version = version;
+	}
 
 	public Stream<IApiProblem> problems() {
 		return problems.stream();
@@ -40,5 +45,9 @@ public class ApiAnalysisResult implements Serializable {
 
 	public void addResolverError(ResolverError error) {
 		resolveError.add(new ResolverErrorDTO(error));
+	}
+
+	public String getApiToolsVersion() {
+		return version;
 	}
 }
