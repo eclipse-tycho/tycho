@@ -28,6 +28,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
+import org.eclipse.tycho.p2maven.actions.AbstractDependenciesAction;
 
 public class ProductDependenciesAction extends AbstractDependenciesAction {
     private final IProductDescriptor product;
@@ -53,7 +54,7 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
         ProductContentType type = product.getProductContentType();
         if (type == ProductContentType.FEATURES || type == ProductContentType.MIXED) {
             for (IVersionedId feature : product.getFeatures()) {
-                String id = feature.getId() + FEATURE_GROUP_IU_SUFFIX; //$NON-NLS-1$
+                String id = feature.getId() + FEATURE_GROUP_IU_SUFFIX;
                 Version version = feature.getVersion();
 
                 addRequiredCapability(required, id, version, null, false);

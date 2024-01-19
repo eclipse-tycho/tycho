@@ -75,7 +75,6 @@ import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 import org.eclipse.tycho.p2.publisher.AbstractMetadataGenerator;
 import org.eclipse.tycho.p2.publisher.AuthoredIUAction;
 import org.eclipse.tycho.p2.publisher.BundleDependenciesAction;
-import org.eclipse.tycho.p2.publisher.CategoryDependenciesAction;
 import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.publisher.DownloadStatsAdvice;
 import org.eclipse.tycho.p2.publisher.FeatureDependenciesAction;
@@ -85,6 +84,7 @@ import org.eclipse.tycho.p2.publisher.TransientArtifactRepository;
 import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.repository.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.MetadataIO;
+import org.eclipse.tycho.p2maven.actions.CategoryDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductFile2;
 import org.osgi.framework.BundleException;
 
