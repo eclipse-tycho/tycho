@@ -57,8 +57,10 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.p2.repository.ListCompositeMetadataRepository;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
+import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,6 +94,26 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
             }, null);
         }
         return result;
+    }
+
+    @Override
+    public IArtifactRepository getCompositeArtifactRepository() {
+        IArtifactRepository repository = super.getCompositeArtifactRepository();
+        if (targetPlatform != null) {
+            return new ListCompositeArtifactRepository(List.of(repository, targetPlatform.getArtifactRepository()),
+                    agent);
+        }
+        return repository;
+    }
+
+    @Override
+    public IMetadataRepository getCompositeMetadataRepository() {
+        IMetadataRepository repository = super.getCompositeMetadataRepository();
+        if (targetPlatform != null) {
+            return new ListCompositeMetadataRepository(List.of(repository, targetPlatform.getMetadataRepository()),
+                    agent);
+        }
+        return repository;
     }
 
     @Override
