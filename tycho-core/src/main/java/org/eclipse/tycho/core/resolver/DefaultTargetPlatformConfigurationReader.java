@@ -167,8 +167,6 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         if (result.getEnvironments().isEmpty()) {
-            // applying defaults
-            logger.warn("No explicit target runtime environment configuration. Build is platform dependent.");
             result.addEnvironment(TargetEnvironment.getRunningEnvironment());
             result.setImplicitTargetEnvironment(true);
         } else {
