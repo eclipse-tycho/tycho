@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -76,7 +77,8 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 				"/p2Repository.repositoryRef.filter.providing", c -> {
 				});
 
-		assertEquals(4, allRepositoryReferences.size());
+		assertEquals(allRepositoryReferences.stream().map(rr -> rr.uri()).collect(Collectors.joining(", ")), 4,
+				allRepositoryReferences.size());
 		assertThat(allRepositoryReferences, containsInAnyOrder( //
 				new RepositoryReference("https://download.eclipse.org/eclipse/updates/4.29", TYPE_ARTIFACT, ENABLED),
 				new RepositoryReference("https://download.eclipse.org/eclipse/updates/4.29", TYPE_METADATA, ENABLED),
