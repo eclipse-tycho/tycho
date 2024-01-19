@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -44,7 +45,6 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.IRequirementChange;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
-import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.util.NLS;
@@ -210,19 +210,14 @@ public class Slicer {
         if (req.getMax() == 0) {
             return;
         }
-        IQueryResult<IInstallableUnit> matches = possibilites.query(QueryUtil.createMatchQuery(req.getMatches()), null);
-        int validMatches = 0;
-        for (IInstallableUnit match : matches) {
-            if (!isApplicable(match)) {
-                continue;
-            }
-            validMatches++;
+        List<IInstallableUnit> selected = selectIUsForRequirement(possibilites, req).toList();
+        for (IInstallableUnit match : selected) {
             Map<Version, IInstallableUnit> iuSlice = slice.get(match.getId());
             if ((iuSlice == null || !iuSlice.containsKey(match.getVersion())) && considered.add(match)) {
                 toProcess.add(match);
             }
         }
-        if (validMatches == 0) {
+        if (selected.isEmpty()) {
             if (req.getMin() == 0) {
                 if (DEBUG) {
                     System.out.println("No IU found to satisfy optional dependency of " + iu + " on req " + req); //$NON-NLS-1$//$NON-NLS-2$
@@ -231,6 +226,11 @@ public class Slicer {
                 result.add(Status.warning(NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
             }
         }
+    }
+
+    protected Stream<IInstallableUnit> selectIUsForRequirement(IQueryable<IInstallableUnit> queryable,
+            IRequirement req) {
+        return queryable.query(QueryUtil.createMatchQuery(req.getMatches()), null).stream().filter(this::isApplicable);
     }
 
     Set<IInstallableUnit> getNonGreedyIUs() {

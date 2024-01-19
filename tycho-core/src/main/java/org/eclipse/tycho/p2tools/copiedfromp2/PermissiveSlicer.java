@@ -15,7 +15,6 @@ package org.eclipse.tycho.p2tools.copiedfromp2;
 
 import java.util.Map;
 
-import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
