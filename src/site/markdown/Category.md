@@ -32,8 +32,10 @@ The following is an example, demonstrating a complex category definition.
  
    <!-- Directly include bundles, without a feature -->
    <bundle id="bundle.id" version="1.3.1.v2023"/>
+   
    <!-- Directly include any iu -->
    <iu id="unit.id"/>
+   
    <!-- Include all IUs matching an expression -->
    <iu>
      <query> 
@@ -58,7 +60,11 @@ The following is an example, demonstrating a complex category definition.
    <category-def name="javax" label="Bundles starting with javax."/>
    <iu>
       <category name="javax"/>
-      <query><expression type="match">id ~= /javax.*/</expression></query>
+      <query>
+      	<expression type="match">id ~= /javax.*/</expression>
+      </query>
    </iu>
 </site>
 ```
+
+You can read more about P2 Query Syntax [here](https://wiki.eclipse.org/Equinox/p2/Query_Language_for_p2).

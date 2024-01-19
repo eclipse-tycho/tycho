@@ -354,7 +354,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         @Override
         public void log(IArtifactDescriptor descriptor, IStatus status) {
             if (!status.isOK()) {
-                logger.debug(MIRROR_TOOL_MESSAGE_PREFIX + StatusTool.collectProblems(status));
+                logger.debug(MIRROR_TOOL_MESSAGE_PREFIX + StatusTool.toLogMessage(status));
                 hasLogged = true;
             }
         }
@@ -362,7 +362,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         @Override
         public void log(IStatus status) {
             if (!status.isOK()) {
-                logger.warn(MIRROR_TOOL_MESSAGE_PREFIX + StatusTool.collectProblems(status));
+                logger.warn(MIRROR_TOOL_MESSAGE_PREFIX + StatusTool.toLogMessage(status));
                 hasLogged = true;
             }
         }

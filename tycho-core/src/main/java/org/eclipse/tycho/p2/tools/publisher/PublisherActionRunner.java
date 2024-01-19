@@ -96,10 +96,9 @@ public class PublisherActionRunner {
 
     private void handlePublisherStatus(IStatus result) {
         if (result.matches(IStatus.INFO)) {
-            logger.info(StatusTool.collectProblems(result));
+            logger.info(StatusTool.toLogMessage(result));
         } else if (result.matches(IStatus.WARNING)) {
-            logger.warn(StatusTool.collectProblems(result));
-
+            logger.warn(StatusTool.toLogMessage(result));
         } else if (!result.isOK()) {
             Throwable directlyIncludedException = result.getException();
             throw directlyIncludedException instanceof RuntimeException runtimeEx //
