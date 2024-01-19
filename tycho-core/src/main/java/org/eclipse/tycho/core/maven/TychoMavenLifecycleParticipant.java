@@ -120,6 +120,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 + session.getUserProperties().getProperty(TychoConstants.SESSION_PROPERTY_TYCHO_MODE, "project"));
         log.info("Tycho Builder:  "
                 + session.getUserProperties().getProperty(TychoConstants.SESSION_PROPERTY_TYCHO_BUILDER, "maven"));
+        log.info("Build Threads:  " + session.getRequest().getDegreeOfConcurrency());
         if (disableLifecycleParticipation(session)) {
             buildListeners.notifyBuildStart(session);
             return;
