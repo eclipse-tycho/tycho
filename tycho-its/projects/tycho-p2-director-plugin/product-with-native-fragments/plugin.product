@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="plugin.product" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="false" autoIncludeRequirements="false">
+
+   <plugins>
+      <plugin id="org.eclipse.swt"/>
+      <plugin id="org.eclipse.swt.gtk.linux.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.swt.win32.win32.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.swt.cocoa.macosx.x86_64" fragment="true"/>
+   </plugins>
+
+
+</product>

@@ -22,14 +22,14 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
-import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.resolver.ResolverException;
+import org.eclipse.tycho.p2tools.copiedfromp2.PermissiveSlicer;
+import org.eclipse.tycho.p2tools.copiedfromp2.Slicer;
 
 public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
