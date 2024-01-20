@@ -61,7 +61,7 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
         }
         if (type == ProductContentType.BUNDLES || type == ProductContentType.MIXED) {
             for (FeatureEntry plugin : ((ProductFile) product).getProductEntries()) {
-                addRequiredCapability(required, plugin.getId(), Version.parseVersion(plugin.getVersion()), null, true);
+				addRequiredCapability(required, plugin.getId(), Version.parseVersion(plugin.getVersion()), null, false);
             }
         }
 

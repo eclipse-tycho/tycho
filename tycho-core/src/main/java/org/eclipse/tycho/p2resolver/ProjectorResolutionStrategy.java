@@ -21,23 +21,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.Explanation;
-import org.eclipse.equinox.internal.p2.director.Projector;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
-import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.resolver.ResolverException;
+import org.eclipse.tycho.p2tools.copiedfromp2.Projector;
+import org.eclipse.tycho.p2tools.copiedfromp2.Slicer;
 
 public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
@@ -79,9 +81,32 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         // force profile UIs to be used during resolution
         seedUnits.addAll(data.getEEResolutionHints().getMandatoryUnits());
         seedRequires.addAll(data.getEEResolutionHints().getMandatoryRequires());
-
         Projector projector = new Projector(slice(properties, generatedUnits, monitor), selectionContext,
-                new HashSet<>(), false);
+                new HashSet<>(), false) {
+            IQueryable<IInstallableUnit> units;
+
+            @Override
+            protected Collection<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
+                Collection<IRequirement> requiredCapabilities = super.getRequiredCapabilities(iu);
+                if (QueryUtil.isProduct(iu)) {
+                    if (units == null) {
+                        units = data.units();
+                    }
+                    return requiredCapabilities.stream().filter(requirement -> {
+                        IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(requirement.getMatches());
+                        IQueryResult<IInstallableUnit> result = units.query(query, null);
+                        if (result.isEmpty()) {
+                            //this must fail the resolve so we need to include the requirement
+                            return true;
+                        }
+                        //If none of the results are applicable this means they are filtered and need not to be considered
+                        //this happens in plugin based products that include native fragments from different platforms
+                        return result.stream().anyMatch(matchIu -> isApplicable(matchIu));
+                    }).toList();
+                }
+                return requiredCapabilities;
+            }
+        };
         projector.encode(createUnitRequiring("tycho", seedUnits, seedRequires),
                 EMPTY_IU_ARRAY /* alreadyExistingRoots */,
                 new QueryableArray(List.of()) /* installedIUs */, seedUnits /* newRoots */, monitor);

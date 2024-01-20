@@ -79,12 +79,12 @@ import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.publisher.DownloadStatsAdvice;
 import org.eclipse.tycho.p2.publisher.FeatureDependenciesAction;
 import org.eclipse.tycho.p2.publisher.P2Artifact;
-import org.eclipse.tycho.p2.publisher.ProductDependenciesAction;
 import org.eclipse.tycho.p2.publisher.TransientArtifactRepository;
 import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.repository.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.MetadataIO;
 import org.eclipse.tycho.p2maven.actions.CategoryDependenciesAction;
+import org.eclipse.tycho.p2maven.actions.ProductDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductFile2;
 import org.osgi.framework.BundleException;
 
