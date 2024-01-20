@@ -120,7 +120,7 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
                                     + " with context " + resolverException.getSelectionContext()
                                     + System.lineSeparator() + resolverException.explanations()
                                             .map(exp -> "  " + exp.toString()).collect(Collectors.joining("\n")),
-                            null, mavenProject);
+                            null, mavenProject, resolverException);
                 }
             }
             TychoProject tychoProject = projectManager.getTychoProject(mavenProject).orElse(null);
