@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="plugin.product" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="false" autoIncludeRequirements="false">
+   <plugins>
+      <plugin id="org.osgi.service.jaxrs"/>
+   </plugins>
+</product>

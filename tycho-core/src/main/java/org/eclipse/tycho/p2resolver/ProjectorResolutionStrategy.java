@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -31,13 +30,13 @@ import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.director.Projector;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
-import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.resolver.ResolverException;
+import org.eclipse.tycho.p2tools.copiedfromp2.Slicer;
 
 public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrategy {
 

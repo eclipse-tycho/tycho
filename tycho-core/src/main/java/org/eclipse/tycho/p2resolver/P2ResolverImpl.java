@@ -35,7 +35,6 @@ import java.util.function.Consumer;
 import org.apache.felix.resolver.util.CopyOnWriteSet;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
-import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -76,6 +75,7 @@ import org.eclipse.tycho.p2.publisher.AuthoredIUAction;
 import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
+import org.eclipse.tycho.p2tools.copiedfromp2.Slicer;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
 public class P2ResolverImpl implements P2Resolver {

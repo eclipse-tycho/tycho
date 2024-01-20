@@ -28,7 +28,6 @@ import java.util.UUID;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
-import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.RequiredPropertiesMatch;
@@ -48,6 +47,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.resolver.ResolverException;
+import org.eclipse.tycho.p2tools.copiedfromp2.Slicer;
 
 abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrategy {
 
