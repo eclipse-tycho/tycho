@@ -53,7 +53,6 @@ import org.eclipse.equinox.p2.internal.repository.mirroring.IArtifactMirrorLog;
 import org.eclipse.equinox.p2.internal.repository.mirroring.Mirroring;
 import org.eclipse.equinox.p2.internal.repository.tools.Activator;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
-import org.eclipse.equinox.p2.internal.repository.tools.RecreateRepositoryApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.internal.repository.tools.XZCompressor;
@@ -82,6 +81,7 @@ import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.IUDescription;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
+import org.eclipse.tycho.p2tools.copiedfromp2.RecreateRepositoryApplication;
 
 @Component(role = MirrorApplicationService.class)
 public class MirrorApplicationServiceImpl implements MirrorApplicationService {
@@ -239,10 +239,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             artifactsXz.delete();
         }
         descriptor.setLocation(location.toURI());
-        //TODO this is to trigger loading of the osgi services and we can not pass the agent directly see 
-        // https://github.com/eclipse-equinox/p2/issues/151
-        agent.getService(IArtifactRepositoryManager.class);
-        RecreateRepositoryApplication application = new RecreateRepositoryApplication();
+        RecreateRepositoryApplication application = new RecreateRepositoryApplication(agent);
         application.setArtifactRepository(descriptor.getRepoLocation());
         try {
             application.run(new NullProgressMonitor());

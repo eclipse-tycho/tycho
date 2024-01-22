@@ -205,24 +205,28 @@ public class Slicer {
         return aggregatedRequirements;
     }
 
+    private Set<IRequirement> consideredRequirements = new HashSet<>();
+
     private void expandRequirement(IInstallableUnit iu, IRequirement req) {
         if (req.getMax() == 0) {
             return;
         }
-        List<IInstallableUnit> selected = selectIUsForRequirement(possibilites, req).toList();
-        for (IInstallableUnit match : selected) {
-            Map<Version, IInstallableUnit> iuSlice = slice.get(match.getId());
-            if ((iuSlice == null || !iuSlice.containsKey(match.getVersion())) && considered.add(match)) {
-                toProcess.add(match);
-            }
-        }
-        if (selected.isEmpty()) {
-            if (req.getMin() == 0) {
-                if (DEBUG) {
-                    System.out.println("No IU found to satisfy optional dependency of " + iu + " on req " + req); //$NON-NLS-1$//$NON-NLS-2$
+        if (consideredRequirements.add(req)) {
+            List<IInstallableUnit> selected = selectIUsForRequirement(possibilites, req).toList();
+            for (IInstallableUnit match : selected) {
+                Map<Version, IInstallableUnit> iuSlice = slice.get(match.getId());
+                if ((iuSlice == null || !iuSlice.containsKey(match.getVersion())) && considered.add(match)) {
+                    toProcess.add(match);
                 }
-            } else {
-                result.add(Status.warning(NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
+            }
+            if (selected.isEmpty()) {
+                if (req.getMin() == 0) {
+                    if (DEBUG) {
+                        System.out.println("No IU found to satisfy optional dependency of " + iu + " on req " + req); //$NON-NLS-1$//$NON-NLS-2$
+                    }
+                } else {
+                    result.add(Status.warning(NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
+                }
             }
         }
     }
