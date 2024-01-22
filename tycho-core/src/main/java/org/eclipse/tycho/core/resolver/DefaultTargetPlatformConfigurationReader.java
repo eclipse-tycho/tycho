@@ -331,10 +331,10 @@ public class DefaultTargetPlatformConfigurationReader {
 
     /**
      * Take the constraints of the configured execution environment into account when resolving
-     * dependencies or target definitions. These constraints include the list of system packages and the
-     * <tt>Bundle-RequiredExecutionEnvironment</tt> header. When set to <code>true</code>, the
-     * dependency resolution verifies that the bundle and all required bundles can be used in an OSGi
-     * container with the configured execution environment.
+     * dependencies or target definitions. These constraints include the list of system packages and
+     * the <tt>Bundle-RequiredExecutionEnvironment</tt> header. When set to <code>true</code>, the
+     * dependency resolution verifies that the bundle and all required bundles can be used in an
+     * OSGi container with the configured execution environment.
      */
     private void setResolveWithEEContraints(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
         String value = getStringValue(resolverDom.getChild(RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS));
@@ -462,6 +462,13 @@ public class DefaultTargetPlatformConfigurationReader {
                 }
             }
         }
+        Xpp3Dom[] locationsArray = targetDom.getChildren("location");
+        if (locationsArray != null && locationsArray.length > 0) {
+            for (Xpp3Dom locationDom : locationsArray) {
+                result.addTargetLocation(locationDom);
+            }
+        }
+
     }
 
     protected void addTargetArtifact(TargetPlatformConfiguration result, MavenSession session, MavenProject project,
@@ -592,9 +599,9 @@ public class DefaultTargetPlatformConfigurationReader {
      * 
      * @param project
      * @param targetFile
-     *                             the target file to check
+     *            the target file to check
      * @param otherTargetFiles
-     *                             other target files to take into account
+     *            other target files to take into account
      * @return <code>true</code> if the target file is the primary artifact, <code>false</code>
      *         otherwise
      */

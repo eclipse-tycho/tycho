@@ -21,14 +21,17 @@
 package org.eclipse.tycho.targetplatform;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -65,7 +68,8 @@ import aQute.bnd.osgi.resource.CapReqBuilder;
 
 public final class TargetDefinitionFile implements TargetDefinition {
 
-    private static final Map<URI, TargetDefinitionFile> FILE_CACHE = new ConcurrentHashMap<>();
+	public static final String ELEMENT_LOCATIONS = "locations";
+	private static final Map<URI, TargetDefinitionFile> FILE_CACHE = new ConcurrentHashMap<>();
     //just for information purpose
     private final String origin;
 
@@ -75,6 +79,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     private String targetEE;
 	public static final String FILE_EXTENSION = ".target";
+	public static final String APPLICATION_TARGET = "application/target";
 
     private abstract static class AbstractPathLocation implements TargetDefinition.PathLocation {
         private String path;
@@ -554,8 +559,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
         try {
 			return FILE_CACHE.computeIfAbsent(uri.normalize(), key -> {
                 try {
-                    try (InputStream input = uri.toURL().openStream()) {
-                        return parse(parseDocument(input), uri.toASCIIString());
+					try (InputStream input = openTargetStream(uri)) {
+						return parse(parseDocument(input), getOrigin(uri));
                     } catch (ParserConfigurationException e) {
                         throw new TargetDefinitionSyntaxException("No valid XML parser: " + e.getMessage(), e);
                     } catch (SAXException e) {
@@ -572,6 +577,31 @@ public final class TargetDefinitionFile implements TargetDefinition {
             throw new RuntimeException("Invalid syntax in target definition " + uri + ": " + e.getMessage(), e);
         }
     }
+
+	private static String getOrigin(URI uri) {
+		if (isDataUrl(uri)) {
+			return "<embedded>";
+		}
+		return uri.toASCIIString();
+	}
+
+	private static InputStream openTargetStream(URI uri) throws IOException, MalformedURLException {
+		if (isDataUrl(uri)) {
+			String rawPath = uri.toASCIIString();
+			int indexOf = rawPath.indexOf(',');
+			if (indexOf > -1) {
+				String data = rawPath.substring(indexOf + 1);
+				return new ByteArrayInputStream(Base64.getDecoder().decode(data));
+			} else {
+				throw new MalformedURLException("invalid data url!");
+			}
+		}
+		return uri.toURL().openStream();
+	}
+
+	private static boolean isDataUrl(URI uri) {
+		return "data".equals(uri.getScheme());
+	}
 
     public static TargetDefinitionFile parse(Document document, String origin) {
         return new TargetDefinitionFile(document, origin);
@@ -618,7 +648,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 	
 	private static List<? extends TargetDefinition.Location> parseLocations(Element dom) {
         ArrayList<TargetDefinition.Location> locations = new ArrayList<>();
-        Element locationsDom = getChild(dom, "locations");
+		Element locationsDom = getChild(dom, ELEMENT_LOCATIONS);
         if (locationsDom != null) {
             for (Element locationDom : getChildren(locationsDom, "location")) {
                 String type = locationDom.getAttribute("type");

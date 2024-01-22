@@ -17,7 +17,9 @@ package org.eclipse.tycho.core;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.OptionalResolutionAction;
@@ -121,6 +124,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private ReferencedRepositoryMode referencedRepositoryMode = ReferencedRepositoryMode.include;
 
+    private List<Xpp3Dom> xmlFragments = new ArrayList<>();
+
     /**
      * Returns the list of configured target environments, or the running environment if no
      * environments have been specified explicitly.
@@ -140,6 +145,18 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
             Supplier<File> supplier = iterator.next();
             targets.add(supplier.get().toURI());
             iterator.remove();
+        }
+        if (!xmlFragments.isEmpty()) {
+            Xpp3Dom target = new Xpp3Dom("target");
+            Xpp3Dom locations = new Xpp3Dom(TargetDefinitionFile.ELEMENT_LOCATIONS);
+            target.addChild(locations);
+            for (Xpp3Dom location : xmlFragments) {
+                locations.addChild(new Xpp3Dom(location));
+            }
+            String collect = target.toString();
+            targets.add(URI.create("data:" + TargetDefinitionFile.APPLICATION_TARGET + ";base64,"
+                    + Base64.getEncoder().encodeToString(collect.getBytes(StandardCharsets.UTF_8))));
+            xmlFragments.clear();
         }
         return targets.stream().map(TargetDefinitionFile::read).toList();
     }
@@ -317,6 +334,10 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void setReferencedRepositoryMode(ReferencedRepositoryMode referencedRepositoryMode) {
         this.referencedRepositoryMode = referencedRepositoryMode;
+    }
+
+    public void addTargetLocation(Xpp3Dom locationDom) {
+        xmlFragments.add(locationDom);
     }
 
 }
