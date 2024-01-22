@@ -69,7 +69,7 @@ public class PublisherServiceTest extends TychoPlexusTestCase {
 
         LinkedHashSet<IInstallableUnit> installableUnits = new LinkedHashSet<>();
         installableUnits.add(InstallableUnitUtil.createFeatureIU("org.eclipse.example.original_feature", "1.0.0"));
-        IMetadataRepository context = new ImmutableInMemoryMetadataRepository(installableUnits);
+        IMetadataRepository context = new ImmutableInMemoryMetadataRepository(installableUnits, true);
 
         // TODO these publishers don't produce artifacts, so we could run without file system
         outputRepository = new PublishingRepositoryImpl(lookup(IProvisioningAgent.class),

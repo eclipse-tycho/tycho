@@ -35,7 +35,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.director.Messages;
-import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnitPatch;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -105,11 +104,11 @@ public class Slicer {
         if (result.getSeverity() == IStatus.ERROR) {
             return null;
         }
-        return new QueryableArray(considered);
+        return new QueryableArray(considered, false);
     }
 
     private void computeNonGreedyIUs() {
-        IQueryable<IInstallableUnit> queryable = new QueryableArray(considered);
+        IQueryable<IInstallableUnit> queryable = new QueryableArray(considered, false);
         for (IInstallableUnit iu : queryable.query(QueryUtil.ALL_UNITS, new NullProgressMonitor())) {
             iu = iu.unresolved();
             Collection<IRequirement> reqs = getRequirements(iu);
