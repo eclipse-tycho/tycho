@@ -37,9 +37,11 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.CommandLineArguments;
 import org.eclipse.tycho.p2.resolver.BundlePublisher;
+import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 import org.eclipse.tycho.p2tools.TychoDirectorApplication;
 
 /**
@@ -349,7 +351,8 @@ public class DirectorMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         CommandLineArguments args = new CommandLineArguments();
-        args.addNonNull("-destination", destination);
+        args.addNonNull("-destination",
+                DirectorRuntime.getDestination(destination, TargetEnvironment.getRunningEnvironment()));
         args.addNonNull("-metadatarepository", metadatarepositories);
         args.addNonNull("-artifactrepository", artifactrepositories);
         args.addNonNull("-repository", getRepositories());

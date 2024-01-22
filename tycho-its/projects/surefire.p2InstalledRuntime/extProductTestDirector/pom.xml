@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ Copyright (c) 2013 Red Hat Inc. and others.
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License v1.0
+ which accompanies this distribution, and is available at
+ https://www.eclipse.org/legal/epl-v10.html
+
+ Contributors:
+      Mickael Istria (Red Hat JBoss) - sample product and surefire-config for 386988
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>tycho-its-project.surefire.p2InstalledRuntime</groupId>
+		<artifactId>provisionedApplicationParent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<artifactId>spir.extProductTest</artifactId>
+	<packaging>eclipse-test-plugin</packaging>
+
+	<properties>
+		<!-- Default value, to override to test different OSGi versions -->
+		<other.p2.repo.url>${target-platform}</other.p2.repo.url>
+		<sdkWorkDir>${project.build.directory}/sdk-product</sdkWorkDir>
+		<sdkProfile>SDKProfile</sdkProfile>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>test-repo</id>
+			<url>${other.p2.repo.url}</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<testRuntime>p2Installed</testRuntime>
+					<product>spir.example-product</product>
+					<work>${sdkWorkDir}</work>
+					<profileName>${sdkProfile}</profileName>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<destination>${sdkWorkDir}</destination>
+					<profile>${sdkProfile}</profile>
+					<installFeatures>true</installFeatures>
+				</configuration>
+				<executions>
+					<execution>
+						<id>install-sdk</id>
+						<goals>
+							<goal>director</goal>
+						</goals>
+						<phase>pre-integration-test</phase>
+						<configuration>
+							<repositories>file:${project.basedir}/../example-product/target/repository</repositories>
+							<install>
+								<iu>
+									<id>spir.example-product</id>
+								</iu>
+							</install>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
