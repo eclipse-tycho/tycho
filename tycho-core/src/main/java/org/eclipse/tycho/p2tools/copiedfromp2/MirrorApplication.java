@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
@@ -211,7 +212,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
     @Override
     public IStatus run(IProgressMonitor monitor) throws ProvisionException {
-        IStatus mirrorStatus = Status.OK_STATUS;
+        AtomicReference<IStatus> mirrorStatus = new AtomicReference<>(Status.OK_STATUS);
+        AtomicReference<ProvisionException> exception = new AtomicReference<>();
         try {
             initializeRepos(new NullProgressMonitor());
             initializeLogs();
@@ -220,20 +222,38 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
             IQueryable<IInstallableUnit> slice = slice(new NullProgressMonitor());
             Set<IInstallableUnit> units = collectUnits(slice, monitor);
             if (destinationArtifactRepository != null) {
-                mirrorStatus = mirrorArtifacts(units, new NullProgressMonitor());
-                if (failOnError && mirrorStatus.getSeverity() == IStatus.ERROR)
-                    return mirrorStatus;
+                destinationArtifactRepository.executeBatch(m -> {
+                    try {
+                        mirrorStatus.set(mirrorArtifacts(units, m));
+                    } catch (ProvisionException e) {
+                        exception.set(e);
+                    }
+                }, new NullProgressMonitor());
+                if (exception.get() != null) {
+                    throw exception.get();
+                }
+                if (failOnError && mirrorStatus.get().getSeverity() == IStatus.ERROR)
+                    return mirrorStatus.get();
             }
             if (destinationMetadataRepository != null) {
-                mirrorMetadata(units, new NullProgressMonitor());
+                destinationMetadataRepository.executeBatch(m -> {
+                    try {
+                        mirrorMetadata(units, m);
+                    } catch (ProvisionException e) {
+                        exception.set(e);
+                    }
+                }, new NullProgressMonitor());
+                if (exception.get() != null) {
+                    throw exception.get();
+                }
             }
         } finally {
             finalizeRepositories();
             finalizeLogs();
         }
-        if (mirrorStatus.isOK())
+        if (mirrorStatus.get().isOK())
             return Status.OK_STATUS;
-        return mirrorStatus;
+        return mirrorStatus.get();
     }
 
     private IStatus mirrorArtifacts(Collection<IInstallableUnit> slice, IProgressMonitor monitor)

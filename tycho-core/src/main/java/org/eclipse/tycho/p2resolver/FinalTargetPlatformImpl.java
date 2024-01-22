@@ -30,6 +30,7 @@ import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     private IArtifactRepository artifactRepository;
+    private IMetadataRepository metadataRepository;
 
     public FinalTargetPlatformImpl(LinkedHashSet<IInstallableUnit> installableUnits,
             ExecutionEnvironmentResolutionHints executionEnvironment, IRawArtifactFileProvider jointArtifacts,
@@ -39,6 +40,7 @@ public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
         super(installableUnits, executionEnvironment, jointArtifacts, localArtifactRepository, reactorProjectLookup,
                 mavenArtifactLookup, shadowed);
         this.artifactRepository = artifactRepository;
+        this.metadataRepository = new ImmutableInMemoryMetadataRepository(installableUnits, false);
     }
 
     @Override
@@ -48,7 +50,7 @@ public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     @Override
     public IMetadataRepository getMetadataRepository() {
-        return new ImmutableInMemoryMetadataRepository(installableUnits);
+        return metadataRepository;
     }
 
     @Override

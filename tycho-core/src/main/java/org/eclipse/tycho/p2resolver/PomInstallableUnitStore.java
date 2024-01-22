@@ -31,7 +31,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
@@ -49,6 +48,7 @@ import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.resolver.WrappedArtifact;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
+import org.eclipse.tycho.p2tools.copiedfromp2.QueryableArray;
 
 class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
 
@@ -200,7 +200,7 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
                     }
                 });
             }
-            collection = new QueryableArray(installableUnitLookUp.keySet());
+            collection = new QueryableArray(installableUnitLookUp.keySet(), false);
         }
         return collection;
     }

@@ -27,11 +27,11 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.processors.checksum.ChecksumUtilities;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
@@ -63,7 +63,10 @@ public class RecreateRepositoryApplication extends AbstractApplication {
         try {
             IArtifactRepository repository = initialize(monitor);
             removeRepository(repository, monitor);
-            recreateRepository(monitor);
+            MultiStatus status = recreateRepository(monitor);
+            if (status.isOK()) {
+                return status;
+            }
         } finally {
             if (removeArtifactRepo) {
                 IArtifactRepositoryManager repositoryManager = getArtifactRepositoryManager();
@@ -115,7 +118,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
             throw new ProvisionException(NLS.bind(Messages.exception_unableToRemoveRepo, realFile.toString()));
     }
 
-    private void recreateRepository(IProgressMonitor monitor) throws ProvisionException {
+    private MultiStatus recreateRepository(IProgressMonitor monitor) throws ProvisionException {
         IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 
         IArtifactRepository repository = manager.createRepository(repoLocation, repoName,
@@ -124,33 +127,36 @@ public class RecreateRepositoryApplication extends AbstractApplication {
             throw new ProvisionException(NLS.bind(Messages.exception_notLocalFileRepo, repository.getLocation()));
 
         IFileArtifactRepository simple = (IFileArtifactRepository) repository;
-        for (IArtifactKey key : repoMap.keySet()) {
-            IArtifactDescriptor[] descriptors = repoMap.get(key);
+        MultiStatus multiStatus = new MultiStatus(getClass(), 0, "Problem while recreate repository");
+        repository.executeBatch(m -> {
+            for (IArtifactKey key : repoMap.keySet()) {
+                IArtifactDescriptor[] descriptors = repoMap.get(key);
 
-            Set<File> files = new HashSet<>();
-            for (IArtifactDescriptor descriptor : descriptors) {
-                File artifactFile = simple.getArtifactFile(descriptor);
-                files.add(artifactFile);
+                Set<File> files = new HashSet<>();
+                for (IArtifactDescriptor descriptor : descriptors) {
+                    File artifactFile = simple.getArtifactFile(descriptor);
+                    files.add(artifactFile);
 
-                String size = Long.toString(artifactFile.length());
+                    String size = Long.toString(artifactFile.length());
 
-                ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
-                newDescriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, size);
-                newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, size);
+                    ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
+                    newDescriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, size);
+                    newDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, size);
 
-                Map<String, String> checksums = new HashMap<>();
-                List<String> checksumsToSkip = Collections.emptyList();
-                IStatus status = ChecksumUtilities.calculateChecksums(artifactFile, checksums, checksumsToSkip);
-                if (!status.isOK())
-                    // TODO handle errors in some way
-                    LogHelper.log(status);
+                    Map<String, String> checksums = new HashMap<>();
+                    List<String> checksumsToSkip = Collections.emptyList();
+                    IStatus status = ChecksumUtilities.calculateChecksums(artifactFile, checksums, checksumsToSkip);
+                    if (!status.isOK()) {
+                        multiStatus.add(status);
+                    }
+                    Map<String, String> checksumsToProperties = ChecksumUtilities
+                            .checksumsToProperties(IArtifactDescriptor.DOWNLOAD_CHECKSUM, checksums);
+                    newDescriptor.addProperties(checksumsToProperties);
 
-                Map<String, String> checksumsToProperties = ChecksumUtilities
-                        .checksumsToProperties(IArtifactDescriptor.DOWNLOAD_CHECKSUM, checksums);
-                newDescriptor.addProperties(checksumsToProperties);
-
-                repository.addDescriptor(newDescriptor, null);
+                    repository.addDescriptor(newDescriptor, null);
+                }
             }
-        }
+        }, monitor);
+        return multiStatus;
     }
 }
