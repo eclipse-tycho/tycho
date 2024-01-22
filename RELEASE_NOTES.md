@@ -6,6 +6,40 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+### support for embedded target locations
+
+You can already define target definition files in various ways, e.g. as maven artifact or file reference, 
+now it is also possible to define them as an embedded part of the target platform configuration, 
+all locations are handled as if they are part of a single target file:
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>target-platform-configuration</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<target>
+			<!-- one or more location elements like in a target file -->
+			<location includeDependencyDepth="infinite" includeDependencyScopes="compile" includeSource="true" missingManifest="generate" type="Maven">
+				<dependencies>
+					<dependency>
+						...
+					</dependency>
+				</dependencies>
+			</location>
+		    <location includeAllPlatforms="true" includeMode="slicer" type="InstallableUnit">
+		      <unit id="org.eclipse.license.feature.group" version="2.0.2.v20181016-2210"/>
+		      ...
+		      <repository location="https://download.eclipse.org/cbi/updates/license/2.0.2.v20181016-2210"/>
+		    </location>
+		    ...
+		</target>
+	</configuration>
+</plugin>
+```
+
+this is especially useful if you need some content only for the build but not in the IDE.
+
 ### using javac as the compiler for Tycho
 
 You can now use `javac` as the compiler backend for Tycho by adding the following configuration:
@@ -19,7 +53,7 @@ You can now use `javac` as the compiler backend for Tycho by adding the followin
 		<compilerId>javac</compilerId>
 	</configuration>
 </plugin>
- ```
+```
 
 
 ### new `mirror-target-platform`
@@ -39,7 +73,7 @@ There is a new `mirror-target-platform` that allows to mirror the current target
 	  </execution>
   </executions>
 </plugin>
- ```
+```
 
 the most usual use-case for this is to transform an existing target-file into a standalone repository.
 
@@ -68,7 +102,7 @@ This mojo can be used in two ways:
        </execution>
     </executions>
  </plugin>
- ```
+```
 
 
 ### new `tycho-eclipse-plugin`
