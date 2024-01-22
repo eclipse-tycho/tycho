@@ -6,6 +6,7 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### backports:
 
+- support for embedded target locations
 - using javac as the compiler for Tycho
 - new `mirror-target-platform` mojo
 - new director mojo
