@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -31,6 +30,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.publisher.FeatureDependenciesAction;
+import org.eclipse.tycho.p2tools.copiedfromp2.QueryableArray;
 
 public class DependencyCollector extends AbstractResolutionStrategy {
 
@@ -51,7 +51,7 @@ public class DependencyCollector extends AbstractResolutionStrategy {
 
         result.addAll(data.getRootIUs());
 
-        IQueryable<IInstallableUnit> availableUIsQueryable = new QueryableArray(data.getAvailableIUs());
+        IQueryable<IInstallableUnit> availableUIsQueryable = new QueryableArray(data.getAvailableIUs(), false);
         for (IInstallableUnit iu : data.getRootIUs()) {
             collectIncludedIUs(availableUIsQueryable, result, errors, iu, true, monitor);
         }

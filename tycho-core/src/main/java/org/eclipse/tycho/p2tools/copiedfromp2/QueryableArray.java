@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.internal.p2.metadata.index.CapabilityIndex;
@@ -29,17 +28,21 @@ import org.eclipse.equinox.p2.metadata.KeyWithLocale;
 import org.eclipse.equinox.p2.metadata.index.IIndex;
 
 public class QueryableArray extends IndexProvider<IInstallableUnit> {
-    private final List<IInstallableUnit> dataSet;
+    private final Collection<IInstallableUnit> dataSet;
     private IIndex<IInstallableUnit> capabilityIndex;
     private IIndex<IInstallableUnit> idIndex;
     private TranslationSupport translationSupport;
 
     public QueryableArray(IInstallableUnit[] ius) {
-        dataSet = CollectionUtils.unmodifiableList(ius);
+        this(List.of(ius), false);
     }
 
     public QueryableArray(Collection<IInstallableUnit> ius) {
-        dataSet = List.copyOf(ius);
+        this(ius, true);
+    }
+
+    public QueryableArray(Collection<IInstallableUnit> ius, boolean copy) {
+        dataSet = copy ? List.copyOf(ius) : ius;
     }
 
     @Override
