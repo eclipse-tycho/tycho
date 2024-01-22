@@ -44,7 +44,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -114,6 +113,7 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
 import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
+import org.eclipse.tycho.p2tools.copiedfromp2.QueryableArray;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
@@ -334,7 +334,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                         Collection<ProjectClasspathEntry> entries = eclipseProject.getClasspathEntries();
                         for (ProjectClasspathEntry entry : entries) {
                             if (entry instanceof JUnitClasspathContainerEntry junit) {
-                                IQueryable<IInstallableUnit> queriable = new QueryableArray(externalUIs);
+                                IQueryable<IInstallableUnit> queriable = new QueryableArray(externalUIs, false);
                                 Collection<JUnitBundle> artifacts = junit.getArtifacts();
                                 for (JUnitBundle bundle : artifacts) {
                                     MavenArtifactKey maven = ClasspathReader.toMaven(bundle);
