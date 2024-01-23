@@ -6,6 +6,31 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+### new `repo-to-runnable` mojo
+
+This is a replacement for the [Repo2Runnable ant task](https://wiki.eclipse.org/Equinox/p2/Ant_Tasks#Repo2Runnable), example:
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-p2-repository-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<executions>
+		<execution>
+			<id>repo-to-runnable</id>
+			<goals>
+				<goal>repo-to-runnable</goal>
+			</goals>
+			<phase>pre-integration-test</phase>
+			<configuration>
+				<source>...</source>
+				<destination>...</destination>
+			</configuration>
+		</execution>
+	</executions>
+</plugin>
+```
+
 ### support for embedded target locations
 
 You can already define target definition files in various ways, e.g. as maven artifact or file reference, 
@@ -56,7 +81,7 @@ You can now use `javac` as the compiler backend for Tycho by adding the followin
 ```
 
 
-### new `mirror-target-platform`
+### new `mirror-target-platform` mojo
 
 There is a new `mirror-target-platform` that allows to mirror the current target platform of a project into a P2 update site, this can b enabled for a project like this:
 
