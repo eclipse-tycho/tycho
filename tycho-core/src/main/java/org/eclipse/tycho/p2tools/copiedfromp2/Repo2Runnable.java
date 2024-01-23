@@ -13,7 +13,7 @@
  *     Sonatype, Inc. - ongoing development
  *     Red Hat, Inc. - fragment creation, Bug 460967
  *******************************************************************************/
-package org.eclipse.equinox.p2.internal.repository.tools;
+package org.eclipse.tycho.p2tools.copiedfromp2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,16 +39,15 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.DownloadManager;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
-import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.internal.p2.engine.Phase;
 import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.internal.p2.engine.ProfileWriter;
 import org.eclipse.equinox.internal.p2.engine.ProfileXMLConstants;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
+import org.eclipse.equinox.internal.simpleconfigurator.manipulator.SimpleConfiguratorManipulatorImpl;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IEngine;
@@ -57,7 +56,7 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
+import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -79,6 +78,11 @@ import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorMani
  */
 @SuppressWarnings("nls")
 public class Repo2Runnable extends AbstractApplication implements IApplication {
+
+    public Repo2Runnable(IProvisioningAgent agent) {
+        super(agent);
+    }
+
     private static final String NATIVE_ARTIFACTS = "nativeArtifacts"; //$NON-NLS-1$
     private static final String NATIVE_TYPE = "org.eclipse.equinox.p2.native"; //$NON-NLS-1$
     private static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
@@ -226,8 +230,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
                             }
                         }
                     }
-                    SimpleConfiguratorManipulator simpleManipulator = ServiceHelper
-                            .getService(Activator.getBundleContext(), SimpleConfiguratorManipulator.class);
+                    SimpleConfiguratorManipulator simpleManipulator = new SimpleConfiguratorManipulatorImpl();
                     simpleManipulator.saveConfiguration(bundles.toArray(new BundleInfo[0]), fragmentInfo,
                             parentDir.toURI());
                 } catch (FileNotFoundException e) {
@@ -326,7 +329,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
      * Remove the given profile from the profile registry.
      */
     private void removeProfile(IProfile profile) throws ProvisionException {
-        IProfileRegistry registry = Activator.getProfileRegistry();
+        IProfileRegistry registry = agent.getService(IProfileRegistry.class);
         registry.removeProfile(profile.getProfileId());
     }
 
@@ -339,7 +342,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
                 URIUtil.toFile(destinationArtifactRepository.getLocation()).getAbsolutePath());
         properties.put(IProfile.PROP_INSTALL_FOLDER,
                 URIUtil.toFile(destinationArtifactRepository.getLocation()).getAbsolutePath());
-        IProfileRegistry registry = Activator.getProfileRegistry();
+        IProfileRegistry registry = agent.getService(IProfileRegistry.class);
         return registry.addProfile(System.currentTimeMillis() + "-" + Math.random(), properties); //$NON-NLS-1$
     }
 
