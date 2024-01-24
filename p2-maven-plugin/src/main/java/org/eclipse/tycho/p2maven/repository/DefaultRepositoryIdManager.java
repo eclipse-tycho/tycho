@@ -37,8 +37,9 @@ public class DefaultRepositoryIdManager implements IRepositoryIdManager {
 	private MavenRepositorySettings settings;
 	@Requirement
 	private Logger logger;
-
-    private Map<URI, String> knownMavenRepositoryIds = new ConcurrentHashMap<>();
+	// For some reason maven creates different instances of the component even if
+	// there should only be one...
+	private static final Map<URI, String> knownMavenRepositoryIds = new ConcurrentHashMap<>();
 
     @Override
     public void addMapping(String mavenRepositoryId, URI location) {
