@@ -16,6 +16,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
+import org.eclipse.equinox.p2.engine.IPhaseSet;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.TargetEnvironment;
@@ -53,13 +54,15 @@ public interface DirectorRuntime {
         void execute() throws DirectorCommandException;
 
         void setProfileProperties(Map<String, String> profileProperties);
+
+        void setPhaseSet(IPhaseSet phaseSet);
     }
 
     /**
      * Returns a new {@link Command} instance that can be used to execute a command with this
      * director runtime.
      */
-    public Command newInstallCommand();
+    public Command newInstallCommand(String name);
 
     /**
      * Computes the destination of a director install based on a target environment

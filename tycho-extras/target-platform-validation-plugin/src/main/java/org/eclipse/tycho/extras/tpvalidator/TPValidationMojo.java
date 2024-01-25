@@ -187,7 +187,7 @@ public class TPValidationMojo extends AbstractMojo {
             // create resolver
             this.logger.info("Validating " + targetFile);
             RepositoryReferences ref = new RepositoryReferences();
-            DirectorRuntime.Command directorCommand = director.newInstallCommand();
+            DirectorRuntime.Command directorCommand = director.newInstallCommand(project.getName());
 
             TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile);
             TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();

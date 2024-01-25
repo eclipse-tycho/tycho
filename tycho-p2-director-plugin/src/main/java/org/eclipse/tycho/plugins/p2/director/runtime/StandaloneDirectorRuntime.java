@@ -45,7 +45,7 @@ public class StandaloneDirectorRuntime implements DirectorRuntime {
     }
 
     @Override
-    public Command newInstallCommand() {
+    public Command newInstallCommand(String name) {
         return new AbstractDirectorApplicationCommand() {
 
             @Override

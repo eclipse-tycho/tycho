@@ -20,10 +20,12 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import org.eclipse.equinox.p2.engine.IPhaseSet;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.CommandLineArguments;
+import org.eclipse.tycho.p2tools.copiedfromp2.PhaseSetFactory;
 
 /**
  * Base class for calling a p2 director via command line arguments.
@@ -42,6 +44,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
 
     private File destination;
     private File bundlePool;
+    private IPhaseSet phaseSet;
 
     @Override
     public final void addMetadataSources(Iterable<URI> metadataRepositories) {
@@ -108,6 +111,18 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
     @Override
     public void setProfileProperties(Map<String, String> profileProperties) {
         this.profileProperties = profileProperties == null ? Map.of() : profileProperties;
+    }
+
+    @Override
+    public void setPhaseSet(IPhaseSet phaseSet) {
+        this.phaseSet = phaseSet;
+    }
+
+    public IPhaseSet getPhaseSet() {
+        if (phaseSet == null) {
+            return PhaseSetFactory.createDefaultPhaseSet();
+        }
+        return phaseSet;
     }
 
     /**

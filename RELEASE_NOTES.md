@@ -6,6 +6,25 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+### Support for parallel execution of product assembly / archiving
+
+The mojos `materialize-products` and `archive-products` now support a new `<parallel>` parameter 
+that enables the parallel assembly / packaging of different product variants. 
+
+You can enable this for example like this:
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-p2-director-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<parallel>true</parallel>
+	</configuration>
+</plugin>
+```
+
+
 ### new `repo-to-runnable` mojo
 
 This is a replacement for the [Repo2Runnable ant task](https://wiki.eclipse.org/Equinox/p2/Ant_Tasks#Repo2Runnable), example:
