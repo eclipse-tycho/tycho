@@ -17,6 +17,10 @@ package org.eclipse.tycho.plugins.p2.director;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -115,6 +119,12 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
     @Parameter
     private Map<String, String> formats;
 
+    /**
+     * Controls if products are allowed to be build in parallel
+     */
+    @Parameter
+    private boolean parallel;
+
     @Component
     private MavenProjectHelper helper;
 
@@ -126,14 +136,60 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                     + "Configure the attachId or select a subset of products. Current configuration: "
                     + config.getProducts());
         }
-
-        for (Product product : config.getProducts()) {
-            File bundlePool = getProductBundlePoolDirectory(product);
-            if (bundlePool != null) {
-                materialize(product, null);
-            } else {
-                for (TargetEnvironment env : getEnvironments()) {
-                    materialize(product, env);
+        if (parallel) {
+            ExecutorService executorService = Executors.newWorkStealingPool();
+            ExecutorCompletionService<Void> service = new ExecutorCompletionService<>(executorService);
+            try {
+                int tasks = 0;
+                for (Product product : config.getProducts()) {
+                    File bundlePool = getProductBundlePoolDirectory(product);
+                    if (bundlePool != null) {
+                        service.submit(() -> {
+                            materialize(product, null);
+                            return null;
+                        });
+                        tasks++;
+                    } else {
+                        for (TargetEnvironment env : getEnvironments()) {
+                            service.submit(() -> {
+                                materialize(product, env);
+                                return null;
+                            });
+                            tasks++;
+                        }
+                    }
+                }
+                for (int i = 0; i < tasks; i++) {
+                    try {
+                        service.take().get();
+                    } catch (InterruptedException e) {
+                        return;
+                    } catch (ExecutionException e) {
+                        Throwable cause = e.getCause();
+                        if (cause instanceof RuntimeException rte) {
+                            throw rte;
+                        }
+                        if (cause instanceof MojoFailureException mfe) {
+                            throw mfe;
+                        }
+                        if (cause instanceof MojoExecutionException mee) {
+                            throw mee;
+                        }
+                        throw new MojoFailureException("internal error", e);
+                    }
+                }
+            } finally {
+                executorService.shutdown();
+            }
+        } else {
+            for (Product product : config.getProducts()) {
+                File bundlePool = getProductBundlePoolDirectory(product);
+                if (bundlePool != null) {
+                    materialize(product, null);
+                } else {
+                    for (TargetEnvironment env : getEnvironments()) {
+                        materialize(product, env);
+                    }
                 }
             }
         }

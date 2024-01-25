@@ -15,7 +15,12 @@ package org.eclipse.tycho.plugins.p2.director;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -29,6 +34,7 @@ import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
+import org.eclipse.tycho.p2tools.copiedfromp2.PhaseSetFactory;
 import org.eclipse.tycho.plugins.p2.director.runtime.StandaloneDirectorRuntimeFactory;
 
 /**
@@ -47,6 +53,9 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
     public enum DirectorRuntimeType {
         internal, standalone
     }
+
+    @Component
+    private MojoExecution execution;
 
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
@@ -106,49 +115,100 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
     @Parameter(defaultValue = "internal")
     private DirectorRuntimeType directorRuntime;
 
+    /**
+     * Controls if products are allowed to be build in parallel
+     */
+    @Parameter
+    private boolean parallel;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        synchronized (LOCK) {
-            List<Product> products = getProductConfig().getProducts();
-            if (products.isEmpty()) {
-                getLog().info("No product definitions found, nothing to do");
-            }
-            DirectorRuntime director = getDirectorRuntime();
-            RepositoryReferences sources = getSourceRepositories();
-            for (Product product : products) {
-                for (TargetEnvironment env : getEnvironments()) {
-                    DirectorRuntime.Command command = director.newInstallCommand();
-
-                    File destination = getProductMaterializeDirectory(product, env);
-                    String rootFolder = product.getRootFolder(env.getOs());
-                    if (rootFolder != null && !rootFolder.isEmpty()) {
-                        destination = new File(destination, rootFolder);
+        List<Product> products = getProductConfig().getProducts();
+        if (products.isEmpty()) {
+            getLog().info("No product definitions found, nothing to do");
+            return;
+        }
+        DirectorRuntime director = getDirectorRuntime();
+        RepositoryReferences sources = getSourceRepositories();
+        if (parallel) {
+            ExecutorService executorService = Executors.newWorkStealingPool();
+            ExecutorCompletionService<Void> service = new ExecutorCompletionService<>(executorService);
+            try {
+                int tasks = 0;
+                for (Product product : products) {
+                    for (TargetEnvironment env : getEnvironments()) {
+                        service.submit(() -> {
+                            buildProduct(director, sources, product, env);
+                            return null;
+                        });
+                        tasks++;
                     }
-
-                    command.setBundlePool(getProductBundlePoolDirectory(product));
-                    command.addMetadataSources(sources.getMetadataRepositories());
-                    command.addArtifactSources(sources.getArtifactRepositories());
-                    command.addUnitToInstall(product.getId());
-                    for (DependencySeed seed : product.getAdditionalInstallationSeeds()) {
-                        command.addUnitToInstall(seed);
-                    }
-                    command.setDestination(destination);
-                    command.setProfileName(ProfileName.getNameForEnvironment(env, profileNames, profile));
-                    command.setEnvironment(env);
-                    command.setInstallFeatures(installFeatures);
-                    command.setProfileProperties(profileProperties);
-                    getLog().info("Installing product " + product.getId() + " for environment " + env + " to "
-                            + destination.getAbsolutePath());
-
+                }
+                for (int i = 0; i < tasks; i++) {
                     try {
-                        command.execute();
-                    } catch (DirectorCommandException e) {
-                        throw new MojoFailureException(
-                                "Installation of product " + product.getId() + " for environment " + env + " failed",
-                                e);
+                        service.take().get();
+                    } catch (InterruptedException e) {
+                        return;
+                    } catch (ExecutionException e) {
+                        Throwable cause = e.getCause();
+                        if (cause instanceof RuntimeException rte) {
+                            throw rte;
+                        }
+                        if (cause instanceof MojoFailureException mfe) {
+                            throw mfe;
+                        }
+                        if (cause instanceof MojoExecutionException mee) {
+                            throw mee;
+                        }
+                        throw new MojoFailureException("internal error", e);
+                    }
+                }
+            } finally {
+                executorService.shutdown();
+            }
+        } else {
+            //all one by one...
+            synchronized (LOCK) {
+                for (Product product : products) {
+                    for (TargetEnvironment env : getEnvironments()) {
+                        buildProduct(director, sources, product, env);
                     }
                 }
             }
+        }
+    }
+
+    private void buildProduct(DirectorRuntime director, RepositoryReferences sources, Product product,
+            TargetEnvironment env) throws MojoFailureException {
+        DirectorRuntime.Command command = director
+                .newInstallCommand(execution.getExecutionId() + " - " + product.getId() + " - " + env);
+        command.setPhaseSet(
+                PhaseSetFactory.createDefaultPhaseSetExcluding(new String[] { PhaseSetFactory.PHASE_CHECK_TRUST }));
+        File destination = getProductMaterializeDirectory(product, env);
+        String rootFolder = product.getRootFolder(env.getOs());
+        if (rootFolder != null && !rootFolder.isEmpty()) {
+            destination = new File(destination, rootFolder);
+        }
+
+        command.setBundlePool(getProductBundlePoolDirectory(product));
+        command.addMetadataSources(sources.getMetadataRepositories());
+        command.addArtifactSources(sources.getArtifactRepositories());
+        command.addUnitToInstall(product.getId());
+        for (DependencySeed seed : product.getAdditionalInstallationSeeds()) {
+            command.addUnitToInstall(seed);
+        }
+        command.setDestination(destination);
+        command.setProfileName(ProfileName.getNameForEnvironment(env, profileNames, profile));
+        command.setEnvironment(env);
+        command.setInstallFeatures(installFeatures);
+        command.setProfileProperties(profileProperties);
+        getLog().info("Installing product " + product.getId() + " for environment " + env + " to "
+                + destination.getAbsolutePath());
+        try {
+            command.execute();
+        } catch (DirectorCommandException e) {
+            throw new MojoFailureException(
+                    "Installation of product " + product.getId() + " for environment " + env + " failed", e);
         }
     }
 

@@ -6,6 +6,7 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### backports:
 
+- support for parallel execution of product assembly / archiving
 - new `repo-to-runnable` mojo
 - support for embedded target locations
 - using javac as the compiler for Tycho
