@@ -56,7 +56,7 @@ public class StandaloneDirectorRuntimeFactory {
             // ... install from a zipped p2 repository obtained via Maven ...
             URI directorRuntimeRepo = URI
                     .create("jar:" + getDirectorRepositoryZip(localMavenRepository).toURI() + "!/");
-            DirectorRuntime.Command command = bootstrapDirector.newInstallCommand();
+            DirectorRuntime.Command command = bootstrapDirector.newInstallCommand("standalone");
             command.addMetadataSources(Arrays.asList(directorRuntimeRepo));
             command.addArtifactSources(Arrays.asList(directorRuntimeRepo));
 

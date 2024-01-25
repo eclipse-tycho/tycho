@@ -120,7 +120,7 @@ public class ProvisionedInstallationBuilder {
     }
 
     private void executeDirector(TargetEnvironment env) throws MojoFailureException {
-        DirectorRuntime.Command command = directorRuntime.newInstallCommand();
+        DirectorRuntime.Command command = directorRuntime.newInstallCommand(String.valueOf(env));
         command.addMetadataSources(metadataRepos);
         command.addArtifactSources(artifactRepos);
         for (String iu : ius) {
