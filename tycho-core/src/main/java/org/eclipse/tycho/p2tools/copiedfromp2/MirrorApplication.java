@@ -475,7 +475,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
         return slice;
     }
 
-    protected Slicer createSlicer(SlicingOptions options) {
+    protected Slicer createSlicer(SlicingOptions options) throws ProvisionException {
         PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), options.getFilter(),
                 options.includeOptionalDependencies(), options.isEverythingGreedy(), options.forceFilterTo(),
                 options.considerStrictDependencyOnly(), options.followOnlyFilteredRequirements());

@@ -97,7 +97,7 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
     }
 
     @Override
-    public IArtifactRepository getCompositeArtifactRepository() {
+    public IArtifactRepository getCompositeArtifactRepository() throws ProvisionException {
         IArtifactRepository repository = super.getCompositeArtifactRepository();
         if (targetPlatform != null) {
             return new ListCompositeArtifactRepository(List.of(repository, targetPlatform.getArtifactRepository()),
@@ -107,7 +107,7 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
     }
 
     @Override
-    protected Slicer createSlicer(SlicingOptions options) {
+    protected Slicer createSlicer(SlicingOptions options) throws ProvisionException {
         List<Map<String, String>> filters = getContextFilters();
         List<IInstallableUnit> selectionContexts = filters.stream().map(InstallableUnit::contextIU).toList();
         boolean includeOptionalDependencies = options.includeOptionalDependencies();
