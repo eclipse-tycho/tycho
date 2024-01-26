@@ -179,23 +179,23 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         final TychoMirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
 
         // mirror scope: seed units...
-        mirrorApp
-                .setSourceIUs(toInstallableUnitList(projectSeeds, mirrorApp.getCompositeMetadataRepository(), sources));
-        mirrorApp.setIncludeSources(includeAllSource, sources.getTargetPlatform());
-        mirrorApp.setIncludeRequiredBundles(includeRequiredBundles);
-        mirrorApp.setIncludeRequiredFeatures(includeRequiredFeatures);
-        mirrorApp.setFilterProvided(filterProvided);
-        mirrorApp.setAddOnlyProvidingRepoReferences(addOnlyProvidingRepoReferences);
-        mirrorApp.setEnvironments(context.getEnvironments());
-        SlicingOptions options = new SlicingOptions();
-        options.considerStrictDependencyOnly(!includeAllDependencies);
-        Map<String, String> filter = options.getFilter();
-        addFilterForFeatureJARs(filter);
-        if (filterProperties != null) {
-            filter.putAll(filterProperties);
-        }
-        mirrorApp.setSlicingOptions(options);
         try {
+            mirrorApp.setSourceIUs(
+                    toInstallableUnitList(projectSeeds, mirrorApp.getCompositeMetadataRepository(), sources));
+            mirrorApp.setIncludeSources(includeAllSource, sources.getTargetPlatform());
+            mirrorApp.setIncludeRequiredBundles(includeRequiredBundles);
+            mirrorApp.setIncludeRequiredFeatures(includeRequiredFeatures);
+            mirrorApp.setFilterProvided(filterProvided);
+            mirrorApp.setAddOnlyProvidingRepoReferences(addOnlyProvidingRepoReferences);
+            mirrorApp.setEnvironments(context.getEnvironments());
+            SlicingOptions options = new SlicingOptions();
+            options.considerStrictDependencyOnly(!includeAllDependencies);
+            Map<String, String> filter = options.getFilter();
+            addFilterForFeatureJARs(filter);
+            if (filterProperties != null) {
+                filter.putAll(filterProperties);
+            }
+            mirrorApp.setSlicingOptions(options);
             LogListener logListener = new LogListener(logger);
             mirrorApp.setLog(logListener);
 
