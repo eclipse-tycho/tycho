@@ -67,4 +67,19 @@ public class ResolverException extends Exception {
         return explanation.stream();
     }
 
+    public static ResolverException findResolverException(Throwable t) {
+        if (t != null) {
+            if (t instanceof ResolverException re) {
+                return re;
+            }
+            for (Throwable sup : t.getSuppressed()) {
+                if (sup instanceof ResolverException re) {
+                    return re;
+                }
+            }
+            return findResolverException(t.getCause());
+        }
+        return null;
+    }
+
 }
