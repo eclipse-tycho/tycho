@@ -110,7 +110,7 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
             try {
                 resolver.resolveProject(mavenSession, mavenProject);
             } catch (DependencyResolutionException e) {
-                ResolverException resolverException = findResolverException(e);
+                ResolverException resolverException = ResolverException.findResolverException(e);
                 if (resolverException == null) {
                     throw new LifecycleExecutionException(
                             "Cannot resolve dependencies of project " + mavenProject.getId(), null, mavenProject, e);
@@ -146,21 +146,6 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
             } catch (IOException e) {
             }
         }
-    }
-
-    private ResolverException findResolverException(Throwable t) {
-        if (t != null) {
-            if (t instanceof ResolverException re) {
-                return re;
-            }
-            for (Throwable sup : t.getSuppressed()) {
-                if (sup instanceof ResolverException re) {
-                    return re;
-                }
-            }
-            return findResolverException(t.getCause());
-        }
-        return null;
     }
 
     private Set<MavenProject> checkBuildState(TychoProject tychoProject, MavenProject project) throws CoreException {
