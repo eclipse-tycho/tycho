@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -88,14 +89,13 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
      * Creates a new {@link MirroringArtifactProvider} instance.
      *
      * @param localArtifactRepository
-     *                                    The local Maven repository
+     *            The local Maven repository
      * @param remoteProviders
-     *                                    The provider that will be queried by this instance when it is
-     *                                    asked for an artifact which is not (yet) available in the
-     *                                    local Maven repository. Typically this provider is backed by
-     *                                    remote p2 repositories.
+     *            The provider that will be queried by this instance when it is asked for an
+     *            artifact which is not (yet) available in the local Maven repository. Typically
+     *            this provider is backed by remote p2 repositories.
      * @param logger
-     *                                    a logger for progress output
+     *            a logger for progress output
      */
     public static MirroringArtifactProvider createInstance(LocalArtifactRepository localArtifactRepository,
             IRawArtifactProvider remoteProviders, MavenContext context) {
@@ -199,24 +199,32 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
      * @return <code>false</code> if the artifact is neither already cached locally nor available
      *         remotely.
      * @throws MirroringFailedException
-     *                                      if a fatal error occurred while downloading the artifact.
+     *             if a fatal error occurred while downloading the artifact.
      */
     private boolean makeLocallyAvailable(IArtifactKey key) throws MirroringFailedException {
-        // TODO 397355 cache artifactDescriptors for the key so that only one synchronization is necessary to figure out if a download is needed
         try {
             boolean isAvailable = makeOneFormatLocallyAvailable(key);
 
             if (isAvailable) {
                 /*
-                 * Always execute this step so that a local repository that only contains the packed format of an
-                 * artifact is automatically corrected. We need the canonical format in the local repository so that
-                 * {@link IArtifactFileProvider#getArtifactFile(IArtifactKey)} does not return null.
+                 * Always execute this step so that a local repository that only contains the packed
+                 * format of an artifact is automatically corrected. We need the canonical format in
+                 * the local repository so that {@link
+                 * IArtifactFileProvider#getArtifactFile(IArtifactKey)} does not return null.
                  */
                 ensureArtifactIsPresentInCanonicalFormat(key);
             }
             return isAvailable;
 
         } catch (ProvisionException e) {
+            if (ProvisionException.ARTIFACT_EXISTS == e.getStatus().getCode()) {
+                //there is some race condition here so we need to start over again
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException e1) {
+                }
+                return makeLocallyAvailable(key);
+            }
             throw new MirroringFailedException(
                     "Error while mirroring artifact " + key + " to the local Maven repository" + e.getMessage(), e);
         } catch (ArtifactSinkException e) {
@@ -370,8 +378,8 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     }
 
     /**
-     * Returns an {@link IProgressMonitor} which translates p2's status updates into a reasonable log
-     * output.
+     * Returns an {@link IProgressMonitor} which translates p2's status updates into a reasonable
+     * log output.
      */
     final IProgressMonitor monitorForDownload() {
         // create a new instance for each call - DuplicateFilteringLoggingProgressMonitor is not thread-safe
