@@ -34,7 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -364,7 +363,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private static final Set<String> CLEAN_PHASES = Set.of("pre-clean", "clean", "post-clean");
 
     private boolean disableLifecycleParticipation(MavenSession session) {
-        return isMavenMode(session) || isM2E(session) || isCleanOnly(session);
+        return isM2E(session) || isCleanOnly(session);
     }
 
     private boolean isCleanOnly(MavenSession session) {
@@ -374,28 +373,6 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     private boolean isM2E(MavenSession session) {
         return session.getUserProperties().containsKey("m2e.version");
-    }
-
-    private boolean isMavenMode(MavenSession session) {
-        // command line property to disable Tycho lifecycle participant
-        if ("maven".equals(session.getUserProperties().get(TychoConstants.SESSION_PROPERTY_TYCHO_MODE))) {
-            synchronized (TychoMavenLifecycleParticipant.class) {
-                if (!warnedAboutTychoMode) {
-                    warnedAboutTychoMode = true;
-                    log.warn("######## IMPORTANT #######");
-                    log.warn("Usage of " + TychoConstants.SESSION_PROPERTY_TYCHO_MODE
-                            + "=maven is deprecated and will be removed in later Tycho versions, see https://github.com/eclipse-tycho/tycho/issues/676");
-                    log.warn("######## IMPORTANT #######");
-                    try {
-                        //to give user change to see the message....
-                        TimeUnit.SECONDS.sleep(5);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-            return true;
-        }
-        return false;
     }
 
     private void configureComponents(MavenSession session) {
