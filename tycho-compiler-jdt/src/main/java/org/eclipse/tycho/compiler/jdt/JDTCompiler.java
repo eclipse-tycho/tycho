@@ -110,6 +110,9 @@ public class JDTCompiler extends AbstractCompiler {
         if (sourceFiles.length == 0) {
             return new CompilerResult();
         }
+        //even though order of java sources should not matter, it can make a difference sometimes (e.g. lamda numbering) see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1921
+        //so to have always the same arguments regardless of hash table ordering that is used internally by plexus compiler we sort the files simply by name
+        Arrays.sort(sourceFiles);
 
         logger.info("Compiling " + sourceFiles.length + " " + "source file" + (sourceFiles.length == 1 ? "" : "s")
                 + " to " + destinationDir.getAbsolutePath() + " using " + COMPILER_NAME + "");
