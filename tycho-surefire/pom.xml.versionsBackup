@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright (c) 2008, 2016 Sonatype Inc. and others.
+ - All rights reserved. This program and the accompanying materials
+ - are made available under the terms of the Eclipse Public License v1.0
+ - which accompanies this distribution, and is available at
+ - https://www.eclipse.org/legal/epl-v10.html
+ -
+ - Contributors:
+ -    Sonatype Inc. - initial API and implementation
+ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho</artifactId>
+		<version>4.0.5-SNAPSHOT</version>
+	</parent>
+	<artifactId>tycho-surefire</artifactId>
+	<packaging>pom</packaging>
+	<name>Tycho Surefire Parent</name>
+	<modules>
+		<module>tycho-surefire-plugin</module>
+		<module>org.eclipse.tycho.surefire.osgibooter</module>
+		<module>org.eclipse.tycho.surefire.junit</module>
+		<module>org.eclipse.tycho.surefire.junit4</module>
+		<module>org.eclipse.tycho.surefire.junit47</module>
+		<module>org.eclipse.tycho.surefire.junit5</module>
+		<module>org.eclipse.tycho.surefire.junit54</module>
+		<module>org.eclipse.tycho.surefire.junit55</module>
+		<module>org.eclipse.tycho.surefire.junit56</module>
+		<module>org.eclipse.tycho.surefire.junit57</module>
+		<module>org.eclipse.tycho.surefire.junit57withvintage</module>
+		<module>org.eclipse.tycho.surefire.junit58</module>
+		<module>org.eclipse.tycho.surefire.junit58withvintage</module>
+		<module>org.eclipse.tycho.surefire.junit59</module>
+		<module>org.eclipse.tycho.surefire.junit59withvintage</module>
+		<module>org.eclipse.tycho.surefire.testng</module>
+		<module>org.eclipse.tycho.bnd.executionlistener</module>
+	</modules>
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>about.html</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>about.html</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>biz.aQute.bnd</groupId>
+					<artifactId>bnd-maven-plugin</artifactId>
+					<executions>
+						<execution>
+							<goals>
+								<goal>bnd-process</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>unpack</id>
+							<?m2e execute onIncremental?>
+							<phase>generate-resources</phase>
+							<goals>
+								<goal>unpack</goal>
+							</goals>
+							<configuration>
+								<outputDirectory>${project.build.outputDirectory}</outputDirectory>
+								<!-- we include license info in about.html and about_files/ -->
+								<excludes>META-INF/maven/**,META-INF/DEPENDENCIES,META-INF/LICENSE*,META-INF/NOTICE*</excludes>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<configuration>
+						<archive>
+							<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+						</archive>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

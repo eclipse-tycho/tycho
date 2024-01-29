@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ - All rights reserved. This program and the accompanying materials
+ - are made available under the terms of the Eclipse Public License v1.0
+ - which accompanies this distribution, and is available at
+ - https://www.eclipse.org/legal/epl-v10.html
+ -
+ - Contributors:
+ -    Sonatype Inc. - initial API and implementation
+ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho</artifactId>
+		<version>4.0.5-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
+	<artifactId>org.eclipse.tycho.surefire.osgibooter</artifactId>
+	<packaging>jar</packaging>
+	<name>Tycho Surefire OSGi Booter Eclipse Application</name>
+	<properties>
+		<java.version>1.8</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.app</artifactId>
+			<version>1.6.400</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.core.runtime</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.e4.ui.workbench3</artifactId>
+			<version>0.17.200</version>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.ui.workbench</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-failsafe-plugin</artifactId>
+			<version>${surefire-version}</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>about.html</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>about.html</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<?m2e execute onIncremental?>
+						<id>copy</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/jars</outputDirectory>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-api</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-logger-api</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-booter</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>maven-surefire-common</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-extensions-api</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-shared-utils</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.plugins</groupId>
+									<artifactId>maven-failsafe-plugin</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>common-java5</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>bnd-process</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<bnd><![CDATA[
+						Import-Package: !*
+						Bundle-SymbolicName: org.eclipse.tycho.surefire.osgibooter;singleton:=true
+						Automatic-Module-Name: ${bsn}
+						Bundle-Activator: org.eclipse.tycho.surefire.osgibooter.Activator
+						Bundle-ActivationPolicy: lazy
+						Require-Bundle: org.eclipse.osgi;bundle-version="3.2.2",\
+							org.eclipse.ui.workbench;bundle-version="3.2.2";resolution:=optional,\
+							org.eclipse.core.runtime;bundle-version="3.2.0"
+						-includeresource: jars/=target/jars/;lib:=true
+						-snapshot:
+						-nouses: true
+						-nodefaultversion: true
+						-noextraheaders: true
+						-removeheaders: Private-Package, Bundle-SCM, Bundle-Developers, Bundle-DocURL, Bundle-License
+					]]></bnd>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
