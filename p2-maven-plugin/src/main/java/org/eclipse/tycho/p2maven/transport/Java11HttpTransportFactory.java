@@ -23,6 +23,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -156,7 +157,8 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 		public Response<Void> head() throws IOException {
 			try {
 				HttpResponse<Void> response = client.send(
-						builder.method("HEAD", null).timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).build(),
+						builder.method("HEAD", BodyPublishers.noBody()).timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
+								.build(),
 						BodyHandlers.discarding());
 				return new ResponseImplementation<>(response) {
 					@Override
