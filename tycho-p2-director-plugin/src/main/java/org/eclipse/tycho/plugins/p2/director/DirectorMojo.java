@@ -38,6 +38,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.shared.StatusTool;
@@ -396,6 +397,8 @@ public class DirectorMojo extends AbstractMojo {
         args.addNonNull("-trustedPGPKeys", trustedPGPKeys);
         args.addNonNull("-trustedCertificates", trustedCertificates);
         try {
+            //FIXME forcefully init OSGi unless we have a fix for https://github.com/eclipse-equinox/p2/pull/439
+            agent.getService(IMetadataRepositoryManager.class);
             MavenDirectorLog directorLog = new MavenDirectorLog(execution.getExecutionId(), getLog());
             Object exitCode = new DirectorApplication(directorLog,
                     PhaseSetFactory.createDefaultPhaseSetExcluding(new String[] { PhaseSetFactory.PHASE_CHECK_TRUST }),
