@@ -105,9 +105,9 @@ public class BaselineValidator {
                             classifier.getValue().writeDetails(new File(logdir, classifier.getKey()));
                         }
                     }
-                    if (baselineMode == fail || (baselineMode == failCommon && !isMissingOnlyDelta(delta))) {
+                    if (shouldFail(baselineMode, delta)) {
                         throw new MojoExecutionException(delta.getDetailedMessage());
-                    } else {
+                    } else if (shouldWarn(baselineMode, delta)) {
                         log.warn(project.toString() + ": " + delta.getDetailedMessage());
                     }
                 }
@@ -198,7 +198,18 @@ public class BaselineValidator {
         return result;
     }
 
-    private boolean isMissingOnlyDelta(ArtifactDelta delta) {
+    private static boolean shouldFail(BaselineMode baselineMode, CompoundArtifactDelta delta) {
+        return baselineMode == fail || (baselineMode == failCommon && !isMissingOnlyDelta(delta));
+    }
+
+    private static boolean shouldWarn(BaselineMode baselineMode, CompoundArtifactDelta delta) {
+        if (baselineMode == BaselineMode.warnCommon) {
+            return !isMissingOnlyDelta(delta);
+        }
+        return true;
+    }
+
+    private static boolean isMissingOnlyDelta(ArtifactDelta delta) {
         if (delta instanceof MissingArtifactDelta) {
             return true;
         }

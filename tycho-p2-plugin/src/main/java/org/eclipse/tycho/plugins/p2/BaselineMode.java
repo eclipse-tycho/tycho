@@ -24,6 +24,12 @@ public enum BaselineMode {
     warn,
 
     /**
+     * Warn about discrepancies between build and baseline artifacts but do not fail the build.
+     * Attached artifacts only present in the build do not result in a warning.
+     */
+    warnCommon,
+
+    /**
      * Fail the build if there are discrepancies between artifacts present both in build and
      * baseline. Attached artifacts only present in the build do not result in build failure.
      */
