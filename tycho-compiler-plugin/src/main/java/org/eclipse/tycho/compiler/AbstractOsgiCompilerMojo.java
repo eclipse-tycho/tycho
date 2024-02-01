@@ -92,8 +92,11 @@ import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.helper.PluginRealmHelper;
+import org.eclipse.tycho.model.classpath.ClasspathContainerEntry;
+import org.eclipse.tycho.model.classpath.ContainerAccessRule;
 import org.eclipse.tycho.model.classpath.JREClasspathEntry;
 import org.eclipse.tycho.model.classpath.M2ClasspathVariable;
+import org.eclipse.tycho.model.classpath.PluginDependenciesClasspathContainer;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
@@ -570,10 +573,19 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     @Override
     public List<String> getClasspathElements() throws MojoExecutionException {
+        Collection<ProjectClasspathEntry> classpathEntries = getEclipsePluginProject().getClasspathEntries();
         final List<String> classpath = new ArrayList<>();
         Set<String> seen = new HashSet<>();
         Set<String> includedPathes = new HashSet<>();
         boolean useAccessRules = JDT_COMPILER_ID.equals(compilerId);
+        List<ContainerAccessRule> globalRules;
+        if (useAccessRules) {
+            globalRules = classpathEntries.stream().filter(PluginDependenciesClasspathContainer.class::isInstance)
+                    .map(PluginDependenciesClasspathContainer.class::cast).map(ClasspathContainerEntry::getAccessRules)
+                    .findFirst().orElse(List.of());
+        } else {
+            globalRules = List.of();
+        }
         for (ClasspathEntry cpe : getClasspath()) {
             Stream<File> classpathLocations = Stream
                     .concat(cpe.getLocations().stream(),
@@ -582,7 +594,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                     .filter(AbstractOsgiCompilerMojo::isValidLocation).distinct();
             classpathLocations.forEach(location -> {
                 String path = location.getAbsolutePath();
-                String entry = path + toString(cpe.getAccessRules(), useAccessRules);
+                String entry = path + toString(cpe.getAccessRules(), globalRules, useAccessRules);
                 if (seen.add(entry)) {
                     includedPathes.add(path);
                     classpath.add(entry);
@@ -593,7 +605,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             ArtifactRepository repository = session.getLocalRepository();
             if (repository != null) {
                 String basedir = repository.getBasedir();
-                Collection<ProjectClasspathEntry> classpathEntries = getEclipsePluginProject().getClasspathEntries();
                 for (ProjectClasspathEntry cpe : classpathEntries) {
                     if (cpe instanceof M2ClasspathVariable cpv) {
                         String entry = new File(basedir, cpv.getRepositoryPath()).getAbsolutePath();
@@ -647,17 +658,33 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return (BundleProject) projectType;
     }
 
-    private String toString(Collection<AccessRule> rules, boolean useAccessRules) {
+    private String toString(Collection<AccessRule> entryRules, List<ContainerAccessRule> containerRules,
+            boolean useAccessRules) {
         if (useAccessRules) {
             StringJoiner result = new StringJoiner(RULE_SEPARATOR, "[", "]"); // include all
-            if (rules != null) {
-                for (AccessRule rule : rules) {
-                    result.add((rule.isDiscouraged() ? "~" : "+") + rule.getPattern());
+            if (entryRules != null) {
+                for (ContainerAccessRule rule : containerRules) {
+                    switch (rule.getKind()) {
+                    case ACCESSIBLE:
+                        result.add("+" + rule.getPattern());
+                        break;
+                    case DISCOURAGED:
+                        result.add("~" + rule.getPattern());
+                        break;
+                    case NON_ACCESSIBLE:
+                        result.add("-" + rule.getPattern());
+                        break;
+                    default:
+                        break;
+                    }
+                }
+                if (entryRules != null) {
+                    for (AccessRule rule : entryRules) {
+                        result.add((rule.isDiscouraged() ? "~" : "+") + rule.getPattern());
+                    }
                 }
                 result.add(RULE_EXCLUDE_ALL);
             } else {
-                // include everything, not strictly necessary, but lets make this obvious
-                //result.append("[+**/*]");
                 return "";
             }
             return result.toString();
@@ -734,9 +761,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             compilerConfiguration.setReleaseVersion(releaseLevel);
         }
         configureJavaHome(compilerConfiguration);
-        configureBootclasspathAccessRules(compilerConfiguration);
-        configureCompilerLog(compilerConfiguration);
         Collection<ProjectClasspathEntry> classpathEntries = getEclipsePluginProject().getClasspathEntries();
+        configureBootclasspathAccessRules(compilerConfiguration, classpathEntries);
+        configureCompilerLog(compilerConfiguration);
         for (ProjectClasspathEntry cpe : classpathEntries) {
             if (cpe instanceof JREClasspathEntry jreClasspathEntry) {
                 if (jreClasspathEntry.isModule()) {
@@ -789,8 +816,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         addCompilerCustomArgument(compilerConfiguration, "-log", logPath);
     }
 
-    private void configureBootclasspathAccessRules(CompilerConfiguration compilerConfiguration)
-            throws MojoExecutionException {
+    private void configureBootclasspathAccessRules(CompilerConfiguration compilerConfiguration,
+            Collection<ProjectClasspathEntry> classpathEntries) throws MojoExecutionException {
         List<AccessRule> accessRules = new ArrayList<>();
 
         if (requireJREPackageImports != null) {
@@ -815,8 +842,11 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                     .addAll(getBundleProject().getBootClasspathExtraAccessRules(DefaultReactorProject.adapt(project)));
         }
         if (!accessRules.isEmpty()) {
+            List<ContainerAccessRule> globalRules = classpathEntries.stream()
+                    .filter(JREClasspathEntry.class::isInstance).map(JREClasspathEntry.class::cast)
+                    .map(ClasspathContainerEntry::getAccessRules).findFirst().orElse(List.of());
             addCompilerCustomArgument(compilerConfiguration, "org.osgi.framework.system.packages",
-                    toString(accessRules, true));
+                    toString(accessRules, globalRules, true));
         }
     }
 

@@ -21,13 +21,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.tycho.model.classpath.ContainerAccessRule.Kind;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -71,15 +75,18 @@ public class ClasspathParser {
                             new File(file.getParentFile(), output), attributes));
                 } else if ("con".equals(kind)) {
                     String path = classpathentry.getAttribute("path");
+                    List<ContainerAccessRule> accessRules = parseAccessRules(classpathentry);
                     if (path.startsWith(JUnitClasspathContainerEntry.JUNIT_CONTAINER_PATH_PREFIX)) {
                         String junit = path
                                 .substring(JUnitClasspathContainerEntry.JUNIT_CONTAINER_PATH_PREFIX.length());
-                        list.add(new JDTJUnitContainerClasspathEntry(path, junit, attributes));
+                        list.add(new JDTJUnitContainerClasspathEntry(path, junit, attributes, accessRules));
                     } else if (path.equals(JREClasspathEntry.JRE_CONTAINER_PATH)
                             || path.startsWith(JREClasspathEntry.JRE_CONTAINER_PATH_STANDARDVMTYPE_PREFIX)) {
-                        list.add(new JDTJREClasspathEntry(path, attributes));
+                        list.add(new JDTJREClasspathEntry(path, attributes, accessRules));
+                    } else if (path.equals(PluginDependenciesClasspathContainer.PATH)) {
+                        list.add(new RequiredPluginsEntry(path, attributes, accessRules));
                     } else {
-                        list.add(new JDTContainerClasspathEntry(path, attributes));
+                        list.add(new JDTContainerClasspathEntry(path, attributes, accessRules));
                     }
                 } else if ("lib".equals(kind)) {
                     String path = classpathentry.getAttribute("path");
@@ -100,6 +107,33 @@ public class ClasspathParser {
         }
     }
 
+    private static List<ContainerAccessRule> parseAccessRules(Element classpathentry) {
+        NodeList accessrules = classpathentry.getElementsByTagName("accessrule");
+        Stream<Node> stream = IntStream.range(0, accessrules.getLength()).mapToObj(i -> accessrules.item(i));
+        return stream.map(Element.class::cast).map(elem -> {
+            Kind kind = Kind.parse(elem.getAttribute("kind"));
+            String pattern = elem.getAttribute("pattern");
+            ContainerAccessRule r = new ContainerAccessRule() {
+
+                @Override
+                public Kind getKind() {
+                    return kind;
+                }
+
+                @Override
+                public String getPattern() {
+                    return pattern;
+                }
+
+                @Override
+                public String toString() {
+                    return pattern + " [" + kind + "]";
+                }
+            };
+            return r;
+        }).toList();
+    }
+
     private static Map<String, String> getAttributes(Element parent) {
         Map<String, String> map = new HashMap<>();
         NodeList attributes = parent.getElementsByTagName("attribute");
@@ -111,10 +145,21 @@ public class ClasspathParser {
         return map;
     }
 
+    private static final class RequiredPluginsEntry extends JDTContainerClasspathEntry
+            implements PluginDependenciesClasspathContainer {
+
+        public RequiredPluginsEntry(String path, Map<String, String> attributes,
+                List<ContainerAccessRule> accessRules) {
+            super(path, attributes, accessRules);
+        }
+
+    }
+
     private static final class JDTJREClasspathEntry extends JDTContainerClasspathEntry implements JREClasspathEntry {
 
-        public JDTJREClasspathEntry(String path, Map<String, String> attributes) {
-            super(path, attributes);
+        public JDTJREClasspathEntry(String path, Map<String, String> attributes,
+                List<ContainerAccessRule> accessRules) {
+            super(path, attributes, accessRules);
         }
 
         @Override
@@ -146,8 +191,9 @@ public class ClasspathParser {
 
         private final String junit;
 
-        public JDTJUnitContainerClasspathEntry(String path, String junit, Map<String, String> attributes) {
-            super(path, attributes);
+        public JDTJUnitContainerClasspathEntry(String path, String junit, Map<String, String> attributes,
+                List<ContainerAccessRule> accessRules) {
+            super(path, attributes, accessRules);
             this.junit = junit;
         }
 
@@ -174,10 +220,13 @@ public class ClasspathParser {
 
         protected final String path;
         protected final Map<String, String> attributes;
+        private List<ContainerAccessRule> accessRules;
 
-        public JDTContainerClasspathEntry(String path, Map<String, String> attributes) {
+        public JDTContainerClasspathEntry(String path, Map<String, String> attributes,
+                List<ContainerAccessRule> accessRules) {
             this.path = path;
             this.attributes = attributes;
+            this.accessRules = accessRules;
         }
 
         @Override
@@ -188,6 +237,11 @@ public class ClasspathParser {
         @Override
         public String getContainerPath() {
             return path;
+        }
+
+        @Override
+        public List<ContainerAccessRule> getAccessRules() {
+            return accessRules;
         }
 
     }

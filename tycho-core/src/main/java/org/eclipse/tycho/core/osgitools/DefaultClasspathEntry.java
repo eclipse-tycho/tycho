@@ -66,6 +66,9 @@ public class DefaultClasspathEntry implements ClasspathEntry {
 
         @Override
         public String toString() {
+            if (isDiscouraged()) {
+                return getPattern() + " (discouraged)";
+            }
             return getPattern();
         }
 
