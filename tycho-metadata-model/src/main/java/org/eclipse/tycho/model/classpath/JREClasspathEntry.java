@@ -14,7 +14,7 @@ package org.eclipse.tycho.model.classpath;
 
 import java.util.Collection;
 
-public interface JREClasspathEntry extends ProjectClasspathEntry {
+public interface JREClasspathEntry extends ClasspathContainerEntry {
 
     static final String JRE_CONTAINER_PATH = "org.eclipse.jdt.launching.JRE_CONTAINER";
 
