@@ -10,9 +10,9 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.plugins.p2;
+package org.eclipse.tycho.p2resolver;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class P2MetadataMojoTest {
     private static final File MAIN_ARTIFACT = new File("bin.jar");
@@ -34,13 +34,13 @@ public class P2MetadataMojoTest {
 
     File testFile;
 
-    @BeforeEach
+    @Before
     public void init() throws Exception {
         testFile = File.createTempFile(this.getClass().getName(), ".properties");
         testFile.delete();
     }
 
-    @AfterEach
+    @After
     public void cleanUp() {
         testFile.delete();
     }
@@ -52,7 +52,7 @@ public class P2MetadataMojoTest {
         artifactLocations.put("source", SOURCE_ARTIFACT);
         artifactLocations.put("other-classifier", OTHER_ARTIFACT);
 
-        P2MetadataMojo.writeArtifactLocations(testFile, artifactLocations);
+        P2GeneratorImpl.writeArtifactLocations(testFile, artifactLocations);
 
         Properties result = loadProperties(testFile);
         assertEquals(3, result.size());
@@ -66,7 +66,7 @@ public class P2MetadataMojoTest {
         Map<String, File> artifactLocations = new HashMap<>();
         artifactLocations.put("other-classifier", OTHER_ARTIFACT);
 
-        P2MetadataMojo.writeArtifactLocations(testFile, artifactLocations);
+        P2GeneratorImpl.writeArtifactLocations(testFile, artifactLocations);
 
         Properties result = loadProperties(testFile);
         assertEquals(1, result.size());

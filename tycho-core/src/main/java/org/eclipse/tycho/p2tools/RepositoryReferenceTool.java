@@ -36,9 +36,11 @@ import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
 import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
+import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
 /**
  * Tool to obtain the list of p2 repositories that contain the dependencies of a module.
@@ -59,6 +61,9 @@ public class RepositoryReferenceTool {
 
     @Requirement
     private TychoProjectManager projectManager;
+
+    @Requirement
+    private ReactorRepositoryManager repositoryManager;
 
     /**
      * Returns the list of visible p2 repositories for the build of the current module. The list
@@ -90,6 +95,8 @@ public class RepositoryReferenceTool {
         RepositoryReferences repositories = new RepositoryReferences();
 
         if ((flags & REPOSITORIES_INCLUDE_CURRENT_MODULE) != 0) {
+            //This is to enforce the repository is there e.g. if no p2 metadata is generated yet it will init it now
+            repositoryManager.getPublishingRepository(DefaultReactorProject.adapt(module));
             File publisherResults = new File(module.getBuild().getDirectory());
             repositories.addMetadataRepository(publisherResults);
             repositories.addArtifactRepository(publisherResults);

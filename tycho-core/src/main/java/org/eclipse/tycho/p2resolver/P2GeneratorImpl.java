@@ -15,16 +15,21 @@ package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -56,6 +61,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
@@ -423,6 +429,90 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
     public void setBuildPropertiesParser(BuildPropertiesParser propertiesParserForTesting) {
         buildPropertiesParser = propertiesParserForTesting;
+    }
+
+    @Override
+    public Map<String, IP2Artifact> generateMetadata(MavenProject project, boolean generateDownloadStatsProperty,
+            boolean generateChecksums) throws IOException {
+        File targetDir = new File(project.getBuild().getDirectory());
+        ArtifactFacade projectDefaultArtifact = new ArtifactFacade(project.getArtifact());
+        List<IArtifactFacade> artifacts = new ArrayList<>();
+
+        artifacts.add(projectDefaultArtifact);
+
+        for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
+            if (attachedArtifact.getFile() != null && (attachedArtifact.getFile().getName().endsWith(".jar")
+                    || (attachedArtifact.getFile().getName().endsWith(".zip")
+                            && project.getPackaging().equals(ArtifactType.TYPE_INSTALLABLE_UNIT)))) {
+                artifacts.add(new ArtifactFacade(attachedArtifact));
+            }
+        }
+
+        PublisherOptions options = new PublisherOptions();
+        options.setGenerateDownloadStats(generateDownloadStatsProperty);
+        options.setGenerateChecksums(generateChecksums);
+        Map<String, IP2Artifact> generatedMetadata = generateMetadata(artifacts, options, targetDir);
+        return generatedMetadata;
+    }
+
+    @Override
+    public FileInfo persistMetadata(Map<String, IP2Artifact> metadata, MavenProject project) throws IOException {
+        File targetDir = new File(project.getBuild().getDirectory());
+        File contentsXml = new File(targetDir, TychoConstants.FILE_NAME_P2_METADATA);
+        File artifactsXml = new File(targetDir, TychoConstants.FILE_NAME_P2_ARTIFACTS);
+        persistMetadata(metadata, contentsXml, artifactsXml);
+        return new FileInfo(contentsXml, artifactsXml);
+    }
+
+    @Override
+    public void writeArtifactLocations(MavenProject project) throws IOException {
+        File localArtifactsFile = new File(project.getBuild().getDirectory(), TychoConstants.FILE_NAME_LOCAL_ARTIFACTS);
+        writeArtifactLocations(localArtifactsFile, getAllProjectArtifacts(project));
+    }
+
+    static void writeArtifactLocations(File outputFile, Map<String, File> artifactLocations) throws IOException {
+        Properties outputProperties = new Properties();
+
+        for (Entry<String, File> entry : artifactLocations.entrySet()) {
+            if (entry.getKey() == null) {
+                outputProperties.put(TychoConstants.KEY_ARTIFACT_MAIN, entry.getValue().getAbsolutePath());
+            } else {
+                outputProperties.put(TychoConstants.KEY_ARTIFACT_ATTACHED + entry.getKey(),
+                        entry.getValue().getAbsolutePath());
+            }
+        }
+
+        writeProperties(outputProperties, outputFile);
+    }
+
+    private static void writeProperties(Properties properties, File outputFile) throws IOException {
+        try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+            properties.store(outputStream, null);
+        }
+    }
+
+    /**
+     * Returns a map from classifiers to artifact files of the given project. The classifier
+     * <code>null</code> is mapped to the project's main artifact.
+     */
+    private static Map<String, File> getAllProjectArtifacts(MavenProject project) {
+        Map<String, File> artifacts = new HashMap<>();
+        Artifact mainArtifact = project.getArtifact();
+        if (mainArtifact != null) {
+            artifacts.put(null, mainArtifact.getFile());
+        }
+        for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
+            artifacts.put(attachedArtifact.getClassifier(), attachedArtifact.getFile());
+        }
+        return artifacts;
+    }
+
+    @Override
+    public void generateMetaData(MavenProject mavenProject) throws IOException {
+        //TODO we probably should get the active execution here and derive the data from the config of the p2 plugin that applies here
+        Map<String, IP2Artifact> generatedMetadata = generateMetadata(mavenProject, false, false);
+        persistMetadata(generatedMetadata, mavenProject);
+        writeArtifactLocations(mavenProject);
     }
 
 }
