@@ -215,21 +215,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     private Set<String> excludeResources = new HashSet<>();
 
     /**
-     * Whether a bundle is required to explicitly import non-java.* packages from the JDK. This is
-     * the design-time equivalent to the equinox runtime option
-     * <a href="https://wiki.eclipse.org/Equinox_Boot_Delegation#The_solution"
-     * >osgi.compatibility.bootdelegation</a>.
-     * 
-     * @deprecated OSGI requires all packages to be imported and support for
-     *             osgi.compatibility.bootdelegation will be removed in one of the next Tycho
-     *             releases.
-     * @see #requireJavaPackageImports
-     */
-    @Parameter()
-    @Deprecated
-    private Boolean requireJREPackageImports;
-
-    /**
      * Since OSGi R7 it is
      * <a href="https://blog.osgi.org/2018/02/osgi-r7-highlights-java-9-support.html">allowed to
      * import java.* packages</a> as well and considered good practice. This option controls if
@@ -819,28 +804,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     private void configureBootclasspathAccessRules(CompilerConfiguration compilerConfiguration,
             Collection<ProjectClasspathEntry> classpathEntries) throws MojoExecutionException {
         List<AccessRule> accessRules = new ArrayList<>();
-
-        if (requireJREPackageImports != null) {
-            logger.warn(
-                    "Configuration option requireJREPackageImports is deprecated and will be removed in a future Tycho version!");
-        }
-        if (requireJREPackageImports == null || requireJREPackageImports) {
-            if (!requireJavaPackageImports) {
-                accessRules.add(new DefaultAccessRule("java/**", false));
-            }
-            accessRules.addAll(getStrictBootClasspathAccessRules());
-        } else {
+        if (!requireJavaPackageImports) {
             accessRules.add(new DefaultAccessRule("java/**", false));
-            getTargetExecutionEnvironment().getSystemPackages().stream() //
-                    .map(systemPackage -> systemPackage.packageName) //
-                    .distinct() //
-                    .map(packageName -> packageName.trim().replace('.', '/') + "/*") //
-                    .map(accessRule -> new DefaultAccessRule(accessRule, false)) //
-                    .forEach(accessRules::add);
-            // now add packages exported by framework extension bundles
-            accessRules
-                    .addAll(getBundleProject().getBootClasspathExtraAccessRules(DefaultReactorProject.adapt(project)));
         }
+        accessRules.addAll(getStrictBootClasspathAccessRules());
         if (!accessRules.isEmpty()) {
             List<ContainerAccessRule> globalRules = classpathEntries.stream()
                     .filter(JREClasspathEntry.class::isInstance).map(JREClasspathEntry.class::cast)
