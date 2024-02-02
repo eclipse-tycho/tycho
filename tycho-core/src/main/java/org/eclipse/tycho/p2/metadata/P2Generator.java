@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.IArtifactFacade;
 
 public interface P2Generator {
@@ -32,4 +33,17 @@ public interface P2Generator {
             File targetDir) throws IOException;
 
     void persistMetadata(Map<String, IP2Artifact> metadata, File unitsXml, File artifactsXml) throws IOException;
+
+    FileInfo persistMetadata(Map<String, IP2Artifact> metadata, MavenProject project) throws IOException;
+
+    void writeArtifactLocations(MavenProject project) throws IOException;
+
+    Map<String, IP2Artifact> generateMetadata(MavenProject project, boolean generateDownloadStatsProperty,
+            boolean generateChecksums) throws IOException;
+
+    record FileInfo(File metadata, File artifacts) {
+
+    }
+
+    void generateMetaData(MavenProject mavenProject) throws IOException;
 }

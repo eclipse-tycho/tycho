@@ -82,7 +82,7 @@ public class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleA
 
     // BEGIN construction
 
-    static boolean canAttemptRead(File repositoryDir) {
+    public static boolean canAttemptRead(File repositoryDir) {
         File requiredP2ArtifactsFile = new File(repositoryDir, TychoConstants.FILE_NAME_P2_ARTIFACTS);
         File requiredLocalArtifactsFile = new File(repositoryDir, TychoConstants.FILE_NAME_LOCAL_ARTIFACTS);
         return requiredP2ArtifactsFile.isFile() && requiredLocalArtifactsFile.isFile();

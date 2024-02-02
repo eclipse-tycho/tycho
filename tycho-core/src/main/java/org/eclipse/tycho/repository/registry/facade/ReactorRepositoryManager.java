@@ -32,8 +32,6 @@ public interface ReactorRepositoryManager {
      */
     PublishingRepository getPublishingRepository(ReactorProjectIdentities project);
 
-    default PublishingRepository getPublishingRepository(ReactorProject project) {
-        return getPublishingRepository(project.getIdentities());
-    }
+    PublishingRepository getPublishingRepository(ReactorProject project);
 
 }
