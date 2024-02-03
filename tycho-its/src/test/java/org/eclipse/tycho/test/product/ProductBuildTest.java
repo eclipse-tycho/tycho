@@ -13,6 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
@@ -38,6 +40,40 @@ public class ProductBuildTest extends AbstractTychoIntegrationTest {
 
 	private static final List<String> REQUIRED_PGP_PROPERTIES = List.of(TychoConstants.PROP_PGP_SIGNATURES,
 			TychoConstants.PROP_PGP_KEYS);
+
+	@Test
+	public void testPluginProjectFailsOnMissingDependencies() throws Exception {
+		Verifier verifier = getVerifier("tycho-p2-director-plugin/missing-requirements-plugins", false, true);
+		assertThrows(VerificationException.class, () -> verifier.executeGoals(Arrays.asList("clean", "package")));
+		verifier.verifyTextInLog(
+				"Cannot resolve dependencies of project tycho-its:plugin.product:eclipse-repository:1.0.0-SNAPSHOT");
+	}
+
+	@Test
+	public void testFeatureProjectFailsOnMissingDependencies() throws Exception {
+		Verifier verifier = getVerifier("tycho-p2-director-plugin/missing-requirements-feature", false, true);
+		assertThrows(VerificationException.class, () -> verifier.executeGoals(Arrays.asList("clean", "package")));
+		verifier.verifyTextInLog(
+				"Cannot resolve dependencies of project tycho-its:feature.product:eclipse-repository:1.0.0-SNAPSHOT");
+	}
+
+	@Test
+	public void testPluginProductWithDifferentNativesCanBuild() throws Exception {
+		Verifier verifier = getVerifier("tycho-p2-director-plugin/product-with-native-fragments", false, true);
+		verifier.executeGoals(Arrays.asList("clean", "package"));
+		// FIXME verifier.verifyErrorFreeLog();
+		// See https://github.com/eclipse-platform/eclipse.platform.swt/issues/992
+		verifyTextNotInLog(verifier, "BUILD FAILURE");
+		File basedir = new File(verifier.getBasedir());
+		assertFileExists(basedir,
+				"target/products/plugin.product/linux/gtk/x86_64/plugins/org.eclipse.swt.gtk.linux.x86_64_*.jar");
+		assertFileExists(basedir,
+				"target/products/plugin.product/linux/gtk/x86_64/plugins/org.eclipse.swt.gtk.linux.x86_64_*.jar");
+		assertFileExists(basedir,
+				"target/products/plugin.product/win32/win32/x86_64/plugins/org.eclipse.swt.win32.win32.x86_64_*.jar");
+		assertFileExists(basedir,
+				"target/products/plugin.product/macosx/cocoa/x86_64/Eclipse.app/Contents/Eclipse/plugins/org.eclipse.swt.cocoa.macosx.x86_64_*.jar");
+	}
 
 	@Test
 	public void testMavenDepedencyInTarget() throws Exception {

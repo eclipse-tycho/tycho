@@ -33,14 +33,21 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.CommandLineArguments;
 import org.eclipse.tycho.p2.resolver.BundlePublisher;
-import org.eclipse.tycho.p2tools.TychoDirectorApplication;
+import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+import org.eclipse.tycho.p2tools.MavenDirectorLog;
+import org.eclipse.tycho.p2tools.copiedfromp2.DirectorApplication;
+import org.eclipse.tycho.p2tools.copiedfromp2.PhaseSetFactory;
 
 /**
  * Allows to run the <a href=
@@ -349,7 +356,8 @@ public class DirectorMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         CommandLineArguments args = new CommandLineArguments();
-        args.addNonNull("-destination", destination);
+        args.addNonNull("-destination",
+                DirectorRuntime.getDestination(destination, TargetEnvironment.getRunningEnvironment()));
         args.addNonNull("-metadatarepository", metadatarepositories);
         args.addNonNull("-artifactrepository", artifactrepositories);
         args.addNonNull("-repository", getRepositories());
@@ -388,10 +396,20 @@ public class DirectorMojo extends AbstractMojo {
         args.addNonNull("-trustedAuthorities", trustedAuthorities);
         args.addNonNull("-trustedPGPKeys", trustedPGPKeys);
         args.addNonNull("-trustedCertificates", trustedCertificates);
-        Object exitCode = new TychoDirectorApplication(agentProvider, agent).run(args.toArray());
-        if (!(IApplication.EXIT_OK.equals(exitCode))) {
-            throw new MojoFailureException("Call to p2 director application failed with exit code " + exitCode
-                    + ". Program arguments were: '" + args + "'.");
+        try {
+            //FIXME forcefully init OSGi unless we have a fix for https://github.com/eclipse-equinox/p2/pull/439
+            agent.getService(IMetadataRepositoryManager.class);
+            MavenDirectorLog directorLog = new MavenDirectorLog(execution.getExecutionId(), getLog());
+            Object exitCode = new DirectorApplication(directorLog,
+                    PhaseSetFactory.createDefaultPhaseSetExcluding(new String[] { PhaseSetFactory.PHASE_CHECK_TRUST }),
+                    agent, agentProvider).run(args.toArray());
+            if (!(IApplication.EXIT_OK.equals(exitCode))) {
+                throw new MojoFailureException("Call to p2 director application failed with exit code " + exitCode
+                        + ". Program arguments were: '" + args + "'.");
+            }
+        } catch (CoreException e) {
+            throw new MojoFailureException("Call to p2 director application failed: "
+                    + StatusTool.collectProblems(e.getStatus()) + ". Program arguments were: '" + args + "'.", e);
         }
     }
 

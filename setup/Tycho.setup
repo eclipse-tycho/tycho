@@ -108,7 +108,7 @@
   <setupTask
       xsi:type="setup:EclipseIniTask"
       option="-Doomph.redirection.tycho="
-      value="https://raw.githubusercontent.com/eclipse-tycho/tycho/master/setup/Tycho.setup->${git.cloneTycho.location|uri}/setup/Tycho.setup"
+      value="https://raw.githubusercontent.com/eclipse-tycho/tycho/main/setup/Tycho.setup->${git.cloneTycho.location|uri}/setup/Tycho.setup"
       vm="true"/>
   <setupTask
       xsi:type="setup.p2:P2Task"
@@ -191,9 +191,9 @@
       xsi:type="projects:ProjectsBuildTask"
       refresh="true"
       clean="true"/>
-  <stream name="master"
-      label="master">
-    <description>Tycho Master</description>
+  <stream name="main"
+      label="main">
+    <description>Tycho Main</description>
   </stream>
   <logicalProjectContainer
       xsi:type="setup:ProjectCatalog"

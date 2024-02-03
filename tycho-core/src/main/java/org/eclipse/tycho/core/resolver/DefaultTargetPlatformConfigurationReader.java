@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2024 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -167,8 +167,6 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         if (result.getEnvironments().isEmpty()) {
-            // applying defaults
-            logger.warn("No explicit target runtime environment configuration. Build is platform dependent.");
             result.addEnvironment(TargetEnvironment.getRunningEnvironment());
             result.setImplicitTargetEnvironment(true);
         } else {
@@ -384,7 +382,7 @@ public class DefaultTargetPlatformConfigurationReader {
                     }
                 }
                 if (!skipped.isEmpty()) {
-                    logger.info(MessageFormat.format(
+                    logger.debug(MessageFormat.format(
                             "Declared TargetEnvironment(s) {0} are skipped for {1} as they do not match the project filter {2}.",
                             skipped.stream().map(TargetEnvironment::toFilterProperties).map(String::valueOf)
                                     .collect(Collectors.joining(", ")),
@@ -464,6 +462,13 @@ public class DefaultTargetPlatformConfigurationReader {
                 }
             }
         }
+        Xpp3Dom[] locationsArray = targetDom.getChildren("location");
+        if (locationsArray != null && locationsArray.length > 0) {
+            for (Xpp3Dom locationDom : locationsArray) {
+                result.addTargetLocation(locationDom);
+            }
+        }
+
     }
 
     protected void addTargetArtifact(TargetPlatformConfiguration result, MavenSession session, MavenProject project,

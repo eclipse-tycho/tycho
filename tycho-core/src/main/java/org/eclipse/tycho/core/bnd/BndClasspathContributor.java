@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
 
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
@@ -27,7 +28,10 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ClasspathEntry;
+import org.eclipse.tycho.DependencyResolutionException;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.TychoProjectManager;
@@ -54,7 +58,21 @@ public class BndClasspathContributor implements ClasspathContributor {
                 if (classpath != null && !classpath.isBlank()) {
                     List<ClasspathEntry> additional = new ArrayList<>();
                     for (String file : classpath.split(",")) {
-                        additional.add(new BndClasspathEntry(new File(project.getBasedir(), file.trim())));
+                        Matcher m = TychoConstants.PLATFORM_URL_PATTERN.matcher(file);
+                        if (m.matches()) {
+                            TargetPlatform targetPlatform = projectManager.getTargetPlatform(project)
+                                    .orElseThrow(() -> new IllegalStateException("Project has no target platform"));
+                            try {
+                                ArtifactKey artifactKey = targetPlatform
+                                        .resolveArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, m.group(2), null);
+                                File location = targetPlatform.getArtifactLocation(artifactKey);
+                                additional.add(new BndClasspathEntry(location, artifactKey));
+                            } catch (DependencyResolutionException | IllegalArtifactReferenceException e) {
+                                throw new RuntimeException("can't resolve classpath entry " + file, e);
+                            }
+                        } else {
+                            additional.add(new BndClasspathEntry(new File(project.getBasedir(), file.trim()), null));
+                        }
                     }
                     return additional;
                 }
@@ -66,17 +84,19 @@ public class BndClasspathContributor implements ClasspathContributor {
         return Collections.emptyList();
     }
 
-    private static final class BndClasspathEntry implements ClasspathEntry, ArtifactKey {
+    private static final class BndClasspathEntry implements ClasspathEntry {
 
         private File file;
+        private ArtifactKey artifactKey;
 
-        public BndClasspathEntry(File file) {
+        public BndClasspathEntry(File file, ArtifactKey artifactKey) {
             this.file = file;
+            this.artifactKey = artifactKey == null ? new FileBasedKey(file) : artifactKey;
         }
 
         @Override
         public ArtifactKey getArtifactKey() {
-            return this;
+            return artifactKey;
         }
 
         @Override
@@ -92,6 +112,16 @@ public class BndClasspathContributor implements ClasspathContributor {
         @Override
         public Collection<AccessRule> getAccessRules() {
             return null;
+        }
+
+    }
+
+    private static final class FileBasedKey implements ArtifactKey {
+
+        private File file;
+
+        public FileBasedKey(File file) {
+            this.file = file;
         }
 
         @Override

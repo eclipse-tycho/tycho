@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
@@ -22,8 +23,6 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
-import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -37,7 +36,6 @@ import org.eclipse.equinox.p2.internal.repository.mirroring.IArtifactMirrorLog;
 import org.eclipse.equinox.p2.internal.repository.mirroring.Mirroring;
 import org.eclipse.equinox.p2.internal.repository.mirroring.XMLMirrorLog;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
-import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -213,7 +211,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
     @Override
     public IStatus run(IProgressMonitor monitor) throws ProvisionException {
-        IStatus mirrorStatus = Status.OK_STATUS;
+        AtomicReference<IStatus> mirrorStatus = new AtomicReference<>(Status.OK_STATUS);
+        AtomicReference<ProvisionException> exception = new AtomicReference<>();
         try {
             initializeRepos(new NullProgressMonitor());
             initializeLogs();
@@ -222,20 +221,38 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
             IQueryable<IInstallableUnit> slice = slice(new NullProgressMonitor());
             Set<IInstallableUnit> units = collectUnits(slice, monitor);
             if (destinationArtifactRepository != null) {
-                mirrorStatus = mirrorArtifacts(units, new NullProgressMonitor());
-                if (failOnError && mirrorStatus.getSeverity() == IStatus.ERROR)
-                    return mirrorStatus;
+                destinationArtifactRepository.executeBatch(m -> {
+                    try {
+                        mirrorStatus.set(mirrorArtifacts(units, m));
+                    } catch (ProvisionException e) {
+                        exception.set(e);
+                    }
+                }, new NullProgressMonitor());
+                if (exception.get() != null) {
+                    throw exception.get();
+                }
+                if (failOnError && mirrorStatus.get().getSeverity() == IStatus.ERROR)
+                    return mirrorStatus.get();
             }
             if (destinationMetadataRepository != null) {
-                mirrorMetadata(units, new NullProgressMonitor());
+                destinationMetadataRepository.executeBatch(m -> {
+                    try {
+                        mirrorMetadata(units, m);
+                    } catch (ProvisionException e) {
+                        exception.set(e);
+                    }
+                }, new NullProgressMonitor());
+                if (exception.get() != null) {
+                    throw exception.get();
+                }
             }
         } finally {
             finalizeRepositories();
             finalizeLogs();
         }
-        if (mirrorStatus.isOK())
+        if (mirrorStatus.get().isOK())
             return Status.OK_STATUS;
-        return mirrorStatus;
+        return mirrorStatus.get();
     }
 
     private IStatus mirrorArtifacts(Collection<IInstallableUnit> slice, IProgressMonitor monitor)
@@ -280,7 +297,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
      * Collect all artifacts from the IUs that should be mirrored
      * 
      * @param ius
-     *                the IUs that are selected for mirroring
+     *            the IUs that are selected for mirroring
      * @return a (modifiable) list of {@link IArtifactKey}s that must be mirrored
      */
     protected List<IArtifactKey> collectArtifactKeys(Collection<IInstallableUnit> ius, IProgressMonitor monitor)
@@ -315,7 +332,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
      * Collect all IUS from the slice that should be mirrored
      * 
      * @param slice
-     *                  the slice for mirroring
+     *            the slice for mirroring
      * @return a (modifiable) set of {@link IInstallableUnit}s that must be mirrored
      * @throws ProvisionException
      */
@@ -327,9 +344,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
     }
 
     /*
-     * Ensure all mandatory parameters have been set. Throw an exception if there are any missing. We
-     * don't require the user to specify the artifact repository here, we will default to the ones
-     * already registered in the manager. (callers are free to add more if they wish)
+     * Ensure all mandatory parameters have been set. Throw an exception if there are any missing.
+     * We don't require the user to specify the artifact repository here, we will default to the
+     * ones already registered in the manager. (callers are free to add more if they wish)
      */
     private void validate() throws ProvisionException {
         if (sourceRepositories.isEmpty())

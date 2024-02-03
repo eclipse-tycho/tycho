@@ -12,6 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.settings.Profile;
+import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -34,6 +40,9 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
 	@Requirement
 	MavenAuthenticator authenticator;
 
+	@Requirement
+	MavenSession mavenSession;
+
 	@Override
 	public Object createService(IProvisioningAgent agent) {
 		IArtifactRepositoryManager plainRepoManager = (IArtifactRepositoryManager) new ArtifactRepositoryComponent()
@@ -45,14 +54,63 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
 	}
 
 	private boolean getDisableP2MirrorsConfiguration() {
-		String key = "tycho.disableP2Mirrors";
-		String value = System.getProperty(key);
-		if (value != null) {
-			logger.info("Using " + key
+		String deprecatedKey = "tycho.disableP2Mirrors";
+		String deprecatedValue = getMirrorProperty(deprecatedKey);
+
+		if (deprecatedValue != null) {
+			logger.info("Using " + deprecatedKey
 					+ " to disable P2 mirrors is deprecated, use the property eclipse.p2.mirrors instead, see https://tycho.eclipseprojects.io/doc/"
 					+ TychoVersion.getTychoVersion() + "/SystemProperties.html for details.");
-			return Boolean.parseBoolean(value);
+			return getBooleanValue(deprecatedValue);
+		}
+
+		String value = getMirrorProperty("eclipse.p2.mirrors");
+
+		if (value != null) {
+			// eclipse.p2.mirrors false -> disable mirrors
+
+			boolean p2MirrorsEnabled = getBooleanValue(value);
+			// TODO once we have https://github.com/eclipse-equinox/p2/pull/431 this must be
+			// controlled by the agent we create!
+			return !p2MirrorsEnabled;
 		}
 		return false;
+
+	}
+
+	private boolean getBooleanValue(String value) {
+		if (value != null && value.isBlank()) {
+			return true;
+		}
+		return Boolean.parseBoolean(value);
+	}
+
+	private String getMirrorProperty(String key) {
+		// Check user properties first ...
+		Properties userProperties = mavenSession.getUserProperties();
+		String userProperty = userProperties.getProperty(key);
+		if (userProperty != null) {
+			return userProperty;
+		}
+		// check if there are any active profile properties ...
+		Settings settings = mavenSession.getSettings();
+		List<Profile> profiles = settings.getProfiles();
+		List<String> activeProfiles = settings.getActiveProfiles();
+		for (Profile profile : profiles) {
+			if (activeProfiles.contains(profile.getId())) {
+				String profileProperty = profile.getProperties().getProperty(key);
+				if (profileProperty != null) {
+					return profileProperty;
+				}
+			}
+		}
+		// now maven system properties
+		Properties systemProperties = mavenSession.getSystemProperties();
+		String systemProperty = systemProperties.getProperty(key);
+		if (systemProperty != null) {
+			return systemProperty;
+		}
+		// java sysem properties last
+		return System.getProperty(key);
 	}
 }

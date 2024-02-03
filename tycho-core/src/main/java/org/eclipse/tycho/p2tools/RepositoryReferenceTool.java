@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -27,6 +28,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
@@ -34,8 +36,11 @@ import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
+import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
+import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
 /**
  * Tool to obtain the list of p2 repositories that contain the dependencies of a module.
@@ -56,6 +61,9 @@ public class RepositoryReferenceTool {
 
     @Requirement
     private TychoProjectManager projectManager;
+
+    @Requirement
+    private ReactorRepositoryManager repositoryManager;
 
     /**
      * Returns the list of visible p2 repositories for the build of the current module. The list
@@ -87,6 +95,8 @@ public class RepositoryReferenceTool {
         RepositoryReferences repositories = new RepositoryReferences();
 
         if ((flags & REPOSITORIES_INCLUDE_CURRENT_MODULE) != 0) {
+            //This is to enforce the repository is there e.g. if no p2 metadata is generated yet it will init it now
+            repositoryManager.getPublishingRepository(DefaultReactorProject.adapt(module));
             File publisherResults = new File(module.getBuild().getDirectory());
             repositories.addMetadataRepository(publisherResults);
             repositories.addArtifactRepository(publisherResults);
@@ -144,6 +154,17 @@ public class RepositoryReferenceTool {
             sources.addMetadataRepository(repositoryLocation);
         } catch (IOException e) {
             throw new MojoExecutionException("I/O exception while writing the build target platform to disk", e);
+        } catch (DependencyResolutionException e) {
+            ResolverException resolverException = ResolverException.findResolverException(e);
+            if (resolverException == null) {
+                throw new MojoFailureException("Cannot resolve dependencies of project " + project.getId(), e);
+            } else {
+                throw new MojoFailureException("Cannot resolve dependencies of project "
+                        + project.getId() + System.lineSeparator() + " with context "
+                        + resolverException.getSelectionContext() + System.lineSeparator() + resolverException
+                                .explanations().map(exp -> "  " + exp.toString()).collect(Collectors.joining("\n")),
+                        resolverException);
+            }
         }
     }
 

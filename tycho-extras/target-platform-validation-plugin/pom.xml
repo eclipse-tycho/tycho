@@ -43,6 +43,19 @@
 			<artifactId>tycho-core</artifactId>
 		</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<!-- workaround for https://issues.apache.org/jira/browse/MPLUGIN-450 -->
+				<configuration>
+					<goalPrefix>target-platform-validation</goalPrefix>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<!-- ITests currently failing and not being actively debugged -->
 	<!-- profiles>

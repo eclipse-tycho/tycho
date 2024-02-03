@@ -14,6 +14,7 @@
 package org.eclipse.tycho;
 
 import java.net.URI;
+import java.util.stream.Stream;
 
 /**
  * Provides the mirror configuration and credentials from the Maven settings for loading remote p2
@@ -59,5 +60,10 @@ public interface MavenRepositorySettings {
      * Returns the configured credentials for the given repository, or <code>null</code>.
      */
     Credentials getCredentials(MavenRepositoryLocation location);
+
+    /**
+     * Returns all configured mirror locations.
+     */
+    Stream<MavenRepositoryLocation> getMirrors();
 
 }

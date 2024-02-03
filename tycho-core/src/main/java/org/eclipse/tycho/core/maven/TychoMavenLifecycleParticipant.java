@@ -104,6 +104,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     @Requirement
     TychoProjectManager projectManager;
 
+    private boolean warnedAboutTychoMode;
+
     public TychoMavenLifecycleParticipant() {
         // needed for plexus
     }
@@ -120,6 +122,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 + session.getUserProperties().getProperty(TychoConstants.SESSION_PROPERTY_TYCHO_MODE, "project"));
         log.info("Tycho Builder:  "
                 + session.getUserProperties().getProperty(TychoConstants.SESSION_PROPERTY_TYCHO_BUILDER, "maven"));
+        log.info("Build Threads:  " + session.getRequest().getDegreeOfConcurrency());
         if (disableLifecycleParticipation(session)) {
             buildListeners.notifyBuildStart(session);
             return;
@@ -360,11 +363,16 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private static final Set<String> CLEAN_PHASES = Set.of("pre-clean", "clean", "post-clean");
 
     private boolean disableLifecycleParticipation(MavenSession session) {
-        // command line property to disable Tycho lifecycle participant
-        return "maven".equals(session.getUserProperties().get("tycho.mode"))
-                || session.getUserProperties().containsKey("m2e.version")
-                // disable for 'clean-only' builds. Consider that Maven can be invoked without explicit goals, if default goals are specified
-                || (!session.getGoals().isEmpty() && CLEAN_PHASES.containsAll(session.getGoals()));
+        return isM2E(session) || isCleanOnly(session);
+    }
+
+    private boolean isCleanOnly(MavenSession session) {
+        // disable for 'clean-only' builds. Consider that Maven can be invoked without explicit goals, if default goals are specified
+        return !session.getGoals().isEmpty() && CLEAN_PHASES.containsAll(session.getGoals());
+    }
+
+    private boolean isM2E(MavenSession session) {
+        return session.getUserProperties().containsKey("m2e.version");
     }
 
     private void configureComponents(MavenSession session) {

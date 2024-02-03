@@ -23,7 +23,6 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.ProvisionedEquinoxInstallation;
-import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
@@ -100,7 +99,7 @@ public class ProvisionedInstallationBuilder {
         validate();
         publishPlainBundleJars();
         executeDirector(main);
-        return new ProvisionedEquinoxInstallation(getFinalDestination(main));
+        return new ProvisionedEquinoxInstallation(DirectorRuntime.getDestination(effectiveDestination, main));
     }
 
     private void publishPlainBundleJars() throws Exception {
@@ -121,13 +120,13 @@ public class ProvisionedInstallationBuilder {
     }
 
     private void executeDirector(TargetEnvironment env) throws MojoFailureException {
-        DirectorRuntime.Command command = directorRuntime.newInstallCommand();
+        DirectorRuntime.Command command = directorRuntime.newInstallCommand(String.valueOf(env));
         command.addMetadataSources(metadataRepos);
         command.addArtifactSources(artifactRepos);
         for (String iu : ius) {
             command.addUnitToInstall(iu);
         }
-        command.setDestination(getFinalDestination(env));
+        command.setDestination(DirectorRuntime.getDestination(effectiveDestination, env));
         command.setProfileName(profileName);
         command.setInstallFeatures(installFeatures);
         command.setEnvironment(env);
@@ -137,30 +136,6 @@ public class ProvisionedInstallationBuilder {
         } catch (DirectorCommandException e) {
             throw new MojoFailureException("Installation of IUs " + ius + " failed", e);
         }
-    }
-
-    private File getFinalDestination(TargetEnvironment env) {
-        if (PlatformPropertiesUtils.OS_MACOSX.equals(env.getOs()) && !hasRequiredMacLayout(effectiveDestination)) {
-            return new File(effectiveDestination, "Eclipse.app/Contents/Eclipse/");
-        }
-        return effectiveDestination;
-    }
-
-    private static boolean hasRequiredMacLayout(File folder) {
-        //TODO if we do not have this exact layout then director fails with:
-        //The framework persistent data location (/work/MacOS/configuration) is not the same as the framework configuration location /work/Contents/Eclipse/configuration)
-        //maybe we can simply configure the "persistent data location" to point to the expected one?
-        //or the "configuration location" must be configured and look like /work/Contents/<work>/configuration ?
-        //the actual values seem even depend on if this is an empty folder where one installs or an existing one
-        //e.g. if one installs multiple env Equinox finds the launcher and then set the location different...
-        if ("Eclipse".equals(folder.getName())) {
-            File folder2 = folder.getParentFile();
-            if (folder2 != null && "Contents".equals(folder2.getName())) {
-                File parent = folder2.getParentFile();
-                return parent != null && parent.getName().endsWith(".app");
-            }
-        }
-        return false;
     }
 
     private void validate() {

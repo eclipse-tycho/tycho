@@ -37,7 +37,45 @@ import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern;
 public class TargetPlatformConfigurationMojo extends AbstractMojo {
 
     /**
+     * <p>
      * Target environments (os/ws/arch) to consider.
+     * </p>
+     * Example:
+     * 
+     * <pre>
+     *&lt;environments&gt;
+    *  &lt;environment&gt;
+    *    &lt;os&gt;linux&lt;/os&gt;
+    *    &lt;ws&gt;gtk&lt;/ws&gt;
+    *    &lt;arch&gt;x86_64&lt;/arch&gt;
+    *  &lt;/environment&gt;
+    *  &lt;environment&gt;
+    *    &lt;os&gt;linux&lt;/os&gt;
+    *    &lt;ws&gt;gtk&lt;/ws&gt;
+    *    &lt;arch&gt;ppc64le&lt;/arch&gt;
+    *  &lt;/environment&gt;
+    *   &lt;environment&gt;
+    *    &lt;os&gt;linux&lt;/os&gt;
+    *    &lt;ws&gt;gtk&lt;/ws&gt;
+    *    &lt;arch&gt;aarch64&lt;/arch&gt;
+    *  &lt;/environment&gt;
+    *  &lt;environment&gt;
+    *    &lt;os&gt;win32&lt;/os&gt;
+    *    &lt;ws&gt;win32&lt;/ws&gt;
+    *    &lt;arch&gt;x86_64&lt;/arch&gt;
+    *  &lt;/environment&gt;
+    *  &lt;environment&gt;
+    *    &lt;os&gt;macosx&lt;/os&gt;
+    *    &lt;ws&gt;cocoa&lt;/ws&gt;
+    *    &lt;arch&gt;x86_64&lt;/arch&gt;
+    *  &lt;/environment&gt;
+    *  &lt;environment&gt;
+    *    &lt;os&gt;macosx&lt;/os&gt;
+    *    &lt;ws&gt;cocoa&lt;/ws&gt;
+    *    &lt;arch&gt;aarch64&lt;/arch&gt;
+    *  &lt;/environment&gt;
+    *&lt;/environments&gt;
+     * </pre>
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.ENVIRONMENTS)
     private TargetEnvironment[] environments;
@@ -51,6 +89,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * <li><code>&lt;file></code> to define a file local to the build</li>
      * <li><code>&lt;uri></code> to define a (remote) URI that specifies a target, currently only
      * URIs that can be converted to URLs are supported (e.g. file:/.... http://..., )</li>
+     * <li>{@code <locations>} to define target locations inline</li>
      * </ul>
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.TARGET)
@@ -208,8 +247,9 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
     private IncludeSourceMode targetDefinionIncludeSource;
 
     /**
-     * Configures if referenced repositories should be included when fetching repositories.
-     * The default is <code>ignore</code>. To specify to use referenced repositories, pass <code>include</code>. 
+     * Configures if referenced repositories should be included when fetching repositories. The
+     * default is <code>ignore</code>. To specify to use referenced repositories, pass
+     * <code>include</code>.
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.REFERENCED_REPOSITORY_MODE)
     private ReferencedRepositoryMode referencedRepositoryMode;

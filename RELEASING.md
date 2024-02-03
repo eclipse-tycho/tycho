@@ -97,8 +97,8 @@ We plan to do a <bugfixversion> release soon, if there is anything one likes to 
 
 ### Perform the bugfix release
 
-- [ ] Switch to the release branch `tycho-N.M.x` (e.g. `tycho-3.0.x`) 
-- [ ] Update version to remove `-SNAPSHOT` to the bugfix version with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<BUGFIX_VERSION>`
+- [ ] Switch to the release branch `tycho-N.M.x` (e.g. `tycho-4.0.x`) 
+- [ ] Update version to remove `-SNAPSHOT` to the bugfix version with `mvn versions:set -DnewVersion=<BUGFIX_VERSION>` (**For Tycho version prior to 4 check the release documentation of that branch how to update versions!**)
 - [ ] Review the version changes and commit (but do not push) the changes, e.g. with message `Update versions for release`
 - [ ] make sure all tags are fetched with `git fetch --all --tags`
 - [ ] Deploy to nexus staging repository with a fresh maven local repository: 
@@ -112,7 +112,7 @@ mvn clean deploy -Prelease -DskipTests -Dsource=8 -DjdetectJavaApiLink=false \
 - [ ] [Publish the staged release](#publish-the-staged-release)
 - [ ] `git tag tycho-<BUGFIX_VERSION>`
 - [ ] [Publish the sitedoc](#publish-the-sitedoc) for the release
-- [ ] Update version to the next bugfix version with `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<NEXT_BUGFIX_VERSION>-SNAPSHOT`
+- [ ] Update version to the next bugfix version with `mvn versions:set -DnewVersion=<NEXT_BUGFIX_VERSION>-SNAPSHOT` (**For Tycho version prior to 4 check the release documentation of that branch how to update versions!**)
 - [ ] review, add and commit the changes e.g. with message `Prepare for next version`
 - [ ] push the branch
 - [ ] push the tag `git push origin tycho-<TYCHO_VERSION>`

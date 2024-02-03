@@ -13,6 +13,7 @@
 package org.eclipse.tycho.apitools;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -102,6 +103,31 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${project.basedir}/.settings/org.eclipse.pde.api.tools.prefs")
 	private File apiPreferences;
 
+	/**
+	 * If given a folder, enhances the ECJ compiler logs with API errors so it can
+	 * be analyzed by tools understanding that format
+	 */
+	@Parameter(defaultValue = "${project.build.directory}/compile-logs")
+	private File logDirectory;
+
+	@Parameter(defaultValue = "true")
+	private boolean printProblems;
+
+	@Parameter(defaultValue = "true")
+	private boolean printSummary;
+
+	@Parameter(defaultValue = "true")
+	private boolean failOnError;
+
+	@Parameter(defaultValue = "false")
+	private boolean failOnWarning;
+
+	@Parameter(defaultValue = "false")
+	private boolean parallel;
+
+	@Parameter(defaultValue = "false")
+	private boolean enhanceLogs;
+
 	@Component
 	private EclipseWorkspaceManager workspaceManager;
 
@@ -120,8 +146,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			return;
 		}
 		Optional<EclipseProject> eclipseProject = projectManager.getEclipseProject(project);
-		if (eclipseProject.isEmpty()
-				|| !eclipseProject.get().hasNature(ApiPlugin.NATURE_ID)) {
+		if (eclipseProject.isEmpty() || !eclipseProject.get().hasNature(ApiPlugin.NATURE_ID)) {
 			return;
 		}
 
@@ -154,21 +179,15 @@ public class ApiAnalysisMojo extends AbstractMojo {
 				throw new MojoFailureException("Start Framework failed!", e);
 			}
 			ApiAnalysisResult analysisResult;
-			synchronized (ApiAnalysisMojo.class) {
-				// due to
-				// https://gitlab.eclipse.org/eclipsefdn/helpdesk/-/issues/3885#note_1266412 we
-				// can not execute more than one analysis without excessive memory consumption
-				// unless this is fixed it is safer to only run one analysis at a time
-				try {
-					ApiAnalysis analysis = new ApiAnalysis(baselineBundles, dependencyBundles, project.getName(),
-							fileToPath(apiFilter), fileToPath(apiPreferences), fileToPath(project.getBasedir()), debug,
-							fileToPath(project.getArtifact().getFile()),
-							stringToPath(project.getBuild().getOutputDirectory()));
-					analysisResult = eclipseFramework.execute(analysis);
-				} catch (Exception e) {
-					throw new MojoExecutionException("Execute ApiApplication failed", e);
-				} finally {
-					eclipseFramework.close();
+			if (parallel) {
+				analysisResult = performAnalysis(baselineBundles, dependencyBundles, eclipseFramework);
+			} else {
+				synchronized (ApiAnalysisMojo.class) {
+					// due to
+					// https://gitlab.eclipse.org/eclipsefdn/helpdesk/-/issues/3885#note_1266412 we
+					// can not execute more than one analysis without excessive memory consumption
+					// unless this is fixed it is safer to only run one analysis at a time
+					analysisResult = performAnalysis(baselineBundles, dependencyBundles, eclipseFramework);
 				}
 			}
 			log.info("API Analysis finished in " + time(start) + ".");
@@ -178,15 +197,26 @@ public class ApiAnalysisMojo extends AbstractMojo {
 					.collect(Collectors.groupingBy(IApiProblem::getSeverity));
 			List<IApiProblem> errors = problems.getOrDefault(ApiPlugin.SEVERITY_ERROR, List.of());
 			List<IApiProblem> warnings = problems.getOrDefault(ApiPlugin.SEVERITY_WARNING, List.of());
-			log.info(errors.size() + " API ERRORS");
-			log.info(warnings.size() + " API warnings");
-			for (IApiProblem problem : errors) {
-				printProblem(problem, "API ERROR", log::error);
+			if (printSummary) {
+				log.info(errors.size() + " API ERRORS");
+				log.info(warnings.size() + " API warnings");
 			}
-			for (IApiProblem problem : warnings) {
-				printProblem(problem, "API WARNING", log::warn);
+			if (printProblems) {
+				for (IApiProblem problem : errors) {
+					printProblem(problem, "API ERROR", log::error);
+				}
+				for (IApiProblem problem : warnings) {
+					printProblem(problem, "API WARNING", log::warn);
+				}
 			}
-			if (errors.size() > 0) {
+			if (enhanceLogs && logDirectory != null && logDirectory.isDirectory()) {
+				try {
+					LogFileEnhancer.enhanceXml(logDirectory, analysisResult);
+				} catch (IOException e) {
+					log.warn("Can't enhance logs in directory " + logDirectory);
+				}
+			}
+			if (errors.size() > 0 && failOnError) {
 				String msg = errors.stream().map(problem -> {
 					if (problem.getResourcePath() == null) {
 						return problem.getMessage();
@@ -195,6 +225,30 @@ public class ApiAnalysisMojo extends AbstractMojo {
 				}).collect(Collectors.joining(System.lineSeparator()));
 				throw new MojoFailureException("There are API errors:" + System.lineSeparator() + msg);
 			}
+			if (warnings.size() > 0 && failOnWarning) {
+				String msg = warnings.stream().map(problem -> {
+					if (problem.getResourcePath() == null) {
+						return problem.getMessage();
+					}
+					return problem.getResourcePath() + ":" + problem.getLineNumber() + " " + problem.getMessage();
+				}).collect(Collectors.joining(System.lineSeparator()));
+				throw new MojoFailureException("There are API warnings:" + System.lineSeparator() + msg);
+			}
+		}
+	}
+
+	private ApiAnalysisResult performAnalysis(Collection<Path> baselineBundles, Collection<Path> dependencyBundles,
+			EclipseFramework eclipseFramework) throws MojoExecutionException {
+		try {
+			ApiAnalysis analysis = new ApiAnalysis(baselineBundles, dependencyBundles, project.getName(),
+					fileToPath(apiFilter), fileToPath(apiPreferences), fileToPath(project.getBasedir()), debug,
+					fileToPath(project.getArtifact().getFile()),
+					stringToPath(project.getBuild().getOutputDirectory()));
+			return eclipseFramework.execute(analysis);
+		} catch (Exception e) {
+			throw new MojoExecutionException("Execute ApiApplication failed", e);
+		} finally {
+			eclipseFramework.close();
 		}
 	}
 
@@ -211,7 +265,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	private Path getFullPath(IApiProblem problem) {
 		String path = problem.getResourcePath();
 		if (path == null) {
-			return Path.of("unkown");
+			return Path.of("unknown");
 		}
 		return project.getBasedir().toPath().resolve(path);
 	}

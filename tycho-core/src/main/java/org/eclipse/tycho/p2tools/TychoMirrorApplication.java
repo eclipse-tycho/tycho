@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,14 +33,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
-import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -59,6 +57,10 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
+import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
+import org.eclipse.tycho.p2tools.copiedfromp2.PermissiveSlicer;
+import org.eclipse.tycho.p2tools.copiedfromp2.RepositoryDescriptor;
+import org.eclipse.tycho.p2tools.copiedfromp2.Slicer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,6 +94,16 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
             }, null);
         }
         return result;
+    }
+
+    @Override
+    public IArtifactRepository getCompositeArtifactRepository() {
+        IArtifactRepository repository = super.getCompositeArtifactRepository();
+        if (targetPlatform != null) {
+            return new ListCompositeArtifactRepository(List.of(repository, targetPlatform.getArtifactRepository()),
+                    agent);
+        }
+        return repository;
     }
 
     @Override
@@ -183,6 +195,33 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
                     return new CollectionResult<>(result);
                 }
                 return slice;
+            }
+
+            @Override
+            protected Stream<IInstallableUnit> selectIUsForRequirement(IQueryable<IInstallableUnit> queryable,
+                    IRequirement req) {
+                Stream<IInstallableUnit> stream = super.selectIUsForRequirement(queryable, req);
+                if (targetPlatform == null) {
+                    return stream;
+                }
+                List<IInstallableUnit> list = stream.toList();
+                if (list.isEmpty() && req.getMin() > 0) {
+                    // It is possible that an IU is not visible to the slicer (e.g. dynamic category produced by a categorx.xml)
+                    // In such case we additionally try to query the full target platform here.
+                    return selectHighestIUsForRequirement(targetPlatform.getMetadataRepository(), req);
+                }
+                return list.stream();
+            }
+
+            protected Stream<IInstallableUnit> selectHighestIUsForRequirement(IQueryable<IInstallableUnit> queryable,
+                    IRequirement req) {
+                //first group by ID
+                Map<String, List<IInstallableUnit>> groupById = queryable
+                        .query(QueryUtil.createMatchQuery(req.getMatches()), null).stream().filter(this::isApplicable)
+                        .collect(Collectors.groupingBy(IInstallableUnit::getId));
+                //now select the max of items in each group with the same id
+                return groupById.values().stream().flatMap(list -> list.stream()
+                        .sorted(Comparator.comparing(IInstallableUnit::getVersion).reversed()).limit(req.getMax()));
             }
         };
     }

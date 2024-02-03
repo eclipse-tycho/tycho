@@ -12,6 +12,7 @@ package org.eclipse.tycho.target;
 import java.io.File;
 import java.net.URI;
 
+import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.eclipse.tycho.p2.repository.GAV;
 
 /**
@@ -23,4 +24,5 @@ public class TargetParameterObject {
     public GAV target;
     public File file;
     public URI uri;
+    public PlexusConfiguration location;
 }

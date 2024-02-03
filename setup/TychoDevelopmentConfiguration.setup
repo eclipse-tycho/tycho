@@ -26,7 +26,7 @@
       name="tycho.dev.workspace"
       label="Tycho Development Workspace">
     <stream
-        href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']/@projects[name='tycho']/@streams[name='master']"/>
+        href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']/@projects[name='tycho']/@streams[name='main']"/>
     <description>The Tycho development environment workspace includes all modules and tests of Eclipse Tycho.</description>
   </workspace>
   <description>

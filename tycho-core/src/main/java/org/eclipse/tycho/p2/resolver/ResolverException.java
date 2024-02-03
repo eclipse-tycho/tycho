@@ -13,7 +13,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.tycho.core.shared.StatusTool;
 
 /**
@@ -25,11 +30,17 @@ public class ResolverException extends Exception {
     private static final long serialVersionUID = 1L;
     private final String details;
     private final String selectionContext;
+    private Collection<Explanation> explanation;
 
     public ResolverException(String msg, Throwable cause) {
         super(msg, cause);
         selectionContext = "N/A";
         details = "N/A";
+    }
+
+    public ResolverException(Collection<Explanation> explanation, String selectionContext, Throwable cause) {
+        this(explanation.stream().map(Object::toString).collect(Collectors.joining("\n")), selectionContext, cause);
+        this.explanation = explanation;
     }
 
     public ResolverException(String details, String selectionContext, Throwable cause) {
@@ -50,6 +61,25 @@ public class ResolverException extends Exception {
 
     public String getSelectionContext() {
         return selectionContext;
+    }
+
+    public Stream<Explanation> explanations() {
+        return explanation.stream();
+    }
+
+    public static ResolverException findResolverException(Throwable t) {
+        if (t != null) {
+            if (t instanceof ResolverException re) {
+                return re;
+            }
+            for (Throwable sup : t.getSuppressed()) {
+                if (sup instanceof ResolverException re) {
+                    return re;
+                }
+            }
+            return findResolverException(t.getCause());
+        }
+        return null;
     }
 
 }

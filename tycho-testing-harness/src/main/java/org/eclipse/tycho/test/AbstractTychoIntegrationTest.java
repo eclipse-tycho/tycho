@@ -214,7 +214,10 @@ public abstract class AbstractTychoIntegrationTest {
         DirectoryScanner ds = scan(baseDir, pattern);
         File[] includedFiles = Arrays.stream(ds.getIncludedFiles()).map(file -> new File(baseDir, file))
                 .toArray(File[]::new);
-        assertEquals(baseDir.getAbsolutePath() + "/" + pattern, 1, includedFiles.length);
+        assertEquals(
+                baseDir.getAbsolutePath() + "/" + pattern + System.lineSeparator() + Arrays.stream(includedFiles)
+                        .map(f -> f.getName()).collect(Collectors.joining(System.lineSeparator())),
+                1, includedFiles.length);
         assertTrue(baseDir.getAbsolutePath() + "/" + pattern, includedFiles[0].canRead());
         return includedFiles;
     }

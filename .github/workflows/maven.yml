@@ -34,7 +34,7 @@ jobs:
             17
         distribution: 'temurin'
     - name: Cache local Maven repository
-      uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+      uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-tycho4m39-${{ matrix.os }}-${{ hashFiles('**/pom.xml', '**/*.target') }}
@@ -51,7 +51,7 @@ jobs:
         cp .github/toolchains.xml ~/.m2/toolchains.xml
         mvn -U -V -e -B -ntp clean install --file pom.xml -DtrimStackTrace=false -Pits -fae
     - name: Upload Test Results
-      uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+      uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8 # v4.3.0
       if: always()
       with:
         name: test-results-${{ matrix.os }}
@@ -63,7 +63,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Upload
-      uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+      uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8 # v4.3.0
       with:
         name: Event File
         path: ${{ github.event_path }}
+

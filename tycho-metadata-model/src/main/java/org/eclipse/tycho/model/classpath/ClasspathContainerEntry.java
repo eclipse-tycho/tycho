@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.model.classpath;
 
+import java.util.List;
+
 /**
  * represents a container classpath entry, this could be for example:
  * 
@@ -32,5 +34,11 @@ public interface ClasspathContainerEntry extends ProjectClasspathEntry {
      * @return the path for this container
      */
     String getContainerPath();
+
+    /**
+     * 
+     * @return the {@link ContainerAccessRule}s defined for this classpathcontainer
+     */
+    List<ContainerAccessRule> getAccessRules();
 
 }

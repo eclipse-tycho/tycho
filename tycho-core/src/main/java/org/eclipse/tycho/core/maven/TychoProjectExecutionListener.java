@@ -39,12 +39,14 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2maven.DependencyChain;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.resolver.TychoResolver;
@@ -105,7 +107,22 @@ public class TychoProjectExecutionListener implements ProjectExecutionListener {
         try {
             legacySupport.setSession(mavenSession);
             //FIXME should return tycho project!
-            resolver.resolveProject(mavenSession, mavenProject);
+            try {
+                resolver.resolveProject(mavenSession, mavenProject);
+            } catch (DependencyResolutionException e) {
+                ResolverException resolverException = ResolverException.findResolverException(e);
+                if (resolverException == null) {
+                    throw new LifecycleExecutionException(
+                            "Cannot resolve dependencies of project " + mavenProject.getId(), null, mavenProject, e);
+                } else {
+                    throw new LifecycleExecutionException(
+                            "Cannot resolve dependencies of project " + mavenProject.getId() + System.lineSeparator()
+                                    + " with context " + resolverException.getSelectionContext()
+                                    + System.lineSeparator() + resolverException.explanations()
+                                            .map(exp -> "  " + exp.toString()).collect(Collectors.joining("\n")),
+                            null, mavenProject, resolverException);
+                }
+            }
             TychoProject tychoProject = projectManager.getTychoProject(mavenProject).orElse(null);
             if (tychoProject != null) {
                 try {

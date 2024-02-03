@@ -25,6 +25,7 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -73,6 +74,9 @@ public class EclipseBuildMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "true", property = "tycho.eclipsebuild.failOnError")
     private boolean failOnError;
+
+	@Parameter(defaultValue = "true", property = "tycho.eclipsebuild.printMarker")
+	private boolean printMarker;
 
 	@Parameter
 	private List<String> bundles;
@@ -125,13 +129,16 @@ public class EclipseBuildMojo extends AbstractMojo {
 			}
             EclipseBuildResult result = framework
 					.execute(new EclipseBuild(project.getBasedir().toPath(), debug));
-            result.markers().filter(marker -> marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_INFO)
-                    .forEach(info -> printMarker(info, result, getLog()::info));
-            result.markers().filter(marker -> marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_WARNING)
-                    .forEach(warn -> printMarker(warn, result, getLog()::warn));
-            List<IMarker> errors = result.markers()
-                    .filter(marker -> marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR).toList();
-            errors.forEach(error -> printMarker(error, result, getLog()::error));
+			List<IMarker> errors = result.markers()
+					.filter(marker -> marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR).toList();
+			if (printMarker) {
+				Log log = getLog();
+				result.markers().filter(marker -> marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_INFO)
+						.forEach(info -> printMarker(info, result, log::info));
+				result.markers().filter(marker -> marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_WARNING)
+						.forEach(warn -> printMarker(warn, result, log::warn));
+				errors.forEach(error -> printMarker(error, result, log::error));
+			}
             if (failOnError && errors.size() > 0) {
                 String msg = errors.stream().map(problem -> asString(problem, result))
                         .collect(Collectors.joining(System.lineSeparator()));
