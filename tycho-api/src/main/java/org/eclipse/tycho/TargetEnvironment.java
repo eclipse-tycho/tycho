@@ -21,6 +21,7 @@ import java.util.Properties;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.osgi.framework.Filter;
 
 public final class TargetEnvironment {
     private static final Properties EMPTY_PROPERTIES = new Properties();
@@ -68,6 +69,13 @@ public final class TargetEnvironment {
         return (os == null || os.equals(this.os)) && //
                 (ws == null || ws.equals(this.ws)) && //
                 (arch == null || arch.equals(this.arch));
+    }
+
+    public boolean match(Filter filter) {
+        if (filter != null) {
+            return filter.matches(toFilterProperties());
+        }
+        return true;
     }
 
     /**

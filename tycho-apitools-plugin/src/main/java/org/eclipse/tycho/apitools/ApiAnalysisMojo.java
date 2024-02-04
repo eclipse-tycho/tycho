@@ -45,6 +45,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -135,9 +136,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	private TychoProjectManager projectManager;
 
 	@Component
-	private ApiApplicationResolver resolver;
-
-	@Component
 	private ApiApplicationResolver applicationResolver;
 
 	@Override
@@ -145,8 +143,8 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		if (skip) {
 			return;
 		}
-		Optional<EclipseProject> eclipseProject = projectManager.getEclipseProject(project);
-		if (eclipseProject.isEmpty() || !eclipseProject.get().hasNature(ApiPlugin.NATURE_ID)) {
+		Optional<EclipseProject> eclipseProjectValue = projectManager.getEclipseProject(project);
+		if (eclipseProjectValue.isEmpty() || !eclipseProjectValue.get().hasNature(ApiPlugin.NATURE_ID)) {
 			return;
 		}
 
@@ -293,12 +291,14 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		long start = System.currentTimeMillis();
 		Collection<Path> baselineBundles;
 		try {
+			Collection<TargetEnvironment> targetEnvironments = projectManager.getTargetEnvironments(project);
 			Optional<ArtifactKey> artifactKey = projectManager.getArtifactKey(project);
-			getLog().info("Resolve API baseline for " + project.getId());
-			baselineBundles = resolver.getApiBaselineBundles(
+			getLog().info("Resolve API baseline for " + project.getId() + " with "
+					+ targetEnvironments.stream().map(String::valueOf).collect(Collectors.joining(", ")));
+			baselineBundles = applicationResolver.getApiBaselineBundles(
 					baselines.stream().filter(repo -> repo.getUrl() != null)
 							.map(repo -> new MavenRepositoryLocation(repo.getId(), URI.create(repo.getUrl()))).toList(),
-					artifactKey.get());
+					artifactKey.get(), targetEnvironments);
 			getLog().debug("API baseline contains " + baselineBundles.size() + " bundles (resolve takes " + time(start)
 					+ ").");
 		} catch (IllegalArtifactReferenceException e) {
