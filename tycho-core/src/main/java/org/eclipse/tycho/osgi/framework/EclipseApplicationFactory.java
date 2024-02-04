@@ -13,7 +13,6 @@
 package org.eclipse.tycho.osgi.framework;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -97,8 +96,11 @@ public class EclipseApplicationFactory {
     }
 
     public P2Resolver createResolver() {
-        P2Resolver resolver = resolverFactory
-                .createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
+        return createResolver(List.of(TargetEnvironment.getRunningEnvironment()));
+    }
+
+    public P2Resolver createResolver(Collection<TargetEnvironment> environments) {
+        P2Resolver resolver = resolverFactory.createResolver(environments);
         return resolver;
     }
 

@@ -62,6 +62,7 @@ import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
+import org.osgi.framework.Filter;
 
 import aQute.bnd.osgi.Processor;
 
@@ -174,6 +175,16 @@ public class TychoProjectManager {
     public TargetPlatformConfiguration getTargetPlatformConfiguration(ReactorProject project) {
 
         return getTargetPlatformConfiguration(project.adapt(MavenProject.class));
+    }
+
+    public Collection<TargetEnvironment> getTargetEnvironments(MavenProject project) {
+        TychoProject tychoProject = projectTypes.get(project.getPackaging());
+        if (tychoProject != null) {
+            Filter environmentFilter = tychoProject.getTargetEnvironmentFilter(project);
+            return getTargetPlatformConfiguration(project).getEnvironments().stream()
+                    .filter(te -> te.match(environmentFilter)).toList();
+        }
+        return List.of(TargetEnvironment.getRunningEnvironment());
     }
 
     public Optional<TychoProject> getTychoProject(MavenProject project) {
