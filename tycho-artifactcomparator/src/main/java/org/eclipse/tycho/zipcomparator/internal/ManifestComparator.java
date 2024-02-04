@@ -25,6 +25,7 @@ import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
@@ -51,13 +52,14 @@ public class ManifestComparator implements ContentsComparator {
             new Name("Build-Jdk"), //
             new Name("Built-By"), //
             new Name("Build-Jdk-Spec"),
+            //added by Tycho itself
+            new Name(TychoConstants.HEADER_TYCHO_BUILD_TIMESTAMP), //
             // lets be friendly to bnd/maven-bundle-plugin
-            new Name("Bnd-LastModified"), //
+            new Name(TychoConstants.HEADER_BND_LAST_MODIFIED), //
             new Name("Bundle-Developers"), //
             new Name("Tool"),
             // this is common attribute not supported by Tycho yet
             new Name("Eclipse-SourceReferences"));
-    // TODO make it possible to disable default ignores and add custom ignore
 
     @Override
     public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)

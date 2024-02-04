@@ -155,6 +155,13 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	@Parameter(defaultValue = "true")
 	private boolean deriveHeaderFromSource;
 
+	/**
+	 * Include the build timestamp in the manifest to track changes in the
+	 * <code>build-qualifier-aggregator</code> mojo
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean includeBuildTimestamp;
+
 	@Component
 	private SourceReferenceComputer soureReferenceComputer;
 
@@ -224,7 +231,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
 	private File createPluginJar() throws MojoExecutionException {
 		try {
-			MavenArchiver archiver = new MavenArchiver();
+			MavenArchiver archiver = createMavenArchiver(includeBuildTimestamp);
 			archiver.setArchiver(jarArchiver);
 
 			File pluginFile = new File(buildDirectory, finalName + ".jar");

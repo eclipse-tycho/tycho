@@ -60,6 +60,10 @@ public interface TychoConstants {
 
     public static final String BUILD_TIMESTAMP = CTX_BASENAME + "/buildTimestamp";
 
+    String HEADER_TYCHO_BUILD_TIMESTAMP = "Tycho-Build-Timestamp";
+
+    String HEADER_BND_LAST_MODIFIED = "Bnd-LastModified";
+
     public String JAR_EXTENSION = "jar";
 
     String PROP_GROUP_ID = "maven-groupId";

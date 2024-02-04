@@ -151,7 +151,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 		project.getProperties().put(UNQUALIFIED_VERSION, projectVersion.unqualifiedVersion);
 		project.getProperties().put(QUALIFIED_VERSION, projectVersion.getOSGiVersion());
 		getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
-		DefaultReactorProject.adapt(project).setContextValue(TychoConstants.BUILD_TIMESTAMP, projectVersion);
+		DefaultReactorProject.adapt(project).setContextValue(TychoConstants.BUILD_TIMESTAMP, timestamp);
     }
 
 	private TychoProjectVersion calculateQualifiedVersion(Date timestamp)
