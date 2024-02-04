@@ -59,6 +59,7 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
@@ -162,6 +163,10 @@ public class TychoProjectManager {
             TargetPlatformConfiguration configuration) {
         Map<String, String> properties = environment.toFilterProperties();
         properties.put("org.eclipse.update.install.features", "true");
+        IncludeSourceMode sourceMode = configuration.getTargetDefinitionIncludeSourceMode();
+        if (sourceMode == IncludeSourceMode.force || sourceMode == IncludeSourceMode.honor) {
+            properties.put("org.eclipse.update.install.sources", "true");
+        }
         properties.putAll(configuration.getProfileProperties());
         return properties;
     }

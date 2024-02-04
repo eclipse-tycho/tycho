@@ -41,17 +41,17 @@ import org.eclipse.tycho.versions.engine.VersionsEngine;
  * <ul>
  * <li>When the parent project of a project is changed and the project has the same version as the
  * parent project, the project is also changed.</li>
- * <li>When an <tt>eclipse-plugin</tt> project is changed and the plugin exports a package with a
+ * <li>When an <code>eclipse-plugin</code> project is changed and the plugin exports a package with a
  * version which is the same as the unqualified project version, the version of the package is also
  * changed.
- * <li>Require-Bundle and Fragment-Host Version Range in references to an <tt>eclipse-plugin</tt>
+ * <li>Require-Bundle and Fragment-Host Version Range in references to an <code>eclipse-plugin</code>
  * that changed version will be updated:
  * <ul>
  * <li>if the newVersion becomes out of the original VersionRange
  * <li>or if {@link #updateVersionRangeMatchingBounds} is true and one of the bounds is matching the
  * original version
  * </ul>
- * <li>When an <tt>eclipse-repository</tt> project is changed and a product file in the project has
+ * <li>When an <code>eclipse-repository</code> project is changed and a product file in the project has
  * an equivalent version, the version in the product file is also changed.</li>
  * </ul>
  * 

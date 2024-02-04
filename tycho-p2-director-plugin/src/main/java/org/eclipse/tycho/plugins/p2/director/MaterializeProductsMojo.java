@@ -78,10 +78,17 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
 
     /**
      * Include the feature JARs in installation. (Technically, this sets the property
-     * <tt>org.eclipse.update.install.features</tt> to <tt>true</tt> in the p2 profile.)
+     * <code>org.eclipse.update.install.features</code> to <code>true</code> in the p2 profile.)
      */
     @Parameter(defaultValue = "true")
     private boolean installFeatures;
+
+    /**
+     * Include the sources of JARs in installation. (Technically, this sets the property
+     * <code>org.eclipse.update.install.sources</code> to <code>true</code> in the p2 profile.)
+     */
+    @Parameter(defaultValue = "false")
+    private boolean installSources;
 
     /**
      * Additional profile properties to set when materializing the product
@@ -93,7 +100,7 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
      * Source repositories to be used in the director calls. Can be:
      * <ul>
      * <li><code>targetPlatform</code> - to use the target platform as source (default)</li>
-     * <li><code>repository</code> - to use the p2 repository in <tt>target/repository/</tt> as
+     * <li><code>repository</code> - to use the p2 repository in <code>target/repository/</code> as
      * source. With this option, the build implicitly verifies that it would also be possible to
      * install the product from that repository with an external director application.
      * </ul>
@@ -201,9 +208,10 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
         command.setProfileName(ProfileName.getNameForEnvironment(env, profileNames, profile));
         command.setEnvironment(env);
         command.setInstallFeatures(installFeatures);
+        command.setInstallSources(installSources);
         command.setProfileProperties(profileProperties);
         getLog().info("Installing product " + product.getId() + " for environment " + env + " to "
-                + destination.getAbsolutePath());
+                + destination.getAbsolutePath() + " using " + command.getProfileProperties());
         try {
             command.execute();
         } catch (DirectorCommandException e) {

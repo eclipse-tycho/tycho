@@ -167,7 +167,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     /**
      * <p>
-     * Compress the repository index files <tt>content.xml</tt> and <tt>artifacts.xml</tt>.
+     * Compress the repository index files <code>content.xml</code> and <code>artifacts.xml</code>.
      * </p>
      */
     @Parameter(defaultValue = "true")

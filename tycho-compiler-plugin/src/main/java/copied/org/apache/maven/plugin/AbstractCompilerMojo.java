@@ -183,10 +183,10 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
     private String executable;
 
     /**
-     * If <tt>only</tt> is specified, the annotation processors will run but no compilation will be
-     * performed. If <tt>none</tt> is specified, annotation processors will not be discovered or
+     * If <code>only</code> is specified, the annotation processors will run but no compilation will be
+     * performed. If <code>none</code> is specified, annotation processors will not be discovered or
      * run; compilation will proceed as if no annotation processors were found. By default the
-     * compiler must search the classpath for annotation processors, so specifying <tt>none</tt> may
+     * compiler must search the classpath for annotation processors, so specifying <code>none</code> may
      * speed compilation if annotation processing is not required. This parameter requires a 1.6 VM
      * or above and is used only if the compliance is 1.6
      * 
