@@ -137,8 +137,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     /**
      * Additional files to be included in the source bundle jar. This can be used when
-     * <tt>src.includes</tt> in build.properties is not flexible enough , e.g. for files which would
-     * otherwise conflict with files in <tt>bin.includes</tt><br/>
+     * <code>src.includes</code> in build.properties is not flexible enough , e.g. for files which would
+     * otherwise conflict with files in <code>bin.includes</code><br/>
      * Example:<br/>
      * 
      * <pre>

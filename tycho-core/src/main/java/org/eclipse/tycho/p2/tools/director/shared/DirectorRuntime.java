@@ -55,7 +55,14 @@ public interface DirectorRuntime {
 
         void setProfileProperties(Map<String, String> profileProperties);
 
+        /**
+         * @return a copy of the effective profile properties
+         */
+        Map<String, String> getProfileProperties();
+
         void setPhaseSet(IPhaseSet phaseSet);
+
+        void setInstallSources(boolean installSources);
     }
 
     /**
