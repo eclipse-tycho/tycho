@@ -375,10 +375,10 @@ public class DefaultTargetPlatformConfigurationReader {
                 List<TargetEnvironment> skipped = new ArrayList<>();
                 for (Xpp3Dom environmentDom : environmentsDom.getChildren("environment")) {
                     TargetEnvironment environment = newTargetEnvironment(environmentDom);
-                    if (!matchFilter(environment, filter)) {
-                        skipped.add(environment);
-                    } else {
+                    if (environment.match(filter)) {
                         result.addEnvironment(environment);
+                    } else {
+                        skipped.add(environment);
                     }
                 }
                 if (!skipped.isEmpty()) {
@@ -392,13 +392,6 @@ public class DefaultTargetPlatformConfigurationReader {
         } catch (TargetPlatformConfigurationException e) {
             throw new RuntimeException("target-platform-configuration error in project " + project.getId(), e);
         }
-    }
-
-    private static boolean matchFilter(TargetEnvironment environment, Filter filter) {
-        if (filter != null) {
-            return filter.matches(environment.toFilterProperties());
-        }
-        return true;
     }
 
     private static Filter getTargetEnvironmentFilter(TychoProject tychoProject, MavenProject project) {

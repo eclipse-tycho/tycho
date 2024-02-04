@@ -28,6 +28,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
@@ -59,8 +60,9 @@ public class ApiApplicationResolver {
 	private EclipseApplicationManager applicationManager;
 
 	public Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
-			ArtifactKey artifactKey) throws IllegalArtifactReferenceException {
-		P2Resolver resolver = applicationFactory.createResolver();
+			ArtifactKey artifactKey, Collection<TargetEnvironment> environment)
+			throws IllegalArtifactReferenceException {
+		P2Resolver resolver = applicationFactory.createResolver(environment);
 		resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, artifactKey.getId(), "0.0.0");
 		List<Path> resolvedBundles = new ArrayList<>();
 		TargetPlatform targetPlatform = applicationFactory.createTargetPlatform(baselineRepoLocations);
