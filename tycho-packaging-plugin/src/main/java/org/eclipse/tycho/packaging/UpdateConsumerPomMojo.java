@@ -259,7 +259,7 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		}
 		if (p2Skipped.isEmpty()) {
 			log.info("All system scoped dependencies were mapped to maven artifacts");
-		} else {
+		} else if (mapP2Dependencies) {
 			log.warn(resolved + " system scoped dependencies were mapped to maven artifacts, " + p2Skipped.size()
 					+ " were skipped");
 			if (log.isDebugEnabled()) {
@@ -267,6 +267,8 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 					log.debug("Skipped: " + skipped);
 				}
 			}
+		} else {
+			log.info(p2Skipped.size() + " system scoped dependencies were not mapped to maven artifacts");
 		}
 		try {
 			modelWriter.write(output, null, projectModel);
