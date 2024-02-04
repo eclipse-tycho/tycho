@@ -42,7 +42,7 @@ abstract class AbstractProductMojo extends AbstractMojo {
      * <p>
      * If the project contains more than one product file, you need to choose for which ones you
      * want to create distribution archives. If you choose to install more than one product, you
-     * need to specify the <tt>attachId</tt> (which becomes a part of the classifier) to make the
+     * need to specify the <code>attachId</code> (which becomes a part of the classifier) to make the
      * classifiers unique. Example:
      * 
      * <pre>
@@ -98,11 +98,11 @@ abstract class AbstractProductMojo extends AbstractMojo {
      * 
      * Details on the product-specific configuration parameters:
      * <ul>
-     * <li><tt>rootFolder</tt> - The path where the installed product shall be stored in the
+     * <li><code>rootFolder</code> - The path where the installed product shall be stored in the
      * archive, e.g. "eclipse". By default, the product is stored in the archive root.</li>
-     * <li><tt>rootFolders</tt> - OS-specific installation root folders, overriding
-     * <tt>rootFolder</tt>. Allowed children are <tt>&lt;macosx&gt;</tt>, <tt>&lt;win32&gt;</tt>,
-     * <tt>&lt;linux&gt;</tt> and <tt>&lt;freebsd&gt;</tt> or any other OS supported by p2. Since
+     * <li><code>rootFolders</code> - OS-specific installation root folders, overriding
+     * <code>rootFolder</code>. Allowed children are <code>&lt;macosx&gt;</code>, <code>&lt;win32&gt;</code>,
+     * <code>&lt;linux&gt;</code> and <code>&lt;freebsd&gt;</code> or any other OS supported by p2. Since
      * 0.18.0</li>
      * </ul>
      * 

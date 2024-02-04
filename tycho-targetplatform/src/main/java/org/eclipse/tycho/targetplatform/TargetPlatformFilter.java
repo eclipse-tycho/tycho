@@ -58,8 +58,8 @@ public final class TargetPlatformFilter {
      * <p>
      * If the action pattern returns <code>null</code> for its type, or type and id attributes,
      * these values shall be inherited from the scope pattern. This ensures that filters with a
-     * short <tt>&lt;restrictTo&gt;</tt> pattern with only a single <tt>&lt;version&gt;</tt> or
-     * <tt>&lt;versionRange&gt;</tt> attribute work as expected.
+     * short <code>&lt;restrictTo&gt;</code> pattern with only a single <code>&lt;version&gt;</code> or
+     * <code>&lt;versionRange&gt;</code> attribute work as expected.
      * </p>
      */
     public CapabilityPattern getActionPattern() {

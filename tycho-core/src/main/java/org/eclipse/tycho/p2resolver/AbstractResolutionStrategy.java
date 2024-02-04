@@ -71,6 +71,7 @@ public abstract class AbstractResolutionStrategy {
     private Map<String, String> getEffectiveFilterProperties(TargetEnvironment environment) {
         Map<String, String> result = environment.toFilterProperties();
         result.put("org.eclipse.update.install.features", "true");
+        result.put("org.eclipse.update.install.sources", "true");
         insertAdditionalFilterProperties(result);
         return result;
     }

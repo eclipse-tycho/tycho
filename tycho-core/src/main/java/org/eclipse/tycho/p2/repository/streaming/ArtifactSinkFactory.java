@@ -34,7 +34,7 @@ public final class ArtifactSinkFactory {
      *            The key of the artifact to be written.
      * @param destination
      *            The output stream to write the artifact content to. The ownership of the stream is
-     *            not transferred, i.e. neither this method nor the returned <tt>IArtifactSink</tt>
+     *            not transferred, i.e. neither this method nor the returned <code>IArtifactSink</code>
      *            will call {@link OutputStream#close()} on the stream.
      */
     public static IArtifactSink writeToStream(IArtifactKey artifactKey, OutputStream destination) {
@@ -55,7 +55,7 @@ public final class ArtifactSinkFactory {
      *            An {@link IArtifactDescriptor} specifying artifact and format to be written.
      * @param destination
      *            The output stream to write the raw content to. The ownership of the stream is not
-     *            transferred, i.e. neither this method nor the returned <tt>IRawArtifactSink</tt>
+     *            transferred, i.e. neither this method nor the returned <code>IRawArtifactSink</code>
      *            will call {@link OutputStream#close()} on the stream.
      */
     public static IRawArtifactSink rawWriteToStream(IArtifactDescriptor artifactDescriptor, OutputStream destination) {

@@ -49,9 +49,9 @@ import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
  * the bundle built in this project and its transitive dependencies, plus some Equinox and test
  * harness bundles. The bundles are resolved from the target platform of the project. Note that the
  * test runtime does typically <em>not</em> contain the entire target platform. If there are
- * implicitly required bundles (e.g. <tt>org.apache.felix.scr</tt> to make declarative services
- * work), they need to be added manually through an <tt>extraRequirements</tt> configuration on the
- * <tt>target-platform-configuration</tt> plugin.
+ * implicitly required bundles (e.g. <code>org.apache.felix.scr</code> to make declarative services
+ * work), they need to be added manually through an <code>extraRequirements</code> configuration on the
+ * <code>target-platform-configuration</code> plugin.
  * </p>
  * <p>
  * This goal adopts the maven-failsafe paradigm, that works in the following way:

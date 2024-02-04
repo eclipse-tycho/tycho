@@ -39,7 +39,7 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
 /**
  * <p>
- * Publishes the category definitions from the <tt>category.xml</tt> in the root of the project.
+ * Publishes the category definitions from the <code>category.xml</code> in the root of the project.
  * </p>
  *
  * @see https://wiki.eclipse.org/Equinox/p2/Publisher

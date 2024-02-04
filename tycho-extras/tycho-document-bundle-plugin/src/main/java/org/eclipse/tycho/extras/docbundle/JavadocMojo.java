@@ -51,11 +51,11 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
  * <p>
  * The javadoc executable path is determined in this order:
  * <ul>
- * <li><tt>executable</tt> argument of the <tt>javadocOptions</tt> configuration
+ * <li><code>executable</code> argument of the <code>javadocOptions</code> configuration
  * element, if available</li>
  * <li>active Maven toolchain</li>
- * <li><tt>java.home</tt> system property</li>
- * <li><tt>JAVA_HOME</tt> environment setting</li>
+ * <li><code>java.home</code> system property</li>
+ * <li><code>JAVA_HOME</code> environment setting</li>
  * <li>if none of the above can be used, the javadoc executable is invoked
  * without an explicit path and relies on the operating system PATH
  * variable</li>
@@ -116,19 +116,19 @@ public class JavadocMojo extends AbstractMojo {
 	 * Options for calling the javadoc application. Possible options are (all
 	 * options are optional):
 	 * <ul>
-	 * <li><tt>ignoreError</tt>, specifies if errors calling javadoc should be
+	 * <li><code>ignoreError</code>, specifies if errors calling javadoc should be
 	 * ignored</li>
-	 * <li><tt>doclet</tt>, used as javadoc <tt>-doclet</tt> parameter</li>
-	 * <li><tt>docletArtifacts</tt>, dependencies will be resovled and added as
-	 * <tt>-docletpath</tt> parameter</li>
-	 * <li><tt>encoding</tt>, used as javadoc <tt>-encoding</tt> parameter (default:
-	 * <tt>${project.build.sourceEncoding}</tt></li>
-	 * <li><tt>additionalArguments</tt>, a list of additional arguments passed to
+	 * <li><code>doclet</code>, used as javadoc <code>-doclet</code> parameter</li>
+	 * <li><code>docletArtifacts</code>, dependencies will be resovled and added as
+	 * <code>-docletpath</code> parameter</li>
+	 * <li><code>encoding</code>, used as javadoc <code>-encoding</code> parameter (default:
+	 * <code>${project.build.sourceEncoding}</code></li>
+	 * <li><code>additionalArguments</code>, a list of additional arguments passed to
 	 * javadoc</li>
-	 * <li><tt>includes</tt>/<tt>excludes</tt>, the list of names of packages to be
-	 * included in or excluded from JavaDoc processing; use '<tt>*</tt>' character
+	 * <li><code>includes</code>/<code>excludes</code>, the list of names of packages to be
+	 * included in or excluded from JavaDoc processing; use '<code>*</code>' character
 	 * as wildcard</li>
-	 * <li><tt>executable</tt>, the javadoc executable path to be used (see mojo
+	 * <li><code>executable</code>, the javadoc executable path to be used (see mojo
 	 * description for the default path calculation)</li>
 	 * </ul>
 	 * Example configuration:
@@ -168,9 +168,9 @@ public class JavadocMojo extends AbstractMojo {
 	/**
 	 * Options for creating the toc files.
 	 * <ul>
-	 * <li><tt>mainLabel</tt>, specifies the main label of the toc file (default:
+	 * <li><code>mainLabel</code>, specifies the main label of the toc file (default:
 	 * "API Reference")</li>
-	 * <li><tt>mainFilename</tt>, specifies the filename of the TOC file (default:
+	 * <li><code>mainFilename</code>, specifies the filename of the TOC file (default:
 	 * "overview-summary.html")
 	 * </ul>
 	 * Example configuration:

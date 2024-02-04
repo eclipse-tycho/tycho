@@ -218,7 +218,7 @@ public class DirectorMojo extends AbstractMojo {
 
     /**
      * A list of properties in the form key=value pairs. Effective only when a new profile is
-     * created. For example <tt>org.eclipse.update.install.features=true</tt> to install the
+     * created. For example <code>org.eclipse.update.install.features=true</code> to install the
      * features into the product.
      */
     @Parameter(property = "profileproperties")
@@ -226,6 +226,9 @@ public class DirectorMojo extends AbstractMojo {
 
     @Parameter(property = "installFeatures", defaultValue = "true")
     private boolean installFeatures;
+
+    @Parameter(defaultValue = "false")
+    private boolean installSources;
 
     /**
      * Additional profile properties to set when materializing the product
@@ -472,6 +475,9 @@ public class DirectorMojo extends AbstractMojo {
         }
         if (installFeatures) {
             map.put("org.eclipse.update.install.features", "true");
+        }
+        if (installSources) {
+            map.put("org.eclipse.update.install.sources", "true");
         }
         return map;
     }

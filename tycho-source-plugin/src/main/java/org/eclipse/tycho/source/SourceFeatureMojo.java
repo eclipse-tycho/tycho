@@ -646,8 +646,8 @@ public class SourceFeatureMojo extends AbstractMojo {
     }
 
     /**
-     * @return A {@link FileSet} including files as configured by the <tt>src.includes</tt> and
-     *         <tt>src.excludes</tt> properties without the files that are always included
+     * @return A {@link FileSet} including files as configured by the <code>src.includes</code> and
+     *         <code>src.excludes</code> properties without the files that are always included
      *         automatically.
      */
     private FileSet getManuallyIncludedFiles(File basedir, BuildProperties buildProperties) {
