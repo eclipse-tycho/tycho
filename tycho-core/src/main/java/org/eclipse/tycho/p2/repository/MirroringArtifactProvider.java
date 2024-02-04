@@ -61,7 +61,7 @@ import org.eclipse.tycho.core.shared.StatusTool;
  * repository.
  *
  * <p>
- * Note that a <tt>MirroringArtifactProvider</tt> is not a transparent cache of the remote
+ * Note that a <code>MirroringArtifactProvider</code> is not a transparent cache of the remote
  * providers. The content provided by this instance differs from the remote providers' content in
  * the following ways:
  * <ul>

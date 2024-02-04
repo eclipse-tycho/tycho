@@ -21,13 +21,13 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
  * 
  * <p>
  * Over {@link IArtifactFileProvider}, this interface adds methods for obtaining artifacts in raw
- * formats. (With the <tt>IArtifactFileProvider</tt> interface, artifacts can only be obtained in
+ * formats. (With the <code>IArtifactFileProvider</code> interface, artifacts can only be obtained in
  * the canonical format, i.e. the format in which the artifact can be used directly without
  * additional decompression.)
  * </p>
  * <p>
  * Over {@link IRawArtifactProvider}, this interface adds a method for obtaining the artifacts as
- * files in the local file system. (With the <tt>IRawArtifactProvider</tt> interface, artifacts can
+ * files in the local file system. (With the <code>IRawArtifactProvider</code> interface, artifacts can
  * only be obtained as stream.)
  * </p>
  */

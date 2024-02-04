@@ -37,8 +37,8 @@ import org.eclipse.tycho.p2.repository.AbstractMetadataRepository2;
 import org.eclipse.tycho.p2.repository.MetadataIO;
 
 /**
- * A p2 metadata repository implementation which is persisted in a <tt>p2content.xml</tt>. The
- * <tt>p2content.xml</tt> is the file that is deployed to Maven repositories alongside with the
+ * A p2 metadata repository implementation which is persisted in a <code>p2content.xml</code>. The
+ * <code>p2content.xml</code> is the file that is deployed to Maven repositories alongside with the
  * built Tycho artifact.
  * 
  * @see TychoConstants#FILE_NAME_P2_METADATA

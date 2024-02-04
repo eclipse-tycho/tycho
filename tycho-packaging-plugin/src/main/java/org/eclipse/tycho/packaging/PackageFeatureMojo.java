@@ -80,7 +80,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     /**
      * The output directory of the jar file
      * 
-     * By default this is the Maven <tt>target/</tt> directory.
+     * By default this is the Maven <code>target/</code> directory.
      */
     @Parameter(property = "project.build.directory")
     private File outputDirectory;
@@ -256,8 +256,8 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     }
 
     /**
-     * @return A {@link FileSet} including files as configured by the <tt>bin.includes</tt> and
-     *         <tt>bin.excludes</tt> properties without the files that are always included
+     * @return A {@link FileSet} including files as configured by the <code>bin.includes</code> and
+     *         <code>bin.excludes</code> properties without the files that are always included
      *         automatically.
      */
     private FileSet getManuallyIncludedFiles(BuildProperties buildProperties) {

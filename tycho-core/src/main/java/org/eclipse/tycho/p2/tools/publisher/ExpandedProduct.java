@@ -86,10 +86,10 @@ class ExpandedProduct implements IProductDescriptor {
     public List<IVersionedId> getFeatures(int options) {
         if (options == INCLUDED_FEATURES) {
             return expandedFeatures;
-        } else {
-            // currently not needed by the publisher action -> omitted for simplicity
-            throw new UnsupportedOperationException();
+        } else if (options == IProductDescriptor.ROOT_FEATURES) {
+            return Collections.unmodifiableList(expandedRootFeatures);
         }
+        return List.of();
     }
 
     public List<IInstallableUnit> getRootFeatures() {

@@ -67,7 +67,7 @@ import org.osgi.framework.Version;
 
 /**
  * <p>
- * Publishes all product definitions files (<tt>*.product</tt>) that are present in the root of the
+ * Publishes all product definitions files (<code>*.product</code>) that are present in the root of the
  * project.
  * </p>
  * 

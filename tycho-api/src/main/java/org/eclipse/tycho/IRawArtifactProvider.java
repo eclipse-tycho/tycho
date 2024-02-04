@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
  * 
  * <p>
  * Over {@link IArtifactProvider}, this interface adds methods for obtaining artifacts in raw
- * formats. (With the <tt>IArtifactProvider</tt> interface, artifacts can only be obtained in the
+ * formats. (With the <code>IArtifactProvider</code> interface, artifacts can only be obtained in the
  * canonical format, i.e. the format in which the artifact can be used directly without additional
  * decompression.)
  * </p>

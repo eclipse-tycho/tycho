@@ -73,7 +73,7 @@ public interface TargetPlatform {
      * Returns the file system location of the given target platform artifact.
      * 
      * @return the location of the given artifact, or <code>null</code> if the artifact does not
-     *         exist in the target platform, or if the given <tt>ArtifactKey</tt> refers to an
+     *         exist in the target platform, or if the given <code>ArtifactKey</code> refers to an
      *         metadata-only "artifact" e.g. a product definition.
      */
     File getArtifactLocation(ArtifactKey artifact);

@@ -15,7 +15,7 @@ package org.eclipse.tycho.core.ee.impl;
 
 /**
  * Thrown if a custom execution environment name does not comply to format
- * <tt>&lt;name&gt;-&lt;version&gt;</tt>, with name not containing dashes (-) and version being a
+ * <code>&lt;name&gt;-&lt;version&gt;</code>, with name not containing dashes (-) and version being a
  * valid OSGi version.
  */
 public class InvalidEENameException extends RuntimeException {

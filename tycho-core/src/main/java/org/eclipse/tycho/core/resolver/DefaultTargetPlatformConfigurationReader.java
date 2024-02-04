@@ -332,7 +332,7 @@ public class DefaultTargetPlatformConfigurationReader {
     /**
      * Take the constraints of the configured execution environment into account when resolving
      * dependencies or target definitions. These constraints include the list of system packages and
-     * the <tt>Bundle-RequiredExecutionEnvironment</tt> header. When set to <code>true</code>, the
+     * the <code>Bundle-RequiredExecutionEnvironment</code> header. When set to <code>true</code>, the
      * dependency resolution verifies that the bundle and all required bundles can be used in an
      * OSGi container with the configured execution environment.
      */
