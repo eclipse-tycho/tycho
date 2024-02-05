@@ -10,6 +10,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>provider.bundle</module>
+		<module>consumer.micro</module>
 		<module>consumer.narrow</module>
 		<module>consumer.wide</module>
 		<module>consumer.open</module>
