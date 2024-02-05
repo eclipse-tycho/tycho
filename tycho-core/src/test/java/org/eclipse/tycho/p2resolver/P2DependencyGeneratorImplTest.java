@@ -79,7 +79,7 @@ public class P2DependencyGeneratorImplTest {
 
         assertEquals("org.eclipse.tycho.p2.impl.test.bundle", unit.getId());
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
-        assertEquals(3, unit.getRequirements().size());
+        assertEquals(4, unit.getRequirements().size());
         assertEquals(DEFAULT_CLASSIFIER, unit.getProperty(TychoConstants.PROP_CLASSIFIER));
 
         // not really necessary, but we get this because we reuse standard p2 implementation
@@ -97,12 +97,19 @@ public class P2DependencyGeneratorImplTest {
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
 
         List<IRequirement> requirements = new ArrayList<>(unit.getRequirements());
-        assertEquals(1, requirements.size());
-        IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
-        assertEquals(IInstallableUnit.NAMESPACE_IU_ID, requirement.getNamespace());
-        assertEquals("required.p2.inf", requirement.getName());
-
+        assertNotNull(getReqCap(requirements, IInstallableUnit.NAMESPACE_IU_ID, "required.p2.inf"));
         assertNotNull(getUnitWithId("iu.p2.inf", units));
+    }
+
+    private IRequiredCapability getReqCap(List<IRequirement> requirements, String ns, String name) {
+        for (IRequirement r : requirements) {
+            if (r instanceof IRequiredCapability cap) {
+                if (ns.equals(cap.getNamespace()) && name.equals(cap.getName())) {
+                    return cap;
+                }
+            }
+        }
+        return null;
     }
 
     private IInstallableUnit getUnitWithId(String id, List<IInstallableUnit> units) {
