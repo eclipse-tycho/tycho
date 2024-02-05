@@ -32,7 +32,7 @@ import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.AdviceFileParser;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.BundleSpecification;
