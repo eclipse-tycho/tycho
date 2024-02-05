@@ -34,12 +34,12 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.test.util.ArtifactMock;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.LogVerifier;
@@ -117,13 +117,25 @@ public class P2GeneratorImplTest {
         IInstallableUnit iu = getUnit("optional-import-package", units);
         assertNotNull(iu);
         List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
-        assertEquals(1, requirements.size());
-        IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
+        IRequiredCapability requirement = getReqCap(requirements, PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
+                "org.osgi.framework");
+        assertNotNull("org.osgi.framework", requirement);
         assertTrue(requirement.isGreedy());
         assertEquals(1, requirement.getMin());
         assertEquals(1, requirement.getMax());
         assertEquals(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, requirement.getNamespace());
         assertEquals("org.osgi.framework", requirement.getName());
+    }
+
+    private IRequiredCapability getReqCap(List<IRequirement> requirements, String ns, String name) {
+        for (IRequirement r : requirements) {
+            if (r instanceof IRequiredCapability cap) {
+                if (ns.equals(cap.getNamespace()) && name.equals(cap.getName())) {
+                    return cap;
+                }
+            }
+        }
+        return null;
     }
 
     private DefaultDependencyMetadataGenerator createDependencyMetadataGenerator() {
@@ -145,7 +157,7 @@ public class P2GeneratorImplTest {
         IInstallableUnit iu = getUnit("optional-import-package", units);
         assertNotNull(iu);
         List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
-        assertEquals(0, requirements.size());
+        assertEquals(1, requirements.size());
     }
 
     @Test
@@ -160,13 +172,12 @@ public class P2GeneratorImplTest {
         IInstallableUnit iu = getUnit("optional-require-bundle", units);
         assertNotNull(iu);
         List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
-        assertEquals(1, requirements.size());
-        IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
+        IRequiredCapability requirement = getReqCap(requirements, BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
+                "org.eclipse.osgi");
+        assertNotNull(requirement);
         assertTrue(requirement.isGreedy());
         assertEquals(1, requirement.getMin());
         assertEquals(1, requirement.getMax());
-        assertEquals(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, requirement.getNamespace());
-        assertEquals("org.eclipse.osgi", requirement.getName());
     }
 
     @Test
@@ -181,13 +192,11 @@ public class P2GeneratorImplTest {
         IInstallableUnit iu = getUnit("optional-require-bundle", units);
         assertNotNull(iu);
         List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
-        assertEquals(1, requirements.size());
-        IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
+        IRequiredCapability requirement = getReqCap(requirements, BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
+                "org.eclipse.osgi");
         assertFalse(requirement.isGreedy());
         assertEquals(0, requirement.getMin());
         assertEquals(1, requirement.getMax());
-        assertEquals(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, requirement.getNamespace());
-        assertEquals("org.eclipse.osgi", requirement.getName());
     }
 
     @Test
@@ -202,7 +211,7 @@ public class P2GeneratorImplTest {
         IInstallableUnit iu = getUnit("optional-require-bundle", units);
         assertNotNull(iu);
         List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
-        assertEquals(0, requirements.size());
+        assertEquals(1, requirements.size());
     }
 
     @Test
@@ -217,12 +226,10 @@ public class P2GeneratorImplTest {
         IInstallableUnit iu = getUnit("optional-reqiure-bundle-p2inf", units);
         assertNotNull(iu);
         List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
-        assertEquals(1, requirements.size());
-        IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
+        IRequiredCapability requirement = getReqCap(requirements, BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
+                "org.eclipse.osgi");
         assertTrue(requirement.isGreedy());
         assertEquals(1, requirement.getMin());
         assertEquals(1, requirement.getMax());
-        assertEquals(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, requirement.getNamespace());
-        assertEquals("org.eclipse.osgi", requirement.getName());
     }
 }
