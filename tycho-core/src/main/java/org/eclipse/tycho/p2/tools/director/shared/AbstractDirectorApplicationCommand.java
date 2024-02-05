@@ -25,6 +25,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.CommandLineArguments;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.p2tools.copiedfromp2.PhaseSetFactory;
 
 /**
@@ -165,8 +166,8 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
     public Map<String, String> getProfileProperties() {
         Map<String, String> props = new TreeMap<>(this.profileProperties);
         props.put("org.eclipse.update.install.features", Boolean.toString(installFeatures));
-        if (installSources && props.get("org.eclipse.update.install.sources") == null) {
-            props.put("org.eclipse.update.install.sources", "true");
+        if (installSources && props.get(BundlesAction.FILTER_PROPERTY_INSTALL_SOURCE) == null) {
+            props.put(BundlesAction.FILTER_PROPERTY_INSTALL_SOURCE, "true");
         }
         return props;
     }

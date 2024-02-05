@@ -45,6 +45,7 @@ import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.CommandLineArguments;
 import org.eclipse.tycho.p2.resolver.BundlePublisher;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.p2tools.MavenDirectorLog;
 import org.eclipse.tycho.p2tools.copiedfromp2.DirectorApplication;
 import org.eclipse.tycho.p2tools.copiedfromp2.PhaseSetFactory;
@@ -477,7 +478,7 @@ public class DirectorMojo extends AbstractMojo {
             map.put("org.eclipse.update.install.features", "true");
         }
         if (installSources) {
-            map.put("org.eclipse.update.install.sources", "true");
+            map.put(BundlesAction.FILTER_PROPERTY_INSTALL_SOURCE, "true");
         }
         return map;
     }
