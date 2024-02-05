@@ -150,6 +150,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		String expectedNewMavenVersion = "1.1.0-SNAPSHOT";
 		String expectedNewOSGiVersion = "1.1.0.qualifier";
 		String expectedPackageVersion = "1.1.0";
+		String expectedMicroVersionRange = "[" + expectedPackageVersion + ",1.1.1)";
 		String expectedNarrowVersionRange = "[" + expectedPackageVersion + ",1.2.0)";
 		String expectedWideVersionRange = "[" + expectedPackageVersion + ",2)";
 		// example call:
@@ -186,6 +187,13 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 					consumerNarrow.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
 			assertVersionRange(consumerNarrow, expectedNarrowVersionRange, Constants.IMPORT_PACKAGE);
 			assertVersionRange(consumerNarrow, expectedNarrowVersionRange, Constants.REQUIRE_BUNDLE);
+		}
+		{// check micro version range is updated
+			Manifest consumerNarrow = getManifest(verifier, "consumer.micro");
+			assertEquals("version in manifest was not updated for micro consumer bundle!", expectedNewOSGiVersion,
+					consumerNarrow.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertVersionRange(consumerNarrow, expectedMicroVersionRange, Constants.IMPORT_PACKAGE);
+			assertVersionRange(consumerNarrow, expectedMicroVersionRange, Constants.REQUIRE_BUNDLE);
 		}
 	}
 
