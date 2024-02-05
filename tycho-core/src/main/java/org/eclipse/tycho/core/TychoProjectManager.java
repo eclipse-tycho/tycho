@@ -62,6 +62,7 @@ import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.osgi.framework.Filter;
 
@@ -165,7 +166,7 @@ public class TychoProjectManager {
         properties.put("org.eclipse.update.install.features", "true");
         IncludeSourceMode sourceMode = configuration.getTargetDefinitionIncludeSourceMode();
         if (sourceMode == IncludeSourceMode.force || sourceMode == IncludeSourceMode.honor) {
-            properties.put("org.eclipse.update.install.sources", "true");
+            properties.put(BundlesAction.FILTER_PROPERTY_INSTALL_SOURCE, "true");
         }
         properties.putAll(configuration.getProfileProperties());
         return properties;
