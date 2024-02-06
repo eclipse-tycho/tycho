@@ -13,7 +13,12 @@
 package org.eclipse.tycho;
 
 import java.io.File;
+import java.util.stream.Stream;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -87,6 +92,18 @@ public interface TargetPlatform {
                 new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, packageJar.getId(), packageJar.getVersion()));
         return ResolvedArtifactKey.of(ArtifactType.TYPE_ECLIPSE_PLUGIN, packageJar.getId(), packageJar.getVersion(),
                 location);
+    }
+
+    default Stream<ArtifactKey> resolvePackages(String packageName, VersionRange versionRange) {
+        IQuery<IInstallableUnit> query = ArtifactTypeHelper.createQueryFor(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
+                packageName, versionRange);
+        IQueryResult<IInstallableUnit> result = getMetadataRepository().query(query, null);
+        return result.stream().flatMap(iu -> {
+            return iu.getArtifacts().stream().filter(key -> ArtifactTypeHelper.isBundle(key)).map(key -> {
+                return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, key.getId(),
+                        key.getVersion().toString());
+            });
+        });
     }
 
     /**

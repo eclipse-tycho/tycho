@@ -10,7 +10,7 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.resolver.target;
+package org.eclipse.tycho;
 
 import static org.eclipse.tycho.ArtifactType.TYPE_BUNDLE_FRAGMENT;
 import static org.eclipse.tycho.ArtifactType.TYPE_ECLIPSE_FEATURE;
@@ -24,20 +24,14 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.IArtifactFacade;
-import org.eclipse.tycho.IllegalArtifactReferenceException;
-import org.eclipse.tycho.PackagingType;
 
 public class ArtifactTypeHelper {
 
-    // p2 installable units
+    public static final String CAPABILITY_NS_OSGI_BUNDLE = "osgi.bundle"; //see org.eclipse.equinox.p2.publisher.eclipse.BundlesAction.CAPABILITY_NS_OSGI_BUNDLE
+    public static final String OSGI_BUNDLE_CLASSIFIER = "osgi.bundle"; //see org.eclipse.equinox.p2.publisher.eclipse.BundlesAction.OSGI_BUNDLE_CLASSIFIER
 
     /**
      * Returns a query matching the installable units representing the specified Eclipse
@@ -90,8 +84,7 @@ public class ArtifactTypeHelper {
     }
 
     private static IRequirement createBundleRequirement(String id, VersionRange versionRange) {
-        return MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, id, versionRange, null, false,
-                true); // optional=false, multiple=true
+        return MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, id, versionRange, null, false, true); // optional=false, multiple=true
     }
 
     private static IRequirement createFeatureRequirement(String id, VersionRange versionRange) {
@@ -185,6 +178,10 @@ public class ArtifactTypeHelper {
             return ArtifactType.TYPE_ECLIPSE_FEATURE;
         }
         return ArtifactType.TYPE_INSTALLABLE_UNIT;
+    }
+
+    public static boolean isBundle(IArtifactKey key) {
+        return key != null && OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier());
     }
 
 }
