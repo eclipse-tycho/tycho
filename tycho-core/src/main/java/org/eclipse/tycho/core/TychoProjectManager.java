@@ -63,7 +63,6 @@ import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
-import org.osgi.framework.Filter;
 
 import aQute.bnd.osgi.Processor;
 
@@ -185,10 +184,10 @@ public class TychoProjectManager {
     public Collection<TargetEnvironment> getTargetEnvironments(MavenProject project) {
         TychoProject tychoProject = projectTypes.get(project.getPackaging());
         if (tychoProject != null) {
-            Filter environmentFilter = tychoProject.getTargetEnvironmentFilter(project);
-            return getTargetPlatformConfiguration(project).getEnvironments().stream()
-                    .filter(te -> te.match(environmentFilter)).toList();
+        	//these will already be filtered at reading the target configuration
+            return getTargetPlatformConfiguration(project).getEnvironments();
         }
+        //if no tycho project, just assume the default running environment
         return List.of(TargetEnvironment.getRunningEnvironment());
     }
 
