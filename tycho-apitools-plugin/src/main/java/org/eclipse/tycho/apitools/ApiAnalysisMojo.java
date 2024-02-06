@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -195,10 +196,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 					.collect(Collectors.groupingBy(IApiProblem::getSeverity));
 			List<IApiProblem> errors = problems.getOrDefault(ApiPlugin.SEVERITY_ERROR, List.of());
 			List<IApiProblem> warnings = problems.getOrDefault(ApiPlugin.SEVERITY_WARNING, List.of());
-			if (printSummary) {
-				log.info(errors.size() + " API ERRORS");
-				log.info(warnings.size() + " API warnings");
-			}
 			if (printProblems) {
 				for (IApiProblem problem : errors) {
 					printProblem(problem, "API ERROR", log::error);
@@ -209,10 +206,30 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			}
 			if (enhanceLogs && logDirectory != null && logDirectory.isDirectory()) {
 				try {
-					LogFileEnhancer.enhanceXml(logDirectory, analysisResult);
+					AtomicInteger notMapped = new AtomicInteger();
+					LogFileEnhancer.enhanceXml(logDirectory, analysisResult, notfound -> {
+						notMapped.incrementAndGet();
+						if (printProblems) {
+							// it was already printed before...
+							return;
+						}
+						if (ApiPlugin.SEVERITY_ERROR == notfound.getSeverity()) {
+							printProblem(notfound, "API ERROR", log::error);
+						} else if (ApiPlugin.SEVERITY_WARNING == notfound.getSeverity()) {
+							printProblem(notfound, "API WARNING", log::warn);
+						}
+					});
+					int count = notMapped.get();
+					if (count > 0) {
+						log.warn(count + " API problems can't be mapped to the compiler log!");
+					}
 				} catch (IOException e) {
 					log.warn("Can't enhance logs in directory " + logDirectory);
 				}
+			}
+			if (printSummary) {
+				log.info(errors.size() + " API ERRORS");
+				log.info(warnings.size() + " API warnings");
 			}
 			if (errors.size() > 0 && failOnError) {
 				String msg = errors.stream().map(problem -> {
