@@ -308,7 +308,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		long start = System.currentTimeMillis();
 		Collection<Path> baselineBundles;
 		try {
-			Collection<TargetEnvironment> targetEnvironments = projectManager.getTargetEnvironments(project);
+			Collection<TargetEnvironment> targetEnvironments = getBaselineEnvironments();
 			Optional<ArtifactKey> artifactKey = projectManager.getArtifactKey(project);
 			getLog().info("Resolve API baseline for " + project.getId() + " with "
 					+ targetEnvironments.stream().map(String::valueOf).collect(Collectors.joining(", ")));
@@ -323,6 +323,26 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		}
 		return baselineBundles;
 	}
+
+	/**
+	 * This method selected the a target environment best suited for the current
+	 * baseline, if it is a valid choice the running target is used (e.g. linux on
+	 * linux host, windows on windows hosts and so on), if such environment is not
+	 * available it is using the configured ones form the project as is.
+	 * 
+	 * @return the chosen {@link TargetEnvironment}s
+	 */
+	private Collection<TargetEnvironment> getBaselineEnvironments() {
+		Collection<TargetEnvironment> targetEnvironments = projectManager.getTargetEnvironments(project);
+		TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
+		for (TargetEnvironment targetEnvironment : targetEnvironments) {
+			if (targetEnvironment.equals(runningEnvironment)) {
+				return List.of(targetEnvironment);
+			}
+		}
+		return targetEnvironments;
+	}
+
 
 	private String time(long start) {
 		long ms = System.currentTimeMillis() - start;
