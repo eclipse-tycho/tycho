@@ -725,18 +725,22 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         CompilerConfiguration compilerConfiguration = super.getCompilerConfiguration(compileSourceRoots,
                 compileSourceExcludes);
         if (useProjectSettings) {
-            String prefsFilePath = project.getBasedir() + File.separator + PREFS_FILE_PATH;
-            if (!new File(prefsFilePath).exists()) {
-                getLog().debug("Parameter 'useProjectSettings' is set to true, but preferences file '" + prefsFilePath
-                        + "' could not be found");
-            } else {
+            Path prefsFilePath = tychoProjectManager.getEclipseProject(project)
+                    .map(eclipse -> eclipse.getFile(PREFS_FILE_PATH))
+                    .orElseGet(() -> new File(project.getBasedir(), PREFS_FILE_PATH).toPath());
+
+            if (Files.isRegularFile(prefsFilePath)) {
                 // make sure that "-properties" is the first custom argument, otherwise it's not possible to override
                 // any project setting on the command line because the last argument wins.
                 List<Entry<String, String>> copy = new ArrayList<>(
                         compilerConfiguration.getCustomCompilerArgumentsEntries());
                 compilerConfiguration.getCustomCompilerArgumentsEntries().clear();
-                addCompilerCustomArgument(compilerConfiguration, "-properties", prefsFilePath);
+                addCompilerCustomArgument(compilerConfiguration, "-properties",
+                        prefsFilePath.toAbsolutePath().toString());
                 compilerConfiguration.getCustomCompilerArgumentsEntries().addAll(copy);
+            } else {
+                getLog().debug("Parameter 'useProjectSettings' is set to true, but preferences file '" + prefsFilePath
+                        + "' could not be found");
             }
         }
         compilerConfiguration.setTargetVersion(getTargetLevel());
