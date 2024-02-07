@@ -14,6 +14,7 @@ package org.eclipse.tycho.model.project;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collection;
 
 /**
  * represents information gathered from an "eclipse project" usually stored in a file named
@@ -33,4 +34,22 @@ public interface EclipseProject {
     static EclipseProject parse(Path projectFile) throws IOException {
         return ProjectParser.parse(projectFile);
     }
+
+    /**
+     * Resolves a path according to the project, this will resolve linked resources
+     * 
+     * @param path
+     * @return the resolved path
+     */
+    Path getFile(Path path);
+
+    /**
+     * Resolves a path according to the project, this will resolve linked resources
+     * 
+     * @param path
+     * @return the resolved path
+     */
+    Path getFile(String path);
+
+    Collection<ProjectVariable> getVariables();
 }

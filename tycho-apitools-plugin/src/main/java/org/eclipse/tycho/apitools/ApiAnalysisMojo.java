@@ -148,7 +148,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		if (eclipseProjectValue.isEmpty() || !eclipseProjectValue.get().hasNature(ApiPlugin.NATURE_ID)) {
 			return;
 		}
-
+		EclipseProject eclipseProject = eclipseProjectValue.get();
 		if (supportedPackagingTypes.contains(project.getPackaging())) {
 			Log log = getLog();
 			if (skipIfReplaced && wasReplaced()) {
@@ -179,14 +179,15 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			}
 			ApiAnalysisResult analysisResult;
 			if (parallel) {
-				analysisResult = performAnalysis(baselineBundles, dependencyBundles, eclipseFramework);
+				analysisResult = performAnalysis(baselineBundles, dependencyBundles, eclipseFramework, eclipseProject);
 			} else {
 				synchronized (ApiAnalysisMojo.class) {
 					// due to
 					// https://gitlab.eclipse.org/eclipsefdn/helpdesk/-/issues/3885#note_1266412 we
 					// can not execute more than one analysis without excessive memory consumption
 					// unless this is fixed it is safer to only run one analysis at a time
-					analysisResult = performAnalysis(baselineBundles, dependencyBundles, eclipseFramework);
+					analysisResult = performAnalysis(baselineBundles, dependencyBundles, eclipseFramework,
+							eclipseProject);
 				}
 			}
 			log.info("API Analysis finished in " + time(start) + ".");
@@ -253,10 +254,11 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	}
 
 	private ApiAnalysisResult performAnalysis(Collection<Path> baselineBundles, Collection<Path> dependencyBundles,
-			EclipseFramework eclipseFramework) throws MojoExecutionException {
+			EclipseFramework eclipseFramework, EclipseProject eclipseProject) throws MojoExecutionException {
 		try {
 			ApiAnalysis analysis = new ApiAnalysis(baselineBundles, dependencyBundles, project.getName(),
-					fileToPath(apiFilter), fileToPath(apiPreferences), fileToPath(project.getBasedir()), debug,
+					eclipseProject.getFile(fileToPath(apiFilter)), eclipseProject.getFile(fileToPath(apiPreferences)),
+					fileToPath(project.getBasedir()), debug,
 					fileToPath(project.getArtifact().getFile()),
 					stringToPath(project.getBuild().getOutputDirectory()));
 			return eclipseFramework.execute(analysis);
