@@ -6,6 +6,25 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+### Support for CycloneDX Maven Plugin
+
+The `tycho-sbom` plugin can be added as a dependency to the CycloneDX plugin,
+in order to handle the PURL creation of p2 artifacts:
+
+```
+<plugin>
+	<groupId>org.cyclonedx</groupId>
+	<artifactId>cyclonedx-maven-plugin</artifactId>
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-sbom</artifactId>
+			<version>${tycho-version}</version>
+		</dependency>
+	</dependencies>
+</plugin>
+```
+
 ### Support for parallel execution of product assembly / archiving
 
 The mojos `materialize-products` and `archive-products` now support a new `<parallel>` parameter 
