@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Plugin with SBOM
+Bundle-SymbolicName: example.plugin
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.core.databinding;bundle-version="1.13.100",
+ org.eclipse.core.databinding.beans;bundle-version="1.10.100",
+ org.eclipse.core.databinding.observable;bundle-version="1.13.100",
+ org.eclipse.core.databinding.property;bundle-version="1.10.100"
+Automatic-Module-Name: example.plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-17

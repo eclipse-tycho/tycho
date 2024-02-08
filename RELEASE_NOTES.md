@@ -2,6 +2,12 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 4.0.6
+
+### backports:
+
+- Support for CycloneDX Maven Plugin
+
 ## 4.0.5
 
 ### backports:

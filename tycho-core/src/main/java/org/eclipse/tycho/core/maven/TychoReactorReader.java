@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2024 Christoph Läubrich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -67,7 +67,7 @@ public class TychoReactorReader implements MavenWorkspaceReader {
         }).orElse(null);
     }
 
-    private Optional<MavenProject> getTychoReactorProject(Artifact artifact) {
+    public Optional<MavenProject> getTychoReactorProject(Artifact artifact) {
         if (isTychoReactorArtifact(artifact)) {
             String projectKey = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(),
                     artifact.getVersion());
@@ -81,11 +81,18 @@ public class TychoReactorReader implements MavenWorkspaceReader {
         return Optional.empty();
     }
 
-    private boolean isTychoReactorArtifact(Artifact artifact) {
+    public boolean isTychoReactorArtifact(Artifact artifact) {
         if (artifact.getClassifier() == null || artifact.getClassifier().isBlank()) {
-            return PackagingType.TYCHO_PACKAGING_TYPES.contains(artifact.getProperty("type", ""));
+            return PackagingType.TYCHO_PACKAGING_TYPES.contains(getPackagingType(artifact));
         }
         return false;
+    }
+
+    public String getPackagingType(Artifact artifact) {
+        if (artifact != null) {
+            return artifact.getProperty("type", "");
+        }
+        return null;
     }
 
     @Override
