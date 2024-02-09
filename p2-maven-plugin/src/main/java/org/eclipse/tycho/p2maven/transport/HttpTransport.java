@@ -1,14 +1,15 @@
 package org.eclipse.tycho.p2maven.transport;
 
 import java.io.IOException;
-import java.io.InputStream;
+
+import org.eclipse.tycho.p2maven.transport.Response.ResponseConsumer;
 
 public interface HttpTransport {
 
 	void setHeader(String key, String value);
 
-	Response<InputStream> get() throws IOException;
+	<T> T get(ResponseConsumer<T> consumer) throws IOException;
 
-	Response<Void> head() throws IOException;
+	Headers head() throws IOException;
 
 }
