@@ -12,39 +12,32 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.zip.GZIPInputStream;
 
-public interface Response<T> extends AutoCloseable {
+public interface Response extends Headers {
 
-	int statusCode() throws IOException;
-
-	Map<String, List<String>> headers();
-
-	@Override
-	void close();
-
-	T body() throws IOException;
-
-	URI getURI();
-
-	String getHeader(String header);
-
-	long getLastModified();
-
-	default void checkResponseCode() throws FileNotFoundException, IOException {
-		int code = statusCode();
-		if (code >= HttpURLConnection.HTTP_BAD_REQUEST) {
-			if (code == HttpURLConnection.HTTP_NOT_FOUND || code == HttpURLConnection.HTTP_GONE) {
-				throw new FileNotFoundException(getURI().toString());
-			} else {
-				throw new java.io.IOException("Server returned HTTP code: " + code + " for URL " + getURI().toString());
-			}
+	default void transferTo(OutputStream outputStream) throws IOException {
+		String encoding = getHeader(Headers.HEADER_CONTENT_ENCODING);
+		if (Headers.ENCODING_GZIP.equals(encoding)) {
+			transferTo(outputStream, GZIPInputStream::new);
+		} else if (encoding == null || encoding.isEmpty() || Headers.ENCODING_IDENTITY.equals(encoding)) {
+			transferTo(outputStream, stream -> stream);
+		} else {
+			throw new IOException("Unknown content encoding: " + encoding);
 		}
+	}
+
+	void transferTo(OutputStream outputStream, ContentEncoding transportEncoding) throws IOException;
+
+	interface ContentEncoding {
+		InputStream decode(InputStream raw) throws IOException;
+	}
+
+	interface ResponseConsumer<T> {
+		T handleResponse(Response response) throws IOException;
 	}
 
 }
