@@ -17,7 +17,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.text.DateFormat;
@@ -33,7 +32,6 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.codehaus.plexus.component.annotations.Component;
@@ -51,14 +49,6 @@ public class SharedHttpCacheStorage implements HttpCache {
 	// TODO can we sync this with the time where maven updates snapshots?
 	public static final long MIN_CACHE_PERIOD = Long.getLong("tycho.p2.transport.min-cache-minutes",
 			TimeUnit.HOURS.toMinutes(1));
-	private static final String LAST_MODIFIED_HEADER = "Last-Modified";
-	private static final String EXPIRES_HEADER = "Expires";
-	private static final String CACHE_CONTROL_HEADER = "Cache-Control";
-	private static final String MAX_AGE_DIRECTIVE = "max-age";
-	private static final String MUST_REVALIDATE_DIRECTIVE = "must-revalidate";
-
-	private static final String ETAG_HEADER = "ETag";
-
 	private static final int MAX_IN_MEMORY = 1000;
 
 	@Requirement
@@ -168,10 +158,6 @@ public class SharedHttpCacheStorage implements HttpCache {
 
 	private final class CacheLine {
 
-		private static final String ENCODING_IDENTITY = "identity";
-		private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
-		private static final String HEADER_CONTENT_ENCODING = "Content-Encoding";
-		private static final String ENCODING_GZIP = "gzip";
 		private static final String RESPONSE_CODE = "HTTP_RESPONSE_CODE";
 		private static final String LAST_UPDATED = "FILE-LAST_UPDATED";
 		private static final String STATUS_LINE = "HTTP_STATUS_LINE";
@@ -192,7 +178,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 			// probably just download it right now?
 			HttpTransport transport = transportFactory.createTransport(uri);
 
-			try (Response<Void> response = transport.head()) {
+			try (Headers response = transport.head()) {
 				int code = response.statusCode();
 				if (isAuthFailure(code)) {
 					throw new AuthenticationFailedException(); // FIXME why is there no constructor to give a cause?
@@ -223,7 +209,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 					return SharedHttpCacheStorage.this.getCacheEntry(uri, logger).getLastModified(transportFactory);
 				}
 				Properties offlineHeader = getHeader();
-				Date lastModified = pareHttpDate(offlineHeader.getProperty(LAST_MODIFIED_HEADER.toLowerCase()));
+				Date lastModified = pareHttpDate(offlineHeader.getProperty(Headers.LAST_MODIFIED_HEADER.toLowerCase()));
 				if (lastModified != null) {
 					return lastModified.getTime();
 				}
@@ -242,16 +228,17 @@ public class SharedHttpCacheStorage implements HttpCache {
 			HttpTransport transport = transportFactory.createTransport(uri);
 			Properties lastHeader = getHeader();
 			if (exits) {
-				if (lastHeader.containsKey(ETAG_HEADER.toLowerCase())) {
-					transport.setHeader("If-None-Match", lastHeader.getProperty(ETAG_HEADER.toLowerCase()));
+				if (lastHeader.containsKey(Headers.ETAG_HEADER.toLowerCase())) {
+					transport.setHeader("If-None-Match", lastHeader.getProperty(Headers.ETAG_HEADER.toLowerCase()));
 				}
-				if (lastHeader.contains(LAST_MODIFIED_HEADER.toLowerCase())) {
+				if (lastHeader.contains(Headers.LAST_MODIFIED_HEADER.toLowerCase())) {
 					transport.setHeader("If-Modified-Since",
-							lastHeader.getProperty(LAST_MODIFIED_HEADER.toLowerCase()));
+							lastHeader.getProperty(Headers.LAST_MODIFIED_HEADER.toLowerCase()));
 				}
 			}
-			transport.setHeader(HEADER_ACCEPT_ENCODING, ENCODING_GZIP);
-			try (Response<InputStream> response = transport.get()) {
+			transport.setHeader(Headers.HEADER_ACCEPT_ENCODING, Headers.ENCODING_GZIP);
+			return transport.get(response -> {
+				File tempFile;
 				int code = response.statusCode();
 				if (exits && code == HttpURLConnection.HTTP_NOT_MODIFIED) {
 					updateHeader(response, getResponseCode());
@@ -270,6 +257,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 					// Copying file to accommodate original request and its file extension.
 					// Once https://github.com/eclipse-equinox/p2/issues/355 is fixed, cachedFile
 					// may be returned directly without copying.
+					response.close(); // early close before doing unrelated file I/O
 					FileUtils.copyFile(cachedFile, file);
 					return file;
 				}
@@ -277,23 +265,18 @@ public class SharedHttpCacheStorage implements HttpCache {
 					FileUtils.forceDelete(file);
 				}
 				response.checkResponseCode();
-				File tempFile = File.createTempFile("download", ".tmp", file.getParentFile());
-				try (InputStream inputStream = response.body(); FileOutputStream os = new FileOutputStream(tempFile)) {
-					String encoding = response.getHeader(HEADER_CONTENT_ENCODING);
-					if (ENCODING_GZIP.equals(encoding)) {
-						new GZIPInputStream(inputStream).transferTo(os);
-					} else if (encoding == null || encoding.isEmpty() || ENCODING_IDENTITY.equals(encoding)) {
-						inputStream.transferTo(os);
-					} else {
-						throw new IOException("Unknown content encoding: " + encoding);
-					}
+				tempFile = File.createTempFile("download", ".tmp", file.getParentFile());
+				try (FileOutputStream os = new FileOutputStream(tempFile)) {
+					response.transferTo(os);
 				} catch (IOException e) {
 					tempFile.delete();
 					throw e;
 				}
+				response.close(); // early close before doing file I/O
 				FileUtils.moveFile(tempFile, file);
-			}
-			return file;
+				return file;
+			});
+
 		}
 
 		public synchronized File getFile(URI uri, HttpTransportFactory transportFactory,
@@ -324,7 +307,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 			}
 			String[] cacheControls = getCacheControl();
 			for (String directive : cacheControls) {
-				if (MUST_REVALIDATE_DIRECTIVE.equals(directive)) {
+				if (Headers.MUST_REVALIDATE_DIRECTIVE.equals(directive)) {
 					// server enforced validation
 					return true;
 				}
@@ -337,15 +320,15 @@ public class SharedHttpCacheStorage implements HttpCache {
 			// Cache-Control header with "max-age" directive takes precedence over Expires
 			// Header.
 			for (String directive : cacheControls) {
-				if (directive.toLowerCase().startsWith(MAX_AGE_DIRECTIVE)) {
-					long maxAge = parseLong(directive.substring(MAX_AGE_DIRECTIVE.length() + 1));
+				if (directive.toLowerCase().startsWith(Headers.MAX_AGE_DIRECTIVE)) {
+					long maxAge = parseLong(directive.substring(Headers.MAX_AGE_DIRECTIVE.length() + 1));
 					if (maxAge <= 0) {
 						return true;
 					}
 					return (lastUpdated + TimeUnit.SECONDS.toMillis(maxAge)) < System.currentTimeMillis();
 				}
 			}
-			Date expiresDate = pareHttpDate(properties.getProperty(EXPIRES_HEADER.toLowerCase()));
+			Date expiresDate = pareHttpDate(properties.getProperty(Headers.EXPIRES_HEADER.toLowerCase()));
 			if (expiresDate != null) {
 				return expiresDate.after(new Date());
 			}
@@ -364,7 +347,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 		}
 
 		private String[] getCacheControl() {
-			String property = getHeader().getProperty(CACHE_CONTROL_HEADER);
+			String property = getHeader().getProperty(Headers.CACHE_CONTROL_HEADER);
 			if (property != null) {
 				return property.split(",\\s*");
 			}
@@ -375,7 +358,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 			return code == HttpURLConnection.HTTP_PROXY_AUTH || code == HttpURLConnection.HTTP_UNAUTHORIZED;
 		}
 
-		protected void updateHeader(Response<?> response, int code) throws IOException, FileNotFoundException {
+		protected void updateHeader(Headers response, int code) throws IOException, FileNotFoundException {
 			header = new Properties();
 			header.setProperty(RESPONSE_CODE, String.valueOf(code));
 			header.setProperty(LAST_UPDATED, String.valueOf(System.currentTimeMillis()));
@@ -395,7 +378,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 					// don't store non default header...
 					continue;
 				}
-				if (HEADER_CONTENT_ENCODING.equals(key)) {
+				if (Headers.HEADER_CONTENT_ENCODING.equals(key)) {
 					// we already decode the content before...
 					continue;
 				}
