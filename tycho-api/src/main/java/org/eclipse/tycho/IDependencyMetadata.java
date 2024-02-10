@@ -20,7 +20,12 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 public interface IDependencyMetadata {
 
     enum DependencyMetadataType {
-        INITIAL, SEED, RESOLVE;
+        INITIAL, SEED, RESOLVE,
+        /**
+         * Additional metadata describing requirements like defined in the targets platform
+         * dependency resolution
+         */
+        ADDITIONAL;
     }
 
     Set<IInstallableUnit> getDependencyMetadata(DependencyMetadataType type);

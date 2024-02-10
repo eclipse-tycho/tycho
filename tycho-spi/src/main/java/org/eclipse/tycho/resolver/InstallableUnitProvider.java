@@ -36,7 +36,7 @@ public interface InstallableUnitProvider {
         return createIU(requirements.toList(), idPrefix);
     }
 
-    static Collection<IInstallableUnit> createIU(List<IRequirement> requirements, String idPrefix) {
+    static Collection<IInstallableUnit> createIU(Collection<IRequirement> requirements, String idPrefix) {
         if (requirements.isEmpty()) {
             return Collections.emptyList();
         }

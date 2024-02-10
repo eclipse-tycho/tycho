@@ -354,6 +354,13 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
             for (IRequirement requirement : resolverConfiguration.getAdditionalRequirements()) {
                 resolver.addRequirement(requirement);
             }
+            Set<IInstallableUnit> additionalDependencyMetadata = DefaultReactorProject.adapt(project)
+                    .getDependencyMetadata(DependencyMetadataType.ADDITIONAL);
+            for (IInstallableUnit unit : additionalDependencyMetadata) {
+                for (IRequirement requirement : unit.getRequirements()) {
+                    resolver.addRequirement(requirement);
+                }
+            }
         }
 
         BuildProperties buildProperties = buildPropertiesParser.parse(DefaultReactorProject.adapt(project));

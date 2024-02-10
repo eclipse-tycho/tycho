@@ -122,7 +122,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
      * @param project
      * @return
      */
-    protected List<ProductConfiguration> loadProducts(final ReactorProject project) {
+    public static List<ProductConfiguration> loadProducts(final ReactorProject project) {
         List<ProductConfiguration> products = new ArrayList<>();
         for (File file : getProductFiles(project)) {
             try {
@@ -153,7 +153,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
      *            the project containing the product files
      * @return The list of product files to parse for an eclipse-repository project
      */
-    public List<File> getProductFiles(final ReactorProject project) {
+    public static List<File> getProductFiles(final ReactorProject project) {
         final File projectLocation = project.getBasedir();
         return getProductFiles(projectLocation);
     }
@@ -165,7 +165,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
      *            the directory containing the product files
      * @return The list of product files to parse for an eclipse-repository project
      */
-    public List<File> getProductFiles(final File basedir) {
+    public static List<File> getProductFiles(final File basedir) {
         final List<File> files = new ArrayList<>();
 
         // noinspection ConstantConditions
