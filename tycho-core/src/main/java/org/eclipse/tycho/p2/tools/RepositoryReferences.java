@@ -54,6 +54,17 @@ public final class RepositoryReferences {
     }
 
     /**
+     * Adds a co-located metadata/artifact repository at the given location.
+     * 
+     * @param repository
+     *            A URL pointing to a p2 repository
+     */
+    public void addRepository(URI repository) {
+        addArtifactRepository(repository);
+        addMetadataRepository(repository);
+    }
+
+    /**
      * Adds the artifact repository at the given location.
      * 
      * @param artifactRepositoryLocation
