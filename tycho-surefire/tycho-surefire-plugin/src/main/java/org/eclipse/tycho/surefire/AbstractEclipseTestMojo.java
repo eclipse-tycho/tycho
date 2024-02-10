@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,6 +46,7 @@ import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.ResolutionErrorHandler;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -528,6 +531,22 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private List<IU> install;
 
     /**
+     * Additional repositories used to install units from, only relevant if {@link #testRuntime} is
+     * <code>p2Installed</code>.
+     * 
+     * <pre>
+    * &lt;repositories&gt;
+    *   &lt;repository&gt;
+    *       &lt;url&gt;...another repository...&lt;/url&gt;
+    *   &lt;/repository&gt;
+    * &lt;/repositories&gt;
+     * </pre>
+     * 
+     */
+    @Parameter(name = "repositories")
+    private List<Repository> repositories;
+
+    /**
      * p2 <a href=
      * "https://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html"
      * >profile</a> name of the installation under test.
@@ -653,6 +672,17 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             }
             RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(project, session,
                     RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
+            if (repositories != null) {
+                for (Repository repository : repositories) {
+                    String url = repository.getUrl();
+                    if (url == null || url.isBlank()) {
+                        throw new MojoExecutionException("Repository url can't be empty!");
+                    }
+                    URI uri = new URI(url);
+                    getLog().info("Adding repository " + uri + "...");
+                    sources.addRepository(uri);
+                }
+            }
             installationBuilder.addMetadataRepositories(sources.getMetadataRepositories());
             installationBuilder.addArtifactRepositories(sources.getArtifactRepositories());
             installationBuilder.setProfileName(profileName);
@@ -680,8 +710,14 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
                 getLog().info("Provisioning with environment " + testEnvironment + "...");
                 return installationBuilder.install(testEnvironment);
             }
-        } catch (Exception ex) {
-            throw new MojoExecutionException(ex.getMessage(), ex);
+        } catch (MojoExecutionException e) {
+            throw e;
+        } catch (MojoFailureException e) {
+            throw e;
+        } catch (URISyntaxException e) {
+            throw new MojoExecutionException(e.getInput() + " is not a valid URI", e);
+        } catch (Exception e) {
+            throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 
