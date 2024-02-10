@@ -56,4 +56,21 @@
 		</dependency>
 	</dependencies>
 
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<!-- workaround for https://issues.apache.org/jira/browse/MPLUGIN-450 -->
+				<configuration>
+					<goalPrefix>tycho-p2-publisher</goalPrefix>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-component-metadata</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 </project>

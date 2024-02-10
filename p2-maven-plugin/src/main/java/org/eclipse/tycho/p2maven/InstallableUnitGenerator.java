@@ -262,6 +262,10 @@ public class InstallableUnitGenerator {
 		return actions;
 	}
 
+	public Collection<IInstallableUnit> getInstallableUnits(IProductDescriptor productDescriptor) throws CoreException {
+		return publisher.publishMetadata(List.of(new ProductDependenciesAction(productDescriptor)));
+	}
+
 	public Collection<IInstallableUnit> getInstallableUnits(Manifest manifest) {
 		Attributes mainAttributes = manifest.getMainAttributes();
 		CaseInsensitiveDictionaryMap<String, String> headers = new CaseInsensitiveDictionaryMap<>(
