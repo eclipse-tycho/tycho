@@ -21,6 +21,7 @@
     <exportedPackage>org.eclipse.equinox.p2.repository.artifact</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.repository.metadata</exportedPackage>
     <exportedPackage>org.eclipse.equinox.internal.p2.metadata</exportedPackage>
+    <exportedPackage>org.eclipse.equinox.internal.p2.publisher.eclipse</exportedPackage>
     <!-- <exportedPackage>org.eclipse.core.runtime</exportedPackage>
     <exportedPackage>org.eclipse.core.resources</exportedPackage>  -->
     <!-- other  -->
