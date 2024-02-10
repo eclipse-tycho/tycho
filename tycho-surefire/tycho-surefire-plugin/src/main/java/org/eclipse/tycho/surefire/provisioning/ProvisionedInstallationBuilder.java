@@ -130,7 +130,7 @@ public class ProvisionedInstallationBuilder {
         command.setProfileName(profileName);
         command.setInstallFeatures(installFeatures);
         command.setEnvironment(env);
-        log.info("Installing IUs " + ius + " to " + effectiveDestination);
+        log.info("Installing IUs " + ius + " to " + effectiveDestination + " using " + command.getProfileProperties());
         try {
             command.execute();
         } catch (DirectorCommandException e) {
