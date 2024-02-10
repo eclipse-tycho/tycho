@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.bnd;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +24,11 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.IDependencyMetadata;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.UnmodifiableDependencyMetadata;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 import org.eclipse.tycho.resolver.P2MetadataProvider;
 
@@ -49,28 +50,8 @@ public class BndP2MetadataProvider implements P2MetadataProvider {
         if (units.isEmpty()) {
             return Collections.emptyMap();
         }
-        IDependencyMetadata metadata = new IDependencyMetadata() {
-
-            @Override
-            public Set<IInstallableUnit> getDependencyMetadata(DependencyMetadataType type) {
-                if (type == DependencyMetadataType.INITIAL) {
-                    return getDependencyMetadata();
-                }
-                return Collections.emptySet();
-            }
-
-            @Override
-            public Set<IInstallableUnit> getDependencyMetadata() {
-                return units;
-            }
-
-            @Override
-            public void setDependencyMetadata(DependencyMetadataType type, Collection<IInstallableUnit> units) {
-                throw new UnsupportedOperationException();
-            }
-
-        };
-        return Map.of(TychoConstants.PDE_BND, metadata);
+        return Map.of(TychoConstants.PDE_BND,
+                new UnmodifiableDependencyMetadata(units, DependencyMetadataType.INITIAL));
     }
 
 }
