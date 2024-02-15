@@ -406,7 +406,13 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         Set<URI> loaded = new HashSet<>();
         for (MavenRepositoryLocation location : completeRepositories) {
             artifactRepositories.add(location.getURL());
-            loadMetadataRepository(location, metadataRepositories, loaded, artifactRepositories, includeReferences);
+            try {
+                loadMetadataRepository(location, metadataRepositories, loaded, artifactRepositories, includeReferences);
+            } catch (ProvisionException e) {
+                String idMessage = location.getId() == null ? "" : " with ID '" + location.getId() + "'";
+                throw new RuntimeException(
+                        "Failed to load p2 repository" + idMessage + " from location " + location.getURL(), e);
+            }
         }
         if (includeLocalMavenRepo) {
             metadataRepositories.add(localMetadataRepository);
@@ -429,30 +435,29 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
     private void loadMetadataRepository(MavenRepositoryLocation location,
             List<IMetadataRepository> metadataRepositories, Set<URI> loaded, Set<URI> artifactRepositories,
-            boolean includeReferences) {
+            boolean includeReferences) throws ProvisionException {
         if (loaded.add(location.getURL().normalize())) {
-            try {
-                IMetadataRepository repository = remoteMetadataRepositoryManager.loadRepository(location.getURL(),
-                        monitor);
-                metadataRepositories.add(repository);
-                if (includeReferences) {
-                    for (IRepositoryReference reference : repository.getReferences()) {
-                        if ((reference.getOptions() | IRepository.ENABLED) != 0) {
-                            if (reference.getType() == IRepository.TYPE_METADATA) {
+            IMetadataRepository repository = remoteMetadataRepositoryManager.loadRepository(location.getURL(), monitor);
+            metadataRepositories.add(repository);
+            if (includeReferences) {
+                for (IRepositoryReference reference : repository.getReferences()) {
+                    if ((reference.getOptions() | IRepository.ENABLED) != 0) {
+                        if (reference.getType() == IRepository.TYPE_METADATA) {
+                            try {
                                 loadMetadataRepository(
                                         new MavenRepositoryLocation(reference.getNickname(), reference.getLocation()),
                                         metadataRepositories, loaded, artifactRepositories, includeReferences);
-                            } else if (reference.getType() == IRepository.TYPE_ARTIFACT) {
-                                artifactRepositories.add(reference.getLocation());
+                            } catch (ProvisionException e) {
+                                logger.warn("Loading referenced repository failed: " + e.getMessage(),
+                                        logger.isDebugEnabled() ? e : null);
                             }
+                        } else if (reference.getType() == IRepository.TYPE_ARTIFACT) {
+                            artifactRepositories.add(reference.getLocation());
                         }
                     }
                 }
-            } catch (ProvisionException e) {
-                String idMessage = location.getId() == null ? "" : " with ID '" + location.getId() + "'";
-                throw new RuntimeException(
-                        "Failed to load p2 repository" + idMessage + " from location " + location.getURL(), e);
             }
+
         }
     }
 
