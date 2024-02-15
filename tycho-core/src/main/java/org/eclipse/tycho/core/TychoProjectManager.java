@@ -42,6 +42,7 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ResolvedArtifactKey;
@@ -185,7 +186,7 @@ public class TychoProjectManager {
     public Collection<TargetEnvironment> getTargetEnvironments(MavenProject project) {
         TychoProject tychoProject = projectTypes.get(project.getPackaging());
         if (tychoProject != null) {
-        	//these will already be filtered at reading the target configuration
+            //these will already be filtered at reading the target configuration
             return getTargetPlatformConfiguration(project).getEnvironments();
         }
         //if no tycho project, just assume the default running environment
@@ -197,6 +198,10 @@ public class TychoProjectManager {
             return Optional.empty();
         }
         return Optional.ofNullable(projectTypes.get(project.getPackaging()));
+    }
+
+    public Optional<DependencyArtifacts> getDependencyArtifacts(MavenProject project) {
+        return getTychoProject(project).map(tp -> tp.getDependencyArtifacts(project));
     }
 
     public Optional<TychoProject> getTychoProject(ReactorProject project) {
