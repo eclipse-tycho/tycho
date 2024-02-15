@@ -75,7 +75,7 @@ public class BaselineServiceImpl implements BaselineService {
 
         for (MavenRepositoryLocation location : baselineLocations) {
             try {
-                baselineUnits.add(repositoryManager.getMetadataRepositor(location));
+                baselineUnits.add(repositoryManager.getMetadataRepository(location));
                 baselineArtifacts.add(repositoryManager.getArtifactRepository(location));
             } catch (ProvisionException e) {
                 // baseline repository may not exist yet
