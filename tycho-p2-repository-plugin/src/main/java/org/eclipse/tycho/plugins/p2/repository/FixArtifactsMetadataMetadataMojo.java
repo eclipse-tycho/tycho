@@ -39,7 +39,7 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 @Mojo(name = "fix-artifacts-metadata", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
 
-    @Parameter(defaultValue = "${project.name}")
+    @Parameter(defaultValue = "${project.name}", property = "p2.repository.name")
     private String repositoryName;
 
     /**
@@ -48,7 +48,7 @@ public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
      * redundant file content.
      * </p>
      */
-    @Parameter(defaultValue = "true")
+    @Parameter(defaultValue = "true", property = "p2.repository.xz")
     private boolean xzCompress;
 
     /**
@@ -58,7 +58,7 @@ public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
      * pre-Mars p2 clients which cannot read XZ-compressed index files.
      * </p>
      */
-    @Parameter(defaultValue = "true")
+    @Parameter(defaultValue = "true", property = "p2.repository.xz.keep")
     private boolean keepNonXzIndexFiles;
 
     @Component

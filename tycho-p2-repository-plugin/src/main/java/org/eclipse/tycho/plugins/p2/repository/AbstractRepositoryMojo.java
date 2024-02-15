@@ -19,7 +19,7 @@ import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 
 public abstract class AbstractRepositoryMojo extends AbstractP2Mojo {
 
-    @Parameter
+    @Parameter(property = "p2.repository.location")
     private File repositoryLocation;
 
     protected File getAssemblyRepositoryLocation() {
