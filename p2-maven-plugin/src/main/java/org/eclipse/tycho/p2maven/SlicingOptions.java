@@ -11,27 +11,40 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.internal.repository.tools;
+package org.eclipse.tycho.p2maven;
 
 import java.util.Hashtable;
 import java.util.Map;
 
+/**
+ * Holds the slicing options for a permissive slicer, the defaults are:
+ * <ul>
+ * <li>includeOptionalDependencies = true</li>
+ * <li>everythingGreedy = true</li>
+ * <li>forceFilterTo = true</li>
+ * <li>considerStrictDependencyOnly = false</li>
+ * <li>followOnlyFilteredRequirements = false</li>
+ * <li>filter = null</li>
+ * <li>latestVersion = true</li>
+ * </ul>
+ * This effectively means that everything that can be included will be included
+ * in the slice.
+ */
 public class SlicingOptions {
 	private boolean includeOptionalDependencies = true;
 	private boolean everythingGreedy = true;
 	private boolean forceFilterTo = true;
 	private boolean considerStrictDependencyOnly = false;
 	private boolean followOnlyFilteredRequirements = false;
-	private boolean latestVersion = false;
-	private boolean resolve = false;
-
+	private boolean latestVersion = true;
+	
 	private Map<String, String> filter = null;
 
-	public boolean includeOptionalDependencies() {
+	public boolean isIncludeOptionalDependencies() {
 		return includeOptionalDependencies;
 	}
 
-	public void includeOptionalDependencies(boolean optional) {
+	public void setIncludeOptionalDependencies(boolean optional) {
 		this.includeOptionalDependencies = optional;
 	}
 
@@ -39,23 +52,23 @@ public class SlicingOptions {
 		return everythingGreedy;
 	}
 
-	public void everythingGreedy(boolean greedy) {
+	public void setEverythingGreedy(boolean greedy) {
 		this.everythingGreedy = greedy;
 	}
 
-	public boolean forceFilterTo() {
+	public boolean isForceFilterTo() {
 		return forceFilterTo;
 	}
 
-	public void forceFilterTo(boolean forcedTo) {
+	public void setForceFilterTo(boolean forcedTo) {
 		this.forceFilterTo = forcedTo;
 	}
 
-	public boolean considerStrictDependencyOnly() {
+	public boolean isConsiderStrictDependencyOnly() {
 		return considerStrictDependencyOnly;
 	}
 
-	public void considerStrictDependencyOnly(boolean strict) {
+	public void setConsiderStrictDependencyOnly(boolean strict) {
 		this.considerStrictDependencyOnly = strict;
 	}
 
@@ -69,27 +82,19 @@ public class SlicingOptions {
 		this.filter = filter;
 	}
 
-	public void followOnlyFilteredRequirements(boolean onlyFiltered) {
+	public void setFollowOnlyFilteredRequirements(boolean onlyFiltered) {
 		this.followOnlyFilteredRequirements = onlyFiltered;
 	}
 
-	public boolean followOnlyFilteredRequirements() {
+	public boolean isFollowOnlyFilteredRequirements() {
 		return followOnlyFilteredRequirements;
 	}
 
-	public boolean latestVersionOnly() {
+	public boolean isLatestVersionOnly() {
 		return latestVersion;
 	}
 
-	public void latestVersionOnly(boolean latest) {
+	public void setLatestVersionOnly(boolean latest) {
 		this.latestVersion = latest;
-	}
-
-	public void installTimeLikeResolution(boolean resolve) {
-		this.resolve = resolve;
-	}
-
-	public boolean getInstallTimeLikeResolution() {
-		return resolve;
 	}
 }

@@ -50,6 +50,7 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 import org.eclipse.tycho.p2maven.InstallableUnitSlicer;
 import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
+import org.eclipse.tycho.p2maven.SlicingOptions;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
 /**
@@ -73,6 +74,35 @@ public class MirrorTargetPlatformMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "true")
     private boolean includeCategories = true;
+
+    /**
+     * Allows configuration of additional slicing options for example like this:
+     * 
+     * <pre>
+     * &lt;options&gt;
+    *   &lt;!-- should optional dependencies be included (true) or ignored (false), defaults to true --&gt;
+    *   &lt;includeOptionalDependencies&gt;true/false&lt;/includeOptionalDependencies&gt;
+    *   &lt;!-- should requirements be considered always greedy (true) - i.e., install even if there are no usages - or only if specified (false), defaults to true --&gt;
+    *   &lt;everythingGreedy&gt;true/false&lt;/everythingGreedy&gt;
+    *   &lt;!-- should only strict dependencies be considered (true) or all dependencies (false), defaults to false --&gt;
+    *   &lt;!-- a strict dependency is one with a strict version range (e.g. [1.2,1.2]) and usually maps to items included in a feature, default is false --&gt;
+    *   &lt;considerStrictDependencyOnly&gt;true/false&lt;/considerStrictDependencyOnly&gt;
+    *   &lt;!-- should only items that have a filter be considered (true) or all of them (false), default is false --&gt;
+    *   &lt;followOnlyFilteredRequirements&gt;true/false&lt;/followOnlyFilteredRequirements&gt;
+    *   &lt;!-- if no filter context is defined and a filter is encountered (e.g., os = win32 on a requirement), the filter will always match (true) or fail (false), default is true --&gt;
+    *   &lt;forceFilterTo&gt;true/false&lt;/forceFilterTo&gt;
+    *   &lt;!-- should only the latest version (true) or all versions (false) be included, default is true --&gt;
+    *   &lt;latestVersion&gt;true/false&lt;/latestVersion&gt;
+    *   &lt;!-- defines the filter context, if not given, filtering is disabled and the value of forceFilterTo is used --&gt;
+    *   &lt;filter&gt;
+    *       &lt;key&gt;value&lt;/key&gt;
+    *            ...
+    *   &lt;/filter&gt;
+    *  &lt;/options&gt;
+     * </pre>
+     */
+    @Parameter
+    private SlicingOptions options;
 
     @Component
     private TargetPlatformService platformService;
@@ -123,7 +153,7 @@ public class MirrorTargetPlatformMojo extends AbstractMojo {
                         label = project.getId();
                     }
                     rootIus.add(createCategory(label, query));
-                    mirrorUnits = installableUnitSlicer.computeDependencies(rootIus, metadataRepository);
+                    mirrorUnits = installableUnitSlicer.computeDependencies(rootIus, metadataRepository, options);
                 } catch (CoreException e) {
                     throw new MojoFailureException("Failed to compute dependencies to mirror", e);
                 }
