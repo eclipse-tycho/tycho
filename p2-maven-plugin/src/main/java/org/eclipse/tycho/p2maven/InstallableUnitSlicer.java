@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -39,6 +40,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 @Component(role = InstallableUnitSlicer.class)
 public class InstallableUnitSlicer {
 
+	private static final SlicingOptions DEFAULT_SLICING_OPTIONS = new SlicingOptions();
 	@Requirement
 	private Logger log;
 
@@ -51,13 +53,18 @@ public class InstallableUnitSlicer {
 	 * @param rootIus     the root units that are inspected for the slice
 	 * @param avaiableIUs the {@link IQueryable} of all units that could be used for
 	 *                    the slice
+	 * @param options     the options used for the slicing
 	 * @return the result of the slicing
 	 * @throws CoreException if there is any error
 	 */
 	public IQueryResult<IInstallableUnit> computeDependencies(Collection<IInstallableUnit> rootIus,
-			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
+			IQueryable<IInstallableUnit> avaiableIUs, SlicingOptions options)
+			throws CoreException {
+		options = Objects.requireNonNullElse(options, DEFAULT_SLICING_OPTIONS);
 		NullProgressMonitor monitor = new NullProgressMonitor();
-		PermissiveSlicer slicer = new TychoSlicer(avaiableIUs);
+		PermissiveSlicer slicer = new PermissiveSlicer(avaiableIUs, options.getFilter(),
+				options.isIncludeOptionalDependencies(), options.isEverythingGreedy(), options.isForceFilterTo(),
+				options.isConsiderStrictDependencyOnly(), options.isFollowOnlyFilteredRequirements());
 		IQueryable<IInstallableUnit> slice = slicer.slice(rootIus, monitor);
 		IStatus sliceStatus = slicer.getStatus();
 		if (sliceStatus.matches(IStatus.ERROR)) {
@@ -65,6 +72,9 @@ public class InstallableUnitSlicer {
 		}
 		if (!sliceStatus.isOK()) {
 			log.debug("There are warnings from the slicer: " + sliceStatus);
+		}
+		if (options.isLatestVersionOnly()) {
+			return slice.query(QueryUtil.createLatestIUQuery(), monitor);
 		}
 		return slice.query(QueryUtil.createIUAnyQuery(), monitor);
 	}
