@@ -63,7 +63,7 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
 	public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor)
 			throws ProvisionException, OperationCanceledException {
 		URI effectiveLocation = translateAndPrepareLoad(location);
-		authenticator.enterLoad(location);
+		authenticator.enterLoad(effectiveLocation);
 		try {
 			IMetadataRepository loadedRepository = delegate.loadRepository(effectiveLocation, flags, monitor);
 			failIfRepositoryContainsPartialIUs(loadedRepository, effectiveLocation);
