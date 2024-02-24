@@ -104,8 +104,6 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     @Requirement
     TychoProjectManager projectManager;
 
-    private boolean warnedAboutTychoMode;
-
     public TychoMavenLifecycleParticipant() {
         // needed for plexus
     }
