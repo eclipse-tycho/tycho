@@ -79,7 +79,7 @@ public class HtmlComparator implements ContentsComparator {
                         headElement.removeChild(node);
                     }
                 }
-                if (node instanceof Comment comment) {
+                if (node instanceof Comment) {
                     headElement.removeChild(node);
                 }
             }

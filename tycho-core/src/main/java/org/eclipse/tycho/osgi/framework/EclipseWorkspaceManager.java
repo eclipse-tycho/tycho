@@ -39,7 +39,7 @@ public class EclipseWorkspaceManager implements Disposable {
 
     /**
      * @param key
-     *            the key to use
+     *                the key to use
      * @return a workspace directory that can be used by the current thread.
      */
     @SuppressWarnings("unchecked")
@@ -48,7 +48,7 @@ public class EclipseWorkspaceManager implements Disposable {
         return (EclipseWorkspace<T>) cache.computeIfAbsent(currentThread, t -> new ConcurrentHashMap<>())
                 .computeIfAbsent(key, x -> {
                     try {
-                        return new EclipseWorkspace<>(Files.createTempDirectory("eclipseWorkspace"), key, logger,
+                        return new EclipseWorkspace<>(Files.createTempDirectory("eclipseWorkspace"), key,
                                 currentThread);
                     } catch (IOException e) {
                         throw new IllegalStateException("can't create a temporary directory for the workspace!", e);

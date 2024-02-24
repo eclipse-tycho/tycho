@@ -14,8 +14,6 @@ package org.eclipse.tycho.osgi.framework;
 
 import java.nio.file.Path;
 
-import org.codehaus.plexus.logging.Logger;
-
 /**
  * A generic representation of a workspace that is only initialized once and carries a cache key,
  * belonging to a thread so it can be used in a threadsafe manner
@@ -28,14 +26,11 @@ public final class EclipseWorkspace<T> {
 
     private T key;
 
-    private Logger logger;
-
     private Thread thread;
 
-    EclipseWorkspace(Path workDir, T key, Logger logger, Thread thread) {
+    EclipseWorkspace(Path workDir, T key, Thread thread) {
         this.workDir = workDir;
         this.key = key;
-        this.logger = logger;
         this.thread = thread;
     }
 
