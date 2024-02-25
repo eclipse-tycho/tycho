@@ -208,7 +208,7 @@ public class TarGzArchiverTest {
         try (TarArchiveInputStream tarStream = new TarArchiveInputStream(
                 new GzipCompressorInputStream(new FileInputStream(tarGzArchive)))) {
             TarArchiveEntry tarEntry = null;
-            while ((tarEntry = tarStream.getNextTarEntry()) != null) {
+            while ((tarEntry = tarStream.getNextEntry()) != null) {
                 entries.put(tarEntry.getName(), tarEntry);
             }
         }
@@ -219,7 +219,7 @@ public class TarGzArchiverTest {
         try (TarArchiveInputStream tarStream = new TarArchiveInputStream(
                 new GzipCompressorInputStream(new FileInputStream(tarGzArchive)))) {
             TarArchiveEntry tarEntry = null;
-            while ((tarEntry = tarStream.getNextTarEntry()) != null) {
+            while ((tarEntry = tarStream.getNextEntry()) != null) {
                 if (name.equals(tarEntry.getName())) {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     tarStream.transferTo(baos);
