@@ -33,6 +33,7 @@ import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.resolver.ResolverException;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 
 public abstract class AbstractResolutionStrategy {
     protected static final IInstallableUnit[] EMPTY_IU_ARRAY = new IInstallableUnit[0];
@@ -71,6 +72,7 @@ public abstract class AbstractResolutionStrategy {
     private Map<String, String> getEffectiveFilterProperties(TargetEnvironment environment) {
         Map<String, String> result = environment.toFilterProperties();
         result.put("org.eclipse.update.install.features", "true");
+        result.put(BundlesAction.FILTER_PROPERTY_INSTALL_SOURCE, "true");
         insertAdditionalFilterProperties(result);
         return result;
     }

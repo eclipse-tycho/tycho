@@ -14,10 +14,10 @@ package org.eclipse.tycho.p2.tools.director.shared;
 
 import java.io.File;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.eclipse.equinox.p2.engine.IPhaseSet;
@@ -25,6 +25,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.CommandLineArguments;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.p2tools.copiedfromp2.PhaseSetFactory;
 
 /**
@@ -45,6 +46,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
     private File destination;
     private File bundlePool;
     private IPhaseSet phaseSet;
+    private boolean installSources;
 
     @Override
     public final void addMetadataSources(Iterable<URI> metadataRepositories) {
@@ -94,6 +96,11 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
     }
 
     @Override
+    public void setInstallSources(boolean installSources) {
+        this.installSources = installSources;
+    }
+
+    @Override
     public final void setVerifyOnly(boolean verifyOnly) {
         this.verifyOnly = verifyOnly;
     }
@@ -136,8 +143,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         args.addUnlessEmpty("-installIU", unitsToInstall);
         args.add("-destination", destination.getAbsolutePath());
         args.add("-profile", profileName);
-        Map<String, String> props = new HashMap<>(this.profileProperties);
-        props.put("org.eclipse.update.install.features", Boolean.toString(installFeatures));
+        Map<String, String> props = getProfileProperties();
         args.add("-profileProperties", props.entrySet().stream().map(entry -> entry.getKey() + '=' + entry.getValue())
                 .collect(Collectors.joining(",")));
         args.add("-roaming");
@@ -153,8 +159,17 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
             args.add("-p2.ws", environment.getWs());
             args.add("-p2.arch", environment.getArch());
         }
-
         return args.asList();
+    }
+
+    @Override
+    public Map<String, String> getProfileProperties() {
+        Map<String, String> props = new TreeMap<>(this.profileProperties);
+        props.put("org.eclipse.update.install.features", Boolean.toString(installFeatures));
+        if (installSources && props.get(BundlesAction.FILTER_PROPERTY_INSTALL_SOURCE) == null) {
+            props.put(BundlesAction.FILTER_PROPERTY_INSTALL_SOURCE, "true");
+        }
+        return props;
     }
 
 }

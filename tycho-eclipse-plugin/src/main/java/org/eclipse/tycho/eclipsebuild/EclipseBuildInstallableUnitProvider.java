@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.helper.PluginConfigurationHelper;
 import org.eclipse.tycho.helper.PluginConfigurationHelper.Configuration;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;

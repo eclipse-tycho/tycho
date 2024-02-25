@@ -252,7 +252,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>2.0.11</version>
+			<version>2.0.12</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -262,7 +262,7 @@
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
-			<version>1.16.0</version>
+			<version>1.16.1</version>
 		</dependency>
 
 		<dependency>

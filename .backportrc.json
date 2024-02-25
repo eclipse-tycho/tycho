@@ -1,0 +1,11 @@
+{
+  "repoOwner": "eclipse-tycho",
+  "repoName": "tycho",
+  "targetBranchChoices": ["tycho-4.0.x", "tycho-3.0.x", "tycho-2.7.x"],
+  "branchLabelMapping": {
+    "^backport-to-(.+)$": "$1"
+  },
+  "autoMerge": true,
+  "autoMergeMethod": "rebase",
+  "multipleCommits": true
+}

@@ -21,8 +21,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
-import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -36,6 +35,8 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.tycho.p2.repository.ListCompositeMetadataRepository;
+import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
 
 public abstract class AbstractApplication {
     protected boolean removeAddedRepositories = true;
@@ -49,8 +50,8 @@ public abstract class AbstractApplication {
     protected IArtifactRepository destinationArtifactRepository = null;
     protected IMetadataRepository destinationMetadataRepository = null;
 
-    private CompositeMetadataRepository compositeMetadataRepository = null;
-    private CompositeArtifactRepository compositeArtifactRepository = null;
+    private IMetadataRepository compositeMetadataRepository = null;
+    private IArtifactRepository compositeArtifactRepository = null;
 
     protected IProvisioningAgent agent;
 
@@ -249,33 +250,37 @@ public abstract class AbstractApplication {
         return false;
     }
 
-    public IMetadataRepository getCompositeMetadataRepository() {
+    public synchronized IMetadataRepository getCompositeMetadataRepository() throws ProvisionException {
         if (compositeMetadataRepository == null) {
-            compositeMetadataRepository = CompositeMetadataRepository.createMemoryComposite(agent);
-            if (compositeMetadataRepository != null) {
-                for (RepositoryDescriptor repo : sourceRepositories) {
-                    if (repo.isMetadata())
-                        compositeMetadataRepository.addChild(repo.getRepoLocation());
+            IMetadataRepositoryManager repositoryManager = agent.getService(IMetadataRepositoryManager.class);
+            List<IMetadataRepository> loadedRepository = new ArrayList<>();
+            for (RepositoryDescriptor repo : sourceRepositories) {
+                if (repo.isMetadata()) {
+                    loadedRepository
+                            .add(repositoryManager.loadRepository(repo.getRepoLocation(), new NullProgressMonitor()));
                 }
             }
+            compositeMetadataRepository = new ListCompositeMetadataRepository(loadedRepository, agent);
         }
         return compositeMetadataRepository;
     }
 
-    public IArtifactRepository getCompositeArtifactRepository() {
+    public synchronized IArtifactRepository getCompositeArtifactRepository() throws ProvisionException {
         if (compositeArtifactRepository == null) {
-            compositeArtifactRepository = CompositeArtifactRepository.createMemoryComposite(agent);
-            if (compositeArtifactRepository != null) {
-                for (RepositoryDescriptor repo : sourceRepositories) {
-                    if (repo.isArtifact())
-                        compositeArtifactRepository.addChild(repo.getRepoLocation());
+            IArtifactRepositoryManager repositoryManager = agent.getService(IArtifactRepositoryManager.class);
+            List<IArtifactRepository> loadedRepository = new ArrayList<>();
+            for (RepositoryDescriptor repo : sourceRepositories) {
+                if (repo.isArtifact()) {
+                    loadedRepository
+                            .add(repositoryManager.loadRepository(repo.getRepoLocation(), new NullProgressMonitor()));
                 }
             }
+            compositeArtifactRepository = new ListCompositeArtifactRepository(loadedRepository, agent);
         }
         return compositeArtifactRepository;
     }
 
-    public boolean hasArtifactSources() {
+    public boolean hasArtifactSources() throws ProvisionException {
         IArtifactRepository repository = getCompositeArtifactRepository();
         if (repository instanceof ICompositeRepository<?> composite) {
             return composite.getChildren().size() > 0;
@@ -283,7 +288,7 @@ public abstract class AbstractApplication {
         return false;
     }
 
-    public boolean hasMetadataSources() {
+    public boolean hasMetadataSources() throws ProvisionException {
         IMetadataRepository repository = getCompositeMetadataRepository();
         if (repository instanceof ICompositeRepository<?> composite) {
             return composite.getChildren().size() > 0;

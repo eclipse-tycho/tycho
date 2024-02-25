@@ -50,7 +50,7 @@ import org.eclipse.tycho.p2.repository.module.ModuleArtifactRepository.ModuleArt
  * A p2 artifact repository implementation for the build output directory. Instances are persisted
  * in the following files:
  * <ul>
- * <li>A <tt>p2artifacts.xml</tt> file in the given build target directory, which contains a list of
+ * <li>A <code>p2artifacts.xml</code> file in the given build target directory, which contains a list of
  * all artifacts with p2 <i>and</i> Maven coordinates. (In particular the classifier part of the
  * Maven coordinates is relevant.) This file is deployed to Maven repositories alongside with the
  * built Tycho artifact.</li>

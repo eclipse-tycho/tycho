@@ -21,7 +21,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -332,8 +331,8 @@ public class DefaultTargetPlatformConfigurationReader {
     /**
      * Take the constraints of the configured execution environment into account when resolving
      * dependencies or target definitions. These constraints include the list of system packages and
-     * the <tt>Bundle-RequiredExecutionEnvironment</tt> header. When set to <code>true</code>, the
-     * dependency resolution verifies that the bundle and all required bundles can be used in an
+     * the <code>Bundle-RequiredExecutionEnvironment</code> header. When set to <code>true</code>,
+     * the dependency resolution verifies that the bundle and all required bundles can be used in an
      * OSGi container with the configured execution environment.
      */
     private void setResolveWithEEContraints(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
@@ -372,33 +371,26 @@ public class DefaultTargetPlatformConfigurationReader {
             Xpp3Dom environmentsDom = configuration.getChild(ENVIRONMENTS);
             if (environmentsDom != null) {
                 Filter filter = getTargetEnvironmentFilter(tychoProject, project);
-                List<TargetEnvironment> skipped = new ArrayList<>();
                 for (Xpp3Dom environmentDom : environmentsDom.getChildren("environment")) {
                     TargetEnvironment environment = newTargetEnvironment(environmentDom);
-                    if (!matchFilter(environment, filter)) {
-                        skipped.add(environment);
-                    } else {
+                    if (environment.match(filter)) {
                         result.addEnvironment(environment);
+                    } else {
+                        result.addFilteredEnvironment(environment);
                     }
                 }
-                if (!skipped.isEmpty()) {
+                List<TargetEnvironment> filteredEnvironments = result.getFilteredEnvironments();
+                if (!filteredEnvironments.isEmpty()) {
                     logger.debug(MessageFormat.format(
                             "Declared TargetEnvironment(s) {0} are skipped for {1} as they do not match the project filter {2}.",
-                            skipped.stream().map(TargetEnvironment::toFilterProperties).map(String::valueOf)
-                                    .collect(Collectors.joining(", ")),
+                            filteredEnvironments.stream().map(TargetEnvironment::toFilterProperties)
+                                    .map(String::valueOf).collect(Collectors.joining(", ")),
                             project.getId(), filter));
                 }
             }
         } catch (TargetPlatformConfigurationException e) {
             throw new RuntimeException("target-platform-configuration error in project " + project.getId(), e);
         }
-    }
-
-    private static boolean matchFilter(TargetEnvironment environment, Filter filter) {
-        if (filter != null) {
-            return filter.matches(environment.toFilterProperties());
-        }
-        return true;
     }
 
     private static Filter getTargetEnvironmentFilter(TychoProject tychoProject, MavenProject project) {

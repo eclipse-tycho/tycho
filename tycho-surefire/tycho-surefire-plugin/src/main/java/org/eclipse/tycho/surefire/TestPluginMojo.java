@@ -35,9 +35,10 @@ import org.eclipse.tycho.PackagingType;
  * runtime" consists of the bundle built in this project and its transitive dependencies, plus some
  * Equinox and test harness bundles. The bundles are resolved from the target platform of the
  * project. Note that the test runtime does typically <em>not</em> contain the entire target
- * platform. If there are implicitly required bundles (e.g. <tt>org.apache.felix.scr</tt> to make
- * declarative services work), they need to be added manually through an <tt>extraRequirements</tt>
- * configuration on the <tt>target-platform-configuration</tt> plugin.
+ * platform. If there are implicitly required bundles (e.g. <code>org.apache.felix.scr</code> to
+ * make declarative services work), they need to be added manually through an
+ * <code>extraRequirements</code> configuration on the <code>target-platform-configuration</code>
+ * plugin.
  * </p>
  */
 @Mojo(name = "test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
@@ -62,6 +63,9 @@ public class TestPluginMojo extends AbstractEclipseTestMojo {
     @Parameter(property = "maven.test.failure.ignore", defaultValue = "false")
     private boolean testFailureIgnore;
 
+    @Parameter
+    private boolean quiet;
+
     /**
      * Configures the packaging type where this mojos applies, would normally be one of
      * eclipse-test-plugin or eclipse-plugin.
@@ -81,15 +85,19 @@ public class TestPluginMojo extends AbstractEclipseTestMojo {
 
     @Override
     protected void handleSuccess() {
-        getLog().info("All tests passed");
+        if (!quiet) {
+            getLog().info("All tests passed");
+        }
     }
 
     @Override
     protected void handleTestFailures() throws MojoFailureException {
         String errorMessage = "There are test failures.\n\nPlease refer to " + reportsDirectory
-                + " for the individual test results.";
+                + " for the individual test results.\n\n";
         if (testFailureIgnore) {
-            getLog().error(errorMessage);
+            if (!quiet) {
+                getLog().error(errorMessage);
+            }
         } else {
             throw new MojoFailureException(errorMessage);
         }

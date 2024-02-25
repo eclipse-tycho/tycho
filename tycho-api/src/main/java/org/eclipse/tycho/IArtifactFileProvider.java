@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
  * 
  * <p>
  * Over {@link IArtifactProvider}, this interface adds a method for obtaining the artifacts as files
- * in the local file system. (With the <tt>IArtifactProvider</tt> interface, artifacts can only be
+ * in the local file system. (With the <code>IArtifactProvider</code> interface, artifacts can only be
  * obtained as stream.)
  * </p>
  */

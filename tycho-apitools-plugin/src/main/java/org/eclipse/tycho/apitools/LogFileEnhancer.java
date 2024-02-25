@@ -24,7 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
@@ -46,9 +48,11 @@ public class LogFileEnhancer {
 	private static final String ATTRIBUTES_INFOS = "infos";
 	private static final String ATTRIBUTES_ERRORS = "errors";
 
-	public static void enhanceXml(File logDirectory, ApiAnalysisResult analysisResult) throws IOException {
+	public static void enhanceXml(File logDirectory, ApiAnalysisResult analysisResult,
+			Consumer<IApiProblem> notFoundConsumer) throws IOException {
 		Map<String, List<IApiProblem>> problems = analysisResult.problems()
-				.collect(Collectors.groupingBy(IApiProblem::getResourcePath));
+				.collect(Collectors.groupingBy(problem -> Objects.requireNonNullElse(problem.getResourcePath(),
+						"no-path-" + System.identityHashCode(problem))));
 		if (problems.isEmpty()) {
 			return;
 		}
@@ -56,6 +60,7 @@ public class LogFileEnhancer {
 		Map<File, Document> documents = readDocuments(logDirectory);
 		for (Entry<String, List<IApiProblem>> problemEntry : problems.entrySet()) {
 			String path = problemEntry.getKey();
+			boolean found = false;
 			for (Entry<File, Document> documentEntry : documents.entrySet()) {
 				Document document = documentEntry.getValue();
 				Element statsElement = getStatsElement(document);
@@ -63,6 +68,7 @@ public class LogFileEnhancer {
 					for (Element source : sources.getChildren("source")) {
 						String pathAttribute = source.getAttributeValue("path");
 						if (pathAttribute != null && !pathAttribute.isEmpty() && pathAttribute.endsWith(path)) {
+							found = true;
 							needsUpdate.add(documentEntry.getKey());
 							Element problemsElement = getProblemsElement(source);
 							List<IApiProblem> list = problemEntry.getValue();
@@ -90,7 +96,9 @@ public class LogFileEnhancer {
 					}
 				}
 			}
-
+			if (!found) {
+				problemEntry.getValue().forEach(notFoundConsumer);
+			}
 		}
 		writeDocuments(needsUpdate, documents);
 	}

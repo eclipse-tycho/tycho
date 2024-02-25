@@ -92,6 +92,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private String resolver;
 
     private List<TargetEnvironment> environments = new ArrayList<>();
+    private List<TargetEnvironment> filteredEnvironments = new ArrayList<>();
 
     private boolean implicitTargetEnvironment = true;
 
@@ -338,6 +339,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void addTargetLocation(Xpp3Dom locationDom) {
         xmlFragments.add(locationDom);
+    }
+
+    public void addFilteredEnvironment(TargetEnvironment environment) {
+        filteredEnvironments.add(environment);
+    }
+
+    public List<TargetEnvironment> getFilteredEnvironments() {
+        return filteredEnvironments;
     }
 
 }

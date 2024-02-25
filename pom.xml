@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- - Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ - Copyright (c) 2008, 2024 Sonatype Inc. and others.
  - All rights reserved. This program and the accompanying materials
  - are made available under the terms of the Eclipse Public License v1.0
  - which accompanies this distribution, and is available at
@@ -57,7 +57,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<min.jdk.version>17</min.jdk.version>
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
-		<commonsCompressVersion>1.25.0</commonsCompressVersion>
+		<commonsCompressVersion>1.26.0</commonsCompressVersion>
 		<plexusVersion>2.2.0</plexusVersion>
 		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
 		<plexusCompilerVersion>2.14.2</plexusCompilerVersion>
@@ -210,7 +210,7 @@
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-api</artifactId>
-				<version>5.10.1</version>
+				<version>5.10.2</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -293,6 +293,11 @@
 				<groupId>org.eclipse.platform</groupId>
 				<artifactId>org.eclipse.equinox.p2.repository</artifactId>
 				<version>2.8.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.platform</groupId>
+				<artifactId>org.eclipse.equinox.p2.publisher.eclipse</artifactId>
+				<version>1.5.200</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.platform</groupId>
@@ -537,6 +542,7 @@
 		<module>tycho-ds-plugin</module>
 		<module>tycho-buildtimestamp-jgit</module>
 		<module>tycho-baseline-plugin</module>
+		<module>tycho-sbom</module>
 		<!-- surefire -->
 		<module>tycho-surefire</module>
 		<!-- release -->

@@ -67,8 +67,8 @@ import org.osgi.framework.Version;
 
 /**
  * <p>
- * Publishes all product definitions files (<tt>*.product</tt>) that are present in the root of the
- * project.
+ * Publishes all product definitions files (<code>*.product</code>) that are present in the root of
+ * the project.
  * </p>
  * 
  * @see https://wiki.eclipse.org/Equinox/p2/Publisher
@@ -113,7 +113,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
 
         List<DependencySeed> seeds = new ArrayList<>();
         boolean hasLaunchers = false;
-        for (final File productFile : eclipseRepositoryProject.getProductFiles(productsDirectory)) {
+        for (final File productFile : EclipseRepositoryProject.getProductFiles(productsDirectory)) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
                 if (productConfiguration.getId() == null || productConfiguration.getId().isEmpty()) {

@@ -192,7 +192,7 @@ public class BaselineValidator {
                     }
                 }
             } else {
-                log.info("No baseline version " + project);
+                log.info("No baseline version " + project.getId());
             }
         }
         return result;

@@ -24,7 +24,7 @@ pipeline {
 	stages {
 		stage('Build') {
 			steps {
-				sh 'mvn --batch-mode -U -V -e clean install -Pits -Dmaven.repo.local=$WORKSPACE/.m2/repository'
+				sh 'mvn --batch-mode -U -V -e clean install site site:stage -Pits -Dmaven.repo.local=$WORKSPACE/.m2/repository'
 			}
 			post {
 				always {

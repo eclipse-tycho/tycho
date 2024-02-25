@@ -42,6 +42,7 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ResolvedArtifactKey;
@@ -59,8 +60,10 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 
 import aQute.bnd.osgi.Processor;
@@ -161,6 +164,10 @@ public class TychoProjectManager {
             TargetPlatformConfiguration configuration) {
         Map<String, String> properties = environment.toFilterProperties();
         properties.put("org.eclipse.update.install.features", "true");
+        IncludeSourceMode sourceMode = configuration.getTargetDefinitionIncludeSourceMode();
+        if (sourceMode == IncludeSourceMode.force || sourceMode == IncludeSourceMode.honor) {
+            properties.put(BundlesAction.FILTER_PROPERTY_INSTALL_SOURCE, "true");
+        }
         properties.putAll(configuration.getProfileProperties());
         return properties;
     }
@@ -176,11 +183,25 @@ public class TychoProjectManager {
         return getTargetPlatformConfiguration(project.adapt(MavenProject.class));
     }
 
+    public Collection<TargetEnvironment> getTargetEnvironments(MavenProject project) {
+        TychoProject tychoProject = projectTypes.get(project.getPackaging());
+        if (tychoProject != null) {
+            //these will already be filtered at reading the target configuration
+            return getTargetPlatformConfiguration(project).getEnvironments();
+        }
+        //if no tycho project, just assume the default running environment
+        return List.of(TargetEnvironment.getRunningEnvironment());
+    }
+
     public Optional<TychoProject> getTychoProject(MavenProject project) {
         if (project == null) {
             return Optional.empty();
         }
         return Optional.ofNullable(projectTypes.get(project.getPackaging()));
+    }
+
+    public Optional<DependencyArtifacts> getDependencyArtifacts(MavenProject project) {
+        return getTychoProject(project).map(tp -> tp.getDependencyArtifacts(project));
     }
 
     public Optional<TychoProject> getTychoProject(ReactorProject project) {

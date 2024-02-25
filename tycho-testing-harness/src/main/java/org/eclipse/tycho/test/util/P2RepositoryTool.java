@@ -158,7 +158,7 @@ public class P2RepositoryTool {
      * Returns the unique IU with the given ID.
      * 
      * @throws AssertionError
-     *             unless there is exactly one IU with the given <tt>unitId</tt>.
+     *             unless there is exactly one IU with the given <code>unitId</code>.
      */
     public IU getUniqueIU(String unitId) throws Exception {
         loadMetadata();

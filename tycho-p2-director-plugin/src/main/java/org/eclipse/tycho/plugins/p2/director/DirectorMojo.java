@@ -45,6 +45,7 @@ import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.CommandLineArguments;
 import org.eclipse.tycho.p2.resolver.BundlePublisher;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.p2tools.MavenDirectorLog;
 import org.eclipse.tycho.p2tools.copiedfromp2.DirectorApplication;
 import org.eclipse.tycho.p2tools.copiedfromp2.PhaseSetFactory;
@@ -218,7 +219,7 @@ public class DirectorMojo extends AbstractMojo {
 
     /**
      * A list of properties in the form key=value pairs. Effective only when a new profile is
-     * created. For example <tt>org.eclipse.update.install.features=true</tt> to install the
+     * created. For example <code>org.eclipse.update.install.features=true</code> to install the
      * features into the product.
      */
     @Parameter(property = "profileproperties")
@@ -226,6 +227,9 @@ public class DirectorMojo extends AbstractMojo {
 
     @Parameter(property = "installFeatures", defaultValue = "true")
     private boolean installFeatures;
+
+    @Parameter(defaultValue = "false")
+    private boolean installSources;
 
     /**
      * Additional profile properties to set when materializing the product
@@ -472,6 +476,9 @@ public class DirectorMojo extends AbstractMojo {
         }
         if (installFeatures) {
             map.put("org.eclipse.update.install.features", "true");
+        }
+        if (installSources) {
+            map.put(BundlesAction.FILTER_PROPERTY_INSTALL_SOURCE, "true");
         }
         return map;
     }

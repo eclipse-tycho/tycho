@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -135,9 +137,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	private TychoProjectManager projectManager;
 
 	@Component
-	private ApiApplicationResolver resolver;
-
-	@Component
 	private ApiApplicationResolver applicationResolver;
 
 	@Override
@@ -145,11 +144,11 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		if (skip) {
 			return;
 		}
-		Optional<EclipseProject> eclipseProject = projectManager.getEclipseProject(project);
-		if (eclipseProject.isEmpty() || !eclipseProject.get().hasNature(ApiPlugin.NATURE_ID)) {
+		Optional<EclipseProject> eclipseProjectValue = projectManager.getEclipseProject(project);
+		if (eclipseProjectValue.isEmpty() || !eclipseProjectValue.get().hasNature(ApiPlugin.NATURE_ID)) {
 			return;
 		}
-
+		EclipseProject eclipseProject = eclipseProjectValue.get();
 		if (supportedPackagingTypes.contains(project.getPackaging())) {
 			Log log = getLog();
 			if (skipIfReplaced && wasReplaced()) {
@@ -180,14 +179,15 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			}
 			ApiAnalysisResult analysisResult;
 			if (parallel) {
-				analysisResult = performAnalysis(baselineBundles, dependencyBundles, eclipseFramework);
+				analysisResult = performAnalysis(baselineBundles, dependencyBundles, eclipseFramework, eclipseProject);
 			} else {
 				synchronized (ApiAnalysisMojo.class) {
 					// due to
 					// https://gitlab.eclipse.org/eclipsefdn/helpdesk/-/issues/3885#note_1266412 we
 					// can not execute more than one analysis without excessive memory consumption
 					// unless this is fixed it is safer to only run one analysis at a time
-					analysisResult = performAnalysis(baselineBundles, dependencyBundles, eclipseFramework);
+					analysisResult = performAnalysis(baselineBundles, dependencyBundles, eclipseFramework,
+							eclipseProject);
 				}
 			}
 			log.info("API Analysis finished in " + time(start) + ".");
@@ -197,10 +197,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 					.collect(Collectors.groupingBy(IApiProblem::getSeverity));
 			List<IApiProblem> errors = problems.getOrDefault(ApiPlugin.SEVERITY_ERROR, List.of());
 			List<IApiProblem> warnings = problems.getOrDefault(ApiPlugin.SEVERITY_WARNING, List.of());
-			if (printSummary) {
-				log.info(errors.size() + " API ERRORS");
-				log.info(warnings.size() + " API warnings");
-			}
 			if (printProblems) {
 				for (IApiProblem problem : errors) {
 					printProblem(problem, "API ERROR", log::error);
@@ -211,10 +207,30 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			}
 			if (enhanceLogs && logDirectory != null && logDirectory.isDirectory()) {
 				try {
-					LogFileEnhancer.enhanceXml(logDirectory, analysisResult);
+					AtomicInteger notMapped = new AtomicInteger();
+					LogFileEnhancer.enhanceXml(logDirectory, analysisResult, notfound -> {
+						notMapped.incrementAndGet();
+						if (printProblems) {
+							// it was already printed before...
+							return;
+						}
+						if (ApiPlugin.SEVERITY_ERROR == notfound.getSeverity()) {
+							printProblem(notfound, "API ERROR", log::error);
+						} else if (ApiPlugin.SEVERITY_WARNING == notfound.getSeverity()) {
+							printProblem(notfound, "API WARNING", log::warn);
+						}
+					});
+					int count = notMapped.get();
+					if (count > 0) {
+						log.warn(count + " API problems can't be mapped to the compiler log!");
+					}
 				} catch (IOException e) {
 					log.warn("Can't enhance logs in directory " + logDirectory);
 				}
+			}
+			if (printSummary) {
+				log.info(errors.size() + " API ERRORS");
+				log.info(warnings.size() + " API warnings");
 			}
 			if (errors.size() > 0 && failOnError) {
 				String msg = errors.stream().map(problem -> {
@@ -238,10 +254,11 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	}
 
 	private ApiAnalysisResult performAnalysis(Collection<Path> baselineBundles, Collection<Path> dependencyBundles,
-			EclipseFramework eclipseFramework) throws MojoExecutionException {
+			EclipseFramework eclipseFramework, EclipseProject eclipseProject) throws MojoExecutionException {
 		try {
 			ApiAnalysis analysis = new ApiAnalysis(baselineBundles, dependencyBundles, project.getName(),
-					fileToPath(apiFilter), fileToPath(apiPreferences), fileToPath(project.getBasedir()), debug,
+					eclipseProject.getFile(fileToPath(apiFilter)), eclipseProject.getFile(fileToPath(apiPreferences)),
+					fileToPath(project.getBasedir()), debug,
 					fileToPath(project.getArtifact().getFile()),
 					stringToPath(project.getBuild().getOutputDirectory()));
 			return eclipseFramework.execute(analysis);
@@ -293,12 +310,14 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		long start = System.currentTimeMillis();
 		Collection<Path> baselineBundles;
 		try {
+			Collection<TargetEnvironment> targetEnvironments = getBaselineEnvironments();
 			Optional<ArtifactKey> artifactKey = projectManager.getArtifactKey(project);
-			getLog().info("Resolve API baseline for " + project.getId());
-			baselineBundles = resolver.getApiBaselineBundles(
+			getLog().info("Resolve API baseline for " + project.getId() + " with "
+					+ targetEnvironments.stream().map(String::valueOf).collect(Collectors.joining(", ")));
+			baselineBundles = applicationResolver.getApiBaselineBundles(
 					baselines.stream().filter(repo -> repo.getUrl() != null)
 							.map(repo -> new MavenRepositoryLocation(repo.getId(), URI.create(repo.getUrl()))).toList(),
-					artifactKey.get());
+					artifactKey.get(), targetEnvironments);
 			getLog().debug("API baseline contains " + baselineBundles.size() + " bundles (resolve takes " + time(start)
 					+ ").");
 		} catch (IllegalArtifactReferenceException e) {
@@ -306,6 +325,26 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		}
 		return baselineBundles;
 	}
+
+	/**
+	 * This method selected the a target environment best suited for the current
+	 * baseline, if it is a valid choice the running target is used (e.g. linux on
+	 * linux host, windows on windows hosts and so on), if such environment is not
+	 * available it is using the configured ones form the project as is.
+	 * 
+	 * @return the chosen {@link TargetEnvironment}s
+	 */
+	private Collection<TargetEnvironment> getBaselineEnvironments() {
+		Collection<TargetEnvironment> targetEnvironments = projectManager.getTargetEnvironments(project);
+		TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
+		for (TargetEnvironment targetEnvironment : targetEnvironments) {
+			if (targetEnvironment.equals(runningEnvironment)) {
+				return List.of(targetEnvironment);
+			}
+		}
+		return targetEnvironments;
+	}
+
 
 	private String time(long start) {
 		long ms = System.currentTimeMillis() - start;

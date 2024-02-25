@@ -73,6 +73,11 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     protected DependencyResolver dependencyResolver;
 
     @Override
+    public DependencyArtifacts getDependencyArtifacts(MavenProject project) {
+        return getDependencyArtifacts(DefaultReactorProject.adapt(project));
+    }
+
+    @Override
     public DependencyArtifacts getDependencyArtifacts(ReactorProject reactorProject) {
         return reactorProject.computeContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS, () -> {
             if (logger != null) {
