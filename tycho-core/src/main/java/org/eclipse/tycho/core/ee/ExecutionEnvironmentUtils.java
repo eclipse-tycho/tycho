@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2024 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -34,8 +34,8 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.ExecutionEnvironment;
-import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.ExecutionEnvironment.SystemPackageEntry;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment.JavaInfo;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.Constants;
@@ -67,11 +67,11 @@ public class ExecutionEnvironmentUtils {
      * Get the execution environment for the specified OSGi profile name.
      * 
      * @param profileName
-     *            profile name value as specified for key "Bundle-RequiredExecutionEnvironment" in
-     *            MANIFEST.MF
+     *                        profile name value as specified for key
+     *                        "Bundle-RequiredExecutionEnvironment" in MANIFEST.MF
      * @return the corresponding {@link ExecutionEnvironment}.
      * @throws UnknownEnvironmentException
-     *             if profileName is unknown.
+     *                                         if profileName is unknown.
      */
     public static StandardExecutionEnvironment getExecutionEnvironment(String profileName, ToolchainManager manager,
             MavenSession session, Logger logger) throws UnknownEnvironmentException {
@@ -90,7 +90,7 @@ public class ExecutionEnvironmentUtils {
                         return split[0] + "-" + v;
                     }).map(map::get).filter(Objects::nonNull).findFirst().orElse(null);
             if (higherEE != null) {
-                logger.warn("Using " + higherEE.getProfileName() + " to fulfill requested profile of " + profileName
+                logger.debug("Using " + higherEE.getProfileName() + " to fulfill requested profile of " + profileName
                         + ". This might lead to faulty dependency resolution, consider defining a suitable JDK in the toolchains.xml.");
                 return getSurrogate(profileName, higherEE);
             }
