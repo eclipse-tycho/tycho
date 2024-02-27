@@ -100,10 +100,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-plugin-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-plugin-plugin</artifactId>
 				<!-- workaround for https://issues.apache.org/jira/browse/MPLUGIN-450 -->
 				<configuration>
 					<goalPrefix>tycho-apitools</goalPrefix>
