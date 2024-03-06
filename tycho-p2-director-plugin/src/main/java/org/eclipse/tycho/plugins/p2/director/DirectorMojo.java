@@ -101,6 +101,23 @@ public class DirectorMojo extends AbstractMojo {
 
     /**
      * The folder in which the targeted product is located.
+     * <p>
+     * Note: This applies special handling for macOS ({@link #p2os} <code>macosx</code>) and behaves
+     * as follows:
+     * <ul>
+     * <li>If <code>destination</code> already conforms to the full app bundle layout
+     * (<code>/path/to/Foo.app/Contents/Eclipse</code>), <code>destination</code> is used as-is.
+     * <li>If <code>destination</code> points to the root of an app bundle
+     * (<code>/path/to/Foo.app</code>), <code>Contents/Eclipse</code> is appended and the path and
+     * <code>/path/to/Foo.app/Contents/Eclipse</code> is used.
+     * <li>Otherwise, i.e. if no app bundle path is given (<code>/path/to/work</code>), a valid app
+     * bundle path is appended, and the path <code>/path/to/work/Eclipse.app/Contents/Eclipse</code>
+     * is used.
+     * </ul>
+     * This intentionally deviates from the stand-alone behavior of
+     * <code>eclipse -application org.eclipse.equinox.p2.director</code> in order to simplify
+     * cross-mojo workflows within Tycho (e.g. the same logic is applied by
+     * <code>tycho-surefire-plugin:integration-test</code>.
      */
     @Parameter(property = "destination", required = true)
     private File destination;
@@ -258,18 +275,32 @@ public class DirectorMojo extends AbstractMojo {
 
     /**
      * The OS to use when the profile is created.
+     * <p>
+     * If this is specified, {@link #p2ws} and {@link #p2arch} must also be specified for
+     * consistency.
+     * <p>
+     * If none of them are specified, the values are derived from the running environment.
      */
     @Parameter(property = "p2.os")
     private String p2os;
 
     /**
      * The windowing system to use when the profile is created.
+     * <p>
+     * If this is specified, {@link #p2os} and {@link #p2arch} must also be specified for
+     * consistency.
+     * <p>
+     * If none of them are specified, the values are derived from the running environment.
      */
     @Parameter(property = "p2.ws")
     private String p2ws;
 
     /**
      * The architecture to use when the profile is created.
+     * <p>
+     * If this is specified, {@link #p2os} and {@link #p2ws} must also be specified for consistency.
+     * <p>
+     * If none of them are specified, the values are derived from the running environment.
      */
     @Parameter(property = "p2.arch")
     private String p2arch;
@@ -359,9 +390,14 @@ public class DirectorMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        checkMutualP2Args();
+
+        TargetEnvironment targetEnv = this.p2os == null ? TargetEnvironment.getRunningEnvironment()
+                : new TargetEnvironment(p2os, p2ws, p2arch);
+        File adjustedDestination = DirectorRuntime.getDestination(this.destination, targetEnv);
+
         CommandLineArguments args = new CommandLineArguments();
-        args.addNonNull("-destination",
-                DirectorRuntime.getDestination(destination, TargetEnvironment.getRunningEnvironment()));
+        args.addNonNull("-destination", adjustedDestination);
         args.addNonNull("-metadatarepository", metadatarepositories);
         args.addNonNull("-artifactrepository", artifactrepositories);
         args.addNonNull("-repository", getRepositories());
@@ -400,6 +436,27 @@ public class DirectorMojo extends AbstractMojo {
         args.addNonNull("-trustedAuthorities", trustedAuthorities);
         args.addNonNull("-trustedPGPKeys", trustedPGPKeys);
         args.addNonNull("-trustedCertificates", trustedCertificates);
+
+        runDirector(args);
+    }
+
+    private void checkMutualP2Args() throws MojoExecutionException {
+        Map<String, String> mutualP2Options = new LinkedHashMap<>();
+        mutualP2Options.put("p2os", p2os);
+        mutualP2Options.put("p2ws", p2ws);
+        mutualP2Options.put("p2arch", p2arch);
+        if (mutualP2Options.values().stream().anyMatch(Objects::nonNull)) {
+            if (mutualP2Options.values().stream().anyMatch(Objects::isNull)) {
+                String msg = "p2os / p2ws / p2arch must be mutually specified, " + //
+                        mutualP2Options.entrySet().stream().map(
+                                e -> e.getKey() + (e.getValue() == null ? " missing" : "=" + e.getValue() + " given"))
+                                .collect(Collectors.joining(", "));
+                throw new MojoExecutionException(msg);
+            }
+        }
+    }
+
+    protected void runDirector(CommandLineArguments args) throws MojoFailureException {
         try {
             //FIXME forcefully init OSGi unless we have a fix for https://github.com/eclipse-equinox/p2/pull/439
             agent.getService(IMetadataRepositoryManager.class);
