@@ -112,7 +112,8 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 					return performGet(consumer, client);
 				} catch (IOException e) {
 					if (isGoaway(e)) {
-						logger.info("Received GOAWAY from server " + uri.getHost() + " will retry with Http/1...");
+						logger.info("Received GOAWAY from server " + uri.getHost() + " will retry download of " + uri
+								+ " with Http/1...");
 						TimeUnit.SECONDS.sleep(1);
 						return performGet(consumer, clientHttp1);
 					}
