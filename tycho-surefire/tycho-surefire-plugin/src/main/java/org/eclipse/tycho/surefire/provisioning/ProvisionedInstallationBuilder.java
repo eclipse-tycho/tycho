@@ -36,7 +36,8 @@ public class ProvisionedInstallationBuilder {
     private List<URI> artifactRepos = new ArrayList<>();
     private List<String> ius = new ArrayList<>();
     private File workingDir;
-    private File effectiveDestination;
+    private File destination;
+    private TargetEnvironment targetEnvironment;
     private String profileName;
     private boolean installFeatures = true;
 
@@ -74,17 +75,15 @@ public class ProvisionedInstallationBuilder {
     }
 
     public void setDestination(File destination) {
-        // For new MacOS layouts turn a given 'RCP.app' dir into 'RCP.app/Contents/Eclipse'
-        // This is what is expected from Eclipse runtime as install root anyways.
-        if (destination.getName().endsWith(".app")) {
-            this.effectiveDestination = new File(destination, "Contents/Eclipse");
-        } else {
-            this.effectiveDestination = destination;
-        }
+        this.destination = destination;
+    }
+
+    public void setTargetEnvironment(TargetEnvironment targetEnvironment) {
+        this.targetEnvironment = targetEnvironment;
     }
 
     public File getEffectiveDestination() {
-        return effectiveDestination;
+        return DirectorRuntime.getDestination(destination, targetEnvironment);
     }
 
     public void setProfileName(String name) {
@@ -95,11 +94,11 @@ public class ProvisionedInstallationBuilder {
         this.installFeatures = installFeatures;
     }
 
-    public EquinoxInstallation install(TargetEnvironment main) throws Exception {
+    public EquinoxInstallation install() throws Exception {
         validate();
         publishPlainBundleJars();
-        executeDirector(main);
-        return new ProvisionedEquinoxInstallation(DirectorRuntime.getDestination(effectiveDestination, main));
+        executeDirector();
+        return new ProvisionedEquinoxInstallation(getEffectiveDestination());
     }
 
     private void publishPlainBundleJars() throws Exception {
@@ -119,17 +118,18 @@ public class ProvisionedInstallationBuilder {
         artifactRepos.add(bundlesRepoURI);
     }
 
-    private void executeDirector(TargetEnvironment env) throws MojoFailureException {
-        DirectorRuntime.Command command = directorRuntime.newInstallCommand(String.valueOf(env));
+    private void executeDirector() throws MojoFailureException {
+        DirectorRuntime.Command command = directorRuntime.newInstallCommand(String.valueOf(targetEnvironment));
         command.addMetadataSources(metadataRepos);
         command.addArtifactSources(artifactRepos);
         for (String iu : ius) {
             command.addUnitToInstall(iu);
         }
-        command.setDestination(DirectorRuntime.getDestination(effectiveDestination, env));
+        File effectiveDestination = getEffectiveDestination();
+        command.setDestination(effectiveDestination);
         command.setProfileName(profileName);
         command.setInstallFeatures(installFeatures);
-        command.setEnvironment(env);
+        command.setEnvironment(targetEnvironment);
         log.info("Installing IUs " + ius + " to " + effectiveDestination + " using " + command.getProfileProperties());
         try {
             command.execute();
@@ -140,7 +140,7 @@ public class ProvisionedInstallationBuilder {
 
     private void validate() {
         assertNotNull(workingDir, "workingDir");
-        assertNotNull(effectiveDestination, "destination");
+        assertNotNull(destination, "destination");
         assertNotEmpty(metadataRepos, "metadataRepos");
         assertNotEmpty(artifactRepos, "artifactRepos");
         assertNotEmpty(ius, "ius");
