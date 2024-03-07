@@ -248,8 +248,8 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
 
     /**
      * Configures if referenced repositories should be included when fetching repositories. The
-     * default is <code>ignore</code>. To specify to use referenced repositories, pass
-     * <code>include</code>.
+     * default is <code>include</code>. To disable the use of referenced repositories, pass
+     * <code>ignore</code>.
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.REFERENCED_REPOSITORY_MODE)
     private ReferencedRepositoryMode referencedRepositoryMode;
