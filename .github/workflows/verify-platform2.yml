@@ -69,6 +69,6 @@ jobs:
         -Pbuild-individual-bundles
         -Pbree-libs
         -Dmaven.test.failure.ignore=true
-        -Dtycho.version=4.0.6-SNAPSHOT
+        -Dtycho.version=$(mvn help:evaluate -f ${{ github.workspace }}/tycho -Dexpression=project.version -q -DforceStdout)
         -T1C
         clean verify
