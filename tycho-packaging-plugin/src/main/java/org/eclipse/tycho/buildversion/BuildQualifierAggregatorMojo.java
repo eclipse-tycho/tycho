@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -28,124 +26,93 @@ import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.osgi.framework.Version;
 
 /**
  * <p>
- * This mojo calculates build timestamp as the latest timestamp of the project itself and timestamps
- * of bundles and features directly included in the project. This is meant to work with custom
- * timestamp providers and generate build qualifier based on build contents, i.e. the source code,
- * and not the time the build was started; rebuilding the same source code will result in the same
- * version qualifier.
+ * This mojo calculates build timestamp as the latest timestamp of the project
+ * itself and timestamps of bundles and features directly included in the
+ * project. This is meant to work with custom timestamp providers and generate
+ * build qualifier based on build contents, i.e. the source code, and not the
+ * time the build was started; rebuilding the same source code will result in
+ * the same version qualifier.
  * </p>
  * <p>
- * Timestamp of included bundles and features is determined by parsing their respective version
- * qualifiers. Qualifiers that cannot be parsed are silently ignored, which can result in old
- * version qualifier used even when aggregator project contents actually changed. In this case
- * aggregator project timestamp will have to be increased manually, using artificial SCM commit for
- * example.
+ * Timestamp of included bundles and features is determined by parsing their
+ * respective version qualifiers. Qualifiers that cannot be parsed are silently
+ * ignored, which can result in old version qualifier used even when aggregator
+ * project contents actually changed. In this case aggregator project timestamp
+ * will have to be increased manually, using artificial SCM commit for example.
  * </p>
  * <p>
- * Qualifier aggregation is enabled only for projects with custom timestamp provider, i.e.
- * &lt;timestampProvider&gt; is set in pom.xml to a value other than "default". The default build
- * timestamp provider uses build start time as build timestamp, which should be newer or equal than
- * timestamp of any included bundle/feature project, which makes qualifier aggregation redundant.
+ * Qualifier aggregation is enabled only for projects with custom timestamp
+ * provider, i.e. &lt;timestampProvider&gt; is set in pom.xml to a value other
+ * than "default". The default build timestamp provider uses build start time as
+ * build timestamp, which should be newer or equal than timestamp of any
+ * included bundle/feature project, which makes qualifier aggregation redundant.
  * </p>
  */
 @Mojo(name = "build-qualifier-aggregator", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
 
-    private final TimestampFinder timestampFinder = new TimestampFinder();
+	@Component
+	private TimestampFinder timestampFinder;
 
 	@Component
 	private TargetPlatformService platformService;
 
-    @Override
-    protected Date getBuildTimestamp() throws MojoExecutionException {
-        Date timestamp = super.getBuildTimestamp();
+	@Override
+	protected Date getBuildTimestamp() throws MojoExecutionException {
+		Date timestamp = super.getBuildTimestamp();
 
-        if (timestampProvider == null) {
-            // default timestamp is essentially this build start time
-            // no included bundle/feature can have more recent timestamp
-            return timestamp;
-        }
+		if (timestampProvider == null) {
+			// default timestamp is essentially this build start time
+			// no included bundle/feature can have more recent timestamp
+			return timestamp;
+		}
 
-        final Date[] latestTimestamp = new Date[] { timestamp };
+		final Date[] latestTimestamp = new Date[] { timestamp };
 
-        TychoProject projectType = projectTypes.get(project.getPackaging());
-        if (projectType == null) {
-            throw new IllegalStateException("Unknown or unsupported packaging type " + packaging);
-        }
+		TychoProject projectType = projectTypes.get(project.getPackaging());
+		if (projectType == null) {
+			throw new IllegalStateException("Unknown or unsupported packaging type " + packaging);
+		}
 
-        final ReactorProject thisProject = DefaultReactorProject.adapt(project);
+		final ReactorProject thisProject = DefaultReactorProject.adapt(project);
 		// TODO we need to trigger TP loading now, probably we also should better use
 		// the target platform instead of walker of the project type?
 		platformService.getTargetPlatform(thisProject);
 
-        projectType.getDependencyWalker(thisProject).walk(new ArtifactDependencyVisitor() {
-            @Override
-            public boolean visitFeature(FeatureDescription feature) {
-                if (feature.getFeatureRef() == null || thisProject.equals(feature.getMavenProject())) {
-                    // 'this' feature
-                    return true; // visit immediately included features
-                }
-                visitArtifact(feature);
-                return false; // do not visit indirectly included features/bundles
-            }
+		projectType.getDependencyWalker(thisProject).walk(new ArtifactDependencyVisitor() {
+			@Override
+			public boolean visitFeature(FeatureDescription feature) {
+				if (feature.getFeatureRef() == null || thisProject.equals(feature.getMavenProject())) {
+					// 'this' feature
+					return true; // visit immediately included features
+				}
+				visitArtifact(feature);
+				return false; // do not visit indirectly included features/bundles
+			}
 
-            @Override
-            public void visitPlugin(PluginDescription plugin) {
-                if (plugin.getPluginRef() == null || thisProject.equals(plugin.getMavenProject())) {
-                    // 'this' bundle
-                    return;
-                }
-                visitArtifact(plugin);
-            }
+			@Override
+			public void visitPlugin(PluginDescription plugin) {
+				if (plugin.getPluginRef() == null || thisProject.equals(plugin.getMavenProject())) {
+					// 'this' bundle
+					return;
+				}
+				visitArtifact(plugin);
+			}
 
-            private void visitArtifact(ArtifactDescriptor artifact) {
-                ReactorProject otherProject = artifact.getMavenProject();
-                String otherVersion = (otherProject != null) ? otherProject.getExpandedVersion()
-                        : artifact.getKey().getVersion();
-                Version v = Version.parseVersion(otherVersion);
-                String otherQualifier = v.getQualifier();
-                if (otherQualifier != null) {
-                    Date timestamp = parseQualifier(otherQualifier);
-                    if (timestamp != null) {
-                        if (latestTimestamp[0].compareTo(timestamp) < 0) {
-                            if (getLog().isDebugEnabled()) {
-                                getLog().debug("Found '" + format.format(timestamp) + "' from qualifier '"
-                                        + otherQualifier + "' for artifact " + artifact);
-                            }
-                            latestTimestamp[0] = timestamp;
-                        }
-                    } else {
-                        getLog().debug("Could not parse qualifier timestamp " + otherQualifier);
-                    }
-                }
-            }
+			private void visitArtifact(ArtifactDescriptor artifact) {
 
-            private Date parseQualifier(String qualifier) {
-                Date timestamp = parseQualifier(qualifier, format);
-                if (timestamp != null) {
-                    return timestamp;
-                }
-                return discoverTimestamp(qualifier);
-            }
+				Date timestamp = timestampFinder.findByDescriptor(artifact, format);
+				if (timestamp != null && latestTimestamp[0].compareTo(timestamp) < 0) {
+					latestTimestamp[0] = timestamp;
+				}
 
-            private Date parseQualifier(String qualifier, SimpleDateFormat format) {
-                ParsePosition pos = new ParsePosition(0);
-                Date timestamp = format.parse(qualifier, pos);
-                if (timestamp != null && pos.getIndex() == qualifier.length()) {
-                    return timestamp;
-                }
-                return null;
-            }
+			}
 
-            private Date discoverTimestamp(String qualifier) {
-                return timestampFinder.findInString(qualifier);
-            }
-        });
+		});
 
-        return latestTimestamp[0];
-    }
+		return latestTimestamp[0];
+	}
 }
