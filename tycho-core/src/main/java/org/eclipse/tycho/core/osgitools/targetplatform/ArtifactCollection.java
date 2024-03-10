@@ -40,6 +40,7 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 
 public class ArtifactCollection {
     private static final Version VERSION_0_0_0 = new Version("0.0.0");
@@ -249,7 +250,14 @@ public class ArtifactCollection {
         if (version == null) {
             return relevantArtifacts.get(relevantArtifacts.firstKey()); // latest version
         }
-
+        if (version.startsWith("(") || version.startsWith("[")) {
+            VersionRange range = VersionRange.valueOf(version);
+            for (Entry<Version, ArtifactDescriptor> entry : relevantArtifacts.entrySet()) {
+                if (range.includes(entry.getKey())) {
+                    return entry.getValue();
+                }
+            }
+        }
         Version parsedVersion = new Version(version);
         if (VERSION_0_0_0.equals(parsedVersion)) {
             return relevantArtifacts.get(relevantArtifacts.firstKey()); // latest version
