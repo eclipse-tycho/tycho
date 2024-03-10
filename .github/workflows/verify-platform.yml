@@ -69,5 +69,5 @@ jobs:
         -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
         -DskipTests
         -Pbree-libs
-        -Dtycho.version=5.0.0-SNAPSHOT
+        -Dtycho.version=$(mvn help:evaluate -f ${{ github.workspace }}/tycho -Dexpression=project.version -q -DforceStdout)
         clean verify
