@@ -72,8 +72,9 @@ public final class DirectorApplicationWrapper implements DirectorRuntime {
             }
 
             try {
-                Object exitCode = new DirectorApplication(this, getPhaseSet(), agent, agentProvider)
-                        .run(arguments.toArray(new String[arguments.size()]));
+                DirectorApplication application = new DirectorApplication(this, getPhaseSet(), agent, agentProvider);
+                application.setExtraInstallableUnits(getEEUnits());
+                Object exitCode = application.run(arguments.toArray(new String[arguments.size()]));
                 if (!(EXIT_OK.equals(exitCode))) {
                     throw new DirectorCommandException("Call to p2 director application failed with exit code "
                             + exitCode + ". Program arguments were: " + arguments + ".");
