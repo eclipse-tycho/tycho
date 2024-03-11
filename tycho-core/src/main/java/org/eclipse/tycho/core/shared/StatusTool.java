@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.shared;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 
 public class StatusTool {
@@ -71,7 +72,8 @@ public class StatusTool {
 
         final String listSeparatorString;
 
-        HierarchyFormatter(String childrenStart, String indentationIncrement, String listSeparator, String childrenEnd) {
+        HierarchyFormatter(String childrenStart, String indentationIncrement, String listSeparator,
+                String childrenEnd) {
             this("", childrenStart, indentationIncrement, listSeparator, childrenEnd);
         }
 
@@ -150,5 +152,15 @@ public class StatusTool {
 
     private static boolean hasChildren(IStatus status) {
         return status.getChildren() != null && status.getChildren().length > 0;
+    }
+
+    public static IStatus findStatus(Throwable t) {
+        if (t == null) {
+            return null;
+        }
+        if (t instanceof CoreException e) {
+            return e.getStatus();
+        }
+        return findStatus(t.getCause());
     }
 }

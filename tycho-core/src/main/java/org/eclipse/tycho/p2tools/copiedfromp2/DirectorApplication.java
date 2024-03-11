@@ -632,6 +632,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
     private IPhaseSet phaseSet;
     private IProvisioningAgent defaultAgent;
     private IProvisioningAgentProvider provisioningAgentProvider;
+    private Collection<IInstallableUnit> extraUnits;
 
     public DirectorApplication(ILog log, IPhaseSet phaseSet, IProvisioningAgent defaultAgent,
             IProvisioningAgentProvider provisioningAgentProvider) {
@@ -990,7 +991,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
      *
      * @return the current default agent, never <code>null</code>
      * @throws CoreException
-     *                           when fetching the agent failed
+     *             when fetching the agent failed
      */
     protected IProvisioningAgent getDefaultAgent() throws CoreException {
         return defaultAgent;
@@ -1000,10 +1001,10 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
      * Creates a new agent for the given data area
      *
      * @param p2DataArea
-     *                       the data area to create a new agent
+     *            the data area to create a new agent
      * @return the new agent, never <code>null</code>
      * @throws CoreException
-     *                           if creation of the agent for the given location failed
+     *             if creation of the agent for the given location failed
      */
     protected IProvisioningAgent createAgent(URI p2DataArea) throws CoreException {
         IProvisioningAgent agent = provisioningAgentProvider.createAgent(p2DataArea);
@@ -1013,8 +1014,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
     /*
      * See bug: https://bugs.eclipse.org/340971 Using the event bus to detect whether or not a
-     * repository was added in a touchpoint action. If it was, then (if it exists) remove it from our
-     * list of repos to remove after we complete our install.
+     * repository was added in a touchpoint action. If it was, then (if it exists) remove it from
+     * our list of repos to remove after we complete our install.
      */
     @Override
     public void notify(EventObject o) {
@@ -1096,6 +1097,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
             context.setArtifactRepositories(artifactRepositoryLocations.stream().toArray(URI[]::new));
             context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, String.valueOf(followReferences));
             context.setProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, String.valueOf(followReferences));
+            if (extraUnits != null && !extraUnits.isEmpty()) {
+                context.setExtraInstallableUnits(List.copyOf(extraUnits));
+            }
             ProfileChangeRequest request = buildProvisioningRequest(profile, installs, uninstalls);
             printRequest(request);
             planAndExecute(profile, context, request);
@@ -1106,6 +1110,10 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
                 setRoaming(profile);
             }
         }
+    }
+
+    public void setExtraInstallableUnits(Collection<IInstallableUnit> extraUnits) {
+        this.extraUnits = extraUnits;
     }
 
     private void planAndExecute(IProfile profile, ProvisioningContext context, ProfileChangeRequest request)
@@ -1412,9 +1420,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
     /**
      * @param pairs
-     *                       a comma separated list of tag=value pairs
+     *            a comma separated list of tag=value pairs
      * @param properties
-     *                       the collection into which the pairs are put
+     *            the collection into which the pairs are put
      */
     private void putProperties(String pairs, Map<String, String> properties) {
         String[] propPairs = StringHelper.getArrayFromString(pairs, ',');
