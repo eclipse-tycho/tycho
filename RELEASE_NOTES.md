@@ -262,7 +262,6 @@ If `addOnlyProviding` is `true` repositories that don't provide any filtered uni
         </repositoryReferenceFilter>
     </configuration>
 </plugin>
-
 ```
 
 ### Remove support for deployableFeature option
@@ -272,6 +271,32 @@ be created under target folder" but we already removed site-packaging from Tycho
 archive similar a category.xml with eclipse-repository packaging gives much more control and power to the user.
 Alternativly new `mirror-target-platform` mojo can be used.
 
+
+### OSGi Execution Environment Units are no longer published by default
+
+Previously Tycho has published so called 'Execution Environment Units' that represents the packages of the used Java version,
+but this has the drawback that these units represents the packages used during the build and not represent what is actually available at runtime.
+It could therefore happen that something is installed by P2 that later can't be resolved, especially since modular VMs can have any set of packages,
+additional packages are exposed by the framework and so on.
+
+Because of this there are some initiative to get rid of these generated units and let them be generated at runtime based on the actual VM present,
+if one requires previous behavior (e.g. to support older Eclipse / P2 / PDE / ...) it can be enabled as follows:
+
+```xml
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho-p2-publisher-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<executions>
+		<execution>
+			<id>publish-osgi-ee</id>
+			<goals>
+				<goal>publish-osgi-ee</goal>
+			</goals>
+		</execution>
+	</executions>
+</plugin>
+```
 
 ## 4.0.4
 
