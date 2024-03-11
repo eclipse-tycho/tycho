@@ -25,8 +25,9 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.equinox.internal.p2.updatesite.CategoryPublisherApplication;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.internal.repository.tools.XZCompressor;
+import org.eclipse.tycho.p2tools.copiedfromp2.CategoryPublisherApplication;
 
 /**
  * Adds category IUs to existing metadata repository.
@@ -41,8 +42,8 @@ public class CategoryP2MetadataMojo extends AbstractP2MetadataMojo {
     private File categoryDefinition;
 
     @Override
-    protected CategoryPublisherApplication getPublisherApplication() {
-        return new CategoryPublisherApplication();
+    protected CategoryPublisherApplication getPublisherApplication(IProvisioningAgent agent) {
+        return new CategoryPublisherApplication(agent);
     }
 
     @Override

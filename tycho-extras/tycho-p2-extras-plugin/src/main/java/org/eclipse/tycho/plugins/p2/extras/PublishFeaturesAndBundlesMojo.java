@@ -27,8 +27,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAndBundlesPublisherApplication;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.tycho.p2tools.copiedfromp2.FeaturesAndBundlesPublisherApplication;
 
 /**
  * This goal invokes the feature and bundle publisher on a folder.
@@ -106,8 +105,7 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
             List<String> contentArgs = new ArrayList<>();
             contentArgs.add("-source");
             contentArgs.add(sourceRepositoryDir.toString());
-            agent.getService(IArtifactRepositoryManager.class); //force init P2 services
-            FeaturesAndBundlesPublisherApplication application = new FeaturesAndBundlesPublisherApplication();
+            FeaturesAndBundlesPublisherApplication application = new FeaturesAndBundlesPublisherApplication(agent);
             List<String> arguments = new ArrayList<String>();
             arguments.add("-artifactRepository");
             arguments.add(artifactRepositoryDir.toURL().toString());
