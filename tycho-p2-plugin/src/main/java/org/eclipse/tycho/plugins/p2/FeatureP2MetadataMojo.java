@@ -15,15 +15,16 @@ package org.eclipse.tycho.plugins.p2;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAndBundlesPublisherApplication;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.tycho.p2tools.copiedfromp2.FeaturesAndBundlesPublisherApplication;
 
 @Mojo(name = "feature-p2-metadata", threadSafe = true)
 public class FeatureP2MetadataMojo extends AbstractP2MetadataMojo {
     private static final Object LOCK = new Object();
 
     @Override
-    protected FeaturesAndBundlesPublisherApplication getPublisherApplication() {
-        return new FeaturesAndBundlesPublisherApplication();
+    protected FeaturesAndBundlesPublisherApplication getPublisherApplication(IProvisioningAgent agent) {
+        return new FeaturesAndBundlesPublisherApplication(agent);
     }
 
     @Override
