@@ -60,7 +60,7 @@
 		<commonsCompressVersion>1.26.1</commonsCompressVersion>
 		<plexusVersion>2.2.0</plexusVersion>
 		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
-		<plexusCompilerVersion>2.14.2</plexusCompilerVersion>
+		<plexusCompilerVersion>2.15.0</plexusCompilerVersion>
 		<cipherVersion>2.1.0</cipherVersion>
 		<pluginToolsVersion>3.11.0</pluginToolsVersion>
 		<jgit-version>6.8.0.202311291450-r</jgit-version>
