@@ -351,4 +351,9 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
             signer.generateSignature(target.toFile());
         }
     }
+
+    @Override
+    public String signerName() {
+        return "bouncycastle";
+    }
 }

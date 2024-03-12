@@ -11,15 +11,13 @@ package org.apache.maven.plugins.gpg;
 
 import java.io.File;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
 public abstract class AbstractGpgMojoExtension extends AbstractGpgMojo {
 
     @Override
-    protected ProxySignerWithPublicKeyAccess newSigner(MavenProject project)
-            throws MojoExecutionException, MojoFailureException {
+    protected ProxySignerWithPublicKeyAccess newSigner(MavenProject project) throws MojoFailureException {
         return new ProxySignerWithPublicKeyAccess(super.newSigner(project), getSigner(), getPGPInfo(), getSecretKeys());
     }
 

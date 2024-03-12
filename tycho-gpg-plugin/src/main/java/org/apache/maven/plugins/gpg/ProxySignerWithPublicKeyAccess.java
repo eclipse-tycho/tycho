@@ -216,4 +216,9 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
             throw new MojoExecutionException("Unable to execute gpg command", e);
         }
     }
+
+    @Override
+    public String signerName() {
+        return "ProxySignerWithPublicKeyAccess";
+    }
 }
