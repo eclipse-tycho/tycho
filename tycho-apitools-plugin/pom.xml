@@ -72,7 +72,7 @@
 		<dependency>
 		    <groupId>org.eclipse.jdt</groupId>
 		    <artifactId>org.eclipse.jdt.launching</artifactId>
-		    <version>3.21.0</version>
+		    <version>3.21.100</version>
 		</dependency>
 		<!-- libs -->
 		<dependency>
