@@ -54,6 +54,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReference;
@@ -118,6 +119,7 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
         boolean considerOnlyStrictDependency = options.considerStrictDependencyOnly();
         return new PermissiveSlicer(repository, filters.get(0), includeOptionalDependencies,
                 options.isEverythingGreedy(), evalFilterTo, considerOnlyStrictDependency, onlyFilteredRequirements) {
+
             @Override
             protected boolean isApplicable(IInstallableUnit iu, IRequirement req) {
                 if ((includeRequiredBundles || includeRequiredFeatures) && QueryUtil.isGroup(iu)
@@ -147,6 +149,20 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
                 if (considerOnlyStrictDependency && !RequiredCapability.isStrictVersionRequirement(req.getMatches())) {
                     return false;
                 }
+
+                if (!includeAllSource && req.getMin() == 0 && !req.isGreedy()
+                        && req instanceof IRequiredCapability capability
+                        && PublisherHelper.NAMESPACE_ECLIPSE_TYPE.equals(capability.getNamespace())
+                        && PublisherHelper.TYPE_ECLIPSE_SOURCE.equals(capability.getName())) {
+                    // When dealing with published products, these products always include a dependency to
+                    // 'tooling.source.default', which in turn optionally + non-greedily depends on up all sources.
+                    // Since https://github.com/eclipse-equinox/p2/pull/446 the target platform contains
+                    // all the sources. When 'includeAllDependencies' is true, they would be picked up unless
+                    // we prevent this explicitly by also explicitly looking at 'includeAllSources'.
+                    // See https://github.com/eclipse-tycho/tycho/issues/3522
+                    return false;
+                }
+
                 //deal with filters
                 IMatchExpression<IInstallableUnit> filter = req.getFilter();
                 if (considerFilter) {
