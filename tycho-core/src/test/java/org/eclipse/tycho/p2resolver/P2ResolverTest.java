@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2024 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -222,8 +222,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
 
-        assertEquals(3, result.getArtifacts().size());
-        assertEquals(3, result.getNonReactorUnits().size()); // + a.jre
+        assertEquals(4, result.getArtifacts().size());
+        assertEquals(4, result.getNonReactorUnits().size()); // + a.jre
 
         assertContainsUnit("org.eclipse.swt", result.getNonReactorUnits());
         assertContainsUnit("org.eclipse.swt.gtk.linux.x86_64", result.getNonReactorUnits());
