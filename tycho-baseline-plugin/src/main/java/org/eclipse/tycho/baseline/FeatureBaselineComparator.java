@@ -167,7 +167,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 			message.append(baselineGroupUnit.getVersion());
 			message.append(", suggested version: ");
 			message.append(suggestedVersion);
-			context.reportBaselineProblem(message.toString());
+			context.reportBaselineProblem(message.toString(), new org.osgi.framework.Version(suggestedVersion.toString()));
 		}
 		return true;
 	}
