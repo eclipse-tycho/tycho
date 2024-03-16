@@ -283,6 +283,17 @@ public class P2RepositoryTool {
             return getValues(unitElement, "requires/required/@name");
         }
 
+        public List<String> getUnfilteredRequiredIds() throws Exception {
+            return XMLTool.getMatchingNodes(unitElement, "requires/required").stream().filter(node -> {
+                try {
+                    var nodes = getNodes(node, "filter");
+                    return nodes.isEmpty();
+                } catch (XPathExpressionException e) {
+                    throw new RuntimeException(e);
+                }
+            }).map(node -> node.getAttributes().getNamedItem("name")).map(Node::getNodeValue).toList();
+        }
+
         /**
          * Returns the IDs of IUs required with strict version range.
          */
