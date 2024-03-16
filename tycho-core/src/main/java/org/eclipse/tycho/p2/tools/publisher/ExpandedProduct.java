@@ -46,7 +46,8 @@ class ExpandedProduct implements IProductDescriptor {
     private final String expandedVersion;
     private List<IVersionedId> expandedBundles = null;
     private List<IVersionedId> expandedFeatures = null;
-    private List<IInstallableUnit> expandedRootFeatures = Collections.emptyList();
+    private List<IVersionedId> expandedRootFeatures = Collections.emptyList();
+    private List<IInstallableUnit> expandedRootFeatureIUs = Collections.emptyList();
 
     private final MultiLineLogger logger;
 
@@ -93,7 +94,7 @@ class ExpandedProduct implements IProductDescriptor {
     }
 
     public List<IInstallableUnit> getRootFeatures() {
-        return expandedRootFeatures;
+        return expandedRootFeatureIUs;
     }
 
     private void expandVersions() {
@@ -106,7 +107,9 @@ class ExpandedProduct implements IProductDescriptor {
         if (contentType != ProductContentType.BUNDLES) {
             expandedFeatures = resolver.resolveReferences("feature", ArtifactType.TYPE_ECLIPSE_FEATURE,
                     defaults.getFeatures(INCLUDED_FEATURES));
-            expandedRootFeatures = resolver.resolveReferencesToIUs("feature", ArtifactType.TYPE_ECLIPSE_FEATURE,
+            expandedRootFeatures = resolver.resolveReferences("feature", ArtifactType.TYPE_ECLIPSE_FEATURE,
+                    defaults.getFeatures(ROOT_FEATURES));
+            expandedRootFeatureIUs = resolver.resolveReferencesToIUs("feature", ArtifactType.TYPE_ECLIPSE_FEATURE,
                     defaults.getFeatures(ROOT_FEATURES));
         }
         resolver.reportErrors(logger);
