@@ -77,6 +77,7 @@ public class FragmentHostBuildTimestampProvider implements BuildTimestampProvide
 										.getString(BuildQualifierMojo.PARAMETER_FORMAT);
 								SimpleDateFormat format = formatString.map(SimpleDateFormat::new)
 										.orElseGet(() -> new SimpleDateFormat(BuildQualifierMojo.DEFAULT_DATE_FORMAT));
+								format.setTimeZone(BuildQualifierMojo.TIME_ZONE);
 								Date date = timestampFinder.findByDescriptor(descriptor, format);
 								if (date != null) {
 									return date;
