@@ -90,6 +90,8 @@ import org.osgi.framework.Version;
 @Mojo(name = "build-qualifier", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class BuildQualifierMojo extends AbstractVersionMojo {
 
+	static final TimeZone TIME_ZONE = TimeZone.getTimeZone("UTC");
+
 	static final String PARAMETER_FORMAT = "format";
 
 	static final String DEFAULT_DATE_FORMAT = "yyyyMMddHHmm";
@@ -144,7 +146,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     // setter is needed to make sure we always use UTC
     public void setFormat(String formatString) {
         format = new SimpleDateFormat(formatString);
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        format.setTimeZone(TIME_ZONE);
     }
 
     @Override
