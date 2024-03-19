@@ -81,12 +81,12 @@ public class ClassfileComparator implements ContentsComparator {
         return TYPE.equalsIgnoreCase(extension);
     }
 
-    private static final class ClassfileArtifactDelta extends SimpleArtifactDelta {
+    public static final class ClassfileArtifactDelta extends SimpleArtifactDelta {
 
         private ComparatorInputStream baselineStream;
         private ComparatorInputStream reactorStream;
 
-        public ClassfileArtifactDelta(String baseline, String reactor, ComparatorInputStream baselineStream,
+        ClassfileArtifactDelta(String baseline, String reactor, ComparatorInputStream baselineStream,
                 ComparatorInputStream reactorStream) {
             super("different", baseline, reactor);
             this.baselineStream = baselineStream;
