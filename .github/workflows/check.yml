@@ -45,7 +45,7 @@ jobs:
            done
 
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@f355d34d53ad4e7f506f699478db2dd71da9de5f # v2.15.1
+        uses: EnricoMi/publish-unit-test-result-action@b25bb152254577182a8cc192fe0c5147554a1171 # v2.16.0
         with:
           commit: ${{ github.event.workflow_run.head_sha }}
           event_file: artifacts/Event File/event.json
