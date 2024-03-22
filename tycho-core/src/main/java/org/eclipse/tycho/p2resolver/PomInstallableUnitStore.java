@@ -18,8 +18,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -221,10 +223,31 @@ class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
             MavenProject mavenProject = projectFacade.getReactorProject().adapt(MavenProject.class);
             if (mavenProject != null) {
                 return Stream.concat(Stream.of(mavenProject.getArtifact()),
-                        mavenProject.getAttachedArtifacts().stream());
+                        safeCopy(mavenProject.getAttachedArtifacts()).stream());
             }
         }
         return Stream.of(artifact);
+
+    }
+
+    private List<Artifact> safeCopy(List<Artifact> list) {
+        while (true) {
+            //in parallel execution mode it is possible that items are added to the attached artifacts what will throw ConcurrentModificationException so we must make a quite unusual copy here
+            //we can not only use one of the List.copyOf(), ArrayList(...) and so on e.g. they often just copy the data but a concurrent copy can lead to data corruption or null values
+            try {
+                List<Artifact> copyList = new ArrayList<>();
+                for (Iterator<Artifact> iterator = list.iterator(); iterator.hasNext();) {
+                    Artifact a = iterator.next();
+                    if (a != null) {
+                        copyList.add(a);
+                    }
+                }
+                return copyList;
+            } catch (ConcurrentModificationException e) {
+                //retry...
+                Thread.yield();
+            }
+        }
 
     }
 
