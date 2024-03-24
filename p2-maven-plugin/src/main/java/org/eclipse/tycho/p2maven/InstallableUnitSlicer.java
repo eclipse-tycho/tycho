@@ -14,7 +14,6 @@ package org.eclipse.tycho.p2maven;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,30 +115,6 @@ public class InstallableUnitSlicer {
 			}
 		}
 		return result;
-	}
-
-	private final class TychoSlicer extends PermissiveSlicer {
-		private TychoSlicer(IQueryable<IInstallableUnit> input) {
-			super(input, new HashMap<>(), //
-					true, // includeOptionalDependencies
-					true, // everythingGreedy
-					true, // evalFilterTo
-					false, // considerOnlyStrictDependency
-					false // onlyFilteredRequirements
-			);
-		}
-
-		@Override
-		protected boolean isApplicable(IInstallableUnit unit, IRequirement requirement) {
-			if (requirement.isMatch(unit)) {
-				// a bundle might import its exported packages, in such a case we ignore the
-				// requirement
-				log.debug("The requirement " + requirement + " is already satisfied by the unit " + unit
-						+ " itself, ignoring it.");
-				return false;
-			}
-			return super.isApplicable(unit, requirement);
-		}
 	}
 
 }

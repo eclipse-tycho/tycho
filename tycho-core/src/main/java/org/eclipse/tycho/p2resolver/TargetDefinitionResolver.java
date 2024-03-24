@@ -154,7 +154,7 @@ public final class TargetDefinitionResolver {
                     String key = location.normalize().toASCIIString();
                     locations.add(
                             uriRepositories.computeIfAbsent(key, s -> new URITargetDefinitionContent(provisioningAgent,
-                                    location, repository.getId(), referencedRepositoryMode)));
+                                    location, repository.getId(), referencedRepositoryMode, logger)));
                 }
                 IQueryable<IInstallableUnit> locationUnits = QueryUtil.compoundQueryable(locations);
                 Collection<IInstallableUnit> rootUnits = installableUnitResolver

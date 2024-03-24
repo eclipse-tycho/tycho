@@ -13,6 +13,8 @@
 package org.eclipse.tycho.plugins.p2.director;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -27,9 +29,17 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.toolchain.ToolchainManager;
+import org.codehaus.plexus.logging.Logger;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.DependencySeed;
+import org.eclipse.tycho.ExecutionEnvironment;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.impl.StandardEEResolutionHints;
+import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
@@ -54,6 +64,17 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
         internal, standalone
     }
 
+    /**
+     * <p>
+     * Comma-separated list of profile names to be published. Examples: JavaSE-11, JavaSE-17,
+     * JavaSE-18.
+     * 
+     * If not given, all current available JavaSE profiles with version >= 11 are used.
+     * </p>
+     */
+    @Parameter
+    private String EEProfiles;
+
     @Component
     private MojoExecution execution;
 
@@ -62,6 +83,12 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
 
     @Component
     private StandaloneDirectorRuntimeFactory standaloneDirectorFactory;
+
+    @Component
+    private ToolchainManager toolchainManager;
+
+    @Component
+    private Logger logger;
 
     @Component
     DirectorRuntime director;
@@ -196,7 +223,18 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
         if (rootFolder != null && !rootFolder.isEmpty()) {
             destination = new File(destination, rootFolder);
         }
-
+        List<IInstallableUnit> eeUnits = new ArrayList<>();
+        for (String profile : getProductEEProfiles()) {
+            profile = profile.trim();
+            if (profile.isEmpty()) {
+                continue;
+            }
+            ExecutionEnvironment ee = ExecutionEnvironmentUtils.getExecutionEnvironment(profile, toolchainManager,
+                    getSession(), logger);
+            StandardEEResolutionHints hints = new StandardEEResolutionHints(ee);
+            eeUnits.addAll(hints.getMandatoryUnits());
+        }
+        command.setEEUnits(eeUnits);
         command.setBundlePool(getProductBundlePoolDirectory(product));
         command.addMetadataSources(sources.getMetadataRepositories());
         command.addArtifactSources(sources.getArtifactRepositories());
@@ -215,6 +253,13 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
         try {
             command.execute();
         } catch (DirectorCommandException e) {
+            IStatus status = StatusTool.findStatus(e);
+            if (status != null) {
+                String logMessage = StatusTool.toLogMessage(status);
+                getLog().error(logMessage);
+                throw new MojoFailureException("Installation of product " + product.getId() + " for environment " + env
+                        + " failed: " + logMessage, e);
+            }
             throw new MojoFailureException(
                     "Installation of product " + product.getId() + " for environment " + env + " failed", e);
         }
@@ -250,5 +295,14 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
     private RepositoryReferences getTargetPlatformRepositories() throws MojoExecutionException, MojoFailureException {
         int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
         return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
+    }
+
+    private Iterable<String> getProductEEProfiles() {
+        if (EEProfiles != null && !EEProfiles.isEmpty()) {
+            return Arrays.asList(EEProfiles.split(","));
+        }
+        return ExecutionEnvironmentUtils.getProfileNames(toolchainManager, getSession(), logger).stream()
+                .filter(str -> str.startsWith("JavaSE-"))
+                .filter(profile -> ExecutionEnvironmentUtils.getVersion(profile) >= 11).toList();
     }
 }

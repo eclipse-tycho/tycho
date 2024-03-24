@@ -12,14 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.apitools;
 
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -40,15 +37,12 @@ import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.Features;
 import org.osgi.framework.BundleException;
 import org.osgi.service.log.LogEntry;
-
 /**
  * Component that resolves the bundles that make up the ApiApplication from a
  * given URI
  */
 @Component(role = ApiApplicationResolver.class)
 public class ApiApplicationResolver {
-
-	private final Map<URI, EclipseApplication> cache = new ConcurrentHashMap<>();
 
 	@Requirement
 	private Logger logger;

@@ -35,6 +35,7 @@ import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
+import org.eclipse.tycho.core.EcJLogFileEnhancer;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
@@ -143,6 +144,16 @@ public class P2MetadataMojo extends AbstractMojo {
     @Component
     private IProvisioningAgent agent;
 
+    @Parameter(defaultValue = "false")
+    private boolean enhanceLogs;
+
+    /**
+     * If given a folder, enhances the ECJ compiler logs with class compare errors so it can be
+     * analyzed by tools understanding that format
+     */
+    @Parameter(defaultValue = "${project.build.directory}/compile-logs")
+    private File logDirectory;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         synchronized (LOCK) {
@@ -169,8 +180,19 @@ public class P2MetadataMojo extends AbstractMojo {
 
             if (baselineMode != BaselineMode.disable) {
                 ComparisonData data = new ComparisonData(ignoredPatterns, writeComparatorDelta);
-                generatedMetadata = baselineValidator.validateAndReplace(project, data, generatedMetadata,
-                        baselineRepositories, baselineMode, baselineReplace);
+                if (enhanceLogs && logDirectory != null && logDirectory.isDirectory()) {
+                    try {
+                        try (EcJLogFileEnhancer enhancer = EcJLogFileEnhancer.create(logDirectory)) {
+                            generatedMetadata = baselineValidator.validateAndReplace(project, data, generatedMetadata,
+                                    baselineRepositories, baselineMode, baselineReplace, enhancer);
+                        }
+                    } catch (IOException e) {
+                        getLog().warn("Can't enhance logs in directory " + logDirectory);
+                    }
+                } else {
+                    generatedMetadata = baselineValidator.validateAndReplace(project, data, generatedMetadata,
+                            baselineRepositories, baselineMode, baselineReplace, null);
+                }
             }
 
             FileInfo info = p2generator.persistMetadata(generatedMetadata, project);

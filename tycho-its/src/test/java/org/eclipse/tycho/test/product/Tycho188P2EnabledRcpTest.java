@@ -127,9 +127,12 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 		Optional<File> rootFeatureInRepo = p2Repository.findFeatureArtifact("pi.root-level-installed-feature");
 		assertTrue(rootFeatureInRepo.isPresent());
 
-		// ... although there is no dependency from the product IU.
-		assertThat(p2Repository.getUniqueIU("main.product.id").getRequiredIds(),
-				not(hasItem("pi.root-level-installed-feature.feature.group")));
+		// ... although there is no unfiltered dependency from the product IU.
+		var unfilteredRequiredIds = p2Repository.getUniqueIU("main.product.id").getUnfilteredRequiredIds();
+		assertThat(unfilteredRequiredIds, not(hasItem("pi.root-level-installed-feature.feature.group")));
+
+		// There are the expected unfiltered requirement such as this one.
+		assertThat(unfilteredRequiredIds, hasItem("pi.example.feature.feature.group"));
 	}
 
 	@Test

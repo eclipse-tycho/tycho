@@ -26,12 +26,15 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecution;
+import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugin.descriptor.PluginDescriptorBuilder;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
+import org.codehaus.plexus.component.configurator.expression.TypeAwareExpressionEvaluator;
 import org.codehaus.plexus.util.InterpolationFilterReader;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
@@ -51,21 +54,38 @@ public class PluginConfigurationHelper {
 
     public Configuration getConfiguration() {
         MojoExecution execution = MojoExecutionHelper.getExecution().orElse(null);
+        TypeAwareExpressionEvaluator evaluator = getEvaluator(legacySupport.getSession(), execution);
         if (execution == null) {
-            return new Configuration(null);
+            return new Configuration(null, evaluator);
         }
         Xpp3Dom configuration = execution.getConfiguration();
-        return getConfiguration(configuration);
+        return new Configuration(configuration, evaluator);
+    }
+
+    private TypeAwareExpressionEvaluator getEvaluator(MavenSession mavenSession, MojoExecution execution) {
+        if (mavenSession == null) {
+            return null;
+        }
+        return new PluginParameterExpressionEvaluator(mavenSession, execution);
+    }
+
+    private MavenProject getProject() {
+        MavenSession session = legacySupport.getSession();
+        if (session != null) {
+            return session.getCurrentProject();
+        }
+        return null;
     }
 
     public Configuration getConfiguration(Xpp3Dom configuration) {
-        return new Configuration(configuration);
+        return new Configuration(configuration, getEvaluator(legacySupport.getSession(), null));
     }
 
     public Configuration getConfiguration(String pluginGroupId, String pluginArtifactId, String goal,
             MavenProject project, MavenSession mavenSession) {
         return new Configuration(
-                projectHelper.getPluginConfiguration(pluginGroupId, pluginArtifactId, goal, project, mavenSession));
+                projectHelper.getPluginConfiguration(pluginGroupId, pluginArtifactId, goal, project, mavenSession),
+                getEvaluator(mavenSession, null));
     }
 
     public <M extends Mojo> Configuration getConfiguration(Class<M> mojo) {
@@ -113,9 +133,11 @@ public class PluginConfigurationHelper {
     public static final class Configuration {
 
         private Xpp3Dom configuration;
+        private TypeAwareExpressionEvaluator evaluator;
 
-        Configuration(Xpp3Dom configuration) {
+        Configuration(Xpp3Dom configuration, TypeAwareExpressionEvaluator evaluator) {
             this.configuration = configuration;
+            this.evaluator = evaluator;
         }
 
         public Optional<Configuration> getChild(String name) {
@@ -126,7 +148,7 @@ public class PluginConfigurationHelper {
             if (child == null) {
                 return Optional.empty();
             }
-            return Optional.of(new Configuration(child));
+            return Optional.of(new Configuration(child, evaluator));
         }
 
         public Optional<String> getString(String name) {
@@ -158,20 +180,24 @@ public class PluginConfigurationHelper {
 
         public Optional<List<String>> getStringList(String name) {
             return getChild(name).map(child -> {
-                return Arrays.stream(child.configuration.getChildren()).map(PluginConfigurationHelper::getValue)
-                        .toList();
+                return Arrays.stream(child.configuration.getChildren()).map(this::getValue).toList();
             });
 
         }
 
-    }
-
-    private static String getValue(Xpp3Dom dom) {
-        String value = dom.getValue();
-        if (value == null) {
-            return dom.getAttribute("default-value");
+        private String getValue(Xpp3Dom dom) {
+            String value = dom.getValue();
+            if (value == null) {
+                value = dom.getAttribute("default-value");
+            }
+            if (value != null && evaluator != null) {
+                try {
+                    return (String) evaluator.evaluate(value, String.class);
+                } catch (ExpressionEvaluationException e) {
+                }
+            }
+            return value;
         }
-        return value;
     }
 
 }

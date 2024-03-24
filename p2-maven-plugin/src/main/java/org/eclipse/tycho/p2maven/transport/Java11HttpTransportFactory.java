@@ -53,8 +53,6 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 	private static final int MAX_DISCARD = 1024 * 10;
 	private static final byte[] DUMMY_BUFFER = new byte[MAX_DISCARD];
 
-	private static final String LAST_MODIFIED_HEADER = "Last-Modified";
-
 	// see https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3
 	// per RFC there are three different formats:
 	private static final List<ThreadLocal<DateFormat>> DATE_PATTERNS = List.of(//
@@ -112,7 +110,8 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 					return performGet(consumer, client);
 				} catch (IOException e) {
 					if (isGoaway(e)) {
-						logger.info("Received GOAWAY from server " + uri.getHost() + " will retry with Http/1...");
+						logger.info("Received GOAWAY from server " + uri.getHost() + " will retry download of " + uri
+								+ " with Http/1...");
 						TimeUnit.SECONDS.sleep(1);
 						return performGet(consumer, clientHttp1);
 					}

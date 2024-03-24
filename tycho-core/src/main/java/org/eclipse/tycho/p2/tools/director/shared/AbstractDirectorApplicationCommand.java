@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2.tools.director.shared;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -21,6 +22,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.eclipse.equinox.p2.engine.IPhaseSet;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.TargetEnvironment;
@@ -47,6 +49,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
     private File bundlePool;
     private IPhaseSet phaseSet;
     private boolean installSources;
+    private Collection<IInstallableUnit> eeUnits;
 
     @Override
     public final void addMetadataSources(Iterable<URI> metadataRepositories) {
@@ -170,6 +173,18 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
             props.put(BundlesAction.FILTER_PROPERTY_INSTALL_SOURCE, "true");
         }
         return props;
+    }
+
+    @Override
+    public void setEEUnits(Collection<IInstallableUnit> eeUnits) {
+        this.eeUnits = eeUnits;
+    }
+
+    public Collection<IInstallableUnit> getEEUnits() {
+        if (eeUnits == null) {
+            return List.of();
+        }
+        return eeUnits;
     }
 
 }

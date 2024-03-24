@@ -100,7 +100,7 @@ public class ListDependenciesMojo extends AbstractMojo {
                 }
             }
             TychoProject projectType = projectTypes.get(project.getPackaging());
-            if (projectType instanceof OsgiBundleProject bundleProject) {
+            if (projectType instanceof OsgiBundleProject) {
 
                 try {
                     pluginRealmHelper.visitPluginExtensions(project, session, ClasspathContributor.class, cpc -> {

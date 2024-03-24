@@ -37,7 +37,6 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
 
     public void testLicenseFeature() throws Exception {
 		File basedir = new File(getBasedir("projects/licenseFeature"), "feature");
-        File platform = new File("src/test/resources/projects/licenseFeature/eclipse");
 		List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project = getProject(projects, "licenseFeature.feature");
@@ -84,7 +83,6 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
 
     public void testAddMavenDescriptorNotAddedPerDefault() throws Exception {
         File basedir = getBasedir("projects/addMavenDescriptor/featureDefault/");
-        File platform = new File("src/test/resources/eclipse");
 		List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project = getProject(projects, "featureDefault");
@@ -107,7 +105,6 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
 
     public void testAddMavenDescriptorSetToTrue() throws Exception {
         File basedir = getBasedir("projects/addMavenDescriptor/featureForcedToTrue");
-        File platform = new File("src/test/resources/eclipse");
 		List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project = getProject(projects, "featureForcedToTrue");

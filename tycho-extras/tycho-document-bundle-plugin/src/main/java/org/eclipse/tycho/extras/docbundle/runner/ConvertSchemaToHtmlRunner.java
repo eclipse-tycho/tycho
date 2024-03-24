@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -50,7 +51,6 @@ import org.eclipse.pde.internal.core.schema.PathSchemaProvider;
 import org.eclipse.pde.internal.core.schema.Schema;
 import org.eclipse.pde.internal.core.schema.SchemaDescriptor;
 import org.eclipse.pde.internal.core.schema.SchemaProvider;
-import org.eclipse.pde.internal.core.util.HeaderMap;
 import org.osgi.framework.Constants;
 
 /**
@@ -164,7 +164,7 @@ public class ConvertSchemaToHtmlRunner implements Callable<ConvertSchemaToHtmlRe
 
 		if (OSGiFile.exists()) {
 			try (FileInputStream manifestStream = new FileInputStream(OSGiFile)) {
-				Map<String, String> headers = ManifestElement.parseBundleManifest(manifestStream, new HeaderMap<>());
+				Map<String, String> headers = ManifestElement.parseBundleManifest(manifestStream, new HashMap<>());
 				String value = headers.get(Constants.BUNDLE_SYMBOLICNAME);
 				if (value == null) {
 					return null;

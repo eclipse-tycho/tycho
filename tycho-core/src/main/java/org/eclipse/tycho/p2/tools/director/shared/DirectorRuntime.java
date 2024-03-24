@@ -14,9 +14,11 @@ package org.eclipse.tycho.p2.tools.director.shared;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.equinox.p2.engine.IPhaseSet;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.TargetEnvironment;
@@ -63,6 +65,8 @@ public interface DirectorRuntime {
         void setPhaseSet(IPhaseSet phaseSet);
 
         void setInstallSources(boolean installSources);
+
+        void setEEUnits(Collection<IInstallableUnit> eeUnits);
     }
 
     /**

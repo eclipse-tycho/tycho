@@ -12,17 +12,25 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
+import org.apache.maven.SessionScoped;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 
 @Component(role = TargetDefinitionVariableResolver.class)
+@SessionScoped
 public class DefaultTargetDefinitionVariableResolver implements TargetDefinitionVariableResolver {
 
     private static final Pattern SYSTEM_PROPERTY_PATTERN = createVariablePatternArgument("system_property");
@@ -33,8 +41,11 @@ public class DefaultTargetDefinitionVariableResolver implements TargetDefinition
     private MavenContext mavenContext;
     @Requirement
     private Logger logger;
+    private MavenSession mavenSession;
 
-    public DefaultTargetDefinitionVariableResolver() {
+    @Inject
+    public DefaultTargetDefinitionVariableResolver(MavenSession mavenSession) {
+        this.mavenSession = mavenSession;
     }
 
     /** for tests */
@@ -59,21 +70,22 @@ public class DefaultTargetDefinitionVariableResolver implements TargetDefinition
             projectName = projectName.substring(1);
         }
         logger.debug("Find project location for project " + projectName);
-        for (ReactorProject project : projects()) {
+        Iterable<ReactorProject> projects = projects();
+        for (ReactorProject project : projects) {
             String name = project.getName();
             logger.debug("check reactor project name: " + name);
             if (name.equals(projectName)) {
                 return project.getBasedir().getAbsolutePath();
             }
         }
-        for (ReactorProject project : projects()) {
+        for (ReactorProject project : projects) {
             String artifactId = project.getArtifactId();
             logger.debug("check reactor project artifact id: " + artifactId);
             if (artifactId.equals(projectName)) {
                 return project.getBasedir().getAbsolutePath();
             }
         }
-        for (ReactorProject project : projects()) {
+        for (ReactorProject project : projects) {
             String name = project.getBasedir().getName();
             logger.debug("check reactor project base directory: " + name);
             if (name.equals(projectName)) {
@@ -91,6 +103,12 @@ public class DefaultTargetDefinitionVariableResolver implements TargetDefinition
     }
 
     private Iterable<ReactorProject> projects() {
+        if (mavenSession != null) {
+            List<MavenProject> projects = mavenSession.getAllProjects();
+            if (projects != null) {
+                return projects.stream().map(DefaultReactorProject::adapt).toList();
+            }
+        }
         return mavenContext.getProjects();
     }
 

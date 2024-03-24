@@ -273,7 +273,7 @@ public class TychoProjectManager {
      * Determine the list of dependencies for a given project as a collection of path items
      * 
      * @param project
-     *            the project to use to determine the dependencies
+     *                    the project to use to determine the dependencies
      * @return a Collection of pathes describing the project dependencies
      * @throws Exception
      */
@@ -294,7 +294,7 @@ public class TychoProjectManager {
                 writeLocation(reactorProject.getArtifact(descriptor.getClassifier()), dependencySet);
             }
         }
-        if (tychoProject instanceof OsgiBundleProject bundleProject) {
+        if (tychoProject instanceof OsgiBundleProject) {
             MavenSession session = getMavenSession();
             pluginRealmHelper.visitPluginExtensions(project, session, ClasspathContributor.class, cpc -> {
                 List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(project, Artifact.SCOPE_COMPILE);

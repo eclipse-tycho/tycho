@@ -632,6 +632,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
     private IPhaseSet phaseSet;
     private IProvisioningAgent defaultAgent;
     private IProvisioningAgentProvider provisioningAgentProvider;
+    private Collection<IInstallableUnit> extraUnits;
 
     public DirectorApplication(ILog log, IPhaseSet phaseSet, IProvisioningAgent defaultAgent,
             IProvisioningAgentProvider provisioningAgentProvider) {
@@ -1096,6 +1097,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
             context.setArtifactRepositories(artifactRepositoryLocations.stream().toArray(URI[]::new));
             context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, String.valueOf(followReferences));
             context.setProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, String.valueOf(followReferences));
+            if (extraUnits != null && !extraUnits.isEmpty()) {
+                context.setExtraInstallableUnits(List.copyOf(extraUnits));
+            }
             ProfileChangeRequest request = buildProvisioningRequest(profile, installs, uninstalls);
             printRequest(request);
             planAndExecute(profile, context, request);
@@ -1106,6 +1110,10 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
                 setRoaming(profile);
             }
         }
+    }
+
+    public void setExtraInstallableUnits(Collection<IInstallableUnit> extraUnits) {
+        this.extraUnits = extraUnits;
     }
 
     private void planAndExecute(IProfile profile, ProvisioningContext context, ProfileChangeRequest request)

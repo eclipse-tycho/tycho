@@ -14,11 +14,6 @@
 	<version>0.0.1-SNAPSHOT</version>
   	<packaging>pom</packaging>
 
-	<modules>
-		<module>bundle</module>
-		<module>product</module>
-	</modules>
-
   <build>
     <plugins>
       <plugin>
@@ -41,6 +36,10 @@
   <profiles>
     <profile>
       <id>repository</id>
+      <modules>
+		<module>bundle</module>
+		<module>product</module>
+	  </modules>
       <repositories>
         <repository>
           <id>test-server</id>
@@ -52,6 +51,9 @@
 
     <profile>
       <id>target-definition</id>
+	  <modules>
+		<module>bundle</module>
+	  </modules>
       <build>
         <plugins>
           <plugin>
