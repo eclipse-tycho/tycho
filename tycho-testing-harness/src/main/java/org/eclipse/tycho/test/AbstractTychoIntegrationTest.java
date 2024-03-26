@@ -210,7 +210,7 @@ public abstract class AbstractTychoIntegrationTest {
      *            the pattern to match
      * @return an array of matching files (will contain at least one file)
      */
-    protected File[] assertFileExists(File baseDir, String pattern) {
+    public static File[] assertFileExists(File baseDir, String pattern) {
         DirectoryScanner ds = scan(baseDir, pattern);
         File[] includedFiles = Arrays.stream(ds.getIncludedFiles()).map(file -> new File(baseDir, file))
                 .toArray(File[]::new);
@@ -252,7 +252,7 @@ public abstract class AbstractTychoIntegrationTest {
     }
 
     public static void verifyTextInLogMatches(Verifier verifier, Pattern pattern) throws VerificationException {
-        List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+        List<String> lines = getLogLines(verifier);
 
         for (String line : lines) {
             if (pattern.matcher(Verifier.stripAnsi(line)).find()) {
@@ -263,13 +263,22 @@ public abstract class AbstractTychoIntegrationTest {
     }
 
     public static void verifyTextNotInLog(Verifier verifier, String text) throws VerificationException {
-        List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+        List<String> lines = getLogLines(verifier);
 
         for (String line : lines) {
             if (Verifier.stripAnsi(line).contains(text)) {
                 throw new VerificationException("Text '" + text + "' was found in the log!");
             }
         }
+    }
+
+    public static List<String> getLogLines(Verifier verifier) throws VerificationException {
+        return verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+    }
+
+    public static String getLog(Verifier verifier) throws VerificationException {
+        String fullLog = getLogLines(verifier).stream().collect(Collectors.joining(System.lineSeparator()));
+        return "\n\n=================== MAVEN LOG =======================\n\n" + fullLog;
     }
 
     /**
@@ -279,7 +288,7 @@ public abstract class AbstractTychoIntegrationTest {
      * @throws VerificationException
      */
     protected static void verifyErrorFreeLog(Verifier verifier) throws VerificationException {
-        List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+        List<String> lines = getLogLines(verifier);
         int size = lines.size();
         Pattern pattern = Pattern.compile("\\[\\w+\\]");
         for (int i = 0; i < size; i++) {
