@@ -15,7 +15,7 @@
   <parent>
     <artifactId>tycho-extras</artifactId>
     <groupId>org.eclipse.tycho.extras</groupId>
-    <version>4.0.7</version>
+    <version>4.0.8-SNAPSHOT</version>
   </parent>
 
   <artifactId>tycho-eclipserun-plugin</artifactId>
@@ -27,7 +27,7 @@
     <relocation>
       <groupId>org.eclipse.tycho</groupId>
       <artifactId>tycho-eclipse-plugin</artifactId>
-      <version>4.0.7</version>
+      <version>4.0.8-SNAPSHOT</version>
       <message>The eclipse-run mojo is now part of the tycho-eclipse-plugin</message>
     </relocation>
   </distributionManagement>
