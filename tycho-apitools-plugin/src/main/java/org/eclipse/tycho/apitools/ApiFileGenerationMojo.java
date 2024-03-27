@@ -13,7 +13,10 @@
 package org.eclipse.tycho.apitools;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -27,7 +30,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.pde.api.tools.internal.APIFileGenerator;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.project.EclipseProject;
 
 /**
@@ -84,8 +89,19 @@ public class ApiFileGenerationMojo extends AbstractMojo {
 	@Parameter(defaultValue = "false", property = "tycho.apitools.generate.skip")
 	private boolean skip;
 
+	/**
+	 * If set to
+	 * <code>true</true> all configured source folders in <code>build.properties</code>
+	 * will be added as {@link #extraSourceLocations}
+	 */
+	@Parameter(defaultValue = "false")
+	private boolean addSourceFolders;
+
 	@Component
 	private TychoProjectManager projectManager;
+
+	@Component
+	private BuildPropertiesParser buildPropertiesParser;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -110,13 +126,32 @@ public class ApiFileGenerationMojo extends AbstractMojo {
 				generator.encoding = encoding;
 				generator.debug = debug;
 				generator.manifests = join(extraManifests);
-				generator.sourceLocations = join(extraSourceLocations);
+				if (addSourceFolders) {
+					List<File> list = new ArrayList<>(extraSourceLocations);
+					for (Map.Entry<String, List<String>> entry : buildPropertiesParser
+							.parse(DefaultReactorProject.adapt(project)).getJarToSourceFolderMap().entrySet()) {
+						for (String sourceFolder : entry.getValue()) {
+							list.add(canonicalFile(new File(project.getBasedir(), sourceFolder)));
+						}
+					}
+					generator.sourceLocations = join(list);
+				} else {
+					generator.sourceLocations = join(extraSourceLocations);
+				}
 				generator.generateAPIFile();
 			}
 		}
 	}
 
-	private String join(List<File> list) {
+	private static File canonicalFile(File file) {
+		try {
+			return file.getCanonicalFile();
+		} catch (IOException e) {
+		}
+		return file;
+	}
+
+	private static String join(List<File> list) {
 		return list.isEmpty() ? null // join the elements so that the APIFileGenerator splits it correspondingly
 				: list.stream().map(File::toString).collect(Collectors.joining(File.pathSeparator));
 	}

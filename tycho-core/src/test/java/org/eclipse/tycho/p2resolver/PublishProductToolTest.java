@@ -26,7 +26,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
@@ -272,9 +271,11 @@ public class PublishProductToolTest extends TychoPlexusTestCase {
         assertThat(productUnit.getRequirements(),
                 hasItem(requirement("org.eclipse.rcp.feature.group", "4.4.0.v20140128")));
         assertThat(productUnit.getRequirements(), hasItem(requirement("org.eclipse.e4.rcp.feature.group", "1.0")));
-        assertThat(productUnit.getRequirements(),
-                not(hasItem(requirement("org.eclipse.help.feature.group", "2.0.102.v20140128"))));
-        assertThat(productUnit.getRequirements(), not(hasItem(requirement("org.eclipse.egit.feature.group", "2.0"))));
+        assertThat(productUnit.getRequirements(), hasItem(requirement("org.eclipse.help.feature.group",
+                "2.0.102.v20140128",
+                "(|(org.eclipse.equinox.p2.install.mode.root=true)(product.with.root.features.install.mode.root=true))")));
+        assertThat(productUnit.getRequirements(), hasItem(requirement("org.eclipse.egit.feature.group", "2.0",
+                "(|(org.eclipse.equinox.p2.install.mode.root=true)(product.with.root.features.install.mode.root=true))")));
 
         assertEquals("org.eclipse.help", seeds.get(1).getId());
         assertThat(seeds.get(1).getInstallableUnit(), is(unitWithId("org.eclipse.help.feature.group")));

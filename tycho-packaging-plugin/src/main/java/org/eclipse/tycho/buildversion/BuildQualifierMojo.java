@@ -90,7 +90,13 @@ import org.osgi.framework.Version;
 @Mojo(name = "build-qualifier", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class BuildQualifierMojo extends AbstractVersionMojo {
 
-    @Parameter(property = "session", readonly = true)
+	static final TimeZone TIME_ZONE = TimeZone.getTimeZone("UTC");
+
+	static final String PARAMETER_FORMAT = "format";
+
+	static final String DEFAULT_DATE_FORMAT = "yyyyMMddHHmm";
+
+	@Parameter(property = "session", readonly = true)
     protected MavenSession session;
 
     /**
@@ -98,7 +104,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
      * Specify a date format as specified by java.text.SimpleDateFormat. Timezone used is UTC.
      * </p>
      */
-	@Parameter(defaultValue = "yyyyMMddHHmm", property = "tycho.buildqualifier.format")
+	@Parameter(name = PARAMETER_FORMAT, defaultValue = DEFAULT_DATE_FORMAT, property = "tycho.buildqualifier.format")
     protected SimpleDateFormat format;
 
     @Parameter(property = "forceContextQualifier")
@@ -140,7 +146,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     // setter is needed to make sure we always use UTC
     public void setFormat(String formatString) {
         format = new SimpleDateFormat(formatString);
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        format.setTimeZone(TIME_ZONE);
     }
 
     @Override

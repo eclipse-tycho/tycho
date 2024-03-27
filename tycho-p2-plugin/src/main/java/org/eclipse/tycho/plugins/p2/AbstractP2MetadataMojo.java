@@ -21,10 +21,12 @@ import java.util.List;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.equinox.app.IApplication;
-import org.eclipse.equinox.p2.publisher.AbstractPublisherApplication;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.tycho.p2tools.copiedfromp2.AbstractPublisherApplication;
 
 public abstract class AbstractP2MetadataMojo extends AbstractMojo {
 
@@ -68,6 +70,9 @@ public abstract class AbstractP2MetadataMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     private boolean compressRepository;
 
+    @Component
+    private IProvisioningAgent agent;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!generateP2Metadata) {
@@ -101,7 +106,7 @@ public abstract class AbstractP2MetadataMojo extends AbstractMojo {
             arguments.add(argLine);
         }
 
-        Object result = getPublisherApplication().run(arguments.toArray(String[]::new));
+        Object result = getPublisherApplication(agent).run(arguments.toArray(String[]::new));
         if (result != IApplication.EXIT_OK) {
             throw new MojoFailureException("P2 publisher return code was " + result);
         }
@@ -124,7 +129,7 @@ public abstract class AbstractP2MetadataMojo extends AbstractMojo {
         }
     }
 
-    protected abstract AbstractPublisherApplication getPublisherApplication();
+    protected abstract AbstractPublisherApplication getPublisherApplication(IProvisioningAgent agent);
 
     protected File getUpdateSiteLocation() {
         return target;

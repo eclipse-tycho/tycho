@@ -14,9 +14,11 @@ package org.eclipse.tycho.p2.tools.director.shared;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.equinox.p2.engine.IPhaseSet;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.TargetEnvironment;
@@ -63,6 +65,8 @@ public interface DirectorRuntime {
         void setPhaseSet(IPhaseSet phaseSet);
 
         void setInstallSources(boolean installSources);
+
+        void setEEUnits(Collection<IInstallableUnit> eeUnits);
     }
 
     /**
@@ -73,14 +77,35 @@ public interface DirectorRuntime {
 
     /**
      * Computes the destination of a director install based on a target environment
-     * 
+     * <p>
+     * Currently, this implements special handling for macOS and behaves as follows:
+     * <ul>
+     * <li>If <code>baseLocation</code> already conforms to the full app bundle layout
+     * (<code>/path/to/Foo.app/Contents/Eclipse</code>), <code>baseLocation</code> is returned
+     * as-is.
+     * <li>If <code>baseLocation</code> points to the root of an app bundle
+     * (<code>/path/to/Foo.app</code>), <code>Contents/Eclipse</code> is appended and the path
+     * <code>/path/to/Foo.app/Contents/Eclipse</code> is returned.
+     * <li>Otherwise, i.e. if no app bundle path is given (<code>/path/to/work</code>), a valid app
+     * bundle path is appended, and the path <code>/path/to/work/Eclipse.app/Contents/Eclipse</code>
+     * is returned.
+     * </ul>
+     *
      * @param baseLocation
+     *            the base location
      * @param env
-     * @return
+     *            the target environment
+     * @return the adjusted location to conform to layouts required by the target environment
      */
     public static File getDestination(File baseLocation, TargetEnvironment env) {
-        if (PlatformPropertiesUtils.OS_MACOSX.equals(env.getOs()) && !hasRequiredMacLayout(baseLocation)) {
-            return new File(baseLocation, "Eclipse.app/Contents/Eclipse/");
+        if (PlatformPropertiesUtils.OS_MACOSX.equals(env.getOs())) {
+            if (hasRequiredMacLayout(baseLocation)) {
+                return baseLocation;
+            } else if (isMacOsAppBundleRoot(baseLocation)) {
+                return new File(baseLocation, "Contents/Eclipse/");
+            } else {
+                return new File(baseLocation, "Eclipse.app/Contents/Eclipse/");
+            }
         }
         return baseLocation;
     }
@@ -96,9 +121,14 @@ public interface DirectorRuntime {
             File folder2 = folder.getParentFile();
             if (folder2 != null && "Contents".equals(folder2.getName())) {
                 File parent = folder2.getParentFile();
-                return parent != null && parent.getName().endsWith(".app");
+                return parent != null && isMacOsAppBundleRoot(parent);
             }
         }
         return false;
     }
+
+    private static boolean isMacOsAppBundleRoot(File folder) {
+        return folder.getName().endsWith(".app");
+    }
+
 }
