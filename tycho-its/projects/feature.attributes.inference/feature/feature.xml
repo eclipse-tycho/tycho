@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="feature.attributes.inference.test"
+      version="1.0.0">
+
+   <plugin
+         id="junit-jupiter-api"
+         version="0.0.0"/>
+
+   <plugin
+         id="junit-platform-suite-api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apiguardian.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>

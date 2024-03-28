@@ -76,7 +76,7 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
 
     public String getReferenceHint() {
         return "The artifact can be referenced in feature files with the following data: <plugin id=\"" + wrappedBsn
-                + "\" version=\"" + wrappedVersion + "\" download-size=\"0\" install-size=\"0\" unpack=\"false\"/>";
+                + "\" version=\"" + wrappedVersion + "\"/>";
     }
 
     public String getGeneratedManifest() {
