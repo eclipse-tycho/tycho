@@ -2,6 +2,29 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 4.0.8
+
+backports:
+- maven dependencies of transitive projects are not discovered with `-am` / `--also-make`
+
+## 4.0.7
+
+backports:
+- update to next eclipse release
+- tycho-p2-director:director: Fix handling of destination on macOS
+- Prevent ConcurrentModificationException in PomInstallableUnitStore
+- Add an option to enhance the compile log with baseline problems
+- assemble-repository: Prevent sources from being included inadvertently
+- ExpandedProduct.getFeatures(ROOT_FEATURES) returns over-qualified IDs
+- provide suggested version for features
+- Do not fail the DS build if one dependency failed to add
+- Add a timestamp provider that inherits the timestamp from the parent
+- Add option to include all configured sources in ApiFileGenerationMojo
+- Do not fail target resolution if a referenced repository fails
+- Add URI to message of GOAWAY info
+- Reduce printed warnings in builds
+
+
 ## 4.0.6
 
 ### backports:
