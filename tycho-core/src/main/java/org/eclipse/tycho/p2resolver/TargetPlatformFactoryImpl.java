@@ -122,6 +122,8 @@ import org.osgi.framework.BundleException;
 
 public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
+    private static final Version DEFAULT_P2_ADVICE_VERSION = Version.parseVersion("1.0.0.qualifier");
+
     private final MavenContext mavenContext;
     private final MavenLogger logger;
     private final IProgressMonitor monitor;
@@ -304,12 +306,13 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         if (reactorProject == null) {
             return;
         }
+
         AdviceFileAdvice advice;
         if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(reactorProject.getPackaging())) {
-            advice = new AdviceFileAdvice(reactorProject.getArtifactId(), Version.parseVersion("1.0.0"),
+            advice = new AdviceFileAdvice(reactorProject.getArtifactId(), getVersion(reactorProject),
                     new Path(reactorProject.getBasedir().getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
         } else if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(reactorProject.getPackaging())) {
-            advice = new AdviceFileAdvice(reactorProject.getArtifactId(), Version.parseVersion("1.0.0"),
+            advice = new AdviceFileAdvice(reactorProject.getArtifactId(), getVersion(reactorProject),
                     new Path(reactorProject.getBasedir().getAbsolutePath()), new Path("p2.inf"));
         } else {
             //not a project with advice...
@@ -322,6 +325,18 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                     externalUIs.add(MetadataFactory.createInstallableUnit(desc));
                 }
             }
+        }
+    }
+
+    private Version getVersion(ReactorProject reactorProject) {
+        if (projectManager == null) {
+            return DEFAULT_P2_ADVICE_VERSION;
+        }
+        try {
+            return projectManager.getArtifactKey(reactorProject).map(key -> Version.parseVersion(key.getVersion()))
+                    .orElseGet(() -> DEFAULT_P2_ADVICE_VERSION);
+        } catch (IllegalArgumentException ex) {
+            return DEFAULT_P2_ADVICE_VERSION;
         }
     }
 
