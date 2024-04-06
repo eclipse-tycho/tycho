@@ -120,6 +120,9 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	@Parameter(defaultValue = "true")
 	private boolean printSummary;
 
+	@Parameter(defaultValue = "false")
+	private boolean failOnResolutionError;
+
 	@Parameter(defaultValue = "true")
 	private boolean failOnError;
 
@@ -162,8 +165,12 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			try {
 				baselineBundles = getBaselineBundles();
 			} catch (DependencyResolutionException e) {
-				log.warn("Can't resolve API baseline, API baseline check is skipped!");
-				return;
+				if (failOnResolutionError) {
+					throw new MojoFailureException("Can't resolve API baseline!", e);
+				} else {
+					log.warn("Can't resolve API baseline, API baseline check is skipped!");
+					return;
+				}
 			}
 			Collection<Path> dependencyBundles;
 			try {
