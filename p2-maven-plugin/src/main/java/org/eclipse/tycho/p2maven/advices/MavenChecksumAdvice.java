@@ -27,48 +27,51 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 public class MavenChecksumAdvice implements IPropertyAdvice {
-    //We use a fixed list here of default supported ones, actually one can provide a ChecksumAlgorithmFactory to extend the default algorithms
-    Map<String, String> mavenExtensions = Map.of(//
-            ".md5", "download.checksum.md5", //
-            ".sha1", "download.checksum.sha-1", //
-            ".sha256", "download.checksum.sha-256", //
-            ".sha512", "download.checksum.sha-512" //
-    );
+	// We use a fixed list here of default supported ones, actually one can provide
+	// a ChecksumAlgorithmFactory to extend the default algorithms
+	Map<String, String> mavenExtensions = Map.of(//
+			".md5", "download.checksum.md5", //
+			".sha1", "download.checksum.sha-1", //
+			".sha256", "download.checksum.sha-256", //
+			".sha512", "download.checksum.sha-512" //
+	);
 
-    private File artifactFile;
+	private File artifactFile;
 
-    public MavenChecksumAdvice(File artifactFile) {
-        this.artifactFile = artifactFile;
-    }
+	public MavenChecksumAdvice(File artifactFile) {
+		this.artifactFile = artifactFile;
+	}
 
-    @Override
-    public Map<String, String> getInstallableUnitProperties(InstallableUnitDescription iu) {
-        return Collections.emptyMap();
-    }
+	@Override
+	public Map<String, String> getInstallableUnitProperties(InstallableUnitDescription iu) {
+		return Collections.emptyMap();
+	}
 
-    @Override
-    public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
-        if (descriptor instanceof ArtifactDescriptor artifactDescriptor) {
-            // Workaround bug Bug 539672
-            String baseName = artifactFile.getName();
-            for (var entry : mavenExtensions.entrySet()) {
-                File file = new File(artifactFile.getParentFile(), baseName + entry.getKey());
-                if (file.isFile()) {
-                    try {
-                        String checksum = Files.readString(file.toPath(), StandardCharsets.US_ASCII).strip();
-                        artifactDescriptor.setProperty(entry.getValue(), checksum);
-                    } catch (IOException e) {
-                        //can't use the checksum then...
-                    }
-                }
-            }
-        }
-        return null;
-    }
+	@Override
+	public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
+		if (artifactFile != null) {
+			if (descriptor instanceof ArtifactDescriptor artifactDescriptor) {
+				// Workaround bug Bug 539672
+				String baseName = artifactFile.getName();
+				for (var entry : mavenExtensions.entrySet()) {
+					File file = new File(artifactFile.getParentFile(), baseName + entry.getKey());
+					if (file.isFile()) {
+						try {
+							String checksum = Files.readString(file.toPath(), StandardCharsets.US_ASCII).strip();
+							artifactDescriptor.setProperty(entry.getValue(), checksum);
+						} catch (IOException e) {
+							// can't use the checksum then...
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
 
-    @Override
-    public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
-        return true;
-    }
+	@Override
+	public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
+		return true;
+	}
 
 }
