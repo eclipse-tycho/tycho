@@ -21,7 +21,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -155,6 +154,7 @@ public class EcJLogFileEnhancer implements AutoCloseable {
             Element element = new Element("problem");
             element.setAttribute("line", Integer.toString(lineNumber));
             element.setAttribute("severity", severity);
+            element.setAttribute("id", Integer.toString(problemId));
             element.setAttribute("charStart", Integer.toString(charStart));
             element.setAttribute("charEnd", Integer.toString(charEnd));
             element.setAttribute("categoryID", Integer.toString(categoryId));
@@ -183,8 +183,8 @@ public class EcJLogFileEnhancer implements AutoCloseable {
         }
 
         public boolean hasClass(String classFile) {
-            return source.getChildren("classfile").stream().map(elem -> elem.getAttributeValue("path")).filter(Objects::nonNull)
-                    .anyMatch(path -> path.endsWith(classFile));
+            return source.getChildren("classfile").stream().map(elem -> elem.getAttributeValue("path"))
+                    .filter(Objects::nonNull).anyMatch(path -> path.endsWith(classFile));
         }
 
     }
