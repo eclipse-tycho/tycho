@@ -160,7 +160,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
     private int timeoutInSeconds = 300;
 
     /**
-     * Location of the category definition. If the file does not exits, a generic category
+     * Location of the category definition. If the file does not exist, a generic category
      * definition is generated including all bundles under one category
      */
     @Parameter(defaultValue = "${project.basedir}/category.xml")
