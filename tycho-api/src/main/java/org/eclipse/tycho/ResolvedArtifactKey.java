@@ -30,7 +30,7 @@ public interface ResolvedArtifactKey extends ArtifactKey {
     static ResolvedArtifactKey of(String type, String id, String version, File location) {
         Objects.requireNonNull(location);
         if (!location.exists()) {
-            throw new IllegalArgumentException("location " + location.getAbsolutePath() + " does not exits!");
+            throw new IllegalArgumentException("location " + location.getAbsolutePath() + " does not exist!");
         }
         return new ResolvedArtifactKey() {
 
