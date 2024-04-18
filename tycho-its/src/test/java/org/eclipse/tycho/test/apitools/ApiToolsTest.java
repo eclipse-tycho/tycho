@@ -149,4 +149,44 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 	}
+
+	@Test
+	public void testInvalidRepo() throws Exception {
+		Verifier verifier = getVerifier("api-tools/single-jar", true, true);
+		File repo = ResourceUtil.resolveTestResource("repositories/api-tools-broken");
+		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+
+		assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("clean", "verify")), "Did not error on missing repo");
+	}
+
+	@Test
+	public void testBaselineResolutonFailure_Error() throws Exception {
+		Verifier verifier = getVerifier("api-tools/missing-dependency", true, true);
+		File repo = ResourceUtil.resolveTestResource("repositories/api-tools-incomplete");
+		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+		verifier.addCliOption("-DfailResolutionError=true");
+
+		assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("clean", "verify")), "Did not error on resolution failure");
+		verifier.verifyTextInLog("Can't resolve API baseline!");
+	}
+
+	@Test
+	public void testBaselineResolutonFailure_Warn() throws Exception {
+		Verifier verifier = getVerifier("api-tools/missing-dependency", true, true);
+		File repo = ResourceUtil.resolveTestResource("repositories/api-tools-incomplete");
+		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyTextInLog("Can't resolve API baseline, API baseline check is skipped!");
+	}
+
+	@Test
+	public void testBaselineResolutonFailure_Default() throws Exception {
+		Verifier verifier = getVerifier("api-tools/single-jar", true, true);
+		File repo = ResourceUtil.resolveTestResource("repositories/api-tools-incomplete");
+		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyTextInLog("Can't resolve API baseline, API baseline check is skipped!");
+	}
 }

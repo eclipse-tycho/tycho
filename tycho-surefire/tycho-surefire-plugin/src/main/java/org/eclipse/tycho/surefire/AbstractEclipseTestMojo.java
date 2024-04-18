@@ -308,12 +308,6 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private BundleStartLevel defaultStartLevel;
 
     /**
-     * If {@link #testRuntime} is <code>p2Installed</code> installs all configured environments
-     */
-    @Parameter
-    private boolean installAllEnvironments;
-
-    /**
      * Flaky tests will re-run until they pass or the number of reruns has been exhausted. See
      * surefire documentation for details.
      * <p>
@@ -442,7 +436,11 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
      * that require a fully p2-provisioned installation. To install a product IU, add it as extra
      * requirement to the test bundle (see example below). Note that this installation mode comes
      * with a certain performance overhead for executing the provisioning operations otherwise not
-     * required.</li>
+     * required. Also note, that in this mode, in case the primary installation target environment
+     * is macOS, {@link #work} is post-processed to ensure a proper macOS layout. That is,
+     * <code>Eclipse.app/Contents/Eclipse</code> is automatically appended (or only
+     * <code>Contents/Eclipse</code>, if <code>work</code> already ends with
+     * <code>.app</code>).</li>
      * </ul>
      *
      * Example configuration which will install product IU under test "example.product.id" using p2:
@@ -693,23 +691,9 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             installationBuilder.setDestination(work);
             List<TargetEnvironment> list = getTestTargetEnvironments();
             TargetEnvironment testEnvironment = list.get(0);
-            if (installAllEnvironments) {
-                TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
-                List<TargetEnvironment> targetEnvironments = configuration.getEnvironments();
-                EquinoxInstallation installation = null;
-                for (TargetEnvironment targetEnvironment : targetEnvironments) {
-                    getLog().info("Provisioning with environment " + targetEnvironment + "...");
-                    installationBuilder.setProfileName(targetEnvironment.toString());
-                    EquinoxInstallation current = installationBuilder.install(targetEnvironment);
-                    if (targetEnvironment == testEnvironment) {
-                        installation = current;
-                    }
-                }
-                return installation;
-            } else {
-                getLog().info("Provisioning with environment " + testEnvironment + "...");
-                return installationBuilder.install(testEnvironment);
-            }
+            installationBuilder.setTargetEnvironment(testEnvironment);
+            getLog().info("Provisioning with environment " + testEnvironment + "...");
+            return installationBuilder.install();
         } catch (MojoExecutionException e) {
             throw e;
         } catch (MojoFailureException e) {

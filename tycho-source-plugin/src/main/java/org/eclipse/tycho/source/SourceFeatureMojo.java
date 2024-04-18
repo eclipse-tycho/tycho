@@ -568,8 +568,6 @@ public class SourceFeatureMojo extends AbstractMojo {
         PluginRef sourceRef = new PluginRef("plugin");
         sourceRef.setId(sourceBundle.getId());
         sourceRef.setVersion(sourceBundle.getVersion());
-        sourceRef.setDownloadSize(0);
-        sourceRef.setInstallSize(0);
         if (pluginRef.getOs() != null) {
             sourceRef.setOs(pluginRef.getOs());
         }
@@ -579,8 +577,6 @@ public class SourceFeatureMojo extends AbstractMojo {
         if (pluginRef.getArch() != null) {
             sourceRef.setArch(pluginRef.getArch());
         }
-        sourceRef.setUnpack(false);
-
         sourceFeature.addPlugin(sourceRef);
     }
 

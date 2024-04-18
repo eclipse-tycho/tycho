@@ -85,40 +85,8 @@ public class PluginRef {
         dom.setAttribute("arch", arch);
     }
 
-    /**
-     * @deprecated The installation format (packed/unpacked) shall be specified through the bundle's
-     *             Eclipse-BundleShape manifest header. The feature.xml's unpack attribute may not
-     *             be supported in a future version of Tycho.
-     */
-    @Deprecated
-    public boolean isUnpack() {
-        return Boolean.parseBoolean(dom.getAttributeValue("unpack"));
-    }
-
-    /**
-     * @deprecated The installation format (packed/unpacked) shall be specified through the bundle's
-     *             Eclipse-BundleShape manifest header. The feature.xml's unpack attribute may not
-     *             be supported in a future version of Tycho.
-     */
-    @Deprecated
-    public void setUnpack(boolean unpack) {
-        dom.setAttribute("unpack", Boolean.toString(unpack));
-    }
-
-    public long getDownloadSize() {
-        return Long.parseLong(dom.getAttributeValue("download-size"));
-    }
-
-    public void setDownloadSize(long size) {
-        dom.setAttribute("download-size", Long.toString(size));
-    }
-
-    public long getInstallSize() {
-        return Long.parseLong(dom.getAttributeValue("install-size"));
-    }
-
-    public void setInstallSize(long size) {
-        dom.setAttribute("install-size", Long.toString(size));
+    public void removeAttribute(String attributeName) {
+        dom.removeAttribute(attributeName);
     }
 
     Element getDom() {

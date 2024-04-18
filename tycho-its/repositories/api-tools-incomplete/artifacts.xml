@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='api-repo' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1712417422899'/>
+    <property name='p2.compressed' value='true'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='1'>
+    <artifact classifier='osgi.bundle' id='api-bundle-1' version='0.0.1.202404061530'>
+      <properties size='9'>
+        <property name='artifact.size' value='2776'/>
+        <property name='download.size' value='2776'/>
+        <property name='download.checksum.sha-512' value='602076046fe598cdfc5577d821073ea232e7763eb6da2d8a24a76ba03cfd1ad697923f18b46b70fabb6ade9962fe17aa764abd55b2986c9df29c6e82d79398fa'/>
+        <property name='download.checksum.sha-1' value='ec8fba619a385c2aff447db1af4ae7bee746c26d'/>
+        <property name='download.checksum.sha-256' value='48b87b31b78a2f85cbc6b7192309b0c3a0aee51f2ada598fd0c04487988029a0'/>
+        <property name='maven-groupId' value='org.eclipse.tycho.tycho-its'/>
+        <property name='maven-artifactId' value='api-bundle-1'/>
+        <property name='maven-version' value='0.0.1-SNAPSHOT'/>
+        <property name='maven-type' value='eclipse-plugin'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>

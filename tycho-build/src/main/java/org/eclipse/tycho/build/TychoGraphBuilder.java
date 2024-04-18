@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenExecutionRequest;
@@ -38,6 +39,7 @@ import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.graph.DefaultGraphBuilder;
 import org.apache.maven.graph.DefaultProjectDependencyGraph;
 import org.apache.maven.graph.GraphBuilder;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.building.DefaultModelProblem;
 import org.apache.maven.model.building.ModelProblem;
 import org.apache.maven.model.building.ModelProblem.Severity;
@@ -142,6 +144,8 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		}
 		ProjectDependencyGraph graph = graphResult.get();
 		List<MavenProject> projects = graph.getAllProjects();
+		Map<String, MavenProject> projectIdMap = projects.stream()
+				.collect(Collectors.toMap(p -> getProjectKey(p), Function.identity()));
 		int degreeOfConcurrency = request.getDegreeOfConcurrency();
 		Optional<ExecutorService> executor;
 		if (degreeOfConcurrency > 1) {
@@ -201,6 +205,22 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 							// we also need to add the dependencies of the dependency project
 							queue.add(new ProjectRequest(project, false, true, projectRequest));
 						});
+						// special case: a (transitive) Tycho project might have declared a dependency
+						// to another project in the reactor but this can not be discovered by maven
+						// before we add it here...
+						List<Dependency> dependencies = projectRequest.mavenProject.getDependencies();
+						for (Dependency dependency : dependencies) {
+							MavenProject reactorMavenProjectDependency = projectIdMap.get(getProjectKey(dependency));
+							if (reactorMavenProjectDependency != null) {
+								if (DEBUG) {
+									log.info(" + add (maven) dependency project '"
+											+ reactorMavenProjectDependency.getId() + "' of project '"
+											+ projectRequest.mavenProject.getId() + "'");
+								}
+								queue.add(
+										new ProjectRequest(reactorMavenProjectDependency, false, true, projectRequest));
+							}
+						}
 					}
 					if (projectRequest.addRequires) {
 						dependencyClosure.dependencies(always -> List.of())//
@@ -246,6 +266,14 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			log.error("Cannot compute project's dependency graph", e);
 			return Result.error(graph);
 		}
+	}
+
+	private String getProjectKey(Dependency project) {
+		return project.getGroupId() + ":" + project.getArtifactId() + ":" + project.getVersion();
+	}
+
+	private String getProjectKey(MavenProject project) {
+		return project.getGroupId() + ":" + project.getArtifactId() + ":" + project.getVersion();
 	}
 
 	private List<ModelProblem> toProblems(IStatus status, List<ModelProblem> problems) {
