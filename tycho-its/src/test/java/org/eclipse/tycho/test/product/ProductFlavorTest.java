@@ -29,7 +29,7 @@ public class ProductFlavorTest extends AbstractTychoIntegrationTest {
 
 	@BeforeClass
 	public static void buildProduct() throws Exception {
-		verifier = new ProductFlavorTest().getVerifier("tycho-p2-director-plugin/product-flavor", false);
+		verifier = new ProductFlavorTest().getVerifier("eclipserun.flavor", false);
 
 		verifier.executeGoals(Arrays.asList("clean", "install"));
 		verifier.verifyErrorFreeLog();
@@ -54,7 +54,7 @@ public class ProductFlavorTest extends AbstractTychoIntegrationTest {
 		Path repoBaseDir = Path.of(verifier.getBasedir());
 		Path repoPath = repoBaseDir.resolve("repository");
 
-		Verifier testVerifier = getVerifier("tycho-p2-director-plugin/product-flavor/eclipserun.flavor", false);
+		Verifier testVerifier = getVerifier("eclipserun.flavor/eclipserun", false);
 		// testVerifier.setEnvironmentVariable("PRODUCT_FLAVOR", name);
 		testVerifier.setEnvironmentVariable("PRODUCT_FLAVOR", "tooling");
 		testVerifier.setEnvironmentVariable("PRODUCT_DESTINATION", name);
