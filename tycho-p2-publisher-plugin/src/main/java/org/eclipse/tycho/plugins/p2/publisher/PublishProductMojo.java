@@ -80,9 +80,16 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     private static final Version LUNA_SR2_EXECUTABLE_FEATURE_VERSION = Version.parseVersion("3.6.102.v20150204-1316");
 
     /**
-     * The name of the p2 installation flavor to create. "tooling" in all uses of p2.
+     * <p>
+     * The name of the p2 installation flavor to create. De facto, this parameter is set to
+     * "tooling" in all uses of p2.
+     * </p>
+     * 
+     * @deprecated This parameter has no useful effect and may be removed in a future version of
+     *             Tycho.
      */
-    private static final String FLAVOR = "tooling";
+    @Parameter(defaultValue = "tooling")
+    private String flavor;
 
     @Component(role = UnArchiver.class, hint = "zip")
     private UnArchiver deflater;
@@ -126,7 +133,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
 
                 boolean includeLaunchers = productConfiguration.includeLaunchers();
                 seeds.addAll(publisher.publishProduct(productFile,
-                        includeLaunchers ? getExpandedLauncherBinaries() : null, FLAVOR));
+                        includeLaunchers ? getExpandedLauncherBinaries() : null, flavor));
                 hasLaunchers |= includeLaunchers;
             } catch (IOException e) {
                 throw new MojoExecutionException(

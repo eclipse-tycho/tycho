@@ -14,16 +14,6 @@
 
 	<build>
 		<plugins>
-<!--
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-p2-publisher-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<flavor>noconfig</flavor>
-				</configuration>
-			</plugin>
--->
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-director-plugin</artifactId>

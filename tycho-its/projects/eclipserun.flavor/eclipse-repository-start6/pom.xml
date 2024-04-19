@@ -14,7 +14,6 @@
 
 	<build>
 		<plugins>
-<!--
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-publisher-plugin</artifactId>
@@ -23,7 +22,6 @@
 					<flavor>start6</flavor>
 				</configuration>
 			</plugin>
--->
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-director-plugin</artifactId>

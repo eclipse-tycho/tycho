@@ -55,8 +55,7 @@ public class ProductFlavorTest extends AbstractTychoIntegrationTest {
 		Path repoPath = repoBaseDir.resolve("repository");
 
 		Verifier testVerifier = getVerifier("eclipserun.flavor/eclipserun", false);
-		// testVerifier.setEnvironmentVariable("PRODUCT_FLAVOR", name);
-		testVerifier.setEnvironmentVariable("PRODUCT_FLAVOR", "tooling");
+		testVerifier.setEnvironmentVariable("PRODUCT_FLAVOR", name);
 		testVerifier.setEnvironmentVariable("PRODUCT_DESTINATION", name);
 		testVerifier.setEnvironmentVariable("PRODUCT_INSTALLIU", name + ".product.id");
 		testVerifier.setEnvironmentVariable("PRODUCT_REPOSITORY", repoPath.toUri().toString());
