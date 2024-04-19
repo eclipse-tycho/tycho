@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright (c) 2022 SAP SE and others.
+ - All rights reserved. This program and the accompanying materials
+ - are made available under the terms of the Eclipse Public License v1.0
+ - which accompanies this distribution, and is available at
+ - https://www.eclipse.org/legal/epl-v10.html
+ -
+ - Contributors:
+ -	SAP SE - initial API and implementation
+ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho-its-project.product-flavor.eclipserun</groupId>
+	<artifactId>flavor-startlevel</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-eclipserun-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>eclipse-run</goal>
+						</goals>
+						<phase>compile</phase>
+						<configuration>
+							<applicationsArgs>
+								<args>-application</args>
+								<args>org.eclipse.equinox.p2.director</args>
+								<args>-nosplash</args>
+								<args>-consoleLog</args>
+								<args>-flavor</args>
+								<args>${env.PRODUCT_FLAVOR}</args>
+								<args>-destination</args>
+								<args>${env.PRODUCT_DESTINATION}</args>
+								<args>-installIU</args>
+								<args>${env.PRODUCT_INSTALLIU}</args>
+								<args>-repository</args>
+								<args>${env.PRODUCT_REPOSITORY}</args>
+							</applicationsArgs>
+						</configuration>
+					</execution>
+				</executions>
+				<configuration>
+					<repositories>
+						<repository>
+							<id>4.23</id>
+							<layout>p2</layout>
+							<url>https://download.eclipse.org/eclipse/updates/4.23/</url>
+						</repository>
+					</repositories>
+					<dependencies>
+						<dependency>
+							<artifactId>org.eclipse.ant.core</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.apache.ant</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.core.net</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.core.net.win32.x86_64</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.pde.core</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.ecf.filetransfer</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.ecf.provider.filetransfer</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.ecf.provider.filetransfer.httpclient5</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.ecf.provider.filetransfer.httpclient5.win32</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.ecf.provider.filetransfer.ssl</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.ecf.ssl</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.equinox.p2.touchpoint.natives</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.equinox.p2.transport.ecf</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.osgi.services</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+						<dependency>
+							<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
+							<type>eclipse-plugin</type>
+						</dependency>
+					</dependencies>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
