@@ -84,9 +84,6 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      * The name of the p2 installation flavor to create. De facto, this parameter is set to
      * "tooling" in all uses of p2.
      * </p>
-     * 
-     * @deprecated This parameter has no useful effect and may be removed in a future version of
-     *             Tycho.
      */
     @Parameter(defaultValue = "tooling")
     private String flavor;
