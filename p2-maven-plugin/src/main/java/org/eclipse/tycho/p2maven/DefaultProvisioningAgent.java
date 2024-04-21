@@ -24,6 +24,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.helper.MavenPropertyHelper;
 
 @Component(role = IProvisioningAgent.class)
 public class DefaultProvisioningAgent implements IProvisioningAgent {
@@ -39,6 +40,9 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 
 	@Requirement
 	Map<String, IAgentServiceFactory> agentFactories;
+
+	@Requirement
+	MavenPropertyHelper propertyHelper;
 
 	private Map<String, Supplier<Object>> agentServices = new ConcurrentHashMap<>();
 
@@ -105,6 +109,16 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 		if (agent != null) {
 			agent.unregisterService(serviceName, service);
 		}
+	}
+
+	@Override
+	public String getProperty(String key, String defaultValue) {
+		return propertyHelper.getGlobalProperty(key, defaultValue);
+	}
+
+	@Override
+	public String getProperty(String key) {
+		return propertyHelper.getGlobalProperty(key);
 	}
 
 	private static final class LazyAgentServiceFactory implements Supplier<Object> {
