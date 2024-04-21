@@ -12,12 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import java.util.List;
-import java.util.Properties;
-
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.settings.Profile;
-import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -26,6 +20,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
+import org.eclipse.tycho.helper.MavenPropertyHelper;
 import org.eclipse.tycho.version.TychoVersion;
 
 @Component(role = IAgentServiceFactory.class, hint = "org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager")
@@ -41,7 +36,7 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
 	MavenAuthenticator authenticator;
 
 	@Requirement
-	MavenSession mavenSession;
+	MavenPropertyHelper propertyHelper;
 
 	@Override
 	public Object createService(IProvisioningAgent agent) {
@@ -55,7 +50,7 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
 
 	private boolean getDisableP2MirrorsConfiguration() {
 		String deprecatedKey = "tycho.disableP2Mirrors";
-		String deprecatedValue = getMirrorProperty(deprecatedKey);
+		String deprecatedValue = propertyHelper.getGlobalProperty(deprecatedKey);
 
 		if (deprecatedValue != null) {
 			logger.info("Using " + deprecatedKey
@@ -64,7 +59,7 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
 			return getBooleanValue(deprecatedValue);
 		}
 
-		String value = getMirrorProperty("eclipse.p2.mirrors");
+		String value = propertyHelper.getGlobalProperty("eclipse.p2.mirrors");
 
 		if (value != null) {
 			// eclipse.p2.mirrors false -> disable mirrors
@@ -85,32 +80,4 @@ public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServic
 		return Boolean.parseBoolean(value);
 	}
 
-	private String getMirrorProperty(String key) {
-		// Check user properties first ...
-		Properties userProperties = mavenSession.getUserProperties();
-		String userProperty = userProperties.getProperty(key);
-		if (userProperty != null) {
-			return userProperty;
-		}
-		// check if there are any active profile properties ...
-		Settings settings = mavenSession.getSettings();
-		List<Profile> profiles = settings.getProfiles();
-		List<String> activeProfiles = settings.getActiveProfiles();
-		for (Profile profile : profiles) {
-			if (activeProfiles.contains(profile.getId())) {
-				String profileProperty = profile.getProperties().getProperty(key);
-				if (profileProperty != null) {
-					return profileProperty;
-				}
-			}
-		}
-		// now maven system properties
-		Properties systemProperties = mavenSession.getSystemProperties();
-		String systemProperty = systemProperties.getProperty(key);
-		if (systemProperty != null) {
-			return systemProperty;
-		}
-		// java sysem properties last
-		return System.getProperty(key);
-	}
 }
