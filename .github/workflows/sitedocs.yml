@@ -22,11 +22,11 @@ jobs:
     - name: Inject slug/short variables
       uses: rlespinasse/github-slug-action@102b1a064a9b145e56556e22b18b19c624538d94 # v4.4.1
     - name: Checkout tycho code
-      uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
+      uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
       with:
        path: 'tycho'
     - name: Checkout page
-      uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
+      uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
       with:
        path: 'page'
        token: ${{ secrets.TYCHO_SITE_PAT }}
@@ -53,7 +53,7 @@ jobs:
       run: | 
         mvn -U -V -e -B -ntp clean install site site:stage --file tycho/pom.xml -T1C -DskipTests
     - name: Upload site-doc
-      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+      uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
       with:
         name: site-docs-${{ env.GITHUB_REF_NAME }}
         if-no-files-found: error
