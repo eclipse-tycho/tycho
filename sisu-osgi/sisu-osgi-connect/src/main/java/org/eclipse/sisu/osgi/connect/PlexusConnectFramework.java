@@ -62,7 +62,7 @@ class PlexusConnectFramework //
 	private final ClassRealm realm;
 	final PlexusFrameworkConnectServiceFactory factory;
 	final boolean foreign;
-	private ServiceTracker<LogReaderService, LogReaderService> serviceTracker;
+	private ServiceTracker<LogReaderService, LogReaderService> logReaderServiceTracker;
 	private String storagePath;
 
 	PlexusConnectFramework(Framework framework, Logger logger, PlexusFrameworkConnectServiceFactory factory,
@@ -336,7 +336,7 @@ class PlexusConnectFramework //
 	@Override
 	public void start(BundleContext context) {
 		context.addFrameworkListener(this);
-		serviceTracker = new ServiceTracker<>(context, LogReaderService.class, new ServiceTrackerCustomizer<>() {
+		logReaderServiceTracker = new ServiceTracker<>(context, LogReaderService.class, new ServiceTrackerCustomizer<>() {
 
 			@Override
 			public LogReaderService addingService(ServiceReference<LogReaderService> reference) {
@@ -357,12 +357,14 @@ class PlexusConnectFramework //
 				context.ungetService(reference);
 			}
 		});
-		serviceTracker.open();
+		logReaderServiceTracker.open();
 	}
 
 	@Override
 	public void stop(BundleContext context) {
 		context.removeFrameworkListener(this);
-		serviceTracker.close();
+		logReaderServiceTracker.close();
+		trackerMap.values().forEach(ServiceTracker::close);
+		trackerMap.clear();
 	}
 }
