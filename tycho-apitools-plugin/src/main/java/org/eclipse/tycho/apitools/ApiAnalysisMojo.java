@@ -49,8 +49,8 @@ import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.EcJLogFileEnhancer;
-import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.EcJLogFileEnhancer.Source;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
@@ -161,16 +161,10 @@ public class ApiAnalysisMojo extends AbstractMojo {
 				return;
 			}
 			long start = System.currentTimeMillis();
-			Collection<Path> baselineBundles;
-			try {
-				baselineBundles = getBaselineBundles();
-			} catch (DependencyResolutionException e) {
-				if (failOnResolutionError) {
-					throw new MojoFailureException("Can't resolve API baseline!", e);
-				} else {
-					log.warn("Can't resolve API baseline, API baseline check is skipped!");
-					return;
-				}
+			Collection<Path> baselineBundles = getBaselineBundles();
+			if (baselineBundles.isEmpty()) {
+				log.info("Skipped because no bundles in the baseline!");
+				return;
 			}
 			Collection<Path> dependencyBundles;
 			try {
@@ -178,8 +172,9 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			} catch (Exception e) {
 				throw new MojoFailureException("Can't fetch dependencies!", e);
 			}
-			EclipseWorkspace<ApiAppKey> workspace = getWorkspace();
-			EclipseApplication apiApplication = applicationResolver.getApiApplication(workspace.getKey().repository);
+			MavenRepositoryLocation repository = getRepository();
+			EclipseWorkspace<?> workspace = workspaceManager.getWorkspace(repository.getURL(), this);
+			EclipseApplication apiApplication = applicationResolver.getApiApplication(repository);
 			EclipseFramework eclipseFramework;
 			try {
 				eclipseFramework = apiApplication.startFramework(workspace, List.of());
@@ -336,10 +331,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		return project.getBasedir().toPath().resolve(path);
 	}
 
-	private EclipseWorkspace<ApiAppKey> getWorkspace() {
-		return workspaceManager.getWorkspace(new ApiAppKey(getRepository()));
-	}
-
 	private boolean wasReplaced() {
 		if (DefaultReactorProject.adapt(project)
 				.getContextValue(TychoConstants.KEY_BASELINE_REPLACE_ARTIFACT_MAIN) instanceof Boolean replaced) {
@@ -357,22 +348,29 @@ public class ApiAnalysisMojo extends AbstractMojo {
 
 	private Collection<Path> getBaselineBundles() throws MojoFailureException {
 		long start = System.currentTimeMillis();
-		Collection<Path> baselineBundles;
 		try {
 			Collection<TargetEnvironment> targetEnvironments = getBaselineEnvironments();
 			Optional<ArtifactKey> artifactKey = projectManager.getArtifactKey(project);
 			getLog().info("Resolve API baseline for " + project.getId() + " with "
 					+ targetEnvironments.stream().map(String::valueOf).collect(Collectors.joining(", ")));
-			baselineBundles = applicationResolver.getApiBaselineBundles(
+			Collection<Path> baselineBundles = applicationResolver.getApiBaselineBundles(
 					baselines.stream().filter(repo -> repo.getUrl() != null)
 							.map(repo -> new MavenRepositoryLocation(repo.getId(), URI.create(repo.getUrl()))).toList(),
 					artifactKey.get(), targetEnvironments);
 			getLog().debug("API baseline contains " + baselineBundles.size() + " bundles (resolve takes " + time(start)
 					+ ").");
+			return baselineBundles;
 		} catch (IllegalArtifactReferenceException e) {
 			throw new MojoFailureException("Project specify an invalid artifact key", e);
+		} catch (DependencyResolutionException e) {
+			if (failOnResolutionError) {
+				throw new MojoFailureException("Can't resolve API baseline!", e);
+			} else {
+				getLog().warn(
+						"Can't resolve API baseline: " + Objects.requireNonNullElse(e.getMessage(), e.toString()));
+				return List.of();
+			}
 		}
-		return baselineBundles;
 	}
 
 	/**
@@ -401,35 +399,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 		}
 		long sec = ms / 1000;
 		return sec + " s";
-	}
-
-	private static final class ApiAppKey {
-
-		private URI key;
-		private MavenRepositoryLocation repository;
-
-		public ApiAppKey(MavenRepositoryLocation repository) {
-			this.repository = repository;
-			key = Objects.requireNonNull(repository.getURL()).normalize();
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(key);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			ApiAppKey other = (ApiAppKey) obj;
-			return Objects.equals(key, other.key);
-		}
-
 	}
 
 	private static Path stringToPath(String file) {
