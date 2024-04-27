@@ -15,7 +15,10 @@ package org.eclipse.tycho.osgi.framework;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.io.FileUtils;
@@ -32,7 +35,8 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 @Component(role = EclipseWorkspaceManager.class)
 public class EclipseWorkspaceManager implements Disposable {
 
-    private final Map<Thread, Map<Object, EclipseWorkspace<?>>> cache = new ConcurrentHashMap<>();
+    private final Map<Thread, Map<Object, EclipseWorkspace<?>>> cache = new WeakHashMap<>();
+    private final List<EclipseWorkspace<?>> toclean = new ArrayList<>();
 
     @Requirement
     private Logger logger;
@@ -45,30 +49,43 @@ public class EclipseWorkspaceManager implements Disposable {
     @SuppressWarnings("unchecked")
     public <T> EclipseWorkspace<T> getWorkspace(T key) {
         Thread currentThread = Thread.currentThread();
-        return (EclipseWorkspace<T>) cache.computeIfAbsent(currentThread, t -> new ConcurrentHashMap<>())
-                .computeIfAbsent(key, x -> {
-                    try {
-                        return new EclipseWorkspace<>(Files.createTempDirectory("eclipseWorkspace"), key, logger,
-                                currentThread);
-                    } catch (IOException e) {
-                        throw new IllegalStateException("can't create a temporary directory for the workspace!", e);
-                    }
-                });
+        synchronized (cache) {
+            return (EclipseWorkspace<T>) cache.computeIfAbsent(currentThread, t -> new ConcurrentHashMap<>())
+                    .computeIfAbsent(key, x -> {
+                        try {
+                            EclipseWorkspace<T> workspace = new EclipseWorkspace<>(
+                                    Files.createTempDirectory("eclipseWorkspace"), key, currentThread);
+                            toclean.add(workspace);
+                            return workspace;
+                        } catch (IOException e) {
+                            throw new IllegalStateException("can't create a temporary directory for the workspace!", e);
+                        }
+                    });
+        }
     }
 
     @Override
     public void dispose() {
-        cache.values().forEach(map -> {
-            map.values().forEach(ws -> FileUtils.deleteQuietly(ws.getWorkDir().toFile()));
-        });
+        cache.clear();
+        for (EclipseWorkspace<?> workspace : toclean) {
+            FileUtils.deleteQuietly(workspace.getWorkDir().toFile());
+        }
     }
 
+    /**
+     * Get a workspace that is unique for the given uri, current thread and mojo and therefore safe
+     * to be used in a maven multithread execution
+     * 
+     * @param uri
+     * @param mojo
+     * @return an {@link EclipseWorkspace}
+     */
     public EclipseWorkspace<?> getWorkspace(URI uri, Mojo mojo) {
-        return getWorkspace(new MojoKey(uri.normalize(), mojo.getClass()));
+        return getWorkspace(new MojoKey(uri.normalize(), mojo.getClass().getName()));
 
     }
 
-    private static final record MojoKey(URI uri, Class<?> clz) {
+    private static final record MojoKey(URI uri, String mojoClassName) {
         //a key that uses the mojo class and a URI
     }
 
