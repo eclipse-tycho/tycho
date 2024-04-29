@@ -366,6 +366,11 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
         public boolean includeSource() {
             return false;
         }
+
+        @Override
+        public boolean includeConfigurePhase() {
+            return false;
+        }
     }
 
     private static class OtherLocationStub implements Location {
