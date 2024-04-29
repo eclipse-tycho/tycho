@@ -35,6 +35,7 @@ import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.p2resolver.TargetDefinitionVariableResolver;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
+import org.eclipse.tycho.targetplatform.TargetDefinition.FollowRepositoryReferences;
 import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
@@ -168,6 +169,16 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         @Override
         public boolean includeSource() {
             return delegate.includeSource();
+        }
+
+        @Override
+        public boolean includeConfigurePhase() {
+            return delegate.includeConfigurePhase();
+        }
+
+        @Override
+        public FollowRepositoryReferences followRepositoryReferences() {
+            return delegate.followRepositoryReferences();
         }
 
     }
