@@ -203,6 +203,11 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest extends Tycho
         public boolean includeSource() {
             return false;
         }
+
+        @Override
+        public boolean includeConfigurePhase() {
+            return false;
+        }
     }
 
 }
