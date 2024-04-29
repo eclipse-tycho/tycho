@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import org.bouncycastle.jcajce.provider.drbg.DRBG.Default;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.osgi.resource.Requirement;
@@ -66,10 +67,16 @@ public interface TargetDefinition {
 
 	}
 
+	public enum FollowRepositoryReferences {
+		DEFAULT,
+		ENABLED,
+		DISABLED,
+	}
+
 	public interface InstallableUnitLocation extends Location {
 
 		public static String TYPE = "InstallableUnit";
-
+		
 		public List<? extends Repository> getRepositories();
 
 		public List<? extends Unit> getUnits();
@@ -79,6 +86,19 @@ public interface TargetDefinition {
 		public boolean includeAllEnvironments();
 
 		public boolean includeSource();
+		
+		/**
+		 * Read for completeness but not used
+		 */
+		public boolean includeConfigurePhase();
+		
+		/**
+		 * When {@link FollowRepositoryReferences.Default} the global {@link IncludeSourceMode} should be used instead.
+		 * @return whether repository references should be used, never null
+		 */
+		public default FollowRepositoryReferences followRepositoryReferences() {
+			return FollowRepositoryReferences.DEFAULT;
+		}
 
 		@Override
 		public default String getTypeDescription() {
