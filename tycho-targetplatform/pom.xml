@@ -7,7 +7,7 @@
 	</parent>
 	<artifactId>tycho-targetplatform</artifactId>
 	<name>Tycho Target Platform</name>
-	<description>Contains the neccesary bits to handle target platform files.</description>
+	<description>Contains the necessary bits to handle target platform files.</description>
 	<dependencies>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
