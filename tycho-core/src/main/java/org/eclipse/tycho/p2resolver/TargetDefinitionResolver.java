@@ -141,7 +141,7 @@ public final class TargetDefinitionResolver {
         Map<String, URITargetDefinitionContent> uriRepositories = new LinkedHashMap<>();
         List<TargetDefinitionContent> mavenLocations = new ArrayList<>();
         List<TargetDefinitionContent> referencedTargetLocations = new ArrayList<>();
-        List<TargetDefinitionContent> repositorytLocations = new ArrayList<>();
+        List<TargetDefinitionContent> repositoryLocations = new ArrayList<>();
         for (Location locationDefinition : definition.getLocations()) {
             if (locationDefinition instanceof InstallableUnitLocation installableUnitLocation) {
                 if (installableUnitResolver == null) {
@@ -234,7 +234,7 @@ public final class TargetDefinitionResolver {
                 logger.info("Loading " + resolvedUri + "...");
                 RepositoryLocationContent content = new RepositoryLocationContent(resolvedUri,
                         repositoryLocation.getRequirements(), provisioningAgent, logger);
-                repositorytLocations.add(content);
+                repositoryLocations.add(content);
                 IQueryResult<IInstallableUnit> result = content.query(QueryUtil.ALL_UNITS,
                         new LoggingProgressMonitor(logger));
                 unitResultSet.addAll(result);
@@ -273,7 +273,7 @@ public final class TargetDefinitionResolver {
             artifactRepositories.add(referenceContent.getArtifactRepository());
         }
         //preliminary step: add all repository locations:
-        for (TargetDefinitionContent referenceContent : repositorytLocations) {
+        for (TargetDefinitionContent referenceContent : repositoryLocations) {
             metadataRepositories.add(referenceContent.getMetadataRepository());
             artifactRepositories.add(referenceContent.getArtifactRepository());
         }

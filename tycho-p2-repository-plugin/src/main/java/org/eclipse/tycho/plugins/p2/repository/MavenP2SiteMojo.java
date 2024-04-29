@@ -97,7 +97,7 @@ import org.eclipse.tycho.p2maven.tools.TychoFeaturesAndBundlesPublisherApplicati
  * <pre>
     &lt;repository>
     &lt;id>my-p2-maven-site</id>
-        &lt;url>mvn:[grouId]:[artifactId]:[version]:zip:p2site</url>
+        &lt;url>mvn:[groupId]:[artifactId]:[version]:zip:p2site</url>
         &lt;layout>p2</layout>
     &lt;/repository>
  * </pre>
@@ -106,7 +106,7 @@ import org.eclipse.tycho.p2maven.tools.TychoFeaturesAndBundlesPublisherApplicati
  * 
  * <pre>
  *  &lt;location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-        &lt;repository location="mvn:[grouId]:[artifactId]:[version]:zip:p2site"/>
+        &lt;repository location="mvn:[groupId]:[artifactId]:[version]:zip:p2site"/>
         -- list desired units here --
     &lt;/location>
  * </pre>
