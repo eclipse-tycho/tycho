@@ -125,7 +125,7 @@ public class URITargetDefinitionContent implements TargetDefinitionContent {
             Collection<IRepositoryReference> references = repository.getReferences();
             subMonitor.setWorkRemaining(references.size());
             for (IRepositoryReference reference : references) {
-                if ((reference.getOptions() | IRepository.ENABLED) != 0) {
+                if ((reference.getOptions() & IRepository.ENABLED) != 0) {
                     URI location = reference.getLocation();
                     if (reference.getType() == IRepository.TYPE_METADATA) {
                         try {
