@@ -38,6 +38,16 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testJUnit5ContainerWithLinkedResources() throws Exception {
+		Verifier verifier = getVerifier("compiler.junitcontainer/junit5-with-linked-resources", false, true);
+		verifier.executeGoal("test");
+		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("-- in bundle.test.AdderTest");
+		verifier.verifyTextInLog("-- in bundle.test.SubtractorTest");
+		verifier.verifyTextInLog("Tests run: 5, Failures: 0, Errors: 0, Skipped: 0");
+	}
+
+	@Test
 	public void testJUnit4Container() throws Exception {
 		Verifier verifier = getVerifier("compiler.junitcontainer/junit4-in-bundle", true);
 		verifier.executeGoal("test");
