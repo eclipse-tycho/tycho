@@ -237,7 +237,11 @@ public class TychoProjectManager {
     }
 
     public Optional<EclipseProject> getEclipseProject(MavenProject project) {
-        File projectFile = new File(project.getBasedir(), ".project");
+        return getEclipseProject(project.getBasedir());
+    }
+
+    public Optional<EclipseProject> getEclipseProject(File baseDir) {
+        File projectFile = new File(baseDir, ".project");
         return eclipseProjectCache.computeIfAbsent(projectFile, file -> {
             if (file.isFile()) {
                 try {
@@ -273,7 +277,7 @@ public class TychoProjectManager {
      * Determine the list of dependencies for a given project as a collection of path items
      * 
      * @param project
-     *                    the project to use to determine the dependencies
+     *            the project to use to determine the dependencies
      * @return a Collection of pathes describing the project dependencies
      * @throws Exception
      */
