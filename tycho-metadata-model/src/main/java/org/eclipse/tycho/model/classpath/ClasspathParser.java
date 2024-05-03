@@ -36,9 +36,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class ClasspathParser {
+    public static final String CLASSPATH_FILENAME = ".classpath";
 
-    public static Collection<ProjectClasspathEntry> parse(File basedir) throws IOException {
-        File file = new File(basedir, ".classpath");
+    public static Collection<ProjectClasspathEntry> parse(File file) throws IOException {
         if (!file.isFile()) {
             return Collections.emptyList();
         }
