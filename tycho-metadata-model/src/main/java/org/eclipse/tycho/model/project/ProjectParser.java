@@ -143,12 +143,12 @@ class ProjectParser {
                             if (link.type() == LinkDescription.FILE) {
                                 //the path must actually match each others as it is a file!
                                 if (linkPath.startsWith(relative)) {
-                                    Path resolvedPath = resolvePath(link.locationURI());
+                                    Path resolvedPath = resolvePath(link.locationURI(), this);
                                     return location.resolve(resolvedPath).normalize();
                                 }
                             } else if (link.type() == LinkDescription.FOLDER) {
                                 Path linkRelative = linkPath.relativize(relative);
-                                Path resolvedPath = resolvePath(link.locationURI());
+                                Path resolvedPath = resolvePath(link.locationURI(), this);
                                 if (resolvedPath != null) {
                                     return location.resolve(resolvedPath).resolve(linkRelative).normalize();
                                 }
@@ -173,7 +173,7 @@ class ProjectParser {
         }
     }
 
-    private static Path resolvePath(URI uri) {
+    private static Path resolvePath(URI uri, EclipseProject project) {
         String schemeSpecificPart = uri.getSchemeSpecificPart();
         if (schemeSpecificPart != null) {
             Path path = Path.of(schemeSpecificPart);
@@ -182,6 +182,9 @@ class ProjectParser {
                 //only the first path is allowed to be a variable...
                 Path first = path.getName(0);
                 String name = first.toString();
+                if ("PROJECT_LOC".equals(name)) {
+                    return appendRemaining(path, count, project.getLocation());
+                }
                 Matcher parentMatcher = PARENT_PROJECT_PATTERN.matcher(name);
                 if (parentMatcher.matches()) {
                     Path resolvedPath = Path.of("..");
@@ -189,15 +192,19 @@ class ProjectParser {
                     for (int i = 1; i < p; i++) {
                         resolvedPath = resolvedPath.resolve("..");
                     }
-                    for (int i = 1; i < count; i++) {
-                        resolvedPath = resolvedPath.resolve(path.getName(i));
-                    }
-                    return resolvedPath;
+                    return appendRemaining(path, count, resolvedPath);
                 }
                 return path;
             }
         }
         return null;
+    }
+
+    private static Path appendRemaining(Path path, int count, Path resolvedPath) {
+        for (int i = 1; i < count; i++) {
+            resolvedPath = resolvedPath.resolve(path.getName(i));
+        }
+        return resolvedPath;
     }
 
     private static ProjectVariable parseVariable(Element element) {

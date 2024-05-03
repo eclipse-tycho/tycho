@@ -14,6 +14,7 @@ package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.MavenArtifactKey;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.model.classpath.ClasspathParser;
 import org.eclipse.tycho.model.classpath.JUnitBundle;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
@@ -37,15 +39,23 @@ public class ClasspathReader implements Disposable {
     @Requirement
     Logger logger;
 
+    @Requirement
+    TychoProjectManager projectManager;
+
     @Override
     public void dispose() {
         cache.clear();
     }
 
     public Collection<ProjectClasspathEntry> parse(File basedir) throws IOException {
-        return cache.computeIfAbsent(basedir.getCanonicalPath(), f -> {
+
+        Path resolvedClasspath = projectManager.getEclipseProject(basedir)
+                .map(project -> project.getFile(ClasspathParser.CLASSPATH_FILENAME))
+                .orElse(basedir.toPath().resolve(ClasspathParser.CLASSPATH_FILENAME));
+
+        return cache.computeIfAbsent(resolvedClasspath.normalize().toString(), f -> {
             try {
-                return ClasspathParser.parse(basedir);
+                return ClasspathParser.parse(resolvedClasspath.toFile());
             } catch (IOException e) {
                 logger.warn("Can't read classpath from " + basedir);
                 return Collections.emptyList();
