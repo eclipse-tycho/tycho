@@ -237,7 +237,11 @@ public class TychoProjectManager {
     }
 
     public Optional<EclipseProject> getEclipseProject(MavenProject project) {
-        File projectFile = new File(project.getBasedir(), ".project");
+        return getEclipseProject(project.getBasedir());
+    }
+
+    public Optional<EclipseProject> getEclipseProject(File baseDir) {
+        File projectFile = new File(baseDir, ".project");
         return eclipseProjectCache.computeIfAbsent(projectFile, file -> {
             if (file.isFile()) {
                 try {
