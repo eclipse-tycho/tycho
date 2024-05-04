@@ -395,8 +395,6 @@
 					<configuration>
 						<source>${min.jdk.version}</source>
 						<target>${min.jdk.version}</target>
-						<!-- Workaround for https://issues.apache.org/jira/browse/MCOMPILER-567 -->
-						<useIncrementalCompilation>false</useIncrementalCompilation>
 					</configuration>
 				</plugin>
 				<plugin>
