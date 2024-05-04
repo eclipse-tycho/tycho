@@ -12,12 +12,12 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>8</maven.compiler.target>
+		<maven.compiler.source>8</maven.compiler.source>
 	</properties>
-	
+
 	<dependencies>
-		<!-- Adding another dependency just to verify that also transitive dependencies 
+		<!-- Adding another dependency just to verify that also transitive dependencies
 		get resolved and added to the javadoc execution class path  -->
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
