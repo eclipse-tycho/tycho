@@ -635,6 +635,28 @@
 				</plugins>
 			</build>
 		</profile>
+        <profile>
+            <!-- allow annotation processing on JDK 21+ -->
+            <id>avoid-maven-compiler-warnings</id>
+            <activation>
+                <jdk>[21,)</jdk>
+            </activation>
+            <build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-compiler-plugin</artifactId>
+							<configuration>
+								<!-- avoid annotation processor warning on JDK 21+.
+								The flag must be set explicitly there. -->
+								<proc>full</proc>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+        </profile>
 	</profiles>
 	<distributionManagement>
 		<site>
