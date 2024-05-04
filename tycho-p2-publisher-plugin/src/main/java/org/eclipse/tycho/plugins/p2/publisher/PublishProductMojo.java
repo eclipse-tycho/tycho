@@ -70,8 +70,8 @@ import org.osgi.framework.Version;
  * Publishes all product definitions files (<code>*.product</code>) that are present in the root of
  * the project.
  * </p>
- * 
- * @see https://wiki.eclipse.org/Equinox/p2/Publisher
+ *
+ * @see <a href="https://wiki.eclipse.org/Equinox/p2/Publisher">Eclipse Wiki</a>
  */
 @Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public final class PublishProductMojo extends AbstractPublishMojo {

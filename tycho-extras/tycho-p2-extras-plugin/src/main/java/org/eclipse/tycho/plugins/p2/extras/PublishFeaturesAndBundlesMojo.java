@@ -31,8 +31,8 @@ import org.eclipse.tycho.p2tools.copiedfromp2.FeaturesAndBundlesPublisherApplica
 
 /**
  * This goal invokes the feature and bundle publisher on a folder.
- * 
- * @see https://wiki.eclipse.org/Equinox/p2/Publisher#Features_And_Bundles_Publisher_Application
+ *
+ * @see <a href="https://wiki.eclipse.org/Equinox/p2/Publisher#Features_And_Bundles_Publisher_Application">Eclipse Wiki</a>
  */
 @Mojo(name = "publish-features-and-bundles", threadSafe = true)
 public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
@@ -49,7 +49,7 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
      * Location of the artifact repository to write. Note: The AssembleRepositoryMojo of
      * tycho-p2-repository-plugin will only work with the predefined default
      * ${project.build.directory}/repository.
-     * 
+     *
      */
     @Parameter(defaultValue = "${project.build.directory}/repository")
     private String artifactRepositoryLocation;
