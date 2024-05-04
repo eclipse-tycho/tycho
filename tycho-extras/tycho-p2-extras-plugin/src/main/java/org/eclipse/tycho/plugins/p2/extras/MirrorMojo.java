@@ -66,8 +66,8 @@ public class MirrorMojo extends AbstractMojo {
 
     /**
      * Source repositori(es) to mirror from.
-     * 
-     * @see {@link #targetPlatformAsSource} and {@link #currentModuleAsSource}
+     *
+     * See also {@link #targetPlatformAsSource} and {@link #currentModuleAsSource}
      */
     @Parameter(required = false)
     private List<Repository> source;
@@ -166,7 +166,7 @@ public class MirrorMojo extends AbstractMojo {
      * Add XZ-compressed repository index files. XZ offers better compression ratios esp. for highly
      * redundant file content.
      * </p>
-     * 
+     *
      * @since 0.25.0
      */
     @Parameter(defaultValue = "true")
@@ -178,7 +178,7 @@ public class MirrorMojo extends AbstractMojo {
      * addition to XZ-compressed index files. This fallback provides backwards compatibility for
      * pre-Mars p2 clients which cannot read XZ-compressed index files.
      * </p>
-     * 
+     *
      * @since 0.25.0
      */
     @Parameter(defaultValue = "true")
@@ -189,7 +189,7 @@ public class MirrorMojo extends AbstractMojo {
      * Whether to add the target-platform content as a source. Ignored for non-Tycho packaging
      * types.
      * </p>
-     * 
+     *
      * @since 1.1.0
      */
     @Parameter(defaultValue = "false")
@@ -200,7 +200,7 @@ public class MirrorMojo extends AbstractMojo {
      * Whether the current build p2 output should be added as source. Ignored for non-Tycho
      * packaging types. Ignored if {@link #targetPlatformAsSource} == false;
      * </p>
-     * 
+     *
      * @since 1.1.0
      */
     @Parameter(defaultValue = "true")
@@ -211,7 +211,7 @@ public class MirrorMojo extends AbstractMojo {
      * If set to true, mirroring continues to run in the event of an error during the mirroring
      * process and will just log an info message.
      * </p>
-     * 
+     *
      * @since 1.1.0
      */
     @Parameter(defaultValue = "false")
