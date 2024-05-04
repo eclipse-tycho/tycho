@@ -7,7 +7,7 @@
 	</parent>
 	<artifactId>org.eclipse.tycho.bnd.executionlistener</artifactId>
 	<properties>
-		<min.jdk.version>1.8</min.jdk.version>
+		<min.jdk.version>8</min.jdk.version>
 	</properties>
 	<dependencies>
 		<dependency>

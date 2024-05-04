@@ -14,9 +14,9 @@
 	<properties>
 		<maven.compiler.release>17</maven.compiler.release>
 	</properties>
-	
+
 	<dependencies>
-		<!-- Adding another dependency just to verify that also transitive dependencies 
+		<!-- Adding another dependency just to verify that also transitive dependencies
 		get resolved and added to the javadoc execution class path  -->
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
