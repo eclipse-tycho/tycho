@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -30,6 +31,7 @@ import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.model.classpath.ClasspathParser;
 import org.eclipse.tycho.model.classpath.JUnitBundle;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
+import org.eclipse.tycho.model.project.EclipseProject;
 
 @Component(role = ClasspathReader.class)
 public class ClasspathReader implements Disposable {
@@ -48,14 +50,18 @@ public class ClasspathReader implements Disposable {
     }
 
     public Collection<ProjectClasspathEntry> parse(File basedir) throws IOException {
-
-        Path resolvedClasspath = projectManager.getEclipseProject(basedir)
-                .map(project -> project.getFile(ClasspathParser.CLASSPATH_FILENAME))
+        Optional<EclipseProject> eclipseProject = projectManager.getEclipseProject(basedir);
+        Path resolvedClasspath = eclipseProject.map(project -> project.getFile(ClasspathParser.CLASSPATH_FILENAME))
                 .orElse(basedir.toPath().resolve(ClasspathParser.CLASSPATH_FILENAME));
 
         return cache.computeIfAbsent(resolvedClasspath.normalize().toString(), f -> {
+            File resolvedClasspathFile = resolvedClasspath.toFile();
             try {
-                return ClasspathParser.parse(resolvedClasspath.toFile());
+                if (eclipseProject.isPresent()) {
+                    return ClasspathParser.parse(resolvedClasspathFile, eclipseProject.get());
+                } else {
+                    return ClasspathParser.parse(resolvedClasspathFile);
+                }
             } catch (IOException e) {
                 logger.warn("Can't read classpath from " + basedir);
                 return Collections.emptyList();
