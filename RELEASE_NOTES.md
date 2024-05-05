@@ -6,6 +6,16 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+### Support for new `includeJRE` flag when building products
+
+PDE recently added a new flag for the product to mark it to [include a JRE](https://github.com/eclipse-pde/eclipse.pde/pull/1075),
+this is also now supported with Tycho, activate this flag has the following effects:
+
+- The product gets a new requirement for a JustJ JRE
+- The JustJ update site is automatically added to the `materialize-products` goal if such product is present
+
+There is [a demo project](https://github.com/eclipse-tycho/tycho/tree/main/demo/justj/automaticInstall) shows an example for a product using that flag and including an JRE that is suitable to launch the product automatically.
+
 ### Support for CycloneDX Maven Plugin
 
 The `tycho-sbom` plugin can be added as a dependency to the [CycloneDX Maven plugin](https://cyclonedx.github.io/cyclonedx-maven-plugin/index.html),
