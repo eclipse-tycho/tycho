@@ -14,9 +14,11 @@ package org.eclipse.tycho.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -291,6 +293,19 @@ public abstract class AbstractTychoIntegrationTest {
                 throw new VerificationException("Error in execution: " + collect);
             }
         }
+    }
+
+    protected void assertIncludesJustJ(File productDir) throws IOException {
+        File eclipseIni = assertFileExists(productDir, "**/eclipse.ini")[0];
+        List<String> lines = Files.readAllLines(eclipseIni.toPath());
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).equals("-vm")) {
+                String vm = lines.get(i + 1);
+                assertTrue("VM (" + vm + ") is not JustJ!", vm.contains("plugins/org.eclipse.justj.openjdk."));
+                return;
+            }
+        }
+        fail("No VM installed in the product!");
     }
 
 }

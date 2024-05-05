@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="A product with justj" uid="product-with-justj-features" version="0.0.1" type="features" includeLaunchers="true" autoIncludeRequirements="true">
+<product name="A product with justj" uid="product-with-justj-features" id="org.eclipse.platform.ide" application="org.eclipse.ui.ide.workbench" version="0.0.1" type="features" includeLaunchers="true" includeJRE="true" autoIncludeRequirements="true">
 
-   <configIni use="default">
+   <configIni>
    </configIni>
 
    <launcherArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
-      </vmArgsMac>
    </launcherArgs>
 
    <launcher>
@@ -24,7 +22,6 @@
    </plugins>
 
    <features>
-      <feature id="org.eclipse.justj.openjdk.hotspot.jre.full"/>
       <feature id="org.eclipse.platform" installMode="root"/>
    </features>
 
@@ -35,6 +32,5 @@
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
    </configurations>
-
 
 </product>

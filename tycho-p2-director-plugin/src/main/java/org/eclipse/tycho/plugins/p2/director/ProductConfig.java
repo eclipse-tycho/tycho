@@ -34,8 +34,11 @@ import org.eclipse.tycho.DependencySeed;
 // TODO rename; this name collides with the class ProductConfiguration used by the publisher mojo
 class ProductConfig {
     private List<Product> products;
+    private Collection<DependencySeed> projectSeeds;
 
-    public ProductConfig(List<Product> userConfig, Collection<DependencySeed> projectSeeds) throws MojoFailureException {
+    public ProductConfig(List<Product> userConfig, Collection<DependencySeed> projectSeeds)
+            throws MojoFailureException {
+        this.projectSeeds = projectSeeds;
         if (userConfig != null) {
             products = userConfig;
             for (Product product : products) {
@@ -63,8 +66,8 @@ class ProductConfig {
                     return;
                 }
             }
-            throw new MojoFailureException("Product with id '" + configuredProduct.getId()
-                    + "' does not exist in the project"); // TODO "... in the target platform"
+            throw new MojoFailureException(
+                    "Product with id '" + configuredProduct.getId() + "' does not exist in the project"); // TODO "... in the target platform"
         }
     }
 
@@ -106,6 +109,10 @@ class ProductConfig {
 
     public List<Product> getProducts() {
         return products;
+    }
+
+    public Collection<DependencySeed> getProjectSeeds() {
+        return projectSeeds;
     }
 
 }
