@@ -32,23 +32,18 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
 	<linkedResources>
-		<!-- A linked file relative to the location of the project -->
+		<!-- A linked .classpath file relative to the location of the project's parent -->
 		<link>
 			<name>.classpath</name>
 			<type>1</type>
-			<locationURI>PROJECT_LOC/linkedresources/.classpath</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/junit5-with-linked-resources/testresources/linkedclasspath/.classpath</locationURI>
 		</link>
-		<!-- A linked folder relative to the location of the project's parent and defined in a variable -->
+		<!-- A linked file relative to the location of the project -->
 		<link>
 			<name>src_test</name>
 			<type>2</type>
-			<locationURI>VARIABLE_SELFREF_VIA_PARENT/linkedresources/src_test/</locationURI>
+			<locationURI>PROJECT_LOC/testresources/linkedtestsources/src_test/</locationURI>
 		</link>
 	</linkedResources>
-	<variableList>
-		<variable>
-			<name>VARIABLE_SELFREF_VIA_PARENT</name>
-			<value>$%7BPARENT-1-PROJECT_LOC%7D/junit5-with-linked-files</value>
-		</variable>
-	</variableList>
 </projectDescription>
+

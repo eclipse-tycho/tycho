@@ -43,6 +43,7 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("compiler.junitcontainer/junit5-with-linked-resources", false, true);
 		verifier.executeGoal("test");
 		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("Compiling 2 source files");
 		verifier.verifyTextInLog("-- in bundle.test.AdderTest");
 		verifier.verifyTextInLog("-- in bundle.test.SubtractorTest");
 		verifier.verifyTextInLog("Tests run: 5, Failures: 0, Errors: 0, Skipped: 0");
