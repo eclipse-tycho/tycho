@@ -6,6 +6,7 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 backports:
 - maven dependencies of transitive projects are not discovered with `-am` / `--also-make`
+- Support for new `includeJRE` flag when building products
 
 ## 4.0.7
 

@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.maven.it.Verifier;
@@ -22,6 +23,14 @@ import org.junit.Test;
  * repository
  */
 public class DemoTest extends AbstractTychoIntegrationTest {
+
+	@Test
+	public void testTychoJustJDemo() throws Exception {
+		assertIncludesJustJ(new File(runDemo("justj", "-f", "product").getBasedir(),
+				"product/target/products/product-with-justj-features"));
+		assertIncludesJustJ(new File(runDemo("justj", "-f", "automaticInstall").getBasedir(),
+				"automaticInstall/target/products/product-with-justj-features"));
+	}
 
 	@Test
 	public void testSureFireDemo() throws Exception {

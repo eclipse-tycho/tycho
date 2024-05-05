@@ -22,6 +22,10 @@ public interface TychoConstants {
 
     public static final String TYCHO_NOT_CONFIGURED = "Tycho build extension not configured for ";
 
+    public static final String NAMESPACE_JUSTJ = "org.eclipse.justj";
+
+    public static final String NAME_JUSTJ_JRE = "jre";
+
     static final String ANY_QUALIFIER = "qualifier";
 
     static final boolean USE_SMART_BUILDER = Boolean

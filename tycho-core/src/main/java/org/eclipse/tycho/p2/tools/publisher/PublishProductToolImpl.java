@@ -25,9 +25,14 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
+import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
+import org.eclipse.equinox.p2.publisher.actions.RootIUAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -36,6 +41,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.Interpolator;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.repository.PublishingRepository;
@@ -68,7 +74,7 @@ public class PublishProductToolImpl implements PublishProductTool {
     }
 
     @Override
-    public List<DependencySeed> publishProduct(File productFile, File launcherBinaries, String flavor)
+    public List<DependencySeed> publishProduct(File productFile, File launcherBinaries, String flavor, String jreName)
             throws IllegalArgumentException {
 
         IProductDescriptor originalProduct = loadProductFile(productFile);
@@ -77,7 +83,25 @@ public class PublishProductToolImpl implements PublishProductTool {
 
         IPublisherAdvice[] advice = getProductSpecificAdviceFileAdvice(productFile, expandedProduct);
 
-        ProductAction action = new ProductAction(null, expandedProduct, flavor, launcherBinaries);
+        ProductAction action = new ProductAction(null, expandedProduct, flavor, launcherBinaries) {
+            @Override
+            protected IPublisherAction createRootIUAction() {
+                if (jreName != null) {
+                    return new RootIUAction(id, version, name) {
+                        @Override
+                        protected Collection<IRequirement> createIURequirements(
+                                Collection<? extends IVersionedId> children) {
+                            Collection<IRequirement> requirements = new ArrayList<>(
+                                    super.createIURequirements(children));
+                            requirements.add(MetadataFactory.createRequirement(TychoConstants.NAMESPACE_JUSTJ, jreName,
+                                    null, null, false, false));
+                            return requirements;
+                        }
+                    };
+                }
+                return super.createRootIUAction();
+            }
+        };
         IMetadataRepository metadataRepository = publishingRepository.getMetadataRepository();
         IArtifactRepository artifactRepository = publishingRepository
                 .getArtifactRepositoryForWriting(new ProductBinariesWriteSession(expandedProduct.getId()));
