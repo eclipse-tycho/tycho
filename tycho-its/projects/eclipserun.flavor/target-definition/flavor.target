@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.5"?>
+
+<target name="eclipse 4.17">
+	<locations>
+		<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+			<unit id="org.eclipse.rcp.feature.group" version="0.0.0" />
+			<unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0" />
+			<repository location="https://download.eclipse.org/eclipse/updates/4.23/" />
+		</location>
+	</locations>
+</target>
