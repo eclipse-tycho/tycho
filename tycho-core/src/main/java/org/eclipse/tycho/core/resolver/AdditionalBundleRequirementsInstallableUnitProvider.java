@@ -13,7 +13,6 @@
 package org.eclipse.tycho.core.resolver;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +36,8 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 
+import aQute.bnd.header.Attrs;
+import aQute.bnd.header.OSGiHeader;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Processor;
 
@@ -86,10 +87,20 @@ public class AdditionalBundleRequirementsInstallableUnitProvider implements Inst
         //See https://bnd.bndtools.org/instructions/buildpath.html
         String buildPath = processor.mergeProperties(Constants.BUILDPATH);
         if (buildPath != null && !buildPath.isBlank()) {
-            return Arrays.stream(buildPath.split(","))
-                    .map(bundleName -> MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
-                            bundleName.trim(), VersionRange.emptyRange, null, true, true))
-                    .toList();
+            return OSGiHeader.parseHeader(buildPath).entrySet().stream().map(entry -> {
+                String bundleName = entry.getKey();
+                Attrs attrs = entry.getValue();
+                String version = attrs.get(Constants.VERSION_ATTRIBUTE, Constants.VERSION_ATTR_LATEST);
+                VersionRange range;
+                if (Constants.VERSION_ATTR_LATEST.equals(version)) {
+                    range = VersionRange.emptyRange;
+                } else {
+                    range = VersionRange.create(version);
+                }
+                return MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, bundleName.trim(),
+                        range, null, true, true);
+            }).toList();
+
         }
         return Collections.emptyList();
     }
