@@ -68,7 +68,7 @@ public final class P2DependencyTreeGenerator {
      * Calculates and returns the dependency tree of the given Maven project. The list that is
      * returned by this method corresponds to the IUs which are directly required by the given
      * project.
-     * 
+     *
      * @param project
      *            One of the Maven projects of the current reactor build. If this project is not a
      *            Tycho project (e.g. the parent pom), an empty list is returned.
@@ -107,7 +107,7 @@ public final class P2DependencyTreeGenerator {
      * parent. Each IU is unique and must only appear once in the dependency tree.
      */
     public static class DependencyTreeNode {
-        private static final Comparator<IInstallableUnit> COMPARATOR = Comparator.comparing(IInstallableUnit::getId,
+        public static final Comparator<IInstallableUnit> COMPARATOR = Comparator.comparing(IInstallableUnit::getId,
                 String.CASE_INSENSITIVE_ORDER);
         private final IInstallableUnit iu;
         private final IRequirement satisfies;
@@ -144,7 +144,7 @@ public final class P2DependencyTreeGenerator {
          * each IU of {@code initial}. The children of a node correspond to all IUs that are
          * (directly) required by the parent IU. Each IU in {@code units} only appears once, even if
          * it required by multiple IUs.
-         * 
+         *
          * @param initial
          *            The "direct" IUs referenced by a given artifact.
          * @param units
@@ -175,7 +175,7 @@ public final class P2DependencyTreeGenerator {
          * is found, it is removed from {@code units}, meaning that each IU can only show up once in
          * the dependency tree. The children of each node are sorted lexicographically according to
          * {@link #COMPARATOR}.
-         * 
+         *
          * @param node
          *            The (intermediate) head of the dependency tree.
          * @param units
