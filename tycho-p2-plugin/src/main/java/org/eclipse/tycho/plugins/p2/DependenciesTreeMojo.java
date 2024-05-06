@@ -10,6 +10,7 @@
 package org.eclipse.tycho.plugins.p2;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -76,14 +77,16 @@ public class DependenciesTreeMojo extends AbstractMojo {
             throw new MojoFailureException(e);
         }
 
-        for (DependencyTreeNode rootNode : dependencyTree) {
+        for (DependencyTreeNode rootNode : dependencyTree.stream()
+                .sorted(Comparator.comparing(DependencyTreeNode::getInstallableUnit, DependencyTreeNode.COMPARATOR))
+                .toList()) {
             printUnit(rootNode, projectMap, 0);
         }
 
         if (!unmapped.isEmpty()) {
             getLog().info("Units that cannot be matched to any requirement:");
-            for (IInstallableUnit unit : unmapped) {
-                getLog().info(unit.toString());
+            for (IInstallableUnit unit : unmapped.stream().sorted(DependencyTreeNode.COMPARATOR).toList()) {
+                getLog().info("   " + unit.toString());
             }
         }
 
