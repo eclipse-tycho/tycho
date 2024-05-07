@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -89,6 +90,15 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 		File generated = new File(verifier.getBasedir(), "target/classes/OSGI-INF");
 		assertTrue(new File(generated, "tycho.ds.TestComponent.xml").isFile());
 		assertFalse(new File(generated, "tycho.ds.TestComponent2.xml").isFile());
+	}
+
+	@Test
+	public void testTransitiveDSComponents() throws Exception {
+		Verifier verifier = getVerifier("tycho-ds-dependency", true, true);
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+		Path generated = Path.of(verifier.getBasedir(), "plugin.a/target/classes/OSGI-INF");
+		assertTrue(Files.isRegularFile(generated.resolve("foo.bar.MyComponent.xml")));
 	}
 
 	@Test
