@@ -146,6 +146,45 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void updateProjectVersionOnlyChangesVersionOfNestedProjectsIfSameVersionAsRoot() throws Exception {
+		Verifier verifier = getVerifier("tycho-version-plugin/set-version/only_same_version", false);
+
+		verifier.addCliOption("-DnewVersion=1.0.1");
+		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
+
+		verifier.verifyErrorFreeLog();
+
+		record Expectation(String pom, String expectedVersion, String expectedParentVersion) {
+		}
+		List<Expectation> expectations = List.of( //
+				new Expectation("pom.xml", "1.0.1", null), //
+				new Expectation("p/pom.xml", "1.0.1", "1.0.1"), //
+				new Expectation("p/m1/pom.xml", "1.0.1", "1.0.1"), //
+				new Expectation("q/pom.xml", "2.0.0", "1.0.1"), // only parent shall be changed
+				new Expectation("q/m2/pom.xml", "2.0.0", "2.0.0") // nothing shall be changed
+		);
+		for (Expectation expectation : expectations) {
+			MavenXpp3Reader pomReader = new MavenXpp3Reader();
+			String pom = expectation.pom();
+			Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), pom)));
+			Parent parent = pomModel.getParent();
+
+			assertEquals("project > version in " + pom + " is not as expected!", expectation.expectedVersion(),
+					pomModel.getVersion());
+			if (expectation.expectedParentVersion() == null) {
+				assertNull("project > parent in " + pom + " should be null", parent);
+			} else {
+				assertEquals("project > parent > version in " + pom + " is not as expected!",
+						expectation.expectedParentVersion(), parent.getVersion());
+			}
+		}
+		assertEquals("version in manifest p/m1 is not as expected!", "1.0.1",
+				getManifest(verifier, "p/m1").getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+		assertEquals("version in manifest q/m2 is not as expected!", "2.0.0",
+				getManifest(verifier, "q/m2").getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+	}
+
+	@Test
 	public void updateVersionRanges() throws Exception {
 		String expectedNewMavenVersion = "1.1.0-SNAPSHOT";
 		String expectedNewOSGiVersion = "1.1.0.qualifier";
