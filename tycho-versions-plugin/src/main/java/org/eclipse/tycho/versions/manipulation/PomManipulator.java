@@ -86,7 +86,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
                             .ifPresent(moduleMeta -> {
                                 PomFile modulePom = moduleMeta.getMetadata(PomFile.class);
                                 if (modulePom != null && modulePom.isMutable()
-                                        && POM.equals(modulePom.getPackaging())) {
+                                        && POM.equals(modulePom.getPackaging())
+                                        && isVersionEquals(modulePom.getVersion(), change.getVersion())) {
                                     if (versionChangeContext.addVersionChange(
                                             new PomVersionChange(modulePom, change.getNewVersion()))) {
                                         moreChanges.set(true);
