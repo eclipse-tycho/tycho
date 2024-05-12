@@ -70,8 +70,8 @@ import org.osgi.framework.Version;
  * Publishes all product definitions files (<code>*.product</code>) that are present in the root of
  * the project.
  * </p>
- * 
- * @see https://wiki.eclipse.org/Equinox/p2/Publisher
+ *
+ * @see <a href="https://wiki.eclipse.org/Equinox/p2/Publisher">Eclipse Wiki</a>
  */
 @Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public final class PublishProductMojo extends AbstractPublishMojo {
@@ -104,6 +104,16 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     @Parameter(defaultValue = "${project.basedir}")
     private File productsDirectory;
 
+    /**
+     * Name of the (JustJ) jre to use when the product includes a JRE currently only supported value
+     * (and the default value) is
+     * <ul>
+     * <li>jre</li>
+     * </ul>
+     */
+    @Parameter(defaultValue = "jre")
+    private String jreName;
+
     @Override
     protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)
             throws MojoExecutionException, MojoFailureException {
@@ -125,8 +135,9 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 }
 
                 boolean includeLaunchers = productConfiguration.includeLaunchers();
-                seeds.addAll(publisher.publishProduct(productFile,
-                        includeLaunchers ? getExpandedLauncherBinaries() : null, FLAVOR));
+                seeds.addAll(
+                        publisher.publishProduct(productFile, includeLaunchers ? getExpandedLauncherBinaries() : null,
+                                FLAVOR, productConfiguration.includeJRE() ? jreName : null));
                 hasLaunchers |= includeLaunchers;
             } catch (IOException e) {
                 throw new MojoExecutionException(

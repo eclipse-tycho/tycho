@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse.tycho.demo</groupId>
@@ -7,8 +8,8 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>eclipse-repository</packaging>
 	<properties>
- 		<tycho-version>2.7.3</tycho-version>
- 		<target-platform>https://download.eclipse.org/releases/2022-06/</target-platform>
+		<tycho-version>5.0.0-SNAPSHOT</tycho-version>
+		<target-platform>https://download.eclipse.org/releases/2024-03/</target-platform>
 	</properties>
 	<repositories>
 		<repository>
@@ -35,10 +36,46 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-					<!-- Prevents Tycho from injecting some mock a.jre units for system packages and EE capabilities;
+					<!-- Prevents Tycho from injecting some mock a.jre units for
+					system packages and EE capabilities;
 					 while we expect justj units to provide them -->
 					<executionEnvironment>none</executionEnvironment>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>materialize-products</id>
+						<goals>
+							<goal>materialize-products</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- as we are only interested in the product in this demo we disable the assemly and archiving of the repository -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-repository-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>default-assemble-repository</id>
+						<goals>
+							<goal>assemble-repository</goal>
+						</goals>
+						<phase>none</phase>
+					</execution>
+					<execution>
+						<id>default-archive-repository</id>
+						<goals>
+							<goal>archive-repository</goal>
+						</goals>
+						<phase>none</phase>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

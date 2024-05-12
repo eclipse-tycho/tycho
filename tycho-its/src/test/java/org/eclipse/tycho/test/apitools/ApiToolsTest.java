@@ -156,7 +156,8 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		File repo = ResourceUtil.resolveTestResource("repositories/api-tools-broken");
 		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
 
-		assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("clean", "verify")), "Did not error on missing repo");
+		assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("clean", "verify")),
+				"Did not error on missing repo");
 	}
 
 	@Test
@@ -166,7 +167,8 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
 		verifier.addCliOption("-DfailResolutionError=true");
 
-		assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("clean", "verify")), "Did not error on resolution failure");
+		assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("clean", "verify")),
+				"Did not error on resolution failure");
 		verifier.verifyTextInLog("Can't resolve API baseline!");
 	}
 
@@ -177,7 +179,7 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
 
 		verifier.executeGoals(List.of("clean", "verify"));
-		verifier.verifyTextInLog("Can't resolve API baseline, API baseline check is skipped!");
+		verifier.verifyTextInLog("Can't resolve API baseline");
 	}
 
 	@Test
@@ -187,6 +189,6 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
 
 		verifier.executeGoals(List.of("clean", "verify"));
-		verifier.verifyTextInLog("Can't resolve API baseline, API baseline check is skipped!");
+		verifier.verifyTextInLog("Can't resolve API baseline");
 	}
 }

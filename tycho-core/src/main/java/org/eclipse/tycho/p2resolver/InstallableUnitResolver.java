@@ -183,7 +183,7 @@ public class InstallableUnitResolver {
             throws TargetDefinitionResolutionException {
         if (includeAllEnvironments) {
             logger.warn(
-                    "includeAllPlatforms='true' and includeMode='planner' are incompatible. ignore includeAllPlatforms flag");
+                    "includeAllPlatforms='true' and includeMode='planner' are incompatible. Ignoring 'includeAllPlatforms' flag");
         }
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
         strategy.setData(data);

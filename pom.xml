@@ -62,7 +62,7 @@
 		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
 		<plexusCompilerVersion>2.15.0</plexusCompilerVersion>
 		<cipherVersion>2.1.0</cipherVersion>
-		<pluginToolsVersion>3.12.0</pluginToolsVersion>
+		<pluginToolsVersion>3.13.0</pluginToolsVersion>
 		<jgit-version>6.8.0.202311291450-r</jgit-version>
 		<maven-version>3.9.6</maven-version>
 		<minimal-maven-version>3.9.0</minimal-maven-version>
@@ -234,7 +234,7 @@
 			<dependency>
 				<groupId>org.apache.bcel</groupId>
 				<artifactId>bcel</artifactId>
-				<version>6.8.2</version>
+				<version>6.9.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.maven.plugin-testing</groupId>
@@ -386,7 +386,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-deploy-plugin</artifactId>
-					<version>3.1.1</version>
+					<version>3.1.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -395,8 +395,6 @@
 					<configuration>
 						<source>${min.jdk.version}</source>
 						<target>${min.jdk.version}</target>
-						<!-- Workaround for https://issues.apache.org/jira/browse/MCOMPILER-567 -->
-						<useIncrementalCompilation>false</useIncrementalCompilation>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -441,7 +439,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-install-plugin</artifactId>
-					<version>3.1.1</version>
+					<version>3.1.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -635,6 +633,28 @@
 				</plugins>
 			</build>
 		</profile>
+        <profile>
+            <!-- allow annotation processing on JDK 21+ -->
+            <id>avoid-maven-compiler-warnings</id>
+            <activation>
+                <jdk>[21,)</jdk>
+            </activation>
+            <build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-compiler-plugin</artifactId>
+							<configuration>
+								<!-- avoid annotation processor warning on JDK 21+.
+								The flag must be set explicitly there. -->
+								<proc>full</proc>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+        </profile>
 	</profiles>
 	<distributionManagement>
 		<site>

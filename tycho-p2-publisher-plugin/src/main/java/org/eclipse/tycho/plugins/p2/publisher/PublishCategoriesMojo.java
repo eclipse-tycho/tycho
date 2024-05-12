@@ -42,7 +42,7 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
  * Publishes the category definitions from the <code>category.xml</code> in the root of the project.
  * </p>
  *
- * @see https://wiki.eclipse.org/Equinox/p2/Publisher
+ * @see <a href="https://wiki.eclipse.org/Equinox/p2/Publisher">Eclipse Wiki</a>
  */
 @Mojo(name = "publish-categories", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public final class PublishCategoriesMojo extends AbstractPublishMojo {
@@ -80,7 +80,7 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
 
     /**
      * Writes the Tycho-internal representation of categories back to a category.xml.
-     * 
+     *
      * @param category
      *            a category, with "qualifier" literals already replaced by the build qualifier.
      */

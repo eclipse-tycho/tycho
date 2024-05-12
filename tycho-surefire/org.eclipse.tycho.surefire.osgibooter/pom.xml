@@ -21,7 +21,7 @@
 	<packaging>jar</packaging>
 	<name>Tycho Surefire OSGi Booter Eclipse Application</name>
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>8</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 	</properties>

@@ -413,14 +413,19 @@ public final class TargetDefinitionFile implements TargetDefinition {
         private final IncludeMode includeMode;
         private final boolean includeAllEnvironments;
         private final boolean includeSource;
+        private final boolean includeConfigurePhase;
+        private final FollowRepositoryReferences followRepositoryReferences;
 
         IULocation(List<Unit> units, List<Repository> repositories, IncludeMode includeMode,
-                boolean includeAllEnvironments, boolean includeSource) {
+                boolean includeAllEnvironments, boolean includeSource, boolean includeConfigurePhase,
+                FollowRepositoryReferences followRepositoryReferences) {
             this.units = units;
             this.repositories = repositories;
             this.includeMode = includeMode;
             this.includeAllEnvironments = includeAllEnvironments;
             this.includeSource = includeSource;
+            this.includeConfigurePhase = includeConfigurePhase;
+            this.followRepositoryReferences = followRepositoryReferences;
         }
 
         @Override
@@ -446,6 +451,16 @@ public final class TargetDefinitionFile implements TargetDefinition {
         @Override
         public boolean includeSource() {
             return includeSource;
+        }
+
+        @Override
+        public boolean includeConfigurePhase() {
+            return includeConfigurePhase;
+        }
+
+        @Override
+        public FollowRepositoryReferences followRepositoryReferences() {
+            return followRepositoryReferences;
         }
     }
 
@@ -743,9 +758,23 @@ public final class TargetDefinitionFile implements TargetDefinition {
             String uri = node.getAttribute("location");
             repositories.add(new Repository(id, uri));
         }
+        
+        String rawFollowRepositoryReferences = dom.getAttribute("followRepositoryReferences");
+        final FollowRepositoryReferences followRepositoryReferences;
+        if (rawFollowRepositoryReferences == null || rawFollowRepositoryReferences.isEmpty()) {
+            followRepositoryReferences = FollowRepositoryReferences.DEFAULT;
+        } else if (Boolean.parseBoolean(rawFollowRepositoryReferences)) {
+            followRepositoryReferences = FollowRepositoryReferences.ENABLED;
+        } else {
+            followRepositoryReferences = FollowRepositoryReferences.DISABLED;
+        }
+        
         return new IULocation(Collections.unmodifiableList(units), Collections.unmodifiableList(repositories),
                 parseIncludeMode(dom), Boolean.parseBoolean(dom.getAttribute("includeAllPlatforms")),
-                Boolean.parseBoolean(dom.getAttribute("includeSource")));
+                Boolean.parseBoolean(dom.getAttribute("includeSource")),
+                Boolean.parseBoolean(dom.getAttribute("includeConfigurePhase")),
+                followRepositoryReferences
+                );
     }
 
     private static String parseTargetEE(Element dom) {

@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -29,6 +30,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.tycho.model.classpath.ContainerAccessRule.Kind;
+import org.eclipse.tycho.model.project.EclipseProject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,9 +38,21 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class ClasspathParser {
+    public static final String CLASSPATH_FILENAME = ".classpath";
 
-    public static Collection<ProjectClasspathEntry> parse(File basedir) throws IOException {
-        File file = new File(basedir, ".classpath");
+    public static Collection<ProjectClasspathEntry> parse(File classpathFile, EclipseProject project)
+            throws IOException {
+        Function<String, File> pathInProjectResolver = path -> project.getFile(path).normalize().toFile();
+        return parse(classpathFile, pathInProjectResolver);
+    }
+
+    public static Collection<ProjectClasspathEntry> parse(File classpathFile) throws IOException {
+        Function<String, File> pathInProjectResolver = path -> new File(classpathFile.getParent(), path);
+        return parse(classpathFile, pathInProjectResolver);
+    }
+
+    private static Collection<ProjectClasspathEntry> parse(File file, Function<String, File> pathInProjectResolver)
+            throws IOException {
         if (!file.isFile()) {
             return Collections.emptyList();
         }
@@ -50,14 +64,13 @@ public class ClasspathParser {
             NodeList classpathentries = doc.getDocumentElement().getElementsByTagName("classpathentry");
             int length = classpathentries.getLength();
             List<ProjectClasspathEntry> list = new ArrayList<>();
-            String defaultOutput = "bin";
+            File defaultOutput = pathInProjectResolver.apply("bin");
             for (int i = 0; i < length; i++) {
                 Element classpathentry = (Element) classpathentries.item(i);
                 String kind = classpathentry.getAttribute("kind");
                 if ("output".equals(kind)) {
-                    defaultOutput = classpathentry.getAttribute("path");
-                    list.add(
-                            new JDTOuput(new File(file.getParentFile(), defaultOutput), getAttributes(classpathentry)));
+                    defaultOutput = pathInProjectResolver.apply(classpathentry.getAttribute("path"));
+                    list.add(new JDTOuput(defaultOutput, getAttributes(classpathentry)));
                 }
             }
             for (int i = 0; i < length; i++) {
@@ -66,13 +79,11 @@ public class ClasspathParser {
 
                 String kind = classpathentry.getAttribute("kind");
                 if ("src".equals(kind)) {
-                    String path = classpathentry.getAttribute("path");
-                    String output = classpathentry.getAttribute("output");
-                    if (output.isBlank()) {
-                        output = defaultOutput;
-                    }
-                    list.add(new JDTSourceFolder(new File(file.getParentFile(), path),
-                            new File(file.getParentFile(), output), attributes));
+                    File path = pathInProjectResolver.apply(classpathentry.getAttribute("path"));
+                    String outputAttribute = classpathentry.getAttribute("output");
+                    File output = !outputAttribute.isBlank() ? pathInProjectResolver.apply(outputAttribute)
+                            : defaultOutput;
+                    list.add(new JDTSourceFolder(path, output, attributes));
                 } else if ("con".equals(kind)) {
                     String path = classpathentry.getAttribute("path");
                     List<ContainerAccessRule> accessRules = parseAccessRules(classpathentry);
@@ -89,8 +100,8 @@ public class ClasspathParser {
                         list.add(new JDTContainerClasspathEntry(path, attributes, accessRules));
                     }
                 } else if ("lib".equals(kind)) {
-                    String path = classpathentry.getAttribute("path");
-                    list.add(new JDTLibraryClasspathEntry(new File(file.getParentFile(), path), attributes));
+                    File path = pathInProjectResolver.apply(classpathentry.getAttribute("path"));
+                    list.add(new JDTLibraryClasspathEntry(path, attributes));
                 } else if ("var".equals(kind)) {
                     String path = classpathentry.getAttribute("path");
                     if (path.startsWith(M2ClasspathVariable.M2_REPO_VARIABLE_PREFIX)) {

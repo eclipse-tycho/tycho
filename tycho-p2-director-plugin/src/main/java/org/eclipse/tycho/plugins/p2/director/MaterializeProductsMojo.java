@@ -13,6 +13,8 @@
 package org.eclipse.tycho.plugins.p2.director;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +34,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.ExecutionEnvironment;
 import org.eclipse.tycho.TargetEnvironment;
@@ -150,6 +155,14 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
     private DirectorRuntimeType directorRuntime;
 
     /**
+     * If a product requires JustJ this repository is automatically added as part of the product
+     * assembly, if not this is just ignored. To disable this feature one can set the configuration
+     * to an empty value
+     */
+    @Parameter(defaultValue = "https://download.eclipse.org/justj/jres")
+    private String productRepository;
+
+    /**
      * Controls if products are allowed to be build in parallel
      */
     @Parameter
@@ -157,13 +170,27 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        List<Product> products = getProductConfig().getProducts();
+        ProductConfig productConfig = getProductConfig();
+        List<Product> products = productConfig.getProducts();
         if (products.isEmpty()) {
             getLog().info("No product definitions found, nothing to do");
             return;
         }
         DirectorRuntime director = getDirectorRuntime();
         RepositoryReferences sources = getSourceRepositories();
+        if (productRepository != null && !productRepository.isBlank()) {
+            for (Product product : products) {
+                if (requiresJustJ(productConfig, product)) {
+                    try {
+                        sources.addRepository(new URI(productRepository));
+                    } catch (URISyntaxException e) {
+                        throw new MojoFailureException("<productRepository> contains invalid URI: " + productRepository,
+                                e);
+                    }
+                    break;
+                }
+            }
+        }
         if (parallel) {
             ExecutorService executorService = Executors.newWorkStealingPool();
             ExecutorCompletionService<Void> service = new ExecutorCompletionService<>(executorService);
@@ -210,6 +237,23 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
                 }
             }
         }
+    }
+
+    private boolean requiresJustJ(ProductConfig productConfig, Product product) {
+        for (DependencySeed seed : productConfig.getProjectSeeds()) {
+            if (ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(seed.getType()) && product.getId().equals(seed.getId())) {
+                IInstallableUnit installableUnit = seed.getInstallableUnit();
+                for (IRequirement requirement : installableUnit.getRequirements()) {
+                    if (requirement instanceof IRequiredCapability cap) {
+                        if (TychoConstants.NAMESPACE_JUSTJ.equals(cap.getNamespace())
+                                && cap.getName().startsWith(TychoConstants.NAME_JUSTJ_JRE)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private void buildProduct(DirectorRuntime director, RepositoryReferences sources, Product product,

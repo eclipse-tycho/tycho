@@ -63,6 +63,7 @@ import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetDefinition.DirectoryLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.FeaturesLocation;
+import org.eclipse.tycho.targetplatform.TargetDefinition.FollowRepositoryReferences;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
@@ -141,7 +142,7 @@ public final class TargetDefinitionResolver {
         Map<String, URITargetDefinitionContent> uriRepositories = new LinkedHashMap<>();
         List<TargetDefinitionContent> mavenLocations = new ArrayList<>();
         List<TargetDefinitionContent> referencedTargetLocations = new ArrayList<>();
-        List<TargetDefinitionContent> repositorytLocations = new ArrayList<>();
+        List<TargetDefinitionContent> repositoryLocations = new ArrayList<>();
         for (Location locationDefinition : definition.getLocations()) {
             if (locationDefinition instanceof InstallableUnitLocation installableUnitLocation) {
                 if (installableUnitResolver == null) {
@@ -149,12 +150,21 @@ public final class TargetDefinitionResolver {
                             includeSourceMode, logger);
                 }
                 List<URITargetDefinitionContent> locations = new ArrayList<>();
+                var followRepositoryReferences = installableUnitLocation.followRepositoryReferences();
+                final ReferencedRepositoryMode followReferences;
+                if (followRepositoryReferences == FollowRepositoryReferences.DEFAULT) {
+                    followReferences = referencedRepositoryMode;
+                } else if (followRepositoryReferences == FollowRepositoryReferences.ENABLED) {
+                    followReferences = ReferencedRepositoryMode.include;
+                } else {
+                    followReferences = ReferencedRepositoryMode.ignore;
+                }
                 for (Repository repository : installableUnitLocation.getRepositories()) {
                     URI location = resolveRepositoryLocation(repository.getLocation());
                     String key = location.normalize().toASCIIString();
                     locations.add(
                             uriRepositories.computeIfAbsent(key, s -> new URITargetDefinitionContent(provisioningAgent,
-                                    location, repository.getId(), referencedRepositoryMode, logger)));
+                                    location, repository.getId(), followReferences, logger)));
                 }
                 IQueryable<IInstallableUnit> locationUnits = QueryUtil.compoundQueryable(locations);
                 Collection<IInstallableUnit> rootUnits = installableUnitResolver
@@ -234,7 +244,7 @@ public final class TargetDefinitionResolver {
                 logger.info("Loading " + resolvedUri + "...");
                 RepositoryLocationContent content = new RepositoryLocationContent(resolvedUri,
                         repositoryLocation.getRequirements(), provisioningAgent, logger);
-                repositorytLocations.add(content);
+                repositoryLocations.add(content);
                 IQueryResult<IInstallableUnit> result = content.query(QueryUtil.ALL_UNITS,
                         new LoggingProgressMonitor(logger));
                 unitResultSet.addAll(result);
@@ -273,7 +283,7 @@ public final class TargetDefinitionResolver {
             artifactRepositories.add(referenceContent.getArtifactRepository());
         }
         //preliminary step: add all repository locations:
-        for (TargetDefinitionContent referenceContent : repositorytLocations) {
+        for (TargetDefinitionContent referenceContent : repositoryLocations) {
             metadataRepositories.add(referenceContent.getMetadataRepository());
             artifactRepositories.add(referenceContent.getArtifactRepository());
         }
