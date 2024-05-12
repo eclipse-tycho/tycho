@@ -86,6 +86,36 @@ You can enable this for example like this:
 </plugin>
 ```
 
+### New `remove-iu` mojo
+
+This is a replacement for the [p2.remove.iu ant task](https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/guide/p2_repositorytasks.htm), example:
+
+```xml
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-p2-repository-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+        <execution>
+            <id>remove-iu</id>
+            <goals>
+                <goal>remove-iu</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+                <iu>
+                    <remove>
+                        <query>property[@name='org.eclipse.equinox.p2.name' @value='Uncategorized']</query>
+                    </remove>
+                    <remove>
+                        <id>eclipse-junit-tests</id>
+                    </remove>
+                </iu>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
 
 ### New `repo-to-runnable` mojo
 
