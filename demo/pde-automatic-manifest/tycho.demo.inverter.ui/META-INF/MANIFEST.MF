@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ui
+Bundle-SymbolicName: tycho.demo.inverter.ui
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.swt,
+ org.eclipse.jface,
+ org.eclipse.e4.ui.model.workbench
+Model-Fragment: fragment.e4xmi
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: tycho.demo.inverter.ui
+Import-Package: jakarta.annotation;version="[2.1.0,3.0.0)";resolution:=optional,
+ jakarta.inject;version="[2.0.0,3.0.0)",
+ org.eclipse.e4.core.di.extensions;version="[0.16.0,1.0.0)",
+ tycho.demo.service.api;version="[1.0.0,2.0.0)"
+Bundle-ActivationPolicy: lazy

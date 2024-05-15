@@ -1,0 +1,4 @@
+Bundle-Name: Api
+Bundle-SymbolicName: tycho.demo.service.api
+Bundle-Vendor: 
+Bundle-Version: 1.0.0.qualifier
