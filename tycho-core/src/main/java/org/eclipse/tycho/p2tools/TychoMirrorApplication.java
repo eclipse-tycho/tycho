@@ -16,11 +16,9 @@ package org.eclipse.tycho.p2tools;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -32,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
@@ -62,12 +61,9 @@ import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
 import org.eclipse.tycho.p2tools.copiedfromp2.PermissiveSlicer;
 import org.eclipse.tycho.p2tools.copiedfromp2.RepositoryDescriptor;
 import org.eclipse.tycho.p2tools.copiedfromp2.Slicer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfromp2.MirrorApplication {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TychoMirrorApplication.class);
     private static final String SOURCE_SUFFIX = ".source";
     private static final String FEATURE_GROUP = ".feature.group";
     private final DestinationRepositoryDescriptor destination;
@@ -77,10 +73,13 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
     private boolean filterProvided;
     private boolean addOnlyProvidingRepoReferences;
     private TargetPlatform targetPlatform;
+    private Logger logger;
 
-    public TychoMirrorApplication(IProvisioningAgent agent, DestinationRepositoryDescriptor destination) {
+    public TychoMirrorApplication(IProvisioningAgent agent, DestinationRepositoryDescriptor destination,
+            Logger logger) {
         super(agent);
         this.destination = destination;
+        this.logger = logger;
         this.removeAddedRepositories = false;
     }
 
@@ -274,8 +273,8 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
         if (repository != null) {
             Collection<IRepositoryReference> references = repository.getReferences();
             if (!references.isEmpty()) {
-                LOGGER.info("Adding references to the following repositories:");
-                references.stream().map(r -> r.getLocation()).distinct().forEach(loc -> LOGGER.info("  {}", loc));
+                logger.info("Adding references to the following repositories:");
+                references.stream().map(r -> r.getLocation()).distinct().forEach(loc -> logger.info("  " + loc));
             }
         }
         super.finalizeRepositories();
@@ -296,11 +295,12 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
             throws ProvisionException {
         Set<IInstallableUnit> units = super.collectUnits(slice, monitor);
         if (isFilterProvidedItems()) {
-            Map<String, List<Version>> fullRepositoryContent = units.stream()
-                    .collect(groupingBy(IInstallableUnit::getId, mapping(IInstallableUnit::getVersion, toList())));
+            Map<String, Set<Version>> fullRepositoryContent = units.stream().collect(
+                    groupingBy(IInstallableUnit::getId, mapping(IInstallableUnit::getVersion, Collectors.toSet())));
 
-            List<IRepository<IInstallableUnit>> metadataRepositories = removeProvidedItems(units,
-                    getMetadataRepositoryManager(), IRepository.TYPE_METADATA, monitor);
+            IMetadataRepositoryManager manager = getMetadataRepositoryManager();
+            Map<URI, IRepository<IInstallableUnit>> metadataRepositories = removeProvidedItems(units, manager,
+                    IRepository.TYPE_METADATA, monitor);
 
             if (addOnlyProvidingRepoReferences) {
                 Set<URI> removableReferences = destination.getFilterableRepositoryReferences().stream()
@@ -309,7 +309,8 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
                         .forEach(removableReferences::remove); // keep reference if explicitly added to the repository
                 if (!removableReferences.isEmpty()) {
                     // Assume that for all units that correspond to artifacts the metadata either has a co-located artifact repository or a references to to one that contains it.
-                    removeNotProvidingReferences(fullRepositoryContent, metadataRepositories, removableReferences);
+                    removeNotProvidingReferences(fullRepositoryContent, metadataRepositories, removableReferences,
+                            manager);
                 }
             }
         }
@@ -320,9 +321,9 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
         return filterProvided && !destinationMetadataRepository.getReferences().isEmpty();
     }
 
-    private <T> List<IRepository<T>> removeProvidedItems(Collection<T> allElements, IRepositoryManager<T> repoManager,
-            int repositoryType, IProgressMonitor monitor) throws ProvisionException {
-        List<IRepository<T>> referencedRepositories = new ArrayList<>();
+    private <T> Map<URI, IRepository<T>> removeProvidedItems(Collection<T> allElements,
+            IRepositoryManager<T> repoManager, int repositoryType, IProgressMonitor monitor) throws ProvisionException {
+        Map<URI, IRepository<T>> referencedRepositories = new HashMap<>();
         for (IRepositoryReference reference : destinationMetadataRepository.getReferences()) {
             if (reference.getType() != repositoryType) {
                 continue;
@@ -330,7 +331,8 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
             try {
                 URI location = reference.getLocation();
                 IRepository<T> repository = repoManager.loadRepository(location, monitor);
-                referencedRepositories.add(repository);
+                //We need to retain the location in the map as the repo manager might rewrite it to a mirrored location
+                referencedRepositories.put(location, repository);
             } catch (IllegalArgumentException e) {
                 if (e.getCause() instanceof URISyntaxException uriException) {
                     throw new ProvisionException("Can't parse referenced URI!", uriException);
@@ -339,33 +341,79 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
                 }
             }
         }
-        allElements.removeIf(e -> referencedRepositories.stream().anyMatch(repo -> repo.contains(e)));
+        allElements.removeIf(e -> referencedRepositories.values().stream().anyMatch(repo -> repo.contains(e)));
         return referencedRepositories;
     }
 
-    private void removeNotProvidingReferences(Map<String, List<Version>> fullRepositoryContent,
-            List<IRepository<IInstallableUnit>> metadataRepositories, Set<URI> removableReferenceURIs) {
+    private void removeNotProvidingReferences(Map<String, Set<Version>> fullRepositoryContent,
+            Map<URI, IRepository<IInstallableUnit>> metadataRepositories, Set<URI> removableReferenceURIs,
+            IMetadataRepositoryManager manager) {
         Map<URI, Set<IInstallableUnit>> usedRepositoryItems = new HashMap<>();
-        for (IRepository<IInstallableUnit> repo : metadataRepositories) {
-            Set<IInstallableUnit> usedRepoContent = repo.query(QueryUtil.ALL_UNITS, null).stream()
-                    .filter(a -> fullRepositoryContent.getOrDefault(a.getId(), List.of()).contains(a.getVersion()))
+        Map<URI, Set<IInstallableUnit>> providedItems = new HashMap<>();
+        for (Entry<URI, IRepository<IInstallableUnit>> repo : metadataRepositories.entrySet()) {
+            Set<IInstallableUnit> content = getRepositoryContent(repo.getKey(), repo.getValue(), new HashSet<>(),
+                    manager).collect(Collectors.toSet());
+            Set<IInstallableUnit> usedRepoContent = content.stream()
+                    .filter(a -> fullRepositoryContent.getOrDefault(a.getId(), Set.of()).contains(a.getVersion()))
                     .collect(Collectors.toSet());
-            usedRepositoryItems.put(repo.getLocation(), usedRepoContent);
+            usedRepositoryItems.put(repo.getKey(), usedRepoContent);
+            providedItems.put(repo.getKey(), content);
         }
         // Remove filterable references that contribute nothing or whose relevant content is also provided by another repo
         usedRepositoryItems.entrySet().removeIf(repo -> {
-            if (!removableReferenceURIs.contains(repo.getKey())) {
-                return false;
+            if (removableReferenceURIs.contains(repo.getKey())) {
+                Set<IInstallableUnit> usedContent = repo.getValue();
+                if (usedContent.isEmpty()) {
+                    logger.info(
+                            "Remove reference " + repo.getKey() + " because no units are contained in the repository.");
+                    return true;
+                }
+                for (Entry<URI, Set<IInstallableUnit>> entry : usedRepositoryItems.entrySet()) {
+                    if (entry == repo) {
+                        continue;
+                    }
+                    Set<IInstallableUnit> other = providedItems.getOrDefault(entry.getKey(), Set.of());
+                    if (!other.isEmpty() && other.containsAll(usedContent)) {
+                        logger.info("Remove reference " + repo.getKey()
+                                + " because all units are also contained in reference " + entry.getKey() + " already.");
+                        return true;
+                    }
+                }
             }
-            Set<IInstallableUnit> usedContent = repo.getValue();
-            return usedContent.isEmpty()
-                    || usedRepositoryItems.entrySet().stream().filter(e -> e != repo).map(Entry::getValue)
-                            .anyMatch(other -> other.size() >= usedContent.size() && other.containsAll(usedContent));
+            return false;
         });
         IMetadataRepository repository = getDestinationMetadataRepository();
         List<IRepositoryReference> discardedReferences = repository.getReferences().stream()
                 .filter(rr -> !usedRepositoryItems.keySet().contains(rr.getLocation())).toList();
         repository.removeReferences(discardedReferences);
+    }
+
+    private Stream<IInstallableUnit> getRepositoryContent(URI uri, IRepository<IInstallableUnit> repo, Set<URI> visited,
+            IMetadataRepositoryManager manager) {
+        if (visited.add(uri)) {
+            Stream<IInstallableUnit> stream = repo.query(QueryUtil.ALL_UNITS, null).stream();
+            if (repo instanceof IMetadataRepository meta) {
+                Collection<IRepositoryReference> references = meta.getReferences();
+                for (IRepositoryReference reference : references) {
+                    if (reference.getType() == IRepository.TYPE_METADATA && isEnabled(reference)) {
+                        try {
+                            URI referenceLocation = reference.getLocation();
+                            IMetadataRepository referenceRepository = manager.loadRepository(referenceLocation, null);
+                            stream = Stream.concat(stream,
+                                    getRepositoryContent(referenceLocation, referenceRepository, visited, manager));
+                        } catch (ProvisionException e) {
+                            //can't use then...
+                        }
+                    }
+                }
+            }
+            return stream;
+        }
+        return Stream.empty();
+    }
+
+    private boolean isEnabled(IRepositoryReference reference) {
+        return (reference.getOptions() & IRepository.ENABLED) != 0;
     }
 
     public void setIncludeSources(boolean includeAllSource, TargetPlatform targetPlatform) {
