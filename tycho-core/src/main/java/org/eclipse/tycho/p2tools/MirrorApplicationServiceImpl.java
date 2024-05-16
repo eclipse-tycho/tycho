@@ -101,7 +101,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, BuildDirectory tempDirectory)
             throws FacadeException {
         agent.getService(IArtifactRepositoryManager.class); //force init of framework if not already done!
-        final TychoMirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
+        final TychoMirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, logger);
         mirrorApp.setSlicingOptions(createSlicingOptions(mirrorOptions));
         mirrorApp.setIgnoreErrors(mirrorOptions.isIgnoreErrors());
         try {
@@ -176,7 +176,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             boolean includeAllSource, boolean includeRequiredBundles, boolean includeRequiredFeatures,
             boolean filterProvided, boolean addOnlyProvidingRepoReferences, Map<String, String> filterProperties)
             throws FacadeException {
-        final TychoMirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
+        final TychoMirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, logger);
 
         // mirror scope: seed units...
         try {
@@ -250,8 +250,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     }
 
     private static TychoMirrorApplication createMirrorApplication(RepositoryReferences sources,
-            DestinationRepositoryDescriptor destination, IProvisioningAgent agent) {
-        final TychoMirrorApplication mirrorApp = new TychoMirrorApplication(agent, destination);
+            DestinationRepositoryDescriptor destination, IProvisioningAgent agent, Logger logger) {
+        final TychoMirrorApplication mirrorApp = new TychoMirrorApplication(agent, destination, logger);
         mirrorApp.setRaw(false);
 
         List<RepositoryDescriptor> sourceDescriptors = createSourceDescriptors(sources);
