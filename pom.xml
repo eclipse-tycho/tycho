@@ -304,6 +304,21 @@
 				<artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
 				<version>2.3.100</version>
 			</dependency>
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcpg-jdk18on</artifactId>
+				<version>1.78.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcprov-jdk18on</artifactId>
+				<version>1.78.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcutil-jdk18on</artifactId>
+				<version>1.78.1</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<build>
