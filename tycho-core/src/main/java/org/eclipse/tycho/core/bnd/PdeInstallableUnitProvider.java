@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2024 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -49,7 +49,10 @@ import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 
 import aQute.bnd.osgi.Builder;
+import aQute.bnd.osgi.Clazz;
 import aQute.bnd.osgi.Constants;
+import aQute.bnd.osgi.Descriptors.PackageRef;
+import aQute.bnd.osgi.Descriptors.TypeRef;
 import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.Processor;
 import aQute.bnd.version.MavenVersion;
@@ -183,7 +186,25 @@ public class PdeInstallableUnitProvider implements InstallableUnitProvider {
 
     private Collection<IInstallableUnit> generateWithProcessor(MavenProject project, Processor processor,
             Collection<Artifact> artifacts) throws Exception {
-        try (Builder analyzer = new Builder(processor)) {
+        SourceCodeAnalyzerPlugin plugin = new SourceCodeAnalyzerPlugin(
+                project.getCompileSourceRoots().stream().map(Path::of).toList());
+        try (Builder analyzer = new Builder(processor) {
+            @Override
+            public Clazz getPackageInfo(PackageRef packageRef) {
+                Clazz info = super.getPackageInfo(packageRef);
+                if (info == null) {
+                    return plugin.getPackageInfo(packageRef);
+                }
+                return info;
+            }
+
+            @Override
+            public Clazz findClass(TypeRef typeRef) throws Exception {
+                //TODO instead of override the getPackageInfo(...) we can also use this but 
+                //in that case we probably need to implement more in the JDTClazz as it is called from different places
+                return super.findClass(typeRef);
+            };
+        }) {
             analyzer.setBase(project.getBasedir());
             Jar jar = new Jar(project.getArtifactId());
             analyzer.setJar(jar);
@@ -197,8 +218,7 @@ public class PdeInstallableUnitProvider implements InstallableUnitProvider {
                     }
                 }
             }
-            analyzer.addBasicPlugin(
-                    new SourceCodeAnalyzerPlugin(project.getCompileSourceRoots().stream().map(Path::of).toList()));
+            analyzer.addBasicPlugin(plugin);
             analyzer.setProperty(Constants.NOEXTRAHEADERS, "true");
             analyzer.build();
             Manifest manifest = jar.getManifest();
@@ -210,6 +230,12 @@ public class PdeInstallableUnitProvider implements InstallableUnitProvider {
                 ManifestUtil.write(manifest, outputStream);
                 String str = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
                 logger.debug("Generated preliminary manifest for " + project.getId() + ":\r\n" + str);
+                for (String error : analyzer.getErrors()) {
+                    logger.debug("ERROR: " + error);
+                }
+                for (String warn : analyzer.getWarnings()) {
+                    logger.debug("WARN:  " + warn);
+                }
             }
             return installableUnitGenerator.getInstallableUnits(manifest);
         }
