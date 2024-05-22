@@ -23,7 +23,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 import aQute.bnd.osgi.Jar;
@@ -34,7 +37,7 @@ public class MavenProjectJar extends Jar {
 
 	private Path outputFolder;
 
-	public MavenProjectJar(MavenProject project, Predicate<Path> filter) throws IOException {
+	public MavenProjectJar(MavenProject project, Predicate<Path> filter, Log log) throws IOException {
 		super(project.getId());
 		outputFolder = Path.of(project.getBuild().getOutputDirectory());
 		Files.walkFileTree(outputFolder, new FileVisitor<Path>() {
@@ -46,8 +49,15 @@ public class MavenProjectJar extends Jar {
 
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				String path = outputFolder.relativize(file).toString();
-				putResource(path, new MavenProjectResource(file));
+				Path relativePath = outputFolder.relativize(file);
+				if (filter.test(file)) {
+					String path = StreamSupport.stream(relativePath.spliterator(), false).map(Path::toString)
+							.collect(Collectors.joining("/"));
+					log.debug("Adding " + path + " to project jar...");
+					putResource(path, new MavenProjectResource(file));
+				} else {
+					log.debug("Ignore " + relativePath + " because it is filtered");
+				}
 				return FileVisitResult.CONTINUE;
 			}
 
