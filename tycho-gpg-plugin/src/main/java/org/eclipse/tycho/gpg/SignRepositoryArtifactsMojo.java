@@ -252,6 +252,13 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
                     try {
                         var signedContent = signedContentFactory.getSignedContent(artifact);
                         if (signedContent.isSigned()) {
+                            for (var signerInfo : signedContent.getSignerInfos()) {
+                                // Check that the signature was produced within the validity range of the certificate.
+                                // If invalid, this throws CertificateExpiredException or CertificateNotYetValidException.
+                                // That ensures we continue the logic that follows as if the content were not signed.
+                                signedContent.checkValidity(signerInfo);
+                            }
+
                             if (skipIfJarsigned) {
                                 return;
                             }
