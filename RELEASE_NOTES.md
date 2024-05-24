@@ -7,6 +7,16 @@ This page describes the noteworthy improvements provided by each release of Ecli
 backports:
 - maven dependencies of transitive projects are not discovered with `-am` / `--also-make`
 - Support for new `includeJRE` flag when building products
+- Improve SignRepositoryArtifactsMojo handling of unsigned content
+- Add demo for pde.bnd integration with classic Eclipse product build
+- Use original URL to decide if a IU is provided by reference
+- set-version: Fix regression overwriting mismatching versions
+- Sort dependency tree root nodes
+- Support links in classpath files
+- Add support for followRepositoryReference in .target files
+- Add flag to fail API tools on resolution error
+- Several bugfixes for building pde automatic manifest projects
+- Remove special handling of equinox-launcher fragments in AbstractArtifactDependencyWalker
 
 ## 4.0.7
 
