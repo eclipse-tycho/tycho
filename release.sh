@@ -20,7 +20,7 @@ PREV_RELEASE_VERSION=${RELEASE_MAJOR}'.'${RELEASE_MINOR}'.'${PREV_RELEASE_MICRO}
 NEXT_RELEASE_VERSION=${RELEASE_MAJOR}'.'${RELEASE_MINOR}'.'${NEXT_RELEASE_MICRO}
 
 waitforurl() {
-  while [ $(curl -s -o /dev/null --head -w "%{http_code}" ${1}) -ne "200" ]; do
+  while [ $(curl -s -o /dev/null --get -w "%{http_code}" ${1}) -ne "200" ]; do
     printf '.'
     sleep 5
   done
