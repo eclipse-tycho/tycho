@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
-		<version>4.0.8</version>
+		<version>4.0.9-SNAPSHOT</version>
 	</parent>
 	<artifactId>tycho-eclipse-plugin</artifactId>
 	<name>Tycho Eclipse Plugin</name>
