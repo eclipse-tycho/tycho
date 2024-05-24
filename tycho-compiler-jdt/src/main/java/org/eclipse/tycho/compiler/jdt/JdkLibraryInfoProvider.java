@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 SAP SE and others.
+ * Copyright (c) 2018, 2024 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -82,8 +83,8 @@ public class JdkLibraryInfoProvider {
         CommandLine cli = new CommandLine(executable);
         cli.addArguments(new String[] { "-classpath", getLibDetectorJar().getAbsolutePath(),
                 "org.eclipse.tycho.libdetector.LibraryDetector" }, false);
-        DefaultExecutor executor = new DefaultExecutor();
-        ExecuteWatchdog watchdog = new ExecuteWatchdog(30 * 1000L);
+        DefaultExecutor executor = DefaultExecutor.builder().get();
+        ExecuteWatchdog watchdog = ExecuteWatchdog.builder().setTimeout(Duration.ofMillis(30 * 1000L)).get();
         executor.setWatchdog(watchdog);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PumpStreamHandler handler = new PumpStreamHandler(outputStream);
