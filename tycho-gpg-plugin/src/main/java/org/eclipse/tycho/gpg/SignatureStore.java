@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Eclipse contributors and others.
+ * Copyright (c) 2022, 2024 Eclipse contributors and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -70,8 +70,7 @@ public class SignatureStore {
 
     public String toArmoredString() throws IOException {
         var out = new ByteArrayOutputStream();
-        try (var armoredOut = new ArmoredOutputStream(out)) {
-            armoredOut.setHeader("Version", null);
+        try (var armoredOut = ArmoredOutputStream.builder().setVersion(null).build(out)) {
             for (var signatures : signatures.values()) {
                 signatures.encode(armoredOut);
             }
