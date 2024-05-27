@@ -16,13 +16,13 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.aether.impl.SyncContextFactory;
+import org.eclipse.aether.spi.synccontext.SyncContextFactory;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.core.MavenDependenciesResolver;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
+import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 
 @Component(role = MavenTargetLocationFactory.class)
 public class MavenTargetLocationFactory {
