@@ -39,14 +39,13 @@ import org.eclipse.aether.SyncContext;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.graph.Dependency;
-import org.eclipse.aether.graph.DependencyFilter;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.graph.DependencyVisitor;
-import org.eclipse.aether.impl.SyncContextFactory;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.spi.synccontext.SyncContextFactory;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.m2e.pde.target.shared.ProcessingMessage.Type;
 import org.osgi.framework.Constants;
@@ -104,21 +103,17 @@ public class MavenBundleWrapper {
 
         DependencyRequest dependencyRequest = new DependencyRequest();
         dependencyRequest.setRoot(node);
-        dependencyRequest.setFilter(new DependencyFilter() {
-
-            @Override
-            public boolean accept(DependencyNode node, List<DependencyNode> parents) {
-                ArtifactRequest request = new ArtifactRequest();
-                request.setRepositories(repositories);
-                Artifact nodeArtifact = node.getArtifact();
-                request.setArtifact(nodeArtifact);
-                try {
-                    repoSystem.resolveArtifact(repositorySession, request);
-                } catch (ArtifactResolutionException e) {
-                    return false;
-                }
-                return true;
+        dependencyRequest.setFilter((node1, parents) -> {
+            ArtifactRequest request = new ArtifactRequest();
+            request.setRepositories(repositories);
+            Artifact nodeArtifact = node1.getArtifact();
+            request.setArtifact(nodeArtifact);
+            try {
+                repoSystem.resolveArtifact(repositorySession, request);
+            } catch (ArtifactResolutionException e) {
+                return false;
             }
+            return true;
         });
         repoSystem.resolveDependencies(repositorySession, dependencyRequest);
 
