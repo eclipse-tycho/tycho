@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2021 SAP AG and others.
+ * Copyright (c) 2011, 2024 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
-import org.bouncycastle.jcajce.provider.drbg.DRBG.Default;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.osgi.resource.Requirement;
