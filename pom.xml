@@ -176,6 +176,11 @@
 				<version>1.4.0</version>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>3.14.0</version>
+			</dependency>
+			<dependency>
 				<groupId>org.eclipse.platform</groupId>
 				<artifactId>org.eclipse.osgi</artifactId>
 				<version>${equinoxVersion}</version>
