@@ -144,6 +144,12 @@
 				<artifactId>plexus-utils</artifactId>
 				<version>${plexusUtilsVersion}</version>
 			</dependency>
+			<!--plexus-utils 4.x with plexus-xml 3.x is Maven 3 compatible-->
+			<dependency>
+			    <groupId>org.codehaus.plexus</groupId>
+			    <artifactId>plexus-xml</artifactId>
+			    <version>3.0.1</version>
+			</dependency>
 			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-archiver</artifactId>
