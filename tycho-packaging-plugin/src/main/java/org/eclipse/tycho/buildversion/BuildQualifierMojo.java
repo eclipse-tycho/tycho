@@ -175,7 +175,9 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         }
 		String qualifier = getDesiredQualifier(timestamp);
 
-        validateQualifier(qualifier);
+		if (!"".equals(qualifier)) {
+			validateQualifier(qualifier);
+		}
 
 		String pomOSGiVersion = getUnqualifiedVersion();
 		String suffix = "." + qualifier;

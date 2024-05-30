@@ -99,6 +99,19 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 		checkManifestVersion(file, "1.0.0.zzz");
 	}
 
+	@Test
+	public void testReleaseBuildQualifier() throws Exception {
+		Verifier verifier = getVerifier("ci-friendly/buildqualifier", false, true);
+		// this uses an empty/release qualifier
+		verifier.addCliOption("-Dqualifier=");
+		verifier.addCliOption("-Dtycho.buildqualifier.format=");
+		verifier.executeGoals(List.of("clean", "package"));
+		verifier.verifyErrorFreeLog();
+		File file = new File(verifier.getBasedir(), "bundle/target/bundle-1.0.0.jar");
+		assertTrue(file.getAbsolutePath() + " is not generated!", file.isFile());
+		checkManifestVersion(file, "1.0.0");
+	}
+
 	private static void checkManifestVersion(File file, String expectedVersion) throws IOException {
 		try (JarFile jarFile = new JarFile(file)) {
 			assertEquals(expectedVersion, jarFile.getManifest().getMainAttributes().getValue(Constants.BUNDLE_VERSION));
