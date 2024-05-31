@@ -173,11 +173,11 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
                 return new TychoProjectVersion(unqualifiedVersion, osgiVersion.getQualifier());
             }
         }
-		String qualifier = getDesiredQualifier(timestamp);
 
-		if (!"".equals(qualifier)) {
-			validateQualifier(qualifier);
-		}
+		String forceContextQualifier = getForceContextQualifier();
+		String qualifier = getDesiredQualifier(forceContextQualifier, timestamp);
+
+		validateQualifier(forceContextQualifier, qualifier);
 
 		String pomOSGiVersion = getUnqualifiedVersion();
 		String suffix = "." + qualifier;
@@ -188,15 +188,23 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 		return new TychoProjectVersion(pomOSGiVersion, qualifier);
     }
 
-	protected String getDesiredQualifier(Date timestamp) throws MojoExecutionException {
+	protected String getDesiredQualifier(String forceContextQualifier, Date timestamp) throws MojoExecutionException {
+		String qualifier = forceContextQualifier;
+		if (TychoConstants.QUALIFIER_NONE.equals(qualifier)) {
+			qualifier = "";
+		}
+
+        if (qualifier == null) {
+            qualifier = getQualifier(timestamp);
+        }
+		return qualifier;
+	}
+
+	private String getForceContextQualifier() {
 		String qualifier = forceContextQualifier;
 
         if (qualifier == null) {
 			qualifier = buildPropertiesParser.parse(DefaultReactorProject.adapt(project)).getForceContextQualifier();
-        }
-
-        if (qualifier == null) {
-            qualifier = getQualifier(timestamp);
         }
 		return qualifier;
 	}
@@ -214,7 +222,10 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         }
     }
 
-    void validateQualifier(String qualifier) throws MojoFailureException {
+	void validateQualifier(String forceContextQualifier, String qualifier) throws MojoFailureException {
+		if (TychoConstants.QUALIFIER_NONE.equals(forceContextQualifier)) {
+			return;
+		}
         // parse a valid version with the given qualifier to check if the qualifier is valid
         try {
             Version.parseVersion("1.0.0." + qualifier);

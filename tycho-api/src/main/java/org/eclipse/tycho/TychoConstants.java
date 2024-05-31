@@ -27,6 +27,7 @@ public interface TychoConstants {
     public static final String NAME_JUSTJ_JRE = "jre";
 
     static final String ANY_QUALIFIER = "qualifier";
+    static final String QUALIFIER_NONE = "none";
 
     static final boolean USE_SMART_BUILDER = Boolean
             .parseBoolean(System.getProperty("tycho.build.smartbuilder", "true"));

@@ -100,11 +100,10 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	public void testReleaseBuildQualifier() throws Exception {
+	public void testReleaseBuildWithForcedContextQualifier() throws Exception {
 		Verifier verifier = getVerifier("ci-friendly/buildqualifier", false, true);
-		// this uses an empty/release qualifier
-		verifier.addCliOption("-Dqualifier=");
-		verifier.addCliOption("-Dtycho.buildqualifier.format=");
+		// this uses force context qualifier set to none
+		verifier.addCliOption("-DforceContextQualifier=none");
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "bundle/target/bundle-1.0.0.jar");
