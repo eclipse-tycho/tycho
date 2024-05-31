@@ -151,8 +151,22 @@ public class RecreateRepositoryApplication extends AbstractApplication {
                     }
                     Map<String, String> checksumsToProperties = ChecksumUtilities
                             .checksumsToProperties(IArtifactDescriptor.DOWNLOAD_CHECKSUM, checksums);
+                    //remove checksums that are no longer marked for publishing
+                    String checksumProperty = IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".";
+                    for (String property : newDescriptor.getProperties().keySet().toArray(String[]::new)) {
+                        if (property.startsWith(checksumProperty)) {
+                            String id = property.substring(checksumProperty.length());
+                            if (checksumsToProperties.containsKey(id)) {
+                                continue;
+                            }
+                            newDescriptor.setProperty(checksumProperty + id, null);
+                        }
+                    }
+                    //remove legacy property if present
+                    if (!checksumsToProperties.containsKey("md5")) {
+                        newDescriptor.setProperty("download.md5", null);
+                    }
                     newDescriptor.addProperties(checksumsToProperties);
-
                     repository.addDescriptor(newDescriptor, null);
                 }
             }
