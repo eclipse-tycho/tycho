@@ -48,6 +48,15 @@ public class TestsInBundleTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testCompile5WithoutVintage() throws Exception {
+		Verifier verifier = getVerifier("surefire.combinedtests/bundle5.no.vintage.test");
+		assertThrows("Compilation must fail because the usage of junit 4 annotations", VerificationException.class,
+				() -> verifier.executeGoals(Arrays.asList("clean", "test-compile")));
+		verifier.verifyTextInLog("The import org.junit.Assert cannot be resolved");
+		verifier.verifyTextInLog("The import org.junit.Test cannot be resolved");
+	}
+
+	@Test
 	public void testTest() throws Exception {
 		Verifier verifier = getVerifier("surefire.combinedtests/bundle.test");
 		verifier.executeGoals(Arrays.asList("clean", "test"));
