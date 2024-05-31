@@ -86,6 +86,8 @@ public class InstallableUnitGenerator {
 
 	private static final String KEY_UNITS = "InstallableUnitGenerator.units";
 
+	private static final String KEY_ARTIFACT_FILE = "InstallableUnitGenerator.artifactFile";
+
 	@Requirement
 	private IProvisioningAgent provisioningAgent;
 
@@ -165,28 +167,37 @@ public class InstallableUnitGenerator {
 		Objects.requireNonNull(session);
 		log.debug("Computing installable units for " + project + ", force update = " + forceUpdate);
 		synchronized (project) {
-			if (!forceUpdate) {
-				Object contextValue = project.getContextValue(KEY_UNITS);
-				if (contextValue instanceof Collection<?>) {
-					Collection<IInstallableUnit> collection = (Collection<IInstallableUnit>) contextValue;
-					if (isCompatible(collection)) {
-						log.debug("Using cached value for " + project);
-						return collection;
-					} else {
-						log.debug("Cannot use cached value for " + project
-								+ " because of incompatible classloaders, update is forced");
-					}
-				}
-			}
 			File basedir = project.getBasedir();
 			if (basedir == null || !basedir.isDirectory()) {
 				log.warn("No valid basedir for " + project + " found");
 				return Collections.emptyList();
 			}
+			File projectArtifact = getProjectArtifact(project);
+			if (!forceUpdate) {
+				// first check if the packed state might has changed...
+				if (Objects.equals(project.getContextValue(KEY_ARTIFACT_FILE), projectArtifact)) {
+					Object contextValue = project.getContextValue(KEY_UNITS);
+					if (contextValue instanceof Collection<?>) {
+						// now check if we are classlaoder compatible...
+						Collection<IInstallableUnit> collection = (Collection<IInstallableUnit>) contextValue;
+						if (isCompatible(collection)) {
+							log.debug("Using cached value for " + project);
+							return collection;
+						} else {
+							log.debug("Cannot use cached value for " + project
+									+ " because of incompatible classloaders, update is forced");
+						}
+					}
+				} else {
+					log.info("Cannot use cached value for " + project
+							+ " because project artifact has changed, update is forced");
+				}
+			}
 			String packaging = project.getPackaging();
 			String version = project.getVersion();
 			String artifactId = project.getArtifactId();
-			List<IPublisherAction> actions = getPublisherActions(packaging, basedir, version, artifactId);
+			List<IPublisherAction> actions = getPublisherActions(packaging, basedir, projectArtifact, version,
+					artifactId);
 			Collection<IInstallableUnit> publishedUnits = publisher.publishMetadata(actions);
 			for (InstallableUnitProvider unitProvider : getProvider(project, session)) {
 				log.debug("Asking " + unitProvider + " for additional units for " + project);
@@ -207,24 +218,38 @@ public class InstallableUnitGenerator {
 				log.debug("Cannot generate any InstallableUnit for packaging type '" + packaging + "' for " + project);
 			}
 			project.setContextValue(KEY_UNITS, result);
+			project.setContextValue(KEY_ARTIFACT_FILE, projectArtifact);
 			return result;
 
 		}
 	}
 
-	private List<IPublisherAction> getPublisherActions(String packaging, File basedir, String version,
-			String artifactId) throws CoreException {
+	private static File getProjectArtifact(MavenProject project) {
+		Artifact artifact = project.getArtifact();
+		if (artifact != null) {
+			File file = artifact.getFile();
+			if (file != null && file.exists()) {
+				return file;
+			}
+		}
+		return null;
+	}
+
+	private List<IPublisherAction> getPublisherActions(String packaging, File basedir, File projectArtifact,
+			String version, String artifactId) throws CoreException {
 		List<IPublisherAction> actions = new ArrayList<>();
 		switch (packaging) {
 		case PackagingType.TYPE_ECLIPSE_TEST_PLUGIN:
 		case PackagingType.TYPE_ECLIPSE_PLUGIN: {
-			actions.add(new BundlesAction(new File[] { basedir }));
+			File bundleFile = Objects.requireNonNullElse(projectArtifact, basedir);
+			actions.add(new BundlesAction(new File[] { bundleFile }));
 			break;
 		}
 		case PackagingType.TYPE_ECLIPSE_FEATURE: {
 			FeatureParser parser = new FeatureParser();
-			Feature feature = parser.parse(basedir);
-			feature.setLocation(basedir.getAbsolutePath());
+			File featureFile = Objects.requireNonNullElse(projectArtifact, basedir);
+			Feature feature = parser.parse(featureFile);
+			feature.setLocation(featureFile.getAbsolutePath());
 			FeatureDependenciesAction action = new FeatureDependenciesAction(feature);
 			actions.add(action);
 			break;
@@ -353,11 +378,11 @@ public class InstallableUnitGenerator {
 					if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(type)
 							|| PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(type) || "bundle".equals(type)) {
 						List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_PLUGIN, file,
-								artifact.getVersion(), artifact.getArtifactId());
+								file, artifact.getVersion(), artifact.getArtifactId());
 						return units = publisher.publishMetadata(actions);
 					} else if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(type)) {
 						List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_FEATURE, file,
-								artifact.getVersion(), artifact.getArtifactId());
+								file, artifact.getVersion(), artifact.getArtifactId());
 						return units = publisher.publishMetadata(actions);
 					} else {
 						boolean isBundle = false;
@@ -365,20 +390,19 @@ public class InstallableUnitGenerator {
 						try (JarFile jarFile = new JarFile(file)) {
 							Manifest manifest = jarFile.getManifest();
 							isBundle = manifest != null
-									&& manifest.getMainAttributes()
-									.getValue(Constants.BUNDLE_SYMBOLICNAME) != null;
+									&& manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME) != null;
 							isFeature = jarFile.getEntry("feature.xml") != null;
 						} catch (IOException e) {
 							// can't determine the type then...
 						}
 						if (isBundle) {
 							List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_PLUGIN,
-									file, artifact.getVersion(), artifact.getArtifactId());
+									file, file, artifact.getVersion(), artifact.getArtifactId());
 							return units = publisher.publishMetadata(actions);
 						}
 						if (isFeature) {
 							List<IPublisherAction> actions = getPublisherActions(PackagingType.TYPE_ECLIPSE_FEATURE,
-									file, artifact.getVersion(), artifact.getArtifactId());
+									file, file, artifact.getVersion(), artifact.getArtifactId());
 							return units = publisher.publishMetadata(actions);
 						}
 					}
