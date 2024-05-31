@@ -451,8 +451,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         PublisherOptions options = new PublisherOptions();
         options.setGenerateDownloadStats(generateDownloadStatsProperty);
         options.setGenerateChecksums(generateChecksums);
-        Map<String, IP2Artifact> generatedMetadata = generateMetadata(artifacts, options, targetDir);
-        return generatedMetadata;
+        return generateMetadata(artifacts, options, targetDir);
     }
 
     @Override
