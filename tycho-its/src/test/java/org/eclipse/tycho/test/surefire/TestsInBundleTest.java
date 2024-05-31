@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.surefire;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.Arrays;
@@ -48,6 +48,15 @@ public class TestsInBundleTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testCompile5WithoutVintage() throws Exception {
+		Verifier verifier = getVerifier("surefire.combinedtests/bundle5.no.vintage.test");
+		assertThrows("Compilation must fail because the usage of junit 4 annotations", VerificationException.class,
+				() -> verifier.executeGoals(Arrays.asList("clean", "test-compile")));
+		verifier.verifyTextInLog("The import org.junit.Assert cannot be resolved");
+		verifier.verifyTextInLog("The import org.junit.Test cannot be resolved");
+	}
+
+	@Test
 	public void testTest() throws Exception {
 		Verifier verifier = getVerifier("surefire.combinedtests/bundle.test");
 		verifier.executeGoals(Arrays.asList("clean", "test"));
@@ -70,13 +79,10 @@ public class TestsInBundleTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testVerify() throws Exception {
 		Verifier verifier = getVerifier("surefire.combinedtests/bundle.test");
-		try {
-			verifier.executeGoals(Arrays.asList("clean", "verify"));
-			fail("the build succeed but test-failures are expected!");
-		} catch (VerificationException e) {
-			// thats good indeed...
-			verifier.verifyTextInLog("There are test failures");
-		}
+		assertThrows("the build succeed but test-failures are expected!", VerificationException.class,
+				() -> verifier.executeGoals(Arrays.asList("clean", "verify")));
+		// thats good indeed...
+		verifier.verifyTextInLog("There are test failures");
 	}
 
 }
