@@ -220,9 +220,22 @@ public class ClasspathParser {
             } else if (JUNIT4.equals(junit)) {
                 return JUNIT4_PLUGINS;
             } else if (JUNIT5.equals(junit)) {
-                return JUNIT5_PLUGINS;
+                if (isVintage()) {
+                    return JUNIT5_PLUGINS;
+                } else {
+                    return JUNIT5_WITHOUT_VINTAGE_PLUGINS;
+                }
             }
             return Collections.emptyList();
+        }
+
+        @Override
+        public boolean isVintage() {
+            String vintage = getAttributes().get("vintage");
+            if (vintage != null && !vintage.isBlank()) {
+                return Boolean.parseBoolean(vintage);
+            }
+            return true;
         }
 
     }
