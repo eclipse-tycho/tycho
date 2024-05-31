@@ -10,7 +10,8 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
- *    Christoph Läubrich - Bug 550313 - tycho-versions-plugin uses hard-coded polyglot file 
+ *    Christoph Läubrich - Bug 550313 - tycho-versions-plugin uses hard-coded polyglot file
+ *    SAP SE - #3744 - ci-friendly version support
  *******************************************************************************/
 package org.eclipse.tycho.versions.pom;
 
@@ -48,8 +49,10 @@ public class PomFile {
     private Document document;
     private Element project;
 
-    /** The (effective) project version */
+    /** The (raw) project version */
     private String version;
+    /** The ${property}-resolved version, in case of ci-friendly versions */
+    private String resolvedVersion;
     private final boolean preferExplicitProjectVersion;
     private final boolean isMutable;
 
@@ -142,7 +145,7 @@ public class PomFile {
     /**
      * Sets the version in the parent POM declaration. This never affects the (effective) version of
      * the project itself.
-     * 
+     *
      * @see #setVersion(String)
      */
     public void setParentVersion(String newVersion) {
@@ -158,13 +161,24 @@ public class PomFile {
      */
     public void setVersion(String version) {
         this.version = version;
+        this.resolvedVersion = null;
     }
 
     /**
-     * Returns the (effective) version of the project.
+     * Returns the (effective) version of the project with properties resolved.
      */
     public String getVersion() {
-        return version;
+        if (this.resolvedVersion == null) {
+            this.resolvedVersion = PomUtil.expandProperties(version, getProperties());
+        }
+        return this.resolvedVersion;
+    }
+
+    /**
+     * Returns the literal version of the project without any properties resolved.
+     */
+    public String getRawVersion() {
+        return this.version;
     }
 
     public String getPackaging() {

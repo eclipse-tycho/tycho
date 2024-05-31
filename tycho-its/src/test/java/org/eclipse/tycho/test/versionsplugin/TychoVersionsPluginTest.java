@@ -364,6 +364,26 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 	}
 
+	@Test
+	public void testCiFriendlyVersion() throws Exception {
+		String expectedNewVersion = "2.0.0-SNAPSHOT";
+		String expectedNewOSGiVersion = "2.0.0.qualifier";
+
+		Verifier verifier = getVerifier("tycho-version-plugin/set-version/ci_friendly", false);
+
+		verifier.addCliOption("-DnewVersion=" + expectedNewVersion);
+		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
+
+		verifier.verifyErrorFreeLog();
+
+		MavenXpp3Reader pomReader = new MavenXpp3Reader();
+		Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), "pom.xml")));
+		assertEquals("${revision}", pomModel.getVersion());
+		assertEquals(expectedNewVersion, pomModel.getProperties().getProperty("revision"));
+		Manifest manifest = getManifest(verifier, ".");
+		assertEquals(expectedNewOSGiVersion, manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+	}
+
 	public static File file(Verifier verifier, String... path) {
 		return Path.of(verifier.getBasedir(), path).toFile();
 	}
