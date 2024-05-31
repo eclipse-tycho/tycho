@@ -62,7 +62,7 @@
 		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
 		<plexusCompilerVersion>2.15.0</plexusCompilerVersion>
 		<cipherVersion>2.1.0</cipherVersion>
-		<pluginToolsVersion>3.13.0</pluginToolsVersion>
+		<pluginToolsVersion>3.13.1</pluginToolsVersion>
 		<jgit-version>6.8.0.202311291450-r</jgit-version>
 		<maven-version>3.9.7</maven-version>
 		<minimal-maven-version>3.9.0</minimal-maven-version>
