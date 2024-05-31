@@ -2,13 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.eclipse.equinox.p2.artifact.repository.artifactChecksums">
-      <artifactChecksum
-            algorithm="SHA-1"
-            id="sha-1">
-      </artifactChecksum>
-   </extension>
-   <extension
          id="org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository"
          point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
       <factory
