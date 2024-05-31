@@ -561,9 +561,9 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         Map<IInstallableUnit, Set<File>> duplicateReactorUIs = new HashMap<>();
 
         for (ReactorProject project : reactorProjects) {
-            Set<IInstallableUnit> projectIUs = project.getDependencyMetadata(DependencyMetadataType.INITIAL);
 
-            if (projectIUs == null) {
+            Set<IInstallableUnit> projectIUs = getPreliminaryReactorProjectUIs(project);
+            if (projectIUs == null || projectIUs.isEmpty()) {
                 continue;
             }
             for (IInstallableUnit iu : projectIUs) {
@@ -587,6 +587,19 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         }
 
         return reactorUIs;
+    }
+
+    private Set<IInstallableUnit> getPreliminaryReactorProjectUIs(ReactorProject project) {
+        String packaging = project.getPackaging();
+        if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging) || PackagingType.TYPE_ECLIPSE_FEATURE.equals(packaging)
+                || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
+            File artifact = project.getArtifact();
+            if (artifact != null && artifact.isFile()) {
+                //the project was already build, use the seed units as they include anything maybe updated by p2-metadata mojo
+                return project.getDependencyMetadata(DependencyMetadataType.SEED);
+            }
+        }
+        return project.getDependencyMetadata(DependencyMetadataType.INITIAL);
     }
 
     private void applyFilters(TargetPlatformFilterEvaluator filter, Collection<IInstallableUnit> collectionToModify,
