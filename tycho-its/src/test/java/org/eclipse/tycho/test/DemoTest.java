@@ -49,6 +49,32 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testAutomaticManifestUpdateVersion() throws Exception {
+		// run the initial build
+		Verifier verifier = runDemo("pde-automatic-manifest");
+
+		// now update the version
+		verifier.executeGoals(
+				List.of("org.eclipse.tycho:tycho-versions-plugin:set-version", "-DnewVersion=1.1.0.qualifier"));
+		verifier.verifyErrorFreeLog();
+
+		// build again
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+
+		BundleDescription description = BundlesAction.createBundleDescription(Path
+				.of(verifier.getBasedir(), "tycho.demo.service.impl/target/tycho.demo.service.impl-1.1.0-SNAPSHOT.jar")
+				.toFile());
+		assertNotNull("demo bundle was not packed", description);
+		@SuppressWarnings("unchecked")
+		Dictionary<String, String> manifest = (Dictionary<String, String>) description.getUserObject();
+		assertEquals("Service component not found", "OSGI-INF/tycho.demo.service.impl.InverterServiceImpl.xml",
+				manifest.get("Service-Component"));
+		assertTrue("tycho.demo.service.api package not imported", Arrays.stream(description.getImportPackages())
+				.anyMatch(pkg -> "tycho.demo.service.api".equals(pkg.getName())));
+	}
+
+	@Test
 	public void testTychoJustJDemo() throws Exception {
 		assertIncludesJustJ(new File(runDemo("justj", "-f", "product").getBasedir(),
 				"product/target/products/product-with-justj-features"));
