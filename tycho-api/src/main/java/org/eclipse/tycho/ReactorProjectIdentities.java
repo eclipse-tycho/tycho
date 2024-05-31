@@ -46,4 +46,10 @@ public abstract class ReactorProjectIdentities {
         return Objects.hash(getArtifactId(), getGroupId(), getVersion());
     }
 
+    @Override
+    public String toString() {
+        return "ReactorProjectIdentities [GroupId=" + getGroupId() + ", ArtifactId=" + getArtifactId() + ", Version="
+                + getVersion() + ", Basedir=" + getBasedir() + "]";
+    }
+
 }
