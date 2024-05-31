@@ -11,7 +11,8 @@
  *    Sonatype Inc. - initial API and implementation
  *    Sebastien Arod - introduce VersionChangesDescriptor
  *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
- *    Christoph Läubrich - Bug 550313 - tycho-versions-plugin uses hard-coded polyglot file 
+ *    Christoph Läubrich - Bug 550313 - tycho-versions-plugin uses hard-coded polyglot file
+ *    SAP SE - #3744 - ci-friendly version support
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
@@ -20,13 +21,10 @@ import static org.eclipse.tycho.versions.engine.Versions.isVersionEquals;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
@@ -40,6 +38,7 @@ import org.eclipse.tycho.versions.pom.GAV;
 import org.eclipse.tycho.versions.pom.Plugin;
 import org.eclipse.tycho.versions.pom.PluginManagement;
 import org.eclipse.tycho.versions.pom.PomFile;
+import org.eclipse.tycho.versions.pom.PomUtil;
 import org.eclipse.tycho.versions.pom.Profile;
 import org.eclipse.tycho.versions.pom.Property;
 
@@ -50,8 +49,6 @@ public class PomManipulator extends AbstractMetadataManipulator {
     private static final String NULL = "<null>";
 
     public static final String HINT = POM;
-
-    private static final Pattern CI_FRIENDLY_EXPRESSION = Pattern.compile("\\$\\{(.+?)\\}");
 
     @Override
     public boolean addMoreChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
@@ -116,14 +113,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
             String version = Versions.toMavenVersion(change.getVersion());
             String newVersion = Versions.toMavenVersion(change.getNewVersion());
             if (isGavEquals(pom, change)) {
-                String v = pom.getVersion();
-                if (isCiFriendly(v)) {
-                    //applyPropertyChange(pom, version, newVersion);
-                    Matcher m = CI_FRIENDLY_EXPRESSION.matcher(v.trim());
-                    List<String> ciFriendlyProperties = new ArrayList<String>();
-                    while (m.find()) {
-                        ciFriendlyProperties.add(m.group(1));
-                    }
+                List<String> ciFriendlyProperties = PomUtil.getContainedPropertyNames(pom.getRawVersion());
+                if (!ciFriendlyProperties.isEmpty()) {
                     if (ciFriendlyProperties.size() == 1) {
                         //thats actually a simply property change
                         applyPropertyChange(pomName, pom, ciFriendlyProperties.get(0), newVersion);
@@ -148,7 +139,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
                 }
             } else {
                 GAV parent = pom.getParent();
-                if (parent != null && isGavEquals(parent, change) && !isCiFriendly(parent.getVersion())) {
+                if (parent != null && isGavEquals(parent, change)
+                        && !PomUtil.containsProperties(parent.getVersion())) {
                     logger.info("  %s//project/parent/version: %s => %s".formatted(pomName, version, newVersion));
                     parent.setVersion(newVersion);
                 }
@@ -178,10 +170,6 @@ public class PomManipulator extends AbstractMetadataManipulator {
             }
         }
 
-    }
-
-    private boolean isCiFriendly(String v) {
-        return v != null && v.contains("${");
     }
 
     protected void changeDependencyManagement(String pomPath, DependencyManagement dependencyManagment,
