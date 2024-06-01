@@ -19,7 +19,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<e342-repo>http://download.eclipse.org/eclipse/updates/3.4</e342-repo>
+		<e342-repo>https://download.eclipse.org/eclipse/updates/3.4</e342-repo>
 	</properties>
 
 	<repositories>

@@ -9,8 +9,8 @@
 
 	<properties>
 		<!-- overridden from test class -->
-		<e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
-		<e352-repo>http://download.eclipse.org/releases/galileo</e352-repo>
+		<e342-repo>https://download.eclipse.org/releases/ganymede</e342-repo>
+		<e352-repo>https://download.eclipse.org/releases/galileo</e352-repo>
 	</properties>
 
 	<repositories>

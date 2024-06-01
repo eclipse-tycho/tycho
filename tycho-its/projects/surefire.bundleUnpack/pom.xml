@@ -11,6 +11,10 @@
     <module>tycho340.test</module>
   </modules>
 
+  <properties>
+    <target-platform>https://download.eclipse.org/releases/latest</target-platform>
+  </properties>
+
   <repositories>
     <repository>
       <id>p2</id>
