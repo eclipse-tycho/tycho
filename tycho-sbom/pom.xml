@@ -7,6 +7,7 @@
 	</parent>
 	<artifactId>tycho-sbom</artifactId>
 	<name>Tycho SBOM model extension</name>
+	<packaging>maven-plugin</packaging>
 
 	<dependencies>
 		<dependency>
@@ -49,6 +50,14 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<configuration>
+					<goalPrefix>tycho-sbom</goalPrefix>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
