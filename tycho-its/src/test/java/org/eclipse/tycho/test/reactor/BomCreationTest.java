@@ -40,6 +40,9 @@ public class BomCreationTest extends AbstractTychoIntegrationTest {
 	public void setUp() throws Exception {
 		if (verifier == null) {
 			verifier = getVerifier("sbom", false);
+			// CycloneDX is logging an excessive amount of data on DEBUG level.
+			// Way too much for the verifier to handle properly...
+			verifier.getCliOptions().remove("-X");
 			verifier.executeGoal("verify");
 			verifyErrorFreeLog(verifier);
 		}
