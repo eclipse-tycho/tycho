@@ -14,6 +14,7 @@
 package org.eclipse.tycho.p2.tools;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -36,10 +37,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactDescriptor;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 
 /**
  * Utility class for converting a flat dependency into a dependency tree. The tree is structured in
@@ -52,14 +54,11 @@ import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
  */
 @Component(role = P2DependencyTreeGenerator.class)
 public final class P2DependencyTreeGenerator {
-    private final InstallableUnitGenerator generator;
     private final TychoProjectManager projectManager;
     private final LegacySupport legacySupport;
 
     @Inject
-    public P2DependencyTreeGenerator(InstallableUnitGenerator generator, TychoProjectManager projectManager,
-            LegacySupport legacySupport) {
-        this.generator = generator;
+    public P2DependencyTreeGenerator(TychoProjectManager projectManager, LegacySupport legacySupport) {
         this.projectManager = projectManager;
         this.legacySupport = legacySupport;
     }
@@ -73,7 +72,7 @@ public final class P2DependencyTreeGenerator {
      *            One of the Maven projects of the current reactor build. If this project is not a
      *            Tycho project (e.g. the parent pom), an empty list is returned.
      * @param unmapped
-     *            A set containing all IUs which could not be added to the dependency tree.Meaning
+     *            A set containing all IUs which could not be added to the dependency tree. Meaning
      *            that those units are required by the project but not by any of its IUs. Must be
      *            mutable.
      * @return as described.
@@ -88,14 +87,14 @@ public final class P2DependencyTreeGenerator {
             return Collections.emptyList();
         }
 
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         List<ArtifactDescriptor> artifacts = tychoProject.get() //
-                .getDependencyArtifacts(DefaultReactorProject.adapt(project)) //
+                .getDependencyArtifacts(reactorProject) //
                 .getArtifacts();
         Set<IInstallableUnit> units = artifacts.stream() //
                 .flatMap(d -> d.getInstallableUnits().stream()) //
                 .collect(Collectors.toCollection(HashSet::new));
-        List<IInstallableUnit> initial = List
-                .copyOf(generator.getInstallableUnits(project, legacySupport.getSession(), false));
+        Set<IInstallableUnit> initial = reactorProject.getDependencyMetadata(DependencyMetadataType.INITIAL);
         units.removeAll(initial);
 
         return Collections.unmodifiableList(DependencyTreeNode.create(initial, units, unmapped));
@@ -156,14 +155,14 @@ public final class P2DependencyTreeGenerator {
          * @return A list of dependency tree models. Each model in this list matches an IU of
          *         {@code initial}.
          */
-        private static List<DependencyTreeNode> create(List<IInstallableUnit> initial, Set<IInstallableUnit> units,
-                Set<IInstallableUnit> unmapped) {
+        private static List<DependencyTreeNode> create(Collection<IInstallableUnit> initial,
+                Set<IInstallableUnit> units, Set<IInstallableUnit> unmapped) {
             List<DependencyTreeNode> rootNodes = new ArrayList<>();
-            for (int i = 0; i < initial.size(); ++i) {
-                DependencyTreeNode rootNode = new DependencyTreeNode(initial.get(i), null);
+            initial.stream().sorted(COMPARATOR).forEach(iu -> {
+                DependencyTreeNode rootNode = new DependencyTreeNode(iu, null);
                 create(rootNode, units);
                 rootNodes.add(rootNode);
-            }
+            });
             unmapped.addAll(units);
             return rootNodes;
         }
