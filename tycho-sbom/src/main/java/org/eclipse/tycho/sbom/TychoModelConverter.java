@@ -76,6 +76,7 @@ import org.slf4j.LoggerFactory;
  */
 @Component(role = ModelConverter.class)
 public class TychoModelConverter extends DefaultModelConverter {
+	private static final String KEY_CONTEXT = TychoSBOMConfiguration.class.toString();
 	private static final Logger LOG = LoggerFactory.getLogger(TychoModelConverter.class);
 
 	@Inject
@@ -133,7 +134,8 @@ public class TychoModelConverter extends DefaultModelConverter {
 	 */
 	private String generatePackageUrl(Artifact artifact, boolean withVersion, boolean withClassifier,
 			Supplier<String> fallback) {
-		if (reactorReader.isTychoReactorArtifact(artifact)) {
+		TychoSBOMConfiguration sbomConfig = getOrCreateCurrentProjectConfiguration();
+		if (sbomConfig.getIncludedPackagingTypes().contains(reactorReader.getPackagingType(artifact))) {
 			ArtifactKey artifactKey = getQualifiedArtifactKey(artifact);
 			IArtifactKey p2artifactKey = ArtifactTypeHelper.toP2ArtifactKey(artifactKey);
 			boolean isReactorProject = reactorReader.getTychoReactorProject(artifact).isPresent();
@@ -298,5 +300,27 @@ public class TychoModelConverter extends DefaultModelConverter {
 		}
 
 		return Collections.unmodifiableList(p2repositories);
+	}
+	
+	/**
+	 * The is created lazily based on the plugin configuration of this SBOM project.
+	 * If is converter is used outside a project, a default configuration is
+	 * returned. If no configuration has been created for the current project, a new
+	 * instance is created and stored as context value, which is then returned on
+	 * successive calls.
+	 * 
+	 * @return The SBOM configuration of the current project. Never {@code null}.
+	 */
+	private synchronized TychoSBOMConfiguration getOrCreateCurrentProjectConfiguration() {
+		MavenProject currentProject = legacySupport.getSession().getCurrentProject();
+		if (currentProject == null) {
+			return new TychoSBOMConfiguration();
+		}
+		TychoSBOMConfiguration projectConfig = (TychoSBOMConfiguration) currentProject.getContextValue(KEY_CONTEXT);
+		if (projectConfig == null) {
+			projectConfig = new TychoSBOMConfiguration(currentProject);
+			currentProject.setContextValue(KEY_CONTEXT, projectConfig);
+		}
+		return projectConfig;
 	}
 }
