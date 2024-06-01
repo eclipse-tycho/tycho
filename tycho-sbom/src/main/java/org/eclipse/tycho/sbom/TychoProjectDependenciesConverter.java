@@ -13,7 +13,6 @@
 package org.eclipse.tycho.sbom;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -34,10 +33,11 @@ import org.cyclonedx.model.Metadata;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.tools.P2DependencyTreeGenerator;
 import org.eclipse.tycho.p2.tools.P2DependencyTreeGenerator.DependencyTreeNode;
-import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
-import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,9 +53,6 @@ public class TychoProjectDependenciesConverter extends DefaultProjectDependencie
 
 	@Inject
 	private P2DependencyTreeGenerator dependencyGenerator;
-
-	@Inject
-	private MavenProjectDependencyProcessor dependencyProcessor;
 
 	@Override
 	public void cleanupBomDependencies(Metadata metadata, Map<String, Component> components,
@@ -120,22 +117,19 @@ public class TychoProjectDependenciesConverter extends DefaultProjectDependencie
 		// mutable!
 		List<String> bomRefs = new ArrayList<>();
 		// (I) IU describes local reactor project
-		try {
-			ProjectDependencyClosure dependencyClosure = dependencyProcessor
-					.computeProjectDependencyClosure(reactorProjects, mavenSession);
-			MavenProject iuProject = dependencyClosure.getProject(iu).orElse(null);
-			if (iuProject != null) {
-				String bomRef = modelConverter.generatePackageUrl(iuProject.getArtifact());
+		for (MavenProject project : reactorProjects) {
+			ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+			Set<IInstallableUnit> initalUnits = reactorProject.getDependencyMetadata(DependencyMetadataType.INITIAL);
+			Set<IInstallableUnit> seedUnits = reactorProject.getDependencyMetadata(DependencyMetadataType.SEED);
+			if (initalUnits.contains(iu) || seedUnits.contains(iu)) {
+				String bomRef = modelConverter.generatePackageUrl(project.getArtifact());
 				if (bomRef == null) {
-					LOG.error("Unable to calculate BOM for: " + iuProject);
+					LOG.error("Unable to calculate BOM for: " + project);
 					return bomRefs;
 				}
 				bomRefs.add(bomRef);
 				return bomRefs;
 			}
-		} catch (CoreException e) {
-			LOG.error(e.getMessage(), e);
-			return Collections.emptyList();
 		}
 		// (II) IU describes external artifact
 		for (IArtifactKey p2artifactKey : iu.getArtifacts()) {
