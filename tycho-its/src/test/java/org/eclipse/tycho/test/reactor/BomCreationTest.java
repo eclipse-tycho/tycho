@@ -19,7 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.maven.it.Verifier;
 import org.cyclonedx.exception.ParseException;
@@ -242,7 +244,8 @@ public class BomCreationTest extends AbstractTychoIntegrationTest {
 	}
 
 	private void verifyDependency(List<Dependency> dependencies, String ref) {
-		if (dependencies.stream().noneMatch(dependency -> match(dependency, ref))) {
+		if (Optional.ofNullable(dependencies).stream().flatMap(Collection::stream)
+				.noneMatch(dependency -> match(dependency, ref))) {
 			fail("No dependency found matching: " + ref);
 		}
 	}
