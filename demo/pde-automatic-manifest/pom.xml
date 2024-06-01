@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho.demo</groupId>
+	<artifactId>parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+
+	<packaging>pom</packaging>
+
+	<name>Tycho Demo App</name>
+
+	<modules>
+		<!-- The Target Platform -->
+		<module>tycho.demo.target</module>
+
+		<!-- The Plug-in Projects -->
+		<module>tycho.demo.service.api</module>
+		<module>tycho.demo.service.impl</module>
+		<module>tycho.demo.inverter.ui</module>
+		<module>tycho.demo.app</module>
+		
+		<!-- The Feature Projects -->
+		<module>tycho.demo.feature</module>
+		
+		<!-- The Release Engineering Projects -->
+		<module>tycho.demo.product</module>
+	</modules>
+
+	<properties>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+    
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<target>
+						<artifact>
+							<groupId>tycho.demo</groupId>
+							<artifactId>tycho.demo.target</artifactId>
+							<version>${project.version}</version>
+						</artifact>
+					</target>
+					<targetDefinitionIncludeSource>honor</targetDefinitionIncludeSource>
+					<executionEnvironment>JavaSE-17</executionEnvironment>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+		</plugins>
+		
+		<!-- 
+			Add this to avoid the warning: 
+			'build.plugins.plugin.version' for org.eclipse.tycho:tycho-p2-director-plugin is missing. 
+		-->
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-p2-director-plugin</artifactId>
+					<version>${tycho-version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

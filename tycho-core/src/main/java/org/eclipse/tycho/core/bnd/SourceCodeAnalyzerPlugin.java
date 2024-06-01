@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2024 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,8 +18,10 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.AST;
@@ -35,8 +37,11 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 
 import aQute.bnd.header.Attrs;
 import aQute.bnd.osgi.Analyzer;
-import aQute.bnd.osgi.Descriptors;
+import aQute.bnd.osgi.Clazz;
 import aQute.bnd.osgi.Descriptors.PackageRef;
+import aQute.bnd.osgi.Descriptors.TypeRef;
+import aQute.bnd.osgi.FileResource;
+import aQute.bnd.osgi.Resource;
 import aQute.bnd.service.AnalyzerPlugin;
 
 /**
@@ -44,10 +49,13 @@ import aQute.bnd.service.AnalyzerPlugin;
  */
 class SourceCodeAnalyzerPlugin implements AnalyzerPlugin {
 
+    private static final String PACKAGE_INFO = "package-info";
     private static final String ANNOTATION_VERSION = "org.osgi.annotation.versioning.Version";
     private static final String ANNOTATION_EXPORT = "org.osgi.annotation.bundle.Export";
-    private static final String PACKAGE_INFO_JAVA = "package-info.java";
+    private static final String PACKAGE_INFO_JAVA = PACKAGE_INFO + ".java";
+    private static final String PACKAGE_INFO_CLASS = PACKAGE_INFO + ".class";
     private List<Path> sourcePaths;
+    private Map<PackageRef, Clazz> packageInfoMap = new HashMap<>();
 
     public SourceCodeAnalyzerPlugin(List<Path> sourcePaths) {
         this.sourcePaths = sourcePaths;
@@ -56,7 +64,6 @@ class SourceCodeAnalyzerPlugin implements AnalyzerPlugin {
     @Override
     public boolean analyzeJar(Analyzer analyzer) throws Exception {
         ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
-        Descriptors descriptors = new Descriptors();
         Set<String> seenPackages = new HashSet<>();
         Set<Path> analyzedPath = new HashSet<>();
         for (Path sourcePath : sourcePaths) {
@@ -80,12 +87,16 @@ class SourceCodeAnalyzerPlugin implements AnalyzerPlugin {
                                 PackageDeclaration packageDecl = cu.getPackage();
                                 if (packageDecl != null) {
                                     String packageFqdn = packageDecl.getName().getFullyQualifiedName();
+                                    PackageRef packageRef = analyzer.getPackageRef(packageFqdn);
                                     if (seenPackages.add(packageFqdn)) {
                                         //make the package available to bnd analyzer
-                                        PackageRef packageRef = descriptors.getPackageRef(packageFqdn);
                                         analyzer.getContained().put(packageRef);
                                     }
                                     if (packageInfo) {
+                                        JDTClazz clazz = new JDTClazz(analyzer,
+                                                packageRef.getBinary() + "/" + PACKAGE_INFO_CLASS,
+                                                new FileResource(file),
+                                                analyzer.getTypeRef(packageRef.getBinary() + "/" + PACKAGE_INFO));
                                         //check for export annotations
                                         boolean export = false;
                                         String version = null;
@@ -94,6 +105,8 @@ class SourceCodeAnalyzerPlugin implements AnalyzerPlugin {
                                                 String annotationFqdn = annot.getTypeName().getFullyQualifiedName();
                                                 if (ANNOTATION_EXPORT.equals(annotationFqdn)) {
                                                     export = true;
+                                                    clazz.addAnnotation(
+                                                            analyzer.getTypeRef(ANNOTATION_EXPORT.replace('.', '/')));
                                                 } else if (ANNOTATION_VERSION.equals(annotationFqdn)) {
                                                     if (annot instanceof NormalAnnotation normal) {
                                                         for (Object vp : normal.values()) {
@@ -112,7 +125,7 @@ class SourceCodeAnalyzerPlugin implements AnalyzerPlugin {
                                             }
                                         }
                                         if (export) {
-                                            PackageRef packageRef = descriptors.getPackageRef(packageFqdn);
+                                            packageInfoMap.put(packageRef, clazz);
                                             if (version == null) {
                                                 analyzer.getContained().put(packageRef);
                                             } else {
@@ -140,6 +153,35 @@ class SourceCodeAnalyzerPlugin implements AnalyzerPlugin {
             });
         }
         return false;
+    }
+
+    Clazz getPackageInfo(PackageRef packageRef) {
+        return packageInfoMap.get(packageRef);
+    }
+
+    private static final class JDTClazz extends Clazz {
+        private Set<TypeRef> annotations = new HashSet<>();
+        private TypeRef className;
+
+        public JDTClazz(Analyzer analyzer, String path, Resource resource, TypeRef className) {
+            super(analyzer, path, resource);
+            this.className = className;
+        }
+
+        @Override
+        public TypeRef getClassName() {
+            return className;
+        }
+
+        public void addAnnotation(TypeRef typeRef) {
+            annotations.add(typeRef);
+        }
+
+        @Override
+        public Set<TypeRef> annotations() {
+            return annotations;
+        }
+
     }
 
 }

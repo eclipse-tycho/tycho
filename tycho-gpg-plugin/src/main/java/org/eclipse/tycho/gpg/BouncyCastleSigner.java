@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Eclipse contributors and others.
+ * Copyright (c) 2022, 2024 Eclipse contributors and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -267,16 +267,14 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
         }
 
         var publicKeyOut = new ByteArrayOutputStream();
-        try (var targetStream = new ArmoredOutputStream(publicKeyOut)) {
-            targetStream.setHeader("Version", null);
+        try (var targetStream = ArmoredOutputStream.builder().setVersion(null).build(publicKeyOut)) {
             publicKeyRings.stream().map(it -> toHex(it.getPublicKey().getFingerprint()))
                     .forEach(it -> targetStream.addHeader("Key", it));
             new PGPPublicKeyRingCollection(publicKeyRings).encode(targetStream);
         }
 
         var secretKeyOut = new ByteArrayOutputStream();
-        try (var targetStream = new ArmoredOutputStream(secretKeyOut)) {
-            targetStream.setHeader("Version", null);
+        try (var targetStream = ArmoredOutputStream.builder().setVersion(null).build(secretKeyOut)) {
             new PGPSecretKeyRingCollection(secretKeyRings).encode(targetStream);
         }
 

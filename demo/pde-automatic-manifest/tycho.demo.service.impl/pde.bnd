@@ -1,0 +1,8 @@
+Bundle-Name: Impl
+Bundle-SymbolicName: tycho.demo.service.impl
+Bundle-Vendor: 
+Bundle-Version: 1.0.0.qualifier
+Bundle-ActivationPolicy: lazy
+
+-buildpath: \
+  tycho.demo.service.api;version=latest

@@ -211,14 +211,14 @@
 		<dependency>
 			<groupId>org.mockftpserver</groupId>
 			<artifactId>MockFtpServer</artifactId>
-			<version>3.1.0</version>
+			<version>3.2.0</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- sbom tests -->
 		<dependency>
 			<groupId>org.cyclonedx</groupId>
 			<artifactId>cyclonedx-core-java</artifactId>
-			<version>8.0.3</version>
+			<version>9.0.2</version>
 		</dependency>
 
 		<!-- artifacts to be tested -->

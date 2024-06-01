@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2024 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -44,12 +44,9 @@ public class RepositoryCategoriesTest extends AbstractTychoIntegrationTest {
 
 		XMLParser parser = new XMLParser();
 		Document document = null;
-		ZipFile contentJar = new ZipFile(content);
-		try {
+		try (ZipFile contentJar = new ZipFile(content)) {
 			ZipEntry contentXmlEntry = contentJar.getEntry("content.xml");
 			document = parser.parse(new XMLIOSource(contentJar.getInputStream(contentXmlEntry)));
-		} finally {
-			contentJar.close();
 		}
 		Element repository = document.getRootElement();
 		all_units: for (Element unit : repository.getChild("units").getChildren("unit")) {

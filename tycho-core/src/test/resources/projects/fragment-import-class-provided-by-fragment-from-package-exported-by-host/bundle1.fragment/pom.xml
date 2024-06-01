@@ -6,18 +6,6 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
   
-  <properties>
-    <repo>https://download.eclipse.org/tools/orbit/downloads/drops/R20201130205003/repository</repo>
-  </properties>
-
-  <repositories>
-    <repository>
-      <id>repository</id>
-      <layout>p2</layout>
-      <url>${repo}</url>
-    </repository>
-  </repositories>
-
   <build>
     <plugins>
       <plugin>

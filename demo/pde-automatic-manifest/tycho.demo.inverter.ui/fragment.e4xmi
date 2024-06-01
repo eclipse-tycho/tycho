@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_bwbLoBKYEe-5DOhW2n7UgQ">
+  <imports xsi:type="basic:PartSashContainer" xmi:id="_dqjWABKYEe-5DOhW2n7UgQ" elementId="tycho.demo.app.main"/>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_iCm7YBKYEe-5DOhW2n7UgQ" featurename="children" parentElementId="tycho.demo.app.main">
+    <elements xsi:type="basic:Part" xmi:id="_j98msBKYEe-5DOhW2n7UgQ" elementId="tycho.demo.inverter.ui.part.0" contributionURI="bundleclass://tycho.demo.inverter.ui/tycho.demo.inverter.ui.part.InverterPart"/>
+  </fragments>
+</fragment:ModelFragments>
