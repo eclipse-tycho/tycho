@@ -24,7 +24,7 @@
 	<repositories>
 		<repository>
 			<id>test-repo</id>
-			<url>${p2.repo.url}</url>
+			<url>${target-platform}</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>
@@ -58,6 +58,13 @@
 			<id>useProvisionedProduct</id>
 			<modules>
 				<module>extProductTest</module>
+			</modules>
+		</profile>
+		<profile>
+			<!-- scenario 3: run tests on top of a previously provisioned product using director -->
+			<id>useProvisionedProductDirector</id>
+			<modules>
+				<module>extProductTestDirector</module>
 			</modules>
 		</profile>
 	</profiles>

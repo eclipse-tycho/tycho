@@ -16,14 +16,16 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TychoProperties;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
 import org.eclipse.tycho.p2.tools.BuildContext;
 
@@ -35,8 +37,11 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    @Parameter(property = "buildQualifier", readonly = true)
+    @Parameter(property = TychoProperties.BUILD_QUALIFIER)
     private String qualifier;
+
+    @Component
+    protected TychoProjectManager projectManager;
 
     protected MavenProject getProject() {
         return project;
@@ -59,7 +64,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     }
 
     protected List<TargetEnvironment> getEnvironments() {
-        return TychoProjectUtils.getTargetPlatformConfiguration(getReactorProject()).getEnvironments();
+        return projectManager.getTargetPlatformConfiguration(project).getEnvironments();
     }
 
     protected BuildDirectory getBuildDirectory() {

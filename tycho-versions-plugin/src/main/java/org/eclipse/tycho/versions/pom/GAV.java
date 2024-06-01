@@ -37,6 +37,10 @@ public class GAV {
         dom.getChild("version").setText(version);
     }
 
+    public String getRelativePath() {
+        return getChildText("relativePath");
+    }
+
     private String getChildText(String name) {
         Element child = dom.getChild(name);
         return child != null ? child.getTrimmedText() : null;

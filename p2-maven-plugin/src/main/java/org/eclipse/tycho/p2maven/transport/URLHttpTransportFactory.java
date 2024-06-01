@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2maven.transport;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -25,6 +26,7 @@ import java.util.Map;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
+import org.eclipse.tycho.p2maven.transport.Response.ResponseConsumer;
 
 @Component(role = HttpTransportFactory.class, hint = URLHttpTransportFactory.HINT)
 public class URLHttpTransportFactory implements HttpTransportFactory {
@@ -60,10 +62,10 @@ public class URLHttpTransportFactory implements HttpTransportFactory {
 		}
 
 		@Override
-		public Response<InputStream> get() throws IOException {
+		public <T> T get(ResponseConsumer<T> consumer) throws IOException {
 			HttpURLConnection connection = createConnection();
 			connection.connect();
-			return new HttpResponse<InputStream>(connection) {
+			try (HttpResponse response = new HttpResponse(connection) {
 
 				@Override
 				public void close() {
@@ -90,11 +92,16 @@ public class URLHttpTransportFactory implements HttpTransportFactory {
 				}
 
 				@Override
-				public InputStream body() throws IOException {
-					return connection.getInputStream();
+				public void transferTo(OutputStream outputStream, ContentEncoding transportEncoding)
+						throws IOException {
+					transportEncoding.decode(connection.getInputStream()).transferTo(outputStream);
+
 				}
 
-			};
+
+			}) {
+				return consumer.handleResponse(response);
+			}
 		}
 
 		private HttpURLConnection createConnection() throws IOException, MalformedURLException {
@@ -107,11 +114,11 @@ public class URLHttpTransportFactory implements HttpTransportFactory {
 		}
 
 		@Override
-		public Response<Void> head() throws IOException {
+		public Response head() throws IOException {
 			HttpURLConnection connection = createConnection();
 			connection.setRequestMethod("HEAD");
 			connection.connect();
-			return new HttpResponse<Void>(connection) {
+			return new HttpResponse(connection) {
 
 				@Override
 				public void close() {
@@ -119,14 +126,16 @@ public class URLHttpTransportFactory implements HttpTransportFactory {
 				}
 
 				@Override
-				public Void body() throws IOException {
-					return null;
+				public void transferTo(OutputStream outputStream, ContentEncoding transportEncoding)
+						throws IOException {
+					throw new IOException("Only headers!");
 				}
+
 			};
 		}
 	}
 
-	private static abstract class HttpResponse<T> implements Response<T> {
+	private static abstract class HttpResponse implements Response {
 
 		private HttpURLConnection connection;
 

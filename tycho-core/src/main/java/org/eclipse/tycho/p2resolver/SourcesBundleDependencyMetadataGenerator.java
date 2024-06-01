@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Marco Lehmann-Mörz - issue #2877 - tycho-versions-plugin:bump-versions does not honor SNAPSHOT suffix
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
@@ -23,13 +24,14 @@ import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.StateObjectFactory;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.publisher.TychoMavenPropertiesAdvice;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
@@ -42,9 +44,6 @@ import org.osgi.framework.BundleException;
 @Component(role = DependencyMetadataGenerator.class, hint = DependencyMetadataGenerator.SOURCE_BUNDLE)
 public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGenerator
         implements DependencyMetadataGenerator {
-    private static final String SUFFIX_QUALIFIER = ".qualifier";
-
-    private static final String SUFFIX_SNAPSHOT = "-SNAPSHOT";
 
     @Requirement
     private MavenContext mavenContext;
@@ -99,7 +98,7 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
 
         advice.add(new TychoMavenPropertiesAdvice(artifact, "sources", mavenContext));
 
-        if (options.generateDownloadStatsProperty) {
+        if (options.isGenerateDownloadStats()) {
             advice.add(new DownloadStatsAdvice());
         }
 
@@ -110,8 +109,9 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
         if (version == null) {
             return null;
         }
-        if (version.endsWith(SUFFIX_SNAPSHOT)) {
-            return version.substring(0, version.length() - SUFFIX_SNAPSHOT.length()) + SUFFIX_QUALIFIER;
+        if (version.endsWith(TychoConstants.SUFFIX_SNAPSHOT)) {
+            return version.substring(0, version.length() - TychoConstants.SUFFIX_SNAPSHOT.length())
+                    + TychoConstants.SUFFIX_QUALIFIER;
         }
         return version;
     }

@@ -1,25 +1,25 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+# This workflow build the "Eclipse Platform Aggregator Build"
+# For more information see: https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/
 
-name: Verify Eclipse Platform Build
+name: Verify Eclipse Platform Aggregator Build
 concurrency: 
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 on:
   pull_request:
     branches: 
-     - 'master'
+     - 'main'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout tycho code
-      uses: actions/checkout@v3
+      uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
       with:
        path: 'tycho'
     - name: Checkout platform code
-      uses: actions/checkout@v3
+      uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
       with:
        path: 'platform'
        submodules: 'recursive'
@@ -27,25 +27,25 @@ jobs:
        repository: 'eclipse-platform/eclipse.platform.releng.aggregator'
        fetch-depth: 0
     - name: Set up Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
       with:
         java-version: |
             8
             11
-            19
+            21
             17
         distribution: 'temurin'
     - name: Cache local Maven repository
-      uses: actions/cache@v3
+      uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-verify-platform-${{ hashFiles('**/pom.xml', '**/*.target') }}
         restore-keys: |
           ${{ runner.os }}-maven-verify-platform-
     - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.5
+      uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1 # v5
       with:
-        maven-version: 3.8.6
+        maven-version: 3.9.6
     - name: Build Tycho
       env:
        JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
@@ -69,5 +69,5 @@ jobs:
         -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
         -DskipTests
         -Pbree-libs
-        -Dtycho.version=4.0.0-SNAPSHOT
+        -Dtycho.version=$(mvn help:evaluate -f ${{ github.workspace }}/tycho -Dexpression=project.version -q -DforceStdout)
         clean verify

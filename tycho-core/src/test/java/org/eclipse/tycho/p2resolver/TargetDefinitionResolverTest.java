@@ -37,16 +37,18 @@ import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
-import org.eclipse.tycho.core.resolver.target.TargetDefinitionContent;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
-import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
-import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
+import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
+import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
+import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
@@ -88,9 +90,11 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
 
     @Before
     public void initContext() throws Exception {
+        MavenContext mavenCtx = new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger());
         subject = new TargetDefinitionResolver(defaultEnvironments(),
                 ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, IncludeSourceMode.honor,
-                new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger()), null);
+                ReferencedRepositoryMode.ignore, mavenCtx, null,
+                new DefaultTargetDefinitionVariableResolver(mavenCtx, logVerifier.getLogger()));
     }
 
     static List<TargetEnvironment> defaultEnvironments() {
@@ -249,7 +253,11 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
     static Collection<IVersionedId> versionedIdsOf(TargetDefinitionContent content) {
         Collection<IVersionedId> result = new ArrayList<>();
         for (IInstallableUnit unit : content.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet()) {
-            result.add(new VersionedId(unit.getId(), unit.getVersion()));
+            String id = unit.getId();
+            if (id.startsWith("generated.target.category.")) {
+                continue;
+            }
+            result.add(new VersionedId(id, unit.getVersion()));
         }
         return result;
     }
@@ -358,6 +366,11 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
         public boolean includeSource() {
             return false;
         }
+
+        @Override
+        public boolean includeConfigurePhase() {
+            return false;
+        }
     }
 
     private static class OtherLocationStub implements Location {
@@ -383,12 +396,12 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
         }
 
         @Override
-        public URI getLocation() {
+        public String getLocation() {
             if (repository != null) {
                 File repo = ResourceUtil.resourceFile(basedir + repository + "/content.xml").getParentFile();
-                return repo.toURI();
+                return repo.toURI().toString();
             }
-            return URI.create("invalid:hello");
+            return URI.create("invalid:hello").toString();
         }
 
         @Override

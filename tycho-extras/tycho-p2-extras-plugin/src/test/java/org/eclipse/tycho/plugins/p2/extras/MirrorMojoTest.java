@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.extras;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -142,14 +144,10 @@ public class MirrorMojoTest extends AbstractTychoMojoTestCase {
         featureIU.id = "test.feature.feature.group";
         setVariableValueToObject(mirrorMojo, "ius", Collections.singletonList(featureIU));
         setVariableValueToObject(mirrorMojo, "targetPlatformAsSource", Boolean.TRUE);
-        try {
-            // Source is allowed to be empty, for example when targetPlatformAsSource is set, but in this test
-            // project we have no target platform so it should fail gracefully instead of throwing a NPE
-            mirrorMojo.execute();
-            fail();
-        } catch (MojoExecutionException e) {
-            assertEquals(e.getMessage(), "No repository provided as 'source'");
-        }
+        // Source is allowed to be empty, for example when targetPlatformAsSource is set, but in this test
+        // project we have no target platform so it should fail gracefully instead of throwing a NPE
+        MojoExecutionException e = assertThrows(MojoExecutionException.class, () -> mirrorMojo.execute());
+        assertEquals(e.getMessage(), "No repository provided as 'source'");
     }
 
     private static void assertMirroredBundle(File publishedContentDir, String bundleID, String version) {

@@ -129,7 +129,7 @@ public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerServic
 				} else {
 					artifact = repositorySystem.createArtifact(groupId, artifactId, version, null, type);
 				}
-				logger.debug("Resolve " + artifact + "...");
+				logger.debug("Resolving " + artifact);
 				ArtifactResolutionRequest request = new ArtifactResolutionRequest();
 				request.setArtifact(artifact);
 				request.setResolveRoot(true);
@@ -139,7 +139,7 @@ public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerServic
 				request.setRemoteRepositories(mavenSession.getCurrentProject().getRemoteArtifactRepositories());
 				ArtifactResolutionResult result = repositorySystem.resolve(request);
 				if (result.hasExceptions()) {
-					String message = "resolving " + artifact + " failed!";
+					String message = "Resolving " + artifact + " failed";
 					List<Exception> exceptions = result.getExceptions();
 					if (exceptions.size() == 1) {
 						throw new IOException(message, exceptions.get(0));

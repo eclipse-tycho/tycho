@@ -1,0 +1,7 @@
+#################################################
+# This contains a list of bundles that should   #
+# be included in the connect osgi framework     #
+# and if these should be started                #
+#################################################
+
+org.eclipse.tycho.p2,true

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+	<groupId>org.eclipse.tycho.tycho-its</groupId>
+	<artifactId>apitools-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>api-repo</artifactId>
+  <packaging>eclipse-repository</packaging>
+</project>

@@ -18,8 +18,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-import org.apache.commons.io.IOUtils;
-
 /**
  * Input stream to carry some important information for comparison and allows direct access to the
  * underlying buffer.
@@ -32,7 +30,7 @@ public class ComparatorInputStream extends ByteArrayInputStream {
     private final byte[] content;
 
     public ComparatorInputStream(InputStream stream) throws IOException {
-        this(IOUtils.toByteArray(stream));
+        this(stream.readAllBytes());
     }
 
     public ComparatorInputStream(byte[] content) {

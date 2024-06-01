@@ -16,12 +16,14 @@
 	<parent>
 		<artifactId>tycho</artifactId>
 		<groupId>org.eclipse.tycho</groupId>
-		<version>4.0.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>target-platform-configuration</artifactId>
 	<packaging>maven-plugin</packaging>
-
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<name>Tycho Target Platform Configuration Plugin</name>
 
 	<build>
@@ -29,6 +31,14 @@
 			<plugin>
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-component-metadata</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<!-- workaround for https://issues.apache.org/jira/browse/MPLUGIN-504 -->
+				<configuration>
+					<goalPrefix>target-platform-configuration</goalPrefix>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

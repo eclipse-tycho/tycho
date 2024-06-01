@@ -12,19 +12,36 @@
  *******************************************************************************/
 package org.eclipse.tycho.ds;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
 import org.apache.maven.SessionScoped;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.tycho.ReactorProject;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ResolvedArtifactKey;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
+import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.osgitools.AbstractSpecificationClasspathContributor;
 import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
+
+import aQute.bnd.header.Attrs;
+import aQute.bnd.header.OSGiHeader;
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.Constants;
+import aQute.bnd.osgi.Processor;
 
 @Component(role = ClasspathContributor.class, hint = "ds-annotations")
 @SessionScoped
@@ -36,8 +53,17 @@ public class DeclarativeServicesClasspathContributor extends AbstractSpecificati
 	private static final String DS_ANNOTATIONS_GROUP_ID = "org.osgi";
 	private static final String DS_ANNOTATIONS_ARTIFACT_ID = "org.osgi.service.component.annotations";
 
+	private static final String DS_ANNOTATIONS_1_2_ARTIFACT_ID = "osgi.cmpn";
+	private static final String DS_ANNOTATIONS_1_2_VERSION = "5.0.0";
+
 	@Requirement
 	DeclarativeServiceConfigurationReader configurationReader;
+
+	@Requirement
+	MavenDependenciesResolver dependenciesResolver;
+
+	@Requirement
+	TychoProjectManager projectManager;
 
 	@Inject
 	public DeclarativeServicesClasspathContributor(MavenSession session) {
@@ -45,16 +71,70 @@ public class DeclarativeServicesClasspathContributor extends AbstractSpecificati
 	}
 
 	@Override
-	protected Version getSpecificationVersion(ReactorProject project) {
+	protected Optional<ResolvedArtifactKey> findBundle(MavenProject project, VersionRange specificationVersion) {
+		return super.findBundle(project, specificationVersion).or(() -> {
+			Version v = specificationVersion.getLeft();
+			if (v.getMajor() == 1 && v.getMinor() == 2) {
+				// this is another artifact see https://github.com/osgi/osgi/issues/570
+				try {
+					Artifact artifact = dependenciesResolver.resolveArtifact(project, session, DS_ANNOTATIONS_GROUP_ID,
+							DS_ANNOTATIONS_1_2_ARTIFACT_ID, DS_ANNOTATIONS_1_2_VERSION);
+					ArtifactKey artifactKey = projectManager.getArtifactKey(artifact);
+					return Optional.of(ResolvedArtifactKey.of(artifactKey, artifact.getFile()));
+				} catch (ArtifactResolutionException e) {
+					// can't resolve it ... nothing more to do!
+				}
+			}
+			return Optional.empty();
+		});
+	}
+
+	@Override
+	protected VersionRange getSpecificationVersion(MavenProject project) {
 		try {
 			DeclarativeServicesConfiguration configuration = configurationReader.getConfiguration(project);
 			if (configuration != null) {
-				return configuration.getSpecificationVersion();
+				Version lowerVersion = configuration.getSpecificationVersion();
+				Version upperVersion = new Version(lowerVersion.getMajor(), lowerVersion.getMinor() + 1, 0);
+				return new VersionRange(VersionRange.LEFT_CLOSED, lowerVersion, upperVersion, VersionRange.RIGHT_OPEN);
 			}
 		} catch (IOException e) {
 			// can't determine the minimum specification version then...
 		}
-		return Version.parseVersion(DeclarativeServiceConfigurationReader.DEFAULT_DS_VERSION);
+		try {
+			File bndFile = new File(project.getBasedir(), TychoConstants.PDE_BND);
+			if (bndFile.exists()) {
+				try (Processor processor = new Processor()) {
+					processor.setProperties(bndFile);
+					Version lowerVersion = new Version("1.3.0"); // lowest version supported by BND
+					Version upperVersion = null;
+					String mergeProperties = processor.mergeProperties(Constants.DSANNOTATIONS_OPTIONS);
+					Parameters optionsHeader = OSGiHeader.parseHeader(mergeProperties);
+					for (Map.Entry<String, Attrs> entry : optionsHeader.entrySet()) {
+						if ("version".equals(entry.getKey())) {
+							Attrs attrs = entry.getValue();
+							String min = attrs.get("minimum");
+							if (min != null && min.length() > 0) {
+								lowerVersion = Version.valueOf(min);
+							}
+							String max = attrs.get("maximum");
+							if (max != null && max.length() > 0) {
+								Version version = Version.valueOf(max);
+								upperVersion = new Version(version.getMajor(), version.getMinor() + 1, 0);
+							}
+						}
+					}
+					return new VersionRange(VersionRange.LEFT_CLOSED, lowerVersion, upperVersion,
+							VersionRange.RIGHT_OPEN);
+				}
+			}
+
+		} catch (Exception e) {
+			// can't determine the minimum specification version then...
+		}
+		return new VersionRange(VersionRange.LEFT_CLOSED,
+				Version.parseVersion(DeclarativeServiceConfigurationReader.DEFAULT_DS_VERSION), null,
+				VersionRange.RIGHT_OPEN);
 	}
 
 }

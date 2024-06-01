@@ -20,10 +20,13 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.ArtifactKey;
+import org.osgi.framework.Version;
 
 public interface BaselineContext {
 
 	void reportBaselineProblem(String message) throws MojoFailureException;
+
+	void reportBaselineProblem(String message, Version suggestedVersion) throws MojoFailureException;
 
 	List<String> getIgnores();
 
@@ -38,5 +41,7 @@ public interface BaselineContext {
 	IQueryable<IInstallableUnit> getMetadataRepository();
 
 	ArtifactKey getArtifactKey();
+
+	int getMicroIncrement();
 
 }

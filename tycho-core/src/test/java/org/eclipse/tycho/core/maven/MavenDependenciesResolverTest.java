@@ -25,8 +25,8 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
-import org.eclipse.tycho.core.shared.DependencyResolutionException;
-import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
+import org.eclipse.tycho.core.DependencyResolutionException;
+import org.eclipse.tycho.core.MavenDependenciesResolver;
 import org.eclipse.tycho.osgi.configuration.MavenDependenciesResolverConfigurer;
 import org.junit.Test;
 

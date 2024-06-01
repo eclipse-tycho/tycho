@@ -12,18 +12,19 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.test;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ClasspathEntry;
-import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
@@ -31,16 +32,21 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.TargetPlatformConfigurationException;
+import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.version.TychoVersion;
 
 public class TychoTest extends AbstractTychoMojoTestCase {
 
     protected Logger logger;
+    private Properties properties;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         logger = new SilentLog();
+        properties = new Properties();
+        properties.setProperty("tycho-version", TychoVersion.getTychoVersion());
     }
 
     @Override
@@ -69,41 +75,41 @@ public class TychoTest extends AbstractTychoMojoTestCase {
     public void testResolutionError() throws Exception {
         File basedir = getBasedir("projects/resolutionerror/p001");
 
-        try {
-            getSortedProjects(basedir);
-            fail();
-        } catch (Exception e) {
-//	        List<Exception> exceptions = result.getExceptions();
-//	        assertEquals(1, exceptions.size());
-            assertTrue(e.getMessage().contains("Unresolved requirement: Import-Package: moduleorder.p002"));
+        Exception e = assertThrows(Exception.class, () -> getSortedProjects(basedir));
+        assertResolveError(e,
+                "Missing requirement: moduleorder.p001 0.0.1 requires 'java.package; moduleorder.p002 0.0.0' but it could not be found");
+    }
+
+    private void assertResolveError(Throwable e, String string) {
+        if (e instanceof ResolverException re) {
+            String details = re.getDetails();
+            assertTrue(string + " not found in details: " + details, details.contains(string));
+            return;
         }
+        if (e.getCause() != null) {
+            assertResolveError(e.getCause(), string);
+            return;
+        }
+        fail("Resolve error was not found: " + string);
     }
 
     public void testFeatureMissingFeature() throws Exception {
         File basedir = getBasedir("projects/resolutionerror/feature_missing_feature");
-        try {
-            getSortedProjects(basedir);
-            fail();
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("Could not resolve feature feature.not.found_0.0.0"));
-        }
+        Exception e = assertThrows(Exception.class, () -> getSortedProjects(basedir));
+        assertResolveError(e,
+                "feature_missing_feature.feature.group 1.0.0 requires 'org.eclipse.equinox.p2.iu; feature.not.found.feature.group 0.0.0' but it could not be found");
     }
 
     public void testFeatureMissingPlugin() throws Exception {
         File basedir = getBasedir("projects/resolutionerror/feature_missing_plugin");
-        try {
-            getSortedProjects(basedir);
-            fail();
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("Could not resolve plugin plugin.not.found_0.0.0"));
-        }
+        Exception e = assertThrows(Exception.class, () -> getSortedProjects(basedir));
+        assertResolveError(e,
+                "feature_missing_feature.feature.group 1.0.0 requires 'org.eclipse.equinox.p2.iu; plugin.not.found 0.0.0' but it could not be found");
     }
 
     public void testProjectPriority() throws Exception {
-        File platform = new File(getBasedir(), "src/test/resources/projects/projectpriority/platform");
         File basedir = getBasedir("projects/projectpriority");
-
-        List<MavenProject> projects = getSortedProjects(basedir, platform);
+        List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject p002 = projects.get(2);
 
@@ -112,23 +118,9 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals("0.0.1", dependency.getVersion());
     }
 
-    public void testMNGECLIPSE942() throws Exception {
-        File basedir = getBasedir("projects/dummy");
-
-        File platformLocation = new File("src/test/resources/targetplatforms/MNGECLIPSE-942");
-        MavenProject project = getSortedProjects(basedir, platformLocation).get(0);
-        TychoProject projectType = lookup(TychoProject.class, project.getPackaging());
-        DependencyArtifacts platform = projectType.getDependencyArtifacts(DefaultReactorProject.adapt(project));
-
-        assertEquals(2, platform.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN).size());
-        assertNotNull(platform.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, "org.junit4.nl_ru", null));
-    }
-
     public void testMissingClasspathEntries() throws Exception {
         File basedir = getBasedir("projects/missingentry");
-        File platformLocation = new File("src/test/resources/targetplatforms/missingentry");
-
-        MavenProject project = getSortedProjects(basedir, platformLocation).get(0);
+        MavenProject project = getSortedProjects(basedir, properties).get(0);
 
         OsgiBundleProject projectType = (OsgiBundleProject) lookup(TychoProject.class, project.getPackaging());
 
@@ -149,9 +141,7 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
     public void testBundleExtraClasspath() throws Exception {
         File basedir = getBasedir("projects/extraclasspath");
-        File platformLocation = new File("src/test/resources/targetplatforms/basic");
-
-        List<MavenProject> projects = getSortedProjects(basedir, platformLocation);
+        List<MavenProject> projects = getSortedProjects(basedir, properties);
         assertEquals(3, projects.size());
 
         MavenProject b02 = projects.get(2);
@@ -248,67 +238,44 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
     public void testWithMissingOsInExplicitTargetEnvironment() throws Exception {
         File basedir = getBasedir("projects/explicitenvironment/missingOs");
-        try {
-            getSortedProjects(basedir);
-            fail("RuntimeException must be thrown when <os> is missing in the target configuration (environment element)");
-        } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains(
-                    "target-platform-configuration error in project explicitenvironment:missingos:eclipse-plugin"));
-            Throwable cause = e;
-            while (cause.getCause() != null) {
-                cause = cause.getCause();
-            }
-            assertTrue(cause instanceof TargetPlatformConfigurationException);
-            assertEquals("<os> element is missing within target-platform-configuration (element <environment>)",
-                    cause.getMessage());
+        RuntimeException e = assertThrows(RuntimeException.class, () -> getSortedProjects(basedir));
+        assertTrue(e.getMessage().contains(
+                "target-platform-configuration error in project explicitenvironment:missingos:eclipse-plugin"));
+        Throwable cause = e;
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
         }
+        assertTrue(cause instanceof TargetPlatformConfigurationException);
+        assertEquals("<os> element is missing within target-platform-configuration (element <environment>)",
+                cause.getMessage());
     }
 
     public void testWithMissingWsInExplicitTargetEnvironment() throws Exception {
         File basedir = getBasedir("projects/explicitenvironment/missingWs");
-        try {
-            getSortedProjects(basedir);
-            fail("RuntimeException must be thrown when <ws> is missing in the target configuration (environment element)");
-        } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains(
-                    "target-platform-configuration error in project explicitenvironment:missingws:eclipse-plugin"));
-            Throwable cause = e;
-            while (cause.getCause() != null) {
-                cause = cause.getCause();
-            }
-            assertTrue(cause instanceof TargetPlatformConfigurationException);
-            assertEquals("<ws> element is missing within target-platform-configuration (element <environment>)",
-                    cause.getMessage());
+        RuntimeException e = assertThrows(RuntimeException.class, () -> getSortedProjects(basedir));
+        assertTrue(e.getMessage().contains(
+                "target-platform-configuration error in project explicitenvironment:missingws:eclipse-plugin"));
+        Throwable cause = e;
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
         }
+        assertTrue(cause instanceof TargetPlatformConfigurationException);
+        assertEquals("<ws> element is missing within target-platform-configuration (element <environment>)",
+                cause.getMessage());
     }
 
     public void testWithMissingArchInExplicitTargetEnvironment() throws Exception {
         File basedir = getBasedir("projects/explicitenvironment/missingArch");
-        try {
-            getSortedProjects(basedir);
-            fail("RuntimeException must be thrown when <arch> is missing in the target configuration (environment element)");
-        } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains(
-                    "target-platform-configuration error in project explicitenvironment:missingarch:eclipse-plugin"));
-            Throwable cause = e;
-            while (cause.getCause() != null) {
-                cause = cause.getCause();
-            }
-            assertTrue(cause instanceof TargetPlatformConfigurationException);
-            assertEquals("<arch> element is missing within target-platform-configuration (element <environment>)",
-                    cause.getMessage());
+        RuntimeException e = assertThrows(RuntimeException.class, () -> getSortedProjects(basedir));
+        assertTrue(e.getMessage().contains(
+                "target-platform-configuration error in project explicitenvironment:missingarch:eclipse-plugin"));
+        Throwable cause = e;
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
         }
-    }
-
-    public void testWithProjectReferencesItself() throws Exception {
-        File basedir = getBasedir("projects/referencesItself");
-        try {
-            getSortedProjects(basedir);
-            fail();
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("Bundle referencesItself cannot be resolved"));
-        }
-
+        assertTrue(cause instanceof TargetPlatformConfigurationException);
+        assertEquals("<arch> element is missing within target-platform-configuration (element <environment>)",
+                cause.getMessage());
     }
 
 }

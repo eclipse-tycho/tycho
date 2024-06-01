@@ -35,8 +35,8 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
-import org.eclipse.tycho.locking.facade.FileLockService;
-import org.eclipse.tycho.locking.facade.FileLocker;
+import org.eclipse.tycho.FileLockService;
+import org.eclipse.tycho.TychoConstants;
 
 @Component(role = BundleReader.class)
 public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {
@@ -149,6 +149,10 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
         if (file.isFile()) {
             return file;
         }
+        File bndFile = new File(basedir, TychoConstants.PDE_BND);
+        if (bndFile.isFile()) {
+            return bndFile;
+        }
         return defaultLocation;
     }
 
@@ -184,9 +188,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
                 throw new RuntimeException("can't get canonical path for " + cacheFile, e);
             }
             result = extractedFiles.computeIfAbsent(cacheKey, nil -> {
-                FileLocker locker = fileLockService.getFileLocker(outputDirectory);
-                locker.lock(LOCK_TIMEOUT);
-                try {
+                try (var locked = fileLockService.lock(outputDirectory, LOCK_TIMEOUT)) {
                     extractZipEntries(bundleLocation, path, outputDirectory);
                     if (cacheFile.exists()) {
                         return Optional.of(cacheFile);
@@ -195,8 +197,6 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
                 } catch (IOException e) {
                     throw new RuntimeException(
                             "Can't extract '" + path + "' from " + bundleLocation + " to " + outputDirectory, e);
-                } finally {
-                    locker.release();
                 }
             });
         }

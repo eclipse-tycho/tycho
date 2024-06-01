@@ -9,13 +9,17 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.it.VerificationException;
@@ -23,6 +27,10 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
+
+import de.pdark.decentxml.Document;
+import de.pdark.decentxml.Element;
+import de.pdark.decentxml.XMLParser;
 
 public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 
@@ -54,11 +62,31 @@ public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		for (String bundle : bundles) {
-			try {
-				verifier.verifyTextInLog("Writing P2 metadata for osgi.bundle," + bundle);
-				fail(bundle + " is fetched twice!");
-			} catch (VerificationException e) {
-				assertTrue(e.getMessage().contains("Text not found"));
+			VerificationException e = assertThrows(bundle + " is fetched twice!", VerificationException.class,
+					() -> verifier.verifyTextInLog("Writing P2 metadata for osgi.bundle," + bundle));
+			assertTrue(e.getMessage().contains("Text not found"));
+		}
+	}
+
+	@Test
+	public void testReactorCanBeVerified() throws Exception {
+		Verifier verifier = getVerifier("reactor.makeBehaviour", true, true);
+		verifier.addCliOption("-T1C");
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+		verifyTextNotInLog(verifier, "No digest algorithm is available to verify download of");
+		verifyHasChecksum(new File(verifier.getBasedir(), "feature3/target/p2artifacts.xml"));
+		verifyHasChecksum(new File(verifier.getBasedir(), "bundle1/target/p2artifacts.xml"));
+	}
+
+	void verifyHasChecksum(File artifactXml) throws IOException {
+		assertTrue("required artifact file " + artifactXml.getAbsolutePath() + " not found!", artifactXml.exists());
+		Document artifactsDocument = XMLParser.parse(artifactXml);
+		for (Element artifact : artifactsDocument.getChild("artifacts").getChildren("artifact")) {
+			Map<String, String> map = artifact.getChild("properties").getChildren("property").stream()
+					.collect(Collectors.toMap(e -> e.getAttributeValue("name"), e -> e.getAttributeValue("value")));
+			if (!map.containsKey("download.checksum.sha-256")) {
+				fail("Checksum property not found for artifact: \r\n" + artifact);
 			}
 		}
 	}

@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -41,11 +40,8 @@ import java.util.stream.Collectors;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.project.MavenProject;
@@ -61,15 +57,15 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.DependencyResolutionException;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.build.BuildListeners;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
 import org.eclipse.tycho.resolver.TychoResolver;
+import org.eclipse.tycho.version.TychoVersion;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoMavenLifecycleListener")
 public class TychoMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
@@ -102,6 +98,12 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     @Requirement
     private ModelWriter modelWriter;
 
+    @Requirement
+    BuildListeners buildListeners;
+
+    @Requirement
+    TychoProjectManager projectManager;
+
     public TychoMavenLifecycleParticipant() {
         // needed for plexus
     }
@@ -113,14 +115,18 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     @Override
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
-        log.info("Tycho Version:  " + TychoVersion.getTychoVersion());
-        log.info("Tycho Resolver: " + (TychoConstants.USE_OLD_RESOLVER ? "classic" : "maven"));
-        log.info("Tycho Mode:     " + session.getUserProperties().getProperty("tycho.mode", "project"));
+        log.info("Tycho Version:  " + TychoVersion.getTychoVersion() + " (" + TychoVersion.getSCMInfo() + ")");
+        log.info("Tycho Mode:     "
+                + session.getUserProperties().getProperty(TychoConstants.SESSION_PROPERTY_TYCHO_MODE, "project"));
+        log.info("Tycho Builder:  "
+                + session.getUserProperties().getProperty(TychoConstants.SESSION_PROPERTY_TYCHO_BUILDER, "maven"));
+        log.info("Build Threads:  " + session.getRequest().getDegreeOfConcurrency());
+        if (disableLifecycleParticipation(session)) {
+            buildListeners.notifyBuildStart(session);
+            return;
+        }
+        List<MavenProject> projects = session.getProjects();
         try {
-            if (disableLifecycleParticipation(session)) {
-                return;
-            }
-            List<MavenProject> projects = session.getProjects();
             validate(projects);
 
             // setting this system property to let EF figure out where the traffic 
@@ -130,38 +136,33 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             configureComponents(session);
 
             for (MavenProject project : projects) {
-                ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-                resolver.setupProject(session, project, reactorProject);
+                resolver.setupProject(session, project);
             }
-            if (TychoConstants.USE_OLD_RESOLVER) {
-                resolveProjects(session, projects);
-            } else {
+            Map<Boolean, List<MavenProject>> partition = projects.stream().collect(Collectors.partitioningBy(
+                    project -> projectManager.getTargetPlatformConfiguration(project).isRequireEagerResolve()));
+            List<MavenProject> eagerProjects = partition.get(true);
+            List<MavenProject> lazyProjects = partition.get(false);
+
+            if (eagerProjects.size() > 0) {
+                resolveProjects(session, eagerProjects);
+            }
+            if (lazyProjects.size() > 0) {
                 try {
                     ProjectDependencyClosure closure = dependencyProcessor.computeProjectDependencyClosure(projects,
                             session);
-                    for (MavenProject project : projects) {
-                        Model model = project.getModel();
-                        Set<String> existingDependencies = model.getDependencies().stream()
-                                .map(TychoMavenLifecycleParticipant::getKey)
-                                .collect(Collectors.toCollection(HashSet::new));
-                        Collection<MavenProject> dependencyProjects = closure.getDependencyProjects(project);
-                        for (MavenProject dependencyProject : dependencyProjects) {
-                            Dependency dependency = new Dependency();
-                            dependency.setArtifactId(dependencyProject.getArtifactId());
-                            dependency.setGroupId(dependencyProject.getGroupId());
-                            dependency.setVersion(dependencyProject.getVersion());
-                            String packaging = dependencyProject.getPackaging();
-                            dependency.setType(packaging);
-                            dependency.setScope(Artifact.SCOPE_COMPILE);
-                            dependency.setOptional(false);
-                            if (existingDependencies.add(getKey(dependency))) {
-                                model.addDependency(dependency);
-                            }
+                    for (MavenProject project : lazyProjects) {
+                        if (projectManager.getTychoProject(project).isEmpty()) {
+                            //do not inject additional dependencies for non Tycho managed projects!
+                            continue;
                         }
+                        Collection<MavenProject> dependencyProjects = closure.getDependencyProjects(project,
+                                projectManager.getContextIUs(project));
+                        MavenDependencyInjector.injectMavenProjectDependencies(project, dependencyProjects);
                         if (DUMP_DATA) {
                             try {
                                 Set<MavenProject> visited = new HashSet<>();
-                                modelWriter.write(new File(project.getBasedir(), "pom-model.xml"), Map.of(), model);
+                                modelWriter.write(new File(project.getBasedir(), "pom-model.xml"), Map.of(),
+                                        project.getModel());
                                 try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
                                         new FileOutputStream(new File(project.getBasedir(), "requirements.txt"))))) {
                                     writer.write(project.getId() + ":\r\n");
@@ -181,6 +182,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             // trace by wrapping it in MavenExecutionException   
             throw new MavenExecutionException(e.getMessage(), e);
         }
+        buildListeners.notifyBuildStart(session);
     }
 
     private void dumpProjectRequirements(MavenProject project, BufferedWriter writer, ProjectDependencyClosure closure,
@@ -198,21 +200,16 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                         writer.write(indent2 + "provides " + satIU + " that satisfies " + requirement + "\r\n");
                     }
                 }
-                dumpProjectRequirements(dependency, writer, closure, closure.getDependencyProjects(dependency), indent2,
+                dumpProjectRequirements(dependency, writer, closure,
+                        closure.getDependencyProjects(dependency, projectManager.getContextIUs(project)), indent2,
                         visited);
             }
         }
     }
 
-    private static String getKey(Dependency dependency) {
-
-        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":"
-                + Objects.requireNonNullElse(dependency.getType(), "jar") + ":" + dependency.getVersion() + ":"
-                + Objects.requireNonNullElse(dependency.getClassifier(), "");
-    }
-
     @Override
     public void afterSessionEnd(MavenSession session) throws MavenExecutionException {
+        buildListeners.notifyBuildEnd(session);
         if (plexus.hasComponent(EquinoxServiceFactory.class)) {
             try {
                 EquinoxServiceFactory factory = plexus.lookup(EquinoxServiceFactory.class);
@@ -234,7 +231,6 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     }
 
     private void resolveProjects(MavenSession session, List<MavenProject> projects) {
-        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
 
         MavenExecutionRequest request = session.getRequest();
         boolean failFast = MavenExecutionRequest.REACTOR_FAIL_FAST.equals(request.getReactorFailureBehavior());
@@ -247,7 +243,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             try {
                 MavenSession clone = session.clone();
                 clone.setCurrentProject(project);
-                resolver.resolveProject(clone, project, reactorProjects);
+                resolver.resolveProject(clone, project);
                 if (DUMP_DATA) {
                     try {
                         modelWriter.write(new File(project.getBasedir(), "pom-model-classic.xml"), Map.of(),
@@ -365,11 +361,16 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private static final Set<String> CLEAN_PHASES = Set.of("pre-clean", "clean", "post-clean");
 
     private boolean disableLifecycleParticipation(MavenSession session) {
-        // command line property to disable Tycho lifecycle participant
-        return "maven".equals(session.getUserProperties().get("tycho.mode"))
-                || session.getUserProperties().containsKey("m2e.version")
-                // disable for 'clean-only' builds. Consider that Maven can be invoked without explicit goals, if default goals are specified
-                || (!session.getGoals().isEmpty() && CLEAN_PHASES.containsAll(session.getGoals()));
+        return isM2E(session) || isCleanOnly(session);
+    }
+
+    private boolean isCleanOnly(MavenSession session) {
+        // disable for 'clean-only' builds. Consider that Maven can be invoked without explicit goals, if default goals are specified
+        return !session.getGoals().isEmpty() && CLEAN_PHASES.containsAll(session.getGoals());
+    }
+
+    private boolean isM2E(MavenSession session) {
+        return session.getUserProperties().containsKey("m2e.version");
     }
 
     private void configureComponents(MavenSession session) {

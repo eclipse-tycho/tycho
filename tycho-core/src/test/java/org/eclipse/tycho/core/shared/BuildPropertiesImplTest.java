@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.eclipse.tycho.core.BuildPropertiesImpl;
 import org.junit.Test;
 
 public class BuildPropertiesImplTest {

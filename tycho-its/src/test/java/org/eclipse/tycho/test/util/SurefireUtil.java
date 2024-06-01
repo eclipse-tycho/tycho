@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2018 SAP AG and others.
+ * Copyright (c) 2012, 2023 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,15 +16,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
+import java.util.List;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 
 public class SurefireUtil {
 
@@ -40,23 +35,36 @@ public class SurefireUtil {
 
 	public static void assertTestMethodWasSuccessfullyExecuted(String baseDir, String className, String methodName,
 			int iterations) throws Exception {
-		Document document = readDocument(baseDir, className);
-		XPath xpath = XPathFactory.newInstance().newXPath();
+		assertTestMethodWasSuccessfullyExecuted(baseDir, className, className, methodName, iterations);
+	}
+
+	public static void assertTestMethodWasSuccessfullyExecuted(String baseDir, String suiteClassSimpleName,
+			String testClassQualifiedName, String methodName) throws Exception {
+		String testClassSimpleName = testClassQualifiedName.substring(testClassQualifiedName.lastIndexOf(".") + 1);
+		assertTestMethodWasSuccessfullyExecuted(baseDir, testClassQualifiedName,
+				String.join(" ", suiteClassSimpleName, testClassSimpleName), methodName, 1);
+	}
+
+	private static void assertTestMethodWasSuccessfullyExecuted(String baseDir, String qualifiedClassName,
+			String classNameInReport, String methodName, int iterations) throws Exception {
 		// surefire-test-report XML schema:
 		// https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd
-		String testCaseXPath = String.format("/testsuite/testcase[@classname='%s' and @name='%s']", className,
+		File resultFile = getTestResultFile(baseDir, qualifiedClassName);
+		Document document = readDocument(resultFile);
+		String testCaseXPath = String.format("/testsuite/testcase[@classname='%s' and @name='%s']", classNameInReport,
 				methodName);
-		NodeList testCaseNodes = (NodeList) xpath.evaluate(testCaseXPath, document, XPathConstants.NODESET);
-		assertEquals(iterations, testCaseNodes.getLength());
+		List<Node> testCaseNodes2 = XMLTool.getMatchingNodes(document, testCaseXPath);
+		assertEquals(resultFile.getAbsolutePath() + " with xpath " + testCaseXPath
+				+ " does not match the number of iterations", iterations, testCaseNodes2.size());
 
-		NodeList failureNodes = (NodeList) xpath.evaluate(testCaseXPath + "/failure", document, XPathConstants.NODESET);
-		assertEquals(0, failureNodes.getLength());
+		List<Node> failureNodes = XMLTool.getMatchingNodes(document, testCaseXPath + "/failure");
+		assertEquals(0, failureNodes.size());
 
-		NodeList errorNodes = (NodeList) xpath.evaluate(testCaseXPath + "/error", document, XPathConstants.NODESET);
-		assertEquals(0, errorNodes.getLength());
+		List<Node> errorNodes = XMLTool.getMatchingNodes(document, testCaseXPath + "/error");
+		assertEquals(0, errorNodes.size());
 
-		NodeList skippedNodes = (NodeList) xpath.evaluate(testCaseXPath + "/skipped", document, XPathConstants.NODESET);
-		assertEquals(0, skippedNodes.getLength());
+		List<Node> skippedNodes = XMLTool.getMatchingNodes(document, testCaseXPath + "/skipped");
+		assertEquals(0, skippedNodes.size());
 	}
 
 	public static void assertTestMethodWasSuccessfullyExecuted(String baseDir, String className, String methodName)
@@ -86,18 +94,18 @@ public class SurefireUtil {
 
 	private static int extractNumericAttribute(String baseDir, String className, String attributeXPath)
 			throws Exception {
-		Document document = readDocument(baseDir, className);
-		XPath xpath = XPathFactory.newInstance().newXPath();
-		String numberOfTests = (String) xpath.evaluate(attributeXPath, document, XPathConstants.STRING);
-		return Integer.parseInt(numberOfTests);
+		Document document = readDocument(getTestResultFile(baseDir, className));
+		Node numberOfTests = XMLTool.getFirstMatchingNode(document, attributeXPath);
+		return Integer.parseInt(numberOfTests.getNodeValue());
 	}
 
-	private static Document readDocument(String baseDir, String className) throws Exception {
-		File sureFireTestReport = new File(baseDir, "target/surefire-reports/TEST-" + className + ".xml");
+	private static Document readDocument(File sureFireTestReport) throws Exception {
 		assertTrue(sureFireTestReport.isFile());
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document document = db.parse(sureFireTestReport);
-		return document;
+		return XMLTool.parseXMLDocument(sureFireTestReport);
+	}
+
+	private static File getTestResultFile(String baseDir, String className) {
+		File sureFireTestReport = new File(baseDir, "target/surefire-reports/TEST-" + className + ".xml");
+		return sureFireTestReport;
 	}
 }

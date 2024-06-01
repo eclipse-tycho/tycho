@@ -14,7 +14,9 @@ package org.eclipse.sisu.equinox.launching.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -64,7 +66,7 @@ public class DefaultEquinoxLauncher implements EquinoxLauncher {
             executor.setWatchdog(watchdog);
         }
 
-        log.info("Command line:\n\t" + cli.toString());
+        log.info("Command line: " + Arrays.stream(cli.toStrings()).collect(Collectors.joining(" ")));
 
         // best effort to avoid orphaned child process
         executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
@@ -73,7 +75,7 @@ public class DefaultEquinoxLauncher implements EquinoxLauncher {
             return executor.execute(cli, getMergedEnvironment(configuration));
         } catch (ExecuteException e) {
             if (watchdog != null && watchdog.killedProcess()) {
-                log.error("Timeout of " + forkedProcessTimeoutInSeconds + "s exceeded. Process was killed.");
+                log.error("Timeout of " + forkedProcessTimeoutInSeconds + "s exceeded. Process was killed");
             }
             return e.getExitValue();
         } catch (IOException e) {

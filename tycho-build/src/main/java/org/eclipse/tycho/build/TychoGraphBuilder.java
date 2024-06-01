@@ -15,12 +15,14 @@
 package org.eclipse.tycho.build;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +30,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenExecutionRequest;
@@ -36,6 +39,7 @@ import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.graph.DefaultGraphBuilder;
 import org.apache.maven.graph.DefaultProjectDependencyGraph;
 import org.apache.maven.graph.GraphBuilder;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.building.DefaultModelProblem;
 import org.apache.maven.model.building.ModelProblem;
 import org.apache.maven.model.building.ModelProblem.Severity;
@@ -50,7 +54,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencies;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
@@ -60,6 +64,7 @@ import org.sonatype.maven.polyglot.mapping.Mapping;
 @Component(role = GraphBuilder.class, hint = GraphBuilder.HINT)
 public class TychoGraphBuilder extends DefaultGraphBuilder {
 
+	private static final boolean DEBUG = Boolean.getBoolean("tycho.graphbuilder.debug");
 	@Requirement
 	private Logger log;
 
@@ -77,8 +82,11 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			if (mapping instanceof AbstractTychoMapping tychoMapping) {
 				tychoMapping.setExtensionMode(true);
 				tychoMapping.setMultiModuleProjectDirectory(session.getRequest().getMultiModuleProjectDirectory());
-				if (session.getRequest().getSystemProperties().getProperty("tycho.buildqualifier.format") != null) {
-					tychoMapping.setSnapshotFormat("${" + TychoCiFriendlyVersions.BUILD_QUALIFIER + "}");
+				Properties properties = session.getRequest().getSystemProperties();
+				if (properties.getProperty(TychoCiFriendlyVersions.PROPERTY_BUILDQUALIFIER_FORMAT) != null
+						|| properties.getProperty(TychoCiFriendlyVersions.PROPERTY_FORCE_QUALIFIER) != null
+						|| properties.getProperty(TychoCiFriendlyVersions.BUILD_QUALIFIER) != null) {
+					tychoMapping.setSnapshotProperty(TychoCiFriendlyVersions.BUILD_QUALIFIER);
 				}
 			}
 		}
@@ -89,15 +97,17 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			// on second pass nothing to do for tycho, or already error ...
 			return graphResult;
 		}
-		session.getUserProperties().put("tycho.mode", "extension");
-		MavenLogger loggerAdapter = new MavenLoggerAdapter(log,
-				Boolean.valueOf(session.getUserProperties().getProperty("tycho.debug.resolver")));
+		session.getUserProperties().put(TychoConstants.SESSION_PROPERTY_TYCHO_MODE, "extension");
+		if (TychoConstants.USE_SMART_BUILDER && session.getRequest().getDegreeOfConcurrency() > 1) {
+			request.setBuilderId("smart");
+			session.getUserProperties().put(TychoConstants.SESSION_PROPERTY_TYCHO_BUILDER, "smart");
+		}
 		String makeBehavior = request.getMakeBehavior();
-		if (loggerAdapter.isExtendedDebugEnabled()) {
-			loggerAdapter.debug("TychoGraphBuilder:");
-			loggerAdapter.debug("  - SelectedProjects: " + request.getSelectedProjects());
-			loggerAdapter.debug("  - ExcludedProjects: " + request.getExcludedProjects());
-			loggerAdapter.debug("  - MakeBehavior:     " + makeBehavior);
+		if (DEBUG) {
+			log.info("TychoGraphBuilder:");
+			log.info("  - SelectedProjects: " + request.getSelectedProjects());
+			log.info("  - ExcludedProjects: " + request.getExcludedProjects());
+			log.info("  - MakeBehavior:     " + makeBehavior);
 		}
 		// upstream is the -am / --also-make option of maven described as:
 		// When you specify a project with the -am option, Maven will build all of the
@@ -134,6 +144,8 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		}
 		ProjectDependencyGraph graph = graphResult.get();
 		List<MavenProject> projects = graph.getAllProjects();
+		Map<String, MavenProject> projectIdMap = projects.stream()
+				.collect(Collectors.toMap(p -> getProjectKey(p), Function.identity()));
 		int degreeOfConcurrency = request.getDegreeOfConcurrency();
 		Optional<ExecutorService> executor;
 		if (degreeOfConcurrency > 1) {
@@ -151,55 +163,81 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 				return Result.error(graph, toProblems(e.getStatus(), new ArrayList<>()));
 			}
 
-			if (loggerAdapter.isExtendedDebugEnabled()) {
+			if (DEBUG) {
 				for (MavenProject project : projects) {
 					ProjectDependencies depends = dependencyClosure.getProjectDependecies(project);
-					if (depends.getDependencies().isEmpty()) {
+					// we fetch all dependencies here without filtering, because the goal is to find
+					// as many projects that are maybe required
+					Collection<IInstallableUnit> dependencies = depends.getDependencies(List.of());
+					if (dependencies.isEmpty()) {
 						continue;
 					}
-					loggerAdapter.debug("[[ project " + project.getName() + " depends on: ]]");
-					for (IInstallableUnit dependency : depends.getDependencies()) {
+					log.info("[[ project " + project.getName() + " depends on: ]]");
+					for (IInstallableUnit dependency : dependencies) {
 						Optional<MavenProject> mavenProject = dependencyClosure.getProject(dependency);
 						if (mavenProject.isEmpty()) {
-							loggerAdapter.debug(" IU: " + dependency);
+							log.info(" IU: " + dependency);
 						} else {
-							loggerAdapter
-									.debug(" IU: " + dependency + " [of project " + mavenProject.get().getName() + "]");
+							log.info(" IU: " + dependency + " [of project " + mavenProject.get().getName() + "]");
 						}
 					}
 				}
 			}
 			Queue<ProjectRequest> queue = new ConcurrentLinkedQueue<>(graph.getSortedProjects().stream()
 					.map(p -> new ProjectRequest(p, makeDownstream, makeUpstream, null)).toList());
-			loggerAdapter.debug("Computing additional " + makeBehavior
+			if (DEBUG) {
+				log.info("Computing additional " + makeBehavior
 					+ " dependencies based on initial project set of " + queue.stream().map(r -> r.mavenProject)
 							.map(MavenProject::getName).collect(Collectors.joining(", ")));
+			}
 			while (!queue.isEmpty()) {
 				ProjectRequest projectRequest = queue.poll();
 				if (selectedProjects.add(projectRequest.mavenProject)) {
 					if (projectRequest.addDependencies) {
-						dependencyClosure.getDependencyProjects(projectRequest.mavenProject).forEach(project -> {
-							loggerAdapter.debug(" + add dependency project '" + project.getId() + "' of project '"
-									+ projectRequest.mavenProject.getId() + "'...");
+						// we fetch all dependencies here without filtering for the context, because the
+						// goal is to find as many projects that are might be required
+						dependencyClosure.getDependencyProjects(projectRequest.mavenProject, List.of())
+								.forEach(project -> {
+							if (DEBUG) {
+								log.info(" + add dependency project '" + project.getId() + "' of project '"
+									+ projectRequest.mavenProject.getId() + "'");
+							}
 							// we also need to add the dependencies of the dependency project
 							queue.add(new ProjectRequest(project, false, true, projectRequest));
 						});
+						// special case: a (transitive) Tycho project might have declared a dependency
+						// to another project in the reactor but this can not be discovered by maven
+						// before we add it here...
+						List<Dependency> dependencies = projectRequest.mavenProject.getDependencies();
+						for (Dependency dependency : dependencies) {
+							MavenProject reactorMavenProjectDependency = projectIdMap.get(getProjectKey(dependency));
+							if (reactorMavenProjectDependency != null) {
+								if (DEBUG) {
+									log.info(" + add (maven) dependency project '"
+											+ reactorMavenProjectDependency.getId() + "' of project '"
+											+ projectRequest.mavenProject.getId() + "'");
+								}
+								queue.add(
+										new ProjectRequest(reactorMavenProjectDependency, false, true, projectRequest));
+							}
+						}
 					}
 					if (projectRequest.addRequires) {
-						dependencyClosure.dependencies()//
-								.filter(entry -> 
-									entry.getValue().stream()//
-											.flatMap(dependency -> dependencyClosure.getProject(dependency).stream())//
-											.anyMatch(projectRequest::matches)
-								)//
+						dependencyClosure.dependencies(always -> List.of())//
+								.filter(entry -> entry.getValue().stream()//
+										.flatMap(dependency -> dependencyClosure.getProject(dependency).stream())//
+										.anyMatch(projectRequest::matches))//
 								.map(Entry::getKey)//
 								.distinct()//
-								.peek(project -> loggerAdapter.debug(" + add project '" + project.getId()
-										+ "' that depends on '" + projectRequest.mavenProject.getId() + "'..."))//
+								.peek(project -> {
+									if (DEBUG) {
+										log.info(" + add project '" + project.getId() + "' that depends on '"
+												+ projectRequest.mavenProject.getId() + "'...");
+									}
+								})//
 								// request dependencies of dependants, otherwise, -amd would not be able to
 								// produce a satisfiable build graph
-								.forEach(
-										project -> queue.add(new ProjectRequest(project, true, true, projectRequest)));
+								.forEach(project -> queue.add(new ProjectRequest(project, true, true, projectRequest)));
 					}
 				}
 			}
@@ -228,6 +266,14 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 			log.error("Cannot compute project's dependency graph", e);
 			return Result.error(graph);
 		}
+	}
+
+	private String getProjectKey(Dependency project) {
+		return project.getGroupId() + ":" + project.getArtifactId() + ":" + project.getVersion();
+	}
+
+	private String getProjectKey(MavenProject project) {
+		return project.getGroupId() + ":" + project.getArtifactId() + ":" + project.getVersion();
 	}
 
 	private List<ModelProblem> toProblems(IStatus status, List<ModelProblem> problems) {
@@ -270,8 +316,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		 */
 		final boolean addDependencies;
 
-		ProjectRequest(MavenProject mavenProject, boolean addRequires, boolean addDependencies,
-				ProjectRequest parent) {
+		ProjectRequest(MavenProject mavenProject, boolean addRequires, boolean addDependencies, ProjectRequest parent) {
 			this.addRequires = addRequires;
 			this.addDependencies = addDependencies;
 			this.parent = parent;

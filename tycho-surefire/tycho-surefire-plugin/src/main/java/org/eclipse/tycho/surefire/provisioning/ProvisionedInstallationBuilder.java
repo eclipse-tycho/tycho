@@ -22,22 +22,22 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
+import org.eclipse.sisu.equinox.launching.ProvisionedEquinoxInstallation;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
 public class ProvisionedInstallationBuilder {
 
     private Logger log;
-    private BundleReader bundleReader;
     private DirectorRuntime directorRuntime;
 
     private List<URI> metadataRepos = new ArrayList<>();
     private List<URI> artifactRepos = new ArrayList<>();
     private List<String> ius = new ArrayList<>();
     private File workingDir;
-    private File effectiveDestination;
+    private File destination;
+    private TargetEnvironment targetEnvironment;
     private String profileName;
     private boolean installFeatures = true;
 
@@ -48,9 +48,8 @@ public class ProvisionedInstallationBuilder {
         this.workingDir = workingDir;
     }
 
-    public ProvisionedInstallationBuilder(BundleReader bundleReader, DirectorRuntime directorRuntime, Logger log) {
+    public ProvisionedInstallationBuilder(DirectorRuntime directorRuntime, Logger log) {
         this.log = log;
-        this.bundleReader = bundleReader;
         this.directorRuntime = directorRuntime;
         this.bundlesPublisher = new BundlesPublisher(log);
     }
@@ -76,17 +75,15 @@ public class ProvisionedInstallationBuilder {
     }
 
     public void setDestination(File destination) {
-        // For new MacOS layouts turn a given 'RCP.app' dir into 'RCP.app/Contents/Eclipse'
-        // This is what is expected from Eclipse runtime as install root anyways.
-        if (destination.getName().endsWith(".app")) {
-            this.effectiveDestination = new File(destination, "Contents/Eclipse");
-        } else {
-            this.effectiveDestination = destination;
-        }
+        this.destination = destination;
+    }
+
+    public void setTargetEnvironment(TargetEnvironment targetEnvironment) {
+        this.targetEnvironment = targetEnvironment;
     }
 
     public File getEffectiveDestination() {
-        return effectiveDestination;
+        return DirectorRuntime.getDestination(destination, targetEnvironment);
     }
 
     public void setProfileName(String name) {
@@ -101,7 +98,7 @@ public class ProvisionedInstallationBuilder {
         validate();
         publishPlainBundleJars();
         executeDirector();
-        return new ProvisionedEquinoxInstallation(effectiveDestination, bundleReader);
+        return new ProvisionedEquinoxInstallation(getEffectiveDestination());
     }
 
     private void publishPlainBundleJars() throws Exception {
@@ -122,17 +119,18 @@ public class ProvisionedInstallationBuilder {
     }
 
     private void executeDirector() throws MojoFailureException {
-        DirectorRuntime.Command command = directorRuntime.newInstallCommand();
+        DirectorRuntime.Command command = directorRuntime.newInstallCommand(String.valueOf(targetEnvironment));
         command.addMetadataSources(metadataRepos);
         command.addArtifactSources(artifactRepos);
         for (String iu : ius) {
             command.addUnitToInstall(iu);
         }
+        File effectiveDestination = getEffectiveDestination();
         command.setDestination(effectiveDestination);
         command.setProfileName(profileName);
         command.setInstallFeatures(installFeatures);
-        command.setEnvironment(TargetEnvironment.getRunningEnvironment());
-        log.info("Installing IUs " + ius + " to " + effectiveDestination);
+        command.setEnvironment(targetEnvironment);
+        log.info("Installing IUs " + ius + " to " + effectiveDestination + " using " + command.getProfileProperties());
         try {
             command.execute();
         } catch (DirectorCommandException e) {
@@ -142,7 +140,7 @@ public class ProvisionedInstallationBuilder {
 
     private void validate() {
         assertNotNull(workingDir, "workingDir");
-        assertNotNull(effectiveDestination, "destination");
+        assertNotNull(destination, "destination");
         assertNotEmpty(metadataRepos, "metadataRepos");
         assertNotEmpty(artifactRepos, "artifactRepos");
         assertNotEmpty(ius, "ius");

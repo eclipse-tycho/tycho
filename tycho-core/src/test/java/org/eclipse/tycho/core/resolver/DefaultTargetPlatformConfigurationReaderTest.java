@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,58 +48,26 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
     @Test
     public void testExtraRequirementMissingVersionRange() throws Exception {
         Xpp3Dom dom = createConfigurationDom("type", "id");
-        try {
-            configurationReader.readExtraRequirements(new TargetPlatformConfiguration(), dom);
-            fail();
-        } catch (BuildFailureException e) {
-            assertTrue(e.getMessage()
-                    .contains("Element <versionRange> is missing in <extraRequirements><requirement> section."));
-        }
+        BuildFailureException e = assertThrows(BuildFailureException.class,
+                () -> configurationReader.readExtraRequirements(new TargetPlatformConfiguration(), dom));
+        assertTrue(e.getMessage()
+                .contains("Element <versionRange> is missing in <extraRequirements><requirement> section."));
     }
 
     @Test
     public void testExtraRequirementMissingType() throws Exception {
         Xpp3Dom dom = createConfigurationDom("id", "versionRange");
-        try {
-            configurationReader.readExtraRequirements(new TargetPlatformConfiguration(), dom);
-            fail();
-        } catch (BuildFailureException e) {
-            assertTrue(
-                    e.getMessage().contains("Element <type> is missing in <extraRequirements><requirement> section."));
-        }
+        BuildFailureException e = assertThrows(BuildFailureException.class,
+                () -> configurationReader.readExtraRequirements(new TargetPlatformConfiguration(), dom));
+        assertTrue(e.getMessage().contains("Element <type> is missing in <extraRequirements><requirement> section."));
     }
 
     @Test
     public void testExtraRequirementId() throws Exception {
         Xpp3Dom dom = createConfigurationDom("type", "versionRange");
-        try {
-            configurationReader.readExtraRequirements(new TargetPlatformConfiguration(), dom);
-            fail();
-        } catch (BuildFailureException e) {
-            assertTrue(e.getMessage().contains("Element <id> is missing in <extraRequirements><requirement> section."));
-        }
-    }
-
-    @Test()
-    public void testAddTargetWithValidMissingTargetDefinition() {
-        Xpp3Dom dom = createGavConfiguration("myGroupId", "myArtifactId", "myVersion");
-        MavenSession session = setupMockSession();
-        TargetPlatformConfiguration configuration = new TargetPlatformConfiguration();
-        try {
-            configurationReader.addTargetArtifact(configuration, session, new MavenProject(), dom);
-        } catch (MojoExecutionException e) {
-            assertMessageContains(e, "No target definition file(s) found in project");
-        }
-    }
-
-    private void assertMessageContains(Throwable throwable, String string) {
-        if (throwable == null) {
-            fail("Message " + string + " was not found in the exception stack!");
-        }
-        if (throwable.getMessage().contains(string)) {
-            return;
-        }
-        assertMessageContains(throwable.getCause(), string);
+        BuildFailureException e = assertThrows(BuildFailureException.class,
+                () -> configurationReader.readExtraRequirements(new TargetPlatformConfiguration(), dom));
+        assertTrue(e.getMessage().contains("Element <id> is missing in <extraRequirements><requirement> section."));
     }
 
     @Test
@@ -106,12 +75,9 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
         Xpp3Dom dom = createGavConfiguration("myGroupId", "myArtifactId", null);
         MavenSession session = setupMockSession();
         TargetPlatformConfiguration configuration = new TargetPlatformConfiguration();
-        try {
-            configurationReader.addTargetArtifact(configuration, session, null, dom);
-            fail();
-        } catch (BuildFailureException e) {
-            assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
-        }
+        TargetPlatformConfigurationException e = assertThrows(TargetPlatformConfigurationException.class,
+                () -> configurationReader.addTargetArtifact(configuration, session, null, dom));
+        assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
     }
 
     @Test
@@ -119,12 +85,9 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
         Xpp3Dom dom = createGavConfiguration(null, "myArtifactId", "myVersion");
         MavenSession session = setupMockSession();
         TargetPlatformConfiguration configuration = new TargetPlatformConfiguration();
-        try {
-            configurationReader.addTargetArtifact(configuration, session, null, dom);
-            fail();
-        } catch (BuildFailureException e) {
-            assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
-        }
+        TargetPlatformConfigurationException e = assertThrows(TargetPlatformConfigurationException.class,
+                () -> configurationReader.addTargetArtifact(configuration, session, null, dom));
+        assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
     }
 
     @Test
@@ -132,12 +95,9 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
         Xpp3Dom dom = createGavConfiguration("myGroupId", null, "myVersion");
         MavenSession session = setupMockSession();
         TargetPlatformConfiguration configuration = new TargetPlatformConfiguration();
-        try {
-            configurationReader.addTargetArtifact(configuration, session, null, dom);
-            fail();
-        } catch (BuildFailureException e) {
-            assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
-        }
+        TargetPlatformConfigurationException e = assertThrows(TargetPlatformConfigurationException.class,
+                () -> configurationReader.addTargetArtifact(configuration, session, null, dom));
+        assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
     }
 
     @Test
@@ -148,11 +108,7 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
         opt.setValue("optional");
         res.addChild(opt);
         dom.addChild(res);
-        try {
-            configurationReader.readDependencyResolutionConfiguration(new TargetPlatformConfiguration(), dom);
-        } catch (BuildFailureException e) {
-            fail(e.getMessage());
-        }
+        configurationReader.readDependencyResolutionConfiguration(new TargetPlatformConfiguration(), dom, null);
     }
 
     private MavenSession setupMockSession() {

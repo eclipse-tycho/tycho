@@ -12,6 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 
 import org.codehaus.plexus.util.FileUtils;
@@ -19,16 +25,19 @@ import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
-import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.testing.TychoPlexusTestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
+public class DefaultBundleReaderTest extends TychoPlexusTestCase {
 
     private File cacheDir;
 
     private DefaultBundleReader bundleReader;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         cacheDir = File.createTempFile("cache", "");
         cacheDir.delete();
         cacheDir.mkdirs();
@@ -36,11 +45,12 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
         bundleReader.setLocationRepository(cacheDir);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void cleanup() throws Exception {
         FileUtils.deleteDirectory(cacheDir);
     }
 
+    @Test
     public void testExtractDirClasspathEntries() throws Exception {
         File bundleWithNestedDirClasspath = getTestJar();
         File libDirectory = bundleReader.getEntry(bundleWithNestedDirClasspath, "lib/");
@@ -49,6 +59,7 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
         assertTrue(new File(libDirectory, "subdir/test.txt").isFile());
     }
 
+    @Test
     public void testEntryMissingTrailingSlash() throws Exception {
         File bundleWithNestedDirClasspath = getTestJar();
         File libDirectory = bundleReader.getEntry(bundleWithNestedDirClasspath, "lib");
@@ -57,6 +68,7 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
         assertTrue(new File(libDirectory, "subdir/test.txt").isFile());
     }
 
+    @Test
     public void testExtractSingleFile() throws Exception {
         File bundleWithNestedDirClasspath = getTestJar();
         File singleFile = bundleReader.getEntry(bundleWithNestedDirClasspath, "lib/log4j.properties");
@@ -65,12 +77,14 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
         assertFalse(new File(singleFile.getParentFile().getParentFile(), "META-INF").exists());
     }
 
+    @Test
     public void testNonExistingEntry() throws Exception {
         File bundleWithNestedDirClasspath = getTestJar();
         File nonExistingFile = bundleReader.getEntry(bundleWithNestedDirClasspath, "foo/bar.txt");
         assertNull(nonExistingFile);
     }
 
+    @Test
     public void testGetEntryExtractionCache() throws Exception {
         File bundleJar = getTestJar();
         File extractedLog4jFile = bundleReader.getEntry(bundleJar, "lib/log4j.properties");
@@ -88,6 +102,7 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
         assertEquals(firstExtractionTimestamp, log4jFileExtractedAgain.lastModified());
     }
 
+    @Test
     public void testGetEntryExternalJar() throws Exception {
         File bundleJar = getTestJar();
         // 370958 IOException will only occur if extraction dir exists already
@@ -96,63 +111,56 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
         assertNull(externalLib);
     }
 
+    @Test
     public void testLoadManifestFromDir() throws Exception {
         File dir = new File("src/test/resources/bundlereader/dirshape");
         OsgiManifest manifest = bundleReader.loadManifest(dir);
         assertEquals("org.eclipse.tycho.test", manifest.getBundleSymbolicName());
     }
 
+    @Test
     public void testLoadManifestFromJar() throws Exception {
         File jar = new File("src/test/resources/bundlereader/jarshape/test.jar");
         OsgiManifest manifest = bundleReader.loadManifest(jar);
         assertEquals("org.eclipse.tycho.test", manifest.getBundleSymbolicName());
     }
 
+    @Test
     public void testLoadManifestFromInvalidDir() throws Exception {
         // dir has no META-INF/MANIFEST.MF nor plugin.xml/fragment.xml
         File dir = new File("src/test/resources/bundlereader/invalid");
-        try {
-            bundleReader.loadManifest(dir);
-            fail();
-        } catch (OsgiManifestParserException e) {
-            assertTrue(e.getMessage().contains("Manifest file not found"));
-        }
+        OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
+                () -> bundleReader.loadManifest(dir));
+        assertTrue(e.getMessage().contains("Manifest file not found"));
     }
 
+    @Test
     public void testLoadManifestFromCorruptedJar() throws Exception {
         File jar = new File("src/test/resources/bundlereader/invalid/corrupt.jar");
-        try {
-            bundleReader.loadManifest(jar);
-            fail();
-        } catch (OsgiManifestParserException e) {
-            if (System.getProperty("java.specification.version").compareTo("11") >= 0) {
-                assertTrue(e.getMessage().contains("zip END header not found"));
-            } else {
-            	assertTrue(e.getMessage().contains("error in opening zip file"));
-            }
-
+        OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
+                () -> bundleReader.loadManifest(jar));
+        if (System.getProperty("java.specification.version").compareTo("11") >= 0) {
+            assertTrue(e.getMessage().contains("zip END header not found"));
+        } else {
+            assertTrue(e.getMessage().contains("error in opening zip file"));
         }
     }
 
+    @Test
     public void testLoadManifestFromNonexistingFile() throws Exception {
         File jar = new File("NON_EXISTING.jar");
-        try {
-            bundleReader.loadManifest(jar);
-            fail();
-        } catch (OsgiManifestParserException e) {
-            assertTrue(e.getMessage().contains("Manifest file not found"));
-        }
+        OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
+                () -> bundleReader.loadManifest(jar));
+        assertTrue(e.getMessage().contains("Manifest file not found"));
     }
 
+    @Test
     public void testLoadManifestFromPlainJar() throws Exception {
         File plainJar = new File("src/test/resources/bundlereader/jarshape/plain.jar");
-        try {
-            bundleReader.loadManifest(plainJar);
-            fail();
-        } catch (OsgiManifestParserException e) {
-            assertTrue(e.getMessage().contains("MANIFEST header"));
-            assertTrue(e.getMessage().contains("not found"));
-        }
+        OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
+                () -> bundleReader.loadManifest(plainJar));
+        assertTrue(e.getMessage().contains("Exception parsing OSGi MANIFEST"));
+        assertTrue(e.getMessage().contains("is missing"));
     }
 
     private File getTestJar() {

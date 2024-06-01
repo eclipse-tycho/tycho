@@ -40,6 +40,7 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 
 public class ArtifactCollection {
     private static final Version VERSION_0_0_0 = new Version("0.0.0");
@@ -86,10 +87,13 @@ public class ArtifactCollection {
         Collection<IInstallableUnit> artifactIUs = artifact.getInstallableUnits();
         if (original != null) {
             // can't use DefaultArtifactDescriptor.equals because artifact.location is not normalized
-            if (!Objects.equals(original.getClassifier(), artifact.getClassifier())
-                    || !Objects.equals(original.getMavenProject(), artifact.getMavenProject())) {
-                // TODO better error message
-                throw new IllegalStateException("Inconsistent artifact with key " + artifact.getKey());
+            if (!Objects.equals(original.getClassifier(), artifact.getClassifier())) {
+                throw new IllegalStateException(
+                        "Inconsistent artifact with key " + artifact.getKey() + " classifier is different");
+            }
+            if (!Objects.equals(original.getMavenProject(), artifact.getMavenProject())) {
+                throw new IllegalStateException(
+                        "Inconsistent artifact with key " + artifact.getKey() + " MavenProject is different");
             }
 
             // artifact equals to original
@@ -246,7 +250,14 @@ public class ArtifactCollection {
         if (version == null) {
             return relevantArtifacts.get(relevantArtifacts.firstKey()); // latest version
         }
-
+        if (version.startsWith("(") || version.startsWith("[")) {
+            VersionRange range = VersionRange.valueOf(version);
+            for (Entry<Version, ArtifactDescriptor> entry : relevantArtifacts.entrySet()) {
+                if (range.includes(entry.getKey())) {
+                    return entry.getValue();
+                }
+            }
+        }
         Version parsedVersion = new Version(version);
         if (VERSION_0_0_0.equals(parsedVersion)) {
             return relevantArtifacts.get(relevantArtifacts.firstKey()); // latest version
@@ -309,11 +320,11 @@ public class ArtifactCollection {
             Entry<ArtifactKey, ArtifactDescriptor> entry = iter.next();
             ArtifactKey key = entry.getKey();
             if (key.getType().equals(type) && key.getId().equals(id)) {
-                File location = entry.getValue().getLocation(false);
+                File location = entry.getValue().getLocation().orElse(null);
                 if (location != null) {
                     artifactsWithKnownLocation.remove(location);
-                    iter.remove();
                 }
+                iter.remove();
             }
         }
     }

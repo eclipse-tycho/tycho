@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -42,10 +44,12 @@ import org.codehaus.plexus.compiler.CompilerOutputStyle;
 import org.codehaus.plexus.compiler.CompilerResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -53,6 +57,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.tycho.compiler.jdt.copied.LibraryInfo;
+import org.osgi.framework.Constants;
 
 /**
  * See https://help.eclipse.org/ganymede/topic/org.eclipse.jdt.doc.isv/guide/jdt_api_options.htm
@@ -74,8 +79,13 @@ public class JDTCompiler extends AbstractCompiler {
     static final Pattern LINE_PATTERN = Pattern
             .compile("(?:(\\d*)\\. )?(ERROR|WARNING) in (.*?)( \\(at line (\\d+)\\))?\\s*");
 
+    static final String COMPILER_NAME = getCompilerName();
+
     @Requirement
     private JdkLibraryInfoProvider jdkLibInfoProvider;
+
+    @Requirement
+    private Logger logger;
 
     public JDTCompiler() {
         super(CompilerOutputStyle.ONE_OUTPUT_FILE_PER_INPUT_FILE, ".java", ".class", null);
@@ -100,9 +110,12 @@ public class JDTCompiler extends AbstractCompiler {
         if (sourceFiles.length == 0) {
             return new CompilerResult();
         }
+        //even though order of java sources should not matter, it can make a difference sometimes (e.g. lamda numbering) see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1921
+        //so to have always the same arguments regardless of hash table ordering that is used internally by plexus compiler we sort the files simply by name
+        Arrays.sort(sourceFiles);
 
-        getLogger().info("Compiling " + sourceFiles.length + " " + "source file" + (sourceFiles.length == 1 ? "" : "s")
-                + " to " + destinationDir.getAbsolutePath());
+        logger.info("Compiling " + sourceFiles.length + " " + "source file" + (sourceFiles.length == 1 ? "" : "s")
+                + " to " + destinationDir.getAbsolutePath() + " using " + COMPILER_NAME + "");
 
         Collection<Map.Entry<String, String>> customCompilerArgumentEntries = config
                 .getCustomCompilerArgumentsEntries();
@@ -119,6 +132,30 @@ public class JDTCompiler extends AbstractCompiler {
         }
 
         return messages;
+    }
+
+    private static String getCompilerName() {
+
+        try {
+            URL location = Main.class.getProtectionDomain().getCodeSource().getLocation();
+            File file = new File(location.toURI());
+            try (JarFile jarFile = new JarFile(file)) {
+                Manifest manifest = jarFile.getManifest();
+                String name = manifest.getMainAttributes().getValue(Constants.BUNDLE_NAME);
+                String version = manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
+                if (name != null && version != null) {
+                    return name + " " + version;
+                }
+                if (version != null) {
+                    return "Eclipse Compiler for Java(TM) " + version;
+                }
+                if (name != null) {
+                    return name;
+                }
+            }
+        } catch (Exception e) {
+        }
+        return "Unknown Compiler";
     }
 
     private boolean requireFork(CompilerConfiguration config, CustomCompilerConfiguration custom) {
@@ -283,7 +320,7 @@ public class JDTCompiler extends AbstractCompiler {
                 args.add("--release");
                 args.add(config.getReleaseVersion());
             } else {
-                getLogger().debug("Custom java home and --release are incompatible, ignore --release="
+                logger.debug("Custom java home and --release are incompatible, ignore --release="
                         + config.getReleaseVersion() + " setting ");
             }
         }
@@ -376,17 +413,21 @@ public class JDTCompiler extends AbstractCompiler {
         if (custom.javaHome != null) {
             String sourceLevel = config.getSourceVersion();
             if (sourceLevel == null || CompilerOptions.versionToJdkLevel(sourceLevel) <= ClassFileConstants.JDK1_8) {
-                addExternalJavaHomeArgs(jdtCompilerArgs, custom.javaHome);
+                try {
+                    addExternalJavaHomeArgs(jdtCompilerArgs, custom.javaHome);
+                } catch (ArtifactResolutionException e) {
+                    throw new CompilerException("can't determine required options", e);
+                }
             } else {
                 addToCompilerArgumentsIfNotSet("--system", custom.javaHome, jdtCompilerArgs);
             }
         }
-        getLogger().debug("JDT compiler args: " + jdtCompilerArgs);
+        logger.debug("JDT compiler args: " + jdtCompilerArgs);
         boolean success = compiler.compile(jdtCompilerArgs.toArray(new String[0]));
 
         try {
             String output = err.toString();
-            getLogger().debug("Original compiler output: " + output);
+            logger.debug("Original compiler output: " + output);
             messages = parseModernStream(new BufferedReader(new StringReader(output)));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -398,7 +439,8 @@ public class JDTCompiler extends AbstractCompiler {
         return new CompilerResult(success, messages);
     }
 
-    private void addExternalJavaHomeArgs(List<String> jdtCompilerArgs, String javaHome) {
+    private void addExternalJavaHomeArgs(List<String> jdtCompilerArgs, String javaHome)
+            throws ArtifactResolutionException {
         LibraryInfo jdkLibInfo = jdkLibInfoProvider.getLibraryInfo(javaHome);
         if (jdkLibInfo.getBootpath().length > 0) {
             addToCompilerArgumentsIfNotSet("-bootclasspath", String.join(File.pathSeparator, jdkLibInfo.getBootpath()),

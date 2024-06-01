@@ -28,10 +28,12 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -58,14 +60,17 @@ import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildPropertiesParser;
+import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.ExecutionEnvironment;
+import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -78,8 +83,10 @@ import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 
-@Component(role = EquinoxResolver.class)
-public class EquinoxResolver {
+@Component(role = DependenciesResolver.class, hint = EquinoxResolver.HINT)
+public class EquinoxResolver implements DependenciesResolver {
+
+    public static final String HINT = "equinox";
 
     private static final String FORCE_KEEP_USES = "First attempt at resolving bundle failed. Trying harder by keeping `uses` information... This may drastically slow down your build!";
 
@@ -94,6 +101,12 @@ public class EquinoxResolver {
 
     @Requirement
     private BuildPropertiesParser buildPropertiesParser;
+
+    @Requirement
+    TychoProjectManager projectManager;
+
+    @Requirement
+    private DependencyComputer dependencyComputer;
 
     public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts) throws BundleException {
@@ -197,12 +210,11 @@ public class EquinoxResolver {
     protected Properties getPlatformProperties(ReactorProject project, MavenSession mavenSession,
             DependencyArtifacts artifacts, ExecutionEnvironment ee) {
 
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         //FIXME formally we should resolve the configuration for ALL declared environments!
         TargetEnvironment environment = configuration.getEnvironments().get(0);
         logger.debug("Using TargetEnvironment " + environment.toFilterExpression() + " to create resolver properties");
-        Properties properties = new Properties();
-        properties.putAll(project.getProperties());
+        Properties properties = computeMergedProperties(project.adapt(MavenProject.class), mavenSession);
         return getPlatformProperties(properties, mavenSession, environment, ee);
     }
 
@@ -492,11 +504,87 @@ public class EquinoxResolver {
     }
 
     private OsgiManifest loadManifest(File bundleLocation, ArtifactDescriptor artifact) {
-        if (bundleLocation == null || !bundleLocation.exists()) {
+        if (bundleLocation == null) {
+            throw new IllegalArgumentException("bundleLocation can't be null for artifact " + artifact);
+        }
+        if (!checkExits(bundleLocation)) {
             throw new IllegalArgumentException(
                     "bundleLocation not found: " + bundleLocation + " for artifact " + artifact);
         }
         return manifestReader.loadManifest(bundleLocation);
     }
 
+    private boolean checkExits(File bundleLocation) {
+        if (bundleLocation.exists()) {
+            return true;
+        }
+        //especially on windows there can be delayed writes that ruin our day, just to be sure wait a little bit if the file really do not exits!
+        long deadLine = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(5);
+        while (System.currentTimeMillis() < deadLine) {
+            if (bundleLocation.exists()) {
+                return true;
+            }
+            Thread.onSpinWait();
+        }
+        return bundleLocation.exists();
+    }
+
+    private ModuleContainer getResolverState(ReactorProject project, MavenProject mavenProject,
+            DependencyArtifacts artifacts, MavenSession session) {
+        try {
+            ExecutionEnvironmentConfiguration eeConfiguration = projectManager
+                    .getExecutionEnvironmentConfiguration(mavenProject);
+            ExecutionEnvironment executionEnvironment = eeConfiguration.getFullSpecification();
+            return newResolvedState(project, session,
+                    eeConfiguration.isIgnoredByResolver() ? null : executionEnvironment, artifacts);
+        } catch (BundleException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public DependenciesInfo computeDependencies(MavenProject project, DependencyArtifacts artifacts,
+            MavenSession session) {
+        ModuleContainer state = getResolverState(DefaultReactorProject.adapt(project), project, artifacts, session);
+        Module module = state.getModule(project.getBasedir().getAbsolutePath());
+        if (module == null) {
+            Module systemModule = state.getModule(Constants.SYSTEM_BUNDLE_LOCATION);
+            if (project.getBasedir().equals(systemModule.getCurrentRevision().getRevisionInfo())) {
+                module = systemModule;
+            }
+        }
+        ModuleRevision bundleDescription = module.getCurrentRevision();
+
+        // dependencies
+        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundleDescription);
+        return new DependenciesInfo() {
+
+            @Override
+            public BundleRevision getRevision() {
+                return bundleDescription;
+            }
+
+            @Override
+            public List<DependencyEntry> getDependencyEntries() {
+                return dependencies;
+            }
+
+            @Override
+            public List<AccessRule> getBootClasspathExtraAccessRules() {
+                return dependencyComputer.computeBootClasspathExtraAccessRules(state);
+            }
+        };
+    }
+
+    public static Properties computeMergedProperties(MavenProject mavenProject, MavenSession mavenSession) {
+        Properties properties = new Properties();
+        properties.putAll(mavenProject.getProperties());
+        if (mavenSession != null) {
+            properties.putAll(mavenSession.getSystemProperties()); // session wins
+            properties.putAll(mavenSession.getUserProperties());
+        } else {
+            properties.putAll(System.getProperties());
+        }
+        return properties;
+    }
 }

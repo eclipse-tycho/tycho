@@ -172,6 +172,11 @@ public class ProductConfiguration {
         return attribute == null || Boolean.parseBoolean(attribute);
     }
 
+    public boolean includeJRE() {
+        String attribute = dom.getAttributeValue("includeJRE");
+        return attribute != null && Boolean.parseBoolean(attribute);
+    }
+
     public String getVersion() {
         return dom.getAttributeValue("version");
     }

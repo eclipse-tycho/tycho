@@ -78,4 +78,10 @@ public class P2RepositoryPropertiesTest extends AbstractTychoIntegrationTest {
 		assertTrue(properties.containsKey(TychoConstants.PROP_PGP_SIGNATURES)
 				&& !properties.get(TychoConstants.PROP_PGP_SIGNATURES).isBlank());
 	}
+
+	@Override
+	protected boolean isDisableMirrors() {
+		// we want to test mirror properties...
+		return false;
+	}
 }

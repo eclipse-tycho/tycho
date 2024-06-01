@@ -17,7 +17,7 @@
 		<repository>
 			<id>repo</id>
 			<layout>p2</layout>
-			<url>${test-data-repo}</url>
+			<url>${target-platform}</url>
 		</repository>
 	</repositories>
 

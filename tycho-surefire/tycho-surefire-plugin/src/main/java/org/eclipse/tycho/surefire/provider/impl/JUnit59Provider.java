@@ -21,6 +21,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.model.Dependency;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
@@ -58,8 +59,8 @@ public class JUnit59Provider extends AbstractJUnitProvider {
     }
 
     @Override
-    public boolean isEnabled(List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
-        return super.isEnabled(testBundleClassPath, surefireProperties)
+    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
+        return super.isEnabled(project, testBundleClassPath, surefireProperties)
                 && !new JUnit47Provider().containsJunitInClasspath(testBundleClassPath);
     }
 }

@@ -25,13 +25,19 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.packaging.PackageFeatureMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.version.TychoVersion;
 
 public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
 
+	Properties properties = new Properties();
+
+	public PackageFeatureMojoTest() {
+		properties.setProperty("tycho-version", TychoVersion.getTychoVersion());
+	}
+
     public void testLicenseFeature() throws Exception {
-        File basedir = getBasedir("projects/licenseFeature/feature");
-        File platform = new File("src/test/resources/projects/licenseFeature/eclipse");
-        List<MavenProject> projects = getSortedProjects(basedir, platform);
+		File basedir = new File(getBasedir("projects/licenseFeature"), "feature");
+		List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project = getProject(projects, "licenseFeature.feature");
         MavenSession session = newMavenSession(project, projects);
@@ -77,8 +83,7 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
 
     public void testAddMavenDescriptorNotAddedPerDefault() throws Exception {
         File basedir = getBasedir("projects/addMavenDescriptor/featureDefault/");
-        File platform = new File("src/test/resources/eclipse");
-        List<MavenProject> projects = getSortedProjects(basedir, platform);
+		List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project = getProject(projects, "featureDefault");
         MavenSession session = newMavenSession(project, projects);
@@ -100,8 +105,7 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
 
     public void testAddMavenDescriptorSetToTrue() throws Exception {
         File basedir = getBasedir("projects/addMavenDescriptor/featureForcedToTrue");
-        File platform = new File("src/test/resources/eclipse");
-        List<MavenProject> projects = getSortedProjects(basedir, platform);
+		List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project = getProject(projects, "featureForcedToTrue");
         MavenSession session = newMavenSession(project, projects);

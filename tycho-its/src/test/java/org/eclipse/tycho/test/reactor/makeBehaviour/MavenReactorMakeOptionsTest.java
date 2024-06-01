@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 Joe Shannon and others.
+ * Copyright (c) 2022, 2023 Joe Shannon and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.reactor.makeBehaviour;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Test Maven reactor make behaviours
+ * Test Maven reactor make behaviors
  *
  * Test project dependencies:
  *
@@ -43,20 +43,20 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 
 	@Before
 	public void setUp() throws Exception {
-		verifier = getVerifier("reactor.makeBehaviour");
+		verifier = getVerifier("reactor.makeBehaviour", false, true);
 		verifier.addCliOption("-T1C");
 	}
 
 	@Test
 	public void testCompleteBuild() throws Exception {
 		verifier.executeGoals(List.of("clean", "verify"));
-		verifier.verifyErrorFreeLog();
-		verifier.assertFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("bundle1a/target/bundle1a-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("bundle1b/target/bundle1b-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
+		verifyErrorFreeLog(verifier);
+		verifier.verifyFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("bundle1a/target/bundle1a-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("bundle1b/target/bundle1b-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
 	}
 
 	@Test
@@ -65,13 +65,13 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-am");
 		verifier.addCliOption("-pl feature1");
 		verifier.executeGoals(List.of("clean", "verify"));
-		verifier.verifyErrorFreeLog();
-		verifier.assertFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
-		verifier.assertFileNotPresent("bundle1a/target/bundle1a-1.0.0-SNAPSHOT.jar");
-		verifier.assertFileNotPresent("bundle1b/target/bundle1b-1.0.0-SNAPSHOT.jar");
-		verifier.assertFileNotPresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
-		verifier.assertFileNotPresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
+		verifyErrorFreeLog(verifier);
+		verifier.verifyFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFileNotPresent("bundle1a/target/bundle1a-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFileNotPresent("bundle1b/target/bundle1b-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFileNotPresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFileNotPresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
 	}
 
 	@Test
@@ -79,7 +79,7 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-am");
 		verifier.addCliOption("-pl site");
 		verifier.executeGoals(List.of("clean", "verify"));
-		verifier.verifyErrorFreeLog();
+		verifyErrorFreeLog(verifier);
 	}
 
 	@Test
@@ -87,7 +87,7 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-am");
 		verifier.addCliOption("-pl product");
 		verifier.executeGoals(List.of("clean", "verify"));
-		verifier.verifyErrorFreeLog();
+		verifyErrorFreeLog(verifier);
 	}
 
 	@Test
@@ -96,13 +96,13 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-am");
 		verifier.addCliOption("-pl bundle1b");
 		verifier.executeGoals(List.of("clean", "verify"));
-		verifier.verifyErrorFreeLog();
-		verifier.assertFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("bundle1a/target/bundle1a-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("bundle1b/target/bundle1b-1.0.0-SNAPSHOT.jar");
-		verifier.assertFileNotPresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
-		verifier.assertFileNotPresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
-		verifier.assertFileNotPresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
+		verifyErrorFreeLog(verifier);
+		verifier.verifyFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("bundle1a/target/bundle1a-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("bundle1b/target/bundle1b-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFileNotPresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFileNotPresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFileNotPresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
 	}
 
 	@Test
@@ -111,13 +111,13 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-amd");
 		verifier.addCliOption("-pl bundle1");
 		verifier.executeGoals(List.of("clean", "verify"));
-		verifier.verifyErrorFreeLog();
-		verifier.assertFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("bundle1a/target/bundle1a-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("bundle1b/target/bundle1b-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
+		verifyErrorFreeLog(verifier);
+		verifier.verifyFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("bundle1a/target/bundle1a-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("bundle1b/target/bundle1b-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
 	}
 
 	@Test
@@ -127,23 +127,20 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-amd");
 		verifier.addCliOption("-pl feature1,bundle2");
 		verifier.executeGoals(List.of("clean", "verify"));
-		verifier.verifyErrorFreeLog();
-		verifier.assertFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
-		verifier.assertFilePresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
+		verifyErrorFreeLog(verifier);
+		verifier.verifyFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("bundle2/target/bundle2-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("feature1/target/feature1-1.0.0-SNAPSHOT.jar");
+		verifier.verifyFilePresent("feature2/target/feature2-1.0.0-SNAPSHOT.jar");
 	}
 
 	@Test
 	public void testSingleProjectNoOptionFails() throws Exception {
-		try {
-			verifier.addCliOption("-pl feature1");
-			verifier.executeGoals(List.of("clean", "verify"));
-			fail("Build should fail due to missing reactor dependency");
-		} catch (VerificationException e) {
-			verifier.verifyTextInLog(
-					"Missing requirement: feature1.feature.group 1.0.0.qualifier requires 'org.eclipse.equinox.p2.iu; bundle1 0.0.0' but it could not be found");
-		}
+		verifier.addCliOption("-pl feature1");
+		assertThrows("Build should fail due to missing reactor dependency", VerificationException.class,
+				() -> verifier.executeGoals(List.of("clean", "verify")));
+		verifier.verifyTextInLog(
+				"Missing requirement: feature1.feature.group 1.0.0.qualifier requires 'org.eclipse.equinox.p2.iu; bundle1 0.0.0' but it could not be found");
 	}
 
 }

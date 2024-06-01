@@ -15,7 +15,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho-surefire</artifactId>
-		<version>4.0.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>org.eclipse.tycho.surefire.junit59withvintage</artifactId>
 	<packaging>jar</packaging>
@@ -71,6 +71,21 @@
 							<groupId>org.junit.vintage</groupId>
 							<artifactId>junit-vintage-engine</artifactId>
 							<version>${junit-jupiter-version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.junit.platform</groupId>
+							<artifactId>junit-platform-suite-api</artifactId>
+							<version>${junit-platform-version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.junit.platform</groupId>
+							<artifactId>junit-platform-suite-commons</artifactId>
+							<version>${junit-platform-version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.junit.platform</groupId>
+							<artifactId>junit-platform-suite-engine</artifactId>
+							<version>${junit-platform-version}</version>
 						</artifactItem>
 						<artifactItem>
 							<groupId>org.opentest4j</groupId>

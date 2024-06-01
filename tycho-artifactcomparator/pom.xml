@@ -15,14 +15,18 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
-		<version>4.0.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>tycho-artifactcomparator</artifactId>
 	<properties>
-		<asm-version>9.4</asm-version>
+		<asm-version>9.6</asm-version>
 	</properties>
 	<name>Tycho Artifactor Comparator Plugin</name>
 	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm-tree</artifactId>
@@ -55,19 +59,28 @@
 			<artifactId>maven-core</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>commons-io</groupId>
-		    <artifactId>commons-io</artifactId>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.xmlunit</groupId>
 			<artifactId>xmlunit-core</artifactId>
-			<version>2.9.0</version>
+			<version>2.10.0</version>
+		</dependency>
+		<dependency>
+			<groupId>biz.aQute.bnd</groupId>
+			<artifactId>biz.aQute.bndlib</artifactId>
 		</dependency>
 		<!-- https://github.com/java-diff-utils/java-diff-utils -->
 		<dependency>
 			<groupId>io.github.java-diff-utils</groupId>
 			<artifactId>java-diff-utils</artifactId>
 			<version>4.12</version>
+		</dependency>
+		<dependency>
+		    <groupId>ch.digitalfondue.jfiveparse</groupId>
+		    <artifactId>jfiveparse</artifactId>
+		    <version>1.0.3</version>
 		</dependency>
 	</dependencies>
 	<build>

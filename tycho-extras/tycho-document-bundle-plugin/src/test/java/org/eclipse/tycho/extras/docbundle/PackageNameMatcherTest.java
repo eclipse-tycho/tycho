@@ -27,7 +27,7 @@ class PackageNameMatcherTest {
 
 	@Test
 	void testNoPattern() {
-		assertNotNull(PackageNameMatcher.compile(new ArrayList<String>()));
+		assertNotNull(PackageNameMatcher.compile(new ArrayList<>()));
 	}
 
 	@Test

@@ -39,9 +39,9 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
+import org.eclipse.tycho.core.shared.DuplicateFilteringLoggingProgressMonitor;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.resolver.ResolverException;
-import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
 import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
@@ -75,7 +75,8 @@ public class InstallableUnitResolver {
         this.logger = logger;
     }
 
-    public void addLocation(InstallableUnitLocation iuLocationDefinition, IQueryable<IInstallableUnit> localUnits) {
+    public Collection<IInstallableUnit> addLocation(InstallableUnitLocation iuLocationDefinition,
+            IQueryable<IInstallableUnit> localUnits) {
         //update (and validate) desired global state
         setIncludeMode(iuLocationDefinition.getIncludeMode());
         setIncludeAllEnvironments(iuLocationDefinition.includeAllEnvironments());
@@ -85,7 +86,9 @@ public class InstallableUnitResolver {
         default -> iuLocationDefinition.includeSource();
         });
         //resolve root units and add them
-        rootUnits.add(new RootUnits(getRootIUs(iuLocationDefinition.getUnits(), localUnits), localUnits));
+        Collection<IInstallableUnit> rootIUs = getRootIUs(iuLocationDefinition.getUnits(), localUnits);
+        rootUnits.add(new RootUnits(rootIUs, localUnits));
+        return rootIUs;
     }
 
     private void setIncludeMode(IncludeMode newValue) throws TargetDefinitionResolutionException {
@@ -180,7 +183,7 @@ public class InstallableUnitResolver {
             throws TargetDefinitionResolutionException {
         if (includeAllEnvironments) {
             logger.warn(
-                    "includeAllPlatforms='true' and includeMode='planner' are incompatible. ignore includeAllPlatforms flag");
+                    "includeAllPlatforms='true' and includeMode='planner' are incompatible. Ignoring 'includeAllPlatforms' flag");
         }
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
         strategy.setData(data);

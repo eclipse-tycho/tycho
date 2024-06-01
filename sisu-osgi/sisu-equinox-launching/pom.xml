@@ -17,7 +17,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>sisu-osgi</artifactId>
-		<version>4.0.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>sisu-equinox-launching</artifactId>
 
@@ -27,12 +27,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.core.shared</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.embedder.shared</artifactId>
+			<artifactId>tycho-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

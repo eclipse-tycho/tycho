@@ -21,13 +21,13 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
-import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern;
 
 /**
  * Configures the target-platform to use in order to resolve dependencies. <br>
@@ -37,13 +37,48 @@ import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 public class TargetPlatformConfigurationMojo extends AbstractMojo {
 
     /**
+     * <p>
      * Target environments (os/ws/arch) to consider.
+     * </p>
+     * Example:
+     * 
+     * <pre>
+     *&lt;environments&gt;
+    *  &lt;environment&gt;
+    *    &lt;os&gt;linux&lt;/os&gt;
+    *    &lt;ws&gt;gtk&lt;/ws&gt;
+    *    &lt;arch&gt;x86_64&lt;/arch&gt;
+    *  &lt;/environment&gt;
+    *  &lt;environment&gt;
+    *    &lt;os&gt;linux&lt;/os&gt;
+    *    &lt;ws&gt;gtk&lt;/ws&gt;
+    *    &lt;arch&gt;ppc64le&lt;/arch&gt;
+    *  &lt;/environment&gt;
+    *   &lt;environment&gt;
+    *    &lt;os&gt;linux&lt;/os&gt;
+    *    &lt;ws&gt;gtk&lt;/ws&gt;
+    *    &lt;arch&gt;aarch64&lt;/arch&gt;
+    *  &lt;/environment&gt;
+    *  &lt;environment&gt;
+    *    &lt;os&gt;win32&lt;/os&gt;
+    *    &lt;ws&gt;win32&lt;/ws&gt;
+    *    &lt;arch&gt;x86_64&lt;/arch&gt;
+    *  &lt;/environment&gt;
+    *  &lt;environment&gt;
+    *    &lt;os&gt;macosx&lt;/os&gt;
+    *    &lt;ws&gt;cocoa&lt;/ws&gt;
+    *    &lt;arch&gt;x86_64&lt;/arch&gt;
+    *  &lt;/environment&gt;
+    *  &lt;environment&gt;
+    *    &lt;os&gt;macosx&lt;/os&gt;
+    *    &lt;ws&gt;cocoa&lt;/ws&gt;
+    *    &lt;arch&gt;aarch64&lt;/arch&gt;
+    *  &lt;/environment&gt;
+    *&lt;/environments&gt;
+     * </pre>
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.ENVIRONMENTS)
     private TargetEnvironment[] environments;
-
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.RESOLVER, defaultValue = DefaultDependencyResolverFactory.DEFAULT_RESOLVER_HINT)
-    private String resolver;
 
     /**
      * List of .target artifacts to use for dependency resolution.<br>
@@ -54,10 +89,11 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * <li><code>&lt;file></code> to define a file local to the build</li>
      * <li><code>&lt;uri></code> to define a (remote) URI that specifies a target, currently only
      * URIs that can be converted to URLs are supported (e.g. file:/.... http://..., )</li>
+     * <li>{@code <locations>} to define target locations inline</li>
      * </ul>
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.TARGET)
-    private Xpp3Dom target;
+    private TargetParameterObject target;
 
     /**
      * Defines which strategy to apply to Maven dependencies.
@@ -80,8 +116,12 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * Therefore the POM dependencies (and the pomDependencies=consider configuration) typically
      * need to be added in the parent POM.
      * </p>
+     * <p>
+     * If no explicit value is configured Tycho uses {@link PomDependencies#ignore} if eager
+     * resolution is activated and {@link PomDependencies#consider} otherwhise.
+     * </p>
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.POM_DEPENDENCIES, defaultValue = "ignore")
+    @Parameter(name = DefaultTargetPlatformConfigurationReader.POM_DEPENDENCIES, property = DefaultTargetPlatformConfigurationReader.PROPERTY_POM_DEPENDENCIES)
     private PomDependencies pomDependencies;
 
     /**
@@ -104,6 +144,20 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
 
     @Parameter(name = DefaultTargetPlatformConfigurationReader.RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS, defaultValue = "true")
     private boolean resolveWithExcutionEnvironmentConstraints;
+
+    /**
+     * Configures when resolve of the project specific target platform happens. If the value is
+     * <code>true</code> the project platform is computed as early as when starting the build before
+     * the first mojo executes, if the value is <code>false</code> the resolving is delayed until
+     * the project is actually executed, this can considerably improve your build speed in parallel
+     * builds. The drawback is that there might be some tools making assumptions about the build
+     * being static from the start or having "hidden" dependency chains that point back to your
+     * build reactor. For these reason this can be configured here even though it is recommend to
+     * always use lazy resolve for best performance and maximum of features, e.g. using mixed maven
+     * builds require lazy resolving of that projects depend on the plain maven projects.
+     */
+    @Parameter(name = DefaultTargetPlatformConfigurationReader.REQUIRE_EAGER_RESOLVE, defaultValue = "false", property = DefaultTargetPlatformConfigurationReader.PROPERTY_REQUIRE_EAGER_RESOLVE, alias = DefaultTargetPlatformConfigurationReader.PROPERTY_ALIAS_REQUIRE_EAGER_RESOLVE)
+    private boolean requireEagerResolve;
 
     /**
      * Selectively remove content from the target platform.
@@ -148,11 +202,11 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * &lt;id>org.eclipse.equinox.servletbridge.extensionbundle&lt;/id> &lt;removeAll />
      * &lt;/filter> &lt;/filters> &lt;/configuration> &lt;/plugin>
      * 
-     * <pre>
+     * </pre>
      * </p>
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.FILTERS)
-    private List<?> filters; //TODO stronger typing?
+    private List<CapabilityPattern> filters;
 
     /**
      * Exclusions could be used together with {@link #pomDependencies} setting to exclude certain
@@ -187,10 +241,18 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * </pre>
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.DEPENDENCY_RESOLUTION)
-    private Object dependencyResolution; // TODO stronger typing
+    private DependencyResolutionConfiguration dependencyResolution;
 
     @Parameter(name = DefaultTargetPlatformConfigurationReader.TARGET_DEFINITION_INCLUDE_SOURCE)
     private IncludeSourceMode targetDefinionIncludeSource;
+
+    /**
+     * Configures if referenced repositories should be included when fetching repositories. The
+     * default is <code>include</code>. To disable the use of referenced repositories, pass
+     * <code>ignore</code>.
+     */
+    @Parameter(name = DefaultTargetPlatformConfigurationReader.REFERENCED_REPOSITORY_MODE)
+    private ReferencedRepositoryMode referencedRepositoryMode;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {

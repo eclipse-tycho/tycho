@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,14 +29,16 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.LegacySupport;
-import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.tycho.compiler.jdt.copied.LibraryInfo;
-import org.eclipse.tycho.core.utils.TychoVersion;
+import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
+import org.eclipse.tycho.version.TychoVersion;
 
 /**
  * Determine and cache system library info (Java version, bootclasspath, extension and endorsed
@@ -45,10 +48,10 @@ import org.eclipse.tycho.core.utils.TychoVersion;
 public class JdkLibraryInfoProvider {
 
     @Requirement
-    private RepositorySystem repositorySystem;
+    private LegacySupport legacySupport;
 
     @Requirement
-    private LegacySupport legacySupport;
+    private MavenDependenciesResolver dependenciesResolver;
 
     @Requirement
     private Logger log;
@@ -57,7 +60,7 @@ public class JdkLibraryInfoProvider {
     private File libDetectorJar;
     private Boolean isRunningOnJava9orLater;
 
-    public LibraryInfo getLibraryInfo(String javaHome) {
+    public LibraryInfo getLibraryInfo(String javaHome) throws ArtifactResolutionException {
         LibraryInfo libInfo = libraryInfoCache.get(javaHome);
         if (libInfo == null) {
             libInfo = generateLibraryInfo(javaHome);
@@ -66,7 +69,7 @@ public class JdkLibraryInfoProvider {
         return libInfo;
     }
 
-    private LibraryInfo generateLibraryInfo(String javaHome) {
+    private LibraryInfo generateLibraryInfo(String javaHome) throws ArtifactResolutionException {
         String executable = javaHome + File.separator + "bin" + File.separator + "java";
         if (File.separatorChar == '\\') {
             executable = executable + ".exe";
@@ -157,7 +160,10 @@ public class JdkLibraryInfoProvider {
             // according to https://docs.oracle.com/javase/9/tools/javac.htm#GUID-AEEC9F07-CB49-4E96-8BC7-BCC2C7F725C9__STANDARDOPTIONSFORJAVAC-7D3D9CC2 
             extDirs = new String[0];
         }
-        return new LibraryInfo(javaVersion, bootclasspath, extDirs, endorsedDirs);
+        //sometimes the jvm report entries that do not really exits...
+        String[] filteredBcp = Arrays.stream(bootclasspath).filter(bcp -> new File(bcp).exists())
+                .toArray(String[]::new);
+        return new LibraryInfo(javaVersion, filteredBcp, extDirs, endorsedDirs);
     }
 
     private boolean isRunningOnJava9orLater() {
@@ -184,13 +190,18 @@ public class JdkLibraryInfoProvider {
         return log;
     }
 
-    protected File getLibDetectorJar() {
+    protected File getLibDetectorJar() throws ArtifactResolutionException {
         if (libDetectorJar != null) {
             return libDetectorJar;
         }
-        Artifact libDetectorArtifact = repositorySystem.createArtifact("org.eclipse.tycho", "tycho-lib-detector",
-                TychoVersion.getTychoVersion(), "jar");
-        ArtifactRepository localRepository = legacySupport.getSession().getLocalRepository();
-        return libDetectorJar = new File(localRepository.getBasedir(), localRepository.pathOf(libDetectorArtifact));
+
+        MavenSession mavenSession = legacySupport.getSession();
+        Dependency dependency = new Dependency();
+        dependency.setGroupId("org.eclipse.tycho");
+        dependency.setArtifactId("tycho-lib-detector");
+        dependency.setVersion(TychoVersion.getTychoVersion());
+        Artifact artifact = dependenciesResolver.resolveArtifact(mavenSession.getCurrentProject(), mavenSession,
+                dependency);
+        return libDetectorJar = artifact.getFile();
     }
 }

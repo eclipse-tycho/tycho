@@ -1,0 +1,36 @@
+on:
+  pull_request_target:
+    types: ["labeled", "closed"]
+
+permissions:
+  contents: read
+
+jobs:
+  backport:
+    name: Backport PR
+    runs-on: ubuntu-latest
+    if: |
+      github.event.pull_request.merged == true
+      && contains(github.event.pull_request.labels.*.name, 'backport-to-tycho-4.0.x')
+      && (
+        (github.event.action == 'labeled' && github.event.label.name == 'backport-to-tycho-4.0.x')
+        || (github.event.action == 'closed')
+      )
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - name: Backport Action
+        uses: sqren/backport-github-action@ad888e978060bc1b2798690dd9d03c4036560947 # v9.5.1
+        with:
+          github_token: ${{ secrets.TYCHO_SITE_PAT }}
+          auto_backport_label_prefix: backport-to-
+          add_original_reviewers: true
+
+      - name: Info log
+        if: ${{ success() }}
+        run: cat ~/.backport/backport.info.log
+        
+      - name: Debug log
+        if: ${{ failure() }}
+        run: cat ~/.backport/backport.debug.log

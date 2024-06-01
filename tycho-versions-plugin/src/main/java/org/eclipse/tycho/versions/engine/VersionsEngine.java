@@ -87,7 +87,7 @@ public class VersionsEngine {
         }
     }
 
-    private PomFile getMutablePom(String artifactId) throws IOException {
+    public PomFile getMutablePom(String artifactId) throws IOException {
         ProjectMetadata project = getProject(artifactId);
 
         if (project == null) {
@@ -102,10 +102,17 @@ public class VersionsEngine {
         originalVersionChanges.add(change);
     }
 
+    public void reset() {
+        originalVersionChanges.clear();
+        propertyChanges.clear();
+        updateVersionRangeMatchingBounds = false;
+        projects = null;
+    }
+
     public void apply() throws IOException {
 
         VersionChangesDescriptor versionChangeContext = new VersionChangesDescriptor(originalVersionChanges,
-                new DefaultVersionRangeUpdateStrategy(updateVersionRangeMatchingBounds));
+                new DefaultVersionRangeUpdateStrategy(isUpdateVersionRangeMatchingBounds()), projects);
 
         // collecting secondary changes
         boolean newChanges = true;
@@ -142,8 +149,8 @@ public class VersionsEngine {
             // TODO property changes should be added as a new type of change in VersionChangeDescriptors
             for (PropertyChange propertyChange : propertyChanges) {
                 if (pom == propertyChange.pom) {
-                    ((PomManipulator) pomManipulator).applyPropertyChange(pom, propertyChange.propertyName,
-                            propertyChange.propertyValue);
+                    ((PomManipulator) pomManipulator).applyPropertyChange(project.getPomFile().getName(), pom,
+                            propertyChange.propertyName, propertyChange.propertyValue);
                 }
             }
 

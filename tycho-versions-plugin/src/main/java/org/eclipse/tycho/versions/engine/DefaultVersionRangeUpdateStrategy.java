@@ -49,7 +49,17 @@ public class DefaultVersionRangeUpdateStrategy implements VersionRangeUpdateStra
             Version newReferencedVersion, Version newArtifactVersion) {
         VersionRange newVersionRange;
         if (updateMatchingBounds) {
-            newVersionRange = handleMatchingBouds(versionRange, originalReferencedVersion, newReferencedVersion);
+            if (isMicroRange(versionRange)) {
+                return new VersionRange(
+                        VersionRange.LEFT_CLOSED, newReferencedVersion, new Version(newReferencedVersion.getMajor(),
+                                newReferencedVersion.getMinor(), newReferencedVersion.getMicro() + 1),
+                        VersionRange.RIGHT_OPEN);
+            } else if (isProviderRange(versionRange)) {
+                return new VersionRange(VersionRange.LEFT_CLOSED, newReferencedVersion,
+                        new Version(newReferencedVersion.getMajor(), newReferencedVersion.getMinor() + 1, 0),
+                        VersionRange.RIGHT_OPEN);
+            }
+            newVersionRange = handleMatchingBounds(versionRange, originalReferencedVersion, newReferencedVersion);
         } else {
             newVersionRange = versionRange;
         }
@@ -57,7 +67,32 @@ public class DefaultVersionRangeUpdateStrategy implements VersionRangeUpdateStra
                 newArtifactVersion);
     }
 
-    private VersionRange handleMatchingBouds(VersionRange versionRange, Version originalReferencedVersion,
+    private boolean isMicroRange(VersionRange versionRange) {
+        if (versionRange.getLeftType() == VersionRange.LEFT_CLOSED
+                && versionRange.getRightType() == VersionRange.RIGHT_OPEN) {
+            Version right = versionRange.getRight();
+            if (right != null) {
+                Version left = versionRange.getLeft();
+                return left.getMajor() == right.getMajor() && left.getMinor() == right.getMinor()
+                        && right.getMicro() > left.getMicro();
+            }
+        }
+        return false;
+    }
+
+    private boolean isProviderRange(VersionRange versionRange) {
+        if (versionRange.getLeftType() == VersionRange.LEFT_CLOSED
+                && versionRange.getRightType() == VersionRange.RIGHT_OPEN) {
+            Version right = versionRange.getRight();
+            if (right != null) {
+                Version left = versionRange.getLeft();
+                return left.getMajor() == right.getMajor() && left.getMinor() + 1 == right.getMinor();
+            }
+        }
+        return false;
+    }
+
+    private VersionRange handleMatchingBounds(VersionRange versionRange, Version originalReferencedVersion,
             Version newReferencedVersion) {
         Version newLeft;
         if (versionRange.getLeft().equals(originalReferencedVersion)) {

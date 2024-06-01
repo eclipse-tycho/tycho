@@ -29,20 +29,24 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.DependencyResolver;
+import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2resolver.PomReactorProjectFacade;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.osgi.framework.Filter;
@@ -55,13 +59,54 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     private static final String CTX_INITIAL_MAVEN_DEPENDENCIES = CTX_OSGI_BUNDLE_BASENAME + "/initialDependencies";
 
     @Requirement
-    MavenDependenciesResolver projectDependenciesResolver;
+    protected MavenDependenciesResolver projectDependenciesResolver;
     @Requirement
-    LegacySupport legacySupport;
+    protected LegacySupport legacySupport;
+
+    @Requirement
+    protected TychoProjectManager projectManager;
+
+    @Requirement
+    protected Logger logger;
+
+    @Requirement(hint = "p2")
+    protected DependencyResolver dependencyResolver;
 
     @Override
-    public DependencyArtifacts getDependencyArtifacts(ReactorProject project) {
-        return TychoProjectUtils.getDependencyArtifacts(project);
+    public DependencyArtifacts getDependencyArtifacts(MavenProject project) {
+        return getDependencyArtifacts(DefaultReactorProject.adapt(project));
+    }
+
+    @Override
+    public DependencyArtifacts getDependencyArtifacts(ReactorProject reactorProject) {
+        return reactorProject.computeContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS, () -> {
+            if (logger != null) {
+                logger.info("Resolving dependencies of " + reactorProject);
+            }
+            MavenSession mavenSession = getMavenSession(reactorProject);
+            MavenProject mavenProject = getMavenProject(reactorProject);
+            TargetPlatform preliminaryTargetPlatform = dependencyResolver.getPreliminaryTargetPlatform(mavenSession,
+                    mavenProject);
+            TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(mavenProject);
+            DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
+            DependencyArtifacts dependencyArtifacts = dependencyResolver.resolveDependencies(mavenSession, mavenProject,
+                    preliminaryTargetPlatform, resolverConfiguration, configuration.getEnvironments());
+            if (logger != null) {
+                if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(mavenSession, mavenProject)) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Resolved target platform for ").append(reactorProject).append("\n");
+                    dependencyArtifacts.toDebugString(sb, "  ");
+                    logger.debug(sb.toString());
+                }
+            }
+            return dependencyArtifacts;
+        });
+
+    }
+
+    @Override
+    public DependencyArtifacts getTestDependencyArtifacts(ReactorProject project) {
+        return (DependencyArtifacts) project.getContextValue(TychoConstants.CTX_TEST_DEPENDENCY_ARTIFACTS);
     }
 
     @Override
@@ -79,21 +124,23 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         return platform;
     }
 
-    public void setDependencyArtifacts(MavenSession session, ReactorProject project,
-            DependencyArtifacts dependencyArtifacts) {
-        project.setContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS, dependencyArtifacts);
-    }
-
-    public void setTestDependencyArtifacts(MavenSession session, ReactorProject project,
-            DependencyArtifacts dependencyArtifacts) {
-        project.setContextValue(TychoConstants.CTX_TEST_DEPENDENCY_ARTIFACTS, dependencyArtifacts);
-    }
-
     public void setupProject(MavenSession session, MavenProject project) {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         reactorProject.setContextValue(CTX_MAVEN_SESSION, session);
         reactorProject.setContextValue(CTX_MAVEN_PROJECT, project);
-        reactorProject.setContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES, List.copyOf(project.getDependencies()));
+        reactorProject.setContextValue(CTX_INITIAL_MAVEN_DEPENDENCIES,
+                List.copyOf(collectInitial(project, new HashMap<>()).values()));
+    }
+
+    private Map<String, Dependency> collectInitial(MavenProject project, Map<String, Dependency> map) {
+        for (Dependency dependency : project.getDependencies()) {
+            map.putIfAbsent(dependency.getManagementKey(), dependency);
+        }
+        MavenProject parent = project.getParent();
+        if (parent != null) {
+            return collectInitial(parent, map);
+        }
+        return map;
     }
 
     protected TargetEnvironment[] getEnvironments(ReactorProject project, TargetEnvironment environment) {
@@ -101,7 +148,7 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
             return new TargetEnvironment[] { environment };
         }
 
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         if (configuration.isImplicitTargetEnvironment()) {
             return null; // any
         }
@@ -123,24 +170,28 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
 
     public void readExecutionEnvironmentConfiguration(ReactorProject project, MavenSession mavenSession,
             ExecutionEnvironmentConfiguration sink) {
-        TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        readExecutionEnvironmentConfiguration(projectManager.getTargetPlatformConfiguration(project), sink);
+    }
 
-        String configuredForcedProfile = tpConfiguration.getExecutionEnvironment();
+    public static void readExecutionEnvironmentConfiguration(TargetPlatformConfiguration targetPlatformConfiguration,
+            ExecutionEnvironmentConfiguration executionEnvironmentConfiguration) {
+
+        String configuredForcedProfile = targetPlatformConfiguration.getExecutionEnvironment();
         if (configuredForcedProfile != null) {
-            sink.overrideProfileConfiguration(configuredForcedProfile,
+            executionEnvironmentConfiguration.overrideProfileConfiguration(configuredForcedProfile,
                     "target-platform-configuration <executionEnvironment>");
         } else {
-            tpConfiguration.getTargets().stream() //
+            targetPlatformConfiguration.getTargets().stream() //
                     .map(TargetDefinition::getTargetEE) //
                     .filter(Objects::nonNull) //
                     .findFirst() //
-                    .ifPresent(profile -> sink.overrideProfileConfiguration(profile,
+                    .ifPresent(profile -> executionEnvironmentConfiguration.overrideProfileConfiguration(profile,
                             "first targetJRE from referenced target-definition files"));
         }
 
-        String configuredDefaultProfile = tpConfiguration.getExecutionEnvironmentDefault();
+        String configuredDefaultProfile = targetPlatformConfiguration.getExecutionEnvironmentDefault();
         if (configuredDefaultProfile != null) {
-            sink.setProfileConfiguration(configuredDefaultProfile,
+            executionEnvironmentConfiguration.setProfileConfiguration(configuredDefaultProfile,
                     "target-platform-configuration <executionEnvironmentDefault>");
         }
     }

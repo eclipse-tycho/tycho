@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 Christoph Läubrich and others.
+ * Copyright (c) 2023 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -48,9 +48,25 @@ public class P2ArtifactCoordinateResolver implements ArtifactCoordinateResolver 
 		if (dependency instanceof ArtifactDescriptor) {
 			ArtifactDescriptor descriptor = (ArtifactDescriptor) dependency;
 			return descriptor.getInstallableUnits().stream().map(iu -> {
-				String groupId = iu.getProperty(TychoConstants.PROP_GROUP_ID);
-				String artifactId = iu.getProperty(TychoConstants.PROP_ARTIFACT_ID);
-				String version = iu.getProperty(TychoConstants.PROP_VERSION);
+				// Restore the original GAV in case the dependency is a rebundled jar
+				String groupId = iu.getProperty(TychoConstants.PROP_WRAPPED_GROUP_ID);
+				String artifactId = iu.getProperty(TychoConstants.PROP_WRAPPED_ARTIFACT_ID);
+				String version = iu.getProperty(TychoConstants.PROP_WRAPPED_VERSION);
+				String classifier = iu.getProperty(TychoConstants.PROP_WRAPPED_CLASSIFIER);
+				// The classifier is optional and may be null
+				if (groupId != null && artifactId != null && version != null) {
+					Dependency result = new Dependency();
+					result.setGroupId(groupId);
+					result.setArtifactId(artifactId);
+					result.setVersion(version);
+					result.setType("jar");
+					result.setClassifier(classifier);
+					return result;
+				}
+
+				groupId = iu.getProperty(TychoConstants.PROP_GROUP_ID);
+				artifactId = iu.getProperty(TychoConstants.PROP_ARTIFACT_ID);
+				version = iu.getProperty(TychoConstants.PROP_VERSION);
 				if (groupId != null && artifactId != null && version != null) {
 					ArtifactTypeRegistry typeRegistry = session.getRepositorySession().getArtifactTypeRegistry();
 					ArtifactType type = typeRegistry

@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.OverConstrainedVersionException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -32,9 +34,10 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.BuildPropertiesParser;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.build.BuildTimestampProvider;
+import org.eclipse.tycho.core.VersioningHelper;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.shared.VersioningHelper;
 import org.osgi.framework.Version;
 
 /**
@@ -87,7 +90,13 @@ import org.osgi.framework.Version;
 @Mojo(name = "build-qualifier", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class BuildQualifierMojo extends AbstractVersionMojo {
 
-    @Parameter(property = "session", readonly = true)
+	static final TimeZone TIME_ZONE = TimeZone.getTimeZone("UTC");
+
+	static final String PARAMETER_FORMAT = "format";
+
+	static final String DEFAULT_DATE_FORMAT = "yyyyMMddHHmm";
+
+	@Parameter(property = "session", readonly = true)
     protected MavenSession session;
 
     /**
@@ -95,7 +104,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
      * Specify a date format as specified by java.text.SimpleDateFormat. Timezone used is UTC.
      * </p>
      */
-	@Parameter(defaultValue = "yyyyMMddHHmm", property = "tycho.buildqualifier.format")
+	@Parameter(name = PARAMETER_FORMAT, defaultValue = DEFAULT_DATE_FORMAT, property = "tycho.buildqualifier.format")
     protected SimpleDateFormat format;
 
     @Parameter(property = "forceContextQualifier")
@@ -114,28 +123,46 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     @Parameter(property = "mojoExecution", readonly = true)
     protected MojoExecution execution;
 
-    @Component(role = BuildTimestampProvider.class)
-    protected Map<String, BuildTimestampProvider> timestampProviders;
+	@Component(role = BuildTimestampProvider.class)
+	protected Map<String, BuildTimestampProvider> timestampProviders;
 
 	@Component
 	private BuildPropertiesParser buildPropertiesParser;
 
+	/**
+	 * This is only a dummy parameter used to prevent maven from complaining about
+	 * "unknown" parameters when using the jgit extension
+	 */
+	@Parameter(alias = "jgit.dirtyWorkingTree")
+	private String dummy1;
+
+	/**
+	 * This is only a dummy parameter used to prevent maven from complaining about
+	 * "unknown" parameters when using the jgit extension
+	 */
+	@Parameter(alias = "jgit.ignore")
+	private String dummy2;
+
     // setter is needed to make sure we always use UTC
     public void setFormat(String formatString) {
         format = new SimpleDateFormat(formatString);
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        format.setTimeZone(TIME_ZONE);
     }
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-		TychoProjectVersion projectVersion = calculateQualifiedVersion();
+		Date timestamp = getBuildTimestamp();
+		TychoProjectVersion projectVersion = calculateQualifiedVersion(timestamp);
 		project.getProperties().put(BUILD_QUALIFIER, projectVersion.qualifier);
 		project.getProperties().put(UNQUALIFIED_VERSION, projectVersion.unqualifiedVersion);
 		project.getProperties().put(QUALIFIED_VERSION, projectVersion.getOSGiVersion());
 		getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
+		DefaultReactorProject.adapt(project).setContextValue(TychoConstants.BUILD_TIMESTAMP, projectVersion);
     }
 
-    private TychoProjectVersion calculateQualifiedVersion() throws MojoFailureException, MojoExecutionException {
+	private TychoProjectVersion calculateQualifiedVersion(Date timestamp)
+			throws MojoFailureException, MojoExecutionException {
+
         Version osgiVersion = getParsedOSGiVersion();
         if (osgiVersion != null) {
 
@@ -146,7 +173,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
                 return new TychoProjectVersion(unqualifiedVersion, osgiVersion.getQualifier());
             }
         }
-		String qualifier = getDesiredQualifier();
+		String qualifier = getDesiredQualifier(timestamp);
 
         validateQualifier(qualifier);
 
@@ -159,7 +186,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 		return new TychoProjectVersion(pomOSGiVersion, qualifier);
     }
 
-	protected String getDesiredQualifier() throws MojoExecutionException {
+	protected String getDesiredQualifier(Date timestamp) throws MojoExecutionException {
 		String qualifier = forceContextQualifier;
 
         if (qualifier == null) {
@@ -167,7 +194,6 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         }
 
         if (qualifier == null) {
-            Date timestamp = getBuildTimestamp();
             qualifier = getQualifier(timestamp);
         }
 		return qualifier;
@@ -200,13 +226,31 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         return format.format(timestamp);
     }
 
-    private String getUnqualifiedVersion() {
-        String version = project.getArtifact().getVersion();
-        if (version.endsWith("-" + Artifact.SNAPSHOT_VERSION)) {
-            version = version.substring(0, version.length() - Artifact.SNAPSHOT_VERSION.length() - 1);
-        }
-        return version;
-    }
+	private String getUnqualifiedVersion() {
+		// First try to handle this as an already valid OSGi version
+		try {
+			Version version = Version.parseVersion(project.getVersion());
+			return version.getMajor() + "." + version.getMinor() + "." + version.getMicro();
+		} catch (RuntimeException e) {
+		}
+		// then try the "selected version"
+		try {
+			ArtifactVersion version = project.getArtifact().getSelectedVersion();
+			int majorVersion = version.getMajorVersion();
+			int minorVersion = version.getMinorVersion();
+			int incrementalVersion = version.getIncrementalVersion();
+			if (majorVersion > 0 || minorVersion > 0 || incrementalVersion > 0) {
+				return majorVersion + "." + minorVersion + "." + incrementalVersion;
+			}
+		} catch (OverConstrainedVersionException e) {
+		}
+		// last resort ...
+		String version = project.getArtifact().getVersion();
+		if (version.endsWith("-" + Artifact.SNAPSHOT_VERSION)) {
+			version = version.substring(0, version.length() - Artifact.SNAPSHOT_VERSION.length() - 1);
+		}
+		return version;
+	}
 
     protected Date getBuildTimestamp() throws MojoExecutionException {
         String hint = timestampProvider != null ? timestampProvider : DefaultBuildTimestampProvider.ROLE_HINT;

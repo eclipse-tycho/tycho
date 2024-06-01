@@ -31,7 +31,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
     <repository>
       <id>galileo</id>
       <layout>p2</layout>
-      <url>${p2.repo}</url>
+      <url>${target-platform}</url>
     </repository>
   </repositories>
 

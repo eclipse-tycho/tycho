@@ -18,6 +18,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -30,18 +31,15 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.targetplatform.ArtifactCollection;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.p2maven.InstallableUnitPublisher;
 import org.eclipse.tycho.p2maven.advices.MavenChecksumAdvice;
 import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
-import org.eclipse.tycho.p2resolver.PomInstallableUnitStore.PomDependency;
 
 @Component(role = PomUnits.class)
 public class PomUnits {
@@ -68,8 +66,8 @@ public class PomUnits {
         if (tychoProject.isEmpty()) {
             return new CollectionResult<>(Collections.emptyList());
         }
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) reactorProject
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
+        TargetPlatformConfiguration configuration = tychoProjectManager
+                .getTargetPlatformConfiguration(reactorProject.adapt(MavenProject.class));
         return reactorProject.computeContextValue(KEY, () -> {
             return new PomInstallableUnitStore(tychoProject.get(), reactorProject, generator, artifactHandlerManager,
                     logger, configuration);
@@ -77,10 +75,14 @@ public class PomUnits {
     }
 
     public void addCollectedUnits(PomDependencyCollector collector, ReactorProject reactorProject) {
+        Optional<TychoProject> tychoProject = tychoProjectManager.getTychoProject(reactorProject);
+        if (tychoProject.isEmpty()) {
+            return;
+        }
         Object contextValue = reactorProject.getContextValue(KEY);
         if (contextValue instanceof PomInstallableUnitStore store) {
-            DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(reactorProject);
-            for (PomDependency dependency : store.getGatheredDependencies()) {
+            DependencyArtifacts dependencyArtifacts = tychoProject.get().getDependencyArtifacts(reactorProject);
+            store.addPomDependencyConsumer(dependency -> {
                 IArtifactFacade facade = dependency.artifactFacade();
                 Entry<ArtifactKey, IArtifactDescriptor> result = collector.addMavenArtifact(facade,
                         dependency.installableUnit());
@@ -95,10 +97,9 @@ public class PomUnits {
                     if (dependencyArtifacts instanceof ArtifactCollection collection) {
                         collection.addArtifactFile(result.getKey(), dependency.location(),
                                 dependency.installableUnit());
-
                     }
                 }
-            }
+            });
         }
     }
 

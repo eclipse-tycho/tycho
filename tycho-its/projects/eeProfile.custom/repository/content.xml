@@ -9,6 +9,14 @@
     <unit id='a.jre.customprofile' version='1.6.0' singleton='false'>
       <provides size='200'>
         <provided namespace='org.eclipse.equinox.p2.iu' name='a.jre.customprofile' version='1.6.0'/>
+        <provided namespace='java.package' name='java.lang' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang.annotation' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang.invoke' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang.reflect' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.concurrent' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.concurrent.atomic' version='0.0.0'/>
+        
         <provided namespace='java.package' name='javax.accessibility' version='0.0.0'/>
         <provided namespace='java.package' name='javax.activation' version='0.0.0'/>
         <provided namespace='java.package' name='javax.activation' version='1.1.1'/>
@@ -212,6 +220,7 @@
         <provided namespace='osgi.ee' name='JavaSE' version='1.8.0'/>
         <provided namespace='osgi.ee' name='JavaSE/compact1' version='1.8.0'/>
         <provided namespace='osgi.ee' name='JavaSE' version='11'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='17'/>
       </provides>
       <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
     </unit>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2023 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,12 +14,16 @@ package org.eclipse.tycho.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -87,6 +91,10 @@ public abstract class AbstractTychoIntegrationTest {
         File testDir = getBasedir(test);
 
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
+        verifier.setForkJvm(isForked());
+        if (isDisableMirrors()) {
+            verifier.setSystemProperty("eclipse.p2.mirrors", "false");
+        }
         String debug = System.getProperty("tycho.mvnDebug");
         if (debug != null) {
             System.out.println("Preparing to execute Maven in debug mode");
@@ -116,7 +124,7 @@ public abstract class AbstractTychoIntegrationTest {
         tmpDir.mkdirs();
         verifier.addCliOption("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
         if (setTargetPlatform) {
-            verifier.addCliOption("-Dtarget-platform=" + getTargetPlatform());
+            verifier.addCliOption("-Dtarget-platform=" + getTargetPlatform().replace("/", "//"));
         }
         if (ignoreLocalArtifacts) {
             verifier.addCliOption("-Dtycho.localArtifacts=ignore");
@@ -141,6 +149,18 @@ public abstract class AbstractTychoIntegrationTest {
 
         return verifier;
 
+    }
+
+    /**
+     * can be overridden by subclass to explicitly enable mirrors, by default they are disabled.
+     * 
+     */
+    protected boolean isDisableMirrors() {
+        return true;
+    }
+
+    protected boolean isForked() {
+        return true;
     }
 
     protected Verifier getVerifier(String test) throws Exception {
@@ -196,7 +216,10 @@ public abstract class AbstractTychoIntegrationTest {
         DirectoryScanner ds = scan(baseDir, pattern);
         File[] includedFiles = Arrays.stream(ds.getIncludedFiles()).map(file -> new File(baseDir, file))
                 .toArray(File[]::new);
-        assertEquals(baseDir.getAbsolutePath() + "/" + pattern, 1, includedFiles.length);
+        assertEquals(
+                baseDir.getAbsolutePath() + "/" + pattern + System.lineSeparator() + Arrays.stream(includedFiles)
+                        .map(f -> f.getName()).collect(Collectors.joining(System.lineSeparator())),
+                1, includedFiles.length);
         assertTrue(baseDir.getAbsolutePath() + "/" + pattern, includedFiles[0].canRead());
         return includedFiles;
     }
@@ -230,18 +253,59 @@ public abstract class AbstractTychoIntegrationTest {
         return file.getCanonicalFile().toURI().normalize().toString();
     }
 
-    public void verifyTextInLogMatches(Verifier verifier, Pattern pattern) throws VerificationException {
+    public static void verifyTextInLogMatches(Verifier verifier, Pattern pattern) throws VerificationException {
         List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
 
-        boolean result = false;
         for (String line : lines) {
             if (pattern.matcher(Verifier.stripAnsi(line)).find()) {
                 return;
             }
         }
-        if (!result) {
-            throw new VerificationException("Pattern not found in log: " + pattern);
+        throw new VerificationException("Pattern not found in log: " + pattern);
+    }
+
+    public static void verifyTextNotInLog(Verifier verifier, String text) throws VerificationException {
+        List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+
+        for (String line : lines) {
+            if (Verifier.stripAnsi(line).contains(text)) {
+                throw new VerificationException("Text '" + text + "' was found in the log!");
+            }
         }
+    }
+
+    /**
+     * Variant of verifyErrorFreeLog that do not skip stacktraces
+     * 
+     * @param verifier
+     * @throws VerificationException
+     */
+    protected static void verifyErrorFreeLog(Verifier verifier) throws VerificationException {
+        List<String> lines = verifier.loadFile(verifier.getBasedir(), verifier.getLogFileName(), false);
+        int size = lines.size();
+        Pattern pattern = Pattern.compile("\\[\\w+\\]");
+        for (int i = 0; i < size; i++) {
+            String line = lines.get(i);
+            if (Verifier.stripAnsi(line).contains("[ERROR]")) {
+                String collect = IntStream.range(i, size).mapToObj(lines::get)
+                        .takeWhile(l -> l.contains("[ERROR]") || !pattern.matcher(l).find())
+                        .collect(Collectors.joining(System.lineSeparator()));
+                throw new VerificationException("Error in execution: " + collect);
+            }
+        }
+    }
+
+    protected void assertIncludesJustJ(File productDir) throws IOException {
+        File eclipseIni = assertFileExists(productDir, "**/eclipse.ini")[0];
+        List<String> lines = Files.readAllLines(eclipseIni.toPath());
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).equals("-vm")) {
+                String vm = lines.get(i + 1);
+                assertTrue("VM (" + vm + ") is not JustJ!", vm.contains("plugins/org.eclipse.justj.openjdk."));
+                return;
+            }
+        }
+        fail("No VM installed in the product!");
     }
 
 }

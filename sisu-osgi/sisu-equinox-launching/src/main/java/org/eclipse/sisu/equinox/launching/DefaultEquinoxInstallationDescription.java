@@ -127,6 +127,9 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
 
     @Override
     public void addBundle(BundleReference reference) {
+        if (reference.getLocation() == null) {
+            throw new IllegalArgumentException("Location of BundleReference is null");
+        }
         bundles.computeIfAbsent(reference.getId(), k -> new TreeMap<>()).put(new Version(reference.getVersion()),
                 reference);
     }

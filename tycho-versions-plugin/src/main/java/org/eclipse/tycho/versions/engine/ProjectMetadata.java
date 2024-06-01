@@ -18,11 +18,13 @@ import java.util.Map;
 
 public class ProjectMetadata {
     private final File basedir;
+    private final File pomFile;
 
     private Map<Object, Object> metadata = new LinkedHashMap<>();
 
-    public ProjectMetadata(File basedir) {
+    public ProjectMetadata(File basedir, File pomFile) {
         this.basedir = basedir;
+        this.pomFile = pomFile;
     }
 
     public <T> T getMetadata(Class<T> type) {
@@ -35,6 +37,10 @@ public class ProjectMetadata {
 
     public File getBasedir() {
         return basedir;
+    }
+
+    public File getPomFile() {
+        return pomFile;
     }
 
     @Override

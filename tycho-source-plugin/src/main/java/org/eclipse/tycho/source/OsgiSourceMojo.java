@@ -57,6 +57,7 @@ import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -109,7 +110,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
      * Build qualifier. Recommended way to set this parameter is using build-qualifier goal. Only
      * used when creating a source bundle.
      */
-    @Parameter(property = "buildQualifier")
+    @Parameter(property = TychoProperties.BUILD_QUALIFIER)
     private String qualifier;
 
     /**
@@ -136,8 +137,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     /**
      * Additional files to be included in the source bundle jar. This can be used when
-     * <tt>src.includes</tt> in build.properties is not flexible enough , e.g. for files which would
-     * otherwise conflict with files in <tt>bin.includes</tt><br/>
+     * <code>src.includes</code> in build.properties is not flexible enough , e.g. for files which would
+     * otherwise conflict with files in <code>bin.includes</code><br/>
      * Example:<br/>
      * 
      * <pre>
@@ -362,8 +363,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
             addLocalicationHeaders(mavenArchiveConfiguration::addManifestEntry);
         } else {
-            getLog().info(
-                    "NOT adding source bundle MANIFEST.MF entries. Incomplete or no bundle information available.");
+            getLog().info("NOT adding source bundle MANIFEST.MF entries. Incomplete or absent bundle information");
         }
     }
 

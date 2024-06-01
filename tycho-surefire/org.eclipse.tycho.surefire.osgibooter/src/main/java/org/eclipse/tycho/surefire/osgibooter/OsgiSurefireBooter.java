@@ -84,9 +84,6 @@ public class OsgiSurefireBooter {
     private static final String JUNIT_PLATFORM_PROVIDER = "org.apache.maven.surefire.junitplatform.JUnitPlatformProvider";
 
     public static int run(String[] args, Properties testProps) throws Exception {
-        boolean failIfNoTests = Boolean.parseBoolean(testProps.getProperty("failifnotests", "false"));
-        // TODO eventually make use of parameter redirectTestOutputToFile
-        @SuppressWarnings("unused")
         boolean redirectTestOutputToFile = Boolean
                 .parseBoolean(testProps.getProperty("redirectTestOutputToFile", "false"));
         String testPlugin = testProps.getProperty("testpluginname");
@@ -122,16 +119,16 @@ public class OsgiSurefireBooter {
         // TODO dir scanning with no includes done here (done in TestMojo already)
         // but without dirScannerParams we get an NPE accessing runOrder
         DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir,
-                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), failIfNoTests, runOrder);
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), runOrder);
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStackTrace);
         TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir,
                 TestListResolver.getEmptyTestListResolver(), rerunFailingTestsCount);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
-                new RunOrderParameters(runOrder, null), failIfNoTests, reporterConfig, null, testRequest,
+                new RunOrderParameters(runOrder, null), reporterConfig, null, testRequest,
                 extractProviderProperties(testProps), null, false, Collections.emptyList(), skipAfterFailureCount,
                 Shutdown.DEFAULT, 30);
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
-                ConsoleReporter.PLAIN, false, reportsDir, trimStackTrace, null, new File(reportsDir, "TESTHASH"), false,
+                ConsoleReporter.PLAIN, redirectTestOutputToFile, reportsDir, trimStackTrace, null, new File(reportsDir, "TESTHASH"), false,
                 rerunFailingTestsCount, XSD, StandardCharsets.UTF_8.toString(), false,
                 getSurefireStatelessReporter(provider, disableXmlReport, null),
                 getSurefireConsoleOutputReporter(provider), getSurefireStatelessTestsetInfoReporter(provider));
@@ -139,8 +136,9 @@ public class OsgiSurefireBooter {
                 new PrintStreamLogger(System.out));
         // API indicates we should use testClassLoader below but surefire also tries
         // to load surefire classes using this classloader
-        RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin), reporterFactory,
-                providerConfiguration, false, startupConfiguration, true);
+        String classLoaderOrder = testProps.getProperty("classLoaderOrder");
+        RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin, classLoaderOrder),
+                reporterFactory, providerConfiguration, false, startupConfiguration, true);
         String failsafe = testProps.getProperty("failsafe");
         if (failsafe != null && !failsafe.trim().isEmpty()) {
             FailsafeSummaryXmlUtils.writeSummary(result, new File(failsafe), false);
@@ -205,14 +203,26 @@ public class OsgiSurefireBooter {
         }
     }
 
-    private static ClassLoader createCombinedClassLoader(String testPlugin) throws BundleException {
+    private static ClassLoader createCombinedClassLoader(String testPlugin, String classLoaderOrder)
+            throws BundleException {
         ClassLoader testClassLoader = getBundleClassLoader(testPlugin);
-        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         ClassLoader surefireClassLoader = ForkedBooter.class.getClassLoader();
-        return new CombinedClassLoader(testClassLoader, surefireClassLoader,
-                // Not used contextClassLoader directly because it's a ContextFinder
-                // which not work with tycho sufire osgibooster bundle
-                new ContextFinderWithoutTychoBundle(contextClassLoader.getParent()));
+        // Not used tccl directly because it's a ContextFinder
+        // which not work with tycho sufire osgibooster bundle
+        ClassLoader contextClassLoader = new ContextFinderWithoutTychoBundle(tccl.getParent());
+        ClassLoader[] loaders;
+        switch (classLoaderOrder) {
+        case "booterFirst":
+            loaders = new ClassLoader[] { surefireClassLoader, testClassLoader, contextClassLoader };
+            break;
+        case "testProbeFirst":
+            loaders = new ClassLoader[] { testClassLoader, surefireClassLoader, contextClassLoader };
+            break;
+        default:
+            throw new IllegalArgumentException("ClassLoaderOrder: " + classLoaderOrder + " is not supported");
+        }
+        return new CombinedClassLoader(loaders);
     }
 
     /*

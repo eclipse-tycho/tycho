@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde?>
+<target name="tycho-its-project.variables.env" sequenceNumber="1">
+    <locations>
+        <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+            <repository location="${env_var:MY_MIRROR}/repo"/>
+
+            <unit id="javax.xml" version="0.0.0"/>
+        </location>
+    </locations>
+</target>

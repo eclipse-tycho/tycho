@@ -12,6 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.zipcomparator.internal;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 
 public class SimpleArtifactDelta implements ArtifactDelta {
@@ -55,5 +60,27 @@ public class SimpleArtifactDelta implements ArtifactDelta {
 
     public String getReactor() {
         return reactor;
+    }
+
+    @Override
+    public void writeDetails(File destination) throws IOException {
+        if (getBaseline() != null) {
+            writeFile(destination.getParentFile(), destination.getName() + "-baseline", getBaseline());
+        }
+        if (getReactor() != null) {
+            writeFile(destination.getParentFile(), destination.getName() + "-build", getReactor());
+        }
+    }
+
+    protected static void writeFile(File basedir, String path, String data) throws IOException {
+        File file = new File(basedir, path).getAbsoluteFile();
+        file.getParentFile().mkdirs();
+        Files.writeString(file.toPath(), data);
+    }
+
+    protected static void writeFile(File basedir, String path, InputStream data) throws IOException {
+        File file = new File(basedir, path).getAbsoluteFile();
+        file.getParentFile().mkdirs();
+        Files.copy(data, file.toPath());
     }
 }

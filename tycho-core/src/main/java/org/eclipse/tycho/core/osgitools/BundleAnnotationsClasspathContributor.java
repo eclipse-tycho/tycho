@@ -16,10 +16,10 @@ import javax.inject.Inject;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathContributor;
-import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 
 @Component(role = ClasspathContributor.class, hint = "bundle-annotations")
 @SessionScoped
@@ -28,7 +28,7 @@ public class BundleAnnotationsClasspathContributor extends AbstractSpecification
     private static final String PACKAGE_NAME = "org.osgi.annotation.bundle";
     private static final String GROUP_ID = "org.osgi";
     private static final String ARTIFACT_ID = "org.osgi.annotation.bundle";
-    private static final Version VERSION = new Version(1, 0, 0);
+    private static final VersionRange VERSION = new VersionRange("[1,2)");
 
     @Inject
     protected BundleAnnotationsClasspathContributor(MavenSession session) {
@@ -36,7 +36,7 @@ public class BundleAnnotationsClasspathContributor extends AbstractSpecification
     }
 
     @Override
-    protected Version getSpecificationVersion(ReactorProject project) {
+    protected VersionRange getSpecificationVersion(MavenProject project) {
         return VERSION;
     }
 

@@ -21,16 +21,20 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.JarFile;
 
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.IU;
 import org.eclipse.tycho.model.ProductConfiguration;
+import org.eclipse.tycho.versions.bundle.MutableBndFile;
 import org.eclipse.tycho.versions.bundle.MutableBundleManifest;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.utils.ProductFileFilter;
+import org.osgi.framework.Constants;
 
 /**
  * Update pom or Eclipse/OSGi version to make both versions consistent.
@@ -53,9 +57,18 @@ public abstract class VersionUpdater {
 
     static {
         VersionAdaptor bundleVersionAdaptor = (project, logger) -> {
-            MutableBundleManifest manifest = MutableBundleManifest
-                    .read(new File(project.getBasedir(), "META-INF/MANIFEST.MF"));
-            return manifest.getVersion();
+            File manifestFile = new File(project.getBasedir(), JarFile.MANIFEST_NAME);
+            if (manifestFile.isFile()) {
+                MutableBundleManifest manifest = MutableBundleManifest.read(manifestFile);
+                return manifest.getVersion();
+            }
+            File bndFile = new File(project.getBasedir(), TychoConstants.PDE_BND);
+            if (bndFile.isFile()) {
+                MutableBndFile mutableBndFile = MutableBndFile.read(bndFile);
+                return mutableBndFile.getValue(Constants.BUNDLE_VERSION);
+            }
+            throw new IllegalStateException("neither " + JarFile.MANIFEST_NAME + " nor " + TychoConstants.PDE_BND
+                    + " file found in project " + project.getBasedir());
         };
         updaters.put(PackagingType.TYPE_ECLIPSE_PLUGIN, bundleVersionAdaptor);
         updaters.put(PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, bundleVersionAdaptor);

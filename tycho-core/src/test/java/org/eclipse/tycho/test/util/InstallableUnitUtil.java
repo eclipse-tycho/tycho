@@ -26,13 +26,14 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 
 public class InstallableUnitUtil {
 
-    static final String IU_CAPABILITY_NS = "org.eclipse.equinox.p2.iu"; // see IInstallableUnit.NAMESPACE_IU_ID;
-    static final String BUNDLE_CAPABILITY_NS = "osgi.bundle"; // see BundlesAction.CAPABILITY_NS_OSGI_BUNDLE
-    static final String PRODUCT_TYPE_PROPERTY = "org.eclipse.equinox.p2.type.product"; // see InstallableUnitDescription.PROP_TYPE_PRODUCT;
-    static final String FEATURE_TYPE_PROPERTY = "org.eclipse.equinox.p2.type.group"; // see InstallableUnitDescription.PROP_TYPE_GROUP;
+    static final String IU_CAPABILITY_NS = IInstallableUnit.NAMESPACE_IU_ID;
+    static final String BUNDLE_CAPABILITY_NS = BundlesAction.CAPABILITY_NS_OSGI_BUNDLE;
+    static final String PRODUCT_TYPE_PROPERTY = InstallableUnitDescription.PROP_TYPE_PRODUCT;
+    static final String FEATURE_TYPE_PROPERTY = InstallableUnitDescription.PROP_TYPE_GROUP;
 
     public static String DEFAULT_VERSION = "0.0.20";
 

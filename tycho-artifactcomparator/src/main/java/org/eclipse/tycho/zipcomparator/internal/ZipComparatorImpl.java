@@ -16,21 +16,23 @@ package org.eclipse.tycho.zipcomparator.internal;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -82,7 +84,34 @@ public class ZipComparatorImpl implements ArtifactComparator {
             }
             return ArtifactDelta.DEFAULT;
         }
-        return !result.isEmpty() ? new CompoundArtifactDelta("different", result) : null;
+        return !result.isEmpty() ? new ZipArtifactDelta(result, baseline, reactor) : null;
+    }
+
+    private static final class ZipArtifactDelta extends CompoundArtifactDelta {
+
+        private File baseline;
+        private File reactor;
+
+        public ZipArtifactDelta(Map<String, ? extends ArtifactDelta> members, File baseline, File reactor) {
+            super("different", members);
+            this.baseline = baseline;
+            this.reactor = reactor;
+        }
+
+        @Override
+        public void writeDetails(File basedir) throws IOException {
+            basedir.mkdirs();
+            super.writeDetails(basedir);
+            if (baseline.isFile()) {
+                Files.copy(baseline.toPath(), basedir.toPath().resolve("baseline-" + baseline.getName()),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
+            if (reactor.isFile()) {
+                Files.copy(reactor.toPath(), basedir.toPath().resolve("build-" + reactor.getName()),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
+
     }
 
     private ArtifactDelta getDelta(String name, Map<String, ZipEntry> baselineMap, Map<String, ZipEntry> reactorMap,
@@ -98,14 +127,12 @@ public class ZipComparatorImpl implements ArtifactComparator {
 
         try (InputStream baseline = baselineJar.getInputStream(baselineEntry);
                 InputStream reactor = reactorJar.getInputStream(reactorEntry);) {
-            byte[] baselineBytes = IOUtils.toByteArray(baseline);
-            byte[] reactorBytes = IOUtils.toByteArray(reactor);
-            ArtifactDelta direct = compareDirect(baselineBytes, reactorBytes);
-            if (direct == null) {
-                //perfectly equal!
-                return null;
+            byte[] baselineBytes = baseline.readAllBytes();
+            byte[] reactorBytes = reactor.readAllBytes();
+            if (Arrays.equals(baselineBytes, reactorBytes)) {
+                return ArtifactDelta.NO_DIFFERENCE;
             }
-            ContentsComparator comparator = comparators.get(getContentType(name));
+            ContentsComparator comparator = getContentsComparator(name);
             if (comparator != null && baselineBytes.length < ContentsComparator.THRESHOLD
                     && reactorBytes.length < ContentsComparator.THRESHOLD) {
                 try {
@@ -114,51 +141,30 @@ public class ZipComparatorImpl implements ArtifactComparator {
                 } catch (IOException e) {
                     log.debug("comparing entry " + name + " (baseline = " + baselineJar.getName() + ", reactor="
                             + reactorJar.getName() + ") using " + comparator.getClass().getName() + " failed with: " + e
-                            + ", using direct byte compare...", e);
+                            + ", using direct byte compare", e);
                 }
             }
-            return direct;
-        }
-    }
-
-    private static ArtifactDelta compareDirect(byte[] baselineBytes, byte[] reactorBytes) {
-        if (Arrays.equals(baselineBytes, reactorBytes)) {
-            return ArtifactDelta.NO_DIFFERENCE;
-        } else {
             return ArtifactDelta.DEFAULT;
         }
     }
 
-    private String getContentType(String name) {
-        name = name.toLowerCase(Locale.ENGLISH);
-        if (name.endsWith(".class")) {
-            return ClassfileComparator.TYPE;
+    private ContentsComparator getContentsComparator(String name) {
+        String extension = FilenameUtils.getExtension(name).toLowerCase();
+        ContentsComparator comparator = comparators.get(extension);
+        if (comparator != null) {
+            return comparator;
         }
-        if (name.endsWith(".jar") || name.endsWith(".zip")) {
-            return NestedZipComparator.TYPE;
+        if (name.equalsIgnoreCase("meta-inf/manifest.mf")) {
+            return comparators.get(ManifestComparator.TYPE);
         }
-        if (name.endsWith(".properties") || name.endsWith(".mappings")) {
-            // .mapping comes from org.eclipse.equinox.p2.internal.repository.comparator.JarComparator
-            return PropertiesComparator.TYPE;
-        }
-        if ("meta-inf/manifest.mf".equals(name)) {
-            return ManifestComparator.TYPE;
-        }
-        if (name.endsWith(".xml")) {
-            return XmlComparator.HINT;
-        }
-        return DefaultContentsComparator.TYPE;
+        return comparators.values().stream() //
+                .filter(c -> c.matches(name) || c.matches(extension)) //
+                .findFirst().orElseGet(() -> comparators.get(DefaultContentsComparator.TYPE));
     }
 
     private static Map<String, ZipEntry> toEntryMap(ZipFile zip, MatchPatterns ignored) {
-        Map<String, ZipEntry> result = new LinkedHashMap<>(zip.size());
-        Enumeration<? extends ZipEntry> entries = zip.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry entry = entries.nextElement();
-            if (!entry.isDirectory() && !ignored.matches(entry.getName(), false)) {
-                result.put(entry.getName(), entry);
-            }
-        }
-        return result;
+        return zip.stream() //
+                .filter(e -> !e.isDirectory() && !ignored.matches(e.getName(), false))
+                .collect(Collectors.toMap(e -> e.getName(), Function.identity()));
     }
 }

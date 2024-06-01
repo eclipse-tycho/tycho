@@ -18,8 +18,8 @@ import java.io.IOException;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;

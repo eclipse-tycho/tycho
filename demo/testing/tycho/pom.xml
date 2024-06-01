@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.eclipse.tycho.demo</groupId>
+	<artifactId>tycho-testing-parent</artifactId>
+	<packaging>pom</packaging>
+	<version>1.0.0</version>
+	<properties>
+		<target-platform>https://download.eclipse.org/releases/2022-12/</target-platform>
+		<tycho-version>4.0.4</tycho-version>
+	</properties>
+	<repositories>
+		<repository>
+			<id>platform</id>
+			<url>${target-platform}</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-ds-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<enabled>true</enabled>
+				</configuration>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<failIfNoTests>true</failIfNoTests>
+						<printBundles>true</printBundles>
+						<!-- <showEclipseLog>true</showEclipseLog> -->
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

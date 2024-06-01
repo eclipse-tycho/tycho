@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.eclipse.equinox.internal.p2.ui.model.ProvElement"
+            class="org.eclipse.equinox.internal.p2.ui.ProvUIAdapterFactory">
+         <adapter type="org.eclipse.equinox.p2.metadata.IInstallableUnit"/>
+         <adapter type="org.eclipse.equinox.p2.engine.IProfile"/>
+         <adapter type="org.eclipse.equinox.p2.repository.IRepository"/>
+         <adapter type="org.eclipse.equinox.p2.repository.metadata.IMetadataRepository"/>
+         <adapter type="org.eclipse.equinox.p2.repository.artifact.IArtifactRepository"/>
+      </factory>
+      <factory
+            adaptableType="org.eclipse.ui.internal.about.AboutPluginsPage"
+            class="org.eclipse.equinox.internal.p2.ui.KeySigningInfoFactory">
+         <adapter
+               type="org.eclipse.ui.internal.about.AboutBundleData$ExtendedSigningInfo">
+         </adapter>
+      </factory>
+   </extension>
+   
+     <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            name="%IU.copyright"
+            class="org.eclipse.equinox.internal.p2.ui.dialogs.IUCopyrightPropertyPage"
+            id="org.eclipse.equinox.p2.ui.IUCopyrightPropertyPage">
+            <enabledWhen>
+            <adapt
+                  type="org.eclipse.equinox.p2.metadata.IInstallableUnit">
+             </adapt>
+          </enabledWhen>
+      </page>
+           <page
+            name="%IU.general"
+            class="org.eclipse.equinox.internal.p2.ui.dialogs.IUGeneralInfoPropertyPage"
+            id="org.eclipse.equinox.p2.ui.IUGeneralInfoPropertyPage">
+            <enabledWhen>
+            <adapt
+                  type="org.eclipse.equinox.p2.metadata.IInstallableUnit">
+             </adapt>
+          </enabledWhen>
+      </page>
+      <page
+            name="%IU.license"
+            class="org.eclipse.equinox.internal.p2.ui.dialogs.IULicensePropertyPage"
+            id="org.eclipse.equinox.p2.ui.IULicensePropertyPage">
+            <enabledWhen>
+            <adapt
+                  type="org.eclipse.equinox.p2.metadata.IInstallableUnit">
+             </adapt>
+          </enabledWhen>
+      </page>    
+      </extension>
+ </plugin>

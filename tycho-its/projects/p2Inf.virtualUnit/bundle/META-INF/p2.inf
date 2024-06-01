@@ -1,0 +1,17 @@
+# Create the virtual IU
+units.0.id=configure.pvu.bundle
+units.0.version=$version$
+units.0.provides.1.namespace=org.eclipse.equinox.p2.iu
+units.0.provides.1.name=configure.pvu.bundle
+units.0.provides.1.version=$version$
+
+# Require in this bundle the created virtual IU
+requires.0.namespace=org.eclipse.equinox.p2.iu
+requires.0.name=configure.pvu.bundle
+requires.0.range=$version$
+
+# Specify update advice with a version range that is invalid if $version$ expands to 1.0.0
+# For this example it should expand to 2.0.0
+update.id = update.pvu.bundle
+update.range = [1.0.0,$version$)
+update.severity = 0

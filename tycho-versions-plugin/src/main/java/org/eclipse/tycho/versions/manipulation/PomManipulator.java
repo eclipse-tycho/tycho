@@ -20,8 +20,13 @@ import static org.eclipse.tycho.versions.engine.Versions.isVersionEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
@@ -40,26 +45,60 @@ import org.eclipse.tycho.versions.pom.Property;
 
 @Component(role = MetadataManipulator.class, hint = PomManipulator.HINT)
 public class PomManipulator extends AbstractMetadataManipulator {
-    public static final String HINT = "pom";
+    private static final String POM = "pom";
+
+    private static final String NULL = "<null>";
+
+    public static final String HINT = POM;
+
+    private static final Pattern CI_FRIENDLY_EXPRESSION = Pattern.compile("\\$\\{(.+?)\\}");
 
     @Override
     public boolean addMoreChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         PomFile pom = project.getMetadata(PomFile.class);
         if (pom == null) {
-            throw new RuntimeException("no pom avaiable for " + project.getBasedir());
+            throw new RuntimeException("no pom available for " + project.getBasedir());
         }
         GAV parent = pom.getParent();
 
-        boolean moreChanges = false;
-        for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
-            if (parent != null && isGavEquals(parent, change)) {
-                if (isVersionEquals(pom.getVersion(), change.getVersion())) {
-                    moreChanges |= versionChangeContext
-                            .addVersionChange(new PomVersionChange(pom, change.getVersion(), change.getNewVersion()));
+        AtomicBoolean moreChanges = new AtomicBoolean();
+        if (parent != null) {
+            for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
+                if (isGavEquals(parent, change)) {
+                    if (isVersionEquals(pom.getVersion(), change.getVersion())) {
+                        if (versionChangeContext.addVersionChange(
+                                new PomVersionChange(pom, change.getVersion(), change.getNewVersion()))) {
+                            moreChanges.set(true);
+                        }
+                    }
                 }
             }
         }
-        return moreChanges;
+        //if we are about to change we need to check the submodule
+        if (POM.equals(pom.getPackaging())) {
+            Optional<PomVersionChange> thisChange = versionChangeContext.getVersionChanges().stream()
+                    .filter(change -> change.getProject() == pom).findFirst();
+            if (thisChange.isPresent()) {
+                PomVersionChange change = thisChange.get();
+                List<String> modules = pom.getModules();
+                for (String module : modules) {
+                    versionChangeContext.findMetadataByBasedir(new File(project.getBasedir(), module))
+                            .ifPresent(moduleMeta -> {
+                                PomFile modulePom = moduleMeta.getMetadata(PomFile.class);
+                                if (modulePom != null && modulePom.isMutable()
+                                        && POM.equals(modulePom.getPackaging())
+                                        && isVersionEquals(modulePom.getVersion(), change.getVersion())) {
+                                    if (versionChangeContext.addVersionChange(
+                                            new PomVersionChange(modulePom, change.getNewVersion()))) {
+                                        moreChanges.set(true);
+                                    }
+                                }
+                            });
+                }
+            }
+        }
+
+        return moreChanges.get();
     }
 
     @Override
@@ -70,18 +109,47 @@ public class PomManipulator extends AbstractMetadataManipulator {
         if (!pom.isMutable()) {
             return;
         }
+        String pomName = project.getPomFile().getName();
         // TODO visitor pattern is a better way to implement this
 
         for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
             String version = Versions.toMavenVersion(change.getVersion());
             String newVersion = Versions.toMavenVersion(change.getNewVersion());
             if (isGavEquals(pom, change)) {
-                logger.info("  pom.xml//project/version: " + version + " => " + newVersion);
-                pom.setVersion(newVersion);
+                String v = pom.getVersion();
+                if (isCiFriendly(v)) {
+                    //applyPropertyChange(pom, version, newVersion);
+                    Matcher m = CI_FRIENDLY_EXPRESSION.matcher(v.trim());
+                    List<String> ciFriendlyProperties = new ArrayList<String>();
+                    while (m.find()) {
+                        ciFriendlyProperties.add(m.group(1));
+                    }
+                    if (ciFriendlyProperties.size() == 1) {
+                        //thats actually a simply property change
+                        applyPropertyChange(pomName, pom, ciFriendlyProperties.get(0), newVersion);
+                    } else {
+                        String update = newVersion;
+                        //now the  hard part starts, we need to match the pattern, the current algorithm is just dumb and only updates the first non matching property
+                        while (!ciFriendlyProperties.isEmpty()) {
+                            String property = ciFriendlyProperties.remove(ciFriendlyProperties.size() - 1);
+                            String value = pom.getProperties().stream().filter(p -> p.getName().equals(property))
+                                    .map(p -> p.getValue()).findFirst().orElse(NULL);
+                            if (update.endsWith(value)) {
+                                update = update.substring(0, update.length() - value.length());
+                                continue;
+                            }
+                            applyPropertyChange(pomName, pom, property, update);
+                            break;
+                        }
+                    }
+                } else {
+                    logger.info("  %s//project/version: %s => %s".formatted(pomName, version, newVersion));
+                    pom.setVersion(newVersion);
+                }
             } else {
                 GAV parent = pom.getParent();
-                if (parent != null && isGavEquals(parent, change)) {
-                    logger.info("  pom.xml//project/parent/version: " + version + " => " + newVersion);
+                if (parent != null && isGavEquals(parent, change) && !isCiFriendly(parent.getVersion())) {
+                    logger.info("  %s//project/parent/version: %s => %s".formatted(pomName, version, newVersion));
                     parent.setVersion(newVersion);
                 }
             }
@@ -93,15 +161,16 @@ public class PomManipulator extends AbstractMetadataManipulator {
             // it.
             //
 
-            changeDependencies("  pom.xml//project/dependencies", pom.getDependencies(), change, version, newVersion);
-            changeDependencyManagement("  pom.xml//project/dependencyManagement", pom.getDependencyManagement(), change,
-                    version, newVersion);
+            changeDependencies("  %s//project/dependencies".formatted(pomName), pom.getDependencies(), change, version,
+                    newVersion);
+            changeDependencyManagement("  %s//project/dependencyManagement".formatted(pomName),
+                    pom.getDependencyManagement(), change, version, newVersion);
 
-            changeBuild("  pom.xml//project/build", pom.getBuild(), change, version, newVersion);
+            changeBuild("  //project/build".formatted(pomName), pom.getBuild(), change, version, newVersion);
 
             for (Profile profile : pom.getProfiles()) {
-                String profileId = profile.getId() != null ? profile.getId() : "<null>";
-                String pomPath = "  pom.xml//project/profiles/profile[ " + profileId + " ]";
+                String profileId = profile.getId() != null ? profile.getId() : NULL;
+                String pomPath = "  %s//project/profiles/profile[ %s ]".formatted(pomName, profileId);
                 changeDependencies(pomPath + "/dependencies", profile.getDependencies(), change, version, newVersion);
                 changeDependencyManagement(pomPath + "/dependencyManagement", profile.getDependencyManagement(), change,
                         version, newVersion);
@@ -109,6 +178,10 @@ public class PomManipulator extends AbstractMetadataManipulator {
             }
         }
 
+    }
+
+    private boolean isCiFriendly(String v) {
+        return v != null && v.contains("${");
     }
 
     protected void changeDependencyManagement(String pomPath, DependencyManagement dependencyManagment,
@@ -193,16 +266,17 @@ public class PomManipulator extends AbstractMetadataManipulator {
     @Override
     public void writeMetadata(ProjectMetadata project) throws IOException {
         PomFile pom = project.getMetadata(PomFile.class);
-        File pomFile = new File(project.getBasedir(), "pom.xml");
+        File pomFile = project.getPomFile();
         if (pom != null && pomFile.exists()) {
             PomFile.write(pom, pomFile);
         }
     }
 
-    public void applyPropertyChange(PomFile pom, String propertyName, String propertyValue) {
-        changeProperties("  pom.xml//project/properties", pom.getProperties(), propertyName, propertyValue);
+    public void applyPropertyChange(String pomName, PomFile pom, String propertyName, String propertyValue) {
+        changeProperties("  %s//project/properties".formatted(pomName), pom.getProperties(), propertyName,
+                propertyValue);
         for (Profile profile : pom.getProfiles()) {
-            String pomPath = "  pom.xml//project/profiles/profile[ " + profile.getId() + " ]/properties";
+            String pomPath = "  %s//project/profiles/profile[ %s ]/properties".formatted(pomName, profile.getId());
             changeProperties(pomPath, profile.getProperties(), propertyName, propertyValue);
         }
     }

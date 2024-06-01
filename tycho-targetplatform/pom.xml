@@ -3,15 +3,15 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
-		<version>4.0.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>tycho-targetplatform</artifactId>
 	<name>Tycho Target Platform</name>
-	<description>Contains the neccesary bits to handle target platform files.</description>
+	<description>Contains the necessary bits to handle target platform files.</description>
 	<dependencies>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.embedder.shared</artifactId>
+			<artifactId>tycho-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -25,6 +25,10 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>biz.aQute.bnd</groupId>
+			<artifactId>biz.aQute.bndlib</artifactId>
 		</dependency>
 	</dependencies>
 	<build>

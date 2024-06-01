@@ -30,18 +30,17 @@ class RemoteArtifactRepositoryManager implements IArtifactRepositoryManager {
 
     private IArtifactRepositoryManager delegate;
     private final IRepositoryIdManager loadingHelper;
+	private MavenAuthenticator authenticator;
 
-    RemoteArtifactRepositoryManager(IArtifactRepositoryManager delegate, IRepositoryIdManager loadingHelper) {
+	RemoteArtifactRepositoryManager(IArtifactRepositoryManager delegate, IRepositoryIdManager loadingHelper,
+			MavenAuthenticator authenticator) {
         this.delegate = delegate;
         this.loadingHelper = loadingHelper;
+		this.authenticator = authenticator;
     }
 
     private URI translate(URI location) {
         return loadingHelper.getEffectiveLocation(location);
-    }
-
-    private URI translateAndPrepareLoad(URI location) throws ProvisionException {
-        return loadingHelper.getEffectiveLocationAndPrepareLoad(location);
     }
 
     @Override
@@ -72,7 +71,11 @@ class RemoteArtifactRepositoryManager implements IArtifactRepositoryManager {
     @Override
     public IArtifactRepository createRepository(URI location, String name, String type, Map<String, String> properties)
             throws ProvisionException {
-        return delegate.createRepository(translate(location), name, type, properties);
+		synchronized (RemoteArtifactRepositoryManager.class) {
+			// TODO the sync is required unless
+			// https://github.com/eclipse-equinox/p2/pull/415 is fixed
+			return delegate.createRepository(translate(location), name, type, properties);
+		}
     }
 
     @Override
@@ -98,12 +101,12 @@ class RemoteArtifactRepositoryManager implements IArtifactRepositoryManager {
     @Override
     public IArtifactRepository loadRepository(URI location, int flags, IProgressMonitor monitor)
             throws ProvisionException {
-        return delegate.loadRepository(translateAndPrepareLoad(location), flags, monitor);
+		return accessRepository(location, uri -> delegate.loadRepository(uri, flags, monitor));
     }
 
     @Override
     public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-        return delegate.loadRepository(translateAndPrepareLoad(location), monitor);
+		return accessRepository(location, uri -> delegate.loadRepository(uri, monitor));
     }
 
     @Override
@@ -113,7 +116,7 @@ class RemoteArtifactRepositoryManager implements IArtifactRepositoryManager {
 
     @Override
     public IArtifactRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-        return delegate.refreshRepository(translateAndPrepareLoad(location), monitor);
+		return accessRepository(location, uri -> delegate.refreshRepository(uri, monitor));
     }
 
     @Override
@@ -130,5 +133,21 @@ class RemoteArtifactRepositoryManager implements IArtifactRepositoryManager {
     public void setRepositoryProperty(URI location, String key, String value) {
         delegate.setRepositoryProperty(translate(location), key, value);
     }
+
+	public <V> V accessRepository(URI initialUri, RepositoryCallable<V> action) throws ProvisionException {
+		URI effectiveURI = loadingHelper.getEffectiveLocationAndPrepareLoad(initialUri);
+		authenticator.enterLoad(effectiveURI);
+		try {
+			return action.call(effectiveURI);
+		} finally {
+			authenticator.exitLoad();
+		}
+	}
+
+	private static interface RepositoryCallable<V> {
+
+		V call(URI effectiveURI) throws ProvisionException;
+
+	}
 
 }

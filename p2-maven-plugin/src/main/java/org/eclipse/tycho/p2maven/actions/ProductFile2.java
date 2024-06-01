@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.actions;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
@@ -26,7 +27,11 @@ public class ProductFile2 extends ProductFile {
 
     protected static final String ATTRIBUTE_ARCH = "arch";
 
-    public ProductFile2(String location) throws Exception {
+	public ProductFile2(File location) throws Exception {
+		this(location.getAbsolutePath());
+	}
+
+	public ProductFile2(String location) throws Exception {
         super(location);
     }
 
@@ -46,12 +51,7 @@ public class ProductFile2 extends ProductFile {
         if (os != null || ws != null || arch != null) {
             entry.setEnvironment(os, ws, arch, null);
         }
-
-        if (isFragment) {
-            fragments.add(entry);
-        } else {
-            plugins.add(entry);
-        }
+        plugins.add(entry);
     }
 
     @Override

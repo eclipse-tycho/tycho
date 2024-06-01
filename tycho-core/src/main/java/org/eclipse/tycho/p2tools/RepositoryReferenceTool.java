@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -27,17 +28,19 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
+import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
+import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
 /**
  * Tool to obtain the list of p2 repositories that contain the dependencies of a module.
@@ -50,11 +53,17 @@ public class RepositoryReferenceTool {
      */
     public static final int REPOSITORIES_INCLUDE_CURRENT_MODULE = 1;
 
-    @Requirement
-    private DefaultDependencyResolverFactory dependencyResolverLocator;
+    @Requirement(hint = "p2")
+    private DependencyResolver dependencyResolver;
 
     @Requirement
     private MetadataSerializable serializer;
+
+    @Requirement
+    private TychoProjectManager projectManager;
+
+    @Requirement
+    private ReactorRepositoryManager repositoryManager;
 
     /**
      * Returns the list of visible p2 repositories for the build of the current module. The list
@@ -86,6 +95,8 @@ public class RepositoryReferenceTool {
         RepositoryReferences repositories = new RepositoryReferences();
 
         if ((flags & REPOSITORIES_INCLUDE_CURRENT_MODULE) != 0) {
+            //This is to enforce the repository is there e.g. if no p2 metadata is generated yet it will init it now
+            repositoryManager.getPublishingRepository(DefaultReactorProject.adapt(module));
             File publisherResults = new File(module.getBuild().getDirectory());
             repositories.addMetadataRepository(publisherResults);
             repositories.addArtifactRepository(publisherResults);
@@ -111,19 +122,16 @@ public class RepositoryReferenceTool {
             repositoryLocation.mkdirs();
             try (FileOutputStream stream = new FileOutputStream(new File(repositoryLocation, "content.xml"))) {
 
-                ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-                TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(reactorProject);
+                TargetPlatform targetPlatform = projectManager.getTargetPlatform(project)
+                        .orElseThrow(() -> new MojoFailureException(TychoConstants.TYCHO_NOT_CONFIGURED + project));
 
-                DependencyResolver resolver = dependencyResolverLocator.lookupDependencyResolver(project);
-
-                TargetPlatformConfiguration configuration = TychoProjectUtils
-                        .getTargetPlatformConfiguration(reactorProject);
+                TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
 
                 DependencyResolverConfiguration resolverConfiguration = configuration
                         .getDependencyResolverConfiguration();
 
-                DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,
-                        DefaultReactorProject.adapt(session), resolverConfiguration, configuration.getEnvironments());
+                DependencyArtifacts dependencyArtifacts = dependencyResolver.resolveDependencies(session, project,
+                        targetPlatform, resolverConfiguration, configuration.getEnvironments());
                 dependencyArtifacts.getArtifacts().forEach(artifact -> artifact.getLocation(true)); // ensure artifacts are available locally
 
                 // this contains dependency-only metadata for 'this' project
@@ -146,6 +154,17 @@ public class RepositoryReferenceTool {
             sources.addMetadataRepository(repositoryLocation);
         } catch (IOException e) {
             throw new MojoExecutionException("I/O exception while writing the build target platform to disk", e);
+        } catch (DependencyResolutionException e) {
+            ResolverException resolverException = ResolverException.findResolverException(e);
+            if (resolverException == null) {
+                throw new MojoFailureException("Cannot resolve dependencies of project " + project.getId(), e);
+            } else {
+                throw new MojoFailureException("Cannot resolve dependencies of project "
+                        + project.getId() + System.lineSeparator() + " with context "
+                        + resolverException.getSelectionContext() + System.lineSeparator() + resolverException
+                                .explanations().map(exp -> "  " + exp.toString()).collect(Collectors.joining("\n")),
+                        resolverException);
+            }
         }
     }
 

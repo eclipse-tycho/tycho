@@ -24,8 +24,7 @@ public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testProvisionAppAndRunTest() throws Exception {
-		Verifier verifier = getVerifier("surefire.p2InstalledRuntime", false);
-		verifier.addCliOption("-Dp2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
+		Verifier verifier = getVerifier("surefire.p2InstalledRuntime");
 		verifier.addCliOption("-PprovisionProduct");
 		verifier.executeGoals(List.of("clean", "integration-test"));
 		verifier.verifyErrorFreeLog();
@@ -33,8 +32,7 @@ public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testRunTestOnProvisionedApp() throws Exception {
-		Verifier verifier = getVerifier("surefire.p2InstalledRuntime", false);
-		verifier.addCliOption("-Dp2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
+		Verifier verifier = getVerifier("surefire.p2InstalledRuntime");
 		verifier.addCliOption("-PuseProvisionedProduct");
 		verifier.addCliOption("-DproductClassifier=" + getProductClassifier());
 		verifier.executeGoals(List.of("clean", "integration-test"));
@@ -42,11 +40,22 @@ public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testRunTestOnProvisionedDirector() throws Exception {
+		Verifier verifier = getVerifier("surefire.p2InstalledRuntime");
+		verifier.addCliOption("-PuseProvisionedProductDirector");
+		verifier.addCliOption("-DproductClassifier=" + getProductClassifier());
+		verifier.executeGoals(List.of("clean", "integration-test"));
+		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("Tests run: 1");
+	}
+
+	@Test
 	public void testDifferentHarnessVersions() throws Exception {
 		Verifier verifier = getVerifier("surefire.p2InstalledRuntime", false);
-		verifier.addCliOption("-Dp2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
+		verifier.addCliOption("-Dtarget-platform=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
 		// Use different TP for test bundle and product under test
-		verifier.addCliOption("-Dother.p2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
+		verifier.addCliOption(
+				"-Dother.p2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString().replace("/", "//"));
 		verifier.addCliOption("-PuseProvisionedProduct");
 		verifier.addCliOption("-DproductClassifier=" + getProductClassifier());
 		verifier.executeGoals(List.of("clean", "integration-test"));

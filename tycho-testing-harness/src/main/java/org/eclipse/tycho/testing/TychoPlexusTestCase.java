@@ -19,7 +19,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.testing.stubs.StubArtifactRepository;
@@ -66,7 +68,14 @@ public class TychoPlexusTestCase {
         LegacySupport legacySupport = lookup(LegacySupport.class);
         PlexusContainer container = ext.getContainer();
         Settings settings = new Settings();
-        ArtifactRepository localRepository = new StubArtifactRepository(temporaryFolder.newFolder().getAbsolutePath());
+        ArtifactRepository localRepository = new StubArtifactRepository(temporaryFolder.newFolder().getAbsolutePath()) {
+            DefaultRepositoryLayout layout = new DefaultRepositoryLayout();
+
+            @Override
+            public String pathOf(Artifact artifact) {
+                return layout.pathOf(artifact);
+            }
+        };
         MavenSession mavenSession = new MavenSession(container, settings, localRepository, null, null, List.of(),
                 temporaryFolder.newFolder().getAbsolutePath(), System.getProperties(), System.getProperties(),
                 new Date());
@@ -84,6 +93,10 @@ public class TychoPlexusTestCase {
             } catch (Exception e) {
             }
         }
+    }
+
+    public static String getBasedir() {
+        return PlexusTestCaseExension.getBasedir();
     }
 
     protected void modifySession(MavenSession mavenSession) {
@@ -110,6 +123,10 @@ public class TychoPlexusTestCase {
                     "Test resource \"" + path + "\" not found under \"src/test/resources\" in the project");
         }
         return resolvedFile;
+    }
+
+    protected static File getBasedir(String name) throws IOException {
+        return TestUtil.getBasedir(name);
     }
 
     private static final class PlexusTestCaseExension extends PlexusTestCase {

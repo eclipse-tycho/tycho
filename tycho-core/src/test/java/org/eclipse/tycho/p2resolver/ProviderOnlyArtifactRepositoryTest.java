@@ -27,7 +27,7 @@ import java.net.URI;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.IRawArtifactFileProvider;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
 import org.eclipse.tycho.p2.repository.FileRepositoryArtifactProvider;
 import org.eclipse.tycho.p2.repository.ProviderOnlyArtifactRepository;

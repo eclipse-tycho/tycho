@@ -93,7 +93,7 @@ public class P2RepositoryManager {
 		for (Repository repository : repositories) {
 			childs.add(getArtifactRepository(repository));
 		}
-		return new ListCompositeArtifactRepository(agent, childs);
+		return new ListCompositeArtifactRepository(childs, agent);
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class P2RepositoryManager {
 	 * @return the {@link IMetadataRepository} for the given {@link Repository}
 	 * @throws ProvisionException if loading the repository failed
 	 */
-	public IMetadataRepository getMetadataRepositor(MavenRepositoryLocation repository)
+	public IMetadataRepository getMetadataRepository(MavenRepositoryLocation repository)
 			throws ProvisionException {
 		return getMetadataRepositor(repository.getURL(), repository.getId());
 	}

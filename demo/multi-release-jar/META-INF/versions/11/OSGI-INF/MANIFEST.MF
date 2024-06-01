@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Import-Package: java.io,\
+ java.lang,\
+ java.lang.invoke,\
+ java.net,\
+ java.net.http,\
+ java.time
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=11))"
+

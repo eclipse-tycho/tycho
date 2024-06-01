@@ -8,11 +8,11 @@ concurrency:
 on:
   push:
     branches: 
-      - 'master'
+      - 'main'
       - 'tycho-*'
   pull_request:
     branches: 
-     - 'master'
+     - 'main'
      - 'tycho-*'
 
 jobs:
@@ -21,52 +21,48 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-13]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
     - name: Set up Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
       with:
         java-version: |
-            8
-            11
-            19
+            21
             17
         distribution: 'temurin'
     - name: Cache local Maven repository
-      uses: actions/cache@v3
+      uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-tycho4-${{ matrix.os }}-${{ hashFiles('**/pom.xml', '**/*.target') }}
+        key: ${{ runner.os }}-tycho4m39-${{ matrix.os }}-${{ hashFiles('**/pom.xml', '**/*.target') }}
         restore-keys: |
-          ${{ runner.os }}-tycho4-${{ matrix.os }}-
+          ${{ runner.os }}-tycho4m39-${{ matrix.os }}-
     - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.5
+      uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1 # v5
       with:
-        maven-version: 3.8.6
+        maven-version: 3.9.6
     - name: Build Tycho
       env:
        JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
       run: | 
         cp .github/toolchains.xml ~/.m2/toolchains.xml
-        mvn -U -V -e -B -ntp clean install --file pom.xml -T1C -DtrimStackTrace=false
-    - name: Run Integration Tests
-      run: mvn -U -V -e -B -ntp -Pits -D maven.test.failure.ignore=true clean install --file tycho-its/pom.xml -DtrimStackTrace=false
-      if: github.event.pull_request.draft == false
+        mvn -U -V -e -B -ntp clean install --file pom.xml -DtrimStackTrace=false -Pits -fae
     - name: Upload Test Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+      if: always()
       with:
         name: test-results-${{ matrix.os }}
-        if-no-files-found: error
+        if-no-files-found: warn
         path: |
           ${{ github.workspace }}/tycho-its/target/surefire-reports/*.xml
-      if: github.event.pull_request.draft == false
   event_file:
     name: "Event File"
     runs-on: ubuntu-latest
     steps:
     - name: Upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
       with:
         name: Event File
         path: ${{ github.event_path }}
+

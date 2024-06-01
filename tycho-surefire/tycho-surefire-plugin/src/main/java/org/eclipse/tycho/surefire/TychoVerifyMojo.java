@@ -30,9 +30,12 @@ public class TychoVerifyMojo extends VerifyMojo {
     @Parameter(property = "project", readonly = true)
     protected MavenProject project;
 
+    @Parameter(property = "tycho.verify-test.packaging", defaultValue = PackagingType.TYPE_ECLIPSE_PLUGIN)
+    private String packaging = PackagingType.TYPE_ECLIPSE_PLUGIN;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging())) {
+        if (packaging.equals(project.getPackaging())) {
             super.execute();
         }
     }

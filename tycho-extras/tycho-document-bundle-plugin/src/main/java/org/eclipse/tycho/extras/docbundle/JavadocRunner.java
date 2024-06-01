@@ -192,7 +192,7 @@ public class JavadocRunner {
 
 		for (final File manifestFile : this.manifestFiles) {
 			if (!manifestFile.canRead()) {
-				this.log.debug("No readable manifest: " + manifestFile);
+				this.log.debug("No readable Manifest: " + manifestFile);
 				continue;
 			}
 
@@ -253,15 +253,15 @@ public class JavadocRunner {
 	}
 
 	protected String getExecutable() {
-		log.debug("Find javadoc executable");
+		log.debug("Finding javadoc executable");
 
 		if (this.options.getExecutable() != null) {
 			// prefer the specific one
-			log.debug("Using specified javadoc: " + options.getExecutable());
+			log.debug("Using specified javadoc executable: " + options.getExecutable());
 			return this.options.getExecutable();
 		}
 
-		log.debug("Toolchain manager: " + toolchainManager);
+		log.debug("Toolchain Manager: " + toolchainManager);
 
 		if (this.toolchainManager != null) {
 			// try the toolchain
@@ -294,7 +294,7 @@ public class JavadocRunner {
 			javadocFromJavaHome += ".exe";
 		}
 
-		log.debug("Testing javadoc from java.home = " + javadocFromJavaHome);
+		log.debug("Testing javadoc from 'java.home': " + javadocFromJavaHome);
 
 		if (new File(javadocFromJavaHome).canExecute()) {
 			return javadocFromJavaHome;
@@ -309,7 +309,7 @@ public class JavadocRunner {
 				javadocFromJavaHome += ".exe";
 			}
 
-			log.debug("Testing javadoc from JAVA_HOME = " + javadocFromJavaHome);
+			log.debug("Testing javadoc from JAVA_HOME: " + javadocFromJavaHome);
 
 			if (new File(javadocFromJavaHome).canExecute()) {
 				return javadocFromJavaHome;

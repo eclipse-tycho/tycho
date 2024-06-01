@@ -70,6 +70,9 @@ public class ProxyHelper implements Initializable {
 		if (org.eclipse.aether.repository.Proxy.TYPE_HTTP.equalsIgnoreCase(type)) {
 			return Type.HTTP;
 		}
+		if (org.eclipse.aether.repository.Proxy.TYPE_HTTPS.equalsIgnoreCase(type)) {
+			return Type.HTTP;
+		}
 		return Type.SOCKS;
 	}
 

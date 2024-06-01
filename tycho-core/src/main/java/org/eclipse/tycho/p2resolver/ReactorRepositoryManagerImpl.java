@@ -13,39 +13,29 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
-import org.eclipse.tycho.TargetPlatform;
-import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
-import org.eclipse.tycho.core.resolver.P2ResolverFactory;
+import org.eclipse.tycho.p2.metadata.P2Generator;
+import org.eclipse.tycho.p2.repository.PublishingRepository;
+import org.eclipse.tycho.p2.repository.module.ModuleArtifactRepository;
+import org.eclipse.tycho.p2.repository.module.ModuleMetadataRepository;
 import org.eclipse.tycho.p2.repository.module.PublishingRepositoryImpl;
-import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
-import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
-import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 
 @Component(role = ReactorRepositoryManager.class)
 public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
 
-    private static final String PRELIMINARY_TARGET_PLATFORM_KEY = ReactorRepositoryManagerImpl.class.getName()
-            + "/dependencyOnlyTargetPlatform";
-
     @Requirement
     IProvisioningAgent agent;
-    @Requirement
-    P2ResolverFactory p2ResolverFactory;
 
-    private TargetPlatformFactory tpFactory;
+    @Requirement
+    P2Generator p2generator;
 
     @Override
     public PublishingRepository getPublishingRepository(ReactorProjectIdentities project) {
@@ -53,68 +43,21 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
     }
 
     @Override
-    public TargetPlatform computePreliminaryTargetPlatform(ReactorProject project,
-            TargetPlatformConfigurationStub tpConfiguration, ExecutionEnvironmentConfiguration eeConfiguration,
-            List<ReactorProject> reactorProjects) {
-        //
-        // at this point, there is only incomplete ("dependency-only") metadata for the reactor projects
-        TargetPlatform result = getTpFactory().createTargetPlatform(tpConfiguration, eeConfiguration, reactorProjects);
-        project.setContextValue(PRELIMINARY_TARGET_PLATFORM_KEY, result);
+    public PublishingRepository getPublishingRepository(ReactorProject project) {
 
-        List<MavenArtifactRepositoryReference> repositoryReferences = tpConfiguration.getTargetDefinitions().stream()
-                .flatMap(definition -> definition.getLocations().stream()).filter(MavenGAVLocation.class::isInstance)
-                .map(MavenGAVLocation.class::cast).flatMap(location -> location.getRepositoryReferences().stream())
-                .toList();
-        project.setContextValue(TychoConstants.CTX_REPOSITORY_REFERENCE, repositoryReferences);
-        return result;
-    }
-
-    @Override
-    public TargetPlatform computeFinalTargetPlatform(ReactorProject project,
-            List<? extends ReactorProjectIdentities> upstreamProjects, PomDependencyCollector pomDependencyCollector) {
-        PreliminaryTargetPlatformImpl preliminaryTargetPlatform = getRegisteredPreliminaryTargetPlatform(project);
-        if (preliminaryTargetPlatform == null) {
-            // project doesn't seem to use resolver=p2
-            return null;
+        File targetDir = project.getBuildDirectory().getLocation();
+        if (!ModuleMetadataRepository.canAttemptRead(targetDir)
+                || !ModuleArtifactRepository.canAttemptRead(targetDir)) {
+            //no metadata there so just generate it...
+            try {
+                agent.getService(Object.class); //needed to make checksum computation work see https://github.com/eclipse-equinox/p2/issues/214
+                p2generator.generateMetaData(project.adapt(MavenProject.class));
+            } catch (Exception e) {
+                // can't do anything then...
+            }
         }
-        List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
-        TargetPlatform result = getTpFactory().createTargetPlatformWithUpdatedReactorContent(preliminaryTargetPlatform,
-                upstreamProjectResults, pomDependencyCollector);
 
-        project.setContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY, result);
-        return result;
-    }
-
-    private PreliminaryTargetPlatformImpl getRegisteredPreliminaryTargetPlatform(ReactorProject project) {
-        return project.getContextValue(
-                PRELIMINARY_TARGET_PLATFORM_KEY) instanceof PreliminaryTargetPlatformImpl preliminaryTargetPlatformImpl
-                        ? preliminaryTargetPlatformImpl
-                        : null;
-    }
-
-    private List<PublishingRepository> getBuildResults(List<? extends ReactorProjectIdentities> projects) {
-        List<PublishingRepository> results = new ArrayList<>(projects.size());
-        for (ReactorProjectIdentities project : projects) {
-            results.add(getPublishingRepository(project));
-        }
-        return results;
-    }
-
-    @Override
-    public TargetPlatform getFinalTargetPlatform(ReactorProject project) {
-        TargetPlatform targetPlatform = (TargetPlatform) project
-                .getContextValue(TargetPlatform.FINAL_TARGET_PLATFORM_KEY);
-        if (targetPlatform == null) {
-            throw new IllegalStateException("Target platform is missing");
-        }
-        return targetPlatform;
-    }
-
-    public synchronized TargetPlatformFactory getTpFactory() {
-        if (tpFactory == null) {
-            tpFactory = p2ResolverFactory.getTargetPlatformFactory();
-        }
-        return tpFactory;
+        return getPublishingRepository(project.getIdentities());
     }
 
 }

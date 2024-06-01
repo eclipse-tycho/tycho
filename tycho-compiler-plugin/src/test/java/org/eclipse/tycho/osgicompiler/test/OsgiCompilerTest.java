@@ -16,6 +16,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,6 +40,7 @@ import org.eclipse.tycho.SourcepathEntry;
 import org.eclipse.tycho.compiler.AbstractOsgiCompilerMojo;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.version.TychoVersion;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.StringContains;
 
@@ -49,12 +52,15 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
     private static final int TARGET_1_8 = 52;
 
     protected File storage;
+    private Properties properties;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         storage = new File(getBasedir(), "target/storage");
         FileUtils.deleteDirectory(storage);
+        properties = new Properties();
+        properties.setProperty("tycho-version", TychoVersion.getTychoVersion());
     }
 
     private AbstractOsgiCompilerMojo getMojo(List<MavenProject> projects, MavenProject project) throws Exception {
@@ -111,8 +117,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void testClasspath() throws Exception {
         File basedir = getBasedir("projects/classpath");
-        List<MavenProject> projects = getSortedProjects(basedir,
-                new File(getBasedir(), "src/test/resources/projects/classpath/platform"));
+        List<MavenProject> projects = getSortedProjects(basedir, properties);
 
         MavenProject project;
         List<String> cp;
@@ -137,7 +142,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         mojo = getMojo(projects, project);
         cp = mojo.getClasspathElements();
         assertEquals(3, cp.size());
-        final String plainJarPath = "src/test/resources/projects/classpath/platform/plugins/p003_0.0.1.jar";
+        final String plainJarPath = "target/projects/classpath/platform/plugins/p003_0.0.1.jar";
         final String nestedJarPath = "target/local-repo/.cache/tycho/p003_0.0.1.jar/lib/lib.jar";
         assertEquals(getClasspathElement(new File(getBasedir()), plainJarPath, "[?**/*]"), cp.get(0));
         assertEquals(getClasspathElement(new File(getBasedir()), nestedJarPath, "[?**/*]"), cp.get(1));
@@ -492,18 +497,18 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         setVariableValueToObject(mojo, "useProjectSettings", Boolean.TRUE);
-        final List<CharSequence> warnings = new ArrayList<>();
+        final List<String> debug = new ArrayList<>();
         mojo.setLog(new SystemStreamLog() {
 
             @Override
-            public void warn(CharSequence content) {
-                warnings.add(content);
+            public void debug(CharSequence content) {
+                debug.add(content.toString());
             }
 
         });
         mojo.execute();
-        assertThat((String) warnings.iterator().next(),
-                containsString("Parameter 'useProjectSettings' is set to true, but preferences file"));
+        assertTrue(debug.stream()
+                .anyMatch(msg -> msg.contains("Parameter 'useProjectSettings' is set to true, but preferences file")));
     }
 
     public void test367431_frameworkExtensionCompileAccessRules() throws Exception {
@@ -511,9 +516,8 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         // This is the case for all supported JDKs to date (1.8, 11, 14).
         // Note: The bundle uses BREE 1.8 here, because apparently this kind of framework-extension does not
         // correctly work with modular API (Java9+).
-        File basedir = getBasedir("projects/367431_frameworkExtensionCompileAccessRules/bundle");
-        List<MavenProject> projects = getSortedProjects(basedir,
-                new File("src/test/resources/projects/367431_frameworkExtensionCompileAccessRules/repository"));
+        File basedir = getBasedir("projects/367431_frameworkExtensionCompileAccessRules/");
+        List<MavenProject> projects = getSortedProjects(new File(basedir, "bundle"), properties);
 
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
@@ -524,18 +528,15 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir);
 
         MavenProject project = projects.get(0);
-        try {
-            getMojo(projects, project).execute();
-            fail();
-        } catch (MojoExecutionException e) {
-            // assert that the compiler mojo checks the target levels of all BREEs (and not just the first or "minimal" one) 
-            assertThat(e.getMessage(), containsString(
-                    "The effective compiler target level 1.5 is incompatible with the following OSGi execution environments"));
-            assertThat(e.getMessage(), containsString("J2SE-1.2"));
-            assertThat(e.getMessage(), containsString("CDC-1.0/Foundation-1.0"));
-            assertThat(e.getMessage(), containsString("OSGi/Minimum-1.2"));
-            assertThat(e.getMessage(), not(containsString("JavaSE-1.6")));
-        }
+        MojoExecutionException e = assertThrows(MojoExecutionException.class,
+                () -> getMojo(projects, project).execute());
+        // assert that the compiler mojo checks the target levels of all BREEs (and not just the first or "minimal" one) 
+        assertThat(e.getMessage(), containsString(
+                "The effective compiler target level 1.5 is incompatible with the following OSGi execution environments"));
+        assertThat(e.getMessage(), containsString("J2SE-1.2"));
+        assertThat(e.getMessage(), containsString("CDC-1.0/Foundation-1.0"));
+        assertThat(e.getMessage(), containsString("OSGi/Minimum-1.2"));
+        assertThat(e.getMessage(), not(containsString("JavaSE-1.6")));
     }
 
     public void test386210_compilerConfigurationCrosstalk() throws Exception {
@@ -584,13 +585,10 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/logs/customCompilerArgsAndLog");
         List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project = projects.get(0);
-        try {
-            lookupConfiguredMojo(project, "compile").execute();
-            fail();
-        } catch (MojoFailureException e) {
-            assertThat(e.getMessage(), containsString("Compiler logging is configured by the 'log' compiler"
-                    + " plugin parameter and the custom compiler argument '-log'. Only either of them is allowed."));
-        }
+        MojoFailureException e = assertThrows(MojoFailureException.class,
+                () -> lookupConfiguredMojo(project, "compile").execute());
+        assertThat(e.getMessage(), containsString("Compiler logging is configured by the 'log' compiler"
+                + " plugin parameter and the custom compiler argument '-log'. Only either of them is allowed."));
     }
 
     public void testJreCompilationProfile() throws Exception {

@@ -6,15 +6,15 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.zipcomparator.internal;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,86 +36,94 @@ public class TextComparator implements ContentsComparator {
 
     static final String HINT = "txt";
 
+    private static final char CR = '\r';
+    private static final char LF = '\n';
+
+    // Possible new lines:
+    // \n -- unix style
+    // \r\n -- windows style
+    // \r -- old Mac OS 9 style, recent Mac OS X/macOS use \n
+
     @Override
     public ArtifactDelta getDelta(ComparatorInputStream baseline, ComparatorInputStream reactor, ComparisonData data)
             throws IOException {
-        ByteIterator baselineIterator = new ByteIterator(baseline.asBytes());
-        ByteIterator reactorIterator = new ByteIterator(reactor.asBytes());
-        while (baselineIterator.hasNext() && reactorIterator.hasNext()) {
-            if (baselineIterator.next() != reactorIterator.next()) {
-                return createDelta(ArtifactDelta.DEFAULT.getMessage(), baseline, reactor);
-            }
-        }
-        //now both need to be at the end of the stream if they are the same!
-        if (baselineIterator.hasNext() || reactorIterator.hasNext()) {
-            return createDelta(ArtifactDelta.DEFAULT.getMessage(), baseline, reactor);
+        return compareText(baseline, reactor, data);
+    }
+
+    public static ArtifactDelta compareText(ComparatorInputStream baseline, ComparatorInputStream reactor,
+            ComparisonData data) {
+        if (!isEqualTextIngoreNewLine(baseline.asBytes(), reactor.asBytes())) {
+            return createDelta(ArtifactDelta.DEFAULT.getMessage(), baseline, reactor, data);
         }
         return ArtifactDelta.NO_DIFFERENCE;
     }
 
-    private static final class ByteIterator {
-
-        private byte[] bytes;
-        private int index;
-
-        public ByteIterator(byte[] bytes) {
-            this.bytes = bytes;
-        }
-
-        byte next() throws EOFException {
-            if (hasNext()) {
-                byte b = bytes[index];
-                index++;
-                return b;
+    /**
+     * Tests if {@code baseline} and {@code reactor} contain equal text, if line-endings are
+     * ignored.
+     * 
+     * @implNote This methods is intended to have the same results as if the entire content of each
+     *           array were read and compared line by line using BufferedReader.readLine(), which
+     *           only returns the line content, without terminators. The actual implementation is
+     *           just more efficient, because it does not create String objects for the entire
+     *           content.
+     */
+    public static boolean isEqualTextIngoreNewLine(byte[] baseline, byte[] reactor) {
+        int indexBaseline = 0;
+        int indexReactor = 0;
+        int mismatch = Arrays.mismatch(baseline, reactor);
+        while (mismatch >= 0) {
+            indexBaseline += mismatch;
+            indexReactor += mismatch;
+            int baselineNewLine = newLineLength(baseline, indexBaseline);
+            int reactorNewLine = newLineLength(reactor, indexReactor);
+            if (baselineNewLine < 0 || reactorNewLine < 0) {
+                return false;
             }
-            throw new EOFException();
+            // Both sliders are at either "\n" or "\r\n"
+            indexBaseline += baselineNewLine;
+            indexReactor += reactorNewLine;
+            mismatch = Arrays.mismatch(baseline, indexBaseline, baseline.length, reactor, indexReactor, reactor.length);
         }
+        return true;
+    }
 
-        boolean hasNext() {
-            skipNewLines();
-            return index < bytes.length;
-        }
-
-        private void skipNewLines() {
-            while (index < bytes.length) {
-                byte b = bytes[index];
-                if (b == '\n' || b == '\r') {
-                    index++;
-                    continue;
-                }
-                return;
+    private static int newLineLength(byte[] bytes, int index) {
+        if (index < bytes.length) {
+            if (bytes[index] == LF
+                    // Prevent "\r\n" and "\r\r\n" from being treated as equals
+                    && (index == 0 || bytes[index - 1] != CR)) {
+                return 1;
+            } else if (bytes[index] == CR) {
+                return index + 1 < bytes.length && bytes[index + 1] == LF ? 2 : 1;
             }
         }
-
+        return -1;
     }
 
     @Override
-    public boolean matches(String extension) {
-        return HINT.equals(extension) ||
-        //TODO is there a way to compare java files? See https://github.com/eclipse-jdt/eclipse.jdt.core/discussions/628
-                "java".equalsIgnoreCase(extension) ||
-                //TODO is there a better way to compare html? See for example https://stackoverflow.com/questions/47310845/compare-two-html-documents-using-jsoup-java 
-                "html".equalsIgnoreCase(extension) || "htm".equalsIgnoreCase(extension);
+    public boolean matches(String nameOrExtension) {
+        return HINT.equalsIgnoreCase(nameOrExtension);
     }
 
     public static ArtifactDelta createDelta(String message, ComparatorInputStream baseline,
-            ComparatorInputStream reactor) {
-        if (NO_DIFF_DETAILS) {
-            return ArtifactDelta.DEFAULT;
+            ComparatorInputStream reactor, ComparisonData data) {
+        if (data.showDiffDetails()) {
+            String detailed;
+            try {
+                List<String> source = IOUtils.readLines(baseline.asNewStream(), StandardCharsets.UTF_8);
+                List<String> target = IOUtils.readLines(reactor.asNewStream(), StandardCharsets.UTF_8);
+                Patch<String> patch = DiffUtils.diff(source, target);
+                List<String> unifiedDiffList = UnifiedDiffUtils.generateUnifiedDiff("baseline", "reactor", source,
+                        patch, 0);
+                detailed = unifiedDiffList.stream().collect(Collectors.joining(System.lineSeparator()));
+            } catch (Exception e) {
+                detailed = message;
+            }
+            return new SimpleArtifactDelta(message, detailed, baseline.asString(StandardCharsets.UTF_8),
+                    reactor.asString(StandardCharsets.UTF_8));
         }
-        String detailed;
-        try {
-            List<String> source = IOUtils.readLines(baseline.asNewStream(), StandardCharsets.UTF_8);
-            List<String> target = IOUtils.readLines(reactor.asNewStream(), StandardCharsets.UTF_8);
-            Patch<String> patch = DiffUtils.diff(source, target);
-            List<String> unifiedDiffList = UnifiedDiffUtils.generateUnifiedDiff("baseline", "reactor", source, patch,
-                    0);
-            detailed = unifiedDiffList.stream().collect(Collectors.joining((System.lineSeparator())));
-        } catch (Exception e) {
-            detailed = message;
-        }
-        return new SimpleArtifactDelta(message, detailed, baseline.asString(StandardCharsets.UTF_8),
-                reactor.asString(StandardCharsets.UTF_8));
+        return ArtifactDelta.DEFAULT;
     }
 
 }

@@ -54,6 +54,7 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
+import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.packaging.sourceref.SourceReferenceComputer;
 import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
 import org.osgi.framework.Constants;
@@ -143,6 +144,17 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	@Parameter(defaultValue = "true")
 	private boolean deriveHeaderFromProject = true;
 
+	/**
+	 * Whether to derive OSGi-Headers from the sources, currently the following
+	 * header are supported
+	 * <ul>
+	 * <li>{@link Constants#REQUIRE_CAPABILITY} is enhanced by those from code
+	 * annotations</li>
+	 * </ul>
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean deriveHeaderFromSource;
+
 	@Component
 	private SourceReferenceComputer soureReferenceComputer;
 
@@ -151,6 +163,12 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
 	@Component
 	private BundleReader bundleReader;
+
+	@Component
+	List<ManifestProcessor> manifestProcessors;
+
+	@Component
+	PluginRealmHelper pluginRealmHelper;
 
 	@Override
 	public void execute() throws MojoExecutionException {
@@ -183,7 +201,11 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 			File jarFile = new File(project.getBasedir(), jarName);
 			JarArchiver archiver = new JarArchiver();
 			archiver.setDestFile(jarFile);
-			archiver.addDirectory(jar.getOutputDirectory());
+			File outputDirectory = jar.getOutputDirectory();
+			if (!outputDirectory.mkdirs() && !outputDirectory.exists()) {
+				throw new IOException("creating output directory " + outputDirectory.getAbsolutePath() + " failed");
+			}
+			archiver.addDirectory(outputDirectory);
 			if (customManifest != null) {
 				for (File sourceFolder : jar.getSourceFolders()) {
 					File manifestFile = new File(sourceFolder, customManifest);
@@ -242,7 +264,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 				if (components != null) {
 					if (components.contains("*")) {
 						getLog().warn(
-								"Checking Service-Component header that contains wildcards is currently not supported!");
+								"Checking Service-Component header that contains wildcards is currently not supported");
 					} else {
 						for (String component : components.split(",\\s*")) {
 							assertComponentExists(component);
@@ -254,7 +276,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 			archiver.getArchiver().addFileSet(getFileSet(mavenProject.getBasedir(), binIncludesList, binExcludesList));
 
 			File manifest = new File(mavenProject.getBuild().getDirectory(), "MANIFEST.MF");
-			updateManifest(manifest);
+			writeManifest(manifest, getManifest());
 			archive.setManifestFile(manifest);
 
 			archiver.setOutputFile(pluginFile);
@@ -288,11 +310,6 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 		}
 		getLog().warn(message);
 
-	}
-
-	private void updateManifest(File output) throws IOException, MojoExecutionException {
-
-		writeManifest(output, getManifest());
 	}
 
 	protected void writeManifest(File output, Manifest mf) throws IOException {
@@ -340,6 +357,14 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 				}).filter(Objects::nonNull).map(String::valueOf).collect(Collectors.joining(","));
 			});
 		}
+		try {
+			pluginRealmHelper.visitPluginExtensions(project, session, ManifestProcessor.class, processor -> {
+				processor.processManifest(project, mf);
+			});
+		} catch (Exception e) {
+			getLog().warn("Manifest processing failed: " + e);
+		}
+
 		return mf;
 	}
 

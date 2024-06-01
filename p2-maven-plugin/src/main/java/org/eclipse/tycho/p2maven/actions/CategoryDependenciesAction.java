@@ -15,16 +15,16 @@ package org.eclipse.tycho.p2maven.actions;
 import org.eclipse.equinox.internal.p2.updatesite.SiteModel;
 
 public class CategoryDependenciesAction extends AbstractSiteDependenciesAction {
-    private final SiteModel siteModel;
+	private final SiteModel siteModel;
 
-    public CategoryDependenciesAction(SiteModel siteModel, String id, String version) {
-        super(id, version);
-        this.siteModel = siteModel;
-    }
+	public CategoryDependenciesAction(SiteModel siteModel, String id, String version) {
+		super(id, version);
+		this.siteModel = siteModel;
+	}
 
-    @Override
-    SiteModel getSiteModel() {
-        return this.siteModel;
-    }
+	@Override
+	protected SiteModel getSiteModel() {
+		return this.siteModel;
+	}
 
 }

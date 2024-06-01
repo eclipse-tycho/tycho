@@ -22,12 +22,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
@@ -48,10 +51,14 @@ import org.eclipse.equinox.internal.p2.updatesite.SiteModel;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap;
+import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2maven.actions.AuthoredIUAction;
 import org.eclipse.tycho.p2maven.actions.CategoryDependenciesAction;
@@ -59,6 +66,7 @@ import org.eclipse.tycho.p2maven.actions.FeatureDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductFile2;
 import org.eclipse.tycho.p2maven.io.MetadataIO;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 import org.osgi.framework.Constants;
 import org.xml.sax.SAXException;
@@ -181,7 +189,7 @@ public class InstallableUnitGenerator {
 			List<IPublisherAction> actions = getPublisherActions(packaging, basedir, version, artifactId);
 			Collection<IInstallableUnit> publishedUnits = publisher.publishMetadata(actions);
 			for (InstallableUnitProvider unitProvider : getProvider(project, session)) {
-				log.debug("Asking " + unitProvider + " for additional units for " + project + "...");
+				log.debug("Asking " + unitProvider + " for additional units for " + project);
 				Collection<IInstallableUnit> installableUnits = unitProvider.getInstallableUnits(project, session);
 				log.debug("Provider " + unitProvider + " generated " + installableUnits.size() + " (" + installableUnits
 						+ ") units for " + project);
@@ -254,8 +262,50 @@ public class InstallableUnitGenerator {
 		return actions;
 	}
 
+	public Collection<IInstallableUnit> getInstallableUnits(IProductDescriptor productDescriptor) throws CoreException {
+		return publisher.publishMetadata(List.of(new ProductDependenciesAction(productDescriptor)));
+	}
+
+	public Collection<IInstallableUnit> getInstallableUnits(Manifest manifest) {
+		Attributes mainAttributes = manifest.getMainAttributes();
+		CaseInsensitiveDictionaryMap<String, String> headers = new CaseInsensitiveDictionaryMap<>(
+				mainAttributes.size());
+		Set<Entry<Object, Object>> entrySet = mainAttributes.entrySet();
+		for (Entry<Object, Object> entry : entrySet) {
+			headers.put(entry.getKey().toString(), entry.getValue().toString());
+		}
+		PublisherInfo publisherInfo = new PublisherInfo();
+		publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
+		BundleDescription bundleDescription = BundlesAction.createBundleDescription(headers, null);
+		IInstallableUnit iu = BundlesAction.createBundleIU(bundleDescription, BundlesAction.createBundleArtifactKey(
+				bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString()), publisherInfo);
+		return List.of(iu);
+	}
+
 	public Collection<IInstallableUnit> getInstallableUnits(Artifact artifact) {
 		return artifactUnitMap.computeIfAbsent(artifact, x -> new ArtifactUnits()).getUnits(artifact);
+	}
+
+	/**
+	 * Compute the additional provided units for a ReactorProject
+	 * 
+	 * @param reactorProject
+	 * @return a collection of units for the given reactor project
+	 */
+	public Collection<IInstallableUnit> getProvidedInstallableUnits(ReactorProject reactorProject) {
+		MavenProject mavenProject = reactorProject.adapt(MavenProject.class);
+		MavenSession mavenSession = reactorProject.adapt(MavenSession.class);
+		try {
+			return getProvider(mavenProject, mavenSession).stream().flatMap(provider -> {
+				try {
+					return provider.getInstallableUnits(mavenProject, mavenSession).stream();
+				} catch (CoreException e) {
+					return Stream.empty();
+				}
+			}).toList();
+		} catch (CoreException e) {
+			return List.of();
+		}
 	}
 
 	private Collection<InstallableUnitProvider> getProvider(MavenProject project, MavenSession mavenSession)

@@ -34,13 +34,11 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
 @Component(role = MavenContext.class)
@@ -50,8 +48,9 @@ public class DefaultMavenContext implements MavenContext {
     ArtifactHandlerManager artifactHandlerManager;
     @Requirement
     LegacySupport legacySupport;
-    @Requirement
-    Logger logger;
+
+    @Requirement(hint = FilteringMavenLogger.HINT)
+    MavenLogger mavenLogger;
 
     private Properties globalProps;
     private List<MavenRepositoryLocation> repositoryLocations;
@@ -121,8 +120,8 @@ public class DefaultMavenContext implements MavenContext {
     }
 
     @Override
-    public MavenLogger getLogger() {
-        return new MavenLoggerAdapter(logger, false);
+    public synchronized MavenLogger getLogger() {
+        return mavenLogger;
     }
 
     @Override
@@ -153,15 +152,15 @@ public class DefaultMavenContext implements MavenContext {
 
     private Optional<MavenSession> getSession() {
         if (legacySupport == null) {
-            logger.warn("Legacy support not available");
+            mavenLogger.warn("Legacy support not available");
             return Optional.empty();
         }
         MavenSession session = legacySupport.getSession();
         if (session == null) {
-            if (logger.isDebugEnabled()) {
+            if (mavenLogger.isDebugEnabled()) {
                 Thread.dumpStack();
             }
-            logger.warn("Not called from a maven thread");
+            mavenLogger.warn("Not called from a maven thread");
             return Optional.empty();
         }
         return Optional.of(session);

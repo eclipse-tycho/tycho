@@ -6,6 +6,8 @@ import static org.osgi.framework.Constants.BUNDLE_VERSION;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Properties;
+import java.util.jar.Attributes.Name;
 
 import org.eclipse.osgi.container.builders.OSGiManifestBuilderFactory;
 import org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap;
@@ -40,11 +42,29 @@ public class OsgiManifest {
         this.location = location;
         try {
             this.headers = new CaseInsensitiveDictionaryMap<>();
-            ManifestElement.parseBundleManifest(stream, headers);
+            if (location.endsWith(".bnd")) {
+                Properties properties = new Properties();
+                properties.load(stream);
+                for (String key : properties.stringPropertyNames()) {
+                    try {
+                        //check if this is a valid manifest name...
+                        new Name(key);
+                    } catch (IllegalArgumentException e) {
+                        // ... otherwise skip ...
+                        continue;
+                    }
+                    headers.put(key, properties.getProperty(key));
+                }
+            } else {
+                ManifestElement.parseBundleManifest(stream, headers);
+            }
             // this will do more strict validation of headers on OSGi semantical level
             this.bundleSymbolicName = OSGiManifestBuilderFactory.createBuilder(headers).getSymbolicName();
         } catch (IOException | BundleException e) {
             throw new OsgiManifestParserException(location, e);
+        }
+        if (this.bundleSymbolicName == null) {
+            throw new InvalidOSGiManifestException(location, "Bundle-SymbolicName is missing");
         }
         this.bundleVersion = parseBundleVersion();
         this.bundleClassPath = parseBundleClasspath();
@@ -53,44 +73,43 @@ public class OsgiManifest {
     }
 
     private String[] parseExecutionEnvironments() {
+        @SuppressWarnings("deprecation")
         ManifestElement[] brees = getManifestElements(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT);
         if (brees == null || brees.length == 0) {
+            ManifestElement[] runee = getManifestElements(aQute.bnd.osgi.Constants.RUNEE);
+            if (runee != null && runee.length > 0) {
+                return elementToString(runee);
+            }
             return EMPTY_EXEC_ENV;
         }
+        return elementToString(brees);
+    }
+
+    private String[] elementToString(ManifestElement[] brees) {
         String[] envs = new String[brees.length];
         for (int i = 0; i < brees.length; i++) {
-            //BREE already has no real meaning for modular vms so matching them here does not really offer much...
             envs[i] = brees[i].getValue();
         }
         return envs;
     }
 
     private String parseBundleVersion() {
-        String versionString = parseMandatoryFirstValue(BUNDLE_VERSION);
-        try {
-            return Version.parseVersion(versionString).toString();
-        } catch (NumberFormatException e) {
-            throw new InvalidOSGiManifestException(location, "Bundle-Version '" + versionString + "' is invalid");
-        } catch (IllegalArgumentException e) {
-            throw new InvalidOSGiManifestException(location, e);
-        }
-    }
 
-    private String parseMandatoryFirstValue(String headerKey) throws InvalidOSGiManifestException {
-        String value = headers.get(headerKey);
-        if (value == null) {
-            throw new InvalidOSGiManifestException(location, "MANIFEST header '" + headerKey + "' not found");
+        ManifestElement[] elements = parseHeader(BUNDLE_VERSION);
+        if (elements != null) {
+            for (ManifestElement element : elements) {
+                String versionString = element.getValue();
+                try {
+                    return Version.parseVersion(versionString).toString();
+                } catch (NumberFormatException e) {
+                    throw new InvalidOSGiManifestException(location,
+                            "Bundle-Version '" + versionString + "' is invalid");
+                } catch (IllegalArgumentException e) {
+                    throw new InvalidOSGiManifestException(location, e);
+                }
+            }
         }
-        ManifestElement[] elements = null;
-        try {
-            elements = ManifestElement.parseHeader(headerKey, value);
-        } catch (BundleException e) {
-            throw new InvalidOSGiManifestException(location, e);
-        }
-        if (elements == null || elements.length == 0) {
-            throw new InvalidOSGiManifestException(location, "value for MANIFEST header '" + headerKey + "' is empty");
-        }
-        return elements[0].getValue();
+        return Version.emptyVersion.toString();
     }
 
     private boolean parseDirectoryShape() {

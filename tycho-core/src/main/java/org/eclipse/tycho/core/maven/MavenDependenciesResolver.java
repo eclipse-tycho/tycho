@@ -15,6 +15,7 @@ package org.eclipse.tycho.core.maven;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.filter.CumulativeScopeArtifactFilter;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.RepositorySessionDecorator;
@@ -160,10 +162,23 @@ public class MavenDependenciesResolver {
             throws VersionRangeResolutionException, ArtifactResolutionException {
         RepositorySystemSession repositorySession = getRepositorySession(project, session);
         ArtifactTypeRegistry stereotypes = repositorySession.getArtifactTypeRegistry();
+        String version = dependency.getVersion();
+        if (!version.startsWith("[") && !version.startsWith("(")) {
+            version = "[" + version + ",)";
+        }
+        if (version.endsWith(".0)")) {
+            version = version.substring(0, version.length() - 3) + ")";
+        }
         DefaultArtifact artifact = new DefaultArtifact(dependency.getGroupId(), dependency.getArtifactId(),
-                stereotypes.get(dependency.getType()).getExtension(), dependency.getVersion());
+                stereotypes.get(dependency.getType()).getExtension(), version);
         VersionRangeRequest request = new VersionRangeRequest(artifact, project.getRemoteProjectRepositories(), null);
         VersionRangeResult versionResult = repoSystem.resolveVersionRange(repositorySession, request);
+        for (Iterator<Version> iterator = versionResult.getVersions().iterator(); iterator.hasNext();) {
+            if (iterator.next().toString().contains("-")) {
+                iterator.remove();
+            }
+
+        }
         Version highestVersion = versionResult.getHighestVersion();
         if (highestVersion != null) {
             ArtifactRequest artifactRequest = new ArtifactRequest(artifact.setVersion(highestVersion.toString()),
@@ -172,5 +187,25 @@ public class MavenDependenciesResolver {
             return RepositoryUtils.toArtifact(result.getArtifact());
         }
         return null;
+    }
+
+    public Artifact resolveArtifact(MavenProject project, MavenSession session, String groupId, String artifactId,
+            String version) throws ArtifactResolutionException {
+        Dependency dependency = new Dependency();
+        dependency.setGroupId(groupId);
+        dependency.setArtifactId(artifactId);
+        dependency.setVersion(version);
+        return resolveArtifact(project, session, dependency);
+    }
+
+    public Artifact resolveArtifact(MavenProject project, MavenSession session,
+            org.apache.maven.model.Dependency dependency) throws ArtifactResolutionException {
+        RepositorySystemSession repositorySession = getRepositorySession(project, session);
+        ArtifactTypeRegistry stereotypes = repositorySession.getArtifactTypeRegistry();
+        DefaultArtifact artifact = new DefaultArtifact(dependency.getGroupId(), dependency.getArtifactId(),
+                stereotypes.get(dependency.getType()).getExtension(), dependency.getVersion());
+        ArtifactRequest artifactRequest = new ArtifactRequest(artifact, project.getRemoteProjectRepositories(), null);
+        ArtifactResult result = repoSystem.resolveArtifact(repositorySession, artifactRequest);
+        return RepositoryUtils.toArtifact(result.getArtifact());
     }
 }

@@ -16,13 +16,16 @@ import static org.eclipse.tycho.test.util.InstallableUnitUtil.IU_CAPABILITY_NS;
 import static org.eclipse.tycho.test.util.InstallableUnitUtil.PRODUCT_TYPE_PROPERTY;
 
 import java.util.Map;
+import java.util.Objects;
 
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -31,7 +34,7 @@ public class InstallableUnitMatchers {
     private static final String TYPE = "IInstallableUnit";
 
     public static Matcher<IInstallableUnit> unitWithId(final String id) {
-        return new TypeSafeMatcher<IInstallableUnit>(IInstallableUnit.class) {
+        return new TypeSafeMatcher<>(IInstallableUnit.class) {
 
             @Override
             public void describeTo(Description description) {
@@ -167,9 +170,29 @@ public class InstallableUnitMatchers {
         };
     }
 
+    public static Matcher<? super IRequirement> requirement(final String id, final String version,
+            final String filter) {
+        IMatchExpression<IInstallableUnit> filterEpxression = InstallableUnit.parseFilter(filter);
+        final IInstallableUnit unit = InstallableUnitUtil.createIU(id, version);
+        return new TypeSafeMatcher<>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a require of unit ").appendText(id).appendText(":").appendText(version)
+                        .appendText(";filter=").appendText(filter);
+            }
+
+            @Override
+            protected boolean matchesSafely(IRequirement item) {
+                IMatchExpression<IInstallableUnit> requirementFilter = item.getFilter();
+                return item.isMatch(unit) && Objects.equals(filterEpxression, requirementFilter);
+            }
+        };
+    }
+
     public static Matcher<? super IRequirement> requirement(final String id, final String version) {
         final IInstallableUnit unit = InstallableUnitUtil.createIU(id, version);
-        return new TypeSafeMatcher<IRequirement>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -201,7 +224,7 @@ public class InstallableUnitMatchers {
 
     public static Matcher<? super ITouchpointData> configureTouchpointInstructionThat(
             final Matcher<String> instructionMatcher) {
-        return new TypeSafeMatcher<ITouchpointData>() {
+        return new TypeSafeMatcher<>() {
 
             @Override
             public void describeTo(Description description) {

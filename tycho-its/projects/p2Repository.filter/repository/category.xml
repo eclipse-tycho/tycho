@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="bundle">
+      <category name="test.category"/>
+   </bundle>
+   <category-def name="test.category" label="Test"/>
+   <repository-reference location="http://download.eclipse.org/releases/latest/" enabled="true" />
+</site>

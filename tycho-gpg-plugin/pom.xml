@@ -13,7 +13,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
-		<version>4.0.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>tycho-gpg-plugin</artifactId>
@@ -21,7 +21,9 @@
 
 	<name>Tycho GPG plugin</name>
 	<description>A plugin to produce GPG signatures for p2 artifacts</description>
-
+	<prerequisites>
+		<maven>${minimal-maven-version}</maven>
+	</prerequisites>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -42,12 +44,12 @@
 		<dependency>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-gpg-plugin</artifactId>
-			<version>3.0.1</version>
+			<version>3.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.artifact.repository</artifactId>
-			<version>1.4.600</version>
+			<version>1.5.300</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
@@ -59,5 +61,18 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<!-- workaround for https://issues.apache.org/jira/browse/MPLUGIN-450 -->
+				<configuration>
+					<goalPrefix>tycho-gpg-bump</goalPrefix>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

@@ -15,24 +15,32 @@ package org.eclipse.tycho.p2resolver;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.IArtifactFacade;
+import org.eclipse.tycho.IRawArtifactFileProvider;
 import org.eclipse.tycho.ReactorProjectIdentities;
-import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.p2.repository.ImmutableInMemoryMetadataRepository;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 
 public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
 
+    private IArtifactRepository artifactRepository;
+    private IMetadataRepository metadataRepository;
+
     public FinalTargetPlatformImpl(LinkedHashSet<IInstallableUnit> installableUnits,
             ExecutionEnvironmentResolutionHints executionEnvironment, IRawArtifactFileProvider jointArtifacts,
             LocalArtifactRepository localArtifactRepository, Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup,
-            Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup) {
+            Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup,
+            IArtifactRepository artifactRepository, Set<IInstallableUnit> shadowed) {
         super(installableUnits, executionEnvironment, jointArtifacts, localArtifactRepository, reactorProjectLookup,
-                mavenArtifactLookup);
+                mavenArtifactLookup, shadowed);
+        this.artifactRepository = artifactRepository;
+        this.metadataRepository = new ImmutableInMemoryMetadataRepository(installableUnits, false);
     }
 
     @Override
@@ -41,8 +49,13 @@ public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
     }
 
     @Override
-    public IMetadataRepository getInstallableUnitsAsMetadataRepository() {
-        return new ImmutableInMemoryMetadataRepository(installableUnits);
+    public IMetadataRepository getMetadataRepository() {
+        return metadataRepository;
+    }
+
+    @Override
+    public IArtifactRepository getArtifactRepository() {
+        return artifactRepository;
     }
 
 }

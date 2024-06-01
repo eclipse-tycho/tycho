@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.FilenameUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -43,11 +44,11 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.publisher.P2Artifact;
 import org.eclipse.tycho.p2maven.ListQueryable;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
-import org.eclipse.tycho.repository.util.StatusTool;
 
 @Component(role = BaselineService.class)
 public class BaselineServiceImpl implements BaselineService {
@@ -74,7 +75,7 @@ public class BaselineServiceImpl implements BaselineService {
 
         for (MavenRepositoryLocation location : baselineLocations) {
             try {
-                baselineUnits.add(repositoryManager.getMetadataRepositor(location));
+                baselineUnits.add(repositoryManager.getMetadataRepository(location));
                 baselineArtifacts.add(repositoryManager.getArtifactRepository(location));
             } catch (ProvisionException e) {
                 // baseline repository may not exist yet
@@ -85,7 +86,8 @@ public class BaselineServiceImpl implements BaselineService {
         Map<String, IP2Artifact> result = new LinkedHashMap<>();
 
         for (Map.Entry<String, IP2Artifact> reactorArtifact : reactor.entrySet()) {
-            IArtifactDescriptor descriptor = reactorArtifact.getValue().getArtifactDescriptor();
+            IP2Artifact value = reactorArtifact.getValue();
+            IArtifactDescriptor descriptor = value.getArtifactDescriptor();
 
             Entry<IArtifactRepository, IArtifactDescriptor> baselineDescriptorEntry = getBaselineDescriptor(
                     baselineArtifacts, descriptor);
@@ -93,10 +95,10 @@ public class BaselineServiceImpl implements BaselineService {
                 continue;
             }
             IArtifactDescriptor baselineDescriptor = baselineDescriptorEntry.getValue();
-            IArtifactKey baslineKey = baselineDescriptor.getArtifactKey();
+            IArtifactKey baselineKey = baselineDescriptor.getArtifactKey();
             String format = baselineDescriptor.getProperty(IArtifactDescriptor.FORMAT);
-            File baselineArtifact = new File(target, baslineKey.getClassifier() + "/" + baslineKey.getId() + "/"
-                    + baslineKey.getVersion() + (format != null ? "." + format : ""));
+            File baselineArtifact = new File(target, baselineKey.getClassifier() + "/" + baselineKey.getId() + "-"
+                    + baselineKey.getVersion() + (format != null ? "." + format : "") + getExtension(value));
 
             baselineArtifact.getParentFile().mkdirs();
             try (OutputStream os = new BufferedOutputStream(new FileOutputStream(baselineArtifact))) {
@@ -114,7 +116,7 @@ public class BaselineServiceImpl implements BaselineService {
             }
 
             List<IInstallableUnit> units = new ArrayList<>();
-            for (IInstallableUnit unit : reactorArtifact.getValue().getInstallableUnits()) {
+            for (IInstallableUnit unit : value.getInstallableUnits()) {
                 IInstallableUnit baselineUnit = getBaselineUnit(baselineUnits, unit.getId(), unit.getVersion());
                 if (baselineUnit != null) {
                     units.add(baselineUnit);
@@ -124,6 +126,17 @@ public class BaselineServiceImpl implements BaselineService {
         }
 
         return !result.isEmpty() ? result : null;
+    }
+
+    private String getExtension(IP2Artifact value) {
+        File location = value.getLocation();
+        if (location != null) {
+            String extension = FilenameUtils.getExtension(location.getName());
+            if (!extension.isBlank()) {
+                return "." + extension;
+            }
+        }
+        return "";
     }
 
     private Entry<IArtifactRepository, IArtifactDescriptor> getBaselineDescriptor(

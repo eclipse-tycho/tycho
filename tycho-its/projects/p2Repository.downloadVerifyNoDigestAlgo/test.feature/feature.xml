@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="tycho-its-project.p2Repository.downloadVerifyNoDigestAlgo.feature"
+      label="Test Feature"
+      version="1.0.0.qualifier">
+
+   <requires>
+      <import feature="org.eclipse.platform" version="4.27.0" match="compatible"/>
+      <import feature="org.eclipse.justj.openjdk.hotspot.jre.full" version="17.0.5" match="compatible"/>
+      <import plugin="org.eclipse.pde.runtime"/>
+   </requires>
+
+   <plugin id="com.github.com-github-javabdd.com.github.javabdd" version="6.0.0" match="compatible"/>
+   <plugin id="org.apache.commons.commons-text" version="1.10.0" match="compatible"/>
+
+</feature>

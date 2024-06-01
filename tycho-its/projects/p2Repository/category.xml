@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- includes three bundles in different ways; note: the bundles do not require each other -->
 <site>
-   <bundle id="com.sun.el" version="0.0.0"/>
+   <bundle id="com.sun.el.javax.el" version="0.0.0"/>
    <iu id="org.apache.felix.gogo.runtime" version="0.0.0">
      <category name="Test Category" />
    </iu>
    <iu>
-     <query><expression type="match">id == "javax.annotation"</expression></query>
+     <query><expression type="match">id == "jakarta.annotation-api"</expression></query>
      <category name="Test Category" />
    </iu>
    <category-def label="Test Category Label" name="Test Category">

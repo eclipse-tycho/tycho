@@ -14,6 +14,7 @@
 package org.eclipse.tycho.extras.tpvalidator;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,19 +34,19 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.ExecutionEnvironment;
+import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.SystemCapability;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
-import org.eclipse.tycho.core.ee.shared.SystemCapability;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+import org.eclipse.tycho.p2resolver.TargetDefinitionVariableResolver;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
@@ -118,6 +119,9 @@ public class TPValidationMojo extends AbstractMojo {
     @Component
     private P2ResolverFactory factory;
 
+    @Component
+    private TargetDefinitionVariableResolver varResolver;
+
     public void execute() throws MojoExecutionException {
 
         List<TPError> errors = new ArrayList<>();
@@ -181,23 +185,23 @@ public class TPValidationMojo extends AbstractMojo {
     private void validateTarget(File targetFile) throws TPError {
         try {
             // create resolver
-            this.logger.info("Validating " + targetFile + "...");
+            this.logger.info("Validating " + targetFile);
             RepositoryReferences ref = new RepositoryReferences();
-            DirectorRuntime.Command directorCommand = director.newInstallCommand();
+            DirectorRuntime.Command directorCommand = director.newInstallCommand(project.getName());
 
             TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile);
             TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
             tpConfiguration.addTargetDefinition(targetDefinition);
-            tpConfiguration.setEnvironments(Collections
-                    .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
+            tpConfiguration.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
 
             P2Resolver resolver = this.factory.createResolver(tpConfiguration.getEnvironments());
 
             for (Location location : targetDefinition.getLocations()) {
                 if (location instanceof InstallableUnitLocation p2Loc) {
                     for (Repository repo : p2Loc.getRepositories()) {
-                        ref.addArtifactRepository(repo.getLocation());
-                        ref.addMetadataRepository(repo.getLocation());
+                        URI repoUri = URI.create(varResolver.resolve(repo.getLocation()));
+                        ref.addArtifactRepository(repoUri);
+                        ref.addMetadataRepository(repoUri);
                     }
                     for (Unit unit : p2Loc.getUnits()) {
                         if (checkDependencies) {

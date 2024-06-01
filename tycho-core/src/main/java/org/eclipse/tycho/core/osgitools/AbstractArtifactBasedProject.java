@@ -14,11 +14,12 @@ package org.eclipse.tycho.core.osgitools;
 
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 
 public abstract class AbstractArtifactBasedProject extends AbstractTychoProject {
     // this is stricter than Artifact.SNAPSHOT_VERSION
-    public static final String SNAPSHOT_VERSION = "-SNAPSHOT";
+    public static final String SNAPSHOT_VERSION = TychoConstants.SUFFIX_SNAPSHOT;
 
     // requires resolved target platform
     @Override
@@ -36,7 +37,8 @@ public abstract class AbstractArtifactBasedProject extends AbstractTychoProject 
     protected String getOsgiVersion(ReactorProject project) {
         String version = project.getVersion();
         if (version.endsWith(SNAPSHOT_VERSION)) {
-            version = version.substring(0, version.length() - SNAPSHOT_VERSION.length()) + ".qualifier";
+            version = version.substring(0, version.length() - SNAPSHOT_VERSION.length())
+                    + TychoConstants.SUFFIX_QUALIFIER;
         }
         return version;
     }

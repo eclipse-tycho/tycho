@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2024 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -51,9 +51,9 @@ import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.target.DuplicateReactorIUsException;
-import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.publisher.DependencyMetadata;
+import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 import org.eclipse.tycho.test.util.ArtifactMock;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
@@ -222,8 +222,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
 
-        assertEquals(3, result.getArtifacts().size());
-        assertEquals(3, result.getNonReactorUnits().size()); // + a.jre
+        assertEquals(4, result.getArtifacts().size());
+        assertEquals(4, result.getNonReactorUnits().size()); // + a.jre
 
         assertContainsUnit("org.eclipse.swt", result.getNonReactorUnits());
         assertContainsUnit("org.eclipse.swt.gtk.linux.x86_64", result.getNonReactorUnits());

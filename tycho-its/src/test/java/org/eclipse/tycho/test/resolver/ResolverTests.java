@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 Christoph Läubrich and others.
+ * Copyright (c) 2023 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ResolverTests extends AbstractTychoIntegrationTest {
@@ -44,6 +45,14 @@ public class ResolverTests extends AbstractTychoIntegrationTest {
 
 		Verifier verifier = getVerifier("resolver.usesConstraintViolations");
 		verifier.executeGoal("compile");
+		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
+	public void testMultipleVersionsWithSubstitution() throws Exception {
+
+		Verifier verifier = getVerifier("multiple-gson");
+		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 	}
 
@@ -103,5 +112,18 @@ public class ResolverTests extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("resolver.usesNecessary", false, false);
 		verifier.executeGoal("compile");
 		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
+	@Ignore
+	// Due to technical reasons, the Maven artifact is rebundled during the
+	// target-platform phase.
+	// Therefore dependency:tree lists it as 'wrapped.com.squareup.okhttp3.okhttp'
+	// See https://github.com/eclipse-tycho/tycho/issues/2053
+	public void testResolveRebundledMavenDependencies() throws Exception {
+		Verifier verifier = getVerifier("target.maven.wrapAsBundle", true);
+		verifier.executeGoal("dependency:tree");
+		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("com.squareup.okhttp3:okhttp:jar:4.10.0:compile");
 	}
 }

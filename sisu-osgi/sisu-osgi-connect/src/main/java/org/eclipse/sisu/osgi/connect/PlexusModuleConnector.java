@@ -183,11 +183,11 @@ final class PlexusModuleConnector implements ModuleConnector {
 							jarFile.close();
 							continue;
 						} else {
-							logger.debug("Checking exported artifact " + artifactKey + "...");
+							logger.debug("Checking exported artifact " + artifactKey);
 						}
 					}
 					if (bundleSymbolicName == null) {
-						logger.debug("File " + file + " is not a bundle...");
+						logger.debug("File " + file + " is not a bundle");
 						jarFile.close();
 						continue;
 					}
@@ -336,7 +336,7 @@ final class PlexusModuleConnector implements ModuleConnector {
 		disposeChilds(realm, bundleContext, logger);
 		List<String> remove = realmBundles.remove(realm);
 		if (remove != null && !remove.isEmpty()) {
-			logger.debug("Remove realm " + realm.getId() + " uninstall " + remove.size() + " bundle(s)...");
+			logger.debug("Removing realm " + realm.getId() + " uninstalls " + remove.size() + " bundle(s)");
 			for (String location : remove) {
 				Bundle bundle = bundleContext.getBundle(location);
 				if (bundle != null) {

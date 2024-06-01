@@ -41,7 +41,7 @@ public abstract class AbstractSiteDependenciesAction extends AbstractDependencie
         this.version = version;
     }
 
-    abstract SiteModel getSiteModel();
+	protected abstract SiteModel getSiteModel();
 
     @Override
     protected Set<IRequirement> getRequiredCapabilities() {
@@ -90,7 +90,7 @@ public abstract class AbstractSiteDependenciesAction extends AbstractDependencie
         } else if ("match".equals(type)) {
             IMatchExpression<IInstallableUnit> iuMatcher = ExpressionUtil.getFactory()
                     .<IInstallableUnit> matchExpression(ExpressionUtil.parse(expression), params);
-            return MetadataFactory.createRequirement(iuMatcher, null, 0, 1, true);
+			return MetadataFactory.createRequirement(iuMatcher, null, 0, Integer.MAX_VALUE, true);
         } else if ("context".equals(type)) {
             throw new IllegalStateException(
                     "Context iu queries are not supported in Tycho. Faulty expression is " + expression);

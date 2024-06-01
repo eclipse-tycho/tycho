@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="feature"
+      version="1.0.0.qualifier">
+
+   <includes id="org.eclipse.emf.mwe2.language.sdk" version="0.0.0" />
+
+   <includes id="org.eclipse.emf.mwe2.runtime.sdk" version="0.0.0" />
+
+   <includes id="org.eclipse.xtext.sdk" version="2.29.0.qualifier" />
+</feature>

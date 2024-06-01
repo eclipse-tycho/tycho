@@ -13,25 +13,20 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.surefire;
 
+import static org.junit.Assert.assertThrows;
+
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class TrimStackTrace extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testTrimStackTraceFalse() throws Exception {
-        Verifier verifier = getVerifier("surefire.trimstacktrace");
-        try {
-            verifier.executeGoal("integration-test");
-            Assert.fail();
-        } catch (VerificationException e) {
-            // expected
-            verifier.verifyTextInLog("org.junit.Assert.fail");
-        }
-
-    }
-
+	@Test
+	public void testTrimStackTraceFalse() throws Exception {
+		Verifier verifier = getVerifier("surefire.trimstacktrace");
+		assertThrows(VerificationException.class, () -> verifier.executeGoal("integration-test"));
+		// expected
+		verifier.verifyTextInLog("org.junit.Assert.fail");
+	}
 }

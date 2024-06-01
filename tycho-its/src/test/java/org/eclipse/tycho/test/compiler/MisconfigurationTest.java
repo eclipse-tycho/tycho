@@ -13,7 +13,7 @@
 
 package org.eclipse.tycho.test.compiler;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -22,15 +22,11 @@ import org.junit.Test;
 
 public class MisconfigurationTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testCompilerMisconfigured() throws Exception {
-        Verifier verifier = getVerifier("compiler.misconfiguration", false);
-        try {
-            verifier.executeGoal("compile");
-            fail();
-        } catch (VerificationException e) {
-            // expected
-            verifier.verifyTextInLog("org.codehaus.plexus.compiler.CompilerException: Unrecognized option : -boo boo");
-        }
-    }
+	@Test
+	public void testCompilerMisconfigured() throws Exception {
+		Verifier verifier = getVerifier("compiler.misconfiguration", false);
+		assertThrows(VerificationException.class, () -> verifier.executeGoal("compile"));
+		// expected
+		verifier.verifyTextInLog("org.codehaus.plexus.compiler.CompilerException: Unrecognized option : -boo boo");
+	}
 }

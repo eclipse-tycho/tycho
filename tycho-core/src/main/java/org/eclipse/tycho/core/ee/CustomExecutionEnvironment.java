@@ -25,9 +25,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
-import org.eclipse.tycho.core.ee.shared.SystemCapability;
-import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
+import org.eclipse.tycho.ExecutionEnvironment;
+import org.eclipse.tycho.SystemCapability;
+import org.eclipse.tycho.SystemCapability.Type;
 import org.osgi.framework.Constants;
 
 public class CustomExecutionEnvironment implements ExecutionEnvironment {

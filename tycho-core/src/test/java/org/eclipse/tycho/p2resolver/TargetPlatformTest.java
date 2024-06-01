@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
@@ -165,7 +166,7 @@ public class TargetPlatformTest {
     }
 
     private FinalTargetPlatformImpl createTP() {
-        return new FinalTargetPlatformImpl(candidateIUs, null, null, null, null, null);
+        return new FinalTargetPlatformImpl(candidateIUs, null, null, null, null, null, null, Set.of());
     }
 
     private static LinkedHashSet<IInstallableUnit> createSet(IInstallableUnit... units) {

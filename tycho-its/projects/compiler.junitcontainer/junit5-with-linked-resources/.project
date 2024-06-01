@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>junit5-with-linked-resources</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.m2e.core.maven2Builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.pde.ManifestBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.pde.SchemaBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.m2e.core.maven2Nature</nature>
+		<nature>org.eclipse.pde.PluginNature</nature>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<!-- A linked .classpath file relative to the location of the project's parent -->
+		<link>
+			<name>.classpath</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/junit5-with-linked-resources/testresources/linkedclasspath/.classpath</locationURI>
+		</link>
+		<!-- A linked file relative to the location of the project -->
+		<link>
+			<name>src_test</name>
+			<type>2</type>
+			<locationURI>PROJECT_LOC/testresources/linkedtestsources/src_test/</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>
+

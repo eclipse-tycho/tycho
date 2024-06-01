@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- - Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ - Copyright (c) 2008, 2024 Sonatype Inc. and others.
  - All rights reserved. This program and the accompanying materials
  - are made available under the terms of the Eclipse Public License v1.0
  - which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
-		<version>4.0.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>tycho-its</artifactId>
 
@@ -89,6 +89,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
+					<trimStackTrace>false</trimStackTrace>
 					<failIfNoTests>true</failIfNoTests>
 					<systemPropertyVariables>
 						<it.cliOptions>${it.cliOptions}</it.cliOptions>
@@ -159,17 +160,17 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>5.9.1</version>
+			<version>5.10.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
-			<version>5.9.1</version>
+			<version>5.10.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>1.9.1</version>
+			<version>1.10.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -183,6 +184,19 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.jface</artifactId>
+			<version>3.33.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jdt</groupId>
+			<artifactId>org.eclipse.jdt.core</artifactId>
+			<version>3.37.0</version>
+			<scope>test</scope>
+		</dependency>
 		<!-- update site tests -->
 		<dependency>
 			<groupId>org.sonatype.plexus</groupId>
@@ -193,6 +207,18 @@
 			<groupId>org.sonatype.sisu</groupId>
 			<artifactId>sisu-inject-plexus</artifactId>
 			<version>2.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mockftpserver</groupId>
+			<artifactId>MockFtpServer</artifactId>
+			<version>3.1.0</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- sbom tests -->
+		<dependency>
+			<groupId>org.cyclonedx</groupId>
+			<artifactId>cyclonedx-core-java</artifactId>
+			<version>8.0.3</version>
 		</dependency>
 
 		<!-- artifacts to be tested -->

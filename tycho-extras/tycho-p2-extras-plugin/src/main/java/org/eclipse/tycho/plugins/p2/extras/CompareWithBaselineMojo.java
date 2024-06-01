@@ -30,6 +30,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
@@ -37,29 +38,31 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
+import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.exceptions.VersionBumpRequiredException;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.osgi.framework.Version;
 
 /**
  * This mojo compares versions the output artifacts of your module build with the version of the
  * same artifacts available in configured baselines, in order to detect version inconsistencies
  * (version moved back, or not correctly bumped since last release).
- * 
+ *
  * Rules for "illegal" versions are:
  * <li>version decreased compared to baseline</li>
  * <li>same fully-qualified version as baseline, but with different binary content</li>
  * <li>same major.minor.micro as baseline, with different qualifier (at least micro should be
  * increased)</li>
- * 
+ *
  * This mojo doesn't allow to use qualifier as a versioning segment and will most likely drive to
  * false-positive errors if your qualifier has means to show versioniterations.
- * 
+ *
  * @author mistria
  */
 @Mojo(defaultPhase = LifecyclePhase.VERIFY, requiresProject = false, name = "compare-version-with-baselines", threadSafe = true)
@@ -85,14 +88,14 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     /**
      * A list of file path patterns that are ignored when comparing the build artifact against the
      * baseline version.
-     * 
+     *
      * {@code
      * <ignoredPatterns>
      *   <pattern>META-INF/ECLIPSE_.RSA<pattern>
      *   <pattern>META-INF/ECLIPSE_.SF</pattern>
      * </ignoredPatterns>
      * }
-     * 
+     *
      */
     @Parameter
     private List<String> ignoredPatterns;
@@ -109,11 +112,17 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Component
     private Logger plexusLogger;
 
+    @Component
+    private TychoProjectManager projectManager;
+
+    @Component
+    private TargetPlatformFactory platformFactory;
+
     /**
      * The hint of an available {@link ArtifactComparator} component to use for comparison of
      * artifacts with same version.
      */
-    @Parameter(defaultValue = BytesArtifactComparator.HINT, readonly = true)
+    @Parameter(defaultValue = BytesArtifactComparator.HINT)
     private String comparator;
     @Component(role = ArtifactComparator.class)
     protected Map<String, ArtifactComparator> artifactComparators;
@@ -127,7 +136,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         Set<IInstallableUnit> dependencyMetadata = reactorProject.getDependencyMetadata(DependencyMetadataType.SEED);
         if (dependencyMetadata == null || dependencyMetadata.isEmpty()) {
-            getLog().debug("Skipping baseline version comparison, no p2 artifacts created in build.");
+            getLog().debug("Skipping baseline version comparison, no p2 artifacts created in build");
             return;
         }
         if (!this.artifactComparators.containsKey(this.comparator)) {
@@ -135,18 +144,18 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                     + this.artifactComparators.keySet());
         }
 
-        P2Resolver resolver = resolverFactory.createResolver(Collections
-                .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
+        TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
+        P2Resolver resolver = resolverFactory.createResolver(Collections.singletonList(runningEnvironment));
 
         TargetPlatformConfigurationStub baselineTPStub = new TargetPlatformConfigurationStub();
-        baselineTPStub.setForceIgnoreLocalArtifacts(true);
-        baselineTPStub.setEnvironments(Collections
-                .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
+        baselineTPStub.setIgnoreLocalArtifacts(true);
+        baselineTPStub.setEnvironments(Collections.singletonList(runningEnvironment));
         for (String baselineRepo : this.baselines) {
             baselineTPStub.addP2Repository(toRepoURI(baselineRepo));
         }
-        TargetPlatform baselineTP = resolverFactory.getTargetPlatformFactory().createTargetPlatform(baselineTPStub,
-                TychoProjectUtils.getExecutionEnvironmentConfiguration(reactorProject), null);
+        ExecutionEnvironmentConfiguration eeConfiguration = projectManager
+                .getExecutionEnvironmentConfiguration(project);
+        TargetPlatform baselineTP = platformFactory.createTargetPlatform(baselineTPStub, eeConfiguration, null);
 
         for (IInstallableUnit item : dependencyMetadata) {
             try {
@@ -163,7 +172,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                     getLog().debug("Found " + foundInBaseline.getId() + "/" + foundInBaseline.getVersion()
                             + " with delta: " + versionDelta);
                     if (version.compareTo(baselineVersion) < 0) {
-                        String message = "Version have moved backwards for (" + id + "/" + version + "). Baseline has "
+                        String message = "Version has moved backwards for (" + id + "/" + version + "). Baseline has "
                                 + baselineVersion + ") with delta: " + versionDelta;
                         if (this.onIllegalVersion == ReportBehavior.warn) {
                             getLog().warn(message);
@@ -188,7 +197,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                         ComparisonData data = new ComparisonData(ignoredPatterns, false);
                         ArtifactDelta artifactDelta = this.artifactComparators.get(this.comparator)
                                 .getDelta(baselineFile, reactorFile, data);
-                        String message = "Baseline and reactor have same fully qualified version, but with different content";
+                        String message = "Baseline and reactor have the same fully qualified version, but different content";
                         if (artifactDelta != null) {
                             if (this.onIllegalVersion == ReportBehavior.warn) {
                                 getLog().warn(message);
@@ -211,7 +220,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                             getLog().warn(message);
                             return;
                         } else {
-                            throw new MojoFailureException(message);
+                            throw new VersionBumpRequiredException(message, item, version, baselineVersion);
                         }
                     }
                 }

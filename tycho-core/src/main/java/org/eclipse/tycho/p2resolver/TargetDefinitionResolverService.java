@@ -29,11 +29,12 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.MavenTargetLocationFactory;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
-import org.eclipse.tycho.core.resolver.target.TargetDefinitionContent;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.core.shared.MavenContext;
-import org.eclipse.tycho.core.shared.MavenDependenciesResolver;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
+import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 
 /**
  * Service instance for resolving target definitions. Results are cached so that there is no
@@ -51,7 +52,10 @@ public class TargetDefinitionResolverService {
     private MavenContext mavenContext;
 
     @Requirement
-    private MavenDependenciesResolver dependenciesResolver;
+    private MavenTargetLocationFactory dependenciesResolver;
+
+    @Requirement
+    private TargetDefinitionVariableResolver varResolver;
 
     // constructor for DS
     public TargetDefinitionResolverService() {
@@ -59,9 +63,10 @@ public class TargetDefinitionResolverService {
 
     public TargetDefinitionContent getTargetDefinitionContent(TargetDefinition definition,
             List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs,
-            IncludeSourceMode includeSourceMode, IProvisioningAgent agent) {
+            IncludeSourceMode includeSourceMode, ReferencedRepositoryMode referencedRepositoryMode,
+            IProvisioningAgent agent) {
         ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, includeSourceMode,
-                agent);
+                referencedRepositoryMode, agent);
         CompletableFuture<TargetDefinitionContent> future = resolutionCache.computeIfAbsent(arguments,
                 this::resolveFromArguments);
 
@@ -79,13 +84,14 @@ public class TargetDefinitionResolverService {
 
     // this method must only have the cache key as parameter (to make sure that the key is complete)
     private CompletableFuture<TargetDefinitionContent> resolveFromArguments(ResolutionArguments arguments) {
-        mavenContext.getLogger().info("Resolving " + arguments + "...");
+        mavenContext.getLogger().info("Resolving " + arguments);
         if (mavenContext.getLogger().isDebugEnabled()) {
             debugCacheMiss(arguments);
         }
 
         TargetDefinitionResolver resolver = new TargetDefinitionResolver(arguments.environments, arguments.jreIUs,
-                arguments.includeSourceMode, mavenContext, dependenciesResolver);
+                arguments.includeSourceMode, arguments.referencedRepositoryMode, mavenContext, dependenciesResolver,
+                varResolver);
         try {
             return CompletableFuture.completedFuture(resolver.resolveContent(arguments.definition, arguments.agent));
         } catch (Exception e) {
@@ -123,8 +129,13 @@ public class TargetDefinitionResolverService {
     }
 
     // setter for DS
-    public void setMavenDependenciesResolver(MavenDependenciesResolver mavenDependenciesResolver) {
+    public void setMavenDependenciesResolver(MavenTargetLocationFactory mavenDependenciesResolver) {
         this.dependenciesResolver = mavenDependenciesResolver;
+    }
+
+    // setter for DS
+    public void setTargetDefinitionVariableResolver(TargetDefinitionVariableResolver varResolver) {
+        this.varResolver = varResolver;
     }
 
     private static final class ResolutionArguments {
@@ -134,20 +145,22 @@ public class TargetDefinitionResolverService {
         final ExecutionEnvironmentResolutionHints jreIUs;
         final IProvisioningAgent agent;
         private IncludeSourceMode includeSourceMode;
+        private ReferencedRepositoryMode referencedRepositoryMode;
 
         public ResolutionArguments(TargetDefinition definition, List<TargetEnvironment> environments,
                 ExecutionEnvironmentResolutionHints jreIUs, IncludeSourceMode includeSourceMode,
-                IProvisioningAgent agent) {
+                ReferencedRepositoryMode repositoryMode, IProvisioningAgent agent) {
             this.definition = definition;
             this.environments = environments;
             this.jreIUs = jreIUs;
             this.includeSourceMode = includeSourceMode;
+            this.referencedRepositoryMode = repositoryMode;
             this.agent = agent;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(agent, definition, environments, jreIUs, includeSourceMode);
+            return Objects.hash(agent, definition, environments, jreIUs, includeSourceMode, referencedRepositoryMode);
         }
 
         @Override
@@ -157,7 +170,8 @@ public class TargetDefinitionResolverService {
                             && Objects.equals(definition, other.definition) //
                             && Objects.equals(agent, other.agent) // expected to be object identity
                             && Objects.equals(environments, other.environments) //
-                            && Objects.equals(includeSourceMode, other.includeSourceMode));
+                            && Objects.equals(includeSourceMode, other.includeSourceMode)
+                            && Objects.equals(referencedRepositoryMode, other.referencedRepositoryMode));
         }
 
         public List<String> getNonEqualFields(ResolutionArguments other) {
@@ -167,14 +181,16 @@ public class TargetDefinitionResolverService {
             addIfNonEqual(result, "target environments", environments, other.environments);
             addIfNonEqual(result, "remote p2 repository options", agent, other.agent);
             addIfNonEqual(result, "include source mode", includeSourceMode, other.includeSourceMode);
+            addIfNonEqual(result, "include reference mode", referencedRepositoryMode, other.referencedRepositoryMode);
             return result;
         }
 
         @Override
         public String toString() {
             return "target definition " + definition.getOrigin() + " for environments=" + environments
-                    + ", include source mode=" + includeSourceMode + ", execution environment=" + jreIUs
-                    + ", remote p2 repository options=" + agent;
+                    + ", include source mode=" + includeSourceMode + ", referenced repository mode ="
+                    + referencedRepositoryMode + ", execution environment=" + jreIUs + ", remote p2 repository options="
+                    + agent;
         }
 
     }

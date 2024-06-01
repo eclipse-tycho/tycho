@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.publisher.FeatureDependenciesAction;
-import org.eclipse.tycho.p2.repository.QueryableCollection;
+import org.eclipse.tycho.p2tools.copiedfromp2.QueryableArray;
 
 public class DependencyCollector extends AbstractResolutionStrategy {
 
@@ -51,7 +51,7 @@ public class DependencyCollector extends AbstractResolutionStrategy {
 
         result.addAll(data.getRootIUs());
 
-        QueryableCollection availableUIsQueryable = new QueryableCollection(data.getAvailableIUs());
+        IQueryable<IInstallableUnit> availableUIsQueryable = new QueryableArray(data.getAvailableIUs(), false);
         for (IInstallableUnit iu : data.getRootIUs()) {
             collectIncludedIUs(availableUIsQueryable, result, errors, iu, true, monitor);
         }

@@ -32,121 +32,126 @@ import org.eclipse.tycho.IRepositoryIdManager;
 
 class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
 
-    private final IMetadataRepositoryManager delegate;
-    private final IRepositoryIdManager loadingHelper;
+	private final IMetadataRepositoryManager delegate;
+	private final IRepositoryIdManager loadingHelper;
 	private final Logger logger;
+	private MavenAuthenticator authenticator;
 
-    RemoteMetadataRepositoryManager(IMetadataRepositoryManager delegate, IRepositoryIdManager loadingHelper,
-			Logger logger) {
-        this.delegate = delegate;
-        this.loadingHelper = Objects.requireNonNull(loadingHelper);
-        this.logger = logger;
-    }
+	RemoteMetadataRepositoryManager(IMetadataRepositoryManager delegate, IRepositoryIdManager loadingHelper,
+			Logger logger, MavenAuthenticator authenticator) {
+		this.delegate = delegate;
+		this.authenticator = authenticator;
+		this.loadingHelper = Objects.requireNonNull(loadingHelper);
+		this.logger = logger;
+	}
 
-    private URI translate(URI location) {
-        return loadingHelper.getEffectiveLocation(location);
-    }
+	private URI translate(URI location) {
+		return loadingHelper.getEffectiveLocation(location);
+	}
 
-    private URI translateAndPrepareLoad(URI location) throws ProvisionException {
-        return loadingHelper.getEffectiveLocationAndPrepareLoad(location);
-    }
+	private URI translateAndPrepareLoad(URI location) throws ProvisionException {
+		return loadingHelper.getEffectiveLocationAndPrepareLoad(location);
+	}
 
-    @Override
-    public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor)
-            throws ProvisionException, OperationCanceledException {
-        return this.loadRepository(location, IRepository.NONE, monitor);
-    }
+	@Override
+	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor)
+			throws ProvisionException, OperationCanceledException {
+		return this.loadRepository(location, IRepository.NONE, monitor);
+	}
 
-    @Override
-    public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor)
-            throws ProvisionException, OperationCanceledException {
-        URI effectiveLocation = translateAndPrepareLoad(location);
+	@Override
+	public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor)
+			throws ProvisionException, OperationCanceledException {
+		URI effectiveLocation = translateAndPrepareLoad(location);
+		authenticator.enterLoad(effectiveLocation);
+		try {
+			IMetadataRepository loadedRepository = delegate.loadRepository(effectiveLocation, flags, monitor);
+			failIfRepositoryContainsPartialIUs(loadedRepository, effectiveLocation);
+			return loadedRepository;
+		} finally {
+			authenticator.exitLoad();
+		}
+	}
 
-        IMetadataRepository loadedRepository = delegate.loadRepository(effectiveLocation, flags, monitor);
-        failIfRepositoryContainsPartialIUs(loadedRepository, effectiveLocation);
+	private void failIfRepositoryContainsPartialIUs(IMetadataRepository repository, URI effectiveLocation)
+			throws ProvisionException {
+		IQueryResult<IInstallableUnit> allUnits = repository.query(QueryUtil.ALL_UNITS, null);
+		boolean hasPartialIUs = false;
+		for (IInstallableUnit unit : allUnits.toUnmodifiableSet()) {
+			if (Boolean.valueOf(unit.getProperty(IInstallableUnit.PROP_PARTIAL_IU))) {
+				hasPartialIUs = true;
+				logger.error("Partial IU: " + unit.getId());
+			}
+		}
+		if (hasPartialIUs) {
+			String message = "The p2 repository at " + effectiveLocation
+					+ " contains partial IUs (see above) from an old style update site which cannot be used for dependency resolution";
+			throw new ProvisionException(message);
+		}
+	}
 
-        return loadedRepository;
-    }
+	// delegated methods
 
-    private void failIfRepositoryContainsPartialIUs(IMetadataRepository repository, URI effectiveLocation)
-            throws ProvisionException {
-        IQueryResult<IInstallableUnit> allUnits = repository.query(QueryUtil.ALL_UNITS, null);
-        boolean hasPartialIUs = false;
-        for (IInstallableUnit unit : allUnits.toUnmodifiableSet()) {
-            if (Boolean.valueOf(unit.getProperty(IInstallableUnit.PROP_PARTIAL_IU))) {
-                hasPartialIUs = true;
-                logger.error("Partial IU: " + unit.getId());
-            }
-        }
-        if (hasPartialIUs) {
-            String message = "The p2 repository at " + effectiveLocation
-                    + " contains partial IUs (see above) from an old style update site which cannot be used for dependency resolution";
-            throw new ProvisionException(message);
-        }
-    }
+	@Override
+	public void addRepository(URI location) {
+		delegate.addRepository(translate(location));
+	}
 
-    // delegated methods
+	@Override
+	public boolean contains(URI location) {
+		return delegate.contains(translate(location));
+	}
 
-    @Override
-    public void addRepository(URI location) {
-        delegate.addRepository(translate(location));
-    }
+	@Override
+	public IMetadataRepository createRepository(URI location, String name, String type, Map<String, String> properties)
+			throws ProvisionException, OperationCanceledException {
+		return delegate.createRepository(translate(location), name, type, properties);
+	}
 
-    @Override
-    public boolean contains(URI location) {
-        return delegate.contains(translate(location));
-    }
+	@Override
+	public IProvisioningAgent getAgent() {
+		return delegate.getAgent();
+	}
 
-    @Override
-    public IMetadataRepository createRepository(URI location, String name, String type, Map<String, String> properties)
-            throws ProvisionException, OperationCanceledException {
-        return delegate.createRepository(translate(location), name, type, properties);
-    }
+	@Override
+	public URI[] getKnownRepositories(int flags) {
+		return delegate.getKnownRepositories(flags);
+	}
 
-    @Override
-    public IProvisioningAgent getAgent() {
-        return delegate.getAgent();
-    }
+	@Override
+	public String getRepositoryProperty(URI location, String key) {
+		return delegate.getRepositoryProperty(translate(location), key);
+	}
 
-    @Override
-    public URI[] getKnownRepositories(int flags) {
-        return delegate.getKnownRepositories(flags);
-    }
+	@Override
+	public boolean isEnabled(URI location) {
+		return delegate.isEnabled(translate(location));
+	}
 
-    @Override
-    public String getRepositoryProperty(URI location, String key) {
-        return delegate.getRepositoryProperty(translate(location), key);
-    }
+	@Override
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+		return delegate.query(query, monitor);
+	}
 
-    @Override
-    public boolean isEnabled(URI location) {
-        return delegate.isEnabled(translate(location));
-    }
+	@Override
+	public IMetadataRepository refreshRepository(URI location, IProgressMonitor monitor)
+			throws ProvisionException, OperationCanceledException {
+		return delegate.refreshRepository(translateAndPrepareLoad(location), monitor);
+	}
 
-    @Override
-    public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-        return delegate.query(query, monitor);
-    }
+	@Override
+	public boolean removeRepository(URI location) {
+		return delegate.removeRepository(translate(location));
+	}
 
-    @Override
-    public IMetadataRepository refreshRepository(URI location, IProgressMonitor monitor)
-            throws ProvisionException, OperationCanceledException {
-        return delegate.refreshRepository(translateAndPrepareLoad(location), monitor);
-    }
+	@Override
+	public void setEnabled(URI location, boolean enablement) {
+		delegate.setEnabled(translate(location), enablement);
+	}
 
-    @Override
-    public boolean removeRepository(URI location) {
-        return delegate.removeRepository(translate(location));
-    }
-
-    @Override
-    public void setEnabled(URI location, boolean enablement) {
-        delegate.setEnabled(translate(location), enablement);
-    }
-
-    @Override
-    public void setRepositoryProperty(URI location, String key, String value) {
-        delegate.setRepositoryProperty(translate(location), key, value);
-    }
+	@Override
+	public void setRepositoryProperty(URI location, String key, String value) {
+		delegate.setRepositoryProperty(translate(location), key, value);
+	}
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2020 Lablicate GmbH and others.
+ * Copyright (c) 2019, 2023 Lablicate GmbH and others.
  * 
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -20,20 +20,24 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import java.util.jar.Attributes;
+import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
-import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Organization;
 import org.apache.maven.model.Plugin;
-import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.io.ModelParseException;
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.tycho.model.classpath.ClasspathParser;
+import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
+import org.eclipse.tycho.model.classpath.SourceFolderClasspathEntry;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
 @Component(role = Mapping.class, hint = TychoBundleMapping.PACKAGING)
@@ -47,6 +51,8 @@ public class TychoBundleMapping extends AbstractTychoMapping {
 
     private static final String BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
     private static final String PACKAGING_TEST = "eclipse-test-plugin";
+    private static final String PDE_BND = "pde.bnd";
+    private static final AtomicLong ID = new AtomicLong();
 
     @Override
     protected String getPackaging() {
@@ -60,8 +66,11 @@ public class TychoBundleMapping extends AbstractTychoMapping {
 
     @Override
     protected boolean isValidLocation(Path polyglotFile) {
-        return getFileName(polyglotFile).equals(META_INF_DIRECTORY)
-                && Files.isRegularFile(polyglotFile.resolve(MANIFEST_MF));
+        String fileName = getFileName(polyglotFile);
+        if (fileName.equals(META_INF_DIRECTORY) && Files.isRegularFile(polyglotFile.resolve(MANIFEST_MF))) {
+            return true;
+        }
+        return PDE_BND.equals(fileName) && Files.isRegularFile(polyglotFile);
     }
 
     @Override
@@ -70,19 +79,23 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         if (new File(metaInfDirectory, MANIFEST_MF).isFile()) {
             return metaInfDirectory;
         }
+        File file = new File(dir, PDE_BND);
+        if (file.isFile()) {
+            return file;
+        }
         return null;
     }
 
     @Override
     protected void initModel(Model model, Reader artifactReader, Path artifactFile) throws IOException {
         Path bundleRoot = artifactFile.getParent();
-        Path manifestFile = artifactFile.resolve(MANIFEST_MF);
+        Path manifestFile = getManifestFile(artifactFile);
         Attributes manifestHeaders = readManifestHeaders(manifestFile);
         String bundleSymbolicName = getBundleSymbolicName(manifestHeaders, manifestFile);
         // groupId is inherited from parent pom
         model.setArtifactId(bundleSymbolicName);
         String bundleVersion = getRequiredHeaderValue("Bundle-Version", manifestHeaders, manifestFile);
-        model.setVersion(getPomVersion(bundleVersion));
+        model.setVersion(getPomVersion(bundleVersion, model, artifactFile));
         String prefix;
         if (isTestBundle(bundleSymbolicName, bundleRoot)) {
             model.setPackaging(PACKAGING_TEST);
@@ -110,7 +123,68 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         if (Files.isRegularFile(bndFile)) {
             createBndPlugin(model);
         }
+        List<SourceFolderClasspathEntry> sourceFolders = new ArrayList<SourceFolderClasspathEntry>(1);
+        List<SourceFolderClasspathEntry> testSourceFolders = new ArrayList<SourceFolderClasspathEntry>(1);
+        for (ProjectClasspathEntry entry : ClasspathParser
+                .parse(bundleRoot.resolve(ClasspathParser.CLASSPATH_FILENAME).toFile())) {
+            if (entry instanceof SourceFolderClasspathEntry source) {
+                if (source.isTest()) {
+                    testSourceFolders.add(source);
+                } else {
+                    sourceFolders.add(source);
+                }
+            }
+        }
+        configureSourceFolders(model, bundleRoot, sourceFolders, false);
+        configureSourceFolders(model, bundleRoot, testSourceFolders, true);
+    }
 
+    private void configureSourceFolders(Model model, Path bundleRoot, List<SourceFolderClasspathEntry> sourceFolders,
+            boolean test) {
+        if (sourceFolders.size() > 0) {
+            SourceFolderClasspathEntry mainSrc = sourceFolders.remove(0);
+            Path mainSourcePath = mainSrc.getSourcePath().toPath();
+            String sourcePath = bundleRoot.relativize(mainSourcePath).toString();
+            if (test) {
+                getBuild(model).setTestSourceDirectory(sourcePath);
+            } else {
+                getBuild(model).setSourceDirectory(sourcePath);
+            }
+            addAdditionalFolders(sourceFolders, model, bundleRoot, test ? "add-test-source" : "add-source");
+        }
+    }
+
+    private void addAdditionalFolders(List<SourceFolderClasspathEntry> folders, Model model, Path bundleRoot,
+            String goal) {
+        Plugin buildHelperPlugin = null;
+        for (SourceFolderClasspathEntry entry : folders) {
+            if (buildHelperPlugin == null) {
+                buildHelperPlugin = getPlugin(model, "org.codehaus.mojo", "build-helper-maven-plugin");
+            }
+            addPluginExecution(buildHelperPlugin, execution -> {
+                execution.setId("eclipse-classpath-" + goal + "-" + ID.incrementAndGet());
+                execution.setPhase("initialize");
+                execution.getGoals().add(goal);
+                MavenConfiguation configuration = getConfiguration(execution);
+                MavenConfiguation sources = configuration.addChild("sources");
+                MavenConfiguation source = sources.addChild("source");
+                Path additionalSourcePath = entry.getSourcePath().toPath();
+                String additionalPath = bundleRoot.relativize(additionalSourcePath).toString();
+                source.setValue(additionalPath);
+            });
+        }
+    }
+
+    private Path getManifestFile(Path artifactFile) {
+        Path manifestFile = artifactFile.resolve(MANIFEST_MF);
+        if (Files.isRegularFile(manifestFile)) {
+            return manifestFile;
+        }
+        if (getFileName(artifactFile).equals(PDE_BND) && Files.isRegularFile(artifactFile)) {
+            return artifactFile;
+        }
+
+        return manifestFile;
     }
 
     @Override
@@ -119,39 +193,46 @@ public class TychoBundleMapping extends AbstractTychoMapping {
             //Look up build.properties in the project's root. The given file points to the 'META-INF' folder.
             return getBuildProperties(file.getParent());
         } else {
+            if (getFileName(file).equals(PDE_BND)) {
+                return loadProperties(file);
+            }
             return super.getEnhancementProperties(file);
         }
     }
 
     private static Plugin createBndPlugin(Model model) {
         //See https://github.com/bndtools/bnd/blob/master/maven/bnd-maven-plugin/README.md#bnd-process-goal 
-        Build build = model.getBuild();
-        if (build == null) {
-            model.setBuild(build = new Build());
-        }
-        Plugin plugin = new Plugin();
-        plugin.setGroupId("biz.aQute.bnd");
-        plugin.setArtifactId("bnd-maven-plugin");
-        build.addPlugin(plugin);
-        PluginExecution process = new PluginExecution();
-        process.setId("bnd-process");
-        process.setGoals(Arrays.asList("bnd-process"));
-        plugin.addExecution(process);
-        Xpp3Dom config = new Xpp3Dom("configuration");
-        process.setConfiguration(config);
-        Xpp3Dom packagingTypes = new Xpp3Dom("packagingTypes");
-        packagingTypes.setValue(model.getPackaging());
-        config.addChild(packagingTypes);
-        Xpp3Dom manifestPath = new Xpp3Dom("manifestPath");
-        manifestPath.setValue("${project.build.directory}/BND.MF");
-        config.addChild(manifestPath);
+        Plugin plugin = getPlugin(model, "biz.aQute.bnd", "bnd-maven-plugin");
+        addPluginExecution(plugin, execution -> {
+            execution.setId("bnd-process");
+            execution.setGoals(Arrays.asList("bnd-process"));
+            MavenConfiguation config = getConfiguration(execution);
+            config.addChild("packagingTypes").setValue(model.getPackaging());
+            config.addChild("manifestPath").setValue("${project.build.directory}/BND.MF");
+        });
         return plugin;
     }
 
     private Attributes readManifestHeaders(Path manifestFile) throws IOException {
         Manifest manifest = new Manifest();
         try (InputStream stream = Files.newInputStream(manifestFile)) {
-            manifest.read(stream);
+            if (getFileName(manifestFile).equals(PDE_BND)) {
+                Properties properties = new Properties();
+                properties.load(stream);
+                Attributes attr = manifest.getMainAttributes();
+                for (String key : properties.stringPropertyNames()) {
+                    try {
+                        //check if this is a valid manifest name...
+                        new Name(key);
+                    } catch (IllegalArgumentException e) {
+                        // ... otherwise skip
+                        continue;
+                    }
+                    attr.putValue(key, properties.getProperty(key));
+                }
+            } else {
+                manifest.read(stream);
+            }
         }
         return manifest.getMainAttributes();
     }
@@ -201,6 +282,9 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         String location = headers.getValue("Bundle-Localization");
         if (location == null || location.isEmpty()) {
             location = "OSGI-INF/l10n/bundle";
+        }
+        if (getFileName(manifestFile).equals(PDE_BND)) {
+            return manifestFile.getParent().resolve(location + ".properties");
         }
         //we always use the default here to have consistent build regardless of locale settings
         return manifestFile.getParent().getParent().resolve(location + ".properties");

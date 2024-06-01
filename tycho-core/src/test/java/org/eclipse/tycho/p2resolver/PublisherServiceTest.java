@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -31,15 +32,15 @@ import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.repository.ImmutableInMemoryMetadataRepository;
+import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.PublisherActionRunner;
 import org.eclipse.tycho.p2.tools.publisher.PublisherServiceImpl;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
-import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.test.util.InstallableUnitUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
@@ -68,7 +69,7 @@ public class PublisherServiceTest extends TychoPlexusTestCase {
 
         LinkedHashSet<IInstallableUnit> installableUnits = new LinkedHashSet<>();
         installableUnits.add(InstallableUnitUtil.createFeatureIU("org.eclipse.example.original_feature", "1.0.0"));
-        IMetadataRepository context = new ImmutableInMemoryMetadataRepository(installableUnits);
+        IMetadataRepository context = new ImmutableInMemoryMetadataRepository(installableUnits, true);
 
         // TODO these publishers don't produce artifacts, so we could run without file system
         outputRepository = new PublishingRepositoryImpl(lookup(IProvisioningAgent.class),
@@ -116,9 +117,10 @@ public class PublisherServiceTest extends TychoPlexusTestCase {
         assertTrue(unitsById(seeds).keySet().contains("config.a.jre.virgo"));
     }
 
-    @Test(expected = FacadeException.class)
+    @Test
     public void testValidateProfileFile() throws Exception {
-        ((PublisherServiceImpl) subject).validateProfile(resourceFile("publishers/inconsistentname-1.0.profile"));
+        assertThrows(FacadeException.class, () -> ((PublisherServiceImpl) subject)
+                .validateProfile(resourceFile("publishers/inconsistentname-1.0.profile")));
     }
 
     /**

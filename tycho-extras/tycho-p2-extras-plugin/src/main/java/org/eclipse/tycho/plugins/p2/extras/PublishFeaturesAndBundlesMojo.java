@@ -27,13 +27,12 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAndBundlesPublisherApplication;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.tycho.p2tools.copiedfromp2.FeaturesAndBundlesPublisherApplication;
 
 /**
  * This goal invokes the feature and bundle publisher on a folder.
- * 
- * @see https://wiki.eclipse.org/Equinox/p2/Publisher#Features_And_Bundles_Publisher_Application
+ *
+ * @see <a href="https://wiki.eclipse.org/Equinox/p2/Publisher#Features_And_Bundles_Publisher_Application">Eclipse Wiki</a>
  */
 @Mojo(name = "publish-features-and-bundles", threadSafe = true)
 public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
@@ -50,7 +49,7 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
      * Location of the artifact repository to write. Note: The AssembleRepositoryMojo of
      * tycho-p2-repository-plugin will only work with the predefined default
      * ${project.build.directory}/repository.
-     * 
+     *
      */
     @Parameter(defaultValue = "${project.build.directory}/repository")
     private String artifactRepositoryLocation;
@@ -106,8 +105,7 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
             List<String> contentArgs = new ArrayList<>();
             contentArgs.add("-source");
             contentArgs.add(sourceRepositoryDir.toString());
-            agent.getService(IArtifactRepositoryManager.class); //force init P2 services
-            FeaturesAndBundlesPublisherApplication application = new FeaturesAndBundlesPublisherApplication();
+            FeaturesAndBundlesPublisherApplication application = new FeaturesAndBundlesPublisherApplication(agent);
             List<String> arguments = new ArrayList<String>();
             arguments.add("-artifactRepository");
             arguments.add(artifactRepositoryDir.toURL().toString());

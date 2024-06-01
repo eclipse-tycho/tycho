@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+    http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>targetplatform</artifactId>
+    <packaging>eclipse-target-definition</packaging>
+    <parent>
+        <groupId>tycho-its-project.variables.env</groupId>
+        <artifactId>aggregator</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho.extras</groupId>
+                <artifactId>target-platform-validation-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>validate-target-platform</goal>
+                        </goals>
+                        <configuration>
+                            <checkDependencies>true</checkDependencies>
+                            <checkProvisioning>true</checkProvisioning>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

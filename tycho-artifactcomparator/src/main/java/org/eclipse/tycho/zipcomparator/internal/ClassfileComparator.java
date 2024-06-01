@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.zipcomparator.internal;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -35,7 +36,7 @@ public class ClassfileComparator implements ContentsComparator {
 
     // there are two alternative ways to compare class files
     // JDT ClassFileBytesDisassembler, but it depends on workbench, so out of question
-    // P2 JarComparator... which is a fork (yes, a fork) of JDT ClassFileBytesDisassembler, 
+    // P2 JarComparator... which is a fork (yes, a fork) of JDT ClassFileBytesDisassembler,
     // which is not exported, so can't use this either.
 
     @Override
@@ -47,7 +48,7 @@ public class ClassfileComparator implements ContentsComparator {
             if (baselineDisassemble.equals(reactorDisassemble)) {
                 return ArtifactDelta.NO_DIFFERENCE;
             }
-            return new SimpleArtifactDelta("different", baselineDisassemble, reactorDisassemble);
+            return new ClassfileArtifactDelta(baselineDisassemble, reactorDisassemble, baseline, reactor);
         } catch (RuntimeException e) {
             return baseline.compare(reactor);
         }
@@ -60,7 +61,7 @@ public class ClassfileComparator implements ContentsComparator {
         reader.accept(clazz, Opcodes.ASM9 | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
 
         // inner class list gets reordered during pack200 normalization
-        if (clazz.innerClasses != null) {
+        if (clazz.innerClasses != null && !clazz.innerClasses.isEmpty()) {
             List<InnerClassNode> sorted = new ArrayList<>(clazz.innerClasses);
             Collections.sort(sorted, (o1, o2) -> o1.name.compareTo(o2.name));
             clazz.innerClasses = sorted;
@@ -71,7 +72,6 @@ public class ClassfileComparator implements ContentsComparator {
         StringWriter buffer = new StringWriter();
         try (PrintWriter writer = new PrintWriter(buffer)) {
             clazz.accept(new TraceClassVisitor(writer));
-            writer.flush();
         }
         return buffer.toString();
     }
@@ -79,5 +79,27 @@ public class ClassfileComparator implements ContentsComparator {
     @Override
     public boolean matches(String extension) {
         return TYPE.equalsIgnoreCase(extension);
+    }
+
+    public static final class ClassfileArtifactDelta extends SimpleArtifactDelta {
+
+        private ComparatorInputStream baselineStream;
+        private ComparatorInputStream reactorStream;
+
+        ClassfileArtifactDelta(String baseline, String reactor, ComparatorInputStream baselineStream,
+                ComparatorInputStream reactorStream) {
+            super("different", baseline, reactor);
+            this.baselineStream = baselineStream;
+            this.reactorStream = reactorStream;
+        }
+
+        @Override
+        public void writeDetails(File destination) throws IOException {
+            super.writeDetails(destination);
+            File basedir = destination.getParentFile();
+            writeFile(basedir, destination.getName() + "-baseline.class", baselineStream);
+            writeFile(basedir, destination.getName() + "-build.class", reactorStream);
+        }
+
     }
 }

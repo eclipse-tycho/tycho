@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 Christoph Läubrich and others.
+ * Copyright (c) 2021, 2023 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -23,16 +23,37 @@ import java.util.stream.Collectors;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.EnvironmentUtil;
 import org.junit.Test;
 
 public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
+
+	@Test
+	public void testJUnit5ContainerWithoutTarget() throws Exception {
+		Verifier verifier = getVerifier("compiler.junitcontainer/junit5-without-target", false, true);
+		verifier.executeGoal("test");
+		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("-- in bundle.test.AdderTest");
+		verifier.verifyTextInLog("-- in bundle.test.SubtractorTest");
+		verifier.verifyTextInLog("Tests run: 5, Failures: 0, Errors: 0, Skipped: 0");
+	}
+
+	@Test
+	public void testJUnit5ContainerWithLinkedResources() throws Exception {
+		Verifier verifier = getVerifier("compiler.junitcontainer/junit5-with-linked-resources", false, true);
+		verifier.executeGoal("test");
+		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("Compiling 2 source files");
+		verifier.verifyTextInLog("-- in bundle.test.AdderTest");
+		verifier.verifyTextInLog("-- in bundle.test.SubtractorTest");
+		verifier.verifyTextInLog("Tests run: 5, Failures: 0, Errors: 0, Skipped: 0");
+	}
 
 	@Test
 	public void testJUnit4Container() throws Exception {
 		Verifier verifier = getVerifier("compiler.junitcontainer/junit4-in-bundle", true);
 		verifier.executeGoal("test");
 		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("Tests run: 5, Failures: 0, Errors: 0, Skipped: 0");
 	}
 
 	@Test
@@ -40,6 +61,7 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("compiler.junitcontainer/junit4-in-bundle-with-dependencies", true);
 		verifier.executeGoal("test");
 		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("Tests run: 5, Failures: 0, Errors: 0, Skipped: 0");
 	}
 
 	@Test
@@ -51,8 +73,7 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testDSComponents() throws Exception {
-		Verifier verifier = getVerifier("tycho-ds", false, true);
-		verifier.setSystemProperty("repo-url", EnvironmentUtil.ECLIPSE_LATEST);
+		Verifier verifier = getVerifier("tycho-ds", true, true);
 		// first test to consume from target platform
 		verifyDs(verifier);
 		// now test consume from maven directly

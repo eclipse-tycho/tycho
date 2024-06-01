@@ -81,7 +81,7 @@ public class VerifierServiceImpl implements VerifierService {
         final IQueryResult<IInstallableUnit> collector = metadata.query(QueryUtil.ALL_UNITS, monitor);
         boolean valid = true;
         Set<IInstallableUnit> set = collector.toSet();
-        logger.debug("Verify content of " + set.size() + " units...");
+        logger.debug("Verifying content of " + set.size() + " units");
         for (IInstallableUnit iu : set) {
             final Collection<IArtifactKey> artifacts = iu.getArtifacts();
             for (IArtifactKey key : artifacts) {
@@ -108,12 +108,12 @@ public class VerifierServiceImpl implements VerifierService {
         IQueryResult<IArtifactKey> allKeys = repository
                 .query(new ExpressionMatchQuery<>(IArtifactKey.class, ExpressionUtil.TRUE_EXPRESSION), null);
         Set<IArtifactKey> set = allKeys.toSet();
-        logger.debug("Verify content of " + set.size() + " artifacts...");
+        logger.debug("Verifying content of " + set.size() + " artifacts");
         for (IArtifactKey key : set) {
             IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
             for (IArtifactDescriptor descriptor : descriptors) {
                 boolean verifyArtifactContent = verifyArtifactContent(repository, logger, descriptor);
-                logger.debug("Verify artifact content " + descriptor + ": " + verifyArtifactContent);
+                logger.debug("Verifying artifact content " + descriptor + ": " + verifyArtifactContent);
                 valid &= verifyArtifactContent;
             }
         }

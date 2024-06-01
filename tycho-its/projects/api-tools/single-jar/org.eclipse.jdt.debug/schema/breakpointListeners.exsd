@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.jdt.debug" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.jdt.debug" id="breakpointListeners" name="Java Breakpoint Listeners"/>
+      </appInfo>
+      <documentation>
+         Allow clients to contribute listeners for Java breakpoint notifications.  For example, listeners are called when a breakpoint is hit and about to suspend execution.  The listener can vote to resume or suspend the debug session. Listeners can be programmatically added to and removed from  specific Java breakpoints (specified by breakpoint listener identifers), or be registered to listen for notifications for all Java breakpoints.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="breakpointListener"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="breakpointListener">
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Unique identifier of the breakpoint listener
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="identifier"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Delegate for breakpoint notifications - must be an instance of &lt;code&gt;IJavaBreakpointListener&lt;/code&gt;
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.jdt.debug.core.IJavaBreakpointListener"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="filter">
+            <annotation>
+               <documentation>
+                  Controls whether the breakpoint listener is notified for all breakpoints. Currently, the only option allowed is &quot;*&quot; indicating all breakpoints. When unspecified, listeners must be added to breakpoints programmatically via their &lt;code&gt;id&lt;/code&gt;.
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="*">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         3.5
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         The following is an example for defining a breakpoint listener. In this example, the listener is only notified of breakpoint events for the specific breakpoints it is programatically registered for.
+
+&lt;p&gt;
+&lt;pre&gt;
+&lt;extension
+       point=&quot;org.eclipse.jdt.debug.breakpointListeners&quot;&gt;
+   &lt;breakpointActionDelegate
+          class=&quot;com.example.BreakpointActionDelegate&quot;
+          id=&quot;com.example.breakpoint.action&quot;&gt;
+    &lt;/breakpointActionDelegate&gt;
+&lt;/extension&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiinfo"/>
+      </appInfo>
+      <documentation>
+         &lt;p&gt;
+&lt;li&gt;Value of the attribute &lt;b&gt;class&lt;/b&gt; in a &lt;b&gt;breakpointListener&lt;/b&gt; element must be a fully qualifed name of a Java class that implements &lt;b&gt;org.eclipse.jdt.debug.core.IJavaBreakpointListener&lt;/b&gt;.&lt;/li&gt;
+&lt;li&gt;Listeners are added to and removed from a breakpoint programmatically. See &lt;code&gt;IJavaBreakpoint.addBreakpointListener(String id)&lt;/code&gt; and &lt;code&gt;IJavaBreakpoint.removeBreakpointListener(String id)&lt;/code&gt;&lt;/li&gt;
+&lt;/p&gt;
+&lt;br&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         None
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2009 IBM Corporation and others.&lt;br&gt;
+
+This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License 2.0 which 
+accompanies this distribution, and is available at 
+&lt;a href=&quot;https://www.eclipse.org/legal/epl-2.0&quot;&gt;https://www.eclipse.org/legal/epl-v20.html&lt;/a&gt;/
+
+SPDX-License-Identifier: EPL-2.0
+      </documentation>
+   </annotation>
+
+</schema>

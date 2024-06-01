@@ -1,0 +1,38 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="IBM">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (WinNT; I) [Netscape]">
+   <title>Package-level Javadoc</title>
+</head>
+<body>
+Provides provisioning user interface classes that can be used for assembling
+a provisioning UI.
+<h2>
+Package Specification</h2>
+<p>
+This package consists of several kinds of classes:</p>
+<ul>
+<li><b>ProvisioningUI</b> is the hub of the UI.  It is used to access the underlying
+provisioning session and its services, as well as all services registered by the UI.
+It also provides utility methods that allow clients to create provisioning operations
+or launch provisioning wizards.
+</li>
+<li><b>Policy</b> defines those aspects of the provisioning UI that can be configured
+by clients.
+</li>
+<li><b>LicenseManager</b> describes a service which accepts or rejects
+licenses and remembers the accepted licenses.  Clients should register
+an implementation of LicenseManager in order to remember the
+licenses.
+</li>
+<li>Various <b>pages</b> define reusable pages that can be hosted inside wizards
+and dialogs.  In general, the pages are meant to be contributed by extension point.
+In some cases, direct instantiation of the pages is permitted.  See the individual page
+javadoc for usage.
+</li>
+</ul>
+@since 2.0
+</body>
+</html>

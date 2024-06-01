@@ -3,7 +3,7 @@ package org.eclipse.tycho.p2resolver;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
+import org.eclipse.tycho.core.shared.DuplicateFilteringLoggingProgressMonitor;
 import org.junit.Before;
 import org.junit.Test;
 

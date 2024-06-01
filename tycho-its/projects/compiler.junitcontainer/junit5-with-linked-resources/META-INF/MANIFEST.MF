@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: junit5-with-linked-resources
+Bundle-SymbolicName: junit5.with.linked.resources
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: bundle.test

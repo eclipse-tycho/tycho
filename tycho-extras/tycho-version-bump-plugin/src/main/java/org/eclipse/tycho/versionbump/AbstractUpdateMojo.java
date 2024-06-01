@@ -24,7 +24,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
@@ -61,8 +60,7 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     protected abstract void doUpdate() throws Exception;
 
     private void createResolver() {
-        p2 = factory.createResolver(Collections
-                .singletonList(TargetEnvironment.getRunningEnvironment(DefaultReactorProject.adapt(project))));
+        p2 = factory.createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
         resolutionContext = new TargetPlatformConfigurationStub();
     }
 

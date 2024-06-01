@@ -30,13 +30,13 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.IArtifactFacade;
+import org.eclipse.tycho.IRawArtifactFileProvider;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.resolver.target.ArtifactMatcher;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
-import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
-import org.eclipse.tycho.p2.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
+import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
 abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
 
@@ -76,17 +76,20 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
     @Deprecated
     private LocalArtifactRepository localArtifactRepository;
 
+    private Set<IInstallableUnit> shadowed;
+
     public TargetPlatformBaseImpl(LinkedHashSet<IInstallableUnit> installableUnits,
             ExecutionEnvironmentResolutionHints executionEnvironment, IRawArtifactFileProvider artifacts,
             LocalArtifactRepository localArtifactRepository,
             Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup,
-            Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup) {
+            Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup, Set<IInstallableUnit> shadowed) {
         this.installableUnits = installableUnits;
         this.executionEnvironment = executionEnvironment;
         this.reactorProjectLookup = reactorProjectLookup;
         this.mavenArtifactLookup = mavenArtifactLookup;
         this.artifacts = artifacts;
         this.localArtifactRepository = localArtifactRepository;
+        this.shadowed = shadowed;
     }
 
     @Override
@@ -173,9 +176,19 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
 
     @Override
     public File getArtifactLocation(org.eclipse.tycho.ArtifactKey artifact) {
-        IArtifactKey p2Artifact = ArtifactTypeHelper.toP2ArtifactKey(artifact);
-        if (p2Artifact != null) {
-            return artifacts.getArtifactFile(p2Artifact);
+        if (ArtifactType.TYPE_INSTALLABLE_UNIT.equals(artifact.getType())) {
+            //it might be a bundle or a feature...
+            File bundleFile = artifacts.getArtifactFile(ArtifactTypeHelper.toP2BundleArtifactKey(artifact));
+            if (bundleFile != null) {
+                return bundleFile;
+            }
+            //the try it as a feature
+            return artifacts.getArtifactFile(ArtifactTypeHelper.toP2FeatureArtifactKey(artifact));
+        } else {
+            IArtifactKey p2Artifact = ArtifactTypeHelper.toP2ArtifactKey(artifact);
+            if (p2Artifact != null) {
+                return artifacts.getArtifactFile(p2Artifact);
+            }
         }
         return null;
     }
@@ -189,4 +202,10 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
         return false;
     }
 
+    /**
+     * @return all units that are shadowed by a reactor project IU
+     */
+    public Set<IInstallableUnit> getShadowed() {
+        return shadowed;
+    }
 }

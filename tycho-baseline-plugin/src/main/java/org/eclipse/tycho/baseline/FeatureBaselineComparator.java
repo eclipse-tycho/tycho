@@ -6,7 +6,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
@@ -15,7 +15,6 @@ package org.eclipse.tycho.baseline;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +31,6 @@ import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -129,8 +127,8 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 				change = diff.change;
 			}
 		}
-		if (needsVersionBump(baselineGroupUnit.getVersion(), projectGroupUnit.getVersion(), change)) {
-			Version suggestedVersion = getSuggestedVersion(projectGroupUnit.getVersion(), change);
+		if (needsVersionBump(baselineGroupUnit.getVersion(), projectGroupUnit.getVersion(), change, context)) {
+			Version suggestedVersion = getSuggestedVersion(projectGroupUnit.getVersion(), change, context);
 			AsciiTable at = new AsciiTable();
 			at.addRule();
 			at.addRow("Change", "Delta", "Type", "Name", "Project Version", "Baseline Version", "Suggested Version");
@@ -169,7 +167,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 			message.append(baselineGroupUnit.getVersion());
 			message.append(", suggested version: ");
 			message.append(suggestedVersion);
-			context.reportBaselineProblem(message.toString());
+			context.reportBaselineProblem(message.toString(), new org.osgi.framework.Version(suggestedVersion.toString()));
 		}
 		return true;
 	}
@@ -192,7 +190,8 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 		return ImpliedVersionChange.UNCHANGED;
 	}
 
-	private boolean needsVersionBump(Version baselineVersion, Version projectVersion, ImpliedVersionChange change) {
+	private boolean needsVersionBump(Version baselineVersion, Version projectVersion, ImpliedVersionChange change,
+			BaselineContext context) {
 		if (change == ImpliedVersionChange.UNCHANGED) {
 			return false;
 		}
@@ -208,7 +207,8 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 			break;
 		}
 		case MICRO: {
-			minIncrement = new org.osgi.framework.Version(bv.getMajor(), bv.getMinor(), bv.getMicro() + 1);
+			minIncrement = new org.osgi.framework.Version(bv.getMajor(), bv.getMinor(),
+					bv.getMicro() + context.getMicroIncrement());
 			break;
 		}
 		default:
@@ -228,7 +228,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 		}
 	}
 
-	private Version getSuggestedVersion(Version version, ImpliedVersionChange change) {
+	private Version getSuggestedVersion(Version version, ImpliedVersionChange change, BaselineContext context) {
 		if (change == ImpliedVersionChange.UNCHANGED) {
 			return version;
 		}
@@ -239,7 +239,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 		if (change == ImpliedVersionChange.MINOR) {
 			return Version.createOSGi(v.getMajor(), v.getMinor() + 1, 0);
 		}
-		return Version.createOSGi(v.getMajor(), v.getMinor(), v.getMicro() + 100);
+		return Version.createOSGi(v.getMajor(), v.getMinor(), v.getMicro() + context.getMicroIncrement());
 	}
 
 	private Collection<IRequiredCapability> getRequirements(IInstallableUnit unit) {
@@ -325,16 +325,15 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 	}
 
 	private List<Diff> computeJarDelta(MavenProject project, BaselineContext context, IInstallableUnit baselineJarUnit)
-			throws IOException, FileNotFoundException {
+			throws IOException {
 		File file = project.getArtifact().getFile();
 		try (FileInputStream reactor = new FileInputStream(file)) {
-			List<String> ignores = new ArrayList<String>();
+			List<String> ignores = new ArrayList<>();
 			ignores.add("feature.xml"); // we compare the feature not on the file level but on the requirements level
 										// here!
 			ignores.addAll(context.getIgnores());
 			ArtifactDelta artifactDelta = zipComparator.getDelta(getStream(baselineJarUnit, context),
-					new ComparatorInputStream(reactor),
-					new ComparisonData(ignores, false));
+					new ComparatorInputStream(reactor), new ComparisonData(ignores, false));
 			if (artifactDelta == null) {
 				return List.of();
 			}
@@ -368,22 +367,45 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 						String.format("Property %s present in baseline version only", name)));
 				continue;
 			}
-			if (!baselineValue.equals(projectValue)) {
+			if (!propertyEquals(baselineValue, projectValue)) {
+				int indexOfDifference = indexOfDifference(baselineValue, projectValue);
 				list.add(new Diff(ImpliedVersionChange.MICRO, Type.PROPERTY, Delta.CHANGED, String.format(
-						"Property %s is different, baseline = %s, project = %s ", name, baselineValue, projectValue)));
+						"Property %s is different, baseline = %s, project = %s (first index of difference is %s", //
+						name, baselineValue, projectValue, indexOfDifference)));
 			}
 		}
 		return list;
 	}
 
-	private IQueryable<IInstallableUnit> getProjectUnits(MavenProject project)
-			throws MojoFailureException, IOException {
+	private static boolean propertyEquals(String baselineValue, String projectValue) {
+		if (baselineValue.equals(projectValue)) {
+			// perfect match
+			return true;
+		}
+		String normalizdBl = baselineValue.replaceAll("\\s", " ").replaceAll("\\s+", " ").trim();
+		String normalizdPr = projectValue.replaceAll("\\s", " ").replaceAll("\\s+", " ").trim();
+		return normalizdBl.equals(normalizdPr);
+	}
+
+	private static int indexOfDifference(CharSequence s1, CharSequence s2) {
+		int length = Math.min(s1.length(), s2.length());
+		for (int i = 0; i < length; i++) {
+			char c1 = s1.charAt(i);
+			char c2 = s2.charAt(i);
+			if (c1 != c2) {
+				return i;
+			}
+		}
+		return length;
+	}
+
+	private IQueryable<IInstallableUnit> getProjectUnits(MavenProject project) throws IOException {
 		// first check if there is anything attached yet...
 		for (Artifact artifact : project.getAttachedArtifacts()) {
 			if (TychoConstants.CLASSIFIER_P2_METADATA.equals(artifact.getClassifier())) {
 				File file = artifact.getFile();
 				if (file != null && file.exists()) {
-					return new CollectionResult<IInstallableUnit>(metadataIO.readXML(file));
+					return new CollectionResult<>(metadataIO.readXML(file));
 				}
 			}
 		}
@@ -392,7 +414,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 		ArtifactFacade projectDefaultArtifact = new ArtifactFacade(project.getArtifact());
 		Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(List.of(projectDefaultArtifact),
 				new PublisherOptions(), targetDir);
-		return new CollectionResult<IInstallableUnit>(
+		return new CollectionResult<>(
 				generatedMetadata.values().stream().flatMap(a -> a.getInstallableUnits().stream()).toList());
 
 	}

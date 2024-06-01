@@ -1,0 +1,533 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.2.0'?>
+<repository name='api-repo' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1664006024494'/>
+    <property name='p2.compressed' value='true'/>
+  </properties>
+  <units size='5'>
+    <unit id='202209240753.Default' version='1.0.0.0-3d2w---7E7EE7gEM7YQI'>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='Uncategorized'/>
+        <property name='org.eclipse.equinox.p2.description' value='Default category for otherwise uncategorized features'/>
+        <property name='org.eclipse.equinox.p2.type.category' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='202209240753.Default' version='1.0.0.0-3d2w---7E7EE7gEM7YQI'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='api-bundle-2' range='[0.0.1.202209240753,0.0.1.202209240753]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='api-bundle-1' range='[0.0.1.202209240753,0.0.1.202209240753]'/>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
+    <unit id='api-bundle-2' version='0.0.1.202209240753' singleton='false' generation='2'>
+      <update id='api-bundle-2' range='[0.0.0,0.0.1.202209240753)' severity='0'/>
+      <properties size='5'>
+        <property name='org.eclipse.equinox.p2.name' value='Plugin with API'/>
+        <property name='maven-groupId' value='org.eclipse.tycho.tycho-its'/>
+        <property name='maven-artifactId' value='api-bundle-2'/>
+        <property name='maven-version' value='0.0.1-SNAPSHOT'/>
+        <property name='maven-type' value='eclipse-plugin'/>
+      </properties>
+      <provides size='5'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='api-bundle-2' version='0.0.1.202209240753'/>
+        <provided namespace='osgi.bundle' name='api-bundle-2' version='0.0.1.202209240753'/>
+        <provided namespace='java.package' name='bundle' version='0.0.0'/>
+        <provided namespace='osgi.identity' name='api-bundle-2' version='0.0.1.202209240753'>
+          <properties size='1'>
+            <property name='type' value='osgi.bundle'/>
+          </properties>
+        </provided>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <requiredProperties namespace='osgi.ee' match='(&amp;(osgi.ee=JavaSE)(version=11))'>
+          <description>
+            api-bundle-2
+          </description>
+        </requiredProperties>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='api-bundle-2' version='0.0.1.202209240753'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: api-bundle-2&#xA;Bundle-Version: 0.0.1.202209240753
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='api-bundle-1' version='0.0.1.202209240753' singleton='false' generation='2'>
+      <update id='api-bundle-1' range='[0.0.0,0.0.1.202209240753)' severity='0'/>
+      <properties size='5'>
+        <property name='org.eclipse.equinox.p2.name' value='Plugin with API'/>
+        <property name='maven-groupId' value='org.eclipse.tycho.tycho-its'/>
+        <property name='maven-artifactId' value='api-bundle-1'/>
+        <property name='maven-version' value='0.0.1-SNAPSHOT'/>
+        <property name='maven-type' value='eclipse-plugin'/>
+      </properties>
+      <provides size='5'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='api-bundle-1' version='0.0.1.202209240753'/>
+        <provided namespace='osgi.bundle' name='api-bundle-1' version='0.0.1.202209240753'/>
+        <provided namespace='java.package' name='bundle' version='0.0.0'/>
+        <provided namespace='osgi.identity' name='api-bundle-1' version='0.0.1.202209240753'>
+          <properties size='1'>
+            <property name='type' value='osgi.bundle'/>
+          </properties>
+        </provided>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <requiredProperties namespace='osgi.ee' match='(&amp;(osgi.ee=JavaSE)(version=11))'>
+          <description>
+            api-bundle-1
+          </description>
+        </requiredProperties>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='api-bundle-1' version='0.0.1.202209240753'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: api-bundle-1&#xA;Bundle-Version: 0.0.1.202209240753
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='org.eclipse.pde.build' version='3.12.100.v20230825-1354' generation='2'>
+	    <update id='org.eclipse.pde.build' range='[0.0.0,3.12.100.v20230825-1354)' severity='0'/>
+	    <properties size='9'>
+	      <property name='df_LT.pluginName' value='Plug-in Development Environment Build Support'/>
+	      <property name='df_LT.providerName' value='Eclipse.org'/>
+	      <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+	      <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+	      <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+	      <property name='maven-groupId' value='org.eclipse.pde'/>
+	      <property name='maven-artifactId' value='org.eclipse.pde.build'/>
+	      <property name='maven-version' value='3.12.200-SNAPSHOT'/>
+	      <property name='maven-type' value='eclipse-plugin'/>
+	    </properties>
+	    <provides size='16'>
+	      <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.pde.build' version='3.12.100.v20230825-1354'/>
+	      <provided namespace='osgi.bundle' name='org.eclipse.pde.build' version='3.12.100.v20230825-1354'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.build' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.ant' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.builder' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.fetch' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.packager' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.properties' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.publisher.compatibility' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.site' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.site.compatibility' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.pde.internal.build.tasks' version='0.0.0'/>
+	      <provided namespace='osgi.identity' name='org.eclipse.pde.build' version='3.12.100.v20230825-1354'>
+	        <properties size='1'>
+	          <property name='type' value='osgi.bundle'/>
+	        </properties>
+	      </provided>
+	      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+	      <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+	    </provides>
+	    <artifacts size='1'>
+	      <artifact classifier='osgi.bundle' id='org.eclipse.pde.build' version='3.12.100.v20230825-1354'/>
+	    </artifacts>
+	    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+	    <touchpointData size='1'>
+	      <instructions size='2'>
+	        <instruction key='zipped'>
+	          true
+	        </instruction>
+	        <instruction key='manifest'>
+	          Bundle-SymbolicName: org.eclipse.pde.build;singleton:=true&#xA;Bundle-Version: 3.12.100.v20230825-1354&#xA;
+	        </instruction>
+	      </instructions>
+	    </touchpointData>
+	  </unit>
+	  <unit id='org.eclipse.equinox.p2.ui' version='2.8.100.v20230728-2010' generation='2'>
+	    <update id='org.eclipse.equinox.p2.ui' range='[0.0.0,2.8.100.v20230728-2010)' severity='0'/>
+	    <properties size='9'>
+	      <property name='df_LT.bundleName' value='Equinox Provisioning UI Support'/>
+	      <property name='df_LT.providerName' value='Eclipse.org - Equinox'/>
+	      <property name='org.eclipse.equinox.p2.name' value='%bundleName'/>
+	      <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+	      <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+	      <property name='maven-groupId' value='org.eclipse.tycho.tycho-its'/>
+	      <property name='maven-artifactId' value='org.eclipse.equinox.p2.ui'/>
+	      <property name='maven-version' value='2.8.200-SNAPSHOT'/>
+	      <property name='maven-type' value='eclipse-plugin'/>
+	    </properties>
+	    <provides size='12'>
+	      <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.p2.ui' version='2.8.100.v20230728-2010'/>
+	      <provided namespace='osgi.bundle' name='org.eclipse.equinox.p2.ui' version='2.8.100.v20230728-2010'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.internal.p2.ui' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.internal.p2.ui.actions' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.internal.p2.ui.dialogs' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.internal.p2.ui.model' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.internal.p2.ui.query' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.internal.p2.ui.viewers' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.equinox.p2.ui' version='2.6.0'/>
+	      <provided namespace='osgi.identity' name='org.eclipse.equinox.p2.ui' version='2.8.100.v20230728-2010'>
+		<properties size='1'>
+		  <property name='type' value='osgi.bundle'/>
+		</properties>
+	      </provided>
+	      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+	      <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+	    </provides>
+	    <artifacts size='1'>
+	      <artifact classifier='osgi.bundle' id='org.eclipse.equinox.p2.ui' version='2.8.100.v20230728-2010'/>
+	    </artifacts>
+	    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+	    <touchpointData size='1'>
+	      <instructions size='1'>
+		<instruction key='manifest'>
+		  Bundle-SymbolicName: org.eclipse.equinox.p2.ui;singleton:=true&#xA;Bundle-Version: 2.8.100.v20230728-2010&#xA;
+		</instruction>
+	      </instructions>
+	    </touchpointData>
+	  </unit>
+	<unit id='org.eclipse.jdt.debug' version='3.21.100.v20230728-0612' generation='2'>
+	    <update id='org.eclipse.jdt.debug' range='[0.0.0,3.21.100.v20230728-0612)' severity='0'/>
+	    <properties size='9'>
+	      <property name='df_LT.pluginName' value='JDI Debug Model'/>
+	      <property name='df_LT.providerName' value='Eclipse.org'/>
+	      <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+	      <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+	      <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+	      <property name='maven-groupId' value='org.eclipse.tycho.tycho-its'/>
+	      <property name='maven-artifactId' value='org.eclipse.jdt.debug'/>
+	      <property name='maven-version' value='3.22.0-SNAPSHOT'/>
+	      <property name='maven-type' value='eclipse-plugin'/>
+	    </properties>
+	    <provides size='23'>
+	      <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.jdt.debug' version='3.21.100.v20230728-0612'/>
+	      <provided namespace='osgi.bundle' name='org.eclipse.jdt.debug' version='3.21.100.v20230728-0612'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.hcr' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.internal' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.internal.connect' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.internal.event' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.internal.jdwp' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.internal.request' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdi.internal.spy' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.debug.core' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.debug.eval' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.core' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.core.breakpoints' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.core.hcr' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.core.logicalstructures' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.core.model' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.eval' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.eval.ast.engine' version='0.0.0'/>
+	      <provided namespace='java.package' name='org.eclipse.jdt.internal.debug.eval.ast.instructions' version='0.0.0'/>
+	      <provided namespace='osgi.identity' name='org.eclipse.jdt.debug' version='3.21.100.v20230728-0612'>
+		<properties size='1'>
+		  <property name='type' value='osgi.bundle'/>
+		</properties>
+	      </provided>
+	      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+	      <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+	    </provides>
+	    <artifacts size='1'>
+	      <artifact classifier='osgi.bundle' id='org.eclipse.jdt.debug' version='3.21.100.v20230728-0612'/>
+	    </artifacts>
+	    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+	    <touchpointData size='1'>
+	      <instructions size='2'>
+		<instruction key='zipped'>
+		  true
+		</instruction>
+		<instruction key='manifest'>
+		  Bundle-SymbolicName: org.eclipse.jdt.debug; singleton:=true&#xA;Bundle-Version: 3.21.100.v20230728-0612&#xA;
+		</instruction>
+	      </instructions>
+	    </touchpointData>
+	  </unit>
+    <unit id='a.jre.javase' version='17.0.0' singleton='false'>
+      <provides size='275'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='a.jre.javase' version='17.0.0'/>
+        <provided namespace='java.package' name='java.applet' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt.image' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.crypto.dsig.dom' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.stream' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.table' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt.desktop' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.imageio.plugins.jpeg' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.lang.model.type' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.transform.dom' version='0.0.0'/>
+        <provided namespace='java.package' name='java.security.cert' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.zip' version='0.0.0'/>
+        <provided namespace='java.package' name='java.nio.file' version='0.0.0'/>
+        <provided namespace='java.package' name='org.w3c.dom.views' version='0.0.0'/>
+        <provided namespace='java.package' name='java.time' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.security.auth.callback' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.stream.util' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.lang.model.element' version='0.0.0'/>
+        <provided namespace='java.package' name='org.w3c.dom.bootstrap' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.nio.sctp' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.validation' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.dynalink.beans' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.imageio' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.text' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.jarsigner' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.net.httpserver' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.jdi.connect' version='0.0.0'/>
+        <provided namespace='java.package' name='org.w3c.dom.events' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.nativeimage.impl' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt.datatransfer' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.plaf' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.text.html' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.jdi.event' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.dynalink' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.plaf.metal' version='0.0.0'/>
+        <provided namespace='java.package' name='java.net.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.logging' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.colorchooser' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.dynalink.support' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.security.auth.x500' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.options' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.stream' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.jshell.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.lang.model' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang.annotation' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.nativeimage.c.struct' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.jfr' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.imageio.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.naming.directory' version='0.0.0'/>
+        <provided namespace='java.package' name='java.time.chrono' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.management.loading' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.security.auth' version='0.0.0'/>
+        <provided namespace='java.package' name='java.math' version='0.0.0'/>
+        <provided namespace='java.package' name='org.w3c.dom' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.transaction.xa' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt.geom' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.transform.stax' version='0.0.0'/>
+        <provided namespace='java.package' name='org.w3c.dom.traversal' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.swing.interop' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt' version='0.0.0'/>
+        <provided namespace='java.package' name='java.text' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.management' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.undo' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.transform.stream' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.datatype' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.print' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.home' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.security.auth.login' version='0.0.0'/>
+        <provided namespace='java.package' name='org.w3c.dom.html' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.security.auth.login' version='0.0.0'/>
+        <provided namespace='java.package' name='java.rmi' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.jdi.connect.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='java.beans' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.sql' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.print.event' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.prefs' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.imageio.metadata' version='0.0.0'/>
+        <provided namespace='java.package' name='java.net' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.naming.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.nativeimage' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.imageio.plugins.bmp' version='0.0.0'/>
+        <provided namespace='java.package' name='sun.misc' version='0.0.0'/>
+        <provided namespace='java.package' name='java.time.format' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.concurrent' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.security.auth.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='java.rmi.server' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.sound.sampled' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.parsers' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.sql.rowset.serial' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.plaf.synth' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.plaf.basic' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.tree' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.function' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.net' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.dynalink.linker' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt.image.renderable' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.nio.file' version='0.0.0'/>
+        <provided namespace='java.package' name='org.w3c.dom.ls' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.smartcardio' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.random' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.naming' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.dynalink.linker.support' version='0.0.0'/>
+        <provided namespace='java.package' name='java.rmi.dgc' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.xpath' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.annotation.processing' version='0.0.0'/>
+        <provided namespace='java.package' name='java.net.http' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang.invoke' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.security.cert' version='0.0.0'/>
+        <provided namespace='java.package' name='org.w3c.dom.xpath' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.catalog' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.nio' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang.management' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.concurrent.atomic' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.rmi.ssl' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.event' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.nativeimage.impl.clinit' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.management.openmbean' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt.color' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.text.rtf' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.javadoc.doclet' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.crypto' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt.print' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.plaf.multi' version='0.0.0'/>
+        <provided namespace='java.package' name='java.nio.channels.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.imageio.event' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.net.ssl' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.stream.events' version='0.0.0'/>
+        <provided namespace='java.package' name='java.rmi.registry' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.java.accessibility.util' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.print.attribute' version='0.0.0'/>
+        <provided namespace='java.package' name='java.nio.file.attribute' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.management.jfr' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang.constant' version='0.0.0'/>
+        <provided namespace='java.package' name='java.nio' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.jdi.request' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang.ref' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang.instrument' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.regex' version='0.0.0'/>
+        <provided namespace='java.package' name='org.ietf.jgss' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.sound.midi.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.filechooser' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.crypto.dsig.spec' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.nativeimage.c.type' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang.reflect' version='0.0.0'/>
+        <provided namespace='java.package' name='java.security' version='0.0.0'/>
+        <provided namespace='java.package' name='org.xml.sax.helpers' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.jshell' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.tools.attach' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.naming.ldap.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.print.attribute.standard' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.nativeimage.c.function' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.polyglot.management' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.jshell.tool' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.home.impl' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.tools.jconsole' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.security.jarsigner' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.security.auth' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.security.auth.kerberos' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.crypto' version='0.0.0'/>
+        <provided namespace='java.package' name='java.sql' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.collections' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.polyglot.proxy' version='0.0.0'/>
+        <provided namespace='java.package' name='java.nio.channels' version='0.0.0'/>
+        <provided namespace='java.package' name='java.time.temporal' version='0.0.0'/>
+        <provided namespace='java.package' name='org.w3c.dom.stylesheets' version='0.0.0'/>
+        <provided namespace='java.package' name='java.nio.charset' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.sound.midi' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.net' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.imageio.stream' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.management.monitor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.xml.sax' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.nativeimage.hosted' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.source.doctree' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.net.httpserver.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt.dnd' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.jshell.execution' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt.im' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.nativeimage.c' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.text.html.parser' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.transform' version='0.0.0'/>
+        <provided namespace='java.package' name='org.w3c.dom.css' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.crypto.dsig' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.tools.javac' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.polyglot.io' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.jdi' version='0.0.0'/>
+        <provided namespace='java.package' name='java.nio.charset.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.security.jgss' version='0.0.0'/>
+        <provided namespace='java.package' name='java.text.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.management.timer' version='0.0.0'/>
+        <provided namespace='java.package' name='java.security.spec' version='0.0.0'/>
+        <provided namespace='java.package' name='java.nio.file.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.crypto.dsig.keyinfo' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.accessibility' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.namespace' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.source.tree' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt.font' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.polyglot' version='0.0.0'/>
+        <provided namespace='java.package' name='java.security.interfaces' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.tools.attach.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.management.relation' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.management.modelmbean' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.sound.sampled.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.transform.sax' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.word' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.management.remote.rmi' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.naming.event' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.concurrent.locks' version='0.0.0'/>
+        <provided namespace='java.package' name='com.oracle.truffle.js.scriptengine' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.plaf.nimbus' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.nio.mapmode' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt.event' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.sql.rowset.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.swing.border' version='0.0.0'/>
+        <provided namespace='java.package' name='jdk.jfr.consumer' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.management.remote' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.imageio.plugins.tiff' version='0.0.0'/>
+        <provided namespace='java.package' name='org.xml.sax.ext' version='0.0.0'/>
+        <provided namespace='java.package' name='sun.reflect' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.lang.model.util' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.security.auth.callback' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang.runtime' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.security.sasl' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.security.auth.module' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.xml.crypto.dom' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.naming.ldap' version='0.0.0'/>
+        <provided namespace='java.package' name='java.time.zone' version='0.0.0'/>
+        <provided namespace='java.package' name='org.graalvm.nativeimage.c.constant' version='0.0.0'/>
+        <provided namespace='java.package' name='netscape.javascript' version='0.0.0'/>
+        <provided namespace='java.package' name='java.awt.im.spi' version='0.0.0'/>
+        <provided namespace='java.package' name='java.beans.beancontext' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.management' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.tools' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.crypto.spec' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.script' version='0.0.0'/>
+        <provided namespace='java.package' name='java.lang.module' version='0.0.0'/>
+        <provided namespace='java.package' name='com.sun.source.util' version='0.0.0'/>
+        <provided namespace='java.package' name='java.io' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.sql.rowset' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.jar' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.crypto.interfaces' version='0.0.0'/>
+        <provided namespace='java.package' name='org.w3c.dom.ranges' version='0.0.0'/>
+        <provided namespace='osgi.ee' name='OSGi/Minimum' version='1.0.0'/>
+        <provided namespace='osgi.ee' name='OSGi/Minimum' version='1.1.0'/>
+        <provided namespace='osgi.ee' name='OSGi/Minimum' version='1.2.0'/>
+        <provided namespace='osgi.ee' name='JRE' version='1.0.0'/>
+        <provided namespace='osgi.ee' name='JRE' version='1.1.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.1.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.2.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.3.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.4.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.5.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.6.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.7.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.8.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='9.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='10.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='11.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='12.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='13.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='14.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='15.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='16.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='17.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE/compact1' version='1.8.0'/>
+        <provided namespace='osgi.ee' name='JavaSE/compact1' version='17.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE/compact2' version='1.8.0'/>
+        <provided namespace='osgi.ee' name='JavaSE/compact2' version='17.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE/compact3' version='1.8.0'/>
+        <provided namespace='osgi.ee' name='JavaSE/compact3' version='17.0.0'/>
+      </provides>
+      <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
+    </unit>
+  </units>
+</repository>

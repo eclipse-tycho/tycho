@@ -12,11 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.eclipse.tycho.artifacts.TargetPlatformFilter.removeAllFilter;
-import static org.eclipse.tycho.artifacts.TargetPlatformFilter.restrictionFilter;
-import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithVersion;
-import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithVersionRange;
-import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithoutVersion;
+import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.removeAllFilter;
+import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.restrictionFilter;
+import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithVersion;
+import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithVersionRange;
+import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithoutVersion;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -35,12 +35,12 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
-import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.core.resolver.target.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilterSyntaxException;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern;
+import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.hamcrest.Description;

@@ -14,15 +14,13 @@ package org.eclipse.tycho.test.p2Inf;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
 
 public class HostRequiresFragmentWithP2InfTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testBuildAndTestWithHostRequiringOwnFragment() throws Exception {
-		Verifier verifier = getVerifier("/p2Inf.hostRequireFragment", false);
-		verifier.addCliOption("-Dp2Repository=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST);
+		Verifier verifier = getVerifier("/p2Inf.hostRequireFragment");
 
 		// Test that
 		// - the install-time dependency from the host to its fragment can be disabled

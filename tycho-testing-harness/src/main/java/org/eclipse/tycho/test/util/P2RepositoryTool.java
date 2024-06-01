@@ -1,31 +1,31 @@
 package org.eclipse.tycho.test.util;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.junit.Assert;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public class P2RepositoryTool {
 
+    private static final Pattern strictVersionRangePattern = Pattern.compile("\\[([^,]*),\\1\\]");
     private final File repoLocation;
     private final File metadataFile;
     private Document contentXml;
-    private XPath xPathTool;
-    private Pattern strictVersionRangePattern;
 
     private P2RepositoryTool(File metadataFile) {
         this.repoLocation = metadataFile.getParentFile();
@@ -62,16 +62,72 @@ public class P2RepositoryTool {
         return new File(repoLocation, pathInRepo);
     }
 
-    public File findFeatureArtifact(final String featureId) {
-        File[] matchingFeatures = new File(repoLocation, "features")
-                .listFiles((FilenameFilter) (dir, name) -> name.startsWith(featureId + "_"));
-        return matchingFeatures[0];
+    public Optional<File> findFeatureArtifact(final String featureId) {
+        return getFeatures().filter(file -> file.getName().startsWith(featureId + "_")).findFirst();
     }
 
     public File findBinaryArtifact(final String artifactId) {
         File[] matchingFeatures = new File(repoLocation, "binary")
                 .listFiles((FilenameFilter) (dir, name) -> name.startsWith(artifactId + "_"));
         return matchingFeatures[0];
+    }
+
+    public Optional<File> findBundleArtifact(String bundleId) {
+        return getBundles().filter(file -> file.getName().startsWith(bundleId + "_")).findFirst();
+    }
+
+    public Stream<File> getBundles() {
+        File folder = new File(repoLocation, "plugins");
+        if (folder.isDirectory()) {
+            File[] matching = folder.listFiles(pathname -> pathname.getName().toLowerCase().endsWith(".jar"));
+            if (matching != null) {
+                return Arrays.stream(matching).filter(File::isFile);
+            }
+        }
+        return Stream.empty();
+    }
+
+    public Stream<File> getFeatures() {
+        File folder = new File(repoLocation, "features");
+        if (folder.isDirectory()) {
+            File[] matching = folder.listFiles(pathname -> pathname.getName().toLowerCase().endsWith(".jar"));
+            if (matching != null) {
+                return Arrays.stream(matching).filter(File::isFile);
+            }
+        }
+        return Stream.empty();
+    }
+
+    public void assertNumberOfUnits(int expected) throws Exception {
+        assertNumberOfUnits(expected, always -> false);
+    }
+
+    public void assertNumberOfUnits(int expected, Predicate<IdAndVersion> except) throws Exception {
+        List<IdAndVersion> units = getAllUnits().stream().filter(except.negate()).toList();
+        int size = units.size();
+        if (size != expected) {
+            fail("Expected " + expected + " units but " + size + " units where found: " + System.lineSeparator()
+                    + units.stream().map(String::valueOf).collect(Collectors.joining(System.lineSeparator())));
+        }
+    }
+
+    public void assertNumberOfBundles(int expected) throws Exception {
+        List<File> bundles = getBundles().toList();
+        int size = bundles.size();
+        if (size != expected) {
+            fail("Expected " + expected + " bundles but " + size + " bundles where found: " + System.lineSeparator()
+                    + bundles.stream().map(File::getName).collect(Collectors.joining(System.lineSeparator())));
+        }
+    }
+
+    public void assertNumberOfFeatures(int expected) throws Exception {
+        List<File> features = getFeatures().toList();
+        int size = features.size();
+        if (size != expected) {
+            fail("Expected " + expected + " features but " + size + " features where found: " + System.lineSeparator()
+                    + features.stream().map(File::getName).collect(Collectors.joining(System.lineSeparator())));
+        }
+
     }
 
     public List<String> getAllUnitIds() throws Exception {
@@ -102,7 +158,7 @@ public class P2RepositoryTool {
      * Returns the unique IU with the given ID.
      * 
      * @throws AssertionError
-     *             unless there is exactly one IU with the given <tt>unitId</tt>.
+     *             unless there is exactly one IU with the given <code>unitId</code>.
      */
     public IU getUniqueIU(String unitId) throws Exception {
         loadMetadata();
@@ -110,7 +166,7 @@ public class P2RepositoryTool {
         List<Node> nodes = getNodes(contentXml, "/repository/units/unit[@id='" + unitId + "']");
 
         if (nodes.isEmpty())
-            Assert.fail("Could not find IU with id '" + unitId + "'");
+            Assert.fail("Could not find IU with id '" + unitId + "' from " + metadataFile);
         else if (nodes.size() == 1)
             return new IU(nodes.get(0));
         else
@@ -149,60 +205,48 @@ public class P2RepositoryTool {
         return getValues(contentXml, "/repository/units/unit/provides/provided[@namespace='java.package']/@name");
     }
 
+    public List<RepositoryReference> getAllRepositoryReferences() throws Exception {
+        loadMetadata();
+        // See MetadataRepositoryIO.Writer#writeRepositoryReferences
+        List<Node> references = getNodes(contentXml, "/repository/references/repository");
+        List<RepositoryReference> result = new ArrayList<>();
+        for (Node reference : references) {
+            String uri = getAttribute(reference, "@uri");
+            int type = Integer.parseInt(getAttribute(reference, "@type"));
+            int options = Integer.parseInt(getAttribute(reference, "@options"));
+            result.add(new RepositoryReference(uri, type, options));
+        }
+
+        return result;
+    }
+
     private void loadMetadata() throws Exception {
-        if (contentXml != null)
+        if (contentXml != null) {
             return;
-        if (metadataFile.getName().endsWith("jar"))
-            throw new UnsupportedOperationException("Can't read compressed p2 repositories yet");
-
-        contentXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(metadataFile);
+        }
+        contentXml = metadataFile.getName().endsWith("jar")
+                ? XMLTool.parseXMLDocumentFromJar(metadataFile, "content.xml")
+                : XMLTool.parseXMLDocument(metadataFile);
     }
 
-    private XPath getXPathTool() {
-        if (xPathTool == null) {
-            xPathTool = XPathFactory.newInstance().newXPath();
-        }
-        return xPathTool;
+    static List<Node> getNodes(Object startingPoint, String expression) throws XPathExpressionException {
+        return XMLTool.getMatchingNodes(startingPoint, expression);
     }
 
-    List<Node> getNodes(Object startingPoint, String expression) throws XPathExpressionException {
-        NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
-
-        List<Node> result = new ArrayList<>(nodeList.getLength());
-        for (int ix = 0; ix < nodeList.getLength(); ++ix) {
-            result.add(nodeList.item(ix));
-        }
-        return result;
+    static List<String> getValues(Object startingPoint, String expression) throws XPathExpressionException {
+        return XMLTool.getMatchingNodesValue(startingPoint, expression);
     }
 
-    List<String> getValues(Object startingPoint, String expression) throws XPathExpressionException {
-        NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
-
-        List<String> result = new ArrayList<>(nodeList.getLength());
-        for (int ix = 0; ix < nodeList.getLength(); ++ix) {
-            result.add(nodeList.item(ix).getNodeValue());
-        }
-        return result;
+    static String getAttribute(Node node, String expression) throws XPathExpressionException {
+        Attr attribute = (Attr) XMLTool.getFirstMatchingNode(node, expression);
+        return attribute != null ? attribute.getValue() : null;
     }
 
-    String getAttribute(Node node, String expression) throws XPathExpressionException {
-        Attr attribute = (Attr) getXPathTool().evaluate(expression, node, XPathConstants.NODE);
-
-        if (attribute == null) {
-            return null;
-        } else {
-            return attribute.getValue();
-        }
-    }
-
-    boolean isStrictRange(String range) {
-        if (strictVersionRangePattern == null) {
-            strictVersionRangePattern = Pattern.compile("\\[([^,]*),\\1\\]");
-        }
+    static boolean isStrictRange(String range) {
         return strictVersionRangePattern.matcher(range).matches();
     }
 
-    String getLowerBound(String range) {
+    static String getLowerBound(String range) {
         int begin;
         if (range.charAt(0) == '[' || range.charAt(0) == '(') {
             begin = 1;
@@ -216,13 +260,7 @@ public class P2RepositoryTool {
         return range.substring(begin, end);
     }
 
-    public class IU {
-
-        private final Node unitElement;
-
-        IU(Node unitElement) {
-            this.unitElement = unitElement;
-        }
+    public static final record IU(Node unitElement) {
 
         public String getVersion() throws Exception {
             return getAttribute(unitElement, "@version");
@@ -242,14 +280,18 @@ public class P2RepositoryTool {
         }
 
         public List<String> getRequiredIds() throws Exception {
-            List<String> result = new ArrayList<>();
+            return getValues(unitElement, "requires/required/@name");
+        }
 
-            List<Node> requiredIds = getNodes(unitElement, "requires/required/@name");
-            for (Node id : requiredIds) {
-                result.add(id.getNodeValue());
-            }
-
-            return result;
+        public List<String> getUnfilteredRequiredIds() throws Exception {
+            return XMLTool.getMatchingNodes(unitElement, "requires/required").stream().filter(node -> {
+                try {
+                    var nodes = getNodes(node, "filter");
+                    return nodes.isEmpty();
+                } catch (XPathExpressionException e) {
+                    throw new RuntimeException(e);
+                }
+            }).map(node -> node.getAttributes().getNamedItem("name")).map(Node::getNodeValue).toList();
         }
 
         /**
@@ -313,28 +355,10 @@ public class P2RepositoryTool {
         }
     }
 
-    public static final class IdAndVersion {
-        public final String id;
-        public final String version;
+    public static final record IdAndVersion(String id, String version) {
+    }
 
-        public IdAndVersion(String id, String version) {
-            this.id = id;
-            this.version = version;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(id, version);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return this == obj || //
-                    (obj instanceof IdAndVersion other && //
-                            Objects.equals(id, other.id) && //
-                            Objects.equals(version, other.version));
-        }
-
+    public static final record RepositoryReference(String uri, int type, int options) {
     }
 
     public static IdAndVersion withIdAndVersion(String id, String version) {

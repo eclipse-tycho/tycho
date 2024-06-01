@@ -37,6 +37,7 @@ import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.ICompositeRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -57,8 +58,8 @@ public class ListCompositeArtifactRepository extends AbstractArtifactRepository
 
     public final List<IArtifactRepository> artifactRepositories;
 
-    public ListCompositeArtifactRepository(IProvisioningAgent agent,
-            List<? extends IArtifactRepository> artifactRepositories) {
+    public ListCompositeArtifactRepository(List<? extends IArtifactRepository> artifactRepositories,
+            IProvisioningAgent agent) {
         super(agent, null, IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null, null, null, null, null);
         try {
             setLocation(new URI("list:" + UUID.randomUUID()));
@@ -74,12 +75,7 @@ public class ListCompositeArtifactRepository extends AbstractArtifactRepository
         if (size == 1) {
             return artifactRepositories.get(0).query(query, monitor);
         }
-        Collector<IArtifactKey> collector = new Collector<>();
-        SubMonitor subMonitor = SubMonitor.convert(monitor, size);
-        for (IArtifactRepository repository : artifactRepositories) {
-            collector.addAll(repository.query(query, subMonitor.split(1)));
-        }
-        return collector;
+		return QueryUtil.compoundQueryable(artifactRepositories).query(query, IProgressMonitor.nullSafe(monitor));
     }
 
     @Override

@@ -12,10 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -27,7 +29,6 @@ import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -38,6 +39,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 @Component(role = InstallableUnitSlicer.class)
 public class InstallableUnitSlicer {
 
+	private static final SlicingOptions DEFAULT_SLICING_OPTIONS = new SlicingOptions();
 	@Requirement
 	private Logger log;
 
@@ -50,20 +52,28 @@ public class InstallableUnitSlicer {
 	 * @param rootIus     the root units that are inspected for the slice
 	 * @param avaiableIUs the {@link IQueryable} of all units that could be used for
 	 *                    the slice
+	 * @param options     the options used for the slicing
 	 * @return the result of the slicing
 	 * @throws CoreException if there is any error
 	 */
 	public IQueryResult<IInstallableUnit> computeDependencies(Collection<IInstallableUnit> rootIus,
-			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
+			IQueryable<IInstallableUnit> avaiableIUs, SlicingOptions options)
+			throws CoreException {
+		options = Objects.requireNonNullElse(options, DEFAULT_SLICING_OPTIONS);
 		NullProgressMonitor monitor = new NullProgressMonitor();
-		PermissiveSlicer slicer = new TychoSlicer(avaiableIUs);
-		IQueryable<IInstallableUnit> slice = slicer.slice(rootIus.toArray(IInstallableUnit[]::new), monitor);
+		PermissiveSlicer slicer = new PermissiveSlicer(avaiableIUs, options.getFilter(),
+				options.isIncludeOptionalDependencies(), options.isEverythingGreedy(), options.isForceFilterTo(),
+				options.isConsiderStrictDependencyOnly(), options.isFollowOnlyFilteredRequirements());
+		IQueryable<IInstallableUnit> slice = slicer.slice(rootIus, monitor);
 		IStatus sliceStatus = slicer.getStatus();
 		if (sliceStatus.matches(IStatus.ERROR)) {
 			throw new CoreException(sliceStatus);
 		}
 		if (!sliceStatus.isOK()) {
 			log.debug("There are warnings from the slicer: " + sliceStatus);
+		}
+		if (options.isLatestVersionOnly()) {
+			return slice.query(QueryUtil.createLatestIUQuery(), monitor);
 		}
 		return slice.query(QueryUtil.createIUAnyQuery(), monitor);
 	}
@@ -76,56 +86,35 @@ public class InstallableUnitSlicer {
 	 * @param rootIus     the root {@link InstallableUnit}s to take into account
 	 * @param avaiableIUs the {@link IQueryable} of all units that could be used for
 	 *                    fulfilling a requirement
-	 * @return the result of the slicing
+	 * @param contextIUs  context IUs that represent the the profile properties to
+	 *                    consider during resolution, can be empty in which case a
+	 *                    filter is always considered a match
+	 * @return the result of the slicing, be aware that no maximum/minimum
+	 *         constraints or filters are applied as part of this computation
 	 * @throws CoreException if there is any error
 	 */
-	public IQueryResult<IInstallableUnit> computeDirectDependencies(Collection<IInstallableUnit> rootIus,
+	public Map<IRequirement, Collection<IInstallableUnit>> computeDirectDependencies(
+			Collection<IInstallableUnit> rootIus,
 			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
-		Collection<IInstallableUnit> result = new LinkedHashSet<>();
-		List<IRequirement> collect = rootIus.stream().flatMap(iu -> iu.getRequirements().stream()).filter(req -> {
-			for (IInstallableUnit unit : rootIus) {
-				if (unit.satisfies(req)) {
-					// self full filled requirement
-					return false;
-				}
-			}
-			return true;
-		}).toList();
+		List<IRequirement> collect = rootIus.stream().flatMap(iu -> iu.getRequirements().stream())
+				.filter(req -> {
+					for (IInstallableUnit unit : rootIus) {
+						if (unit.satisfies(req)) {
+							// self full filled requirement
+							return false;
+						}
+					}
+					return true;
+				}).toList();
+		Map<IRequirement, Collection<IInstallableUnit>> result = new LinkedHashMap<>(collect.size());
 		for (IInstallableUnit iu : avaiableIUs.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet()) {
 			for (IRequirement requirement : collect) {
 				if (iu.satisfies(requirement)) {
-					result.add(iu);
-					// TODO remove the requirement from the set so we only collect exactly one
-					// provider for a requirement?
-					break;
+					result.computeIfAbsent(requirement, nil -> new ArrayList<>()).add(iu);
 				}
 			}
 		}
-		return new CollectionResult<>(result);
-	}
-
-	private final class TychoSlicer extends PermissiveSlicer {
-		private TychoSlicer(IQueryable<IInstallableUnit> input) {
-			super(input, new HashMap<>(), //
-					true, // includeOptionalDependencies
-					true, // everythingGreedy
-					true, // evalFilterTo
-					false, // considerOnlyStrictDependency
-					false // onlyFilteredRequirements
-			);
-		}
-
-		@Override
-		protected boolean isApplicable(IInstallableUnit unit, IRequirement requirement) {
-			if (requirement.isMatch(unit)) {
-				// a bundle might import its exported packages, in such a case we ignore the
-				// requirement
-				log.debug("The requirement " + requirement + " is already satisfied by the unit " + unit
-						+ " itself, ignoring it.");
-				return false;
-			}
-			return super.isApplicable(unit, requirement);
-		}
+		return result;
 	}
 
 }

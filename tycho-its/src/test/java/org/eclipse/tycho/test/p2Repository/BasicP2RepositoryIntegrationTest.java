@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2021 SAP AG and others.
+ * Copyright (c) 2012, 2023 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -38,8 +38,7 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 
 	@BeforeClass
 	public static void executeBuild() throws Exception {
-		verifier = new BasicP2RepositoryIntegrationTest().getVerifier("/p2Repository", false);
-		verifier.addCliOption("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString());
+		verifier = new BasicP2RepositoryIntegrationTest().getVerifier("/p2Repository");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
@@ -48,7 +47,7 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 	@Test
 	public void test381377BundleInclusion() {
 		// check that (separately!) included bundle is there
-		assertTrue(p2Repo.getBundleArtifact("com.sun.el", "2.2.0.v201303151357").isFile());
+		assertTrue(p2Repo.getBundleArtifact("com.sun.el.javax.el", "3.0.4").isFile());
 	}
 
 	@Test
@@ -61,10 +60,10 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 
 	@Test
 	public void testIncludeIUViaMatchQuery() throws Exception {
-		assertThat(p2Repo.getAllUnitIds(), hasItem("javax.annotation"));
+		assertThat(p2Repo.getAllUnitIds(), hasItem("jakarta.annotation-api"));
 
 		IU categoryIU = p2Repo.getUniqueIU("Test Category");
-		assertThat(categoryIU.getRequiredIds(), hasItem("javax.annotation"));
+		assertThat(categoryIU.getRequiredIds(), hasItem("jakarta.annotation-api"));
 	}
 
 	@Test

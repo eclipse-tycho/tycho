@@ -21,6 +21,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
+import org.eclipse.aether.transfer.TransferListener;
 
 @Component(role = TransportCacheConfig.class)
 public class DefaultTransportCacheConfig implements TransportCacheConfig, Initializable {
@@ -46,11 +47,19 @@ public class DefaultTransportCacheConfig implements TransportCacheConfig, Initia
 			offline = session.isOffline();
 			repoDir = new File(session.getLocalRepository().getBasedir());
 			update = session.getRequest().isUpdateSnapshots();
-			interactive = session.getRequest().isInteractiveMode();
+			interactive = session.getRequest().isInteractiveMode() && showTransferProgress(session);
 		}
 
 		cacheLocation = new File(repoDir, ".cache/tycho");
 		cacheLocation.mkdirs();
+	}
+
+	private boolean showTransferProgress(MavenSession session) {
+		// TODO request the -ntp flag to be made available explicitly in
+		// MavenExecutionRequest
+		TransferListener transferListener = session.getRequest().getTransferListener();
+		return transferListener == null
+				|| !"QuietMavenTransferListener".equals(transferListener.getClass().getSimpleName());
 	}
 
 	@Override

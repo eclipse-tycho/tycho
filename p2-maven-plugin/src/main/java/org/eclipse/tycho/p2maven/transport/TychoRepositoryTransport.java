@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -29,7 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -45,25 +46,27 @@ import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 
 @Component(role = org.eclipse.equinox.internal.p2.repository.Transport.class, hint = "tycho")
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
-        implements IAgentServiceFactory {
+		implements IAgentServiceFactory {
 
 	private static final int MAX_DOWNLOAD_THREADS = Integer.getInteger("tycho.p2.transport.max-download-threads", 4);
 
 	private static final boolean DEBUG_REQUESTS = Boolean.getBoolean("tycho.p2.transport.debug");
 
-	private static final Executor DOWNLOAD_EXECUTOR = Executors.newFixedThreadPool(MAX_DOWNLOAD_THREADS, new ThreadFactory() {
-		
-		private AtomicInteger cnt = new AtomicInteger();
-		@Override
-		public Thread newThread(Runnable r) {
-			Thread thread = new Thread(r);
-			thread.setName("Tycho-Download-Thread-" + cnt.getAndIncrement());
-			thread.setDaemon(true);
-			return thread;
-		}
-	});
+	private static final Executor DOWNLOAD_EXECUTOR = Executors.newFixedThreadPool(MAX_DOWNLOAD_THREADS,
+			new ThreadFactory() {
 
-    private NumberFormat numberFormat = NumberFormat.getNumberInstance();
+				private AtomicInteger cnt = new AtomicInteger();
+
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread thread = new Thread(r);
+					thread.setName("Tycho-Download-Thread-" + cnt.getAndIncrement());
+					thread.setDaemon(true);
+					return thread;
+				}
+			});
+
+	private NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
 	@Requirement
 	Logger logger;
@@ -74,24 +77,23 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 	@Requirement(role = TransportProtocolHandler.class)
 	Map<String, TransportProtocolHandler> transportProtocolHandlers;
 
-    private LongAdder requests = new LongAdder();
-    private LongAdder indexRequests = new LongAdder();
+	private LongAdder requests = new LongAdder();
+	private LongAdder indexRequests = new LongAdder();
 
 	public TychoRepositoryTransport() {
-        numberFormat.setMaximumFractionDigits(2);
-    }
+		numberFormat.setMaximumFractionDigits(2);
+	}
 
-    @Override
-    public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
-        if (startPos > 0) {
-            return new Status(IStatus.ERROR, TychoRepositoryTransport.class.getName(),
-                    "range downloads are not implemented");
-        }
-        return download(toDownload, target, monitor);
-    }
+	@Override
+	public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
+		if (startPos > 0) {
+			return Status.error("range downloads are not implemented");
+		}
+		return download(toDownload, target, monitor);
+	}
 
-    @Override
-    public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
+	@Override
+	public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
 		String id = "p2"; // TODO we might compute the id from the IRepositoryIdManager based on the URI?
 		if (cacheConfig.isInteractive()) {
 			logger.info("Downloading from " + id + ": " + toDownload);
@@ -99,73 +101,72 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 		try {
 			DownloadStatusOutputStream statusOutputStream = new DownloadStatusOutputStream(target,
 					"Download of " + toDownload);
-			IOUtils.copy(stream(toDownload, monitor), statusOutputStream);
+			stream(toDownload, monitor).transferTo(statusOutputStream);
 			DownloadStatus downloadStatus = statusOutputStream.getStatus();
 			if (cacheConfig.isInteractive()) {
-			logger.info(
-					"Downloaded from " + id + ": " + toDownload + " ("
-							+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize())
-							+ " at " + FileUtils.byteCountToDisplaySize(downloadStatus.getTransferRate()) + "/s)");
+				logger.info("Downloaded from " + id + ": " + toDownload + " ("
+						+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize()) + " at "
+						+ FileUtils.byteCountToDisplaySize(downloadStatus.getTransferRate()) + "/s)");
 			}
 			return reportStatus(downloadStatus, target);
-        } catch (AuthenticationFailedException e) {
-            return new Status(IStatus.ERROR, TychoRepositoryTransport.class.getName(),
-                    "authentication failed for " + toDownload, e);
-        } catch (IOException e) {
-            return reportStatus(new Status(IStatus.ERROR, TychoRepositoryTransport.class.getName(),
-                    "download from " + toDownload + " failed", e), target);
-        } catch (CoreException e) {
-            return reportStatus(e.getStatus(), target);
-        }
-    }
+		} catch (AuthenticationFailedException e) {
+			return Status.error("authentication failed for " + toDownload, e);
+		} catch (IOException e) {
+			return reportStatus(Status.error("download from " + toDownload + " failed", e), target);
+		} catch (CoreException e) {
+			return reportStatus(e.getStatus(), target);
+		}
+	}
 
 	private IStatus reportStatus(IStatus status, OutputStream target) {
-        if (target instanceof IStateful stateful) {
-            stateful.setStatus(status);
-        }
-        return status;
-    }
-
-    @Override
-    public synchronized InputStream stream(URI toDownload, IProgressMonitor monitor)
-            throws FileNotFoundException, CoreException, AuthenticationFailedException {
-		if (DEBUG_REQUESTS) {
-            logger.debug("Request stream for " + toDownload + "...");
+		if (target instanceof IStateful stateful) {
+			stateful.setStatus(status);
 		}
-        requests.increment();
-        if (toDownload.toASCIIString().endsWith("p2.index")) {
-            indexRequests.increment();
-        }
-        try {
+		return status;
+	}
+
+	@Override
+	public InputStream stream(URI toDownload, IProgressMonitor monitor)
+			throws FileNotFoundException, CoreException, AuthenticationFailedException {
+		if (DEBUG_REQUESTS) {
+			logger.debug("Request stream for " + toDownload);
+		}
+		requests.increment();
+		if (toDownload.toASCIIString().endsWith("p2.index")) {
+			indexRequests.increment();
+		}
+		try {
 			TransportProtocolHandler handler = getHandler(toDownload);
 			if (handler != null) {
 				File cachedFile = handler.getFile(toDownload);
 				if (cachedFile != null) {
 					if (DEBUG_REQUESTS) {
-						logger.debug(" --> routed through handler " + handler.getClass().getSimpleName() + " ...");
+						logger.debug(" --> routed through handler " + handler.getClass().getSimpleName());
 					}
 					return new FileInputStream(cachedFile);
 				}
 			}
-            return toDownload.toURL().openStream();
-        } catch (FileNotFoundException e) {
+			return toDownload.toURL().openStream();
+		} catch (FileNotFoundException e) {
 			if (DEBUG_REQUESTS) {
-                logger.debug(" --> not found!");
-            }
-            throw e;
-        } catch (IOException e) {
+				logger.debug(" --> not found!");
+			}
+			throw e;
+		} catch (IOException e) {
+			if (e instanceof AuthenticationFailedException afe) {
+				throw afe;
+			}
 			if (DEBUG_REQUESTS) {
-                logger.debug(" --> generic error: " + e);
-            }
-            throw new CoreException(new Status(IStatus.ERROR, TychoRepositoryTransport.class.getName(),
-                    "download from " + toDownload + " failed", e));
-        } finally {
+				logger.debug(" --> generic error: " + e);
+			}
+			throw new CoreException(Status.error("download from " + toDownload + " failed", e));
+		} finally {
 			if (DEBUG_REQUESTS) {
-                logger.debug("Total number of requests: " + requests.longValue() + " (" + indexRequests.longValue()
-                        + " for p2.index)");
-            }
-        }
-    }
+				logger.debug("Total number of requests: " + requests.longValue() + " (" + indexRequests.longValue()
+						+ " for p2.index)");
+			}
+		}
+	}
 
 	TransportProtocolHandler getHandler(URI uri) {
 		String scheme = uri.getScheme();
@@ -179,9 +180,9 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 		return null;
 	}
 
-    @Override
-    public long getLastModified(URI toDownload, IProgressMonitor monitor)
-            throws CoreException, FileNotFoundException, AuthenticationFailedException {
+	@Override
+	public long getLastModified(URI toDownload, IProgressMonitor monitor)
+			throws CoreException, FileNotFoundException, AuthenticationFailedException {
 		try {
 			TransportProtocolHandler handler = getHandler(toDownload);
 			if (handler != null) {
@@ -194,17 +195,35 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 		} catch (FileNotFoundException e) {
 			throw e;
 		} catch (IOException e) {
-			throw new CoreException(new Status(IStatus.ERROR, TychoRepositoryTransport.class.getName(),
-					"download from " + toDownload + " failed", e));
+			throw new CoreException(Status.error("download from " + toDownload + " failed", e));
 		}
-    }
-    @Override
-    public Object createService(IProvisioningAgent agent) {
-        return this;
-    }
+	}
+
+	@Override
+	public Object createService(IProvisioningAgent agent) {
+		return this;
+	}
 
 	public static Executor getDownloadExecutor() {
 		return DOWNLOAD_EXECUTOR;
+	}
+
+	public File downloadToFile(URI uri) throws IOException {
+		TransportProtocolHandler handler = getHandler(uri);
+		if (handler != null) {
+			File file = handler.getFile(uri);
+			if (file != null) {
+				return file;
+			}
+		}
+		Path tempFile = Files.createTempFile("tycho", ".tmp");
+		tempFile.toFile().deleteOnExit();
+		try {
+			Files.copy(stream(uri, null), tempFile);
+			return tempFile.toFile();
+		} catch (CoreException e) {
+			throw new IOException(e);
+		}
 	}
 
 }

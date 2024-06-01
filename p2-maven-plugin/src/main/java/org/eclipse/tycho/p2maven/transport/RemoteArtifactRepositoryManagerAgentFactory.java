@@ -20,36 +20,64 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
+import org.eclipse.tycho.helper.MavenPropertyHelper;
+import org.eclipse.tycho.version.TychoVersion;
 
 @Component(role = IAgentServiceFactory.class, hint = "org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager")
 public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServiceFactory {
 
-    @Requirement
+	@Requirement
 	Logger logger;
 
 	@Requirement
 	IRepositoryIdManager repositoryIdManager;
 
-    @Override
-    public Object createService(IProvisioningAgent agent) {
-        IArtifactRepositoryManager plainRepoManager = (IArtifactRepositoryManager) new ArtifactRepositoryComponent()
-                .createService(agent);
-        if (getDisableP2MirrorsConfiguration()) {
-            plainRepoManager = new P2MirrorDisablingArtifactRepositoryManager(plainRepoManager,
-					logger);
-        }
-		return new RemoteArtifactRepositoryManager(plainRepoManager, repositoryIdManager);
-    }
+	@Requirement
+	MavenAuthenticator authenticator;
 
-    private boolean getDisableP2MirrorsConfiguration() {
-        String key = "tycho.disableP2Mirrors";
-		String value = System.getProperty(key);
+	@Requirement
+	MavenPropertyHelper propertyHelper;
 
-        boolean disableP2Mirrors = Boolean.parseBoolean(value);
-		if (disableP2Mirrors && logger.isDebugEnabled()) {
-            String message = key + "=" + value + " -> ignoring mirrors specified in p2 artifact repositories";
-			logger.debug(message);
-        }
-        return disableP2Mirrors;
-    }
+	@Override
+	public Object createService(IProvisioningAgent agent) {
+		IArtifactRepositoryManager plainRepoManager = (IArtifactRepositoryManager) new ArtifactRepositoryComponent()
+				.createService(agent);
+		if (getDisableP2MirrorsConfiguration()) {
+			plainRepoManager = new P2MirrorDisablingArtifactRepositoryManager(plainRepoManager, logger);
+		}
+		return new RemoteArtifactRepositoryManager(plainRepoManager, repositoryIdManager, authenticator);
+	}
+
+	private boolean getDisableP2MirrorsConfiguration() {
+		String deprecatedKey = "tycho.disableP2Mirrors";
+		String deprecatedValue = propertyHelper.getGlobalProperty(deprecatedKey);
+
+		if (deprecatedValue != null) {
+			logger.info("Using " + deprecatedKey
+					+ " to disable P2 mirrors is deprecated, use the property eclipse.p2.mirrors instead, see https://tycho.eclipseprojects.io/doc/"
+					+ TychoVersion.getTychoVersion() + "/SystemProperties.html for details.");
+			return getBooleanValue(deprecatedValue);
+		}
+
+		String value = propertyHelper.getGlobalProperty("eclipse.p2.mirrors");
+
+		if (value != null) {
+			// eclipse.p2.mirrors false -> disable mirrors
+
+			boolean p2MirrorsEnabled = getBooleanValue(value);
+			// TODO once we have https://github.com/eclipse-equinox/p2/pull/431 this must be
+			// controlled by the agent we create!
+			return !p2MirrorsEnabled;
+		}
+		return false;
+
+	}
+
+	private boolean getBooleanValue(String value) {
+		if (value != null && value.isBlank()) {
+			return true;
+		}
+		return Boolean.parseBoolean(value);
+	}
+
 }

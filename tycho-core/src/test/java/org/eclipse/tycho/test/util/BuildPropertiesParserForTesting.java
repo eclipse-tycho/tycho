@@ -23,7 +23,7 @@ import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
+import org.eclipse.tycho.core.BuildPropertiesImpl;
 
 public class BuildPropertiesParserForTesting implements BuildPropertiesParser {
 

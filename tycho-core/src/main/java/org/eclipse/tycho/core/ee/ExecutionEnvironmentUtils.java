@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2024 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,16 +26,15 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
-
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
+import org.eclipse.tycho.ExecutionEnvironment;
+import org.eclipse.tycho.ExecutionEnvironment.SystemPackageEntry;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment.JavaInfo;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment.SystemPackageEntry;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.Constants;
 
@@ -66,14 +64,14 @@ public class ExecutionEnvironmentUtils {
      * Get the execution environment for the specified OSGi profile name.
      * 
      * @param profileName
-     *            profile name value as specified for key "Bundle-RequiredExecutionEnvironment" in
-     *            MANIFEST.MF
+     *                        profile name value as specified for key
+     *                        "Bundle-RequiredExecutionEnvironment" in MANIFEST.MF
      * @return the corresponding {@link ExecutionEnvironment}.
      * @throws UnknownEnvironmentException
-     *             if profileName is unknown.
+     *                                         if profileName is unknown.
      */
-    public static @Nonnull StandardExecutionEnvironment getExecutionEnvironment(String profileName,
-            ToolchainManager manager, MavenSession session, Logger logger) throws UnknownEnvironmentException {
+    public static StandardExecutionEnvironment getExecutionEnvironment(String profileName, ToolchainManager manager,
+            MavenSession session, Logger logger) throws UnknownEnvironmentException {
         Map<String, StandardExecutionEnvironment> map = getExecutionEnvironmentsMap(manager, session, logger);
         StandardExecutionEnvironment ee = map.get(profileName);
         if (ee != null) {
@@ -89,12 +87,12 @@ public class ExecutionEnvironmentUtils {
                         return split[0] + "-" + v;
                     }).map(map::get).filter(Objects::nonNull).findFirst().orElse(null);
             if (higherEE != null) {
-                logger.warn("Using " + higherEE.getProfileName() + " to fulfill requested profile of " + profileName
-                        + " this might lead to faulty dependency resolution, consider define a suitable JDK in the toolchains.xml");
+                logger.debug("Using " + higherEE.getProfileName() + " to fulfill requested profile of " + profileName
+                        + ". This might lead to faulty dependency resolution, consider defining a suitable JDK in the toolchains.xml.");
                 return getSurrogate(profileName, higherEE);
             }
         }
-        logger.debug("Unknown OSGi execution environment, EE currently known to the build:");
+        logger.debug("Unknown OSGi execution environment. Execution environment currently known to the build:");
         for (StandardExecutionEnvironment knownEE : map.values()) {
             logger.debug(knownEE.getProfileName());
         }
@@ -129,12 +127,12 @@ public class ExecutionEnvironmentUtils {
             for (String profileFile : listProps.getProperty("java.profiles").split(",")) {
                 Properties props = readProperties(findInSystemBundle(profileFile.trim()));
                 if (props == null) {
-                    logger.warn("Cannot read profile " + profileFile + " from system path");
+                    logger.warn("Cannot read profile " + profileFile + " from the system path");
                     continue;
                 }
                 String name = props.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME).trim();
                 executionEnvironmentsMap.put(name, new StandardExecutionEnvironment(props,
-                        getToolchainFor(name, manager, session, logger), logger));
+                        getToolchainFor(name, null, manager, session, logger), logger));
             }
             //derive from the toolchains...
             if (manager != null) {
@@ -154,26 +152,34 @@ public class ExecutionEnvironmentUtils {
                 Properties runningVm = createProfileJvm(javaVersion, ListSystemPackages.getCurrentJREPackages());
                 String name = runningVm.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME).trim();
                 executionEnvironmentsMap.put(name, new StandardExecutionEnvironment(runningVm,
-                        getToolchainFor(name, manager, session, logger), logger));
+                        getToolchainFor(name, null, manager, session, logger), logger));
             }
         }
         return executionEnvironmentsMap;
     }
 
-    public static Toolchain getToolchainFor(String profileName, ToolchainManager manager, MavenSession session,
-            Logger logger) {
+    public static Toolchain getToolchainFor(String profileName, TargetEnvironment environment, ToolchainManager manager,
+            MavenSession session, Logger logger) {
         if (manager != null) {
-            logger.debug("Search profile " + profileName + " in ToolchainManager...");
+            logger.debug("Searching profile " + profileName + " in ToolchainManager");
             //First try to find it by ID
-            for (Toolchain toolchain : manager.getToolchains(session, "jdk",
-                    Collections.singletonMap("id", profileName))) {
+            for (Toolchain toolchain : manager.getToolchains(session, "jdk", Map.of("id", profileName))) {
                 return toolchain;
             }
             //Try find by version
             int version = getVersion(profileName);
             if (version > 8) {
                 for (Toolchain toolchain : manager.getToolchains(session, "jdk",
-                        Collections.singletonMap("version", String.valueOf(version)))) {
+                        Map.of("version", String.valueOf(version)))) {
+                    return toolchain;
+                }
+            }
+            // Try by env + version
+            if (environment != null) {
+                String os = environment.getOs();
+                String arch = environment.getArch();
+                for (Toolchain toolchain : manager.getToolchains(session, "jdk",
+                        Map.of("version", String.valueOf(version), "os", os, "arch", arch))) {
                     return toolchain;
                 }
             }
@@ -185,7 +191,8 @@ public class ExecutionEnvironmentUtils {
         String[] split = profileName.split("-");
         if (split.length == 2) {
             try {
-                return (int) Double.parseDouble(split[split.length - 1]);
+                String version = split[1];
+                return Integer.parseInt(version.startsWith("1.") ? version.substring(2) : version);
             } catch (NumberFormatException e) {
                 //can't check then...
             }

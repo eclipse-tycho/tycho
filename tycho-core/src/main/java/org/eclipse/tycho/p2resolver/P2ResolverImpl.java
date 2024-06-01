@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.apache.felix.resolver.util.CopyOnWriteSet;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -40,14 +41,16 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyResolutionException;
+import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
@@ -57,7 +60,6 @@ import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.resolver.DefaultP2ResolutionResult;
 import org.eclipse.tycho.core.resolver.MetadataOnlyP2ResolutionResult;
@@ -65,14 +67,16 @@ import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
-import org.eclipse.tycho.core.resolver.target.P2TargetPlatform;
+import org.eclipse.tycho.core.shared.LoggingProgressMonitor;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.p2.publisher.AuthoredIUAction;
-import org.eclipse.tycho.p2.repository.QueryableCollection;
 import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
-import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
+import org.eclipse.tycho.p2tools.copiedfromp2.QueryableArray;
+import org.eclipse.tycho.p2tools.copiedfromp2.Slicer;
+import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
 public class P2ResolverImpl implements P2Resolver {
 
@@ -85,13 +89,13 @@ public class P2ResolverImpl implements P2Resolver {
 
     private final List<IRequirement> additionalRequirements = new ArrayList<>();
 
-    private TargetPlatformFactoryImpl targetPlatformFactory;
+    private TargetPlatformFactory targetPlatformFactory;
 
     private PomDependencies pomDependencies = PomDependencies.ignore;
 
     private P2ResolverFactoryImpl p2ResolverFactoryImpl;
 
-    public P2ResolverImpl(TargetPlatformFactoryImpl targetPlatformFactory, P2ResolverFactoryImpl p2ResolverFactoryImpl,
+    public P2ResolverImpl(TargetPlatformFactory targetPlatformFactory, P2ResolverFactoryImpl p2ResolverFactoryImpl,
             MavenLogger logger, Collection<TargetEnvironment> environments) {
         this.targetPlatformFactory = targetPlatformFactory;
         this.p2ResolverFactoryImpl = p2ResolverFactoryImpl;
@@ -114,12 +118,24 @@ public class P2ResolverImpl implements P2Resolver {
         // we need a linked hashmap to maintain iteration-order, some of the code relies on it!
         Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
         Set<IInstallableUnit> usedTargetPlatformUnits = new LinkedHashSet<>();
+        Set<IInstallableUnit> usedShadowedUnits = new CopyOnWriteSet<>();
         for (TargetEnvironment environment : environments) {
-            results.put(environment, resolveDependencies(Collections.emptySet(), project,
-                    new ProjectorResolutionStrategy(logger), environment, targetPlatform, usedTargetPlatformUnits));
+            results.put(environment,
+                    resolveDependencies(Collections.emptySet(), project, new ProjectorResolutionStrategy(logger) {
+                        @Override
+                        protected Slicer newSlicer(IQueryable<IInstallableUnit> availableUnits,
+                                Map<String, String> properties) {
+                            return super.newSlicer(
+                                    new ShadowedUnitsQueryable(targetPlatform, availableUnits, usedShadowedUnits),
+                                    properties);
+                        }
+                    }, environment, targetPlatform, usedTargetPlatformUnits));
         }
-
         targetPlatform.reportUsedLocalIUs(usedTargetPlatformUnits);
+        for (IInstallableUnit unit : usedShadowedUnits) {
+            logger.warn("Your build strictly depends on unit " + unit
+                    + " that is shadowed by a reactor project, this can lead to unexpected build results!");
+        }
         return results;
     }
 
@@ -128,8 +144,8 @@ public class P2ResolverImpl implements P2Resolver {
             Collection<? extends ArtifactKey> artifacts) {
         P2TargetPlatform targetPlatform = getTargetFromContext(context);
         Collection<IInstallableUnit> roots = new ArrayList<>();
+        IQueryable<IInstallableUnit> queriable = new QueryableArray(targetPlatform.getInstallableUnits());
         for (ArtifactKey artifactKey : artifacts) {
-            QueryableCollection queriable = new QueryableCollection(targetPlatform.getInstallableUnits());
             VersionRange range = new VersionRange(artifactKey.getVersion());
             IQuery<IInstallableUnit> query = ArtifactTypeHelper.createQueryFor(artifactKey.getType(),
                     artifactKey.getId(), range);
@@ -147,7 +163,8 @@ public class P2ResolverImpl implements P2Resolver {
     @Override
     public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentConfiguration eeConfig) {
-        P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(tpConfiguration, eeConfig, null);
+        P2TargetPlatform contextImpl = (P2TargetPlatform) targetPlatformFactory.createTargetPlatform(tpConfiguration,
+                eeConfig, null);
 
         ResolutionDataImpl data = new ResolutionDataImpl(contextImpl.getEEResolutionHints());
         data.setAvailableIUs(contextImpl.getInstallableUnits());
@@ -174,7 +191,7 @@ public class P2ResolverImpl implements P2Resolver {
     @Override
     public P2ResolutionResult getTargetPlatformAsResolutionResult(TargetPlatformConfigurationStub tpConfiguration,
             String eeName) {
-        P2TargetPlatform targetPlatform = targetPlatformFactory.createTargetPlatform(tpConfiguration,
+        P2TargetPlatform targetPlatform = (P2TargetPlatform) targetPlatformFactory.createTargetPlatform(tpConfiguration,
                 new ExecutionEnvironmentConfigurationStub(eeName), null);
 
         MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
@@ -208,10 +225,8 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setData(data);
         Collection<IInstallableUnit> newState;
         try {
-            if ((pomDependencies != PomDependencies.ignore || !TychoConstants.USE_OLD_RESOLVER) && project != null) {
-                if (p2ResolverFactoryImpl != null) {
-                    data.setAdditionalUnitStore(p2ResolverFactoryImpl.getPomUnits().createPomQueryable(project));
-                }
+            if (project != null && p2ResolverFactoryImpl != null && pomDependencies != PomDependencies.ignore) {
+                data.setAdditionalUnitStore(p2ResolverFactoryImpl.getPomUnits().createPomQueryable(project));
             }
             newState = strategy.resolve(environment, monitor);
         } catch (ResolverException e) {
@@ -294,6 +309,11 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     @Override
+    public void addRequirement(IRequirement requirement) {
+        additionalRequirements.add(requirement);
+    }
+
+    @Override
     public void addAdditionalBundleDependency(String bundleId) {
         additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, bundleId,
                 VersionRange.emptyRange, null, false, true, true));
@@ -309,7 +329,7 @@ public class P2ResolverImpl implements P2Resolver {
     public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String versionRange) {
 
         P2TargetPlatform targetPlatform = getTargetFromContext(context);
-        QueryableCollection queriable = new QueryableCollection(targetPlatform.getInstallableUnits());
+        IQueryable<IInstallableUnit> queriable = new QueryableArray(targetPlatform.getInstallableUnits(), false);
 
         VersionRange range = new VersionRange(versionRange);
         IRequirement requirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null,

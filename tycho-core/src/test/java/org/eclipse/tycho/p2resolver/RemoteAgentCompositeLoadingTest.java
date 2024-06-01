@@ -13,7 +13,7 @@
 package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.io.IOException;
 
@@ -50,15 +50,11 @@ public class RemoteAgentCompositeLoadingTest extends TychoPlexusTestCase {
          * In Tycho, we want composite repositories to fail if they have missing children (and don't
          * explicitly specify the "p2.atomic.composite.loading" property).
          */
-        try {
-            subject.getService(IArtifactRepositoryManager.class).loadRepository(
-                    ResourceUtil.resourceFile("repositories/composite/missingChildAndAtomicUnset").toURI(),
-                    new NullProgressMonitor());
-            fail("Exception was not thrown!");
-        } catch (ProvisionException e) {
-            assertEquals(ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
-        }
-
+        ProvisionException e = assertThrows(ProvisionException.class,
+                () -> subject.getService(IArtifactRepositoryManager.class).loadRepository(
+                        ResourceUtil.resourceFile("repositories/composite/missingChildAndAtomicUnset").toURI(),
+                        new NullProgressMonitor()));
+        assertEquals(ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
     }
 
 }

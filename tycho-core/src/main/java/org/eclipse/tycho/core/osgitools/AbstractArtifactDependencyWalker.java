@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 
@@ -38,7 +39,6 @@ import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.ProductConfiguration.ProductType;
-import org.eclipse.tycho.model.UpdateSite;
 
 public abstract class AbstractArtifactDependencyWalker implements ArtifactDependencyWalker {
 
@@ -53,15 +53,6 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
     protected AbstractArtifactDependencyWalker(DependencyArtifacts artifacts, TargetEnvironment[] environments) {
         this.artifacts = artifacts;
         this.environments = environments;
-    }
-
-    @Override
-    public void traverseUpdateSite(UpdateSite site, ArtifactDependencyVisitor visitor) {
-        WalkbackPath visited = new WalkbackPath();
-
-        for (FeatureRef ref : site.getFeatures()) {
-            traverseFeature(ref, visitor, visited);
-        }
     }
 
     @Override
@@ -99,20 +90,15 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
     }
 
     protected ArtifactDescriptor getArtifact(File location, String id) {
-        Map<String, ArtifactDescriptor> artifacts = this.artifacts.getArtifact(location);
-        if (artifacts != null) {
-            for (ArtifactDescriptor artifact : artifacts.values()) {
-                if (id.equals(artifact.getKey().getId())) {
+        for (ArtifactDescriptor artifact : this.artifacts.getArtifacts()) {
+            if (id.equals(artifact.getKey().getId())) {
+                File other = getLocation(artifact);
+                if (Objects.equals(location, other)) {
                     return artifact;
                 }
             }
         }
         return null;
-    }
-
-    @Override
-    public void traverseProduct(ProductConfiguration product, ArtifactDependencyVisitor visitor) {
-        traverseProduct(product, visitor, new WalkbackPath());
     }
 
     protected void traverseProduct(ProductConfiguration product, ArtifactDependencyVisitor visitor,
@@ -161,7 +147,6 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
                     ref.setOs(os);
                     ref.setWs(ws);
                     ref.setArch(arch);
-                    ref.setUnpack(true);
                     traversePlugin(ref, visitor, visited);
                 }
             }
@@ -179,8 +164,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
 
             visited.enter(artifact);
             try {
-                File location = artifact.getLocation(true);
-
+                File location = getLocation(artifact);
                 Feature feature = Feature.loadFeature(location);
                 traverseFeature(location, feature, ref, visitor, visited);
             } finally {
@@ -188,6 +172,15 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
             }
         } else {
             visitor.missingFeature(ref, visited.getWalkback());
+        }
+    }
+
+    private File getLocation(ArtifactDescriptor artifact) {
+        ReactorProject mavenProject = artifact.getMavenProject();
+        if (mavenProject != null) {
+            return mavenProject.getBasedir();
+        } else {
+            return artifact.getLocation(true);
         }
     }
 
@@ -205,7 +198,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
                 return;
             }
 
-            File location = artifact.getLocation(true);
+            File location = getLocation(artifact);
             ReactorProject project = artifact.getMavenProject();
             String classifier = artifact.getClassifier();
             Collection<IInstallableUnit> installableUnits = artifact.getInstallableUnits();

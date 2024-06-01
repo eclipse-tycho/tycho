@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -34,9 +35,9 @@ import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 
 /**
@@ -62,6 +63,9 @@ public class ListDependenciesMojo extends AbstractMojo {
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
+    @Component
+    private TychoProjectManager projectManager;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
@@ -75,10 +79,15 @@ public class ListDependenciesMojo extends AbstractMojo {
         } catch (IOException ex) {
             throw new MojoFailureException(ex.getMessage(), ex);
         }
+        Optional<TychoProject> tychoProject = projectManager.getTychoProject(project);
+        if (tychoProject.isEmpty()) {
+            return;
+        }
+
         Set<String> written = new HashSet<>();
         try (BufferedWriter writer = Files.newBufferedWriter(outputFile.toPath())) {
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-            List<ArtifactDescriptor> dependencies = TychoProjectUtils.getDependencyArtifacts(reactorProject)
+            List<ArtifactDescriptor> dependencies = tychoProject.get().getDependencyArtifacts(reactorProject)
                     .getArtifacts().stream().filter(desc -> !desc.getLocation(true).equals(project.getBasedir())) // remove self
                     .toList();
             for (ArtifactDescriptor dependnecy : dependencies) {
@@ -91,12 +100,11 @@ public class ListDependenciesMojo extends AbstractMojo {
                 }
             }
             TychoProject projectType = projectTypes.get(project.getPackaging());
-            if (projectType instanceof OsgiBundleProject bundleProject) {
+            if (projectType instanceof OsgiBundleProject) {
 
                 try {
                     pluginRealmHelper.visitPluginExtensions(project, session, ClasspathContributor.class, cpc -> {
-                        List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(reactorProject,
-                                Artifact.SCOPE_COMPILE);
+                        List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(project, Artifact.SCOPE_COMPILE);
                         if (list != null && !list.isEmpty()) {
                             for (ClasspathEntry entry : list) {
                                 for (File locations : entry.getLocations()) {

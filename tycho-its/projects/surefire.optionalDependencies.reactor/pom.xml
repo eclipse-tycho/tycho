@@ -26,7 +26,7 @@
 		<repository>
 			<id>eclipse-3.4</id>
 			<layout>p2</layout>
-			<url>${e342-repo}</url>
+			<url>${target-platform}</url>
 		</repository>
 	</repositories>
 

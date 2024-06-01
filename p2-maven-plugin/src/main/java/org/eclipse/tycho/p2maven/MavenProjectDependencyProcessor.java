@@ -18,9 +18,6 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,10 +42,11 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.p2maven.io.MetadataIO;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 
 /**
  * THis component computes dependencies between projects
@@ -56,8 +55,7 @@ import org.eclipse.tycho.p2maven.io.MetadataIO;
 @Component(role = MavenProjectDependencyProcessor.class)
 public class MavenProjectDependencyProcessor {
 
-	private static final ProjectDependencies EMPTY_DEPENDENCIES = new ProjectDependencies(Collections.emptyList(),
-			Collections.emptyList());
+	private static final ProjectDependencies EMPTY_DEPENDENCIES = new ProjectDependencies(Map.of(), Set.of());
 
 	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump")
 			|| Boolean.getBoolean("tycho.p2.dump.dependencies");
@@ -72,13 +70,19 @@ public class MavenProjectDependencyProcessor {
 	 * Computes the {@link ProjectDependencyClosure} of the given collection of
 	 * projects.
 	 * 
-	 * @param projects the projects to include in the closure
-	 * @param session  the maven session for this request
+	 * @param projects                  the projects to include in the closure
+	 * @param session                   the maven session for this request
+	 * @param profilePropertiesSupplier supplier of context IUs for a project that
+	 *                                  represent the the profile properties to
+	 *                                  consider during resolution, can be empty in
+	 *                                  which case a filter is always considered a
+	 *                                  match
 	 * @return the computed {@link ProjectDependencyClosure}
 	 * @throws CoreException if computation failed
 	 */
 	public ProjectDependencyClosure computeProjectDependencyClosure(Collection<MavenProject> projects,
-			MavenSession session) throws CoreException {
+			MavenSession session)
+			throws CoreException {
 		Objects.requireNonNull(session);
 		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = generator.getInstallableUnits(projects, session);
 		Collection<IInstallableUnit> availableIUs = projectIUMap.values().stream().flatMap(Collection::stream)
@@ -105,9 +109,11 @@ public class MavenProjectDependencyProcessor {
 			}
 
 			@Override
-			public Stream<Entry<MavenProject, Collection<IInstallableUnit>>> dependencies() {
+			public Stream<Entry<MavenProject, Collection<IInstallableUnit>>> dependencies(
+					Function<MavenProject, Collection<IInstallableUnit>> contextIuSupplier) {
 				return projectDependenciesMap.entrySet().stream()
-						.map(pd -> new SimpleEntry<>(pd.getKey(), pd.getValue().dependencies));
+						.map(pd -> new SimpleEntry<>(pd.getKey(),
+								pd.getValue().getDependencies(contextIuSupplier.apply(pd.getKey()))));
 			}
 
 			@Override
@@ -144,13 +150,15 @@ public class MavenProjectDependencyProcessor {
 		Map<MavenProject, ProjectDependencies> result = new ConcurrentHashMap<>();
 		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
 			try {
-				ProjectDependencies projectDependencies = computeProjectDependencies(projectIUMap.get(project),
+				ProjectDependencies projectDependencies = computeProjectDependencies(
+						Set.copyOf(projectIUMap.get(project)),
 						avaiableIUs);
 				result.put(project, projectDependencies);
 				if (DUMP_DATA) {
 					File file = new File(project.getBasedir(), "project-dependencies.xml");
 					try {
-						new MetadataIO().writeXML(Collections.unmodifiableCollection(projectDependencies.dependencies),
+						new MetadataIO().writeXML(
+								Collections.unmodifiableCollection(projectDependencies.getDependencies(List.of())),
 								file);
 					} catch (IOException e) {
 					}
@@ -181,26 +189,15 @@ public class MavenProjectDependencyProcessor {
 	 * @return the collection of dependent {@link InstallableUnit}s
 	 * @throws CoreException if computation failed
 	 */
-	private ProjectDependencies computeProjectDependencies(Collection<IInstallableUnit> projectUnits,
-			IQueryable<IInstallableUnit> avaiableIUs) throws CoreException {
+	private ProjectDependencies computeProjectDependencies(Set<IInstallableUnit> projectUnits,
+			IQueryable<IInstallableUnit> avaiableIUs)
+			throws CoreException {
 		if (projectUnits.isEmpty()) {
 			return EMPTY_DEPENDENCIES;
 		}
-		Set<IInstallableUnit> resolved = new LinkedHashSet<>(
-				slicer.computeDirectDependencies(projectUnits, avaiableIUs).toSet());
-		resolved.removeAll(projectUnits);
-		// now we need to filter all fragments that we are a host!
-		// for example SWT creates an explicit requirement to its fragments and we don't
-		// want them included directly
-		Set<IInstallableUnit> projectFragments = new HashSet<>();
-		for (Iterator<IInstallableUnit> iterator = resolved.iterator(); iterator.hasNext();) {
-			IInstallableUnit unit = iterator.next();
-			if (hasAnyHost(unit, projectUnits)) {
-				projectFragments.add(unit);
-				iterator.remove();
-			}
-		}
-		return new ProjectDependencies(resolved, projectFragments);
+		Map<IRequirement, Collection<IInstallableUnit>> dependencies = slicer.computeDirectDependencies(projectUnits,
+				avaiableIUs);
+		return new ProjectDependencies(dependencies, projectUnits);
 	}
 
 	private static boolean hasAnyHost(IInstallableUnit unit, Iterable<IInstallableUnit> collection) {
@@ -238,23 +235,32 @@ public class MavenProjectDependencyProcessor {
 		}).filter(Objects::nonNull);
 	}
 
+	private static boolean isMatch(IRequirement requirement, Collection<IInstallableUnit> contextIUs) {
+		IMatchExpression<IInstallableUnit> filter = requirement.getFilter();
+		if (filter == null || contextIUs.isEmpty()) {
+			return true;
+		}
+		return contextIUs.stream().anyMatch(contextIU -> filter.isMatch(contextIU));
+	}
+
 	public static final class ProjectDependencies {
 
-		private final Collection<IInstallableUnit> dependencies;
-		private final Collection<IInstallableUnit> fragments;
+		private final Map<IRequirement, Collection<IInstallableUnit>> requirementsMap;
+		private final Set<IInstallableUnit> projectUnits;
 
-		private ProjectDependencies(Collection<IInstallableUnit> dependencies, Collection<IInstallableUnit> fragments) {
-			this.dependencies = dependencies;
-			this.fragments = fragments;
+		ProjectDependencies(Map<IRequirement, Collection<IInstallableUnit>> requirementsMap,
+				Set<IInstallableUnit> projectUnits) {
+			this.requirementsMap = requirementsMap;
+			this.projectUnits = projectUnits;
 		}
 
-		public Collection<IInstallableUnit> getDependencies() {
-			return dependencies;
+		public Collection<IInstallableUnit> getDependencies(Collection<IInstallableUnit> contextIUs) {
+			return requirementsMap.entrySet().stream().filter(entry -> isMatch(entry.getKey(), contextIUs))
+					.flatMap(entry -> entry.getValue().stream().filter(unit -> !projectUnits.contains(unit))
+							.limit(entry.getKey().getMax()))
+					.distinct().toList();
 		}
 
-		public Collection<IInstallableUnit> getFragments() {
-			return fragments;
-		}
 
 	}
 
@@ -279,31 +285,38 @@ public class MavenProjectDependencyProcessor {
 		/**
 		 * @return a stream of all contained maven projects with dependecies
 		 */
-		Stream<Entry<MavenProject, Collection<IInstallableUnit>>> dependencies();
+		Stream<Entry<MavenProject, Collection<IInstallableUnit>>> dependencies(
+				Function<MavenProject, Collection<IInstallableUnit>> contextIuSupplier);
 
 		/**
 		 * Given a maven project returns all other maven projects this one (directly)
 		 * depends on
 		 * 
-		 * @param mavenProject
+		 * @param mavenProject the maven project for which all direct dependent projects
+		 *                     should be collected
+		 * @param contextIUs   the context IUs to filter dependencies
 		 * @return the collection of projects this maven project depend on in this
 		 *         closure
 		 */
-		default Collection<MavenProject> getDependencyProjects(MavenProject mavenProject) {
+		default Collection<MavenProject> getDependencyProjects(MavenProject mavenProject,
+				Collection<IInstallableUnit> contextIUs) {
 			ProjectDependencies projectDependecies = getProjectDependecies(mavenProject);
-			List<MavenProject> list = projectDependecies.getDependencies().stream()
+			List<MavenProject> list = projectDependecies.getDependencies(contextIUs).stream()
 					.flatMap(dependency -> getProject(dependency).stream()).distinct().toList();
 			if (isFragment(mavenProject)) {
+				// for projects that are fragments don't do any special processing...
 				return list;
 			}
+			// for regular projects we must check if they have any fragment requirements
+			// that must be attached here, example is SWT that defines a requirement to its
+			// fragments and if build inside the same reactor with a consumer (e.g. JFace)
+			// has to be applied
 			return list.stream().flatMap(project -> {
 				ProjectDependencies dependecies = getProjectDependecies(project);
-				if (dependecies.getFragments().isEmpty()) {
-					return Stream.of(project);
-				}
-				return Stream.concat(Stream.of(project),
-						dependecies.getFragments().stream().flatMap(dependency -> getProject(dependency).stream()));
-			}).distinct().toList();
+				return Stream.concat(Stream.of(project), dependecies.getDependencies(contextIUs).stream()
+						.filter(dep -> hasAnyHost(dep, dependecies.projectUnits))
+						.flatMap(dependency -> getProject(dependency).stream()));
+			}).toList();
 		}
 
 		/**

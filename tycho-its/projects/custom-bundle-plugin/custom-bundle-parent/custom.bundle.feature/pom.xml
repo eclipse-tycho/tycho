@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>tycho-extras-its-project</groupId>
+    <artifactId>custom-bundle-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>custom.bundle.feature</artifactId>
+  <packaging>eclipse-feature</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <executions>
+			  <execution>
+				  <id>inject</id>
+				  <goals>
+					  <goal>mirror-target-platform</goal>
+				  </goals>
+			  </execution>
+		</executions>
+		<configuration>
+			<destination>${project.build.directory}/site</destination>
+			<includeCategories>false</includeCategories>
+		</configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
