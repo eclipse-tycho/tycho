@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -36,6 +37,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProjectManager;
@@ -77,6 +79,10 @@ import org.slf4j.LoggerFactory;
 @Component(role = ModelConverter.class)
 public class TychoModelConverter extends DefaultModelConverter {
 	private static final Logger LOG = LoggerFactory.getLogger(TychoModelConverter.class);
+	// All Tycho packaging types except PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION
+	private static final Set<String> SUPPORTED_PACKAGING_TYPES = Set.of(PackagingType.TYPE_ECLIPSE_PLUGIN,
+			PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, PackagingType.TYPE_ECLIPSE_FEATURE,
+			PackagingType.TYPE_ECLIPSE_REPOSITORY, PackagingType.TYPE_P2_SITE);
 
 	@Inject
 	private P2RepositoryManager repositoryManager;
@@ -133,7 +139,7 @@ public class TychoModelConverter extends DefaultModelConverter {
 	 */
 	private String generatePackageUrl(Artifact artifact, boolean withVersion, boolean withClassifier,
 			Supplier<String> fallback) {
-		if (reactorReader.isTychoReactorArtifact(artifact)) {
+		if (SUPPORTED_PACKAGING_TYPES.contains(reactorReader.getPackagingType(artifact))) {
 			ArtifactKey artifactKey = getQualifiedArtifactKey(artifact);
 			IArtifactKey p2artifactKey = ArtifactTypeHelper.toP2ArtifactKey(artifactKey);
 			boolean isReactorProject = reactorReader.getTychoReactorProject(artifact).isPresent();
