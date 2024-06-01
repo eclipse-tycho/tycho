@@ -13,8 +13,11 @@
 	<modules>
 		<module>example.feature</module>
 		<module>example.plugin</module>
+		<module>example.test1</module>
+		<module>example.test2</module>
 		<module>product</module>
 		<module>repository</module>
+		<module>target-platform</module>
 	</modules>
 
 	<build>
@@ -31,7 +34,11 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<target>
-						<file>../target-definition.target</file>
+						<artifact>
+							<groupId>tycho-demo</groupId>
+							<artifactId>target-definition</artifactId>
+							<version>1.0.0-SNAPSHOT</version>
+						</artifact>
 					</target>
 					<environments>
 						<environment>
@@ -48,6 +55,14 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<forceContextQualifier>today</forceContextQualifier>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<failIfNoTests>false</failIfNoTests>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -71,6 +86,18 @@
 						<version>${tycho-version}</version>
 					</dependency>
 				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-sbom</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<includes>
+						<include>eclipse-plugin</include>
+						<include>eclipse-feature</include>
+						<include>eclipse-repository</include>
+					</includes>
+				</configuration>
 			</plugin>
 		</plugins>
 		<pluginManagement>
