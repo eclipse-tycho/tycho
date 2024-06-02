@@ -8,13 +8,13 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ### Support for new `includeJRE` flag when building products
 
-PDE recently added a new flag for the product to mark it to [include a JRE](https://github.com/eclipse-pde/eclipse.pde/pull/1075),
-this is also now supported with Tycho, activate this flag has the following effects:
+PDE recently added a new flag for the product to mark it to [include a JRE](https://github.com/eclipse-pde/eclipse.pde/pull/1075).
+This is now supported by Tycho. Activating this flag has the following effects:
 
-- The product gets a new requirement for a JustJ JRE
-- The JustJ update site is automatically added to the `materialize-products` goal if such product is present
+- The product gets a new requirement for a JustJ JRE.
+- The JustJ update site is automatically added to the `materialize-products` goal if such product is present.
 
-There is [a demo project](https://github.com/eclipse-tycho/tycho/tree/main/demo/justj/automaticInstall) shows an example for a product using that flag and including an JRE that is suitable to launch the product automatically.
+There is [a demo project](https://github.com/eclipse-tycho/tycho/tree/main/demo/justj/automaticInstall) which shows an example for a product using that flag and including a JRE that is suitable to launch the product automatically.
 
 ### Support for CycloneDX Maven Plugin
 
@@ -193,16 +193,16 @@ The `eclipse-build` mojo can be used like this
 ```xml
 <plugin>
     <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-eclipse-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <executions>
-            <execution>
-                <id>eclipse-build</id>
-                <goals>
-                    <goal>eclipse-build</goal>
-                </goals>
-            </execution>
-        </executions>
+    <artifactId>tycho-eclipse-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+        <execution>
+            <id>eclipse-build</id>
+            <goals>
+                <goal>eclipse-build</goal>
+            </goals>
+        </execution>
+    </executions>
 </plugin>
 ```
 
@@ -280,8 +280,60 @@ If `addOnlyProviding` is `true` repositories that don't provide any filtered uni
 The deployableFeature option will create "standard eclipse update site directory with feature content will
 be created under target folder" but we already removed site-packaging from Tycho for a while, if one wants to
 archive similar a category.xml with eclipse-repository packaging gives much more control and power to the user.
-Alternativly new `mirror-target-platform` mojo can be used.
+Alternatively the new `mirror-target-platform` mojo can be used.
 
+## 4.0.8
+
+backports:
+- maven dependencies of transitive projects are not discovered with `-am` / `--also-make`
+- Support for new `includeJRE` flag when building products
+- Improve SignRepositoryArtifactsMojo handling of unsigned content
+- Add demo for pde.bnd integration with classic Eclipse product build
+- Use original URL to decide if a IU is provided by reference
+- set-version: Fix regression overwriting mismatching versions
+- Sort dependency tree root nodes
+- Support links in classpath files
+- Add support for followRepositoryReference in .target files
+- Add flag to fail API tools on resolution error
+- Several bugfixes for building pde automatic manifest projects
+- Remove special handling of equinox-launcher fragments in AbstractArtifactDependencyWalker
+
+## 4.0.7
+
+backports:
+- update to next eclipse release
+- tycho-p2-director:director: Fix handling of destination on macOS
+- Prevent ConcurrentModificationException in PomInstallableUnitStore
+- Add an option to enhance the compile log with baseline problems
+- assemble-repository: Prevent sources from being included inadvertently
+- ExpandedProduct.getFeatures(ROOT_FEATURES) returns over-qualified IDs
+- provide suggested version for features
+- Do not fail the DS build if one dependency failed to add
+- Add a timestamp provider that inherits the timestamp from the parent
+- Add option to include all configured sources in ApiFileGenerationMojo
+- Do not fail target resolution if a referenced repository fails
+- Add URI to message of GOAWAY info
+- Reduce printed warnings in builds
+
+## 4.0.6
+
+### backports:
+
+- Support for CycloneDX Maven Plugin
+
+## 4.0.5
+
+### backports:
+
+- support for parallel execution of product assembly / archiving
+- new `repo-to-runnable` mojo
+- support for embedded target locations
+- using javac as the compiler for Tycho
+- new `mirror-target-platform` mojo
+- new director mojo
+- support for PDE Api Tools Annotations
+- api tools fixes
+- new `tycho-eclipse-plugin`
 
 ## 4.0.4
 
@@ -298,8 +350,8 @@ Backports:
 If filtering provided artifacts is enabled, the repository references automatically added to a assembled p2-repository
 (via `tycho-p2-repository-plugin`'s `addIUTargetRepositoryReferences` or `addPomRepositoryReferences`) can now be filtered by their location
 using exclusion and inclusion patterns and therefore allows more fine-grained control which references are added.
-Additionally the automatically added references can be filter based on if they provide any of the filtered units or not.
-If `addOnlyProviding` is `true` repositories that don't provide any filtered unit are not added to the assembled repo.
+Additionally the automatically added references can be filtered based on whether they provide any of the filtered units or not.
+If `addOnlyProviding` is `true` then repositories that don't provide any filtered unit are not added to the assembled repository.
 ```xml
 <plugin>
     <groupId>org.eclipse.tycho</groupId>
