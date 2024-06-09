@@ -47,6 +47,7 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.tycho.TychoConstants;
 
 @Priority(100)
 @Component(role = ModelVersionProcessor.class)
@@ -95,7 +96,7 @@ public class TychoCiFriendlyVersions extends DefaultModelVersionProcessor implem
 		} else {
 			String forceContextQualifier = request.getSystemProperties().getProperty(PROPERTY_FORCE_QUALIFIER);
 			if (forceContextQualifier != null) {
-				modelProperties.put(BUILD_QUALIFIER, "." + forceContextQualifier);
+				modelProperties.put(BUILD_QUALIFIER, TychoConstants.QUALIFIER_NONE.equals(forceContextQualifier) ? "" : "." + forceContextQualifier);
 			} else {
 				String formatString = request.getSystemProperties().getProperty(PROPERTY_BUILDQUALIFIER_FORMAT);
 				if (formatString != null) {

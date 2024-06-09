@@ -148,7 +148,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertEquals(getClasspathElement(new File(getBasedir()), nestedJarPath, "[?**/*]"), cp.get(1));
         assertEquals(getClasspathElement(project.getBasedir(), "target/classes", ""), cp.get(2));
 
-        // project with a (not yet) existing nested jar that would be copied later during build 
+        // project with a (not yet) existing nested jar that would be copied later during build
         // (wrapper scenario with copy-pom-dependencies)
 //        project = projects.get(4);
 //        mojo = getMojo(projects, project);
@@ -260,11 +260,13 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/executionEnvironment");
         List<MavenProject> projects = getSortedProjects(basedir);
         MavenProject project;
-        // project with neither POM nor MANIFEST configuration => must fallback to 
-        // source/target level == 17
+        // project with neither POM nor MANIFEST configuration => must fallback to
+        // source/target level of the JVM
         project = projects.get(1);
         getMojo(projects, project).execute();
-        assertBytecodeMajorLevel(61 /* Java 17 */, new File(project.getBasedir(), "target/classes/Generic.class"));
+        // Java 17 -> 61, Java 21 -> 65
+        assertBytecodeMajorLevel(Runtime.version().feature() + 44,
+                new File(project.getBasedir(), "target/classes/Generic.class"));
 
         // project with multiple execution envs.
         // Minimum source and target level must be taken
@@ -277,7 +279,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         } catch (CompilationFailureException e) {
             // expected
         }
-        // project with both explicit compiler configuration in pom.xml and Bundle-RequiredExecutionEnvironment. 
+        // project with both explicit compiler configuration in pom.xml and Bundle-RequiredExecutionEnvironment.
         // explicit compiler configuration in the pom should win. see https://issues.sonatype.org/browse/TYCHO-476
         project = projects.get(3);
         mojo = getMojo(projects, project);
@@ -291,8 +293,8 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         mojo = getMojo(projects, project);
         mojo.execute();
         assertEquals("1.3", mojo.getSourceLevel());
-        // project with both explicit compiler configuration in build.properties and Bundle-RequiredExecutionEnvironment. 
-        // build.properties should win. 
+        // project with both explicit compiler configuration in build.properties and Bundle-RequiredExecutionEnvironment.
+        // build.properties should win.
         project = projects.get(5);
         mojo = getMojo(projects, project);
         mojo.execute();
@@ -451,7 +453,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
     }
 
     public void testUseProjectSettingsSetToTrue() throws Exception {
-        // the code in the project does use boxing and the settings file 
+        // the code in the project does use boxing and the settings file
         // turns on warning for auto boxing so we expect here a warning
         File basedir = getBasedir("projects/projectSettings/p001");
         List<MavenProject> projects = getSortedProjects(basedir);
@@ -530,7 +532,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         MavenProject project = projects.get(0);
         MojoExecutionException e = assertThrows(MojoExecutionException.class,
                 () -> getMojo(projects, project).execute());
-        // assert that the compiler mojo checks the target levels of all BREEs (and not just the first or "minimal" one) 
+        // assert that the compiler mojo checks the target levels of all BREEs (and not just the first or "minimal" one)
         assertThat(e.getMessage(), containsString(
                 "The effective compiler target level 1.5 is incompatible with the following OSGi execution environments"));
         assertThat(e.getMessage(), containsString("J2SE-1.2"));
