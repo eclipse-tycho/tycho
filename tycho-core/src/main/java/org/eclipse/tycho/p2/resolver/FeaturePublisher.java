@@ -42,7 +42,8 @@ import org.eclipse.tycho.core.shared.MavenLogger;
 public class FeaturePublisher {
 
     public static void publishFeatures(List<Feature> features,
-            BiConsumer<IArtifactDescriptor, IInstallableUnit> consumer, MavenLogger logger) {
+            BiConsumer<IArtifactDescriptor, IInstallableUnit> consumer, IArtifactRepository artifactRepository,
+            MavenLogger logger) {
         if (features.isEmpty()) {
             return;
         }
@@ -85,7 +86,7 @@ public class FeaturePublisher {
                     //The actual published feature...
                     for (IArtifactKey key : artifacts) {
                         IArtifactDescriptor fileDescriptor = FileArtifactRepository
-                                .forFile(new File(publishedFeature.getLocation()), key);
+                                .forFile(new File(publishedFeature.getLocation()), key, artifactRepository);
                         consumer.accept(fileDescriptor, unit);
                     }
                 }
