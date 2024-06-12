@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.registry</artifactId>
-			<version>3.12.0</version>
+			<version>3.12.100</version>
 		</dependency>
   </dependencies>
   
