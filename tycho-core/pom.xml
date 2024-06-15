@@ -75,7 +75,7 @@
 						<goals>
 							<goal>compile</goal>
 						</goals>
-						<configuration>
+						<configuration combine.self="override">
 							<source>9</source>
 							<target>9</target>
 							<includes>

@@ -413,8 +413,7 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.13.0</version>
 					<configuration>
-						<source>${min.jdk.version}</source>
-						<target>${min.jdk.version}</target>
+						<release>${min.jdk.version}</release>
 					</configuration>
 				</plugin>
 				<plugin>
