@@ -39,6 +39,7 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
@@ -222,17 +223,18 @@ public final class FileArtifactRepository extends AbstractArtifactRepository imp
                 && key.getVersion().equals(descriptorKey.getVersion()));
     }
 
-    public static IArtifactDescriptor forFile(File file, IArtifactKey key) {
-        return new FileArtifactDescriptor(file, key);
+    public static IArtifactDescriptor forFile(File file, IArtifactKey key, IArtifactRepository repository) {
+        return new FileArtifactDescriptor(file, key, repository);
     }
 
     private static final class FileArtifactDescriptor extends ArtifactDescriptor {
 
         private File file;
 
-        private FileArtifactDescriptor(File file, IArtifactKey key) {
+        private FileArtifactDescriptor(File file, IArtifactKey key, IArtifactRepository repository) {
             super(key);
             this.file = file;
+            setRepository(repository);
         }
 
     }

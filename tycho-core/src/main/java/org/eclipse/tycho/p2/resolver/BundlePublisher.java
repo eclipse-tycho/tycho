@@ -33,12 +33,12 @@ import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
-import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.osgi.framework.BundleException;
 
 public class BundlePublisher extends BundlesAction {
@@ -47,8 +47,8 @@ public class BundlePublisher extends BundlesAction {
         super(new BundleDescription[] { bundleDescription });
     }
 
-    public static Optional<IInstallableUnit> getBundleIU(File bundleLocation, IPublisherAdvice... advices)
-            throws IOException, BundleException {
+    public static Optional<IInstallableUnit> getBundleIU(File bundleLocation, IArtifactRepository repository,
+            IPublisherAdvice... advices) throws IOException, BundleException {
         BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleLocation);
         if (bundleDescription == null) {
             //seems it is not a bundle
@@ -65,7 +65,7 @@ public class BundlePublisher extends BundlesAction {
         }
         IArtifactKey key = BundlesAction.createBundleArtifactKey(symbolicName,
                 bundleDescription.getVersion().toString());
-        IArtifactDescriptor descriptor = FileArtifactRepository.forFile(bundleLocation, key);
+        IArtifactDescriptor descriptor = FileArtifactRepository.forFile(bundleLocation, key, repository);
         return Optional.ofNullable(publishBundle(bundleDescription, descriptor, publisherInfo));
     }
 
