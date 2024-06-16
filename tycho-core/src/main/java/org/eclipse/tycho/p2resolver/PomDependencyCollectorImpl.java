@@ -61,12 +61,14 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     private final List<IArtifactDescriptor> fileDescriptors = new ArrayList<>();
     private FileRepositoryArtifactProvider fileRepositoryArtifactProvider;
 
+    private FileArtifactRepository artifactRepository;
+
     public PomDependencyCollectorImpl(Logger logger, ReactorProject project, IProvisioningAgent agent) {
         this.logger = logger;
         this.project = project;
+        artifactRepository = new FileArtifactRepository(agent, fileDescriptors::iterator);
         fileRepositoryArtifactProvider = new FileRepositoryArtifactProvider(
-                Collections.singletonList(new FileArtifactRepository(agent, fileDescriptors::iterator)),
-                ArtifactTransferPolicies.forLocalArtifacts());
+                Collections.singletonList(artifactRepository), ArtifactTransferPolicies.forLocalArtifacts());
     }
 
     public File getProjectLocation() {
@@ -85,7 +87,8 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
             for (IArtifactKey key : unit.getArtifacts()) {
                 ArtifactKey artifactKey = ArtifactTypeHelper.toTychoArtifactKey(unit, key);
                 if (artifactKey != null) {
-                    IArtifactDescriptor descriptor = FileArtifactRepository.forFile(artifact.getLocation(), key);
+                    IArtifactDescriptor descriptor = FileArtifactRepository.forFile(artifact.getLocation(), key,
+                            artifactRepository);
                     fileDescriptors.add(descriptor);
                     descriptorMap.put(artifact, descriptor);
                     resultArtifactKey = new SimpleEntry<>(artifactKey, descriptor);
