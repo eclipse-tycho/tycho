@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 Christoph Läubrich and others.
+ * Copyright (c) 2022, 2024 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -32,11 +32,13 @@ import java.util.function.Function;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionRange;
@@ -75,7 +77,8 @@ import de.vandermeer.asciitable.AT_Row;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 
-@Component(role = ArtifactBaselineComparator.class, hint = ArtifactType.TYPE_ECLIPSE_PLUGIN)
+@Named(ArtifactType.TYPE_ECLIPSE_PLUGIN)
+@Singleton
 public class BundleArtifactBaselineComparator implements ArtifactBaselineComparator {
 
 	private static final String X_INTERNAL_ATTRIBUTE = "x-internal";
@@ -86,10 +89,10 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 
 	private static final int WIDTH = 160;
 
-	@Requirement
+	@Inject
 	private P2RepositoryManager repositoryManager;
 
-	@Requirement(role = ContentsComparator.class)
+	@Inject
 	Map<String, ContentsComparator> contentComparators;
 
 	@Override

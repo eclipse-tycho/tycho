@@ -26,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.DefaultMavenExecutionResult;
@@ -42,7 +44,6 @@ import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
@@ -50,7 +51,8 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.tycho.TychoConstants;
 
 @Priority(100)
-@Component(role = ModelVersionProcessor.class)
+@Named
+@Singleton
 public class TychoCiFriendlyVersions extends DefaultModelVersionProcessor implements ModelVersionProcessor {
 
 	static final String PROPERTY_FORCE_QUALIFIER = "forceContextQualifier";

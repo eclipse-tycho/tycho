@@ -16,28 +16,25 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Path;
-import java.util.Map;
 
-import org.apache.maven.lifecycle.Lifecycle;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.eclipse.tycho.version.TychoVersion;
-import org.sonatype.maven.polyglot.mapping.Mapping;
 
 import aQute.bnd.build.Project;
 import aQute.bnd.build.Workspace;
 
-@Component(role = Mapping.class, hint = "bnd")
+@Named("bnd")
+@Singleton
 public class BndProjectMapping extends AbstractTychoMapping {
 	
 
 	private static final String TYCHO_BND_PLUGIN = "tycho-bnd-plugin";
-	@Requirement(role = Lifecycle.class)
-	private Map<String, Lifecycle> lifecycles;
 
 	@Override
 	public float getPriority() {
