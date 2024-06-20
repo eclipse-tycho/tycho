@@ -187,14 +187,14 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.jface</artifactId>
-			<version>3.33.0</version>
+			<version>3.34.0</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>org.eclipse.jdt.core</artifactId>
-			<version>3.37.0</version>
+			<version>3.38.0</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- update site tests -->
@@ -218,7 +218,7 @@
 		<dependency>
 			<groupId>org.cyclonedx</groupId>
 			<artifactId>cyclonedx-core-java</artifactId>
-			<version>9.0.2</version>
+			<version>9.0.3</version>
 		</dependency>
 
 		<!-- artifacts to be tested -->

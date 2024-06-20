@@ -32,7 +32,6 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -43,6 +42,7 @@ import org.eclipse.tycho.core.resolver.target.SupplierMetadataRepository;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.resolver.BundlePublisher;
 import org.eclipse.tycho.p2.resolver.FeaturePublisher;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.p2maven.transport.TychoRepositoryTransport;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
@@ -106,13 +106,13 @@ public class RepositoryLocationContent implements TargetDefinitionContent {
                 throw new TargetDefinitionResolutionException("Can't fetch resource from " + url, e);
             }
         }
-        FeaturePublisher.publishFeatures(features, repositoryContent::put, logger);
+        FeaturePublisher.publishFeatures(features, repositoryContent::put, artifactRepository, logger);
     }
 
     private void publish(BundleDescription bundleDescription, File bundleLocation) {
         IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(),
                 bundleDescription.getVersion().toString());
-        IArtifactDescriptor descriptor = FileArtifactRepository.forFile(bundleLocation, key);
+        IArtifactDescriptor descriptor = FileArtifactRepository.forFile(bundleLocation, key, artifactRepository);
         PublisherInfo publisherInfo = new PublisherInfo();
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
         IInstallableUnit iu = BundlePublisher.publishBundle(bundleDescription, descriptor, publisherInfo);

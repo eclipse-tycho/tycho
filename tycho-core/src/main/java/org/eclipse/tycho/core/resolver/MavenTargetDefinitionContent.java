@@ -350,7 +350,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                     throw new TargetDefinitionResolutionException("feature generation failed!", e);
                 }
             }
-            FeaturePublisher.publishFeatures(features, repositoryContent::put, logger);
+            FeaturePublisher.publishFeatures(features, repositoryContent::put, artifactRepository, logger);
         }
     }
 
@@ -396,7 +396,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     private IInstallableUnit publish(BundleDescription bundleDescription, File bundleLocation, IPropertyAdvice advice) {
         IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(),
                 bundleDescription.getVersion().toString());
-        IArtifactDescriptor descriptor = FileArtifactRepository.forFile(bundleLocation, key);
+        IArtifactDescriptor descriptor = FileArtifactRepository.forFile(bundleLocation, key, artifactRepository);
         PublisherInfo publisherInfo = new PublisherInfo();
         publisherInfo.addAdvice(advice);
         publisherInfo.addAdvice(new MavenChecksumAdvice(bundleLocation));

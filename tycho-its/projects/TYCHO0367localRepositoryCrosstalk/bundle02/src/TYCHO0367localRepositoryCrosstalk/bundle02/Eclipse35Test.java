@@ -25,7 +25,7 @@ public class Eclipse35Test extends TestCase {
         Bundle equinox = getBundle("org.eclipse.osgi");
 
         assertEquals(3, equinox.getVersion().getMajor());
-        assertEquals(19, equinox.getVersion().getMinor());
+        assertTrue(equinox.getVersion().getMinor() > 13);
     }
 
     public Bundle getBundle(String id) {

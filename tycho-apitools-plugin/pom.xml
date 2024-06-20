@@ -50,7 +50,7 @@
 		<dependency>
 		    <groupId>org.eclipse.pde</groupId>
 		    <artifactId>org.eclipse.pde.core</artifactId>
-		    <version>3.18.0</version>
+		    <version>3.18.100</version>
 		    <type>jar</type>
 		    <exclusions>
                 <exclusion>
@@ -62,12 +62,12 @@
        <dependency>
 		    <groupId>org.eclipse.platform</groupId>
 		    <artifactId>org.eclipse.equinox.common</artifactId>
-		    <version>3.19.0</version>
+		    <version>3.19.100</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.eclipse.jdt</groupId>
 		    <artifactId>org.eclipse.jdt.core</artifactId>
-		    <version>3.37.0</version>
+		    <version>3.38.0</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.eclipse.jdt</groupId>

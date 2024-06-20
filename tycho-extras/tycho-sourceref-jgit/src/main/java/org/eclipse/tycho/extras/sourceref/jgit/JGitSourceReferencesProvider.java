@@ -16,9 +16,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.AmbiguousObjectException;
@@ -30,7 +32,8 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.tycho.packaging.sourceref.ScmUrl;
 import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
 
-@Component(role = SourceReferencesProvider.class, hint = "git")
+@Named("git")
+@Singleton
 public class JGitSourceReferencesProvider implements SourceReferencesProvider {
 
     @Override

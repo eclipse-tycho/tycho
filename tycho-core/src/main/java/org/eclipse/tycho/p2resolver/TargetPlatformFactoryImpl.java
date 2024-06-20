@@ -242,7 +242,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 try {
                     MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifactKey.getGroupId(),
                             mavenArtifactKey.getArtifactId(), key.getVersion());
-                    Optional<IInstallableUnit> iu = BundlePublisher.getBundleIU(bundleFile, advice);
+                    Optional<IInstallableUnit> iu = BundlePublisher.getBundleIU(bundleFile, null, advice);
                     IInstallableUnit unit = iu.orElse(null);
                     if (unit != null) {
                         InstallableUnitDescription description = new InstallableUnitDescription();
