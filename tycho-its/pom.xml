@@ -218,7 +218,7 @@
 		<dependency>
 			<groupId>org.cyclonedx</groupId>
 			<artifactId>cyclonedx-core-java</artifactId>
-			<version>9.0.3</version>
+			<version>9.0.4</version>
 		</dependency>
 
 		<!-- artifacts to be tested -->
