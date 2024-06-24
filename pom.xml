@@ -59,7 +59,7 @@
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
 		<commonsCompressVersion>1.26.2</commonsCompressVersion>
 		<plexusVersion>2.2.0</plexusVersion>
-		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
+		<plexusUtilsVersion>4.0.1</plexusUtilsVersion>
 		<plexusCompilerVersion>2.15.0</plexusCompilerVersion>
 		<cipherVersion>2.1.0</cipherVersion>
 		<pluginToolsVersion>3.13.1</pluginToolsVersion>
