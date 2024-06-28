@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: spir.example-plugin
+Bundle-Version: 1.0.0
+Export-Package: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-11
