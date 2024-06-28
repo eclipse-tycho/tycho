@@ -24,14 +24,16 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.bnd.BndPluginManager;
 
@@ -51,7 +53,8 @@ import aQute.bnd.osgi.Constants;
  * <code>test<code> maven dependency</li>
  * </ul>
  */
-@Component(role = AbstractMavenLifecycleParticipant.class)
+@Named
+@Singleton
 public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
 	private static final Set<Entry<String, String>> BND_TO_MAVEN_MAPPING = Map.of(//
@@ -60,10 +63,10 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 			Constants.TESTPATH, Artifact.SCOPE_TEST //
 	).entrySet();
 
-	@Requirement
+	@Inject
 	private Logger logger;
 
-	@Requirement
+	@Inject
 	private BndPluginManager bndPluginManager;
 
 	@Override

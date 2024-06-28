@@ -15,13 +15,16 @@ package org.eclipse.tycho.bnd.maven;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.ProjectExecutionEvent;
 import org.apache.maven.execution.ProjectExecutionListener;
 import org.apache.maven.lifecycle.LifecycleExecutionException;
 import org.apache.maven.plugin.MojoExecution;
-import org.codehaus.plexus.component.annotations.Component;
 
-@Component(role = ProjectExecutionListener.class)
+@Named
+@Singleton
 public class BndProjectExecutionListener implements ProjectExecutionListener {
 
 	@Override

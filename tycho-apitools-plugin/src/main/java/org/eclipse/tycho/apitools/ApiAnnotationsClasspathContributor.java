@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2024 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,19 +15,18 @@ package org.eclipse.tycho.apitools;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
-import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.AbstractSpecificationClasspathContributor;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.osgi.framework.VersionRange;
 
-@Component(role = ClasspathContributor.class, hint = "apitools-annotations")
+@Named("apitools-annotations")
 @SessionScoped
 public class ApiAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor {
 

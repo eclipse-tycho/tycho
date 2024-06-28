@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2024 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,9 +18,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
@@ -41,16 +42,14 @@ import org.osgi.service.log.LogEntry;
  * Component that resolves the bundles that make up the ApiApplication from a
  * given URI
  */
-@Component(role = ApiApplicationResolver.class)
+@Named
+@Singleton
 public class ApiApplicationResolver {
 
-	@Requirement
-	private Logger logger;
-
-	@Requirement
+	@Inject
 	private EclipseApplicationFactory applicationFactory;
 
-	@Requirement
+	@Inject
 	private EclipseApplicationManager applicationManager;
 
 	public Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
