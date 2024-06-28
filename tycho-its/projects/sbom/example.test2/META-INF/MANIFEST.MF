@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test-Fragment with SBOM
+Bundle-SymbolicName: example.test2
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: example.plugin
+Automatic-Module-Name: example.test2
+Bundle-RequiredExecutionEnvironment: JavaSE-17
