@@ -1,4 +1,8 @@
-# Category
+# Repositories
+
+Repositories (also knows as P2 Updatesites) contain artifacts and metadata to install content into eclipse or use them in a Tycho build.
+
+## Create Repositories using category.xml
 
 A category.xml file can be used to define which content is placed into a p2 repository. 
 It can also specify how to display the content in the p2 installation dialog. 
@@ -68,3 +72,15 @@ The following is an example, demonstrating a complex category definition.
 ```
 
 You can read more about P2 Query Syntax [here](https://wiki.eclipse.org/Equinox/p2/Query_Language_for_p2).
+
+## Managing Repositories
+
+Tycho offers some tools to manage existing repositories as a replacement for the ant-tasks described [here](https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/guide/p2_repositorytasks.htm)
+
+### repo2runnable
+
+See [tycho-p2-repository:repo-to-runnable](tycho-p2-repository-plugin/repo-to-runnable-mojo.html)
+
+### remove.iu
+
+See [tycho-p2-repository:remove-iu](tycho-p2-repository-plugin/remove-iu-mojo.html)
