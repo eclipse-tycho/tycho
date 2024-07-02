@@ -136,7 +136,7 @@
 				<groupId>org.eclipse.sisu</groupId>
 				<artifactId>org.eclipse.sisu.plexus</artifactId>
 				<!-- classes from plexus-container-default come with the maven installation -->
-				<version>0.9.0.M2</version>
+				<version>0.9.0.M3</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
