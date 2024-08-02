@@ -12,17 +12,20 @@
  *******************************************************************************/
 package org.eclipse.tycho.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
+import org.eclipse.tycho.targetplatform.TargetDefinition.MavenDependency;
+import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.version.TychoVersion;
@@ -55,6 +58,13 @@ public class VersionBumpPluginTest extends AbstractTychoIntegrationTest {
 			assertIUVersion("org.eclipse.jdt.feature.group", "3.18.500.v20200902-1800", units, targetFile);
 			assertIUVersion("org.eclipse.platform.ide", "4.17.0.I20200902-1800", units, targetFile);
 			assertIUVersion("org.eclipse.pde.feature.group", "3.14.500.v20200902-1800", units, targetFile);
+			MavenGAVLocation maven = locations.stream().filter(MavenGAVLocation.class::isInstance)
+					.map(MavenGAVLocation.class::cast).findFirst()
+					.orElseThrow(() -> new AssertionError("Maven Location not found!"));
+			Collection<MavenDependency> roots = maven.getRoots();
+			assertEquals(1, roots.size());
+			MavenDependency dependency = roots.iterator().next();
+			assertEquals("Maven version was not updated correctly in " + targetFile, "1.3.2", dependency.getVersion());
 		}
 	}
 
