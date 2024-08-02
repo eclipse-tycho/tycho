@@ -520,6 +520,11 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return version;
         }
 
+		@Override
+		public String toString() {
+			return "Unit [id=" + id + ", version=" + version + "]";
+		}
+
     }
 
     private TargetDefinitionFile(Document document, String origin) throws TargetDefinitionSyntaxException {
