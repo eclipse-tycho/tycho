@@ -51,11 +51,17 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
             createResolver();
             doUpdate();
         } catch (Exception e) {
+            if (e instanceof MojoFailureException mfe) {
+                throw mfe;
+            }
+            if (e instanceof MojoExecutionException mee) {
+                throw mee;
+            }
             throw new MojoExecutionException("Could not update " + getFileToBeUpdated(), e);
         }
     }
 
-    protected abstract File getFileToBeUpdated();
+    protected abstract File getFileToBeUpdated() throws MojoExecutionException, MojoFailureException;
 
     protected abstract void doUpdate() throws Exception;
 
