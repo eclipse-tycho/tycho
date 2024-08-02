@@ -6,6 +6,10 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+## support bumping maven target locations
+
+The `tycho-version-bump-plugin:update-target` now also supports bumping maven target locations to the latest version.
+
 ### Support for new `includeJRE` flag when building products
 
 PDE recently added a new flag for the product to mark it to [include a JRE](https://github.com/eclipse-pde/eclipse.pde/pull/1075).
