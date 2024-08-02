@@ -2,6 +2,11 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 4.0.9
+
+backports:
+- Add support for bumping maven-target locations
+
 ## 4.0.8
 
 backports:
