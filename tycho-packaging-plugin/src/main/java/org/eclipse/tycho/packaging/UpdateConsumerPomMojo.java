@@ -193,7 +193,10 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		log.debug("Generating pom descriptor with updated dependencies");
 		Model projectModel;
 		try {
-			projectModel = modelReader.read(project.getFile(), null);
+			// Even though the API allows null latest polyglot fails so passing an empty map
+			// here see
+			// https://github.com/takari/polyglot-maven/pull/319#issuecomment-2267362042
+			projectModel = modelReader.read(project.getFile(), Map.of());
 		} catch (IOException e) {
 			throw new MojoExecutionException("reading the model failed!", e);
 		}
