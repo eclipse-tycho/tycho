@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.Priority;
+//import javax.annotation.Priority;
 import javax.inject.Inject;
 
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
@@ -47,6 +47,7 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.sisu.Priority;
 import org.eclipse.tycho.TychoConstants;
 
 @Priority(100)
