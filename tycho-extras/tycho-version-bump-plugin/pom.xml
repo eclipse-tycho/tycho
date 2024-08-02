@@ -54,27 +54,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<profiles>
-		<profile>
-			<id>its</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-invoker-plugin</artifactId>
-						<configuration>
-							<goals>
-								<goal>${project.groupId}:${project.artifactId}:${project.version}:update-target</goal>
-							</goals>
-							<properties>
-								<target>update-target.target</target>
-							</properties>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-
 </project>
