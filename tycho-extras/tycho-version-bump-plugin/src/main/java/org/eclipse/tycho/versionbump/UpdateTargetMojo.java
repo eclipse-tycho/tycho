@@ -28,6 +28,7 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -40,6 +41,8 @@ import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
+import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
+import org.eclipse.tycho.targetplatform.TargetResolveException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -58,14 +61,18 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     private TargetDefinitionVariableResolver varResolver;
 
     @Override
-    protected void doUpdate() throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
+    protected void doUpdate() throws IOException, URISyntaxException, ParserConfigurationException, SAXException,
+            TargetResolveException, MojoFailureException {
 
+        File file = getFileToBeUpdated();
+        getLog().info("Update target file " + file);
         Document target;
-        try (FileInputStream input = new FileInputStream(targetFile)) {
+        try (FileInputStream input = new FileInputStream(file)) {
             target = TargetDefinitionFile.parseDocument(input);
-            TargetDefinitionFile parsedTarget = TargetDefinitionFile.parse(target, targetFile.getAbsolutePath());
+            TargetDefinitionFile parsedTarget = TargetDefinitionFile.parse(target, file.getAbsolutePath());
             resolutionContext.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
             resolutionContext.addTargetDefinition(new LatestVersionTarget(parsedTarget, varResolver));
+            resolutionContext.setIgnoreLocalArtifacts(true);
             P2ResolutionResult result = p2.getTargetPlatformAsResolutionResult(resolutionContext, executionEnvironment);
 
             Map<String, String> ius = new HashMap<>();
@@ -85,14 +92,22 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
                 }
             }
         }
-        try (FileOutputStream outputStream = new FileOutputStream(targetFile)) {
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
             TargetDefinitionFile.writeDocument(target, outputStream);
         }
     }
 
     @Override
-    protected File getFileToBeUpdated() {
-        return targetFile;
+    protected File getFileToBeUpdated() throws MojoFailureException {
+        if (targetFile == null) {
+            try {
+                return TargetPlatformArtifactResolver.getMainTargetFile(project);
+            } catch (TargetResolveException e) {
+                throw new MojoFailureException(e);
+            }
+        } else {
+            return targetFile;
+        }
     }
 
     private static final class LatestVersionTarget implements TargetDefinition {
