@@ -83,7 +83,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         getLog().info("Update target file " + file);
         //we use the descent xml parser here because we need to retain the formating of the original file
         XMLParser parser = new XMLParser();
-        Document target = parser.parse(new XMLIOSource(targetFile));
+        Document target = parser.parse(new XMLIOSource(file));
         boolean changed = false;
         try (FileInputStream input = new FileInputStream(file)) {
             TargetDefinitionFile parsedTarget = TargetDefinitionFile.read(file);
