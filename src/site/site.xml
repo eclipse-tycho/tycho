@@ -13,6 +13,7 @@
 			<item name="Target Platform" href="TargetPlatform.html">
 				<item name="Target Platform Configuration Plugin" href="target-platform-configuration/plugin-info.html" />
 				<item name="Target Platform Validation Plugin" href="tycho-extras/target-platform-validation-plugin/plugin-info.html"/>
+				<item name="Update Target Platform Mojo" href="tycho-extras/tycho-version-bump-plugin/update-target-mojo.html"/>
 			</item>
 			<item name="Testing Bundles" href="TestingBundles.html">
 				<item name="Tycho Surefire Plugin" href="tycho-surefire-plugin/plugin-info.html" />
