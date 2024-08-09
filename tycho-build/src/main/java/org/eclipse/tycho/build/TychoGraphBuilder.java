@@ -33,6 +33,10 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ProjectDependencyGraph;
@@ -46,8 +50,6 @@ import org.apache.maven.model.building.ModelProblem.Severity;
 import org.apache.maven.model.building.Result;
 import org.apache.maven.project.DuplicateProjectException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.eclipse.core.runtime.CoreException;
@@ -61,17 +63,18 @@ import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependen
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
-@Component(role = GraphBuilder.class, hint = GraphBuilder.HINT)
+@Named(GraphBuilder.HINT)
+@Singleton
 public class TychoGraphBuilder extends DefaultGraphBuilder {
 
 	private static final boolean DEBUG = Boolean.getBoolean("tycho.graphbuilder.debug");
-	@Requirement
+	@Inject
 	private Logger log;
 
-	@Requirement(role = Mapping.class)
+	@Inject
 	private Map<String, Mapping> polyglotMappings;
 
-	@Requirement
+	@Inject
 	private MavenProjectDependencyProcessor dependencyProcessor;
 
 	@Override
