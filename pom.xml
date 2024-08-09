@@ -59,7 +59,7 @@
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
 		<commonsCompressVersion>1.27.0</commonsCompressVersion>
 		<plexusVersion>2.2.0</plexusVersion>
-		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
+		<plexusUtilsVersion>4.0.1</plexusUtilsVersion>
 		<plexusCompilerVersion>2.15.0</plexusCompilerVersion>
 		<cipherVersion>2.1.0</cipherVersion>
 		<pluginToolsVersion>3.13.1</pluginToolsVersion>
@@ -144,6 +144,12 @@
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-utils</artifactId>
 				<version>${plexusUtilsVersion}</version>
+			</dependency>
+			<!--plexus-utils 4.x with plexus-xml 3.x is Maven 3 compatible-->
+			<dependency>
+			    <groupId>org.codehaus.plexus</groupId>
+			    <artifactId>plexus-xml</artifactId>
+			    <version>3.0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
