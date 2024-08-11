@@ -13,6 +13,7 @@
 package org.eclipse.tycho.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -20,8 +21,12 @@ import java.io.FileInputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.maven.it.Verifier;
+import org.eclipse.aether.util.version.GenericVersionScheme;
+import org.eclipse.aether.version.Version;
+import org.eclipse.aether.version.VersionScheme;
 import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenDependency;
@@ -39,7 +44,6 @@ public class VersionBumpPluginTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("tycho-version-bump-plugin/update-target", false, true);
 		String sourceTargetFile = "update-target.target";
 		verifier.setSystemProperty("target", sourceTargetFile);
-		verifier.setSystemProperty("tycho.localArtifacts", "ignore");
 		verifier.executeGoal("org.eclipse.tycho.extras:tycho-version-bump-plugin:" + TychoVersion.getTychoVersion()
 				+ ":update-target");
 		verifier.verifyErrorFreeLog();
@@ -61,11 +65,55 @@ public class VersionBumpPluginTest extends AbstractTychoIntegrationTest {
 			MavenGAVLocation maven = locations.stream().filter(MavenGAVLocation.class::isInstance)
 					.map(MavenGAVLocation.class::cast).findFirst()
 					.orElseThrow(() -> new AssertionError("Maven Location not found!"));
-			Collection<MavenDependency> roots = maven.getRoots();
-			assertEquals(1, roots.size());
-			MavenDependency dependency = roots.iterator().next();
+			MavenDependency dependency = dependencies(maven, "javax.annotation", "javax.annotation-api").findFirst()
+					.orElseThrow(() -> new AssertionError("javax.annotation dependency not found"));
 			assertEquals("Maven version was not updated correctly in " + targetFile, "1.3.2", dependency.getVersion());
+			List<MavenDependency> list = dependencies(maven, "jakarta.annotation", "jakarta.annotation-api").toList();
+			assertEquals(2, list.size());
+			VersionScheme scheme = new GenericVersionScheme();
+			// we can not know the exact latest major version, but we know it must be larger
+			// than 3.0
+			Version version3 = scheme.parseVersion("3");
+			assertTrue("Maven version was not updated correctly in " + targetFile + " for jakarta.annotation-api 1.3.5",
+					scheme.parseVersion(list.get(0).getVersion()).compareTo(version3) >= 0);
+			assertTrue(
+					"No Update for Maven version was expected in " + targetFile + " for jakarta.annotation-api 2.0.0",
+					scheme.parseVersion(list.get(1).getVersion()).compareTo(version3) >= 0);
 		}
+	}
+
+	@Test
+	public void testUpdateTargetWithoutMajor() throws Exception {
+		Verifier verifier = getVerifier("tycho-version-bump-plugin/update-target", false, true);
+		String sourceTargetFile = "update-target.target";
+		verifier.setSystemProperty("target", sourceTargetFile);
+		verifier.setSystemProperty("major", "false");
+		verifier.executeGoal("org.eclipse.tycho.extras:tycho-version-bump-plugin:" + TychoVersion.getTychoVersion()
+				+ ":update-target");
+		verifier.verifyErrorFreeLog();
+		File targetFile = new File(verifier.getBasedir(), sourceTargetFile);
+		try (FileInputStream input = new FileInputStream(targetFile)) {
+			Document target = TargetDefinitionFile.parseDocument(input);
+			TargetDefinitionFile parsedTarget = TargetDefinitionFile.parse(target, targetFile.getAbsolutePath());
+			List<? extends Location> locations = parsedTarget.getLocations();
+			MavenGAVLocation maven = locations.stream().filter(MavenGAVLocation.class::isInstance)
+					.map(MavenGAVLocation.class::cast).findFirst()
+					.orElseThrow(() -> new AssertionError("Maven Location not found!"));
+			List<MavenDependency> list = dependencies(maven, "jakarta.annotation", "jakarta.annotation-api").toList();
+			assertEquals(2, list.size());
+			assertEquals(
+					"No Update for Maven version was expected in " + targetFile + " for jakarta.annotation-api 1.3.5",
+					"1.3.5", list.get(0).getVersion());
+			assertEquals(
+					"Maven version was not updated correctly in " + targetFile + " for jakarta.annotation-api 2.0.0",
+					"2.1.1", list.get(1).getVersion());
+
+		}
+	}
+
+	private Stream<MavenDependency> dependencies(MavenGAVLocation maven, String g, String a) {
+		Collection<MavenDependency> roots = maven.getRoots();
+		return roots.stream().filter(md -> md.getGroupId().equals(g)).filter(md -> md.getArtifactId().equals(a));
 	}
 
 	private void assertIUVersion(String id, String version, List<? extends Unit> units, File targetFile) {
