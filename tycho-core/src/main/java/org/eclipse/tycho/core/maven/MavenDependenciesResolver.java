@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.maven.RepositoryUtils;
@@ -49,6 +50,7 @@ import org.eclipse.aether.resolution.VersionRangeRequest;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResult;
 import org.eclipse.aether.version.Version;
+import org.eclipse.tycho.TychoConstants;
 
 @Component(role = MavenDependenciesResolver.class)
 public class MavenDependenciesResolver {
@@ -104,14 +106,10 @@ public class MavenDependenciesResolver {
         DependencyNode rootNode = collectResult.getRoot();
 
         CumulativeScopeArtifactFilter scopeArtifactFilter = new CumulativeScopeArtifactFilter(scopesToResolve);
-        DependencyRequest dependencyRequest = new DependencyRequest(collect, new DependencyFilter() {
+        DependencyRequest dependencyRequest = new DependencyRequest(collect, (DependencyFilter) (node, parents) -> {
 
-            @Override
-            public boolean accept(DependencyNode node, List<DependencyNode> parents) {
-
-                Artifact artifact = RepositoryUtils.toArtifact(node.getArtifact());
-                return artifact != null && scopeArtifactFilter.include(artifact);
-            }
+            Artifact artifact = RepositoryUtils.toArtifact(node.getArtifact());
+            return artifact != null && scopeArtifactFilter.include(artifact);
         });
         dependencyRequest.setRoot(rootNode);
 
@@ -169,8 +167,9 @@ public class MavenDependenciesResolver {
         if (version.endsWith(".0)")) {
             version = version.substring(0, version.length() - 3) + ")";
         }
+        String typeId = Objects.requireNonNullElse(dependency.getType(), TychoConstants.JAR_EXTENSION);
         DefaultArtifact artifact = new DefaultArtifact(dependency.getGroupId(), dependency.getArtifactId(),
-                stereotypes.get(dependency.getType()).getExtension(), version);
+                stereotypes.get(typeId).getExtension(), version);
         VersionRangeRequest request = new VersionRangeRequest(artifact, project.getRemoteProjectRepositories(), null);
         VersionRangeResult versionResult = repoSystem.resolveVersionRange(repositorySession, request);
         for (Iterator<Version> iterator = versionResult.getVersions().iterator(); iterator.hasNext();) {
