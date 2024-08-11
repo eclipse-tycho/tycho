@@ -39,6 +39,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
+import org.eclipse.aether.version.InvalidVersionSpecificationException;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
@@ -64,6 +65,7 @@ import de.pdark.decentxml.XMLWriter;
  */
 @Mojo(name = "update-target")
 public class UpdateTargetMojo extends AbstractUpdateMojo {
+
     @Parameter(property = "target")
     private File targetFile;
 
@@ -76,9 +78,19 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     @Component
     private MavenSession mavenSession;
 
+    /**
+     * If specified also update to new major versions of the dependency otherwise only perform
+     * minor, micro or "qualifier" changes, please note that for maven locations the semantic might
+     * be slightly different as maven does not follow OSGi version scheme, in this case we interpret
+     * the first part of the version as the major version.
+     */
+    @Parameter(property = "major", defaultValue = "true")
+    private boolean updateMajorVersion;
+
     @Override
     protected void doUpdate() throws IOException, URISyntaxException, ParserConfigurationException,
-            TargetResolveException, MojoFailureException, VersionRangeResolutionException, ArtifactResolutionException {
+            TargetResolveException, MojoFailureException, VersionRangeResolutionException, ArtifactResolutionException,
+            InvalidVersionSpecificationException {
         File file = getFileToBeUpdated();
         getLog().info("Update target file " + file);
         //we use the descent xml parser here because we need to retain the formating of the original file
@@ -127,10 +139,24 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
                         mavenDependency.setVersion(getElementValue("version", dependency));
                         mavenDependency.setType(getElementValue("type", dependency));
                         mavenDependency.setClassifier(getElementValue("classifier", dependency));
-                        Artifact highestVersionArtifact = resolver.resolveHighestVersion(project, mavenSession,
+                        String oldVersion = mavenDependency.getVersion();
+                        if (!updateMajorVersion) {
+                            try {
+                                String[] strings = oldVersion.split("\\.");
+                                mavenDependency.setVersion("[," + (Integer.parseInt(strings[0]) + 1) + ")");
+                            } catch (RuntimeException e) {
+                                getLog().warn("Can't check for update of " + mavenDependency
+                                        + " because the version format is not parseable: " + e);
+                                continue;
+                            }
+                        }
+                        Artifact newArtifactVersion = resolver.resolveHighestVersion(project, mavenSession,
                                 mavenDependency);
-                        String newVersion = highestVersionArtifact.getVersion();
-                        if (newVersion.equals(mavenDependency.getVersion())) {
+                        if (newArtifactVersion == null) {
+                            continue;
+                        }
+                        String newVersion = newArtifactVersion.getVersion();
+                        if (newVersion.equals(oldVersion)) {
                             getLog().debug(mavenDependency + " is already up-to date");
                         } else {
                             changed = true;
