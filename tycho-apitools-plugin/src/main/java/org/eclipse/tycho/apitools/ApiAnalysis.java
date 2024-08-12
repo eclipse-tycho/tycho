@@ -40,10 +40,14 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.IJobManager;
@@ -158,33 +162,51 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		deleteAllProjects();
 		IPath projectPath = IPath.fromOSString(projectDir);
 		IProject project = getProject(projectPath);
-		BundleComponent projectComponent = getApiComponent(project, projectPath);
-		IApiBaseline baseline = createBaseline(baselineBundles, baselineName + " - baseline");
-		ResolverError[] resolverErrors = projectComponent.getErrors();
 		ApiAnalysisResult result = new ApiAnalysisResult(getVersion());
-		if (resolverErrors != null && resolverErrors.length > 0) {
-			for (ResolverError error : resolverErrors) {
-				result.addResolverError(error);
+		WorkspaceJob job = new WorkspaceJob("Tycho API Analysis") {
+
+			@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor) {
+				try {
+					BundleComponent projectComponent = getApiComponent(project, projectPath);
+					IApiBaseline baseline = createBaseline(baselineBundles, baselineName + " - baseline");
+					ResolverError[] resolverErrors = projectComponent.getErrors();
+					if (resolverErrors != null && resolverErrors.length > 0) {
+						for (ResolverError error : resolverErrors) {
+							result.addResolverError(error);
+						}
+					}
+					IApiFilterStore filterStore = getApiFilterStore(projectComponent);
+					Properties preferences = getPreferences();
+					BaseApiAnalyzer analyzer = new BaseApiAnalyzer();
+					try {
+						analyzer.setContinueOnResolverError(true);
+						analyzer.analyzeComponent(null, filterStore, preferences, baseline, projectComponent,
+								new BuildContext(), new NullProgressMonitor());
+						IApiProblem[] problems = analyzer.getProblems();
+						for (IApiProblem problem : problems) {
+							result.addProblem(problem, project);
+							debug(String.valueOf(problem));
+						}
+					} finally {
+						analyzer.dispose();
+						ResourcesPlugin.getWorkspace().save(true, new NullProgressMonitor());
+					}
+				} catch (Exception e) {
+					return Status.error("Api Analysis failed", e);
+				}
+				return Status.OK_STATUS;
 			}
-		}
-		IApiFilterStore filterStore = getApiFilterStore(projectComponent);
-		Properties preferences = getPreferences();
-		BaseApiAnalyzer analyzer = new BaseApiAnalyzer();
-		try {
-			analyzer.setContinueOnResolverError(true);
-			analyzer.analyzeComponent(null, filterStore, preferences, baseline, projectComponent, new BuildContext(),
-					new NullProgressMonitor());
-			IApiProblem[] problems = analyzer.getProblems();
-			for (IApiProblem problem : problems) {
-				result.addProblem(problem, project);
-				debug(String.valueOf(problem));
-			}
-		} finally {
-			analyzer.dispose();
-			ResourcesPlugin.getWorkspace().save(true, new NullProgressMonitor());
-		}
+		};
+		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+		job.schedule();
+		job.join();
+		IStatus status = job.getResult();
 		JRTUtil.reset(); // reclaim space due to loaded multiple JRTUtil should better be fixed to not
 							// use that much space
+		if (!status.isOK() && status.getException() instanceof Exception error) {
+			throw error;
+		}
 		return result;
 	}
 
