@@ -143,7 +143,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
                         if (!updateMajorVersion) {
                             try {
                                 String[] strings = oldVersion.split("\\.");
-                                mavenDependency.setVersion("[," + (Integer.parseInt(strings[0]) + 1) + ")");
+                                mavenDependency.setVersion("[," + (Integer.parseInt(strings[0]) + 1) + "-alpha)");
                             } catch (RuntimeException e) {
                                 getLog().warn("Can't check for update of " + mavenDependency
                                         + " because the version format is not parseable: " + e);
