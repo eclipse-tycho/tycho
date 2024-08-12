@@ -193,7 +193,7 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		log.debug("Generating pom descriptor with updated dependencies");
 		Model projectModel;
 		try {
-			projectModel = modelReader.read(project.getFile(), null);
+			projectModel = modelReader.read(project.getFile(), Map.of());
 		} catch (IOException e) {
 			throw new MojoExecutionException("reading the model failed!", e);
 		}
