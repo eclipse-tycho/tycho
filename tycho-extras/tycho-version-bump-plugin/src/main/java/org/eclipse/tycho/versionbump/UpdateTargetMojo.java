@@ -13,26 +13,19 @@
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
-import static java.util.stream.Collectors.toList;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import javax.inject.Inject;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -40,16 +33,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.version.InvalidVersionSpecificationException;
-import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
-import org.eclipse.tycho.core.resolver.P2ResolutionResult;
-import org.eclipse.tycho.p2resolver.TargetDefinitionVariableResolver;
-import org.eclipse.tycho.targetplatform.TargetDefinition;
-import org.eclipse.tycho.targetplatform.TargetDefinition.FollowRepositoryReferences;
-import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
-import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
-import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
-import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 
@@ -60,23 +43,21 @@ import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
 
 /**
- * Quick&dirty way to update .target file to use latest versions of IUs available from specified
- * metadata repositories.
+ * This allows to update a target file to use newer version of specified items, e.g. IUs from
+ * updatesites or maven coordinates. In the simplest form this is called like
+ * 
+ * <pre>
+ * mvn -f [path to target project] tycho-version-bump:update-target
+ * </pre>
  */
 @Mojo(name = "update-target")
 public class UpdateTargetMojo extends AbstractUpdateMojo {
-
+    /**
+     * Specify the path to the target file to update, if not given the current project settings will
+     * be used to find a suitable file
+     */
     @Parameter(property = "target")
     private File targetFile;
-
-    @Component
-    private TargetDefinitionVariableResolver varResolver;
-
-    @Component
-    private MavenDependenciesResolver resolver;
-
-    @Component
-    private MavenSession mavenSession;
 
     /**
      * If specified also update to new major versions of the dependency otherwise only perform
@@ -86,6 +67,15 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
      */
     @Parameter(property = "major", defaultValue = "true")
     private boolean updateMajorVersion;
+
+    @Component
+    private MavenSession mavenSession;
+
+    @Inject
+    private MavenLocationUpdater mavenLocationUpdater;
+
+    @Inject
+    private InstallableUnitLocationUpdater installableUnitLocationUpdater;
 
     @Override
     protected void doUpdate() throws IOException, URISyntaxException, ParserConfigurationException,
@@ -98,73 +88,11 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         Document target = parser.parse(new XMLIOSource(file));
         boolean changed = false;
         try (FileInputStream input = new FileInputStream(file)) {
-            TargetDefinitionFile parsedTarget = TargetDefinitionFile.read(file);
-            resolutionContext.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
-            resolutionContext.addTargetDefinition(new LatestVersionTarget(parsedTarget, varResolver));
-            resolutionContext.setIgnoreLocalArtifacts(true);
-            P2ResolutionResult result = p2.getTargetPlatformAsResolutionResult(resolutionContext, executionEnvironment);
-
-            Map<String, String> ius = new HashMap<>();
-            for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
-                ius.put(entry.getId(), entry.getVersion());
-            }
             for (Element iuLocation : getLocations("InstallableUnit", target)) {
-                List<Element> children = iuLocation.getChildren("unit");
-                for (Element unit : children) {
-                    String id = unit.getAttributeValue("id");
-                    String version = ius.get(id);
-                    if (version != null) {
-                        String currentVersion = unit.getAttributeValue("version");
-                        if (version.equals(currentVersion)) {
-                            getLog().debug("unit '" + id + "' is already up-to date");
-                        } else {
-                            changed = true;
-                            getLog().info(
-                                    "Update version of unit '" + id + "' from " + currentVersion + " > " + version);
-                            unit.setAttribute("version", version);
-                        }
-                    } else {
-                        getLog().warn("Resolution result does not contain root installable unit '" + id
-                                + "' update is skipped!");
-                    }
-                }
+                changed |= installableUnitLocationUpdater.update(iuLocation, this);
             }
             for (Element mavenLocation : getLocations("Maven", target)) {
-                Element dependencies = mavenLocation.getChild("dependencies");
-                if (dependencies != null) {
-                    for (Element dependency : dependencies.getChildren("dependency")) {
-                        Dependency mavenDependency = new Dependency();
-                        mavenDependency.setGroupId(getElementValue("groupId", dependency));
-                        mavenDependency.setArtifactId(getElementValue("artifactId", dependency));
-                        mavenDependency.setVersion(getElementValue("version", dependency));
-                        mavenDependency.setType(getElementValue("type", dependency));
-                        mavenDependency.setClassifier(getElementValue("classifier", dependency));
-                        String oldVersion = mavenDependency.getVersion();
-                        if (!updateMajorVersion) {
-                            try {
-                                String[] strings = oldVersion.split("\\.");
-                                mavenDependency.setVersion("[," + (Integer.parseInt(strings[0]) + 1) + "-alpha)");
-                            } catch (RuntimeException e) {
-                                getLog().warn("Can't check for update of " + mavenDependency
-                                        + " because the version format is not parseable: " + e);
-                                continue;
-                            }
-                        }
-                        Artifact newArtifactVersion = resolver.resolveHighestVersion(project, mavenSession,
-                                mavenDependency);
-                        if (newArtifactVersion == null) {
-                            continue;
-                        }
-                        String newVersion = newArtifactVersion.getVersion();
-                        if (newVersion.equals(oldVersion)) {
-                            getLog().debug(mavenDependency + " is already up-to date");
-                        } else {
-                            changed = true;
-                            setElementValue("version", newVersion, dependency);
-                            getLog().info("update " + mavenDependency + " to version " + newVersion);
-                        }
-                    }
-                }
+                changed |= mavenLocationUpdater.update(mavenLocation, this);
             }
         }
         if (changed) {
@@ -179,14 +107,14 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         }
     }
 
-    private void setElementValue(String name, String value, Element root) {
+    static void setElementValue(String name, String value, Element root) {
         Element child = root.getChild(name);
         if (child != null) {
             child.setText(value);
         }
     }
 
-    private String getElementValue(String name, Element root) {
+    static String getElementValue(String name, Element root) {
         Element child = root.getChild(name);
         if (child != null) {
             String text = child.getText().trim();
@@ -211,7 +139,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     protected File getFileToBeUpdated() throws MojoFailureException {
         if (targetFile == null) {
             try {
-                return TargetPlatformArtifactResolver.getMainTargetFile(project);
+                return TargetPlatformArtifactResolver.getMainTargetFile(getProject());
             } catch (TargetResolveException e) {
                 throw new MojoFailureException(e);
             }
@@ -220,134 +148,12 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         }
     }
 
-    private static final class LatestVersionTarget implements TargetDefinition {
-
-        private TargetDefinitionFile delegate;
-        private TargetDefinitionVariableResolver varResolver;
-
-        public LatestVersionTarget(TargetDefinitionFile delegate, TargetDefinitionVariableResolver varResolver) {
-            this.delegate = delegate;
-            this.varResolver = varResolver;
-        }
-
-        @Override
-        public List<? extends Location> getLocations() {
-            return delegate.getLocations().stream().map(location -> {
-                if (location instanceof InstallableUnitLocation iuLocation) {
-                    return new LatestVersionLocation(iuLocation, varResolver);
-                } else {
-                    return location;
-                }
-            }).toList();
-        }
-
-        @Override
-        public boolean hasIncludedBundles() {
-            return delegate.hasIncludedBundles();
-        }
-
-        @Override
-        public String getOrigin() {
-            return delegate.getOrigin();
-        }
-
-        @Override
-        public String getTargetEE() {
-            return delegate.getTargetEE();
-        }
-
+    boolean isUpdateMajorVersion() {
+        return updateMajorVersion;
     }
 
-    private static final class LatestVersionLocation implements InstallableUnitLocation {
-
-        private InstallableUnitLocation delegate;
-        private TargetDefinitionVariableResolver varResolver;
-
-        public LatestVersionLocation(InstallableUnitLocation delegate, TargetDefinitionVariableResolver varResolver) {
-            this.delegate = delegate;
-            this.varResolver = varResolver;
-        }
-
-        @Override
-        public List<? extends TargetDefinition.Repository> getRepositories() {
-            return delegate.getRepositories().stream().map(repo -> {
-                URI resolvedLocation = URI.create(varResolver.resolve(repo.getLocation()));
-                return new ResolvedRepository(repo.getId(), resolvedLocation.toString());
-            }).collect(toList());
-        }
-
-        @Override
-        public List<? extends TargetDefinition.Unit> getUnits() {
-            return delegate.getUnits().stream().map(LatestVersionUnit::new).toList();
-        }
-
-        @Override
-        public IncludeMode getIncludeMode() {
-            return delegate.getIncludeMode();
-        }
-
-        @Override
-        public boolean includeAllEnvironments() {
-            return delegate.includeAllEnvironments();
-        }
-
-        @Override
-        public boolean includeSource() {
-            return delegate.includeSource();
-        }
-
-        @Override
-        public boolean includeConfigurePhase() {
-            return delegate.includeConfigurePhase();
-        }
-
-        @Override
-        public FollowRepositoryReferences followRepositoryReferences() {
-            return delegate.followRepositoryReferences();
-        }
-
-    }
-
-    private static final class LatestVersionUnit implements TargetDefinition.Unit {
-
-        private Unit delegate;
-
-        public LatestVersionUnit(TargetDefinition.Unit delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public String getId() {
-            return delegate.getId();
-        }
-
-        @Override
-        public String getVersion() {
-            return "0.0.0";
-        }
-
-    }
-
-    private static final class ResolvedRepository implements TargetDefinition.Repository {
-
-        private final String id;
-        private final String uri;
-
-        ResolvedRepository(String id, String uri) {
-            this.id = id;
-            this.uri = uri;
-        }
-
-        @Override
-        public String getId() {
-            return id;
-        }
-
-        @Override
-        public String getLocation() {
-            return uri;
-        }
-
+    MavenSession getMavenSession() {
+        return mavenSession;
     }
 
 }
