@@ -26,29 +26,23 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 public abstract class AbstractUpdateMojo extends AbstractMojo {
 
     @Component
     private Logger logger;
 
-    @Parameter(defaultValue = "JavaSE-1.7")
-    protected String executionEnvironment;
-
-    protected P2Resolver p2;
-
-    protected TargetPlatformConfigurationStub resolutionContext;
+    @Parameter(defaultValue = "JavaSE-17")
+    private String executionEnvironment;
 
     @Parameter(property = "project")
-    protected MavenProject project;
+    private MavenProject project;
 
     @Component
-    P2ResolverFactory factory;
+    private P2ResolverFactory factory;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            createResolver();
             doUpdate();
         } catch (Exception e) {
             if (e instanceof MojoFailureException mfe) {
@@ -65,9 +59,17 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
 
     protected abstract void doUpdate() throws Exception;
 
-    private void createResolver() {
-        p2 = factory.createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
-        resolutionContext = new TargetPlatformConfigurationStub();
+    P2Resolver createResolver() {
+        return factory.createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
+
+    }
+
+    String getExecutionEnvironment() {
+        return executionEnvironment;
+    }
+
+    MavenProject getProject() {
+        return project;
     }
 
 }
