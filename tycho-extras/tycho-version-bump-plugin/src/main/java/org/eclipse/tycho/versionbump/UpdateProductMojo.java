@@ -29,8 +29,10 @@ import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
+import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
 /**
@@ -46,7 +48,8 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
     @Override
     protected void doUpdate() throws IOException, URISyntaxException {
 
-        for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
+        TargetPlatformConfigurationStub resolutionContext = new TargetPlatformConfigurationStub();
+        for (ArtifactRepository repository : getProject().getRemoteArtifactRepositories()) {
             URI uri = new URL(repository.getUrl()).toURI();
             if (repository.getLayout() instanceof P2ArtifactRepositoryLayout) {
                 resolutionContext.addP2Repository(new MavenRepositoryLocation(repository.getId(), uri));
@@ -55,17 +58,18 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
 
         ProductConfiguration product = ProductConfiguration.read(productFile);
 
+        P2Resolver resolver = createResolver();
         for (PluginRef plugin : product.getPlugins()) {
             try {
-                p2.addDependency(ArtifactType.TYPE_ECLIPSE_PLUGIN, plugin.getId(), "0.0.0");
+                resolver.addDependency(ArtifactType.TYPE_ECLIPSE_PLUGIN, plugin.getId(), "0.0.0");
             } catch (IllegalArtifactReferenceException e) {
                 // shouldn't happen for the constant type and version
                 throw new RuntimeException(e);
             }
         }
 
-        P2ResolutionResult result = p2.resolveMetadata(resolutionContext,
-                new ExecutionEnvironmentConfigurationStub(executionEnvironment));
+        P2ResolutionResult result = resolver.resolveMetadata(resolutionContext,
+                new ExecutionEnvironmentConfigurationStub(getExecutionEnvironment()));
 
         Map<String, String> ius = new HashMap<>();
         for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
