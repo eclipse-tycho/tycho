@@ -33,6 +33,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.version.InvalidVersionSpecificationException;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 
@@ -68,6 +69,17 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     @Parameter(property = "major", defaultValue = "true")
     private boolean updateMajorVersion;
 
+    /**
+     * A comma separated list of update site discovery strategies, the following is currently
+     * supported:
+     * <ul>
+     * <li>parent - search the parent path for a composite that can be used to find newer
+     * versions</li>
+     * </ul>
+     */
+    @Parameter(property = "discovery")
+    private String updateSiteDiscovery;
+
     @Component
     private MavenSession mavenSession;
 
@@ -80,7 +92,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     @Override
     protected void doUpdate() throws IOException, URISyntaxException, ParserConfigurationException,
             TargetResolveException, MojoFailureException, VersionRangeResolutionException, ArtifactResolutionException,
-            InvalidVersionSpecificationException {
+            InvalidVersionSpecificationException, ProvisionException {
         File file = getFileToBeUpdated();
         getLog().info("Update target file " + file);
         //we use the descent xml parser here because we need to retain the formating of the original file
@@ -154,6 +166,10 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
 
     MavenSession getMavenSession() {
         return mavenSession;
+    }
+
+    String getUpdateSiteDiscovery() {
+        return updateSiteDiscovery;
     }
 
 }
