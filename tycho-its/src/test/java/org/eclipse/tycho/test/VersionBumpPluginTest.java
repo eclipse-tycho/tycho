@@ -87,7 +87,7 @@ public class VersionBumpPluginTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("tycho-version-bump-plugin/update-target", false, true);
 		String sourceTargetFile = "update-target.target";
 		verifier.setSystemProperty("target", sourceTargetFile);
-		verifier.setSystemProperty("major", "false");
+		verifier.setSystemProperty("allowMajorUpdates", "false");
 		verifier.executeGoal("org.eclipse.tycho.extras:tycho-version-bump-plugin:" + TychoVersion.getTychoVersion()
 				+ ":update-target");
 		verifier.verifyErrorFreeLog();

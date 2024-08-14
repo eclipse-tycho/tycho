@@ -41,6 +41,16 @@
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.codehaus.mojo.versions</groupId>
+			<artifactId>versions-model</artifactId>
+			<version>2.17.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.mojo.versions</groupId>
+			<artifactId>versions-common</artifactId>
+			<version>2.17.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
