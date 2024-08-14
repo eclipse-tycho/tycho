@@ -18,13 +18,22 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.mojo.versions.api.Segment;
+import org.codehaus.mojo.versions.model.RuleSet;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 
@@ -41,6 +50,16 @@ import de.pdark.decentxml.XMLWriter;
  * <pre>
  * mvn -f [path to target project] tycho-version-bump:update-target
  * </pre>
+ * <p>
+ * For updating <b>maven target locations</b> the mojo support
+ * <a href="https://www.mojohaus.org/versions/versions-maven-plugin/version-rules.html">Version
+ * number comparison rule-sets</a> similar to the
+ * <a href="https://www.mojohaus.org/versions/versions-maven-plugin">Versions Maven Plugin</a>
+ * please check the documentation there for further information about ruleset files.
+ * </p>
+ * <p>
+ * For updating <b>installable unit locations</b> (also known as update sites)
+ * </p>
  */
 @Mojo(name = "update-target")
 public class UpdateTargetMojo extends AbstractUpdateMojo {
@@ -52,13 +71,24 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     private File targetFile;
 
     /**
-     * If specified also update to new major versions of the dependency otherwise only perform
-     * minor, micro or "qualifier" changes, please note that for maven locations the semantic might
-     * be slightly different as maven does not follow OSGi version scheme, in this case we interpret
-     * the first part of the version as the major version.
+     * Whether to allow the major version number to be changed.
      */
-    @Parameter(property = "major", defaultValue = "true")
-    private boolean updateMajorVersion;
+    @Parameter(property = "allowMajorUpdates", defaultValue = "true")
+    private boolean allowMajorUpdates;
+
+    /**
+     * Whether to allow the minor version number to be changed.
+     *
+     */
+    @Parameter(property = "allowMinorUpdates", defaultValue = "true")
+    private boolean allowMinorUpdates;
+
+    /**
+     * Whether to allow the incremental version number to be changed.
+     *
+     */
+    @Parameter(property = "allowIncrementalUpdates", defaultValue = "true")
+    private boolean allowIncrementalUpdates;
 
     /**
      * A comma separated list of update site discovery strategies, the following is currently
@@ -70,6 +100,36 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
      */
     @Parameter(property = "discovery")
     private String updateSiteDiscovery;
+
+    /**
+     * <p>
+     * Allows specifying a {@linkplain RuleSet} object describing rules on maven artifact versions
+     * to ignore when considering updates.
+     * </p>
+     */
+    @Parameter
+    private RuleSet mavenRuleSet;
+
+    /**
+     * <p>
+     * Allows specifying ignored maven artifact versions as an alternative to providing a
+     * {@linkplain #mavenRuleSet} parameter.
+     * </p>
+     */
+    @Parameter(property = "maven.version.ignore")
+    private Set<String> mavenIgnoredVersions;
+
+    /**
+     * URI of a ruleSet file containing the rules that control how to compare version numbers.
+     */
+    @Parameter(property = "maven.version.rules")
+    private String mavenRulesUri;
+
+    @Component
+    private MavenSession mavenSession;
+
+    @Parameter(defaultValue = "${mojoExecution}", required = true, readonly = true)
+    private MojoExecution mojoExecution;
 
     @Inject
     private MavenLocationUpdater mavenLocationUpdater;
@@ -145,12 +205,68 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         }
     }
 
-    boolean isUpdateMajorVersion() {
-        return updateMajorVersion;
+    boolean isAllowIncrementalUpdates() {
+        return allowIncrementalUpdates;
+    }
+
+    boolean isAllowMajorUpdates() {
+        return allowMajorUpdates;
+    }
+
+    boolean isAllowMinorUpdates() {
+        return allowMinorUpdates;
+    }
+
+    MavenSession getMavenSession() {
+        return mavenSession;
+    }
+
+    MojoExecution getMojoExecution() {
+        return mojoExecution;
     }
 
     String getUpdateSiteDiscovery() {
         return updateSiteDiscovery;
+    }
+
+    Set<String> getMavenIgnoredVersions() {
+        return mavenIgnoredVersions;
+    }
+
+    RuleSet getMavenRuleSet() {
+        return mavenRuleSet;
+    }
+
+    String getMavenRulesUri() {
+        if (mavenRulesUri != null && !mavenRulesUri.isBlank()) {
+            try {
+                URI u = new URI(mavenRulesUri);
+                if (u.isAbsolute()) {
+                    return mavenRulesUri;
+                }
+            } catch (URISyntaxException e) {
+            }
+            File fullPath = new File(mavenRulesUri);
+            if (fullPath.isFile()) {
+                return fullPath.toURI().toString();
+            } else {
+                File file = new File(getProject().getBasedir(), mavenRulesUri);
+                if (file.exists()) {
+                    return file.toURI().toString();
+                }
+            }
+        }
+        return mavenRulesUri;
+    }
+
+    Optional<Segment> getSegment() {
+        if (isAllowMajorUpdates() && isAllowMinorUpdates() && isAllowIncrementalUpdates()) {
+            return Optional.empty();
+        }
+        if (isAllowMinorUpdates() && isAllowIncrementalUpdates()) {
+            return Optional.of(Segment.MINOR);
+        }
+        return Optional.of(Segment.INCREMENTAL);
     }
 
 }
