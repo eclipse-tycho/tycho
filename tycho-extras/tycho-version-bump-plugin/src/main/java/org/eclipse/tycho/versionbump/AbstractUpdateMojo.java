@@ -37,7 +37,7 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         File file = getFileToBeUpdated();
-        if (file != null) {
+        if (file != null && file.exists()) {
             try {
                 doUpdate(file);
             } catch (Exception e) {

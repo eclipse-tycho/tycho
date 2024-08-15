@@ -6,6 +6,16 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+## new `update-manifest` mojo
+
+It is recommended to use as the lower bound the dependency the code was
+compiled with to avoid using newer code from dependencies, but managing
+that manually can be a daunting task.
+
+There is now a new `tycho-version-bump:update-manifest` mojo that helps in calculate the
+lower bound and update the manifest accordingly.
+
+
 ## support bumping maven target locations
 
 The `tycho-version-bump-plugin:update-target` now also supports bumping maven target locations to the latest version.
