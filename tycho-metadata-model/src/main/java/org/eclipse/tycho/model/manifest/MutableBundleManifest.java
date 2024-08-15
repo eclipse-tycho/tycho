@@ -12,7 +12,7 @@
  *    Nepomuk Seiler - set export-package attribute implementation
  *    Sebastien Arod - RequireBundle/FragmentHost/ImportPackage versions set/get
  *******************************************************************************/
-package org.eclipse.tycho.versions.bundle;
+package org.eclipse.tycho.model.manifest;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.eclipse.osgi.util.ManifestElement;
-import org.eclipse.tycho.versions.engine.Versions;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
@@ -191,7 +190,6 @@ public class MutableBundleManifest {
     }
 
     public void setFragmentHostVersion(String newVersion) {
-        newVersion = Versions.toBaseVersion(newVersion);
         List<MutableManifestElement> fragmentHostElements = parseHeaderForMutation(Constants.FRAGMENT_HOST);
         if (fragmentHostElements == null || fragmentHostElements.isEmpty()) {
             return;

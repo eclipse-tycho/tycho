@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.StringWriter;
 
-import org.eclipse.tycho.versions.bundle.ManifestAttribute;
+import org.eclipse.tycho.model.manifest.ManifestAttribute;
 import org.junit.Test;
 
 public class ManifestAttributeTest {
