@@ -6,6 +6,7 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 backports:
 - Add support for bumping maven-target locations
+- Add new `tycho-version-bump:update-manifest` mojo
 
 ## 4.0.8
 
