@@ -18,18 +18,22 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.resolver.P2ResolutionResult;
 import org.eclipse.tycho.core.resolver.P2Resolver;
+import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
@@ -45,8 +49,23 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
     @Parameter(defaultValue = "${project.artifactId}.product")
     private File productFile;
 
+    @Parameter(defaultValue = "JavaSE-17")
+    private String executionEnvironment;
+
+    @Component
+    private P2ResolverFactory factory;
+
+    String getExecutionEnvironment() {
+        return executionEnvironment;
+    }
+
+    P2Resolver createResolver() {
+        return factory.createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
+
+    }
+
     @Override
-    protected void doUpdate() throws IOException, URISyntaxException {
+    protected void doUpdate(File file) throws IOException, URISyntaxException {
 
         TargetPlatformConfigurationStub resolutionContext = new TargetPlatformConfigurationStub();
         for (ArtifactRepository repository : getProject().getRemoteArtifactRepositories()) {
@@ -56,7 +75,7 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
             }
         }
 
-        ProductConfiguration product = ProductConfiguration.read(productFile);
+        ProductConfiguration product = ProductConfiguration.read(file);
 
         P2Resolver resolver = createResolver();
         for (PluginRef plugin : product.getPlugins()) {
@@ -83,7 +102,7 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
             }
         }
 
-        ProductConfiguration.write(product, productFile);
+        ProductConfiguration.write(product, file);
     }
 
     @Override
