@@ -16,24 +16,15 @@ package org.eclipse.tycho.versionbump;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.resolution.VersionRangeResolutionException;
-import org.eclipse.aether.version.InvalidVersionSpecificationException;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 
@@ -80,9 +71,6 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     @Parameter(property = "discovery")
     private String updateSiteDiscovery;
 
-    @Component
-    private MavenSession mavenSession;
-
     @Inject
     private MavenLocationUpdater mavenLocationUpdater;
 
@@ -90,10 +78,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     private InstallableUnitLocationUpdater installableUnitLocationUpdater;
 
     @Override
-    protected void doUpdate() throws IOException, URISyntaxException, ParserConfigurationException,
-            TargetResolveException, MojoFailureException, VersionRangeResolutionException, ArtifactResolutionException,
-            InvalidVersionSpecificationException, ProvisionException {
-        File file = getFileToBeUpdated();
+    protected void doUpdate(File file) throws Exception {
         getLog().info("Update target file " + file);
         //we use the descent xml parser here because we need to retain the formating of the original file
         XMLParser parser = new XMLParser();
@@ -162,10 +147,6 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
 
     boolean isUpdateMajorVersion() {
         return updateMajorVersion;
-    }
-
-    MavenSession getMavenSession() {
-        return mavenSession;
     }
 
     String getUpdateSiteDiscovery() {
