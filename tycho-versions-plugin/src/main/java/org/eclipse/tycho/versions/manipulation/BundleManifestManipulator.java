@@ -26,8 +26,8 @@ import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.model.manifest.MutableBundleManifest;
 import org.eclipse.tycho.versions.bundle.MutableBndFile;
-import org.eclipse.tycho.versions.bundle.MutableBundleManifest;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PackageVersionChange;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
@@ -194,7 +194,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
                 logger.info("  META-INF/MANIFEST.MF//Fragment-Host//" + mf.getFragmentHostSymbolicName()
                         + ";bundle-version: " + newVersionRange + " => " + newVersionRange);
 
-                mf.setFragmentHostVersion(newVersionRange);
+                mf.setFragmentHostVersion(Versions.toBaseVersion(newVersionRange));
             }
         }
     }

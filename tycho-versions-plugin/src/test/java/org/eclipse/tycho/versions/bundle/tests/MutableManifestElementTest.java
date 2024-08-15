@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.tycho.versions.bundle.MutableManifestElement;
+import org.eclipse.tycho.model.manifest.MutableManifestElement;
 import org.junit.Test;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;

@@ -21,8 +21,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.tycho.versions.bundle.ManifestAttribute;
-import org.eclipse.tycho.versions.bundle.MutableBundleManifest;
+import org.eclipse.tycho.model.manifest.ManifestAttribute;
+import org.eclipse.tycho.model.manifest.MutableBundleManifest;
 import org.eclipse.tycho.versions.pom.tests.MutablePomFileTest;
 import org.junit.Assert;
 import org.junit.Test;
