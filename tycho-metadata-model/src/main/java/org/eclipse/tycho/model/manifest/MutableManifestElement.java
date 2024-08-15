@@ -10,7 +10,7 @@
  * Contributors:
  *    Sebastien Arod - Initial implementation
  *******************************************************************************/
-package org.eclipse.tycho.versions.bundle;
+package org.eclipse.tycho.model.manifest;
 
 import java.util.ArrayList;
 import java.util.Arrays;

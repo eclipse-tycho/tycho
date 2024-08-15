@@ -11,7 +11,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Sebastien Arod - add setter with {@link MutableManifestElement}
  *******************************************************************************/
-package org.eclipse.tycho.versions.bundle;
+package org.eclipse.tycho.model.manifest;
 
 import java.io.IOException;
 import java.io.Writer;

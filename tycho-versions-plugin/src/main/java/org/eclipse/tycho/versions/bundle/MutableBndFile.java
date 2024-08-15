@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.eclipse.tycho.model.manifest.MutableBundleManifest;
+
 public class MutableBndFile {
 
     private final List<BndLine> bndLines = new ArrayList<BndLine>();
