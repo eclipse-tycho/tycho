@@ -89,7 +89,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * <li><code>&lt;file></code> to define a file local to the build</li>
      * <li><code>&lt;uri></code> to define a (remote) URI that specifies a target, currently only
      * URIs that can be converted to URLs are supported (e.g. file:/.... http://..., )</li>
-     * <li>{@code <locations>} to define target locations inline</li>
+     * <li>{@code <location>} to define target location inline</li>
      * </ul>
      */
     @Parameter(name = DefaultTargetPlatformConfigurationReader.TARGET)
