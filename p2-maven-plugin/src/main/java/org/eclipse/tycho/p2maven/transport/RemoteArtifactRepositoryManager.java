@@ -71,11 +71,7 @@ class RemoteArtifactRepositoryManager implements IArtifactRepositoryManager {
     @Override
     public IArtifactRepository createRepository(URI location, String name, String type, Map<String, String> properties)
             throws ProvisionException {
-		synchronized (RemoteArtifactRepositoryManager.class) {
-			// TODO the sync is required unless
-			// https://github.com/eclipse-equinox/p2/pull/415 is fixed
-			return delegate.createRepository(translate(location), name, type, properties);
-		}
+        return delegate.createRepository(translate(location), name, type, properties);
     }
 
     @Override
