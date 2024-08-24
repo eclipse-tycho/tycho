@@ -21,8 +21,9 @@ import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.Stream.Builder;
 
 import javax.inject.Inject;
 
@@ -89,6 +90,13 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
      */
     @Parameter(property = "allowIncrementalUpdates", defaultValue = "true")
     private boolean allowIncrementalUpdates;
+
+    /**
+     * Whether to allow the subIncremental version number to be changed.
+     *
+     */
+    @Parameter(property = "allowSubIncrementalUpdates", defaultValue = "true")
+    private boolean allowSubIncrementalUpdates;
 
     /**
      * A comma separated list of update site discovery strategies, the following is currently
@@ -205,16 +213,20 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         }
     }
 
+    boolean isAllowSubIncrementalUpdates() {
+        return allowSubIncrementalUpdates;
+    }
+
     boolean isAllowIncrementalUpdates() {
         return allowIncrementalUpdates;
     }
 
-    boolean isAllowMajorUpdates() {
-        return allowMajorUpdates;
-    }
-
     boolean isAllowMinorUpdates() {
         return allowMinorUpdates;
+    }
+
+    boolean isAllowMajorUpdates() {
+        return allowMajorUpdates;
     }
 
     MavenSession getMavenSession() {
@@ -259,14 +271,21 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         return mavenRulesUri;
     }
 
-    Optional<Segment> getSegment() {
-        if (isAllowMajorUpdates() && isAllowMinorUpdates() && isAllowIncrementalUpdates()) {
-            return Optional.empty();
+    Stream<Segment> getSegments() {
+        Builder<Segment> builder = Stream.builder();
+        if (isAllowMajorUpdates()) {
+            builder.accept(Segment.MAJOR);
         }
-        if (isAllowMinorUpdates() && isAllowIncrementalUpdates()) {
-            return Optional.of(Segment.MINOR);
+        if (isAllowMinorUpdates()) {
+            builder.accept(Segment.MINOR);
         }
-        return Optional.of(Segment.INCREMENTAL);
+        if (isAllowIncrementalUpdates()) {
+            builder.accept(Segment.INCREMENTAL);
+        }
+        if (isAllowSubIncrementalUpdates()) {
+            builder.accept(Segment.SUBINCREMENTAL);
+        }
+        return builder.build();
     }
 
 }
