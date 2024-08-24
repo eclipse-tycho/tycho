@@ -13,6 +13,8 @@
 package org.eclipse.tycho.versionbump;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -58,7 +60,9 @@ public class MavenLocationUpdater {
                 Dependency mavenDependency = getDependency(dependency);
                 Artifact dependencyArtifact = helper.createDependencyArtifact(mavenDependency);
                 ArtifactVersions versions = helper.lookupArtifactVersions(dependencyArtifact, false);
-                ArtifactVersion updateVersion = versions.getNewestUpdateWithinSegment(context.getSegment(), false);
+                ArtifactVersion updateVersion = context.getSegments()
+                        .map(seg -> versions.getNewestUpdateWithinSegment(Optional.of(seg), false))
+                        .filter(Objects::nonNull).findFirst().orElse(null);
                 if (updateVersion != null) {
                     String oldVersion = mavenDependency.getVersion();
                     String newVersion = updateVersion.toString();
