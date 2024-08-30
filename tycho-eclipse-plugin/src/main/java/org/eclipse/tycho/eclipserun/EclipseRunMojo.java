@@ -111,7 +111,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	/**
 	 * Dependencies which will be resolved transitively to make up the eclipse
 	 * runtime. Example:
-	 * 
+	 *
 	 * <pre>
 	 * &lt;dependencies&gt;
 	 *  &lt;dependency&gt;
@@ -139,7 +139,7 @@ public class EclipseRunMojo extends AbstractMojo {
 
 	/**
 	 * p2 repositories which will be used to resolve dependencies. Example:
-	 * 
+	 *
 	 * <pre>
 	 * &lt;repositories&gt;
 	 *  &lt;repository&gt;
@@ -161,7 +161,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	 * {@link #jvmArgs} instead because it provides more explicit control over
 	 * argument separation and content, avoiding the need to quote arguments that
 	 * contain spaces.
-	 * 
+	 *
 	 * @see #jvmArgs
 	 */
 	@Parameter
@@ -169,14 +169,14 @@ public class EclipseRunMojo extends AbstractMojo {
 
 	/**
 	 * List of JVM arguments set on the command line. Example:
-	 * 
+	 *
 	 * {@code
 	 * <jvmArgs>
 	 *   <arg>-Xdebug<arg>
 	 *   <arg>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044</arg>
 	 * </jvmArgs>
 	 * }
-	 * 
+	 *
 	 * @since 0.25.0
 	 */
 	@Parameter
@@ -193,7 +193,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	 * recommended to use {@link #applicationArgs} instead because it provides more
 	 * explicit control over argument separation and content, avoiding the need to
 	 * quote arguments that contain spaces.
-	 * 
+	 *
 	 * @see #applicationArgs
 	 */
 	@Parameter
@@ -201,14 +201,14 @@ public class EclipseRunMojo extends AbstractMojo {
 
 	/**
 	 * List of applications arguments set on the command line. Example:
-	 * 
+	 *
 	 * {@code
 	 * <applicationArgs>
 	 *   <arg>-buildfile</arg>
 	 *   <arg>build-test.xml</arg>
 	 * </applicationArgs>
 	 * }
-	 * 
+	 *
 	 * @since 0.24.0
 	 */
 	@Parameter(alias = "applicationsArgs")
@@ -408,7 +408,7 @@ public class EclipseRunMojo extends AbstractMojo {
 				if (returnCode != 0) {
 					String message = "Error while executing eclipse: return code=" + returnCode;
 					if (expectedLog.isFile()) {
-						message += ", see content of " + expectedLog + "for more details.";
+						message += ", see content of " + expectedLog + " for more details.";
 						if (log.isDebugEnabled()) {
 							try {
 								log.debug(Files.readString(expectedLog.toPath()));
