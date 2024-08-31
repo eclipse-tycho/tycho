@@ -100,10 +100,10 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Parameter
     private List<String> ignoredPatterns;
 
-    @Parameter(property = "skip")
+    @Parameter(property = "skip", alias = "tycho.p2.baseline.skip")
     private boolean skip;
 
-    @Parameter(property = "onIllegalVersion", defaultValue = "fail")
+    @Parameter(property = "onIllegalVersion", defaultValue = "fail", alias = "tycho.p2.baseline.onIllegalVersion")
     private ReportBehavior onIllegalVersion;
 
     @Component()
