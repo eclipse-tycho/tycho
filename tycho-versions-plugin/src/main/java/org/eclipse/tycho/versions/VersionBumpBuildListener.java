@@ -80,7 +80,7 @@ public class VersionBumpBuildListener implements BuildListener {
                                     .orElseGet(() -> Versions.incrementVersion(currentVersion,
                                             VersionBumpMojo.getIncrement(session, project, projectHelper)));
                             boolean isSnapshot = currentVersion.endsWith(TychoConstants.SUFFIX_SNAPSHOT);
-                            if (isSnapshot) {
+                            if (isSnapshot && !newVersion.endsWith(TychoConstants.SUFFIX_SNAPSHOT)) {
                                 newVersion += TychoConstants.SUFFIX_SNAPSHOT;
                             }
                             logger.info(project.getId() + " requires a version bump from " + currentVersion + " => "
