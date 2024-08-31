@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.maven.artifact.Artifact;
@@ -51,6 +52,7 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.EcJLogFileEnhancer;
 import org.eclipse.tycho.core.EcJLogFileEnhancer.Source;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.exceptions.VersionBumpRequiredException;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
@@ -58,6 +60,7 @@ import org.eclipse.tycho.osgi.framework.EclipseFramework;
 import org.eclipse.tycho.osgi.framework.EclipseWorkspace;
 import org.eclipse.tycho.osgi.framework.EclipseWorkspaceManager;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Version;
 
 /**
  * Performs a PDE-API Tools analysis of this project.
@@ -114,25 +117,28 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${project.build.directory}/compile-logs")
 	private File logDirectory;
 
-	@Parameter(defaultValue = "true")
+	@Parameter(defaultValue = "true", property = "tycho.apitools.printProblems")
 	private boolean printProblems;
 
-	@Parameter(defaultValue = "true")
+	@Parameter(defaultValue = "true", property = "tycho.apitools.printSummary")
 	private boolean printSummary;
 
 	@Parameter(defaultValue = "false")
 	private boolean failOnResolutionError;
 
-	@Parameter(defaultValue = "true")
+	@Parameter(defaultValue = "true", property = "tycho.apitools.failOnError")
 	private boolean failOnError;
 
-	@Parameter(defaultValue = "false")
+	@Parameter(defaultValue = "false", property = "tycho.apitools.failOnWarning")
 	private boolean failOnWarning;
+
+	@Parameter(defaultValue = "false", property = "tycho.apitools.failOnVersion")
+	private boolean failOnVersion;
 
 	@Parameter(defaultValue = "false")
 	private boolean parallel;
 
-	@Parameter(defaultValue = "false")
+	@Parameter(defaultValue = "false", property = "tycho.apitools.enhanceLogs")
 	private boolean enhanceLogs;
 
 	@Component
@@ -218,7 +224,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 						try (EcJLogFileEnhancer enhancer = EcJLogFileEnhancer.create(logDirectory)) {
 							enhanceLog(enhancer, problemsMap);
 						}
-						return;
 					}
 				} catch (IOException e) {
 					log.warn("Can't enhance logs in directory " + logDirectory);
@@ -229,13 +234,11 @@ public class ApiAnalysisMojo extends AbstractMojo {
 				log.info(warnings.size() + " API warnings");
 			}
 			if (errors.size() > 0 && failOnError) {
-				String msg = errors.stream().map(problem -> {
-					if (problem.getResourcePath() == null) {
-						return problem.getMessage();
-					}
-					return problem.getResourcePath() + ":" + problem.getLineNumber() + " " + problem.getMessage();
-				}).collect(Collectors.joining(System.lineSeparator()));
-				throw new MojoFailureException("There are API errors:" + System.lineSeparator() + msg);
+				throw getApiError(errors);
+			}
+			if (errors.size() > 0 && failOnVersion
+					&& errors.stream().anyMatch(problem -> problem.getCategory() == IApiProblem.CATEGORY_VERSION)) {
+				throw getApiError(errors);
 			}
 			if (warnings.size() > 0 && failOnWarning) {
 				String msg = warnings.stream().map(problem -> {
@@ -247,6 +250,49 @@ public class ApiAnalysisMojo extends AbstractMojo {
 				throw new MojoFailureException("There are API warnings:" + System.lineSeparator() + msg);
 			}
 		}
+	}
+
+	private MojoFailureException getApiError(List<IApiProblem> errors) {
+		String problems = errors.stream().map(problem -> {
+			if (problem.getResourcePath() == null) {
+				return problem.getMessage();
+			}
+			return problem.getResourcePath() + ":" + problem.getLineNumber() + " " + problem.getMessage();
+		}).collect(Collectors.joining(System.lineSeparator()));
+		String message = "There are API errors:" + System.lineSeparator() + problems;
+		for (IApiProblem problem : errors) {
+			if (problem.getCategory() == IApiProblem.CATEGORY_VERSION) {
+				switch (problem.getKind()) {
+				case IApiProblem.REEXPORTED_MAJOR_VERSION_CHANGE:
+				case IApiProblem.REEXPORTED_REMOVAL_OF_REEXPORT_MAJOR_VERSION_CHANGE:
+				case IApiProblem.MAJOR_VERSION_CHANGE:
+					return new VersionBumpRequiredException(message, project,
+							getSuggestedVersion(current -> new Version(current.getMajor() + 1, 0, 0)));
+				case IApiProblem.MINOR_VERSION_CHANGE:
+				case IApiProblem.MINOR_VERSION_CHANGE_EXECUTION_ENV_CHANGED:
+				case IApiProblem.REEXPORTED_MINOR_VERSION_CHANGE:
+					return new VersionBumpRequiredException(message, project,
+							getSuggestedVersion(current -> new Version(current.getMajor(), current.getMinor() + 1, 0)));
+				default:
+					break;
+				}
+			}
+		}
+		return new MojoFailureException(message);
+	}
+
+	private Version getSuggestedVersion(Function<Version, Version> update) {
+		try {
+		Optional<ArtifactKey> key = projectManager.getArtifactKey(project);
+		if (key.isPresent()) {
+			String version = key.get().getVersion();
+			Version current = Version.parseVersion(version);
+			return update.apply(current);
+		}
+		} catch(RuntimeException e) {
+			getLog().warn("Can't determine suggested version!");
+		}
+		return null;
 	}
 
 	private void enhanceLog(EcJLogFileEnhancer enhancer, Map<String, List<IApiProblem>> problemsMap) {
