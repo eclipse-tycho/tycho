@@ -107,31 +107,18 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 
 	private enum DirtyBehavior {
 
-		ERROR, WARNING, IGNORE;
+		ERROR, WARNING, IGNORE, FALLBACK;
 
-		public static DirtyBehavior getDirtyWorkingTreeBehaviour(MojoExecution execution) {
-			final DirtyBehavior defaultBehaviour = ERROR;
-			Xpp3Dom pluginConfiguration = getDom(execution);
-			if (pluginConfiguration == null) {
-				return defaultBehaviour;
+		public static DirtyBehavior getDirtyWorkingTreeBehaviour(String value) {
+			if (value != null && !value.isBlank()) {
+				for (DirtyBehavior behavior : DirtyBehavior.values()) {
+					if (behavior.name().equalsIgnoreCase(value)) {
+						return behavior;
+					}
+				}
 			}
-			Xpp3Dom dirtyWorkingTreeDom = pluginConfiguration.getChild(PARAMETER_JGIT_DIRTY_WORKING_TREE);
-			if (dirtyWorkingTreeDom == null) {
-				return defaultBehaviour;
-			}
-			String value = dirtyWorkingTreeDom.getValue();
-			if (value == null) {
-				return defaultBehaviour;
-			}
-			value = value.trim();
-			if ("warning".equals(value)) {
-				return WARNING;
-			} else if ("ignore".equals(value)) {
-				return IGNORE;
-			}
-			return defaultBehaviour;
+			return ERROR;
 		}
-
 	}
 
 	@Override
@@ -158,7 +145,8 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 					}
 					return defaultTimestampProvider.getTimestamp(session, project, execution);
 				}
-				DirtyBehavior dirtyBehaviour = DirtyBehavior.getDirtyWorkingTreeBehaviour(execution);
+				DirtyBehavior dirtyBehaviour = DirtyBehavior
+						.getDirtyWorkingTreeBehaviour(getDirtyBehaviorValue(execution));
 				if (dirtyBehaviour != DirtyBehavior.IGNORE) {
 					// 1. check if 'git status' is clean for relPath
 					IndexDiff diff = new IndexDiff(repository, headId, new FileTreeIterator(repository));
@@ -171,6 +159,9 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 					diff.diff();
 					Status status = new Status(diff);
 					if (!status.isClean()) {
+						if (dirtyBehaviour == DirtyBehavior.FALLBACK) {
+							return defaultTimestampProvider.getTimestamp(session, project, execution);
+						}
 						String message = "Working tree is dirty.\ngit status " + (relPath != null ? relPath : "")
 								+ ":\n" + toGitStatusStyleOutput(diff);
 						if (dirtyBehaviour == DirtyBehavior.WARNING) {
@@ -208,6 +199,20 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 		} catch (IOException e) {
 			throw new MojoExecutionException("Could not determine git commit timestamp", e);
 		}
+	}
+
+	private String getDirtyBehaviorValue(MojoExecution execution) {
+		Xpp3Dom pluginConfiguration = getDom(execution);
+		if (pluginConfiguration != null) {
+			Xpp3Dom dirtyWorkingTreeDom = pluginConfiguration.getChild(PARAMETER_JGIT_DIRTY_WORKING_TREE);
+			if (dirtyWorkingTreeDom != null) {
+				String value = dirtyWorkingTreeDom.getValue();
+				if (value != null) {
+					return value.trim();
+				}
+			}
+		}
+		return System.getProperty(PARAMETER_JGIT_DIRTY_WORKING_TREE);
 	}
 
 	private static TreeFilter createPathFilter(String relPath, MojoExecution execution) {
