@@ -20,4 +20,8 @@ public class TargetResolveException extends Exception {
 		super(message);
 	}
 
+	public TargetResolveException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }
