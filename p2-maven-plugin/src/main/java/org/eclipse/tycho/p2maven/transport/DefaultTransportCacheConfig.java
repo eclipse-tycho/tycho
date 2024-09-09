@@ -16,12 +16,12 @@ import java.io.File;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
-import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.aether.transfer.TransferListener;
+import org.eclipse.tycho.TychoConstants;
 
 @Component(role = TransportCacheConfig.class)
 public class DefaultTransportCacheConfig implements TransportCacheConfig, Initializable {
@@ -39,7 +39,7 @@ public class DefaultTransportCacheConfig implements TransportCacheConfig, Initia
 		File repoDir;
 		MavenSession session = legacySupport.getSession();
 		if (session == null) {
-			repoDir = RepositorySystem.defaultUserLocalRepository;
+			repoDir = TychoConstants.DEFAULT_USER_LOCALREPOSITORY;
 			offline = false;
 			update = false;
 			interactive = false;
