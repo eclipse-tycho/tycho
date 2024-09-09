@@ -14,9 +14,14 @@
  *******************************************************************************/
 package org.eclipse.tycho;
 
+import java.io.File;
 import java.util.regex.Pattern;
 
 public interface TychoConstants {
+
+    String USER_HOME = System.getProperty("user.home");
+    File USER_MAVEN_CONFIGURATION_HOME = new File(USER_HOME, ".m2");
+    File DEFAULT_USER_LOCALREPOSITORY = new File(USER_MAVEN_CONFIGURATION_HOME, "repository");
 
     public static final String ECLIPSE_LATEST = "https://download.eclipse.org/releases/2024-06/";
 

@@ -31,11 +31,11 @@ import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -114,7 +114,7 @@ public class DefaultMavenContext implements MavenContext {
     public File getLocalRepositoryRoot() {
         if (repoDir == null) {
             repoDir = getSession().map(s -> s.getLocalRepository().getBasedir()).map(File::new)
-                    .orElse(RepositorySystem.defaultUserLocalRepository);
+                    .orElse(TychoConstants.DEFAULT_USER_LOCALREPOSITORY);
         }
         return repoDir;
     }
