@@ -27,6 +27,7 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductContentType;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.publisher.eclipse.IMacOsBundleUrlType;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.Interpolator;
@@ -289,6 +290,11 @@ class ExpandedProduct implements IProductDescriptor {
     @Override
     public String getVM(String os) {
         return defaults.getVM(os);
+    }
+
+    @Override
+    public List<IMacOsBundleUrlType> getMacOsBundleUrlTypes() {
+        return defaults.getMacOsBundleUrlTypes();
     }
 
 }
