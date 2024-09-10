@@ -33,6 +33,10 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ProjectDependencyGraph;
@@ -44,15 +48,12 @@ import org.apache.maven.model.building.DefaultModelProblem;
 import org.apache.maven.model.building.ModelProblem;
 import org.apache.maven.model.building.ModelProblem.Severity;
 import org.apache.maven.model.building.Result;
-import org.apache.maven.project.DuplicateProjectException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.sisu.Priority;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
@@ -61,18 +62,26 @@ import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependen
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
-@Component(role = GraphBuilder.class, hint = GraphBuilder.HINT)
-public class TychoGraphBuilder extends DefaultGraphBuilder {
+@Singleton
+@Named(GraphBuilder.HINT)
+@Priority(10)
+public class TychoGraphBuilder implements GraphBuilder {
 
 	private static final boolean DEBUG = Boolean.getBoolean("tycho.graphbuilder.debug");
-	@Requirement
+	@Inject
 	private Logger log;
 
-	@Requirement(role = Mapping.class)
+	@Inject
 	private Map<String, Mapping> polyglotMappings;
 
-	@Requirement
+	@Inject
 	private MavenProjectDependencyProcessor dependencyProcessor;
+	private DefaultGraphBuilder defaultGraphBuilder;
+
+	@Inject
+	public TychoGraphBuilder(DefaultGraphBuilder defaultGraphBuilder) {
+		this.defaultGraphBuilder = defaultGraphBuilder;
+	}
 
 	@Override
 	public Result<ProjectDependencyGraph> build(MavenSession session) {
@@ -92,7 +101,7 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 		}
 		MavenExecutionRequest request = session.getRequest();
 		ProjectDependencyGraph dependencyGraph = session.getProjectDependencyGraph();
-		Result<ProjectDependencyGraph> graphResult = super.build(session);
+		Result<ProjectDependencyGraph> graphResult = defaultGraphBuilder.build(session);
 		if (dependencyGraph != null || graphResult.hasErrors()) {
 			// on second pass nothing to do for tycho, or already error ...
 			return graphResult;
@@ -262,7 +271,11 @@ public class TychoGraphBuilder extends DefaultGraphBuilder {
 							.thenComparing(MavenProject::getArtifactId, String.CASE_INSENSITIVE_ORDER))
 					.forEachOrdered(p -> log.debug(p.getId()));
 			return Result.success(new DefaultProjectDependencyGraph(projects, selectedProjects));
-		} catch (DuplicateProjectException | CycleDetectedException e) {
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			// as the actual types thrown will change in later maven version we catch a
+			// generic exception here
 			log.error("Cannot compute project's dependency graph", e);
 			return Result.error(graph);
 		}
