@@ -280,7 +280,7 @@
 			<dependency>
 				<groupId>org.eclipse.platform</groupId>
 				<artifactId>org.eclipse.ui.workbench</artifactId>
-				<version>3.132.0</version>
+				<version>3.133.0</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.osgi</groupId>
