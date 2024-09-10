@@ -28,7 +28,6 @@
         <artifactId>target-platform-configuration</artifactId>
         <version>${tycho-version}</version>
         <configuration>
-          <resolver>p2</resolver>
           <resolveWithExecutionEnvironmentConstraints>false</resolveWithExecutionEnvironmentConstraints>
         </configuration>
       </plugin>

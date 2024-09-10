@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: TestNG Test Plug-in
 Bundle-SymbolicName: bundle.test
 Bundle-Version: 1.0.0
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: testng.bundle;bundle-version="1.0.0"

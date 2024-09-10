@@ -3,4 +3,4 @@ Bundle-ManifestVersion: 2
 Bundle-Name: OSGi Jarsigning Example Bundle
 Bundle-SymbolicName: jarsigning
 Bundle-Version: 0.0.1.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-17
