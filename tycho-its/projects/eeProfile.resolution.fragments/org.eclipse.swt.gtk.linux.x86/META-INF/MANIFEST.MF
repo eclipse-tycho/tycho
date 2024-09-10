@@ -8,4 +8,4 @@ Bundle-ManifestVersion: 2
 Bundle-Localization: fragment
 Export-Package: org.eclipse.swt.graphics
 Eclipse-PlatformFilter: (& (osgi.ws=gtk) (osgi.os=linux) (osgi.arch=x86))
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-17

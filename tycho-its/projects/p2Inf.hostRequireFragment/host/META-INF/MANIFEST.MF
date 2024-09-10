@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Host bundle requiring its implementation fragments via a p2.inf dependency
 Bundle-SymbolicName: org.example.phf.host
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: phf.host
