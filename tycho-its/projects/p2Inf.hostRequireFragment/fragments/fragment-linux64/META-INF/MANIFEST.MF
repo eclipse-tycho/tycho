@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Fragment providing the implementation for linux.gtk.x86_64
 Bundle-SymbolicName: org.example.phf.linux.gtk.x86_64
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Fragment-Host: org.example.phf.host
 X-Comment: Platform filter disabled so that the test runs on all platforms
 X-Eclipse-PlatformFilter: (&(osgi.os=linux)(osgi.ws=gtk)(osgi.arch=x86_64))
