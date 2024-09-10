@@ -34,4 +34,4 @@ Export-Package: com.beust.jcommander,
  org.testng.xml,
  org.testng.xml.dom
 DynamicImport-Package: *
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17

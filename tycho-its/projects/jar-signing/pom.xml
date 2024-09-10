@@ -23,7 +23,7 @@
 		<keystore.key.password>abcd1234</keystore.key.password>
 		<jarsigner.plugin.groupId>org.apache.maven.plugins</jarsigner.plugin.groupId>
 		<jarsigner.plugin.artifactId>maven-jarsigner-plugin</jarsigner.plugin.artifactId>
-		<jarsigner.plugin.version>1.2</jarsigner.plugin.version>
+		<jarsigner.plugin.version>3.0.0</jarsigner.plugin.version>
 	</properties>
 
 	<build>
