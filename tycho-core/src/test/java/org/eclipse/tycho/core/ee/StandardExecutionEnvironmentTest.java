@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 SAP AG and others.
+ * Copyright (c) 2010, 2024 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,6 @@
 package org.eclipse.tycho.core.ee;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -156,9 +155,9 @@ public class StandardExecutionEnvironmentTest {
         assertEquals("1.1", cdc10Environment.getCompilerTargetLevelDefault());
         assertEquals("1.2", cdc11Environment.getCompilerTargetLevelDefault());
         assertEquals("1.1", jre11Environment.getCompilerTargetLevelDefault());
-        assertEquals("1.1", j2SE12Environment.getCompilerTargetLevelDefault());
-        assertEquals("1.1", j2SE13Environment.getCompilerTargetLevelDefault());
-        assertEquals("1.2", j2SE14Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.2", j2SE12Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.3", j2SE13Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.4", j2SE14Environment.getCompilerTargetLevelDefault());
         assertEquals("1.5", j2SE5Environment.getCompilerTargetLevelDefault());
         assertEquals("1.6", javaSE6Environment.getCompilerTargetLevelDefault());
         assertEquals("1.7", javaSE7Environment.getCompilerTargetLevelDefault());
@@ -177,7 +176,7 @@ public class StandardExecutionEnvironmentTest {
     public void testCompilerTargetCompatibility() throws Exception {
         assertTrue(j2SE14Environment.isCompatibleCompilerTargetLevel("1.1"));
         assertTrue(j2SE14Environment.isCompatibleCompilerTargetLevel("1.2"));
-        assertFalse(j2SE14Environment.isCompatibleCompilerTargetLevel("1.3"));
+        assertTrue(j2SE14Environment.isCompatibleCompilerTargetLevel("1.3"));
 
         // version aliases
         assertTrue(j2SE5Environment.isCompatibleCompilerTargetLevel("5"));
