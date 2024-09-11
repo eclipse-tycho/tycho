@@ -15,22 +15,21 @@ package org.eclipse.tycho.core.resolver;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
-import org.apache.maven.repository.DefaultMirrorSelector;
-import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.repository.MirrorSelector;
+import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.tycho.p2maven.repository.DefaultMavenRepositorySettings;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 public class TychoMirrorSelectorTest {
 
@@ -38,28 +37,28 @@ public class TychoMirrorSelectorTest {
 
     @Before
     public void setup() {
-        RepositorySystem repo = mock(RepositorySystem.class);
-        doAnswer(new Answer<Mirror>() {
+        MirrorSelector ms = mock(MirrorSelector.class);
+        RepositorySystemSession repo = mock(RepositorySystemSession.class);
+        when(repo.getMirrorSelector()).thenReturn(ms);
+        doAnswer(invocation -> {
 
-            @SuppressWarnings("unchecked")
-            @Override
-            public Mirror answer(InvocationOnMock invocation) throws Throwable {
-
-                final Object[] args = invocation.getArguments();
-                return new DefaultMirrorSelector().getMirror((ArtifactRepository) args[0], (List<Mirror>) args[1]);
+            final Object[] args = invocation.getArguments();
+            if (args[0] instanceof RemoteRepository rr && rr.getId().equals("neon-repo-with-id")) {
+                return new RemoteRepository.Builder("myId", rr.getContentType(), "http://foo.bar").build();
             }
-        }).when(repo).getMirror(any(), any());
+            return null;
+        }).when(ms).getMirror(any());
         selector = new DefaultMavenRepositorySettings(repo);
 
     }
 
     @Test
     public void testWithMatchingMirrorOfIds() {
-        ArtifactRepository repository = createArtifactRepository("neon-repo",
+        ArtifactRepository repository = createArtifactRepository("neon-repo-with-id",
                 "https://download.eclipse.org/eclipse/update/4.6");
-        Mirror mirrorWithMatchingMirrorOfIds = createMirror("myId", "http://foo.bar", "neon-repo");
+        Mirror mirrorWithMatchingMirrorOfIds = createMirror("myId", "http://foo.bar", "neon-repo-with-id");
         Mirror selectedMirror = selector.getTychoMirror(repository, Arrays.asList(mirrorWithMatchingMirrorOfIds));
-        Assert.assertEquals(mirrorWithMatchingMirrorOfIds, selectedMirror);
+        Assert.assertEquals(mirrorWithMatchingMirrorOfIds.getId(), selectedMirror.getId());
     }
 
     @Test
