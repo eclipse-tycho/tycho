@@ -39,7 +39,7 @@
 		<dependency>
 			<groupId>org.eclipse.pde</groupId>
 			<artifactId>org.eclipse.pde.core</artifactId>
-			<version>3.18.100</version>
+			<version>3.19.0</version>
 			<type>jar</type>
 			<exclusions>
 				<exclusion>
