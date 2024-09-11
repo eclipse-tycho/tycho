@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 public interface TychoConstants {
 
-    public static final String ECLIPSE_LATEST = "https://download.eclipse.org/releases/2024-06/";
+    public static final String ECLIPSE_LATEST = "https://download.eclipse.org/releases/2024-09/";
 
     public static final String TYCHO_NOT_CONFIGURED = "Tycho build extension not configured for ";
 
