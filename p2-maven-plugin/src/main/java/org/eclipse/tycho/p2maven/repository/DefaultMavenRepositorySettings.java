@@ -18,14 +18,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
+import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
-import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
@@ -36,6 +38,8 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.StringUtils;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.p2maven.helper.SettingsDecrypterHelper;
@@ -54,8 +58,6 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
     @Requirement
     private SettingsDecrypterHelper decrypter;
 
-    @Requirement
-    private RepositorySystem repositorySystem;
     @Requirement(hint = "p2")
     private ArtifactRepositoryLayout p2layout;
 
@@ -65,13 +67,15 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 
 	private List<Mirror> mirrors;
 
+	private RepositorySystemSession repositorySession;
+
     public DefaultMavenRepositorySettings() {
         // for plexus
     }
 
-    public DefaultMavenRepositorySettings(RepositorySystem repositorySystem) {
-        // for test
-        this.repositorySystem = repositorySystem;
+	public DefaultMavenRepositorySettings(RepositorySystemSession repositorySystemSession) {
+		// for test
+		repositorySession = repositorySystemSession;
     }
 
     @Override
@@ -82,7 +86,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 		if (idToMirrorMap.containsKey(location.getId())) {
 			return new MavenRepositoryLocation(location.getId(), idToMirrorMap.get(location.getId()));
 		}
-        ArtifactRepository locationAsMavenRepository = repositorySystem.createArtifactRepository(location.getId(),
+		ArtifactRepository locationAsMavenRepository = new MavenArtifactRepository(location.getId(),
                 location.getURL().toString(), p2layout, P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
 		Mirror mirror = getTychoMirror(locationAsMavenRepository, mirrors);
         if (mirror != null) {
@@ -109,7 +113,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 
     public Mirror getTychoMirror(ArtifactRepository repository, List<Mirror> mirrors) {
         // if we find a mirror the default way (the maven way) we will use that mirror
-        Mirror mavenMirror = repositorySystem.getMirror(repository, mirrors);
+		Mirror mavenMirror = getMirror(repositorySession, RepositoryUtils.toRepo(repository)).orElse(null);
         if (mavenMirror != null || mirrors == null) {
             return mavenMirror;
         }
@@ -154,6 +158,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 		if (session != null) {
 			settings = session.getSettings();
 			mirrors = session.getRequest().getMirrors();
+			repositorySession = session.getRepositorySession();
 		} else {
 			settings = new Settings();
 			mirrors = Collections.emptyList();
@@ -163,5 +168,23 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 	@Override
 	public Stream<MavenRepositoryLocation> getMirrors() {
 		return mirrors.stream().map(m -> new MavenRepositoryLocation(m.getId(), URI.create(m.getUrl())));
+	}
+
+	private static Optional<Mirror> getMirror(RepositorySystemSession session, RemoteRepository remoteRepository) {
+		if (session != null) {
+			org.eclipse.aether.repository.MirrorSelector selector = session.getMirrorSelector();
+			if (selector != null) {
+				RemoteRepository repo = selector.getMirror(remoteRepository);
+				if (repo != null) {
+					Mirror mirror = new Mirror();
+					mirror.setId(repo.getId());
+					mirror.setUrl(repo.getUrl());
+					mirror.setLayout(repo.getContentType());
+					mirror.setBlocked(repo.isBlocked());
+					return Optional.of(mirror);
+				}
+			}
+		}
+		return Optional.empty();
 	}
 }
