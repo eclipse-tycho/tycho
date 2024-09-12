@@ -21,17 +21,22 @@ import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+import org.apache.maven.RepositoryUtils;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
-import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
@@ -43,18 +48,19 @@ import org.osgi.service.url.URLStreamHandlerService;
  * This makes the <code>mvn</code> protocol available to P2 e.g. to load
  * updates-sites.
  */
-@Component(role = EquinoxLifecycleListener.class, hint = "MavenURLStreamHandlerService")
+@Singleton
+@Named("MavenURLStreamHandlerService")
 public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerService implements EquinoxLifecycleListener {
 
 	private static final String PROTOCOL = "mvn";
 
-	@Requirement
+	@Inject
 	private Logger logger;
 
-	@Requirement
+	@Inject
 	private LegacySupport context;
 
-	@Requirement
+	@Inject
 	private RepositorySystem repositorySystem;
 
 	private MavenSession mavenSession;
@@ -124,45 +130,45 @@ public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerServic
 				String artifactId = coordinates[1];
 				String version = coordinates[2];
 				if (classifier != null && !classifier.isEmpty()) {
-					artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, type,
-							classifier);
+					artifact = new DefaultArtifact(groupId, artifactId, classifier, type, version);
 				} else {
-					artifact = repositorySystem.createArtifact(groupId, artifactId, version, null, type);
+					artifact = new DefaultArtifact(groupId, artifactId, "", type, version);
 				}
 				logger.debug("Resolving " + artifact);
-				ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-				request.setArtifact(artifact);
-				request.setResolveRoot(true);
-				request.setOffline(mavenSession.isOffline());
-				request.setLocalRepository(mavenSession.getLocalRepository());
-				request.setResolveTransitively(false);
-				request.setRemoteRepositories(mavenSession.getCurrentProject().getRemoteArtifactRepositories());
-				ArtifactResolutionResult result = repositorySystem.resolve(request);
-				if (result.hasExceptions()) {
-					String message = "Resolving " + artifact + " failed";
-					List<Exception> exceptions = result.getExceptions();
-					if (exceptions.size() == 1) {
-						throw new IOException(message, exceptions.get(0));
-					} else {
-						IOException exception = new IOException(message);
-						for (Exception suppressed : exceptions) {
-							exception.addSuppressed(suppressed);
+				ArtifactRequest artifactRequest = new ArtifactRequest();
+				artifactRequest.setArtifact(artifact);
+				artifactRequest.addRepository(RepositoryUtils.toRepo(mavenSession.getLocalRepository()));
+				for (ArtifactRepository repo : mavenSession.getCurrentProject().getRemoteArtifactRepositories()) {
+					artifactRequest.addRepository(RepositoryUtils.toRepo(repo));
+				}
+				try {
+					ArtifactResult artifactResult = repositorySystem
+							.resolveArtifact(mavenSession.getRepositorySession(), artifactRequest);
+					artifact = artifactResult.getArtifact();
+					if (!artifactResult.getExceptions().isEmpty()) {
+						String message = "Resolving " + artifact + " failed";
+						List<Exception> exceptions = artifactResult.getExceptions();
+						if (exceptions.size() == 1) {
+							throw new IOException(message, exceptions.get(0));
+						} else {
+							IOException exception = new IOException(message);
+							for (Exception suppressed : exceptions) {
+								exception.addSuppressed(suppressed);
+							}
+							throw exception;
 						}
-						throw exception;
 					}
-				}
-				Set<Artifact> artifacts = result.getArtifacts();
-				if (artifacts.isEmpty()) {
+					if (artifactResult.isMissing()) {
+						throw new IOException("artifact " + Arrays.toString(coordinates)
+								+ " could not be retrieved from any of the available repositories");
+					}
+				} catch (ArtifactResolutionException e) {
 					throw new IOException("artifact " + Arrays.toString(coordinates)
-							+ " could not be retrieved from any of the available repositories");
+							+ " could not be resolved");
 				}
-				if (artifacts.size() > 1) {
-					throw new IOException(
-							"artifact " + Arrays.toString(coordinates) + " resolves to multiple artifacts");
-				}
-				artifact = artifacts.iterator().next();
 			} catch (RuntimeException e) {
 				throw new IOException("internal error connecting to maven url " + url, e);
+
 			}
 		}
 

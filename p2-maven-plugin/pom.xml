@@ -220,6 +220,10 @@
 				<artifactId>maven-plugin-plugin</artifactId>
 			</plugin>
 			<plugin>
+				<groupId>org.eclipse.sisu</groupId>
+				<artifactId>sisu-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.servicemix.tooling</groupId>
 				<artifactId>depends-maven-plugin</artifactId>
 				<version>1.5.0</version>
