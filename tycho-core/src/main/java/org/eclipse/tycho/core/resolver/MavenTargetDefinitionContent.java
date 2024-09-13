@@ -36,7 +36,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
+import org.eclipse.aether.RepositorySystem;
 import org.apache.maven.settings.Settings;
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.artifact.Artifact;

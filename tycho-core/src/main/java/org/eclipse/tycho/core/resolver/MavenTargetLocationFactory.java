@@ -13,9 +13,9 @@
 package org.eclipse.tycho.core.resolver;
 
 import org.apache.maven.plugin.LegacySupport;
-import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.spi.synccontext.SyncContextFactory;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.core.MavenDependenciesResolver;
