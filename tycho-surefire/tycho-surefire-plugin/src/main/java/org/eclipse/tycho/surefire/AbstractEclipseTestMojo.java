@@ -89,8 +89,6 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
-import org.eclipse.tycho.dev.DevBundleInfo;
-import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
@@ -592,9 +590,6 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private ProviderHelper providerHelper;
 
     @Component
-    private DevWorkspaceResolver workspaceState;
-
-    @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
     @Component
@@ -854,16 +849,9 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     protected void setupTestBundles(Set<Artifact> testFrameworkBundles, EquinoxInstallationDescription testRuntime)
             throws MojoExecutionException {
         for (Artifact artifact : testFrameworkBundles) {
-            DevBundleInfo devInfo = workspaceState.getBundleInfo(session, artifact.getGroupId(),
-                    artifact.getArtifactId(), artifact.getVersion(), project.getPluginArtifactRepositories());
-            if (devInfo != null) {
-                addBundle(testRuntime, devInfo.getArtifactKey(), devInfo.getLocation());
-                testRuntime.addDevEntries(devInfo.getSymbolicName(), devInfo.getDevEntries());
-            } else {
-                File bundleLocation = artifact.getFile();
-                ArtifactKey bundleArtifactKey = getBundleArtifactKey(bundleLocation);
-                addBundle(testRuntime, bundleArtifactKey, bundleLocation);
-            }
+            File bundleLocation = artifact.getFile();
+            ArtifactKey bundleArtifactKey = getBundleArtifactKey(bundleLocation);
+            addBundle(testRuntime, bundleArtifactKey, bundleLocation);
         }
 
         testRuntime.addDevEntries(getTestBundleSymbolicName(), getBuildOutputDirectories());
