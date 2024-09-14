@@ -24,6 +24,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -169,10 +170,14 @@ public class HttpServer {
 	}
 
 	public String addServer(String contextName, final File content) {
+		return addServer(contextName, DefaultServlet.class, content);
+	}
+
+	public String addServer(String contextName, Class<? extends Servlet> servlet, final File content) {
 		ServletContextHandler context = new ServletContextHandler(contexts, URIUtil.SLASH + contextName);
 		context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 		context.setResourceBase(content.getAbsolutePath());
-		context.addServlet(DefaultServlet.class, URIUtil.SLASH);
+		context.addServlet(servlet, URIUtil.SLASH);
 		registerContext(context);
 		return getUrl(contextName);
 	}

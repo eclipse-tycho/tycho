@@ -23,7 +23,7 @@ tycho.debug.resolver | `true` or _artifactId_ | Enable debug output for the arti
 ### Baseline compare
 
 Name | Value | Default | Documentation
---- | --- | ---
+--- | --- | --- | ---
 tycho.comparator.showDiff | true / false | false | If set to true if text-like files show a unified diff of possible differences in files
 tycho.comparator.threshold | bytes | 5242880 (~5MB) | gives the number of bytes for content to be compared semantically, larger files will only be compared byte-by-byte
 
@@ -32,6 +32,7 @@ tycho.comparator.threshold | bytes | 5242880 (~5MB) | gives the number of bytes 
 These properties control the behaviour of P2 used by Tycho
 
 Name | Value | Default | Documentation
---- | --- | ---
+--- | --- | --- | ---
 eclipse.p2.mirrors | true / false | true | Each p2 site can define a list of artifact repository mirrors, this controls if P2 mirrors should be used. This is independent from configuring mirrors in the maven configuration to be used by Tycho!
+eclipse.p2.maxDownloadAttempts | _any positive integer_ | 3 | Describes how often Tycho attempts to re-download an artifact from a p2 repository in case e.g. a bad mirror was used. One can think of this value as the maximum number of mirrors Tycho/p2 will check. 
 
