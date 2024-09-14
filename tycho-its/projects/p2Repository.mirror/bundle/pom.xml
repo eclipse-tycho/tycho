@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>p2Repository.mirror</groupId>
+    <artifactId>parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <packaging>eclipse-plugin</packaging>
+  <artifactId>bundle1</artifactId>
+  <version>1.0.0</version>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-baseline-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <executions>
+          <execution> 
+            <id>compare-version-with-baseline</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <ignores>
+            <ignore>META-INF/maven/**/*</ignore>
+          </ignores>
+          <baselines>
+            <repository>
+              <id>repo</id>
+              <url>${baseline}</url>
+              <layout>p2</layout>
+            </repository>
+          </baselines>
+        </configuration>
+    </plugin>
+  </plugins>
+  </build>
+</project>
