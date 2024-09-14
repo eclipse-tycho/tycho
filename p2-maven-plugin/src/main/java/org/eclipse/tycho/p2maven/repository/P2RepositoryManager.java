@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 Christoph Läubrich and others.
+ * Copyright (c) 2022, 2024 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.helper.MavenPropertyHelper;
 import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
 import org.eclipse.tycho.p2maven.ListQueryable;
 import org.eclipse.tycho.p2maven.LoggerProgressMonitor;
@@ -46,6 +47,10 @@ import org.eclipse.tycho.p2maven.LoggerProgressMonitor;
  */
 @Component(role = P2RepositoryManager.class)
 public class P2RepositoryManager {
+	private static final String PROPERTY_KEY = "eclipse.p2.maxDownloadAttempts";
+
+	@Requirement
+	MavenPropertyHelper propertyHelper;
 
 	@Requirement
 	IRepositoryIdManager repositoryIdManager;
@@ -151,18 +156,44 @@ public class P2RepositoryManager {
 	public void downloadArtifact(IInstallableUnit iu, IArtifactRepository artifactRepository,
 			OutputStream outputStream) throws IOException {
 		Collection<IArtifactKey> artifacts = iu.getArtifacts();
+		int maxDownloadAttempts = getMaxDownloadAttempts();
+		
 		for (IArtifactKey key : artifacts) {
 			IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key);
 			for (IArtifactDescriptor descriptor : descriptors) {
-				IStatus status = artifactRepository.getRawArtifact(descriptor, outputStream,
-						new LoggerProgressMonitor(logger));
-				if (status.isOK()) {
-					return;
+				for (int downloadAttempts = 0; downloadAttempts < maxDownloadAttempts; ++downloadAttempts) {
+					IStatus status = artifactRepository.getRawArtifact(descriptor, outputStream,
+							new LoggerProgressMonitor(logger));
+					if (status.isOK()) {
+						return;
+					}
+					// Might happen if e.g. a bad mirror was used
+					if (status.getCode() == IArtifactRepository.CODE_RETRY) {
+						logger.warn("Artifact repository requested retry (attempt [%d/%d]): '%s'"
+								.formatted(downloadAttempts + 1, maxDownloadAttempts, status));
+						continue;
+					}
+					throw new IOException("Download failed: " + status);
 				}
-				throw new IOException("Download failed: " + status);
 			}
 		}
 		throw new FileNotFoundException();
 	}
 
+	private int getMaxDownloadAttempts() {
+		String property = propertyHelper.getGlobalProperty(PROPERTY_KEY, "3");
+		try {
+			int maxDownloadAttempts = Integer.valueOf(property);
+			if (maxDownloadAttempts <= 0) {
+				logger.error("Value '%s' for property '%s', is not a positive number! Use 1 as default value."
+						.formatted(property, PROPERTY_KEY));
+				return 1;
+			}
+			return maxDownloadAttempts;
+		} catch (NumberFormatException e) {
+			logger.error("Value '%s' for property '%s', is not a number! Use 1 as default value.".formatted(property,
+					PROPERTY_KEY));
+			return 1;
+		}
+	}
 }
