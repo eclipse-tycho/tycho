@@ -179,7 +179,10 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException {
-
+		if (skip) {
+			getLog().info("skip packaging");
+			return;
+		}
 		Optional<EclipsePluginProject> pde = projectManager.getTychoProject(project)
 				.filter(BundleProject.class::isInstance)
 				.map(BundleProject.class::cast)
