@@ -155,6 +155,13 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	@Parameter(defaultValue = "true")
 	private boolean deriveHeaderFromSource;
 
+	/**
+	 * If {@code true}, it is checked that the explicitly declared OSGi service
+	 * component files exist.
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean checkServiceComponentFilesExist = true;
+
 	@Component
 	private SourceReferenceComputer soureReferenceComputer;
 
@@ -262,7 +269,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 			checkBinIncludesExist(buildProperties, binIncludesIgnoredForValidation.toArray(new String[0]));
 			// 4. check DS files exits...
 			TychoProject facet = getTychoProjectFacet();
-			if (facet instanceof OsgiBundleProject bundleProject) {
+			if (checkServiceComponentFilesExist && facet instanceof OsgiBundleProject bundleProject) {
 				String components = bundleProject.getManifestValue("Service-Component", project);
 				if (components != null) {
 					if (components.contains("*")) {
