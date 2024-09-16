@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2024 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -172,7 +172,10 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException {
-
+		if (skip) {
+			getLog().info("skip packaging");
+			return;
+		}
 		Optional<EclipsePluginProject> pde = projectManager.getTychoProject(project)
 				.filter(BundleProject.class::isInstance)
 				.map(BundleProject.class::cast)
