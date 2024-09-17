@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>io.takari.polyglot</groupId>
 			<artifactId>polyglot-common</artifactId>
-			<version>0.7.1</version>
+			<version>0.7.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.sisu</groupId>
