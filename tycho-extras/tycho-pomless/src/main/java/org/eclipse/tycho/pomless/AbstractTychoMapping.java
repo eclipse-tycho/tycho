@@ -173,7 +173,9 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         return polyglotArtifactFile;
     }
 
-    protected synchronized ParentModel findParent(Path projectRoot, Map<String, ?> projectOptions) throws IOException {
+    protected synchronized ParentModel findParent(Path projectRootIn, Map<String, ?> projectOptions)
+            throws IOException {
+        var projectRoot = projectRootIn.normalize();
         ParentModel cached = parentModelCache.get(projectRoot);
         if (cached != null) {
             return cached;
@@ -371,7 +373,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         try {
             ParentModel parent = findParent(projectRoot.getParent(), Map.of());
             Model parentModel = parent.parentModel();
-            if (parentModel != null) {
+            if (parentModel != null && parentModel != model) {
                 return modelHasProperty(property, parentModel,
                         projectRoot.resolve(parent.parentReference().getRelativePath()));
             }
