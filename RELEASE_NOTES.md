@@ -7,6 +7,14 @@ This page describes the noteworthy improvements provided by each release of Ecli
 backports:
 - Add support for bumping maven-target locations
 - Add new `tycho-version-bump:update-manifest` mojo
+- Add a flag to the tycho-packaging-plugin to skip its execution
+- Improve errors handling while downloading p2 artifacts from repository
+- Make Tycho SBOM mapper configurable w.r.t. the project packaging types
+- Add support for System Property in JGitBuildTimestampProvider
+- Suggest version updates from API tools
+- Remove no longer valid checksum properties
+- tycho-versions-plugin: Support ci-friendly versions
+- Add support for JUnit 'vintage' attribute on classpath
 
 ## 4.0.8
 
