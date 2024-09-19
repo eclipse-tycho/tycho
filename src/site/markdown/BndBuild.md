@@ -1,8 +1,8 @@
-## BND Workspace Layout and Pomless Builds
+# BND Workspace Layout and Pomless Builds
 
 Tycho supports building projects that use the **BND Workspace Layout** as [described here](https://bndtools.org/concepts.html).
 
-### BND Workspace Layout
+## BND Workspace Layout
 A BND Workspace layout build layout usually has the following structure:
 
 - `root folder` - this usually is the root of your project repository (e.g. git)
@@ -17,7 +17,7 @@ A BND Workspace layout build layout usually has the following structure:
 
 any folder that do not match the layout is ignored.
 
-### Pomless Builds
+## Pomless Builds
 Given the above layout, Tycho now has a good knowledge about what your build artifacts are.
 In contrast to a traditional maven build where each module has to contain a `pom.xml` file Tycho can derive most all from your supplied bnd configuration files, so everything is configured there and usually no additional maven configuration is required, therefore this build is completely pomless (no pom.xml), there are only a few steps to consider:
 
@@ -45,7 +45,7 @@ In contrast to a traditional maven build where each module has to contain a `pom
 A runnable demo can be found here:
 https://github.com/eclipse-tycho/tycho/tree/master/demo/bnd-workspace
 
-### Mixed Builds
+## Mixed Builds
 
 You can even combine a BND Workspace and PDE bundles in a build, a runnable demo can be found here:
 https://github.com/eclipse-tycho/tycho/tree/master/demo/bnd-pde-workspace
