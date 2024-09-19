@@ -1,8 +1,8 @@
-## Testing Bundles / Plugins with Tycho
+# Testing Bundles / Plugins with Tycho
 
 There are different ways to test bundles / plug-ins with Tycho:
 
-### maven-surefire-plugin
+## maven-surefire-plugin
 
 Using [maven-surefire-plugin](https://maven.apache.org/surefire/maven-surefire-plugin/) is the preferred way whenever you want to write a plain unit-test.
 This is a unit test that either:
@@ -47,7 +47,7 @@ The following demo projects are provided as an example:
 - Project using maven standard layout: https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/surefire/with-maven-layout
 
 
-### tycho-surefire-plugin
+## tycho-surefire-plugin
 
 The [tycho-surefire-plugin](https://tycho.eclipseprojects.io/doc/master/tycho-surefire-plugin/plugin-info.html) is the preferred whenever you want to write tests
 that require an OSGi Framework running and is executed in the integration-test phase of your build, this is similar to what PDE offers as Plugin Tests.
@@ -92,7 +92,7 @@ https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/tycho/standalone
 - Project using maven standard layout having the tests in the same module: 
 https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/tycho/samemodule
 
-### bnd-testing
+## bnd-testing
 
 The [tycho-surefire-plugin](https://tycho.eclipseprojects.io/doc/master/tycho-surefire-plugin/plugin-info.html) has also support for [bnd-testing](https://bnd.bndtools.org/chapters/310-testing.html),
 this is like `plugin-test` but uses the BND testing framework. There is currently no JDT/PDE equivalent but this integrates nicely with the [OSGi Testing Support](https://github.com/osgi/osgi-test) and allows to execute prebuild test-bundles.
@@ -132,6 +132,6 @@ to automatically inject services:
 
 
 
-### combining different approaches 
+## combining different approaches 
 
-### setup test source folders in eclipse
+## setup test source folders in eclipse
