@@ -16,7 +16,7 @@
 	<parent>
 		<artifactId>tycho</artifactId>
 		<groupId>org.eclipse.tycho</groupId>
-		<version>4.0.9-SNAPSHOT</version>
+		<version>4.0.9</version>
 	</parent>
 
 	<artifactId>target-platform-configuration</artifactId>
