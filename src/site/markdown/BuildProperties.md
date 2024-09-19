@@ -1,4 +1,4 @@
-## Build Properties
+# Build Properties
 
 Tycho uses the `build.properties` file [as defined by PDE](https://help.eclipse.org/latest/index.jsp?topic=/org.eclipse.pde.doc.user/reference/pde_feature_generating_build.htm) to configure various aspects of the build.
 
@@ -15,7 +15,7 @@ These expressions are only used in a Tycho build, not when using the Eclipse IDE
 
 See the table below for which keys in `build.properties` defined by PDE are supported by Tycho or if not, whether there are alternatives when using Tycho.
 
-### Common Properties
+## Common Properties
 
 Key | Value
 --- | ---
@@ -25,7 +25,7 @@ qualifier    | not supported - use [Build Qualifer Mojo](tycho-packaging-plugin/
 forceContextQualifier | supported
 custom*      | not supported
 
-### Plugin-specific properties
+## Plugin-specific properties
 
 Key | Value
 --- | ---
@@ -41,7 +41,7 @@ jars.compile.order | supported
 additional.bundles | supported (since Tycho 2.4.0)
 
 
-### Compiler-specific properties
+## Compiler-specific properties
 
 Key | Value
 --- | ---
@@ -60,7 +60,7 @@ compilerAdapter.useLog | not supported
 compilerAdapter.useArgFile | not supported
 sourceFileExtensions | not supported - use [excludeResources](tycho-compiler-plugin/compile-mojo.html#excludeResources) instead
 
-### Feature-specific properties
+## Feature-specific properties
 
 Key | Value
 --- | ---

@@ -1,4 +1,4 @@
-## Tycho CI Friendly Versions
+# Tycho CI Friendly Versions
 
 Starting with Maven 3.8.5 Tycho now supports an enhanced form of the [Maven CI Friendly Versions](https://maven.apache.org/maven-ci-friendly.html) beside the standard properties names one could also use:
 

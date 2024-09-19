@@ -1,8 +1,8 @@
-## Structured Build Layout and Pomless Builds
+# Structured Build Layout and Pomless Builds
 
 Tycho supports any layout of your build, but you can save you a lot of configuration work if you are using the so called **Structured Build Layout**.
 
-### Structured Build Layout
+## Structured Build Layout
 A structured build layout usually has the following folder layout, even though you might not use all of the depending on your project:
 
 - `root folder` - this usually contains your parent pom where you configure the plugins to use
@@ -21,7 +21,7 @@ A structured build layout usually has the following folder layout, even though y
         - `...`
 - `target-platform.target` the target platform that should be used
 
-### Pomless Builds
+## Pomless Builds
 Given the above layout, Tycho now has a good knowledge about what your build artifacts are.
 In contrast to a traditional maven build where each module has to contain a `pom.xml` file Tycho can derive most if not all from your existing data, that is the files you are created and using in our IDE, 
 there are only a few steps to consider:

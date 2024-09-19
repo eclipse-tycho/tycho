@@ -1,10 +1,10 @@
-## Tycho Properties
+# Tycho Properties
 
 Maven provides a set of properties like `project.version` or `project.basedir` that could be used within pom files e.g. to configure the plugins.
 Tycho provides its own set of additional properties.
 
 
-### Tycho Environment Properties
+## Tycho Environment Properties
 
 These properties are set based on the platform where Tycho gets executed:
 
