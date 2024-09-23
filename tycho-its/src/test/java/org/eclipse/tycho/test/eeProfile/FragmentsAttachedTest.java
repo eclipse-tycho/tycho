@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.eeProfile;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
@@ -25,6 +28,13 @@ public class FragmentsAttachedTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("verify");
 
 		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
+	public void testSWTFragmentsAttached_unmatchingFromP2() throws Exception {
+		Verifier verifier = getVerifier("eeProfile.resolution.fragments.unmatchinginp2", false);
+
+		assertThrows(VerificationException.class, () -> verifier.executeGoal("verify"));
 	}
 
 }

@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='file:////Users/heikoklare/dev/eclipse/tycho/git/tycho/tycho-its/repositories/compiler.fragments.unmatchinginp2 - artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1727095539506'/>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='2'>
+    <artifact classifier='osgi.bundle' id='compiler.fragments.unmatchinginp2' version='1.0.0.202409231244'>
+      <properties size='4'>
+        <property name='artifact.size' value='2320'/>
+        <property name='download.size' value='2320'/>
+        <property name='download.checksum.sha-512' value='1bfb6009197a16eeb9f94c1a8cf618bcba968acfc6e709dc6dff85a01a36d105600c24cd29baa07991eecb0dde698777410461af301f8374d79441a344c57fcd'/>
+        <property name='download.checksum.sha-256' value='7ad2215dff3bf21d2c0179033996a027733f7c8de0c7482743b328de5cf50d05'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='compiler.fragments.unmatchinginp2.unmatching' version='1.0.0.202409231244'>
+      <properties size='4'>
+        <property name='artifact.size' value='3058'/>
+        <property name='download.size' value='3058'/>
+        <property name='download.checksum.sha-512' value='30773842dd10f8ddaacf098893b8e8d17cc69c33c5ec4050b2d99680421e6bcdb84a02fa182ff26d7e3903413bc76c1db63d3695ec77e458dfdcad80d07c075d'/>
+        <property name='download.checksum.sha-256' value='d1c23c7a36b89afbfc942b13d387f0030b6b90491417c68778d5fe6b392a81f6'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>
