@@ -25,7 +25,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -38,6 +37,10 @@ import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * Create the javadoc based API reference for this bundle. <br/>
@@ -66,6 +69,8 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
  */
 @Mojo(name = "javadoc", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = false)
 public class JavadocMojo extends AbstractMojo {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
 	/**
 	 * The directory where the javadoc content will be generated
 	 *
@@ -91,7 +96,7 @@ public class JavadocMojo extends AbstractMojo {
 	@Parameter(property = "cleanFirst", defaultValue = "true")
 	private boolean cleanFirst;
 
-	@Component
+	@Inject
 	private ToolchainManager toolchainManager;
 
 	@Parameter(property = "session", required = true, readonly = true)
@@ -203,13 +208,13 @@ public class JavadocMojo extends AbstractMojo {
 	@Parameter(property = "project.build.sourceEncoding", readonly = true)
 	private String projectBuildSourceEncoding;
 
-	@Component
+	@Inject
 	private BundleReader bundleReader;
 
-	@Component
+	@Inject
 	private DocletArtifactsResolver docletArtifactsResolver;
 
-	@Component(role = TychoProject.class)
+	@Inject
 	private Map<String, TychoProject> projectTypes;
 
 	/**
@@ -235,12 +240,12 @@ public class JavadocMojo extends AbstractMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException {
-		getLog().info("Scopes: " + this.scopes);
-		getLog().info("Output directory: " + this.outputDirectory);
-		getLog().info("Basedir: " + this.basedir);
+		logger.info("Scopes: " + this.scopes);
+		logger.info("Output directory: " + this.outputDirectory);
+		logger.info("Basedir: " + this.basedir);
 
 		if (this.cleanFirst) {
-			getLog().info("Cleaning up first");
+			logger.info("Cleaning up first");
 			cleanUp();
 		}
 
@@ -250,7 +255,7 @@ public class JavadocMojo extends AbstractMojo {
 		}
 
 		final JavadocRunner runner = new JavadocRunner();
-		runner.setLog(getLog());
+		runner.setLogger(logger);
 		runner.setOutput(this.outputDirectory);
 		runner.setBuildDirectory(this.buildDirectory);
 		runner.setToolchainManager(this.toolchainManager);
@@ -265,16 +270,16 @@ public class JavadocMojo extends AbstractMojo {
 		this.visitedProjects.clear();
 		visitProjects(this.session.getCurrentProject().getDependencies(), this.scopes, visitors);
 
-		getLog().info(String.format("%s source folders", gsv.getSourceFolders().size()));
+		logger.info(String.format("%s source folders", gsv.getSourceFolders().size()));
 		for (final File file : gsv.getSourceFolders()) {
-			getLog().info("Source folder: " + file);
+			logger.info("Source folder: " + file);
 		}
 
 		final Collection<String> cp = gcv.getClassPath();
 
-		getLog().info(String.format("%s classpath dependencies", cp.size()));
+		logger.info(String.format("%s classpath dependencies", cp.size()));
 		for (final String ele : cp) {
-			getLog().info("Classpath: " + ele);
+			logger.info("Classpath: " + ele);
 		}
 
 		runner.setBundleReader(this.bundleReader);
@@ -289,7 +294,7 @@ public class JavadocMojo extends AbstractMojo {
 		tocWriter.setOptions(this.tocOptions);
 		tocWriter.setJavadocDir(this.outputDirectory);
 		tocWriter.setBasedir(this.basedir);
-		tocWriter.setLog(getLog());
+		tocWriter.setLogger(logger);
 
 		try {
 			runner.run();
@@ -316,7 +321,7 @@ public class JavadocMojo extends AbstractMojo {
 	private void visitProjects(final List<Dependency> dependencies, final Set<String> scopes,
 			final List<ProjectVisitor> visitors) throws MojoExecutionException {
 		for (final Dependency dep : dependencies) {
-			getLog().debug("Dependency: " + dep + " / scope: " + dep.getScope());
+			logger.debug("Dependency: " + dep + " / scope: " + dep.getScope());
 
 			final String scope = dep.getScope();
 
@@ -337,7 +342,7 @@ public class JavadocMojo extends AbstractMojo {
 		public void visit(final MavenProject project) {
 			if (JavadocMojo.this.sourceTypes.contains(project.getPackaging())) {
 				for (final String root : (Collection<String>) project.getCompileSourceRoots()) {
-					getLog().debug("\tAdding source root: " + root);
+					logger.debug("\tAdding source root: " + root);
 					final File rootFile = new File(root);
 					if (rootFile.isDirectory()) {
 						this.sourceFolders.add(rootFile);
@@ -394,23 +399,23 @@ public class JavadocMojo extends AbstractMojo {
 			throws MojoExecutionException {
 		final MavenProject project = findProject(dep.getGroupId(), dep.getArtifactId());
 		if (project == null) {
-			getLog().info(String.format("Could not find project %s in reactor", dep));
+			logger.info(String.format("Could not find project %s in reactor", dep));
 			return;
 		}
 
 		if (this.visitedProjects.add(project)) {
-			getLog().debug("Adding sources from: " + project);
+			logger.debug("Adding sources from: " + project);
 			for (ProjectVisitor visitor : visitors) {
 				visitor.visit(project);
 			}
-			getLog().debug("Scanning dependencies: " + project.getDependencies().size());
+			logger.debug("Scanning dependencies: " + project.getDependencies().size());
 			visitProjects(project.getDependencies(), scopes, visitors);
 		}
-		getLog().debug("Done processing: " + project);
+		logger.debug("Done processing: " + project);
 	}
 
 	private MavenProject findProject(final String groupId, final String artifactId) {
-		getLog().debug(String.format("findProject - groupId: %s, artifactId: %s", groupId, artifactId));
+		logger.debug(String.format("findProject - groupId: %s, artifactId: %s", groupId, artifactId));
 
 		for (final MavenProject p : this.reactorProjects) {
 			if (!p.getGroupId().equals(groupId) || !p.getArtifactId().equals(artifactId)) {

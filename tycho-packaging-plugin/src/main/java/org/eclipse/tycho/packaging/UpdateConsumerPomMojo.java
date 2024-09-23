@@ -40,8 +40,6 @@ import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -50,6 +48,8 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.packaging.reverseresolve.ArtifactCoordinateResolver;
+
+import javax.inject.Inject;
 
 /**
  * Updates the pom file with the dependencies from the tycho model. If you
@@ -73,16 +73,16 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${session}", readonly = true, required = true)
 	private MavenSession session;
 
-	@Component(role = ModelWriter.class)
+	@Inject
 	protected ModelWriter modelWriter;
 
-	@Component(role = ModelReader.class)
+	@Inject
 	protected ModelReader modelReader;
 
-	@Component
+	@Inject
 	private Map<String, ArtifactCoordinateResolver> artifactCoordinateResolvers;
 
-	@Component
+	@Inject
 	ArtifactHandlerManager artifactHandlerManager;
 
 	/**
@@ -175,7 +175,7 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = "local,p2,central")
 	private String resolver;
 
-	private Map<String, Optional<Dependency>> resolvedDependencies = new HashMap<>();
+	private final Map<String, Optional<Dependency>> resolvedDependencies = new HashMap<>();
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -189,8 +189,7 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		if (outputDirectory == null) {
 			outputDirectory = project.getBasedir();
 		}
-		Log log = getLog();
-		log.debug("Generating pom descriptor with updated dependencies");
+		getLog().debug("Generating pom descriptor with updated dependencies");
 		Model projectModel;
 		try {
 			projectModel = modelReader.read(project.getFile(), Map.of());
@@ -258,17 +257,17 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 			output.deleteOnExit();
 		}
 		if (p2Skipped.isEmpty()) {
-			log.info("All system scoped dependencies were mapped to maven artifacts");
+			getLog().info("All system scoped dependencies were mapped to maven artifacts");
 		} else if (mapP2Dependencies) {
-			log.warn(resolved + " system scoped dependencies were mapped to maven artifacts, " + p2Skipped.size()
+			getLog().warn(resolved + " system scoped dependencies were mapped to maven artifacts, " + p2Skipped.size()
 					+ " were skipped");
-			if (log.isDebugEnabled()) {
+			if (getLog().isDebugEnabled()) {
 				for (String skipped : p2Skipped) {
-					log.debug("Skipped: " + skipped);
+					getLog().debug("Skipped: " + skipped);
 				}
 			}
 		} else {
-			log.info(p2Skipped.size() + " system scoped dependencies were not mapped to maven artifacts");
+			getLog().info(p2Skipped.size() + " system scoped dependencies were not mapped to maven artifacts");
 		}
 		try {
 			modelWriter.write(output, null, projectModel);
@@ -282,7 +281,7 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 				Files.writeString(file.toPath(), p2Skipped.stream().collect(Collectors.joining("\r\n")));
 			}
 		} catch (IOException e) {
-			log.warn("Writing additional information failed: " + e);
+			getLog().warn("Writing additional information failed: " + e);
 		}
 		if (updatePomFile) {
 			project.setFile(output);

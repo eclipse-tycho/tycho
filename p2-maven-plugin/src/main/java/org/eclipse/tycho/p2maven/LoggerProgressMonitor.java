@@ -14,14 +14,14 @@ package org.eclipse.tycho.p2maven;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.slf4j.Logger;
 
 public class LoggerProgressMonitor implements IProgressMonitor {
 
 	private final Logger log;
 
-	private AtomicBoolean canceled = new AtomicBoolean();
+	private final AtomicBoolean canceled = new AtomicBoolean();
 
 	public LoggerProgressMonitor(Logger log) {
 		this.log = log;

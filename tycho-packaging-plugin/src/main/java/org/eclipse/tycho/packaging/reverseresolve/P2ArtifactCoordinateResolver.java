@@ -18,9 +18,6 @@ import java.util.Optional;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.ArtifactType;
@@ -29,19 +26,24 @@ import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.TychoConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Uses data stored in the P2 metadata to map to maven artifacts
  *
  */
-@Component(role = ArtifactCoordinateResolver.class, hint = "p2")
+@Singleton
+@Named("p2")
 public class P2ArtifactCoordinateResolver implements ArtifactCoordinateResolver {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Requirement
+	@Inject
 	private RepositorySystem repositorySystem;
-
-	@Requirement
-	private Logger log;
 
 	@Override
 	public Optional<Dependency> resolve(Dependency dependency, MavenProject project, MavenSession session) {
@@ -89,7 +91,7 @@ public class P2ArtifactCoordinateResolver implements ArtifactCoordinateResolver 
 							return result;
 						}
 					} catch (Exception e) {
-						log.debug("Cannot resolve from repository system because of " + e, e);
+						logger.debug("Cannot resolve from repository system because of " + e, e);
 					}
 				}
 				return null;

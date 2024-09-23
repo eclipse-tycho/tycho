@@ -19,7 +19,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -27,6 +26,8 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
+
+import javax.inject.Inject;
 
 /**
  * Registers all target definition files in the basedir of a project as maven artifact.
@@ -38,7 +39,7 @@ public class PackageTargetDefinitionMojo extends AbstractMojo {
     @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
 
-    @Component
+    @Inject
     MavenProjectHelper projectHelper;
 
     @Override

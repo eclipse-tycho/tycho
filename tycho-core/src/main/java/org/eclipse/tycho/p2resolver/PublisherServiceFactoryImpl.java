@@ -14,8 +14,6 @@ package org.eclipse.tycho.p2resolver;
 
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
@@ -31,16 +29,26 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
-@Component(role = PublisherServiceFactory.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
-    @Requirement
-    private MavenContext mavenContext;
-    @Requirement
-    private ReactorRepositoryManager reactorRepoManager;
+    private final MavenContext mavenContext;
+    private final ReactorRepositoryManager reactorRepoManager;
+    private final TargetPlatformService targetPlatformService;
 
-    @Requirement
-    private TargetPlatformService targetPlatformService;
+    @Inject
+    public PublisherServiceFactoryImpl(MavenContext mavenContext,
+                                       ReactorRepositoryManager reactorRepoManager,
+                                       TargetPlatformService targetPlatformService) {
+        this.mavenContext = mavenContext;
+        this.reactorRepoManager = reactorRepoManager;
+        this.targetPlatformService = targetPlatformService;
+    }
 
     @Override
     public PublisherService createPublisher(ReactorProject project, List<TargetEnvironment> environments) {

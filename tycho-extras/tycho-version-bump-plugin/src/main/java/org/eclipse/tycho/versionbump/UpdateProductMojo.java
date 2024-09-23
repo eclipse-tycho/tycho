@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.ArtifactType;
@@ -39,6 +38,8 @@ import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
+import javax.inject.Inject;
+
 /**
  * Quick&dirty way to update .product file to use latest versions of IUs available from specified
  * metadata repositories.
@@ -52,7 +53,7 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
     @Parameter(defaultValue = "JavaSE-17")
     private String executionEnvironment;
 
-    @Component
+    @Inject
     private P2ResolverFactory factory;
 
     String getExecutionEnvironment() {

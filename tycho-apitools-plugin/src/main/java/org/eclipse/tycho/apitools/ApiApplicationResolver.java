@@ -18,9 +18,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
@@ -37,24 +34,34 @@ import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.Features;
 import org.osgi.framework.BundleException;
 import org.osgi.service.log.LogEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 /**
  * Component that resolves the bundles that make up the ApiApplication from a
  * given URI
  */
-@Component(role = ApiApplicationResolver.class)
+@Singleton
+@Named
 public class ApiApplicationResolver {
 
-	@Requirement
-	private Logger logger;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Requirement
-	private EclipseApplicationFactory applicationFactory;
+	private final EclipseApplicationFactory applicationFactory;
+	private final EclipseApplicationManager applicationManager;
 
-	@Requirement
-	private EclipseApplicationManager applicationManager;
+	@Inject
+	public ApiApplicationResolver(EclipseApplicationFactory applicationFactory, EclipseApplicationManager applicationManager) {
+		this.applicationFactory = applicationFactory;
+		this.applicationManager = applicationManager;
+	}
 
 	public Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
-			ArtifactKey artifactKey, Collection<TargetEnvironment> environment)
+												  ArtifactKey artifactKey, Collection<TargetEnvironment> environment)
 			throws IllegalArtifactReferenceException {
 		P2Resolver resolver = applicationFactory.createResolver(environment);
 		resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, artifactKey.getId(), "0.0.0");

@@ -30,7 +30,6 @@ import javax.inject.Inject;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.mojo.versions.api.Segment;
@@ -133,7 +132,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     @Parameter(property = "maven.version.rules")
     private String mavenRulesUri;
 
-    @Component
+    @Inject
     private MavenSession mavenSession;
 
     @Parameter(defaultValue = "${mojoExecution}", required = true, readonly = true)

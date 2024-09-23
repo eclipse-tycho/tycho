@@ -24,7 +24,7 @@ public interface BuildTimestampProvider {
     /**
      * Returns build timestamp of the current project.
      */
-    public Date getTimestamp(MavenSession session, MavenProject project, MojoExecution execution)
+    Date getTimestamp(MavenSession session, MavenProject project, MojoExecution execution)
             throws MojoExecutionException;
 
     /**
@@ -32,6 +32,6 @@ public interface BuildTimestampProvider {
      * 
      * @param quiet
      */
-    public void setQuiet(boolean quiet);
+    void setQuiet(boolean quiet);
 
 }

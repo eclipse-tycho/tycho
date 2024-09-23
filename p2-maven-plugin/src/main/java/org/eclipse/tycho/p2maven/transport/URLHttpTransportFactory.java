@@ -23,32 +23,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 import org.eclipse.tycho.p2maven.transport.Response.ResponseConsumer;
 
-@Component(role = HttpTransportFactory.class, hint = URLHttpTransportFactory.HINT)
-public class URLHttpTransportFactory implements HttpTransportFactory {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
+@Singleton
+@Named(URLHttpTransportFactory.HINT)
+public class URLHttpTransportFactory implements HttpTransportFactory {
 	static final String HINT = "JavaUrl";
-	@Requirement
-	ProxyHelper proxyHelper;
-	@Requirement
-	MavenAuthenticator authenticator;
+
+	private final ProxyHelper proxyHelper;
+	private final MavenAuthenticator authenticator;
+
+	@Inject
+	public URLHttpTransportFactory(ProxyHelper proxyHelper, MavenAuthenticator authenticator) {
+		this.proxyHelper = proxyHelper;
+		this.authenticator = authenticator;
+	}
 
 	@Override
 	public HttpTransport createTransport(URI uri) {
-		URLHttpTransport transport = new URLHttpTransport(uri, proxyHelper, authenticator);
-		return transport;
+        return new URLHttpTransport(uri, proxyHelper, authenticator);
 	}
 
 	private static final class URLHttpTransport implements HttpTransport {
-
-		private URI uri;
-		private ProxyHelper proxyHelper;
-		private MavenAuthenticator authenticator;
-		private Map<String, String> extraHeaders = new HashMap<>();
+		private final URI uri;
+		private final ProxyHelper proxyHelper;
+		private final MavenAuthenticator authenticator;
+		private final Map<String, String> extraHeaders = new HashMap<>();
 
 		public URLHttpTransport(URI uri, ProxyHelper proxyHelper, MavenAuthenticator authenticator) {
 			this.uri = uri;
@@ -108,7 +113,7 @@ public class URLHttpTransportFactory implements HttpTransportFactory {
 			HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection(proxyHelper.getProxy(uri));
 			connection.setAuthenticator(authenticator);
 			connection.setInstanceFollowRedirects(false);
-			authenticator.preemtiveAuth((k, v) -> connection.setRequestProperty(k, v), uri);
+			authenticator.preemtiveAuth(connection::setRequestProperty, uri);
 			extraHeaders.forEach(connection::setRequestProperty);
 			return connection;
 		}
@@ -137,7 +142,7 @@ public class URLHttpTransportFactory implements HttpTransportFactory {
 
 	private static abstract class HttpResponse implements Response {
 
-		private HttpURLConnection connection;
+		private final HttpURLConnection connection;
 
 		HttpResponse(HttpURLConnection connection) {
 			this.connection = connection;
@@ -171,7 +176,5 @@ public class URLHttpTransportFactory implements HttpTransportFactory {
 				throw new AssertionError("Should never happen!", e);
 			}
 		}
-
 	}
-
 }

@@ -21,11 +21,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.versions.manipulation.PomManipulator;
 import org.eclipse.tycho.versions.pom.PomFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * Applies direct and indirect version changes to a set of projects.
@@ -33,7 +35,7 @@ import org.eclipse.tycho.versions.pom.PomFile;
  * @TODO find more specific name that reflects what this class actually does.
  * 
  */
-@Component(role = VersionsEngine.class, instantiationStrategy = "per-lookup")
+@Named
 public class VersionsEngine {
 
     private static class PropertyChange {
@@ -50,20 +52,22 @@ public class VersionsEngine {
         }
     }
 
-    @Requirement
-    private Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement(role = MetadataManipulator.class)
-    private List<MetadataManipulator> manipulators;
+    private final List<MetadataManipulator> manipulators;
+    private final PomManipulator pomManipulator;
 
-    @Requirement(hint = PomManipulator.HINT)
-    private MetadataManipulator pomManipulator;
+    @Inject
+    public VersionsEngine(List<MetadataManipulator> manipulators, PomManipulator pomManipulator) {
+        this.manipulators = manipulators;
+        this.pomManipulator = pomManipulator;
+    }
 
     private Collection<ProjectMetadata> projects;
 
-    private Set<PomVersionChange> originalVersionChanges = new LinkedHashSet<>();
+    private final Set<PomVersionChange> originalVersionChanges = new LinkedHashSet<>();
 
-    private Set<PropertyChange> propertyChanges = new LinkedHashSet<>();
+    private final Set<PropertyChange> propertyChanges = new LinkedHashSet<>();
 
     private boolean updateVersionRangeMatchingBounds;
 
@@ -149,7 +153,7 @@ public class VersionsEngine {
             // TODO property changes should be added as a new type of change in VersionChangeDescriptors
             for (PropertyChange propertyChange : propertyChanges) {
                 if (pom == propertyChange.pom) {
-                    ((PomManipulator) pomManipulator).applyPropertyChange(project.getPomFile().getName(), pom,
+                    pomManipulator.applyPropertyChange(project.getPomFile().getName(), pom,
                             propertyChange.propertyName, propertyChange.propertyValue);
                 }
             }

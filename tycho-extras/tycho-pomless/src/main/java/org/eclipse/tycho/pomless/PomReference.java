@@ -23,8 +23,8 @@ import org.apache.maven.model.io.ModelReader;
  */
 public class PomReference {
 
-    private File pom;
-    private ModelReader reader;
+    private final File pom;
+    private final ModelReader reader;
 
     public PomReference(File pom, ModelReader reader) {
         this.pom = pom;

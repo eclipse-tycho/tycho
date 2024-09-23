@@ -21,17 +21,24 @@ import java.util.Properties;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.settings.Profile;
 import org.apache.maven.settings.Settings;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.shared.MavenContext;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "MavenContextConfigurator")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("MavenContextConfigurator")
 public class MavenContextConfigurator implements EquinoxLifecycleListener {
 
-    @Requirement
-    private MavenContext context;
+    private final MavenContext context;
+
+    @Inject
+    public MavenContextConfigurator(MavenContext context) {
+        this.context = context;
+    }
 
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {

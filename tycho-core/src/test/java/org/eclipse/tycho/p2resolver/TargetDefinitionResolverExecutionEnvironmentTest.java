@@ -62,7 +62,7 @@ public class TargetDefinitionResolverExecutionEnvironmentTest extends TychoPlexu
         return new TargetDefinitionResolver(defaultEnvironments(),
                 new StandardEEResolutionHints(new ExecutionEnvironmentStub(executionEnvironmentName, systemPackages)),
                 IncludeSourceMode.honor, ReferencedRepositoryMode.ignore, mavenCtx, null,
-                new DefaultTargetDefinitionVariableResolver(mavenCtx, logVerifier.getLogger()));
+                new DefaultTargetDefinitionVariableResolver(logVerifier.getLogger(), mavenCtx, null));
     }
 
     @Test

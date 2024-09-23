@@ -26,17 +26,19 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 import org.apache.commons.exec.environment.EnvironmentUtils;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.EquinoxLaunchingException;
 import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = EquinoxLauncher.class)
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class DefaultEquinoxLauncher implements EquinoxLauncher {
-    @Requirement
-    private Logger log;
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Override
     public int execute(LaunchConfiguration configuration, int forkedProcessTimeoutInSeconds)

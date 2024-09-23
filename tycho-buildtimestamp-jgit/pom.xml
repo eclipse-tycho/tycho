@@ -22,6 +22,18 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
 			<scope>provided</scope>
@@ -36,6 +48,14 @@
 			<artifactId>org.eclipse.jgit</artifactId>
 			<version>${jgit-version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-utils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-xml</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
@@ -47,8 +67,8 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-component-metadata</artifactId>
+				<groupId>org.eclipse.sisu</groupId>
+				<artifactId>sisu-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
@@ -61,9 +81,24 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-invoker-plugin</artifactId>
+						<!--
 						<configuration>
 							<addTestClassPath>true</addTestClassPath>
+							<cloneProjectsTo>${project.build.directory}/its</cloneProjectsTo>
+							<properties>
+								<tycho-version>${project.version}</tycho-version>
+							</properties>
 						</configuration>
+						<executions>
+							<execution>
+								<id>its</id>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<phase>verify</phase>
+							</execution>
+						</executions>
+						-->
 					</plugin>
 				</plugins>
 			</build>

@@ -12,10 +12,34 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
-import org.codehaus.plexus.component.annotations.Component;
+import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.toolchain.ToolchainManager;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.DependencyResolver;
+import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
+import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 
-@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_TEST_PLUGIN)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(PackagingType.TYPE_ECLIPSE_TEST_PLUGIN)
 public class OsgiTestBundleProject extends OsgiBundleProject {
+    @Inject
+    public OsgiTestBundleProject(MavenDependenciesResolver projectDependenciesResolver,
+                                 LegacySupport legacySupport,
+                                 TychoProjectManager projectManager,
+                                 @Named("p2") DependencyResolver dependencyResolver,
+                                 BundleReader bundleReader,
+                                 ClasspathReader classpathParser,
+                                 @Named(EquinoxResolver.HINT) DependenciesResolver resolver,
+                                 ToolchainManager toolchainManager,
+                                 P2ResolverFactory resolverFactory,
+                                 BuildPropertiesParser buildPropertiesParser,
+                                 MavenBundleResolver mavenBundleResolver) {
+        super(projectDependenciesResolver, legacySupport, projectManager, dependencyResolver, bundleReader, classpathParser, resolver, toolchainManager, resolverFactory, buildPropertiesParser, mavenBundleResolver);
+    }
 }

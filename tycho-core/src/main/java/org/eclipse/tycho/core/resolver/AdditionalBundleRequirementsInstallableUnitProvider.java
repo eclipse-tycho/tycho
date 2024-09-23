@@ -20,9 +20,6 @@ import java.util.Optional;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -40,21 +37,31 @@ import aQute.bnd.header.Attrs;
 import aQute.bnd.header.OSGiHeader;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Processor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * This provides P2 visible meta-data for bundles that are not expressed in the manifest (e.g.
  * build.properties derived)
  *
  */
-@Component(role = InstallableUnitProvider.class, hint = "bundle-requirement")
+@Singleton
+@Named("bundle-requirement")
 public class AdditionalBundleRequirementsInstallableUnitProvider implements InstallableUnitProvider {
-    @Requirement
-    private Logger logger;
-    @Requirement
-    TychoProjectManager projectManager;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
+    private final TychoProjectManager projectManager;
+    private final BuildPropertiesParser buildPropertiesParser;
+
+    @Inject
+    public AdditionalBundleRequirementsInstallableUnitProvider(TychoProjectManager projectManager, BuildPropertiesParser buildPropertiesParser) {
+        this.projectManager = projectManager;
+        this.buildPropertiesParser = buildPropertiesParser;
+    }
 
     @Override
     public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)

@@ -24,7 +24,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -40,6 +39,8 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 
+import javax.inject.Inject;
+
 /**
  * Builds a .target file describing the dependencies for current project. It differs from
  * <code>maven-dependency-plugin:list</code> in the fact that it does return location to bundles,
@@ -54,16 +55,16 @@ public class ListDependenciesMojo extends AbstractMojo {
     @Parameter(property = "skip")
     private boolean skip;
 
-    @Component(role = TychoProject.class)
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
-    @Component
+    @Inject
     private PluginRealmHelper pluginRealmHelper;
 
-    @Parameter(property = "session", readonly = true)
+    @Inject
     private MavenSession session;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

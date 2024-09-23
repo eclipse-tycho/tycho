@@ -38,17 +38,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.StringUtils;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.sisu.equinox.Disposable;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.osgi.framework.Bundle;
@@ -63,6 +58,12 @@ import org.osgi.service.component.runtime.dto.ComponentConfigurationDTO;
 import org.osgi.service.component.runtime.dto.ComponentDescriptionDTO;
 import org.osgi.service.component.runtime.dto.UnsatisfiedReferenceDTO;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * The {@link PlexusFrameworkConnectServiceFactory} provides a
@@ -71,25 +72,27 @@ import org.osgi.util.tracker.ServiceTracker;
  * Specification</a> that allows to connect the plexus-world with the maven
  * world.
  */
-@Component(role = EquinoxServiceFactory.class, hint = "connect")
-public class PlexusFrameworkConnectServiceFactory implements Initializable, Disposable, EquinoxServiceFactory {
+@Singleton
+@Named("connect")
+public class PlexusFrameworkConnectServiceFactory implements EquinoxServiceFactory, Disposable {
 
 	private static final StackWalker WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
-
-	@Requirement
-	private Logger log;
 
 	private static final Map<ClassRealm, PlexusConnectFramework> frameworkMap = new HashMap<>();
 
 	private static final Map<ClassLoader, ClassRealm> loaderMap = new HashMap<>();
 
-	@Requirement(role = EquinoxLifecycleListener.class)
-	private Map<String, EquinoxLifecycleListener> lifecycleListeners;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	private final Map<String, EquinoxLifecycleListener> lifecycleListeners;
 
 	private final String name;
 
-	public PlexusFrameworkConnectServiceFactory() {
+	@Inject
+	public PlexusFrameworkConnectServiceFactory(Map<String, EquinoxLifecycleListener> lifecycleListeners) {
+		this.lifecycleListeners = lifecycleListeners;
 		name = getName(getClass().getClassLoader());
+		log.debug("Init instance " + this + " [" + getClass().getClassLoader() + "]");
 	}
 
 	protected String getName(ClassLoader classLoader) {
@@ -99,7 +102,7 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 	/**
 	 * 
 	 * 
-	 * @param classloader the classloader to use for discovering bundles to add to
+	 * @param realm the classloader to use for discovering bundles to add to
 	 *                    the framework
 	 * @return get (or creates) the Framework that is made of the given classloader
 	 * @throws BundleException if creation of the framework failed
@@ -419,11 +422,6 @@ public class PlexusFrameworkConnectServiceFactory implements Initializable, Disp
 			}
 			return true;
 		});
-	}
-
-	@Override
-	public void initialize() throws InitializationException {
-		log.debug("Init instance " + this + " [" + getClass().getClassLoader() + "]");
 	}
 
 	@Override

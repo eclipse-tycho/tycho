@@ -66,7 +66,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
         subject = new TargetDefinitionResolver(defaultEnvironments(),
                 ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, IncludeSourceMode.honor,
                 ReferencedRepositoryMode.ignore, mavenCtx, null,
-                new DefaultTargetDefinitionVariableResolver(mavenCtx, logVerifier.getLogger()));
+                new DefaultTargetDefinitionVariableResolver(logVerifier.getLogger(), mavenCtx, null));
     }
 
     @Test(expected = TargetDefinitionResolutionException.class)

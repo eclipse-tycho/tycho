@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -38,6 +37,8 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.tools.P2DependencyTreeGenerator;
 import org.eclipse.tycho.p2.tools.P2DependencyTreeGenerator.DependencyTreeNode;
 
+import javax.inject.Inject;
+
 /**
  * Similar to dependency:tree outputs a tree of P2 dependencies.
  */
@@ -46,10 +47,10 @@ public class DependenciesTreeMojo extends AbstractMojo {
     @Parameter(property = "project")
     private MavenProject project;
 
-    @Component
+    @Inject
     private P2DependencyTreeGenerator generator;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

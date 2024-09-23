@@ -39,7 +39,6 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.ManifestException;
@@ -59,6 +58,8 @@ import org.eclipse.tycho.packaging.sourceref.SourceReferenceComputer;
 import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
 import org.osgi.framework.Constants;
 
+import javax.inject.Provider;
+
 /**
  * Creates a jar-based plugin and attaches it as an artifact
  */
@@ -70,8 +71,8 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	/**
 	 * The Jar archiver.
 	 */
-	@Component(role = Archiver.class, hint = "jar")
-	private JarArchiver jarArchiver;
+	@Component
+	private Provider<JarArchiver> jarArchiverProvider;
 
 	/**
 	 * Name of the generated JAR.
@@ -235,7 +236,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	private File createPluginJar() throws MojoExecutionException {
 		try {
 			MavenArchiver archiver = new MavenArchiver();
-			archiver.setArchiver(jarArchiver);
+			archiver.setArchiver(jarArchiverProvider.get());
 
 			File pluginFile = new File(buildDirectory, finalName + ".jar");
 			if (pluginFile.exists()) {

@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -34,10 +33,14 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 /**
  * Component that helps publishing units using publisher actions
  */
-@Component(role = InstallableUnitPublisher.class)
+@Singleton
+@Named
 public class InstallableUnitPublisher {
 
 	/**

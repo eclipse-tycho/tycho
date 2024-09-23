@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -32,16 +29,22 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * A strategy that computes a slice from a set of all units.
  */
-@Component(role = InstallableUnitSlicer.class)
+@Singleton
+@Named
 public class InstallableUnitSlicer {
 
 	private static final SlicingOptions DEFAULT_SLICING_OPTIONS = new SlicingOptions();
-	@Requirement
-	private Logger log;
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Computes a "slice" of a given set of {@link IInstallableUnit}s that include
@@ -70,7 +73,7 @@ public class InstallableUnitSlicer {
 			throw new CoreException(sliceStatus);
 		}
 		if (!sliceStatus.isOK()) {
-			log.debug("There are warnings from the slicer: " + sliceStatus);
+			logger.debug("There are warnings from the slicer: " + sliceStatus);
 		}
 		if (options.isLatestVersionOnly()) {
 			return slice.query(QueryUtil.createLatestIUQuery(), monitor);

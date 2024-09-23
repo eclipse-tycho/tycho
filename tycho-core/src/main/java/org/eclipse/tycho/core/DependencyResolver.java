@@ -17,12 +17,12 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
+import org.slf4j.Logger;
 
 /**
  * Resolves project dependencies against the content of the target platform.

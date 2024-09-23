@@ -26,9 +26,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.eclipse.jgit.api.Status;
@@ -44,6 +41,12 @@ import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.tycho.build.BuildTimestampProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Build timestamp provider that returns date of the most recent git commit that
@@ -91,19 +94,23 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
  * ...
  * </pre>
  */
-@Component(role = BuildTimestampProvider.class, hint = "jgit")
+@Singleton
+@Named("jgit")
 public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 	private static final String PARAMETER_JGIT_IGNORE = "jgit.ignore";
 
 	private static final String PARAMETER_JGIT_DIRTY_WORKING_TREE = "jgit.dirtyWorkingTree";
 
-	@Requirement(hint = "default")
-	private BuildTimestampProvider defaultTimestampProvider;
-
-	@Requirement
-	private Logger logger;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private boolean quiet;
+
+	private final BuildTimestampProvider defaultTimestampProvider;
+
+	@Inject
+	public JGitBuildTimestampProvider(BuildTimestampProvider defaultTimestampProvider) {
+		this.defaultTimestampProvider = defaultTimestampProvider;
+	}
 
 	private enum DirtyBehavior {
 

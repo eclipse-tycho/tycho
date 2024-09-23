@@ -18,10 +18,11 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
-import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.toolchain.MisconfiguredToolchainException;
 import org.apache.maven.toolchain.Toolchain;
@@ -29,43 +30,38 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.maven.toolchain.ToolchainManagerPrivate;
 import org.apache.maven.toolchain.ToolchainPrivate;
 import org.apache.maven.toolchain.java.JavaToolchainImpl;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = ToolchainProvider.class)
-@SessionScoped
+@Singleton
+@Named
 public class ToolchainProvider {
 
     private static final String RUNNING_PROFILE_NAME = "JavaSE-" + Runtime.version().feature();
 
     static final String TYPE_JDK = "jdk";
 
-    @Requirement
-    ToolchainManagerPrivate toolChainManager;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    ToolchainManager toolchainManager;
+    private final Map<ToolchainKey, Optional<OSGiJavaToolchain>> toolchainMap = new ConcurrentHashMap<>();
 
-    @Requirement
-    LegacySupport legacySupport;
-
-    @Requirement
-    Logger logger;
-
-    private Map<ToolchainKey, Optional<OSGiJavaToolchain>> toolchainMap = new ConcurrentHashMap<>();
-
-    private MavenSession mavenSession;
-
-    public static enum JDKUsage {
+    public enum JDKUsage {
         SYSTEM, BREE;
     }
 
+    private final ToolchainManagerPrivate toolChainManager;
+    private final ToolchainManager toolchainManager;
+    private final Provider<MavenSession> mavenSessionProvider;
+
     @Inject
-    public ToolchainProvider(MavenSession mavenSession) {
-        this.mavenSession = mavenSession;
+    public ToolchainProvider(ToolchainManagerPrivate toolChainManager,
+                             ToolchainManager toolchainManager,
+                             Provider<MavenSession> mavenSessionProvider) {
+        this.toolChainManager = toolChainManager;
+        this.toolchainManager = toolchainManager;
+        this.mavenSessionProvider = mavenSessionProvider;
     }
 
     public Optional<OSGiJavaToolchain> getToolchain(JDKUsage usage, String profileName) {
@@ -115,11 +111,7 @@ public class ToolchainProvider {
     }
 
     private MavenSession getMavenSession() {
-        MavenSession session = legacySupport.getSession();
-        if (session != null) {
-            return session;
-        }
-        return mavenSession;
+        return mavenSessionProvider.get();
     }
 
     /**

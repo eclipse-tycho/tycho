@@ -18,9 +18,12 @@ import org.apache.maven.execution.MojoExecutionEvent;
 import org.apache.maven.execution.MojoExecutionListener;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.codehaus.plexus.component.annotations.Component;
 
-@Component(role = MojoExecutionListener.class, hint = "helper")
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("helper")
 public class MojoExecutionHelper implements MojoExecutionListener {
 
     private static final ThreadLocal<MojoExecutionEvent> EVENT = new ThreadLocal<MojoExecutionEvent>();

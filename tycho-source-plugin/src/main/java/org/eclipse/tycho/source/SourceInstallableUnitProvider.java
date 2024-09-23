@@ -23,8 +23,6 @@ import java.util.Map;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -42,23 +40,32 @@ import org.eclipse.tycho.p2maven.InstallableUnitPublisher;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 import org.osgi.framework.Constants;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 /**
  * provides a preliminary IU to make generated sources visible to the project dependencies stage
  */
-@Component(role = InstallableUnitProvider.class, hint = "source")
+@Singleton
+@Named("source")
 public class SourceInstallableUnitProvider implements InstallableUnitProvider {
 
-    @Requirement
-    private InstallableUnitPublisher publisher;
+    private final InstallableUnitPublisher publisher;
+    private final BundleReader bundleReader;
+    private final Map<String, TychoProject> projectTypes;
+    private final BuildPropertiesParser buildPropertiesParser;
 
-    @Requirement
-    private BundleReader bundleReader;
-
-    @Requirement(role = TychoProject.class)
-    private Map<String, TychoProject> projectTypes;
-
-    @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
+    @Inject
+    public SourceInstallableUnitProvider(InstallableUnitPublisher publisher,
+                                         BundleReader bundleReader,
+                                         Map<String, TychoProject> projectTypes,
+                                         BuildPropertiesParser buildPropertiesParser) {
+        this.publisher = publisher;
+        this.bundleReader = bundleReader;
+        this.projectTypes = projectTypes;
+        this.buildPropertiesParser = buildPropertiesParser;
+    }
 
     @Override
     public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)

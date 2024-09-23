@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -40,6 +39,9 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.signedcontent.SignedContentFactory;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * Modifies the p2 metadata ({@code artifacts.xml}) to add a PGP signature to each included
@@ -137,16 +139,16 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
     @Parameter
     private List<String> forceSignature;
 
-    @Component(role = UnArchiver.class, hint = "zip")
-    private ZipUnArchiver zipUnArchiver;
+    @Inject
+    private Provider<ZipUnArchiver> zipUnArchiverProvider;
 
-    @Component(role = Archiver.class, hint = "xz")
-    private XZArchiver xzArchiver;
+    @Inject
+    private Provider<XZArchiver> xzArchiverProvider;
 
-    @Component
+    @Inject
     private SignedContentFactory signedContentFactory;
 
-    @Component
+    @Inject
     private P2RepositoryManager repositoryManager;
 
     @Override
@@ -202,12 +204,14 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
             var artifactsJar = new File(repository, "artifacts.jar");
             if (!artifactsXml.exists()) {
                 if (artifactsJar.exists()) {
+                    ZipUnArchiver zipUnArchiver = zipUnArchiverProvider.get();
                     zipUnArchiver.setSourceFile(artifactsJar);
                     zipUnArchiver.setDestDirectory(repository);
                     zipUnArchiver.extract();
                 }
             }
 
+            XZArchiver xzArchiver = xzArchiverProvider.get();
             xzArchiver.setDestFile(artifactsXmlXz);
             xzArchiver.addFile(artifactsXml, artifactsXml.getName());
             xzArchiver.createArchive();

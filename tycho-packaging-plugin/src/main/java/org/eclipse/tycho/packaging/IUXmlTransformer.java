@@ -29,20 +29,15 @@ import org.eclipse.tycho.model.IU;
 
 import de.pdark.decentxml.Element;
 
-@Component(role = IUXmlTransformer.class)
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class IUXmlTransformer {
     private static final String MAVEN_ARTIFACT_ID = "maven-artifactId";
     private static final String MAVEN_VERSION = "maven-version";
     private static final String MAVEN_GROUP_ID = "maven-groupId";
-    @Requirement
-    private Logger log;
-
-    public IUXmlTransformer() {
-    }
-
-    public IUXmlTransformer(Logger log) {
-        this.log = log;
-    }
 
     //Replace the qualifier representing the version of the IU
     public void replaceSelfQualifiers(IU iu, String version, String qualifier) {

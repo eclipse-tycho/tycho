@@ -29,7 +29,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -49,6 +48,7 @@ import org.eclipse.tycho.p2.repository.FileRepositoryArtifactProvider;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.MetadataIO;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
+import org.slf4j.Logger;
 
 public class PomDependencyCollectorImpl implements PomDependencyCollector {
 

@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
@@ -33,14 +34,22 @@ import java.util.jar.Manifest;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Organization;
 import org.apache.maven.model.Plugin;
+import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelParseException;
-import org.codehaus.plexus.component.annotations.Component;
+import org.apache.maven.model.io.ModelWriter;
+import org.eclipse.sisu.Typed;
 import org.eclipse.tycho.model.classpath.ClasspathParser;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.eclipse.tycho.model.classpath.SourceFolderClasspathEntry;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
-@Component(role = Mapping.class, hint = TychoBundleMapping.PACKAGING)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(TychoBundleMapping.PACKAGING)
+@Typed(Mapping.class)
 public class TychoBundleMapping extends AbstractTychoMapping {
 
     private static final String NAME_PREFIX = "[bundle] ";
@@ -53,6 +62,11 @@ public class TychoBundleMapping extends AbstractTychoMapping {
     private static final String PACKAGING_TEST = "eclipse-test-plugin";
     private static final String PDE_BND = "pde.bnd";
     private static final AtomicLong ID = new AtomicLong();
+
+    @Inject
+    public TychoBundleMapping(Map<String, ModelWriter> modelWriters, Map<String, ModelProcessor> modelProcessors) {
+        super(modelWriters, modelProcessors);
+    }
 
     @Override
     protected String getPackaging() {
@@ -165,9 +179,9 @@ public class TychoBundleMapping extends AbstractTychoMapping {
                 execution.setId("eclipse-classpath-" + goal + "-" + ID.incrementAndGet());
                 execution.setPhase("initialize");
                 execution.getGoals().add(goal);
-                MavenConfiguation configuration = getConfiguration(execution);
-                MavenConfiguation sources = configuration.addChild("sources");
-                MavenConfiguation source = sources.addChild("source");
+                MavenConfiguration configuration = getConfiguration(execution);
+                MavenConfiguration sources = configuration.addChild("sources");
+                MavenConfiguration source = sources.addChild("source");
                 Path additionalSourcePath = entry.getSourcePath().toPath();
                 String additionalPath = bundleRoot.relativize(additionalSourcePath).toString();
                 source.setValue(additionalPath);
@@ -206,7 +220,7 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         addPluginExecution(plugin, execution -> {
             execution.setId("bnd-process");
             execution.setGoals(Arrays.asList("bnd-process"));
-            MavenConfiguation config = getConfiguration(execution);
+            MavenConfiguration config = getConfiguration(execution);
             config.addChild("packagingTypes").setValue(model.getPackaging());
             config.addChild("manifestPath").setValue("${project.build.directory}/BND.MF");
         });

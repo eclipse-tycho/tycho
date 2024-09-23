@@ -58,13 +58,9 @@ public class P2ResolverTestBase extends TychoPlexusTestCase {
         resolverFactory = new TestResolverFactory(logVerifier.getMavenLogger(), logVerifier.getLogger(),
                 lookup(IProvisioningAgent.class), lookup(MavenTargetLocationFactory.class));
         MockMavenContext mavenContext = new MockMavenContext(null, logVerifier.getLogger());
-        fullGenerator = new P2GeneratorImpl(true);
-        fullGenerator.setMavenContext(mavenContext);
         BuildPropertiesParserForTesting buildPropertiesReader = new BuildPropertiesParserForTesting();
-        fullGenerator.setBuildPropertiesParser(buildPropertiesReader);
-        dependencyGenerator = new DefaultDependencyMetadataGenerator();
-        dependencyGenerator.setBuildPropertiesParser(buildPropertiesReader);
-        dependencyGenerator.setMavenContext(mavenContext);
+        fullGenerator = new P2GeneratorImpl(true, mavenContext, buildPropertiesReader, null);
+        dependencyGenerator = new DefaultDependencyMetadataGenerator(mavenContext, buildPropertiesReader, null);
 
         tpConfig = new TargetPlatformConfigurationStub();
         tpFactory = resolverFactory.getTargetPlatformFactoryImpl();

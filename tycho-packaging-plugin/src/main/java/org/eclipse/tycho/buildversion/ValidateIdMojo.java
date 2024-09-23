@@ -17,7 +17,6 @@ import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -26,6 +25,8 @@ import org.eclipse.tycho.core.ManifestHelper;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import aQute.bnd.osgi.Constants;
+
+import javax.inject.Inject;
 
 /**
  * Validates that project Maven and OSGi ids match.
@@ -38,10 +39,10 @@ public class ValidateIdMojo extends AbstractVersionMojo {
     @Parameter(defaultValue = "false")
     private boolean skip;
 
-	@Component
+	@Inject
 	ManifestHelper manifestHelper;
 
-	@Component
+	@Inject
 	BuildContext buildContext;
 
     @Override

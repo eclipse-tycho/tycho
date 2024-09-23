@@ -17,12 +17,10 @@ import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
@@ -30,6 +28,9 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.IU;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * Creates the zip for the IU and attaches it as an artifact
@@ -50,13 +51,13 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
     @Parameter(property = "project.basedir", required = true, readonly = true)
     private File basedir;
 
-    @Component
+    @Inject
     private IUXmlTransformer iuTransformer;
 
-    @Component(role = Archiver.class, hint = "zip")
-    private ZipArchiver zipArchiver;
+    @Inject
+    private Provider<ZipArchiver> zipArchiverProvider;
 
-	@Component
+	@Inject
 	private TychoProjectManager projectManager;
 
     @Override
@@ -133,6 +134,7 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
             if (hasPayload()) {
                 DefaultFileSet fs = new DefaultFileSet();
                 fs.setDirectory(payload);
+                ZipArchiver zipArchiver = zipArchiverProvider.get();
                 zipArchiver.addFileSet(fs);
                 zipArchiver.setDestFile(newArtifact);
                 zipArchiver.setCompress(true);

@@ -17,14 +17,15 @@ import java.net.URI;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.codehaus.plexus.logging.LogEnabled;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.VerifierService;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.p2.tools.FacadeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * <p>
@@ -33,12 +34,13 @@ import org.eclipse.tycho.p2.tools.FacadeException;
  * 
  */
 @Mojo(name = "verify-repository", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
-public class VerifyIntegrityRepositoryMojo extends AbstractP2Mojo implements LogEnabled {
+public class VerifyIntegrityRepositoryMojo extends AbstractP2Mojo {
     private static final Object LOCK = new Object();
-    private Logger logger;
 
-    @Component
-    VerifierService verifier;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Inject
+    private VerifierService verifier;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -54,10 +56,5 @@ public class VerifyIntegrityRepositoryMojo extends AbstractP2Mojo implements Log
                 throw new MojoExecutionException("Verification failed", e);
             }
         }
-    }
-
-    @Override
-    public void enableLogging(Logger logger) {
-        this.logger = logger;
     }
 }

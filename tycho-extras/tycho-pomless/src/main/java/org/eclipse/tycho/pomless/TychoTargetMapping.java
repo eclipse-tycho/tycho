@@ -19,19 +19,33 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.maven.model.Model;
-import org.codehaus.plexus.component.annotations.Component;
+import org.apache.maven.model.building.ModelProcessor;
+import org.apache.maven.model.io.ModelWriter;
+import org.eclipse.sisu.Typed;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.w3c.dom.Element;
 
-@Component(role = Mapping.class, hint = TychoTargetMapping.PACKAGING)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(TychoTargetMapping.PACKAGING)
+@Typed(Mapping.class)
 public class TychoTargetMapping extends AbstractXMLTychoMapping {
 
     private static final String NAME_PREFIX = "[target] ";
     private static final String TARGET_EXTENSION = ".target";
     public static final String PACKAGING = "eclipse-target-definition";
+
+    @Inject
+    public TychoTargetMapping(Map<String, ModelWriter> modelWriters, Map<String, ModelProcessor> modelProcessors) {
+        super(modelWriters, modelProcessors);
+    }
 
     @Override
     protected String getPackaging() {

@@ -18,14 +18,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
-import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetEnvironment;
@@ -36,32 +35,32 @@ import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Component that resolves all the bundles that make up an Eclipse Application to run from a given
  * URI
  */
-@Component(role = EclipseApplicationFactory.class)
-@SessionScoped
+@Singleton
+@Named
 public class EclipseApplicationFactory {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private ToolchainManager toolchainManager;
-
-    @Requirement
-    private P2ResolverFactory resolverFactory;
-
-    @Requirement
-    private TargetPlatformFactory platformFactory;
-
-    @Requirement
-    private Logger logger;
-
-    private MavenSession mavenSession;
+    private final ToolchainManager toolchainManager;
+    private final P2ResolverFactory resolverFactory;
+    private final TargetPlatformFactory platformFactory;
+    private final Provider<MavenSession> mavenSessionProvider;
 
     @Inject
-    public EclipseApplicationFactory(MavenSession mavenSession) {
-        this.mavenSession = mavenSession;
+    public EclipseApplicationFactory(ToolchainManager toolchainManager,
+                                     P2ResolverFactory resolverFactory,
+                                     TargetPlatformFactory platformFactory,
+                                     Provider<MavenSession> mavenSessionProvider) {
+        this.toolchainManager = toolchainManager;
+        this.resolverFactory = resolverFactory;
+        this.platformFactory = platformFactory;
+        this.mavenSessionProvider = mavenSessionProvider;
     }
 
     public EclipseApplication createEclipseApplication(MavenRepositoryLocation repositoryLocation, String name) {
@@ -70,7 +69,7 @@ public class EclipseApplicationFactory {
 
     public EclipseApplication createEclipseApplication(TargetPlatform targetPlatform, String name) {
         P2Resolver resolver = createResolver();
-        EclipseApplication application = new EclipseApplication(name, resolver, targetPlatform, logger, mavenSession
+        EclipseApplication application = new EclipseApplication(name, resolver, targetPlatform, logger, mavenSessionProvider.get()
                 .getAllProjects().stream().collect(Collectors.toMap(MavenProject::getBasedir, Function.identity())));
         //add the bare minimum required ...
         application.addBundle(Bundles.BUNDLE_CORE);
@@ -89,10 +88,9 @@ public class EclipseApplicationFactory {
         }
         int javaVersion = Runtime.version().feature();
         ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger, false,
-                toolchainManager, mavenSession);
+                toolchainManager, mavenSessionProvider.get());
         eeConfiguration.setProfileConfiguration("JavaSE-" + javaVersion, "tycho-eclipse-application-resolver");
-        TargetPlatform targetPlatform = platformFactory.createTargetPlatform(tpConfiguration, eeConfiguration, null);
-        return targetPlatform;
+        return platformFactory.createTargetPlatform(tpConfiguration, eeConfiguration, null);
     }
 
     public P2Resolver createResolver() {

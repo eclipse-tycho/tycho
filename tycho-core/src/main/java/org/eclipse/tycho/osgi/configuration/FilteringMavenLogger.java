@@ -19,26 +19,32 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * A logger that filters duplicate messages from the output, each message is only printed once
  */
-@Component(role = MavenLogger.class, hint = FilteringMavenLogger.HINT)
+@Singleton
+@Named(FilteringMavenLogger.HINT)
 public class FilteringMavenLogger implements MavenLogger {
-
     static final String HINT = "filtering";
 
-    @Requirement
-    private LegacySupport legacySupport;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private Logger logger;
+    private final LegacySupport legacySupport;
 
     private Map<MavenProject, Set<LogKey>> messageLogMap = new ConcurrentHashMap<>();
+
+    @Inject
+    public FilteringMavenLogger(LegacySupport legacySupport) {
+        this.legacySupport = legacySupport;
+    }
 
     @Override
     public void error(String message, Throwable cause) {

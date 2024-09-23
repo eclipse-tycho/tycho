@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
@@ -30,14 +30,29 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
-import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.DependencyResolver;
+import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
-@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION)
 public class TargetPlatformProject extends AbstractTychoProject {
+
+    @Inject
+    public TargetPlatformProject(MavenDependenciesResolver projectDependenciesResolver,
+                         LegacySupport legacySupport,
+                         TychoProjectManager projectManager,
+                         @Named("p2") DependencyResolver dependencyResolver) {
+        super(projectDependenciesResolver, legacySupport, projectManager, dependencyResolver);
+    }
 
     @Override
     public ArtifactDependencyWalker getDependencyWalker(ReactorProject project) {

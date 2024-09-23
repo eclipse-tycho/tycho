@@ -17,30 +17,34 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.maven.plugin.LegacySupport;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 /**
  * This component allows to resolve target artifacts from the reactor. Maven itself only supports a
  * limited way of resolving types in the reactor and do not know how to handle a "target type"
  * project.
  */
-@Component(role = WorkspaceReader.class, hint = "TargetPlatformWorkspaceReader")
+@Singleton
+@Named("TargetPlatformWorkspaceReader")
 public class TargetPlatformWorkspaceReader implements WorkspaceReader {
 
-    @Requirement
-    private TargetPlatformArtifactResolver platformArtifactResolver;
-    @Requirement
-    private LegacySupport legacySupport;
-    private WorkspaceRepository repository;
+    private final TargetPlatformArtifactResolver platformArtifactResolver;
+    private final LegacySupport legacySupport;
+    private final WorkspaceRepository repository;
 
-    public TargetPlatformWorkspaceReader() {
-        repository = new WorkspaceRepository("tycho-target-platform", null);
+    @Inject
+    public TargetPlatformWorkspaceReader(TargetPlatformArtifactResolver platformArtifactResolver, LegacySupport legacySupport) {
+        this.platformArtifactResolver = platformArtifactResolver;
+        this.legacySupport = legacySupport;
+        this.repository = new WorkspaceRepository("tycho-target-platform", null);
     }
 
     @Override

@@ -31,9 +31,6 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -50,29 +47,35 @@ import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2maven.DependencyChain;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.resolver.TychoResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = ProjectExecutionListener.class, hint = "tycho")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("tycho")
 public class TychoProjectExecutionListener implements ProjectExecutionListener {
 
-    @Requirement
-    private TychoResolver resolver;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private ModelWriter modelWriter;
+    private final TychoResolver resolver;
+    private final ModelWriter modelWriter;
+    private final LegacySupport legacySupport;
+    private final TychoProjectManager projectManager;
+    private final InstallableUnitGenerator generator;
 
-    @Requirement
-    private LegacySupport legacySupport;
+    private final Set<MavenProject> finished = ConcurrentHashMap.newKeySet();
 
-    private Set<MavenProject> finished = ConcurrentHashMap.newKeySet();
-
-    @Requirement
-    private Logger logger;
-
-    @Requirement
-    private TychoProjectManager projectManager;
-
-    @Requirement
-    private InstallableUnitGenerator generator;
+    @Inject
+    public TychoProjectExecutionListener(TychoResolver resolver, ModelWriter modelWriter, LegacySupport legacySupport, TychoProjectManager projectManager, InstallableUnitGenerator generator) {
+        this.resolver = resolver;
+        this.modelWriter = modelWriter;
+        this.legacySupport = legacySupport;
+        this.projectManager = projectManager;
+        this.generator = generator;
+    }
 
     @Override
     public void beforeProjectExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {

@@ -13,17 +13,24 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.configuration;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.MavenRepositorySettings;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "RepositorySettingsConfigurator")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("RepositorySettingsConfigurator")
 public class RepositorySettingsConfigurator implements EquinoxLifecycleListener {
 
-    @Requirement
-    private MavenRepositorySettings settings;
+    private final MavenRepositorySettings settings;
+
+    @Inject
+    public RepositorySettingsConfigurator(MavenRepositorySettings settings) {
+        this.settings = settings;
+    }
 
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {

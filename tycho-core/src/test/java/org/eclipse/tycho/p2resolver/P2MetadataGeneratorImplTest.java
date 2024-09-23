@@ -41,9 +41,7 @@ public class P2MetadataGeneratorImplTest {
 
     @Test
     public void gav() throws Exception {
-        P2GeneratorImpl impl = new P2GeneratorImpl(false);
-        impl.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
-        impl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
+        P2GeneratorImpl impl = new P2GeneratorImpl(false, new MockMavenContext(null, logVerifier.getLogger()), new BuildPropertiesParserForTesting(), null);
         File location = new File("src/test/resources/generator/bundle").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.test";
         String artifactId = "bundle";
@@ -75,9 +73,7 @@ public class P2MetadataGeneratorImplTest {
 
     @Test
     public void testDownloadStats() throws Exception {
-        P2GeneratorImpl impl = new P2GeneratorImpl(false);
-        impl.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
-        impl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
+        P2GeneratorImpl impl = new P2GeneratorImpl(false, new MockMavenContext(null, logVerifier.getLogger()), new BuildPropertiesParserForTesting(), null);
         File location = new File("src/test/resources/generator/bundle").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.test";
         String artifactId = "bundle";

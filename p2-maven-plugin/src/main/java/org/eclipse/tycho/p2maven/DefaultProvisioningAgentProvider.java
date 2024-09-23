@@ -14,18 +14,25 @@ package org.eclipse.tycho.p2maven;
 
 import java.net.URI;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 
-@Component(role = IProvisioningAgentProvider.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class DefaultProvisioningAgentProvider implements IProvisioningAgentProvider {
 
-	@Requirement(hint = "connect")
-	private EquinoxServiceFactory serviceFactory;
+	private final EquinoxServiceFactory serviceFactory;
+
+	@Inject
+	public DefaultProvisioningAgentProvider(@Named("connect") EquinoxServiceFactory serviceFactory) {
+		this.serviceFactory = serviceFactory;
+	}
 
 	@Override
 	public IProvisioningAgent createAgent(URI location) throws ProvisionException {

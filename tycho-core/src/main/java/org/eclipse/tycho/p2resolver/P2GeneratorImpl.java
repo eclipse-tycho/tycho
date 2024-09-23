@@ -31,9 +31,6 @@ import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -93,36 +90,40 @@ import org.eclipse.tycho.p2maven.actions.CategoryDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductFile2;
 import org.osgi.framework.BundleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = P2Generator.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {
     private static final String[] SUPPORTED_TYPES = { PackagingType.TYPE_ECLIPSE_PLUGIN,
             PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, PackagingType.TYPE_ECLIPSE_FEATURE,
             PackagingType.TYPE_ECLIPSE_REPOSITORY };
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     /**
      * Whether we need full p2 metadata (false) or just required capabilities.
      */
-    private boolean dependenciesOnly;
-    @Requirement
-    private MavenContext mavenContext;
+    private final boolean dependenciesOnly;
+    private final MavenContext mavenContext;
+    private final BuildPropertiesParser buildPropertiesParser;
+    private final BundleReader bundleReader;
 
-    @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
-
-    @Requirement
-    BundleReader bundleReader;
-
-    @Requirement
-    private Logger logger;
-
-    public P2GeneratorImpl(boolean dependenciesOnly) {
-        this.dependenciesOnly = dependenciesOnly;
+    @Inject
+    public P2GeneratorImpl(MavenContext mavenContext, BuildPropertiesParser buildPropertiesParser, BundleReader bundleReader) {
+        this(false, mavenContext, buildPropertiesParser, bundleReader);
     }
 
-    // no-args constructor required by DS
-    public P2GeneratorImpl() {
-        this(false);
+    protected P2GeneratorImpl(boolean dependenciesOnly, MavenContext mavenContext, BuildPropertiesParser buildPropertiesParser, BundleReader bundleReader) {
+        this.dependenciesOnly = dependenciesOnly;
+        this.mavenContext = mavenContext;
+        this.buildPropertiesParser = buildPropertiesParser;
+        this.bundleReader = bundleReader;
     }
 
     @Override
@@ -421,14 +422,6 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
     @Override
     protected BuildPropertiesParser getBuildPropertiesParser() {
         return buildPropertiesParser;
-    }
-
-    public void setMavenContext(MavenContext mockMavenContext) {
-        mavenContext = mockMavenContext;
-    }
-
-    public void setBuildPropertiesParser(BuildPropertiesParser propertiesParserForTesting) {
-        buildPropertiesParser = propertiesParserForTesting;
     }
 
     @Override

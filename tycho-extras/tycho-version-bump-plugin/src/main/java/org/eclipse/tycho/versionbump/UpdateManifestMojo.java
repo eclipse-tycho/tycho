@@ -20,7 +20,6 @@ import java.util.jar.JarFile;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -32,6 +31,8 @@ import org.eclipse.tycho.model.manifest.MutableBundleManifest;
 import org.eclipse.tycho.p2tools.copiedfromp2.QueryableArray;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
+
+import javax.inject.Inject;
 
 /**
  * This mojo updates the dependencies in a manifest with the current used build versions.
@@ -65,7 +66,7 @@ public class UpdateManifestMojo extends AbstractUpdateMojo {
     @Parameter(defaultValue = "true", property = "lower")
     private boolean addMissingLowerBounds;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

@@ -45,12 +45,12 @@ import org.apache.maven.model.building.FileModelSource;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelReader;
 import org.apache.maven.model.io.ModelWriter;
-import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.maven.polyglot.PolyglotModelUtil;
 import org.sonatype.maven.polyglot.mapping.Mapping;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Base implementation for a {@link Mapping} and {@link ModelReader} that handles all the low-level
@@ -68,19 +68,23 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     private static final String PARENT_POM_DEFAULT_VALUE = System.getProperty(TYCHO_POMLESS_PARENT_PROPERTY, "..");
     private static final String QUALIFIER_SUFFIX = ".qualifier";
 
-    private Map<Path, ParentModel> parentModelCache = new HashMap<Path, ParentModel>();
+    private final Map<Path, ParentModel> parentModelCache = new HashMap<>();
 
-    @Requirement
-    protected PlexusContainer container;
-
-    @Requirement
-    protected Logger logger;
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private ModelWriter writer;
     private boolean extensionMode;
     @SuppressWarnings("unused")
     private File multiModuleProjectDirectory;
     private String snapshotProperty;
+
+    private final Map<String, ModelWriter> modelWriters;
+    private final Map<String, ModelProcessor> modelProcessors;
+
+    public AbstractTychoMapping(Map<String, ModelWriter> modelWriters, Map<String, ModelProcessor> modelProcessors) {
+        this.modelWriters = modelWriters;
+        this.modelProcessors = modelProcessors;
+    }
 
     @Override
     public File locatePom(File dir) {
@@ -110,12 +114,8 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     @Override
     public ModelWriter getWriter() {
         if (writer == null) {
-            try {
-                assert container != null;
-                writer = container.lookup(ModelWriter.class, getFlavour());
-            } catch (ComponentLookupException e) {
-                throw new RuntimeException(e);
-            }
+            String flavour = getFlavour();
+            writer = requireNonNull(modelWriters.get(flavour), "No ModelWriter of flavour " + flavour);
         }
         return writer;
     }
@@ -226,7 +226,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     /**
      * Locates the {@link PomReference} for the given folder and the given nameHint
      *
-     * @param folder
+     * @param folderPath
      *            the folder to search
      * @param nameHint
      *            the name hint to use
@@ -235,16 +235,11 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     protected PomReference locatePomReference(Path folderPath, String nameHint) {
         File folder = folderPath.toFile();
         PomReference reference = null;
-        try {
-            List<ModelProcessor> lookupList = container.lookupList(ModelProcessor.class);
-
-            for (ModelProcessor processor : lookupList) {
-                File pom = processor.locatePom(folder);
-                if (pom != null && (reference == null || pom.getName().equals(nameHint)) && pom.exists()) {
-                    reference = new PomReference(pom, processor);
-                }
+        for (ModelProcessor processor : modelProcessors.values()) {
+            File pom = processor.locatePom(folder);
+            if (pom != null && (reference == null || pom.getName().equals(nameHint)) && pom.exists()) {
+                reference = new PomReference(pom, processor);
             }
-        } catch (ComponentLookupException e) {
         }
         return reference;
     }
@@ -348,7 +343,6 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     }
 
     protected String getPomVersion(String pdeVersion, Model model, Path projectRoot) {
-        String pomVersion = pdeVersion;
         if (pdeVersion.endsWith(QUALIFIER_SUFFIX)) {
             String unqualifiedVersion = pdeVersion.substring(0, pdeVersion.length() - QUALIFIER_SUFFIX.length());
             //we need to check that this property is actually defined!
@@ -357,7 +351,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
             }
             return unqualifiedVersion + "-SNAPSHOT";
         }
-        return pomVersion;
+        return pdeVersion;
     }
 
     private boolean modelHasProperty(String property, Model model, Path projectRoot) {
@@ -454,12 +448,12 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         return build;
     }
 
-    protected static MavenConfiguation getConfiguration(PluginExecution execution) {
+    protected static MavenConfiguration getConfiguration(PluginExecution execution) {
         Object config = execution.getConfiguration();
-        MavenConfiguation mavenConfiguation = new MavenConfiguation(config, "configuration");
+        MavenConfiguration mavenConfiguration = new MavenConfiguration(config, "configuration");
         if (config == null) {
-            execution.setConfiguration(mavenConfiguation.getXpp3());
+            execution.setConfiguration(mavenConfiguration.getXpp3());
         }
-        return mavenConfiguation;
+        return mavenConfiguration;
     }
 }

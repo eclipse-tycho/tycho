@@ -12,14 +12,22 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import org.apache.maven.plugin.LegacySupport;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
+import org.eclipse.tycho.core.DependencyResolver;
+import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 
 public abstract class AbstractArtifactBasedProject extends AbstractTychoProject {
     // this is stricter than Artifact.SNAPSHOT_VERSION
     public static final String SNAPSHOT_VERSION = TychoConstants.SUFFIX_SNAPSHOT;
+
+    public AbstractArtifactBasedProject(MavenDependenciesResolver projectDependenciesResolver, LegacySupport legacySupport, TychoProjectManager projectManager, DependencyResolver dependencyResolver) {
+        super(projectDependenciesResolver, legacySupport, projectManager, dependencyResolver);
+    }
 
     // requires resolved target platform
     @Override

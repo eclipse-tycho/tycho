@@ -31,7 +31,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -51,6 +50,7 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.resolver.WrappedArtifact;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.p2tools.copiedfromp2.QueryableArray;
+import org.slf4j.Logger;
 
 class PomInstallableUnitStore implements IQueryable<IInstallableUnit> {
 

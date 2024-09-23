@@ -21,6 +21,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.junit.Test;
 
 public class JarDirectoryBundlesTest extends AbstractTychoIntegrationTest {
@@ -38,7 +39,7 @@ public class JarDirectoryBundlesTest extends AbstractTychoIntegrationTest {
 		assertEquals(1, sitePlugins.length);
 
 		// verify the bundle actually makes sense
-		DefaultBundleReader reader = new DefaultBundleReader();
+		DefaultBundleReader reader = new DefaultBundleReader(new NoopFileLockService());
 		OsgiManifest siteBundleManifest = reader.loadManifest(sitePlugins[0]);
 		assertEquals("platform.jar", siteBundleManifest.getBundleClasspath()[0]);
 		assertEquals("org.eclipse.platform", siteBundleManifest.getBundleSymbolicName());

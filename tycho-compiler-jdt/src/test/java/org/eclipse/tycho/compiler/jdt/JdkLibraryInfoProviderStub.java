@@ -14,25 +14,16 @@ package org.eclipse.tycho.compiler.jdt;
 
 import java.io.File;
 
-import org.codehaus.plexus.logging.Logger;
-
 public class JdkLibraryInfoProviderStub extends JdkLibraryInfoProvider {
 
     private File libDetectorJar;
-    private Logger logger;
 
-    public JdkLibraryInfoProviderStub(File libDetectorJar, Logger logger) {
+    public JdkLibraryInfoProviderStub(File libDetectorJar) {
         this.libDetectorJar = libDetectorJar;
-        this.logger = logger;
     }
 
     @Override
     protected File getLibDetectorJar() {
         return libDetectorJar;
-    }
-
-    @Override
-    protected Logger getLog() {
-        return this.logger;
     }
 }

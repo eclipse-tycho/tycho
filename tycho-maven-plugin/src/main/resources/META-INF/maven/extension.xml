@@ -169,15 +169,19 @@
 
   <exportedArtifacts>
     <exportedArtifacts>biz.aQute.bnd:biz.aQute.bndlib</exportedArtifacts>
-  	<exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.embedder.shared</exportedArtifact>
     <exportedArtifact>org.eclipse.platform:org.eclipse.equinox.p2.core</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.embedder.shared</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:tycho-embedder-api</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:tycho-metadata-model</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.core.shared</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:tycho-core</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:tycho-spi</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:tycho-p2-maven-plugin</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:tycho-p2</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:tycho-p2-facade</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:tycho-targetplatform</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.p2.resolver.shared</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.p2.tools.shared</exportedArtifact>
-    <exportedArtifact>org.eclipse.tycho:tycho-p2-facade</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:sisu-equinox-api</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:sisu-equinox-embedder</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:org.eclipse.osgi</exportedArtifact>

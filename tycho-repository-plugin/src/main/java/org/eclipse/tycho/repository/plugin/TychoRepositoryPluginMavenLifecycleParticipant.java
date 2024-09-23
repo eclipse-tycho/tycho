@@ -26,26 +26,34 @@ import org.apache.maven.model.PluginExecution;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.helper.PluginConfigurationHelper;
 import org.eclipse.tycho.helper.ProjectHelper;
 import org.eclipse.tycho.packaging.RepositoryGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = AbstractMavenLifecycleParticipant.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class TychoRepositoryPluginMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Requirement
-	Map<String, RepositoryGenerator> generators;
+	private final Map<String, RepositoryGenerator> generators;
+	private final PluginConfigurationHelper configurationHelper;
+	private final ProjectHelper projectHelper;
 
-	@Requirement
-	PluginConfigurationHelper configurationHelper;
-
-	@Requirement
-	ProjectHelper projectHelper;
-
-	@Requirement
-	Logger logger;
+	@Inject
+	public TychoRepositoryPluginMavenLifecycleParticipant(Map<String, RepositoryGenerator> generators,
+														  PluginConfigurationHelper configurationHelper,
+														  ProjectHelper projectHelper) {
+		this.generators = generators;
+		this.configurationHelper = configurationHelper;
+		this.projectHelper = projectHelper;
+	}
 
 	@Override
 	public void afterProjectsRead(MavenSession session) throws MavenExecutionException {

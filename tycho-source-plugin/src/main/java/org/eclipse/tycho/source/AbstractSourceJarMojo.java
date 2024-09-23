@@ -25,6 +25,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
@@ -33,7 +35,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
@@ -43,6 +44,8 @@ import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for bundling sources into a jar archive.
@@ -60,6 +63,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     private static final String[] DEFAULT_INCLUDES = new String[] { "**/*" };
 
     private static final String[] DEFAULT_EXCLUDES = new String[] {};
+    
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * List of files to include. Specified as fileset patterns which are relative to the input
@@ -103,8 +108,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * The Jar archiver.
      */
-    @Component(role = Archiver.class, hint = "jar")
-    private JarArchiver jarArchiver;
+    @Inject
+    private Provider<JarArchiver> jarArchiverProvider;
 
     /**
      * The archive configuration to use. See
@@ -162,7 +167,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * Used for attaching the source jar to the project.
      */
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
     /**
@@ -347,7 +352,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
 
     protected MavenArchiver createArchiver() throws MojoExecutionException {
         MavenArchiver archiver = new MavenArchiver();
-        archiver.setArchiver(jarArchiver);
+        archiver.setArchiver(jarArchiverProvider.get());
 
         if (project.getBuild() != null) {
             List<Resource> resources = project.getBuild().getResources();

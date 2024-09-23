@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -33,10 +32,8 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.MatchPattern;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.FileLockService;
-import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.model.Feature;
@@ -51,6 +48,8 @@ import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation
 
 import aQute.bnd.osgi.repository.XMLResourceGenerator;
 import aQute.bnd.repository.fileset.FileSetRepository;
+
+import javax.inject.Inject;
 
 /**
  * <p>
@@ -302,19 +301,19 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter(defaultValue = "repository.xml")
     private String repositoryFileName;
 
-    @Component
+    @Inject
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Component
-    MirrorApplicationService mirrorApp;
+    @Inject
+    private MirrorApplicationService mirrorApp;
 
-    @Component
+    @Inject
     private TargetDefinitionVariableResolver varResolver;
 
-    @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
+    @Inject
     private EclipseRepositoryProject eclipseRepositoryProject;
 
-    @Component
+    @Inject
     private FileLockService fileLockService;
 
     @Override

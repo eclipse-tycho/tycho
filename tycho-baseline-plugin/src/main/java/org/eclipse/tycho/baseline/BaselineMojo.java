@@ -25,12 +25,10 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -43,7 +41,11 @@ import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 import org.osgi.framework.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.plexus.build.incremental.BuildContext;
+
+import javax.inject.Inject;
 
 /**
  * Verifies the artifact against a given baseline repository for version
@@ -52,6 +54,7 @@ import org.sonatype.plexus.build.incremental.BuildContext;
  */
 @Mojo(defaultPhase = LifecyclePhase.VERIFY, name = "verify", threadSafe = true)
 public class BaselineMojo extends AbstractMojo implements BaselineContext {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	/**
 	 * A list of p2 repositories to be used as baseline. Those are typically the
 	 * most recent released versions of your project.
@@ -59,7 +62,7 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Parameter(property = "baselines", name = "baselines")
 	private List<Repository> baselines;
 
-	@Component
+	@Inject
 	private P2RepositoryManager repositoryManager;
 
 	@Parameter(property = "session", readonly = true)
@@ -110,23 +113,21 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Parameter(property = "tycho.baseline.increment", defaultValue = "1")
 	private int increment = 1;
 
-	@Component
+	@Inject
 	protected TychoProjectManager projectManager;
-	@Component
-	private Logger logger;
 
-	@Component
+	@Inject
 	private Map<String, ArtifactBaselineComparator> comparators;
 
-	@Component
+	@Inject
 	BuildContext buildContext;
 
-	@Component
+	@Inject
 	private BundleReader bundleReader;
 
-	private ThreadLocal<IArtifactRepository> contextArtifactRepository = new ThreadLocal<>();
-	private ThreadLocal<IQueryable<IInstallableUnit>> contextMetadataRepository = new ThreadLocal<>();
-	private ThreadLocal<ArtifactKey> contexArtifactKey = new ThreadLocal<>();
+	private final ThreadLocal<IArtifactRepository> contextArtifactRepository = new ThreadLocal<>();
+	private final ThreadLocal<IQueryable<IInstallableUnit>> contextMetadataRepository = new ThreadLocal<>();
+	private final ThreadLocal<ArtifactKey> contexArtifactKey = new ThreadLocal<>();
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {

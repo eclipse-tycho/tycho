@@ -12,26 +12,31 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryComponent;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = IAgentServiceFactory.class, hint = "org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager")
 public class RemoteMetadataRepositoryManagerAgentFactory implements IAgentServiceFactory {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    Logger logger;
+	private final IRepositoryIdManager repositoryIdManager;
+	private final MavenAuthenticator mavenAuthenticator;
 
-	@Requirement
-	IRepositoryIdManager repositoryIdManager;
-
-	@Requirement
-	MavenAuthenticator mavenAuthenticator;
+    @Inject
+    public RemoteMetadataRepositoryManagerAgentFactory(IRepositoryIdManager repositoryIdManager, MavenAuthenticator mavenAuthenticator) {
+        this.repositoryIdManager = repositoryIdManager;
+        this.mavenAuthenticator = mavenAuthenticator;
+    }
 
     @Override
     public Object createService(IProvisioningAgent agent) {

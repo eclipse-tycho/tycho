@@ -29,8 +29,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -48,6 +46,10 @@ import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * This mojo generates a target platform from all the dependencies of a maven build for example to
@@ -55,19 +57,21 @@ import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
  */
 @Mojo(name = "generate-target", defaultPhase = LifecyclePhase.NONE, requiresProject = true, threadSafe = true, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, aggregator = true)
 public class GenerateTargetMojo extends AbstractMojo {
-    @Component
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Component
+    @Inject
     private MavenSession mavenSession;
 
-    @Component
+    @Inject
     private MavenProject mavenProject;
 
-    @Component
+    @Inject
     private LegacySupport legacySupport;
 
-    @Component
+    @Inject
     private P2RepositoryManager repositoryManager;
 
     @Parameter(property = "generateTargetFile", defaultValue = "${project.build.directory}/generate.target", required = true)
@@ -75,8 +79,7 @@ public class GenerateTargetMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        Log log = getLog();
-        log.info("Scan reactor for dependencies...");
+        logger.info("Scan reactor for dependencies...");
         List<MavenProject> projects = mavenSession.getProjects();
         List<IInstallableUnit> reactorDependencies = projects.stream().parallel().unordered().flatMap(project -> {
             MavenSession old = legacySupport.getSession();
@@ -103,12 +106,12 @@ public class GenerateTargetMojo extends AbstractMojo {
                     .map(repo -> repo.getUrl());
             return pomRepos;
         }).distinct().sorted().toList();
-        log.info("Found " + reactorDependencies.size() + " dependencies and " + repoList.size()
+        logger.info("Found " + reactorDependencies.size() + " dependencies and " + repoList.size()
                 + " possible repositories: ");
         Map<IMetadataRepository, Set<IInstallableUnit>> repo2unitMap = new LinkedHashMap<>();
         Set<IInstallableUnit> notFound = new HashSet<>(reactorDependencies);
         for (String repository : repoList) {
-            log.info("\tScanning " + repository + "...");
+            logger.info("\tScanning " + repository + "...");
             try {
                 IMetadataRepository metadataRepository = repositoryManager
                         .getMetadataRepository(new MavenRepositoryLocation(null, URI.create(repository)));
@@ -121,19 +124,19 @@ public class GenerateTargetMojo extends AbstractMojo {
                 }
                 if (units.size() > 0) {
                     repo2unitMap.put(metadataRepository, units);
-                    log.info("\tFound: " + units.size() + " dependencies in this repository!");
+                    logger.info("\tFound: " + units.size() + " dependencies in this repository!");
                 }
             } catch (ProvisionException e) {
                 throw new MojoFailureException("can't load repository " + repository, e);
             }
         }
         if (notFound.size() > 0) {
-            log.info(notFound.size() + " dependencies where not mapped to a repository:");
+            logger.info(notFound.size() + " dependencies where not mapped to a repository:");
             for (IInstallableUnit unit : notFound) {
-                log.info("\t" + unit);
+                logger.info("\t" + unit);
             }
         }
-        log.info("Generate Target ...");
+        logger.info("Generate Target ...");
         StringBuilder builder = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
                 + "<?pde version=\"3.8\"?>\n<target name=\"" + mavenProject.getName() + "\">\n\t<locations>\n");
         for (Entry<IMetadataRepository, Set<IInstallableUnit>> entry : repo2unitMap.entrySet()) {
@@ -183,7 +186,7 @@ public class GenerateTargetMojo extends AbstractMojo {
                     if (wrapped != null) {
                         wrappedMaven.add(wrapped);
                     } else {
-                        log.warn(mavenUnit + " can not be represented in the target at all!");
+                        logger.warn(mavenUnit + " can not be represented in the target at all!");
                     }
                 } else {
                     osgiMaven.add(osgi);
@@ -196,7 +199,7 @@ public class GenerateTargetMojo extends AbstractMojo {
         try {
             targetFile.getParentFile().mkdirs();
             Files.writeString(targetFile.toPath(), builder, StandardCharsets.UTF_8);
-            log.info("Target is written to " + targetFile.getAbsolutePath());
+            logger.info("Target is written to " + targetFile.getAbsolutePath());
         } catch (IOException e) {
             throw new MojoFailureException("writing target file failed", e);
         }

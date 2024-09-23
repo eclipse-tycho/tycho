@@ -12,14 +12,17 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.repository;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.spi.connector.RepositoryConnector;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.transfer.NoRepositoryConnectorException;
 
-@Component(role = RepositoryConnectorFactory.class, hint = "p2")
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("p2")
 public class P2RepositoryConnectorFactory implements RepositoryConnectorFactory {
 
     @Override

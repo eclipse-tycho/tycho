@@ -31,26 +31,32 @@ import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugin.descriptor.PluginDescriptorBuilder;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
 import org.codehaus.plexus.component.configurator.expression.TypeAwareExpressionEvaluator;
 import org.codehaus.plexus.util.InterpolationFilterReader;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 /**
  * A helper that can be used to access the configuration of the currently executing mojo
  */
-@Component(role = PluginConfigurationHelper.class)
+@Singleton
+@Named
 public class PluginConfigurationHelper {
 
-    @Requirement
-    ProjectHelper projectHelper;
+    private final ProjectHelper projectHelper;
+    private final LegacySupport legacySupport;
 
-    @Requirement
-    LegacySupport legacySupport;
+    private final Map<URL, PluginDescriptor> descriptorCache = new ConcurrentHashMap<>();
 
-    private Map<URL, PluginDescriptor> descriptorCache = new ConcurrentHashMap<>();
+    @Inject
+    public PluginConfigurationHelper(ProjectHelper projectHelper, LegacySupport legacySupport) {
+        this.projectHelper = projectHelper;
+        this.legacySupport = legacySupport;
+    }
 
     public Configuration getConfiguration() {
         MojoExecution execution = MojoExecutionHelper.getExecution().orElse(null);

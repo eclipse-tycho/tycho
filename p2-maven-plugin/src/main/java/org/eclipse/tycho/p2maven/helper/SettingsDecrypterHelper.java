@@ -11,6 +11,7 @@
  *    SAP AG - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.helper;
+
 import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.building.SettingsProblem;
@@ -18,18 +19,25 @@ import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 
-@Component(role = SettingsDecrypterHelper.class)
+@Singleton
+@Named
 public class SettingsDecrypterHelper {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private Logger logger;
-    @Requirement
-    private SettingsDecrypter decrypter;
+    private final SettingsDecrypter decrypter;
+
+    @Inject
+    public SettingsDecrypterHelper(SettingsDecrypter decrypter) {
+        this.decrypter = decrypter;
+    }
 
     public SettingsDecryptionResult decryptAndLogProblems(Proxy proxySettings) {
         return decryptAndLogProblems(new DefaultSettingsDecryptionRequest(proxySettings));

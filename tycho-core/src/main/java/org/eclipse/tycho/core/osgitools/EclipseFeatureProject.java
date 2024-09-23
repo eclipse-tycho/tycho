@@ -15,8 +15,8 @@ package org.eclipse.tycho.core.osgitools;
 import java.io.File;
 
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
@@ -25,11 +25,27 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
-import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.DependencyResolver;
+import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.model.Feature;
 
-@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_FEATURE)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(PackagingType.TYPE_ECLIPSE_FEATURE)
 public class EclipseFeatureProject extends AbstractArtifactBasedProject {
+
+    @Inject
+    public EclipseFeatureProject(MavenDependenciesResolver projectDependenciesResolver,
+                                    LegacySupport legacySupport,
+                                    TychoProjectManager projectManager,
+                                    @Named("p2") DependencyResolver dependencyResolver) {
+        super(projectDependenciesResolver, legacySupport, projectManager, dependencyResolver);
+    }
+
     @Override
     protected ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment) {
         final File location = project.getBasedir();

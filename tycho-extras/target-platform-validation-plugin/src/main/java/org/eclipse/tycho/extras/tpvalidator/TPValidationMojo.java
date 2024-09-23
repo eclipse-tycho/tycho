@@ -26,13 +26,11 @@ import java.util.Set;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ExecutionEnvironment;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
@@ -52,12 +50,17 @@ import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * Validates that specified target platforms (.target files) contents can be resolved.
  */
 @Mojo(name = "validate-target-platform", defaultPhase = LifecyclePhase.VALIDATE)
 public class TPValidationMojo extends AbstractMojo {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
@@ -107,19 +110,16 @@ public class TPValidationMojo extends AbstractMojo {
     @Parameter
     private String executionEnvironment;
 
-    @Component
+    @Inject
     DirectorRuntime director;
 
-    @Component
-    private Logger logger;
-
-    @Component
+    @Inject
     private ToolchainManager toolchainManager;
 
-    @Component
+    @Inject
     private P2ResolverFactory factory;
 
-    @Component
+    @Inject
     private TargetDefinitionVariableResolver varResolver;
 
     public void execute() throws MojoExecutionException {

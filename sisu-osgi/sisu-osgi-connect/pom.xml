@@ -12,6 +12,18 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>sisu-osgi-api</artifactId>
 			<version>${project.version}</version>
@@ -31,12 +43,16 @@
 			<version>3.12.100</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.sisu</groupId>
-			<artifactId>org.eclipse.sisu.plexus</artifactId>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-classworlds</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-component-annotations</artifactId>
+			<artifactId>plexus-utils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-xml</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -47,15 +63,8 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-component-metadata</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate-metadata</goal>
-						</goals>
-					</execution>
-				</executions>
+				<groupId>org.eclipse.sisu</groupId>
+				<artifactId>sisu-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>

@@ -29,14 +29,11 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
@@ -62,6 +59,10 @@ import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * Launch an eclipse process with arbitrary commandline arguments. The eclipse
@@ -259,26 +260,25 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Parameter
 	private BundleStartLevel defaultStartLevel;
 
-	@Component
+	@Inject
 	private EquinoxInstallationFactory installationFactory;
 
-	@Component
+	@Inject
 	private EquinoxLauncher launcher;
 
-	@Component
+	@Inject
 	private ToolchainProvider toolchainProvider;
 
-	@Component()
-	P2ResolverFactory resolverFactory;
+	@Inject
+	private P2ResolverFactory resolverFactory;
 
-	@Component
-	private Logger logger;
-
-	@Component
+	@Inject
 	private ToolchainManager toolchainManager;
 
-	@Component
+	@Inject
 	private TargetPlatformFactory platformFactory;
+
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public EclipseRunMojo() {
 		// default constructor
@@ -402,16 +402,15 @@ public class EclipseRunMojo extends AbstractMojo {
 				}
 				LaunchConfiguration cli = createCommandLine(runtime);
 				File expectedLog = new File(workspace, ".metadata/.log");
-				Log log = getLog();
-				log.debug("Expected Eclipse log file: " + expectedLog.getCanonicalPath());
+				logger.debug("Expected Eclipse log file: " + expectedLog.getCanonicalPath());
 				int returnCode = launcher.execute(cli, forkedProcessTimeoutInSeconds);
 				if (returnCode != 0) {
 					String message = "Error while executing eclipse: return code=" + returnCode;
 					if (expectedLog.isFile()) {
 						message += ", see content of " + expectedLog + " for more details.";
-						if (log.isDebugEnabled()) {
+						if (logger.isDebugEnabled()) {
 							try {
-								log.debug(Files.readString(expectedLog.toPath()));
+								logger.debug(Files.readString(expectedLog.toPath()));
 							} catch (IOException e) {
 								// can't provide log content...
 							}

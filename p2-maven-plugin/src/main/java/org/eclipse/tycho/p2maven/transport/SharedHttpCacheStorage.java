@@ -34,12 +34,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
+import org.slf4j.Logger;
 
-@Component(role = HttpCache.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class SharedHttpCacheStorage implements HttpCache {
 
 	private static final int MAX_CACHE_LINES = Integer.getInteger("tycho.p2.transport.max-cache-lines", 1000);
@@ -51,22 +54,18 @@ public class SharedHttpCacheStorage implements HttpCache {
 			TimeUnit.HOURS.toMinutes(1));
 	private static final int MAX_IN_MEMORY = 1000;
 
-	@Requirement
-	TransportCacheConfig cacheConfig;
-
+	private final TransportCacheConfig transportCacheConfig;
 	private final Map<File, CacheLine> entryCache;
 
-	public SharedHttpCacheStorage() {
-
-		entryCache = new LinkedHashMap<>(MAX_CACHE_LINES, 0.75f, true) {
-
+	@Inject
+	public SharedHttpCacheStorage(TransportCacheConfig transportCacheConfig) {
+		this.transportCacheConfig = transportCacheConfig;
+		this.entryCache = new LinkedHashMap<>(MAX_CACHE_LINES, 0.75f, true) {
 			private static final long serialVersionUID = 1L;
-
 			@Override
 			protected boolean removeEldestEntry(final Map.Entry<File, CacheLine> eldest) {
 				return (size() > MAX_IN_MEMORY);
 			}
-
 		};
 	}
 
@@ -81,7 +80,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 	public CacheEntry getCacheEntry(URI uri, Logger logger) throws FileNotFoundException {
 		URI normalized = uri.normalize();
 		CacheLine cacheLine = getCacheLine(normalized);
-		if (!cacheConfig.isUpdate()) { // if not updates are forced ...
+		if (!transportCacheConfig.isUpdate()) { // if not updates are forced ...
 			int code = cacheLine.getResponseCode();
 			if (code == HttpURLConnection.HTTP_NOT_FOUND) {
 				throw new FileNotFoundException(normalized.toASCIIString());
@@ -94,7 +93,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 
 			@Override
 			public long getLastModified(HttpTransportFactory transportFactory) throws IOException {
-				if (cacheConfig.isOffline()) {
+				if (transportCacheConfig.isOffline()) {
 					return cacheLine.getLastModified(normalized, transportFactory,
 							SharedHttpCacheStorage::mavenIsOffline, logger);
 				}
@@ -104,7 +103,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 					// for not found and failed authentication we can't do anything useful
 					throw e;
 				} catch (IOException e) {
-					if (!cacheConfig.isUpdate() && cacheLine.getResponseCode() > 0) {
+					if (!transportCacheConfig.isUpdate() && cacheLine.getResponseCode() > 0) {
 						// if we have something cached, use that ...
 						logger.warn("Request to " + normalized + " failed, trying cache instead");
 						return cacheLine.getLastModified(normalized, transportFactory, nil -> e, logger);
@@ -115,7 +114,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 
 			@Override
 			public File getCacheFile(HttpTransportFactory transportFactory) throws IOException {
-				if (cacheConfig.isOffline()) {
+				if (transportCacheConfig.isOffline()) {
 					return cacheLine.getFile(normalized, transportFactory, SharedHttpCacheStorage::mavenIsOffline,
 							logger);
 				}
@@ -125,7 +124,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 					// for not found and failed authentication we can't do anything useful
 					throw e;
 				} catch (IOException e) {
-					if (!cacheConfig.isUpdate() && cacheLine.getResponseCode() > 0) {
+					if (!transportCacheConfig.isUpdate() && cacheLine.getResponseCode() > 0) {
 						// if we have something cached, use that ...
 						logger.warn("Request to " + normalized + " failed, trying cache instead");
 						return cacheLine.getFile(normalized, transportFactory, nil -> e, logger);
@@ -145,7 +144,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 			// this can happen in case of a redirect even though its quite clumsy
 			cleanPath += ".idx";
 		}
-		File file = new File(cacheConfig.getCacheLocation(), cleanPath);
+		File file = new File(transportCacheConfig.getCacheLocation(), cleanPath);
 		File location;
 		try {
 			location = file.getCanonicalFile();
@@ -301,7 +300,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 		}
 
 		private boolean mustValidate() {
-			if (cacheConfig.isUpdate()) {
+			if (transportCacheConfig.isUpdate()) {
 				// user enforced validation
 				return true;
 			}

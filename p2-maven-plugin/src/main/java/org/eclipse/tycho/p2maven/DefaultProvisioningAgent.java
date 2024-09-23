@@ -17,40 +17,46 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorSelector;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.helper.MavenPropertyHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = IProvisioningAgent.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class DefaultProvisioningAgent implements IProvisioningAgent {
 
 	static {
 		MirrorSelector.MIRROR_PARSE_ERROR_LEVEL = IStatus.INFO;
 	}
 
-	@Requirement
-	private Logger log;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final Map<String, Supplier<Object>> agentServices = new ConcurrentHashMap<>();
 
-	@Requirement(hint = "connect")
-	private EquinoxServiceFactory serviceFactory;
+	private final EquinoxServiceFactory serviceFactory;
+	private final Map<String, IAgentServiceFactory> agentFactories;
+	private final MavenPropertyHelper propertyHelper;
+	private final PlexusContainer plexusContainer; // TODO: get rid of this (or Maven should offer alternative)
 
-	@Requirement
-	private PlexusContainer plexusContainer;
-
-	@Requirement
-	Map<String, IAgentServiceFactory> agentFactories;
-
-	@Requirement
-	MavenPropertyHelper propertyHelper;
-
-	private Map<String, Supplier<Object>> agentServices = new ConcurrentHashMap<>();
+	@Inject
+	public DefaultProvisioningAgent(@Named("connect") EquinoxServiceFactory serviceFactory,
+									Map<String, IAgentServiceFactory> agentFactories,
+									MavenPropertyHelper propertyHelper,
+									PlexusContainer plexusContainer) {
+		this.serviceFactory = serviceFactory;
+		this.agentFactories = agentFactories;
+		this.propertyHelper = propertyHelper;
+		this.plexusContainer = plexusContainer;
+	}
 
 	@Override
 	public Object getService(String serviceName) {
@@ -58,20 +64,20 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 		if (agentService != null) {
 			return agentService;
 		}
-		log.debug("Service " + serviceName
+		logger.debug("Service " + serviceName
 				+ " not found in OSGi ProvisioningAgent agent, look it up in Plexus AgentServiceFactories");
 		Object factoryService = getAgentFactoryService(serviceName);
 		if (factoryService != null) {
 			return factoryService;
 		}
-		log.debug("Service " + serviceName
+		logger.debug("Service " + serviceName
 				+ " not found in Plexus AgentServiceFactories, look it up in Plexus Container");
 		try {
 			return plexusContainer.lookup(serviceName);
 		} catch (ComponentLookupException e) {
-			log.debug("Service " + serviceName + " was not found in PlexusContainer");
+			logger.debug("Service " + serviceName + " was not found in PlexusContainer");
 		}
-		log.warn("Cannot locate service " + serviceName + " because no provisioning agent was found");
+		logger.warn("Cannot locate service " + serviceName + " because no provisioning agent was found");
 		return null;
 
 	}

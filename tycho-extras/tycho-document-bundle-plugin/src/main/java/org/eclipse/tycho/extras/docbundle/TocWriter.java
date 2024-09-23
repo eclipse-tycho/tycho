@@ -28,7 +28,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
+import org.slf4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,13 +41,13 @@ public class TocWriter {
 
 	private File basedir;
 
-	private Log log;
+	private Logger logger;
 
 	public TocWriter() {
 	}
 
-	public void setLog(final Log log) {
-		this.log = log;
+	public void setLogger(final Logger logger) {
+		this.logger = logger;
 	}
 
 	public void setBasedir(final File basedir) {
@@ -136,7 +136,7 @@ public class TocWriter {
 
 	private String makeRelative(final File base, final File file) throws IOException {
 		final String result = base.getCanonicalFile().toURI().relativize(file.getCanonicalFile().toURI()).getPath();
-		this.log.info(String.format("Make relative - base: %s, file: %s -> %s", base, file, result));
+		logger.info(String.format("Make relative - base: %s, file: %s -> %s", base, file, result));
 		return result;
 	}
 }
