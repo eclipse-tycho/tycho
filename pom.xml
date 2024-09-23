@@ -303,7 +303,7 @@
 			<dependency>
 				<groupId>org.eclipse.platform</groupId>
 				<artifactId>org.eclipse.equinox.p2.publisher.eclipse</artifactId>
-				<version>1.6.100</version>
+				<version>1.6.200</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.platform</groupId>
