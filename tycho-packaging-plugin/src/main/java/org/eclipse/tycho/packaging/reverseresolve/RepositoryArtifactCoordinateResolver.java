@@ -22,31 +22,35 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
+import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.core.DependencyResolutionException;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResult;
 
 /**
  * This resolves against the maven (local) repository if the jar carry a
  * suitable pom.properties file...
  */
-@Component(role = ArtifactCoordinateResolver.class, hint = "local")
+@Singleton
+@Named("local")
 public class RepositoryArtifactCoordinateResolver implements ArtifactCoordinateResolver {
 
-	@Requirement
+	@Inject
 	private RepositorySystem repositorySystem;
 
-	@Requirement
+	@Inject
 	private Logger log;
 
 	@Override
@@ -63,42 +67,33 @@ public class RepositoryArtifactCoordinateResolver implements ArtifactCoordinateR
 				String version = properties.getProperty("version");
 				if (artifactId != null && groupId != null && version != null) {
 					String type = FilenameUtils.getExtension(path.getFileName().toString());
-					Dependency dependency = new Dependency();
-					dependency.setGroupId(groupId);
-					dependency.setArtifactId(artifactId);
-					dependency.setType(type);
-					dependency.setVersion(version);
-					Artifact artifact = repositorySystem.createDependencyArtifact(dependency);
-					ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-					request.setArtifact(artifact);
-					request.setOffline(session.isOffline());
-					request.setLocalRepository(session.getLocalRepository());
-					repositorySystem.injectMirror(request.getRemoteRepositories(), session.getSettings().getMirrors());
-					repositorySystem.injectProxy(request.getRemoteRepositories(), session.getSettings().getProxies());
-					repositorySystem.injectAuthentication(request.getRemoteRepositories(),
-							session.getSettings().getServers());
-					ArtifactResolutionResult resolveResult = repositorySystem.resolve(request);
-					if (resolveResult.hasExceptions()) {
-						DependencyResolutionException exception = new DependencyResolutionException(
-								"Resolving " + artifact + " failed", resolveResult.getExceptions());
-						log.debug("Resolving " + artifact + " failed because of: " + exception, exception);
-						return Optional.empty();
+					Artifact artifact = new DefaultArtifact(groupId, artifactId, type, version);
+					ArtifactRequest artifactRequest = new ArtifactRequest();
+					artifactRequest.setArtifact(artifact);
+					artifactRequest.setRepositories(RepositoryUtils.toRepos(project.getRemoteArtifactRepositories()));
+					ArtifactResult artifactResult = repositorySystem.resolveArtifact(session.getRepositorySession(),
+							artifactRequest);
+					if (artifactResult.isResolved()) {
 
+					} else {
+						log.debug("Resolving " + artifact + " failed because of: " + artifactResult.getExceptions());
+						return Optional.empty();
 					}
-					return resolveResult.getArtifacts().stream().filter(a -> a.getFile() != null).filter(a -> {
-						try {
-							return FileUtils.contentEquals(a.getFile(), path.toFile());
-						} catch (IOException e) {
-							return false;
-						}
-					}).map(a -> {
-						Dependency result = new Dependency();
-						result.setGroupId(a.getGroupId());
-						result.setArtifactId(a.getArtifactId());
-						result.setVersion(a.getVersion());
-						result.setType(a.getType());
-						return result;
-					}).findFirst();
+					return Optional.ofNullable(artifactResult.getArtifact()).filter(a -> a.getFile() != null)
+							.filter(a -> {
+								try {
+									return FileUtils.contentEquals(a.getFile(), path.toFile());
+								} catch (IOException e) {
+									return false;
+								}
+							}).map(a -> {
+								Dependency result = new Dependency();
+								result.setGroupId(a.getGroupId());
+								result.setArtifactId(a.getArtifactId());
+								result.setVersion(a.getVersion());
+								result.setType(a.getExtension());
+								return result;
+							});
 				}
 
 			} catch (Exception e) {
