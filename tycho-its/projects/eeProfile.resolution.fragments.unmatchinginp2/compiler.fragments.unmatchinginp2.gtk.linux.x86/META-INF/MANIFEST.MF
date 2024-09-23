@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Fragment-Host: compiler.fragments.unmatchinginp2; bundle-version="[1.0.0,1.1.0)"
+Bundle-Name: %fragmentName
+Bundle-Vendor: %providerName
+Bundle-SymbolicName: compiler.fragments.unmatchinginp2.gtk.linux.x86; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ManifestVersion: 2
+Bundle-Localization: fragment
+Export-Package: org.eclipse.swt.graphics
+Eclipse-PlatformFilter: (& (osgi.ws=gtk) (osgi.os=linux) (osgi.arch=x86))
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
