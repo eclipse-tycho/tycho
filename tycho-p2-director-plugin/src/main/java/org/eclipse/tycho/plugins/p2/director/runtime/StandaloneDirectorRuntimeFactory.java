@@ -17,9 +17,9 @@ import java.net.URI;
 import java.util.Arrays;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -30,9 +30,6 @@ import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
 @Component(role = StandaloneDirectorRuntimeFactory.class)
 public class StandaloneDirectorRuntimeFactory {
-
-    @Requirement
-    private RepositorySystem repositorySystem;
 
     @Requirement
     DirectorRuntime bootstrapDirector;
@@ -80,8 +77,8 @@ public class StandaloneDirectorRuntimeFactory {
 
     private File getDirectorRepositoryZip(ArtifactRepository localMavenRepository) {
         // this artifact is a dependency of the Mojo, so we expect it in the local Maven repo
-        Artifact artifact = repositorySystem.createArtifact("org.eclipse.tycho", "tycho-bundles-external", "2.7.5",
-                "eclipse-repository");
+        Artifact artifact = new DefaultArtifact("org.eclipse.tycho", "tycho-bundles-external", "2.7.5", null, "zip",
+                null, null);
         return new File(localMavenRepository.getBasedir(), localMavenRepository.pathOf(artifact));
     }
 }
