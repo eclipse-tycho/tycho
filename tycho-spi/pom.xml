@@ -30,6 +30,10 @@
 			<artifactId>tycho-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-xml</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
