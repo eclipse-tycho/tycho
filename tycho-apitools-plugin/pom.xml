@@ -12,7 +12,7 @@
 		<maven>${minimal-maven-version}</maven>
 	</prerequisites>
 	<properties>
-		<asm.version>9.7</asm.version>
+		<asm.version>9.7.1</asm.version>
 	</properties>
 	<dependencies>
 		<dependency>
