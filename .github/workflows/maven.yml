@@ -49,7 +49,7 @@ jobs:
         cp .github/toolchains.xml ~/.m2/toolchains.xml
         mvn -U -V -e -B -ntp clean install --file pom.xml -DtrimStackTrace=false -Pits -fae
     - name: Upload Test Results
-      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      uses: actions/upload-artifact@604373da6381bf24206979c74d06a550515601b9 # v4.4.1
       if: always()
       with:
         name: test-results-${{ matrix.os }}
@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Upload
-      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      uses: actions/upload-artifact@604373da6381bf24206979c74d06a550515601b9 # v4.4.1
       with:
         name: Event File
         path: ${{ github.event_path }}
