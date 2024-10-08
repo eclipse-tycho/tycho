@@ -53,7 +53,7 @@ jobs:
       run: | 
         mvn -U -V -e -B -ntp clean install site site:stage --file tycho/pom.xml -T1C -DskipTests
     - name: Upload site-doc
-      uses: actions/upload-artifact@604373da6381bf24206979c74d06a550515601b9 # v4.4.1
+      uses: actions/upload-artifact@84480863f228bb9747b473957fcc9e309aa96097 # v4.4.2
       with:
         name: site-docs-${{ env.GITHUB_REF_NAME }}
         if-no-files-found: error
