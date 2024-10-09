@@ -17,8 +17,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -27,6 +31,8 @@ import org.junit.Test;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
+import de.pdark.decentxml.XMLIOSource;
+import de.pdark.decentxml.XMLParser;
 
 public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
@@ -102,29 +108,28 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
 	static void assertFeatureIU(Document contentXml, File assembledRepoDir, String featureId, String... requiredIus) {
 		String featureIuId = featureId + ".feature.group";
-		Set<Element> featureIus = Util.findIU(contentXml, featureIuId);
+		Set<Element> featureIus = findIU(contentXml, featureIuId);
 		assertEquals("Feature iu with id = '" + featureIuId + "' does not occur exactly once in content.xml", 1,
 				featureIus.size());
 
 		Element featureIu = featureIus.iterator().next();
 
-		assertTrue(Util.containsIUWithProperty(contentXml, featureIuId, "org.eclipse.equinox.p2.type.group", "true"));
-		assertTrue(Util.iuHasAllRequirements(featureIu, requiredIus));
+		assertTrue(containsIUWithProperty(contentXml, featureIuId, "org.eclipse.equinox.p2.type.group", "true"));
+		assertTrue(iuHasAllRequirements(featureIu, requiredIus));
 
 		String featureArtifactPrefix = featureId + "_1.0.0";
 		assertContainsEntry(new File(assembledRepoDir, "features/"), featureArtifactPrefix);
 	}
 
 	static void assertCategoryIU(Document contentXml, String categoryIuId, String featureIuId) {
-		Set<Element> categoryIus = Util.findIU(contentXml, categoryIuId);
+		Set<Element> categoryIus = findIU(contentXml, categoryIuId);
 		assertEquals("Unique category iu not found", 1, categoryIus.size());
 		Element categoryIu = categoryIus.iterator().next();
 
 		assertTrue("IU not typed as category",
-				Util.iuHasProperty(categoryIu, "org.eclipse.equinox.p2.type.category", "true"));
-		assertTrue("Category name missing",
-				Util.iuHasProperty(categoryIu, "org.eclipse.equinox.p2.name", "A Category"));
-		assertTrue(Util.iuHasAllRequirements(categoryIu, featureIuId));
+				iuHasProperty(categoryIu, "org.eclipse.equinox.p2.type.category", "true"));
+		assertTrue("Category name missing", iuHasProperty(categoryIu, "org.eclipse.equinox.p2.name", "A Category"));
+		assertTrue(iuHasAllRequirements(categoryIu, featureIuId));
 	}
 
 	static void assertAddedRootFile(File targetDir) {
@@ -203,7 +208,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 	static void assertRootIuMetaData(Document contentXml) {
 		String featureId = "prf.feature";
 		String featureIuId = featureId + ".feature.group";
-		Set<Element> featureIus = Util.findIU(contentXml, featureIuId);
+		Set<Element> featureIus = findIU(contentXml, featureIuId);
 
 		assertEquals("Feature iu with id = '" + featureIuId + "' does not occur exactly once in content.xml", 1,
 				featureIus.size());
@@ -214,17 +219,17 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		assertTrue(
 				"Verifying content.xml failed because feature iu with id = '" + featureIuId
 						+ "' does not contain required root iu with id = '" + rootWinConfigFeatureIuId + "'",
-				Util.iuHasAllRequirements(featureIu, rootWinConfigFeatureIuId));
+				iuHasAllRequirements(featureIu, rootWinConfigFeatureIuId));
 
 		String rootLinuxConfigFeatureIuId = featureId + "_root.gtk.linux.x86_64";
 
 		assertTrue(
 				"Verifying content.xml failed because feature iu with id = '" + featureIuId
 						+ "' does not contain required root iu with id = '" + rootLinuxConfigFeatureIuId + "'",
-				Util.iuHasAllRequirements(featureIu, rootLinuxConfigFeatureIuId));
+				iuHasAllRequirements(featureIu, rootLinuxConfigFeatureIuId));
 
 		String featureIuRootId = featureId + "_root";
-		Set<Element> featureRootIus = Util.findIU(contentXml, featureIuRootId);
+		Set<Element> featureRootIus = findIU(contentXml, featureIuRootId);
 
 		assertEquals("Feature root iu with id = '" + featureIuRootId + "' does not occur exactly once in content.xml",
 				1, featureRootIus.size());
@@ -232,46 +237,45 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
 	static void assertRootIuPermissionsMetaData(Document contentXml) {
 		// permission defined in build.properties: root.permissions.755 = file5.txt
-		Set<Element> featureRootIus = Util.findIU(contentXml, "prf.feature_root");
+		Set<Element> featureRootIus = findIU(contentXml, "prf.feature_root");
 
 		String expectedTouchpointDataInstruction = "chmod(targetDir:${installFolder}, targetFile:file5.txt, permissions:755);";
 
 		assertTrue("Expected chmod touchpointData instruction '" + expectedTouchpointDataInstruction + "' not found.",
-				Util.iuHasTouchpointDataInstruction(featureRootIus.iterator().next(),
-						expectedTouchpointDataInstruction));
+				iuHasTouchpointDataInstruction(featureRootIus.iterator().next(), expectedTouchpointDataInstruction));
 		// permission defined in build.properties: root.linux.gtk.x86_64.permissions.555
 		// = **/*.so
-		Element linuxRootIu = Util.findIU(contentXml, "prf.feature_root.gtk.linux.x86_64").iterator().next();
+		Element linuxRootIu = findIU(contentXml, "prf.feature_root.gtk.linux.x86_64").iterator().next();
 
 		String chmod555Instruction = "chmod(targetDir:${installFolder}, targetFile:dir/test.so, permissions:555);";
 
 		assertTrue("Expected chmod touchpointData instruction '" + chmod555Instruction + "' not found.",
-				Util.iuHasTouchpointDataInstruction(linuxRootIu, chmod555Instruction));
+				iuHasTouchpointDataInstruction(linuxRootIu, chmod555Instruction));
 	}
 
 	static void assertRootIuLinksMetaData(Document contentXml) {
 		// global link defined in build.properties: root.link =
 		// dir/file6.txt,alias_file6.txt
-		Set<Element> globalFeatureRootIus = Util.findIU(contentXml, "prf.feature_root");
+		Set<Element> globalFeatureRootIus = findIU(contentXml, "prf.feature_root");
 
 		String expectedGlobalTouchpointDataInstruction = "ln(linkTarget:dir/file6.txt,targetDir:${installFolder},linkName:alias_file6.txt);";
 
 		assertTrue(
 				"Expected link (ln) touchpointData instruction '" + expectedGlobalTouchpointDataInstruction
 						+ "' not found.",
-				Util.iuHasTouchpointDataInstruction(globalFeatureRootIus.iterator().next(),
+				iuHasTouchpointDataInstruction(globalFeatureRootIus.iterator().next(),
 						expectedGlobalTouchpointDataInstruction));
 
 		// specific link defined in build.properties: root.linux.gtk.x86_64.link =
 		// file1.txt,alias_file1.txt
-		Set<Element> specificRootfeatureIus = Util.findIU(contentXml, "prf.feature_root.gtk.linux.x86_64");
+		Set<Element> specificRootfeatureIus = findIU(contentXml, "prf.feature_root.gtk.linux.x86_64");
 
 		String expectedSpecificTouchpointDataInstruction = "ln(linkTarget:file1.txt,targetDir:${installFolder},linkName:alias_file1.txt);";
 
 		assertTrue(
 				"Expected link (ln) touchpointData instruction '" + expectedSpecificTouchpointDataInstruction
 						+ "' not found.",
-				Util.iuHasTouchpointDataInstruction(specificRootfeatureIus.iterator().next(),
+				iuHasTouchpointDataInstruction(specificRootfeatureIus.iterator().next(),
 						expectedSpecificTouchpointDataInstruction));
 	}
 
@@ -281,6 +285,86 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		File contentJar = new File(repositoryTargetDirectory, "content.jar");
 		assertTrue("content.jar not found \n" + contentJar.getAbsolutePath(), contentJar.isFile());
 
-		return Util.openXmlFromZip(contentJar, "content.xml");
+		return openXmlFromZip(contentJar, "content.xml");
+	}
+
+	private static Document openXmlFromZip(File zipFile, String xmlFile) throws IOException, ZipException {
+		XMLParser parser = new XMLParser();
+		try (ZipFile zip = new ZipFile(zipFile)) {
+			ZipEntry contentXmlEntry = zip.getEntry(xmlFile);
+			InputStream entryStream = zip.getInputStream(contentXmlEntry);
+			return parser.parse(new XMLIOSource(entryStream));
+		}
+	}
+
+	private static boolean containsIUWithProperty(Document contentXML, String iuId, String propName, String propValue) {
+		Set<Element> ius = findIU(contentXML, iuId);
+		for (Element unitElement : ius) {
+			if (iuHasProperty(unitElement, propName, propValue))
+				return true;
+		}
+		return false;
+	}
+
+	private static Set<Element> findIU(Document contentXML, String iuId) {
+		Set<Element> foundIUs = new HashSet<>();
+
+		Element repository = contentXML.getRootElement();
+		for (Element unit : repository.getChild("units").getChildren("unit")) {
+			if (iuId.equals(unit.getAttributeValue("id"))) {
+				foundIUs.add(unit);
+			}
+		}
+		return foundIUs;
+	}
+
+	private static boolean iuHasProperty(Element unit, String propName, String propValue) {
+		boolean foundIU = false;
+
+		if (propName != null) {
+			for (Element property : unit.getChild("properties").getChildren("property")) {
+				if (propName.equals(property.getAttributeValue("name"))
+						&& propValue.equals((property.getAttributeValue("value")))) {
+					foundIU = true;
+					break;
+				}
+			}
+		} else {
+			foundIU = true;
+		}
+		return foundIU;
+	}
+
+	private static boolean iuHasAllRequirements(Element unit, String... requiredIus) {
+		boolean hasAllRequirements = true;
+		for (String requiredIu : requiredIus) {
+			boolean foundIU = false;
+			for (Element property : unit.getChild("requires").getChildren("required")) {
+				if (requiredIu.equals(property.getAttributeValue("name"))) {
+					foundIU = true;
+					break;
+				}
+			}
+			if (!foundIU) {
+				hasAllRequirements = false;
+				break;
+			}
+		}
+		return hasAllRequirements;
+	}
+
+	private static boolean iuHasTouchpointDataInstruction(Element unit, String instructionTrimmedText) {
+		Element touchpointDataElem = unit.getChild("touchpointData");
+
+		if (touchpointDataElem != null) {
+			for (Element instructions : touchpointDataElem.getChildren("instructions")) {
+				for (Element instruction : instructions.getChildren("instruction")) {
+					if (instructionTrimmedText.equals(instruction.getTrimmedText())) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 }
