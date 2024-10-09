@@ -305,11 +305,11 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(config.getTargetVersion());
         }
 
-        if (!suppressSource(config) && StringUtils.isEmpty(config.getSourceVersion())) {
+        if (StringUtils.isEmpty(config.getSourceVersion())) {
             // If omitted, later JDKs complain about a 1.1 target
             args.add("-source");
             args.add("1.3");
-        } else if (!suppressSource(config)) {
+        } else {
             args.add("-source");
             args.add(config.getSourceVersion());
         }
@@ -325,20 +325,12 @@ public class JDTCompiler extends AbstractCompiler {
             }
         }
 
-        if (!suppressEncoding(config) && !StringUtils.isEmpty(config.getSourceEncoding())) {
+        if (!StringUtils.isEmpty(config.getSourceEncoding())) {
             args.add("-encoding");
             args.add(config.getSourceEncoding());
         }
 
         return args.toArray(new String[args.size()]);
-    }
-
-    private static boolean suppressSource(CompilerConfiguration config) {
-        return "1.3".equals(config.getCompilerVersion());
-    }
-
-    private static boolean suppressEncoding(CompilerConfiguration config) {
-        return "1.3".equals(config.getCompilerVersion());
     }
 
     /**
