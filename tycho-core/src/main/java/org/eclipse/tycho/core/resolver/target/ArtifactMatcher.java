@@ -110,7 +110,7 @@ public class ArtifactMatcher {
             }
 
         }
-        FeatureEntry entry = FeatureEntry.createRequires("dummy", version, rule, null, false);
+        FeatureEntry entry = FeatureEntry.createRequires("dummy", version, rule, null, false, true);
 
         return new DummyFeatureAction().getVersionRange(entry);
     }
