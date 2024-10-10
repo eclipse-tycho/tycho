@@ -106,6 +106,17 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Parameter(property = "onIllegalVersion", defaultValue = "fail", alias = "tycho.p2.baseline.onIllegalVersion")
     private ReportBehavior onIllegalVersion;
 
+    /**
+     * The version range of the reference artifact in the baseline.
+     * <p>
+     * This can be used to select the desired baseline artifact if multiple versions of an artifact
+     * are available and to compare. By default a local artifact is compared to the latest version
+     * in the baseline.
+     * </p>
+     */
+    @Parameter(defaultValue = "0.0.0", alias = "tycho.p2.baseline.versionRange")
+    private String baselineVersionRange = "0.0.0";
+
     @Component()
     P2ResolverFactory resolverFactory;
 
@@ -161,7 +172,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
             try {
                 String id = item.getId();
                 Version version = new Version(item.getVersion().toString());
-                P2ResolutionResult res = resolver.resolveInstallableUnit(baselineTP, id, "0.0.0");
+                P2ResolutionResult res = resolver.resolveInstallableUnit(baselineTP, id, baselineVersionRange);
 
                 for (Entry foundInBaseline : res.getArtifacts()) {
                     Version baselineVersion = new Version(foundInBaseline.getVersion());
