@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.repository;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,6 +26,8 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -77,6 +80,21 @@ public class P2RepositoryManager {
 	}
 
 	/**
+	 * Loads the {@link IArtifactRepository} from the given {@link File}, this
+	 * method does NOT check the type of the repository!
+	 * 
+	 * @param repository
+	 * @param flags
+	 * @return the {@link IArtifactRepository} for the given {@link Repository}
+	 * @throws ProvisionException if loading the repository failed
+	 */
+	public IArtifactRepository getArtifactRepository(File repository, int flags) throws ProvisionException {
+		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
+		factory.setAgent(agent);
+		return factory.load(repository.toURI(), flags, null);
+	}
+
+	/**
 	 * Loads the {@link IArtifactRepository} from the given {@link Repository}, this
 	 * method does NOT check the type of the repository!
 	 * 
@@ -114,6 +132,21 @@ public class P2RepositoryManager {
 	public IMetadataRepository getMetadataRepository(Repository repository)
 			throws URISyntaxException, ProvisionException {
 		return getMetadataRepositor(new URI(repository.getUrl()), repository.getId());
+	}
+
+	/**
+	 * Loads the {@link IMetadataRepository} from the given {@link File}, this
+	 * method does NOT check the type of the repository!
+	 * 
+	 * @param repository
+	 * @param flags the flags to use
+	 * @return the {@link IMetadataRepository} for the given {@link Repository}
+	 * @throws ProvisionException if loading the repository failed
+	 */
+	public IMetadataRepository getMetadataRepository(File repository, int flags) throws ProvisionException {
+		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
+		factory.setAgent(agent);
+		return factory.load(repository.toURI(), flags, null);
 	}
 
 	public IQueryable<IInstallableUnit> getCompositeMetadataRepository(Collection<Repository> repositories)
