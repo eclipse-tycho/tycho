@@ -90,9 +90,7 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
         ReactorProjectIdentities currentProject = new ReactorProjectIdentitiesStub(projectFolder);
         context = new BuildContext(currentProject, DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
-        subject = new MirrorApplicationServiceImpl();
-        subject.setAgent(agent);
-        subject.setLogger(logVerifier.getLogger());
+        subject = new MirrorApplicationServiceImpl(logVerifier.getLogger(), agent);
     }
 
     @Test(expected = IllegalArgumentException.class)

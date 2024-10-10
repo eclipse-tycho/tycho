@@ -31,13 +31,8 @@ import java.util.StringJoiner;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.eclipse.sisu.equinox.launching.BundleReference;
@@ -47,23 +42,26 @@ import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.tycho.TychoConstants;
 import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = EquinoxInstallationFactory.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFactory {
-    @Requirement
-    private PlexusContainer plexus;
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Map<String, Manifest> manifestCache = new HashMap<>();
 
-    @Requirement
-    private Logger log;
+    private final Provider<UnArchiver> zipUnarchiver;
 
-    public DefaultEquinoxInstallationFactory() {
-        // for plexus
-    }
-
-    DefaultEquinoxInstallationFactory(Logger log) {
-        this.log = log;
+    @Inject
+    public DefaultEquinoxInstallationFactory(@Named("zip") Provider<UnArchiver> zipUnarchiver) {
+        this.zipUnarchiver = zipUnarchiver;
     }
 
     @Override
@@ -217,12 +215,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
     }
 
     protected void unpack(File source, File destination) {
-        UnArchiver unzip;
-        try {
-            unzip = plexus.lookup(UnArchiver.class, "zip");
-        } catch (ComponentLookupException e) {
-            throw new RuntimeException("Could not lookup required component", e);
-        }
+        UnArchiver unzip = zipUnarchiver.get();
         unzip.setIgnorePermissions(true);
         destination.mkdirs();
         unzip.setSourceFile(source);

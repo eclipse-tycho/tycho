@@ -39,7 +39,6 @@ import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -119,6 +118,7 @@ import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
 import org.osgi.framework.BundleException;
+import org.slf4j.Logger;
 
 public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 

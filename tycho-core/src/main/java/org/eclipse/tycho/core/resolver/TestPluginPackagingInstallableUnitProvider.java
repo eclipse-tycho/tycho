@@ -20,9 +20,6 @@ import java.util.UUID;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -32,16 +29,22 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.p2resolver.P2ResolverImpl;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * This provides P2 visible meta-data for bundles that are not expressed in the manifest (e.g.
  * build.properties derived)
  *
  */
-@Component(role = InstallableUnitProvider.class, hint = "eclipse-test-plugin-packaging")
+@Singleton
+@Named("eclipse-test-plugin-packaging")
 public class TestPluginPackagingInstallableUnitProvider implements InstallableUnitProvider {
-    @Requirement
-    private Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private Collection<IInstallableUnit> eclipseTestPackagingIUs;
 
     public TestPluginPackagingInstallableUnitProvider() {

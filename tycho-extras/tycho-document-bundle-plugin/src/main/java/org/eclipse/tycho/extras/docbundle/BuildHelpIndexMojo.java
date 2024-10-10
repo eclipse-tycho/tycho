@@ -20,7 +20,6 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -36,6 +35,8 @@ import org.eclipse.tycho.osgi.framework.EclipseWorkspace;
 import org.eclipse.tycho.osgi.framework.EclipseWorkspaceManager;
 import org.eclipse.tycho.osgi.framework.Features;
 import org.osgi.framework.BundleException;
+
+import javax.inject.Inject;
 
 /**
  * A Mojo to pre-build search help index for a plug-in.
@@ -53,10 +54,10 @@ public class BuildHelpIndexMojo extends AbstractMojo {
 	@Parameter()
 	private Repository buildToolsRepository;
 
-	@Component
+	@Inject
 	private EclipseApplicationManager applicationManager;
 
-	@Component
+	@Inject
 	private EclipseWorkspaceManager workspaceManager;
 
 	@Override

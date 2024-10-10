@@ -32,7 +32,6 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.toolchain.Toolchain;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ExecutionEnvironment;
@@ -40,6 +39,7 @@ import org.eclipse.tycho.core.ee.EEVersion.EEType;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
+import org.slf4j.Logger;
 
 /**
  * Represents a standard OSGi execution environment profile. See the list of known OSGi profiles in

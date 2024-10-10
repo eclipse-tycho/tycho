@@ -12,29 +12,35 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-@Component(role = TransportProtocolHandler.class, hint = "http")
+@Singleton
+@Named("http")
 public class HttpTransportProtocolHandler implements TransportProtocolHandler {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	static final String TRANSPORT_TYPE = System.getProperty("tycho.p2.httptransport.type",
 			Java11HttpTransportFactory.HINT);
 
-	@Requirement
-	Map<String, HttpTransportFactory> transportFactoryMap;
-	@Requirement
-	HttpCache httpCache;
+	private final Map<String, HttpTransportFactory> transportFactoryMap;
+	private final HttpCache httpCache;
 
-	@Requirement
-	Logger logger;
+	@Inject
+	public HttpTransportProtocolHandler(Map<String, HttpTransportFactory> transportFactoryMap, HttpCache httpCache) {
+		this.transportFactoryMap = transportFactoryMap;
+		this.httpCache = httpCache;
+	}
 
 	private HttpTransportFactory getTransportFactory() {
 		return Objects.requireNonNull(transportFactoryMap.get(TRANSPORT_TYPE), "Invalid transport configuration");

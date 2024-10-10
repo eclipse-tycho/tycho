@@ -22,7 +22,7 @@ import org.eclipse.tycho.TargetEnvironment;
 
 final class JavaHomeToolchain implements JavaToolchain {
 
-    private Path javaHome;
+    private final Path javaHome;
 
     public JavaHomeToolchain(String javaHome) {
         this.javaHome = Path.of(javaHome).toAbsolutePath();

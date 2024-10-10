@@ -17,18 +17,25 @@ import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.helper.PluginRealmHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = BuildListeners.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class BuildListeners {
-    @Requirement
-    private PluginRealmHelper realmHelper;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private Logger log;
+    private final PluginRealmHelper realmHelper;
+
+    @Inject
+    public BuildListeners(PluginRealmHelper realmHelper) {
+        this.realmHelper = realmHelper;
+    }
 
     public void notifyBuildStart(MavenSession session) {
         Set<String> called = new HashSet<String>();
@@ -41,8 +48,8 @@ public class BuildListeners {
                 });
             } catch (Exception e) {
                 String message = "Can't call BuildListeners for project: " + project.getId();
-                if (log.isDebugEnabled()) {
-                    log.error(message, e);
+                if (logger.isDebugEnabled()) {
+                    logger.error(message, e);
                 }
             }
         }
@@ -59,8 +66,8 @@ public class BuildListeners {
                 });
             } catch (Exception e) {
                 String message = "Can't call BuildListeners for project: " + project.getId();
-                if (log.isDebugEnabled()) {
-                    log.error(message, e);
+                if (logger.isDebugEnabled()) {
+                    logger.error(message, e);
                 }
             }
         }

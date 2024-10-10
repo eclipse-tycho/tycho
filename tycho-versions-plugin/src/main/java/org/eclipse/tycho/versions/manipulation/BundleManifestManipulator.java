@@ -24,11 +24,9 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.model.manifest.MutableBundleManifest;
 import org.eclipse.tycho.versions.bundle.MutableBndFile;
-import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PackageVersionChange;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
@@ -37,7 +35,11 @@ import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.osgi.framework.Constants;
 
-@Component(role = MetadataManipulator.class, hint = "bundle-manifest")
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("bundle-manifest")
 public class BundleManifestManipulator extends AbstractMetadataManipulator {
 
     @Override

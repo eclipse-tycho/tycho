@@ -31,9 +31,6 @@ import java.util.stream.IntStream;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -41,12 +38,19 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import kong.unirest.GetRequest;
 import kong.unirest.Unirest;
 import kong.unirest.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * 
  * Use the maven rest API to find an artifact based on its sha1 sum.
  */
-@Component(role = ArtifactCoordinateResolver.class, hint = "central")
+@Singleton
+@Named("central")
 public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinateResolver {
 
 	private static final int TIMEOUT = Integer.getInteger("tycho.search.central.timeout", 10);
@@ -56,13 +60,12 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 	private static final String KEY_VERSION = "v";
 	private static final String KEY_TYPE = "p";
 
-	@Requirement
-	private Logger log;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Requirement
+	@Inject
 	MavenContext mavenContext;
 
-	private Map<File, Optional<Dependency>> filesCache = new ConcurrentHashMap<>();
+	private final Map<File, Optional<Dependency>> filesCache = new ConcurrentHashMap<>();
 
 	@Override
 	public Optional<Dependency> resolve(Dependency dep, MavenProject project, MavenSession session) {
@@ -120,7 +123,7 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 					}
 					cacheResult(cacheFile, null);
 				} catch (Exception e) {
-					log.warn("Cannot map " + gav + " @ " + path + ") to Maven Central because of: " + e);
+					logger.warn("Cannot map " + gav + " @ " + path + ") to Maven Central because of: " + e);
 				}
 				return null;
 			});

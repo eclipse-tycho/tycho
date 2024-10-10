@@ -28,9 +28,6 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.RepositorySessionDecorator;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.ArtifactTypeRegistry;
@@ -51,18 +48,26 @@ import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResult;
 import org.eclipse.aether.version.Version;
 import org.eclipse.tycho.TychoConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = MavenDependenciesResolver.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class MavenDependenciesResolver {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    RepositorySystem repoSystem;
+    private final RepositorySystem repoSystem;
+    private final List<RepositorySessionDecorator> decorators;
 
-    @Requirement
-    List<RepositorySessionDecorator> decorators;
-
-    @Requirement
-    Logger logger;
+    @Inject
+    public MavenDependenciesResolver(RepositorySystem repoSystem, List<RepositorySessionDecorator> decorators) {
+        this.repoSystem = repoSystem;
+        this.decorators = decorators;
+    }
 
     /**
      * Resolves the specified dependencies including their transitive ones.

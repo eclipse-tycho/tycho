@@ -16,15 +16,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.build.BuildTimestampProvider;
 
-@Component(role = BuildTimestampProvider.class, hint = "test")
+@Singleton
+@Named("test")
 public class TestBuildTimestampProvider implements BuildTimestampProvider {
 
 	public static final String PROP_TESTBUILDTIMESTAMPE = "testbuildtimestamp";

@@ -20,12 +20,12 @@ import java.lang.reflect.Method;
  * Wrapper class around Xpp3Dom that uses reflection to ensure we don't run into stupid CCE. This
  * also give a nicer API to add new elements.
  */
-public class MavenConfiguation {
+public class MavenConfiguration {
 
-    private Class<?> xpp3DomClass;
-    private Object xpp3;
+    private final Class<?> xpp3DomClass;
+    private final Object xpp3;
 
-    MavenConfiguation(Object xpp3, String elementName) {
+    MavenConfiguration(Object xpp3, String elementName) {
         ClassLoader loader = org.apache.maven.model.io.xpp3.MavenXpp3Writer.class.getClassLoader();
         try {
             xpp3DomClass = loader.loadClass("org.codehaus.plexus.util.xml.Xpp3Dom");
@@ -43,26 +43,26 @@ public class MavenConfiguation {
         return xpp3;
     }
 
-    public MavenConfiguation addChild(String child) {
-        MavenConfiguation childConfiguation = new MavenConfiguation(null, child);
+    public MavenConfiguration addChild(String child) {
+        MavenConfiguration childConfiguration = new MavenConfiguration(null, child);
         try {
             Method method = xpp3DomClass.getMethod("addChild", xpp3DomClass);
-            method.invoke(getXpp3(), childConfiguation.getXpp3());
+            method.invoke(getXpp3(), childConfiguration.getXpp3());
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new RuntimeException("can't add Xpp3Dom child!", e);
         }
-        return childConfiguation;
+        return childConfiguration;
     }
 
-    public MavenConfiguation getChild(String child) {
+    public MavenConfiguration getChild(String child) {
         try {
             Method method = xpp3DomClass.getMethod("getChild", String.class);
             Object existing = method.invoke(getXpp3(), child);
             if (existing == null) {
                 return addChild(child);
             }
-            return new MavenConfiguation(existing, child);
+            return new MavenConfiguration(existing, child);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new RuntimeException("can't add Xpp3Dom child!", e);

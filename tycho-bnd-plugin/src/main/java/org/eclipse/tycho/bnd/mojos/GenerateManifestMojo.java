@@ -28,8 +28,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -57,6 +55,10 @@ import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.Processor;
 import aQute.lib.manifest.ManifestUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * The mojos support generation of the manifest file like it is done in PDE if
@@ -71,19 +73,22 @@ public class GenerateManifestMojo extends AbstractMojo {
 		}
 		return true;
 	};
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Component
+	@Inject
 	private BndPluginManager bndPluginManager;
 
-	@Parameter(property = "project", readonly = true)
+	@Inject
 	protected MavenProject mavenProject;
 
-	@Parameter(property = "session", readonly = true)
+	@Inject
 	protected MavenSession session;
 
-	@Component
+	@Inject
 	private PluginRealmHelper pluginRealmHelper;
-	@Component
+	
+	@Inject
 	private TychoProjectManager projectManager;
 
 	@Override
@@ -93,11 +98,10 @@ public class GenerateManifestMojo extends AbstractMojo {
 			File basedir = mavenProject.getBasedir();
 			File instructionsFile = new File(basedir, TychoConstants.PDE_BND);
 			if (instructionsFile.isFile()) {
-				Log log = getLog();
-				log.debug("Generate final manifest for project " + mavenProject.getId());
+				logger.debug("Generate final manifest for project " + mavenProject.getId());
 				try (Project project = new Project(getWorkspace(), basedir, instructionsFile);
 						ProjectBuilder builder = new AutomaticManifestProjectBuilder(project);
-						Jar jar = new MavenProjectJar(mavenProject, CLASS_FILTER, log)) {
+						Jar jar = new MavenProjectJar(mavenProject, CLASS_FILTER, logger)) {
 					setupProject(project);
 					BundleClassPath bundleClassPath = osgi
 							.getBundleClassPath(DefaultReactorProject.adapt(mavenProject));
@@ -105,7 +109,7 @@ public class GenerateManifestMojo extends AbstractMojo {
 					builder.setJar(jar);
 					for (ClasspathEntry cpe : bundleClassPath.getClasspathEntries()) {
 						cpe.getLocations().forEach(cp -> {
-							log.debug("Adding classpath " + cp);
+							logger.debug("Adding classpath " + cp);
 							try {
 								project.addClasspath(cp);
 							} catch (RuntimeException e) {
@@ -119,16 +123,16 @@ public class GenerateManifestMojo extends AbstractMojo {
 									List<ClasspathEntry> list = cpc.getAdditionalClasspathEntries(mavenProject,
 											Artifact.SCOPE_COMPILE);
 									if (list != null && !list.isEmpty()) {
-										log.debug("Adding additional classpath entries from contributor "
+										logger.debug("Adding additional classpath entries from contributor "
 												+ cpc.getClass().getSimpleName());
 										for (ClasspathEntry entry : list) {
 											List<File> locations = entry.getLocations();
 											for (File file : locations) {
 												try {
-													log.debug(" --> " + file);
+													logger.debug(" --> " + file);
 													builder.addClasspath(file);
 												} catch (Exception e) {
-													log.warn("Adding additional classpath file " + file + " failed: "
+													logger.warn("Adding additional classpath file " + file + " failed: "
 															+ e);
 												}
 											}
@@ -139,16 +143,16 @@ public class GenerateManifestMojo extends AbstractMojo {
 						throw new MojoExecutionException("can't call classpath contributors", e);
 					}
 					builder.build();
-					builder.getWarnings().forEach(log::warn);
-					builder.getErrors().forEach(log::error);
+					builder.getWarnings().forEach(logger::warn);
+					builder.getErrors().forEach(logger::error);
 					Manifest manifest = jar.getManifest();
 					if (manifest == null) {
-						log.debug("No Manifest was generated!");
-					} else if (log.isDebugEnabled()) {
+						logger.debug("No Manifest was generated!");
+					} else if (logger.isDebugEnabled()) {
 						ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 						ManifestUtil.write(manifest, outputStream);
-						String str = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
-						log.debug("Generated final manifest for " + mavenProject.getId() + ":\r\n" + str);
+						String str = outputStream.toString(StandardCharsets.UTF_8);
+						logger.debug("Generated final manifest for " + mavenProject.getId() + ":\r\n" + str);
 					}
 				} catch (MojoExecutionException e) {
 					throw e;

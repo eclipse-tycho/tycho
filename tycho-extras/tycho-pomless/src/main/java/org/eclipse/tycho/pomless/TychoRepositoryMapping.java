@@ -31,16 +31,24 @@ import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
+import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelParseException;
-import org.codehaus.plexus.component.annotations.Component;
+import org.apache.maven.model.io.ModelWriter;
+import org.eclipse.sisu.Typed;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.w3c.dom.Element;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * 
  * Responsible for parsing eclipse-repository artifacts (updatesites, catgory.xml)
  */
-@Component(role = Mapping.class, hint = TychoRepositoryMapping.PACKAGING)
+@Singleton
+@Named(TychoRepositoryMapping.PACKAGING)
+@Typed(Mapping.class)
 public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
     private static final String ARCHIVE_PRODUCTS_ID = "archive-products";
     private static final String MATERIALIZE_PRODUCTS_ID = "materialize-products";
@@ -53,6 +61,11 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
     private static final String PRODUCT_EXTENSION = ".product";
     public static final String PACKAGING = "eclipse-repository";
     private static final String UPDATE_SITE_SUFFIX = "." + PACKAGING;
+
+    @Inject
+    public TychoRepositoryMapping(Map<String, ModelWriter> modelWriters, Map<String, ModelProcessor> modelProcessors) {
+        super(modelWriters, modelProcessors);
+    }
 
     @Override
     protected String getPackaging() {
@@ -142,9 +155,9 @@ public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
             PluginExecution pluginExecution = map.computeIfAbsent(executionId, required -> {
                 throw new IllegalArgumentException(required + " PluginExecution is missing");
             });
-            MavenConfiguation config = getConfiguration(pluginExecution);
-            MavenConfiguation products = config.getChild("products");
-            MavenConfiguation product = products.addChild("product");
+            MavenConfiguration config = getConfiguration(pluginExecution);
+            MavenConfiguration products = config.getChild("products");
+            MavenConfiguration product = products.addChild("product");
             product.addChild("id").setValue(getRequiredXMLAttributeValue(productXml, PRODUCT_UID_ATTRIBUTE));
             if (attachId != null) {
                 product.addChild("attachId").setValue(attachId);

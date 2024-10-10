@@ -21,8 +21,9 @@ import java.util.Map;
 import org.apache.maven.lifecycle.Lifecycle;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import org.apache.maven.model.building.ModelProcessor;
+import org.apache.maven.model.io.ModelWriter;
+import org.eclipse.sisu.Typed;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.eclipse.tycho.version.TychoVersion;
@@ -31,13 +32,24 @@ import org.sonatype.maven.polyglot.mapping.Mapping;
 import aQute.bnd.build.Project;
 import aQute.bnd.build.Workspace;
 
-@Component(role = Mapping.class, hint = "bnd")
-public class BndProjectMapping extends AbstractTychoMapping {
-	
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
+@Singleton
+@Named("bnd")
+@Typed(Mapping.class)
+public class BndProjectMapping extends AbstractTychoMapping {
 	private static final String TYCHO_BND_PLUGIN = "tycho-bnd-plugin";
-	@Requirement(role = Lifecycle.class)
+
+	@Inject
 	private Map<String, Lifecycle> lifecycles;
+
+	@Inject
+	public BndProjectMapping(Map<String, ModelWriter> modelWriters, Map<String, ModelProcessor> modelProcessors, Map<String, Lifecycle> lifecycles) {
+		super(modelWriters, modelProcessors);
+		this.lifecycles = lifecycles;
+	}
 
 	@Override
 	public float getPriority() {
@@ -46,24 +58,26 @@ public class BndProjectMapping extends AbstractTychoMapping {
 
 	@Override
 	protected boolean isValidLocation(Path location) {
-		try {
-			return getFileName(location).equals(Project.BNDFILE)
-					&& Workspace.findWorkspace(location.getParent().toFile()) != null;
-		} catch (Exception e) {
-			return false;
-		}
+		return getFileName(location).equals(Project.BNDFILE)
+				&& workspaceFound(location.getParent().toFile());
 	}
 
 	@Override
 	protected File getPrimaryArtifact(File dir) {
 		File bndFile = new File(dir, Project.BNDFILE);
-		try {
-			if (bndFile.exists() && Workspace.findWorkspace(dir.getParentFile()) != null) {
-				return bndFile;
-			}
-		} catch (Exception e) {
+		if (bndFile.exists() && workspaceFound(dir.getParentFile())) {
+			return bndFile;
 		}
 		return null;
+	}
+
+	private boolean workspaceFound(File file) {
+		try (Workspace workspace = Workspace.findWorkspace(file)) {
+			return workspace != null;
+		} catch (Exception e){
+			// mute
+		}
+		return false;
 	}
 
 	@Override

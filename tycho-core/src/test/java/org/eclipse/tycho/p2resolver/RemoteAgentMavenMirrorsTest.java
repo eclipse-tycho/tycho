@@ -102,7 +102,6 @@ public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
     private void prepareMavenMirrorConfiguration(String id, URI mirrorUrl) throws InitializationException {
         DefaultMavenRepositorySettings mavenRepositorySettings = (DefaultMavenRepositorySettings) subject
                 .getService(IRepositoryIdManager.class).getSettings();
-        mavenRepositorySettings.initialize();
         mavenRepositorySettings.addMirror(id, mirrorUrl);
     }
 

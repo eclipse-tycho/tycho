@@ -63,9 +63,7 @@ public class TemporaryLocalMavenRepository extends ExternalResource {
 
     public LocalRepositoryP2Indices getLocalRepositoryIndex() {
         if (repoIndex == null) {
-            repoIndex = new LocalRepositoryP2IndicesImpl();
-            repoIndex.setFileLockService(new NoopFileLockService());
-            repoIndex.setMavenContext(new MockMavenContext(getLocalRepositoryRoot(), logVerifier.getLogger()));
+            repoIndex = new LocalRepositoryP2IndicesImpl(new NoopFileLockService(), new MockMavenContext(getLocalRepositoryRoot(), logVerifier.getLogger()));
         }
         return repoIndex;
     }

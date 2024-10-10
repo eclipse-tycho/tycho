@@ -22,7 +22,6 @@ import java.util.Set;
 import org.apache.commons.exec.OS;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
@@ -31,6 +30,7 @@ import org.codehaus.plexus.util.cli.DefaultConsumer;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
+import org.slf4j.Logger;
 
 public class JavadocRunner {
 	private File output;
@@ -43,7 +43,7 @@ public class JavadocRunner {
 
 	private Set<File> manifestFiles = Collections.<File>emptySet();
 
-	private Log log;
+	private Logger logger;
 
 	private JavadocOptions options;
 
@@ -79,8 +79,8 @@ public class JavadocRunner {
 		}
 	}
 
-	public void setLog(final Log log) {
-		this.log = log;
+	public void setLogger(final Logger logger) {
+		this.logger = logger;
 	}
 
 	public void setSession(final MavenSession session) {
@@ -101,13 +101,13 @@ public class JavadocRunner {
 		try (PrintStream ps = new PrintStream(optionsFile)) {
 			ps.print(createOptionsFileContent());
 
-			this.log.info("Calling: " + cli);
+			logger.info("Calling: " + cli);
 			final int rc = CommandLineUtils.executeCommandLine(cli, new DefaultConsumer(), new DefaultConsumer());
 			if (rc != 0) {
 				if (!this.options.isIgnoreError()) {
 					throw new MojoExecutionException("Failed to execute javadoc with return code: " + rc);
 				} else {
-					this.log.info("Execution failed with return code: " + rc);
+					logger.info("Execution failed with return code: " + rc);
 				}
 			}
 		}
@@ -128,11 +128,11 @@ public class JavadocRunner {
 		if (options != null) {
 			if (!options.getIncludes().isEmpty()) {
 				includeMatcher = PackageNameMatcher.compile(options.getIncludes());
-				this.log.info("Including packages matching " + includeMatcher);
+				logger.info("Including packages matching " + includeMatcher);
 			}
 			if (!options.getExcludes().isEmpty()) {
 				excludeMatcher = PackageNameMatcher.compile(options.getExcludes());
-				this.log.info("Excluding packages matching " + excludeMatcher);
+				logger.info("Excluding packages matching " + excludeMatcher);
 			}
 		}
 
@@ -146,7 +146,7 @@ public class JavadocRunner {
 
 		final int count = addPackages(sb);
 		if (count <= 0) {
-			this.log.warn("No packages found");
+			logger.warn("No packages found");
 		}
 
 		return sb.toString();
@@ -192,7 +192,7 @@ public class JavadocRunner {
 
 		for (final File manifestFile : this.manifestFiles) {
 			if (!manifestFile.canRead()) {
-				this.log.debug("No readable Manifest: " + manifestFile);
+				logger.debug("No readable Manifest: " + manifestFile);
 				continue;
 			}
 
@@ -253,24 +253,24 @@ public class JavadocRunner {
 	}
 
 	protected String getExecutable() {
-		log.debug("Finding javadoc executable");
+		logger.debug("Finding javadoc executable");
 
 		if (this.options.getExecutable() != null) {
 			// prefer the specific one
-			log.debug("Using specified javadoc executable: " + options.getExecutable());
+			logger.debug("Using specified javadoc executable: " + options.getExecutable());
 			return this.options.getExecutable();
 		}
 
-		log.debug("Toolchain Manager: " + toolchainManager);
+		logger.debug("Toolchain Manager: " + toolchainManager);
 
 		if (this.toolchainManager != null) {
 			// try the toolchain
 			final Toolchain tc = this.toolchainManager.getToolchainFromBuildContext("jdk", this.session);
-			log.debug("Toolchain: " + tc);
+			logger.debug("Toolchain: " + tc);
 
 			if (tc != null) {
 				final String exe = tc.findTool("javadoc");
-				log.debug("Toolchain Tool: " + exe);
+				logger.debug("Toolchain Tool: " + exe);
 				if (exe != null) {
 					return exe;
 				}
@@ -294,7 +294,7 @@ public class JavadocRunner {
 			javadocFromJavaHome += ".exe";
 		}
 
-		log.debug("Testing javadoc from 'java.home': " + javadocFromJavaHome);
+		logger.debug("Testing javadoc from 'java.home': " + javadocFromJavaHome);
 
 		if (new File(javadocFromJavaHome).canExecute()) {
 			return javadocFromJavaHome;
@@ -309,14 +309,14 @@ public class JavadocRunner {
 				javadocFromJavaHome += ".exe";
 			}
 
-			log.debug("Testing javadoc from JAVA_HOME: " + javadocFromJavaHome);
+			logger.debug("Testing javadoc from JAVA_HOME: " + javadocFromJavaHome);
 
 			if (new File(javadocFromJavaHome).canExecute()) {
 				return javadocFromJavaHome;
 			}
 		}
 
-		log.debug("Using path fallback");
+		logger.debug("Using path fallback");
 
 		// fall back
 		return "javadoc";

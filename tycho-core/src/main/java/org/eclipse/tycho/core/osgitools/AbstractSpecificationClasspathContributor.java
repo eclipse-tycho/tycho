@@ -18,8 +18,6 @@ import java.util.Optional;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.ClasspathEntry.AccessRule;
@@ -28,6 +26,10 @@ import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.osgi.framework.VersionRange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Provider;
 
 /**
  * Abstract implementation that contributes a "specification package" to the compile classpath in
@@ -38,14 +40,11 @@ import org.osgi.framework.VersionRange;
  * </ol>
  */
 public abstract class AbstractSpecificationClasspathContributor implements ClasspathContributor {
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    protected MavenBundleResolver mavenBundleResolver;
+    protected final MavenBundleResolver mavenBundleResolver;
 
-    @Requirement
-    protected Logger logger;
-
-    protected final MavenSession session;
+    protected final Provider<MavenSession> sessionProvider;
 
     protected final String packageName;
 
@@ -55,9 +54,13 @@ public abstract class AbstractSpecificationClasspathContributor implements Class
 
     private final AccessRule accessRule;
 
-    protected AbstractSpecificationClasspathContributor(MavenSession session, String packageName, String mavenGroupId,
-            String mavenArtifactId) {
-        this.session = session;
+    protected AbstractSpecificationClasspathContributor(MavenBundleResolver mavenBundleResolver,
+                                                        Provider<MavenSession> sessionProvider,
+                                                        String packageName,
+                                                        String mavenGroupId,
+                                                        String mavenArtifactId) {
+        this.mavenBundleResolver = mavenBundleResolver;
+        this.sessionProvider = sessionProvider;
         this.packageName = packageName;
         this.mavenGroupId = mavenGroupId;
         this.mavenArtifactId = mavenArtifactId;
@@ -85,10 +88,9 @@ public abstract class AbstractSpecificationClasspathContributor implements Class
     }
 
     protected Optional<ResolvedArtifactKey> findBundle(MavenProject project, VersionRange specificationVersion) {
-        Optional<ResolvedArtifactKey> mavenBundle = mavenBundleResolver.resolveMavenBundle(project, session,
+        return mavenBundleResolver.resolveMavenBundle(project, sessionProvider.get(),
                 MavenArtifactKey.of(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageName,
                         specificationVersion.toString(), mavenGroupId, mavenArtifactId));
-        return mavenBundle;
     }
 
     protected abstract VersionRange getSpecificationVersion(MavenProject project);

@@ -14,51 +14,44 @@ package org.eclipse.tycho.p2maven.transport;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
-import org.eclipse.tycho.MavenRepositorySettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = IAgentServiceFactory.class, hint = "org.eclipse.equinox.internal.p2.repository.Transport")
-public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactory, Initializable {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-    @Requirement
-    private MavenRepositorySettings mavenRepositorySettings;
-	@Requirement
-	private Logger logger;
+@Singleton
+@Named("org.eclipse.equinox.internal.p2.repository.Transport")
+public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactory {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final AtomicBoolean infoPrinted = new AtomicBoolean();
 
-	@Requirement
-	TransportCacheConfig config;
+	private final TransportCacheConfig transportCacheConfig;
+	private final Transport repositoryTransport;
 
-	@Requirement(hint = "tycho")
-	org.eclipse.equinox.internal.p2.repository.Transport repositoryTransport;
+	@Inject
+	public TychoRepositoryTransportAgentFactory(TransportCacheConfig transportCacheConfig,
+												@Named("tycho") Transport repositoryTransport) {
+		this.transportCacheConfig = transportCacheConfig;
+		this.repositoryTransport = repositoryTransport;
+	}
 
-	private AtomicBoolean infoPrinted = new AtomicBoolean();
-
-
-    @Override
+	@Override
     public Object createService(IProvisioningAgent agent) {
 		if (infoPrinted.compareAndSet(false, true)) {
 			logger.info("### Using TychoRepositoryTransport for remote P2 access ###");
-			logger.info("    Cache location:         " + config.getCacheLocation());
-			logger.info("    Transport mode:         " + (config.isOffline() ? "offline" : "online"));
+			logger.info("    Cache location:         " + transportCacheConfig.getCacheLocation());
+			logger.info("    Transport mode:         " + (transportCacheConfig.isOffline() ? "offline" : "online"));
 			logger.info("    Http Transport type:    " + HttpTransportProtocolHandler.TRANSPORT_TYPE);
-			logger.info("    Update mode:            " + (config.isUpdate() ? "forced" : "cache first"));
+			logger.info("    Update mode:            " + (transportCacheConfig.isUpdate() ? "forced" : "cache first"));
 			logger.info("    Minimum cache duration: " + SharedHttpCacheStorage.MIN_CACHE_PERIOD + " minutes");
 			logger.info(
 					"      (you can configure this with -Dtycho.p2.transport.min-cache-minutes=<desired minimum cache duration>)");
 		}
 		return repositoryTransport;
     }
-
-	@Override
-	public void initialize() throws InitializationException {
-
-
-	}
-
 }

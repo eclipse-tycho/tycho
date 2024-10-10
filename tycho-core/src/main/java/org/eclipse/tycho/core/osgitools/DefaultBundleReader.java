@@ -32,24 +32,33 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.model.Resource;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.TychoConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = BundleReader.class)
-public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
+public class DefaultBundleReader implements BundleReader {
 
     private static final long LOCK_TIMEOUT = Long.getLong("tycho.bundlereader.lock.timeout", 5 * 60 * 1000L);
     public static final String CACHE_PATH = ".cache/tycho";
     private final Map<String, OsgiManifest> manifestCache = new HashMap<>();
+    private final ConcurrentMap<String, Optional<File>> extractedFiles = new ConcurrentHashMap<>();
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private File cacheDir;
-    private ConcurrentMap<String, Optional<File>> extractedFiles = new ConcurrentHashMap<>();
+    private final FileLockService fileLockService;
 
-    @Requirement
-    private FileLockService fileLockService;
+    @Inject
+    public DefaultBundleReader(FileLockService fileLockService) {
+        this.fileLockService = fileLockService;
+    }
 
     @Override
     public OsgiManifest loadManifest(File bundleLocation) {
@@ -167,7 +176,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     @Override
     public File getEntry(File bundleLocation, String path) {
         if (path.startsWith("external:")) {
-            getLogger().warn("Ignoring Bundle-ClassPath entry '" + path + "' of bundle " + bundleLocation);
+            logger.warn("Ignoring Bundle-ClassPath entry '" + path + "' of bundle " + bundleLocation);
             return null;
         }
         final Optional<File> result;
@@ -203,7 +212,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
         if (result.isPresent()) {
             return result.get();
         } else {
-            getLogger().warn("Bundle-ClassPath entry " + path + " does not exist in " + bundleLocation);
+            logger.warn("Bundle-ClassPath entry " + path + " does not exist in " + bundleLocation);
             return null;
         }
     }

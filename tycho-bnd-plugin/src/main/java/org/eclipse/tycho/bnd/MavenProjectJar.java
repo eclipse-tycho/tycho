@@ -26,18 +26,18 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.ManifestResource;
 import aQute.bnd.osgi.Resource;
+import org.slf4j.Logger;
 
 public class MavenProjectJar extends Jar {
 
 	private Path outputFolder;
 
-	public MavenProjectJar(MavenProject project, Predicate<Path> filter, Log log) throws IOException {
+	public MavenProjectJar(MavenProject project, Predicate<Path> filter, Logger logger) throws IOException {
 		super(project.getId());
 		outputFolder = Path.of(project.getBuild().getOutputDirectory());
 		Files.walkFileTree(outputFolder, new FileVisitor<Path>() {
@@ -53,10 +53,10 @@ public class MavenProjectJar extends Jar {
 				if (filter.test(file)) {
 					String path = StreamSupport.stream(relativePath.spliterator(), false).map(Path::toString)
 							.collect(Collectors.joining("/"));
-					log.debug("Adding " + path + " to project jar...");
+					logger.debug("Adding " + path + " to project jar...");
 					putResource(path, new MavenProjectResource(file));
 				} else {
-					log.debug("Ignore " + relativePath + " because it is filtered");
+					logger.debug("Ignore " + relativePath + " because it is filtered");
 				}
 				return FileVisitResult.CONTINUE;
 			}

@@ -31,8 +31,8 @@ import org.eclipse.tycho.ArtifactDescriptor;
  */
 public class DependencyChain {
 
-	private ArtifactDescriptor root;
-	private Collection<ArtifactDescriptor> artifacts;
+	private final ArtifactDescriptor root;
+	private final Collection<ArtifactDescriptor> artifacts;
 
 	public DependencyChain(ArtifactDescriptor root, Collection<ArtifactDescriptor> artifacts) {
 		this.root = root;

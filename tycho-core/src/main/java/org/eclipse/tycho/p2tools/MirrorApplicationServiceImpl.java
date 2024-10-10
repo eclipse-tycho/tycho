@@ -36,9 +36,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
 import org.apache.commons.io.FileUtils;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -82,19 +79,33 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
 import org.eclipse.tycho.p2tools.copiedfromp2.RecreateRepositoryApplication;
 import org.eclipse.tycho.p2tools.copiedfromp2.RepositoryDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = MirrorApplicationService.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     private static final String P2_INDEX_FILE = "p2.index";
 
     private static final String MIRROR_FAILURE_MESSAGE = "Mirroring failed";
 
-    @Requirement
-    Logger logger;
+    private final Logger logger;
+    private final IProvisioningAgent agent;
 
-    @Requirement
-    IProvisioningAgent agent;
+    @Inject
+    public MirrorApplicationServiceImpl(IProvisioningAgent agent) {
+        this(LoggerFactory.getLogger(MirrorApplicationServiceImpl.class), agent);
+    }
+
+    public MirrorApplicationServiceImpl(Logger logger, IProvisioningAgent agent) {
+        this.logger = logger;
+        this.agent = agent;
+    }
 
     @Override
     public void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
@@ -115,14 +126,6 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         } catch (ProvisionException e) {
             throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
         }
-    }
-
-    public void setAgent(IProvisioningAgent agent) {
-        this.agent = agent;
-    }
-
-    public void setLogger(Logger logger) {
-        this.logger = logger;
     }
 
     private static SlicingOptions createSlicingOptions(MirrorOptions mirrorOptions) {

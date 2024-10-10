@@ -19,9 +19,6 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -39,19 +36,25 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = VerifierService.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class VerifierServiceImpl implements VerifierService {
 
     private final NullProgressMonitor monitor = new NullProgressMonitor();
-    @Requirement
-    IProvisioningAgent agent;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    Logger logger;
+    private final IProvisioningAgent agent;
 
-    public void setLogger(Logger logger) {
-        this.logger = logger;
+    @Inject
+    public VerifierServiceImpl(IProvisioningAgent agent) {
+        this.agent = agent;
     }
 
     @Override

@@ -16,7 +16,9 @@ package org.eclipse.tycho.packaging;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,17 +27,18 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.AbstractLogger;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.BuildPropertiesImpl;
 import org.eclipse.tycho.testing.TestUtil;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
+import org.slf4j.Logger;
+import org.slf4j.helpers.NOPLogger;
 
 public class IncludeValidationHelperTest {
 
-    private IncludeValidationHelper subject = new IncludeValidationHelper(new SilentLog());
+    private IncludeValidationHelper subject = new IncludeValidationHelper(NOPLogger.NOP_LOGGER);
 
     @Test
     public void testCheckSourceIncludesExistAntPatterns() throws Exception {
@@ -84,38 +87,17 @@ public class IncludeValidationHelperTest {
     public void testWarning() throws Exception {
         final List<String> warnings = new ArrayList<>();
 
-        Logger log = new AbstractLogger(Logger.LEVEL_DEBUG, null) {
-
-            @Override
-            public void warn(String message, Throwable throwable) {
-                warnings.add(message);
-            }
-
-            @Override
-            public void info(String message, Throwable throwable) {
-                fail();
-            }
-
-            @Override
-            public Logger getChildLogger(String name) {
-                return null;
-            }
-
-            @Override
-            public void fatalError(String message, Throwable throwable) {
-                fail();
-            }
-
-            @Override
-            public void error(String message, Throwable throwable) {
-                fail();
-            }
-
-            @Override
-            public void debug(String message, Throwable throwable) {
-                fail();
-            }
-        };
+        Logger log = mock(Logger.class);
+        Mockito.doAnswer((Answer<Void>) invocation -> {
+            Object[] args = invocation.getArguments();
+            warnings.add(args[0].toString());
+            return null;
+        }).when(log).warn(anyString(), any(Throwable.class));
+        Mockito.doAnswer((Answer<Void>) invocation -> {
+            Object[] args = invocation.getArguments();
+            warnings.add(args[0].toString());
+            return null;
+        }).when(log).warn(anyString());
 
         IncludeValidationHelper subject = new IncludeValidationHelper(log);
 
