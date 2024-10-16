@@ -32,7 +32,7 @@ import org.eclipse.tycho.p2.metadata.ReactorProjectFacade;
 
 /**
  * This class handles definitions of root files in build.properties according to
- * https://help.eclipse.org/helios/index.jsp?topic=/org.eclipse.pde.doc.user/tasks/pde_rootfiles.htm
+ * https://help.eclipse.org/latest/index.jsp?topic=/org.eclipse.pde.doc.user/tasks/pde_rootfiles.htm
  * <br>
  */
 public class FeatureRootAdvice implements IFeatureRootAdvice {

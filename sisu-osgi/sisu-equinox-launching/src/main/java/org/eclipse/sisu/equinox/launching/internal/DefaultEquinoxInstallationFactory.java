@@ -137,7 +137,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             }
 
             if (!frameworkExtensions.isEmpty()) {
-                // see osgi.framework.extensions at https://help.eclipse.org/indigo/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fmisc%2Fruntime-options.html
+                // see osgi.framework.extensions at https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fmisc%2Fruntime-options.html
                 Collection<String> bundleNames = unpackFrameworkExtensions(location, frameworkExtensions);
                 p.setProperty("osgi.framework", copySystemBundle(description, location));
                 p.setProperty("osgi.framework.extensions", StringUtils.join(bundleNames.iterator(), ","));
@@ -203,7 +203,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
      * See
      * 
      * <pre>
-     * https://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgidev
+     * https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgidev
      * </pre>
      */
     private String createDevProperties(File location, Map<String, String> devEntries) throws IOException {

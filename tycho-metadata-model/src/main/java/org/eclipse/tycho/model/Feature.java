@@ -41,7 +41,7 @@ import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
 
 /**
- * https://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.isv/reference/misc/
+ * https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/misc/
  * feature_manifest.html
  */
 public class Feature {

@@ -35,7 +35,7 @@ import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
 
 /**
- * https://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.isv/reference/misc/update_sitemap
+ * https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/misc/update_sitemap
  * .html
  */
 public class UpdateSite {

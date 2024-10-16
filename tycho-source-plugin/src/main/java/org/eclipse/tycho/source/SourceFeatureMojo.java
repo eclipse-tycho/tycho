@@ -144,7 +144,7 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     /**
      * Use this to explicitly set the <a href=
-     * "https://help.eclipse.org/juno/index.jsp?topic=%2Forg.eclipse.pde.doc.user%2Fguide%2Ftools%2Feditors%2Ffeature_editor%2Ffeature_editor.htm"
+     * "https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.pde.doc.user%2Fguide%2Ftools%2Feditors%2Ffeature_editor%2Ffeature_editor.htm"
      * > branding plugin attribute</a> of the generated source feature (overrides
      * {@link #reuseBrandingPlugin}).
      */
