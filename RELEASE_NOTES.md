@@ -6,6 +6,25 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+## Support for version ranges and no version for units in target definitions
+
+In target definitions Tycho now supports to use a range as version of a unit or to skip the version entirely in `InstallableUnit` locations, just like Eclipse-PDE.
+Specifying no version is equivalent to `0.0.0` which resolves to the latest version available.
+All of the following variants to specify a version are now possible:
+```
+<target name="my-target">
+	<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/releases/2024-09/"/>
+			<unit id="org.eclipse.pde.feature.group" version="3.16.0.v20240903-0240"/>
+			<unit id="jakarta.annotation-api" version="0.0.0"/>
+			<unit id="org.eclipse.sdk"/>
+			<unit id="jakarta.inject.jakarta.inject-api" version="[1.0,2)"/>
+		</location>
+	</locations>
+</target>
+```
+
 ## new `update-manifest` mojo
 
 It is recommended to use as the lower bound the dependency the code was

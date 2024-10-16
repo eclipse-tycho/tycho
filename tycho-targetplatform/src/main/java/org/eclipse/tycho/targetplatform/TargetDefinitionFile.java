@@ -525,6 +525,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
         for (Element unitDom : getChildren(dom, "unit")) {
             String id = unitDom.getAttribute("id");
             String version = unitDom.getAttribute("version");
+			if (version == null || version.isBlank()) {
+				version = "0.0.0";
+			}
             units.add(new Unit(id, version));
         }
         final List<Repository> repositories = new ArrayList<>();
