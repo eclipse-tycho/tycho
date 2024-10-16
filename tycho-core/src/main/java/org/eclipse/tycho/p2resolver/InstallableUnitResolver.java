@@ -275,7 +275,7 @@ public class InstallableUnitResolver {
 
     private static IQueryResult<IInstallableUnit> findUnit(Unit unitReference, IQueryable<IInstallableUnit> units)
             throws TargetDefinitionSyntaxException {
-        Version version = parseVersion(unitReference);
+        VersionRange version = parseVersion(unitReference);
 
         // the createIUQuery treats 0.0.0 version as "any version", and all other versions as exact versions
         IQuery<IInstallableUnit> matchingIUQuery = QueryUtil.createIUQuery(unitReference.getId(), version);
@@ -285,12 +285,20 @@ public class InstallableUnitResolver {
         return queryResult;
     }
 
-    private static Version parseVersion(Unit unitReference) throws TargetDefinitionSyntaxException {
+    private static VersionRange parseVersion(Unit unitReference) throws TargetDefinitionSyntaxException {
+        String version = unitReference.getVersion();
         try {
-            return Version.parseVersion(unitReference.getVersion());
+            if ("0.0.0".equals(version)) {
+                return VersionRange.emptyRange;
+            } else if (version.contains(",")) { // a real version range
+                return VersionRange.create(version);
+            } else { // an explicit/exact version -> create strict version range
+                Version v = Version.parseVersion(version);
+                return new VersionRange(v, true, v, true);
+            }
         } catch (IllegalArgumentException e) {
-            throw new TargetDefinitionSyntaxException(NLS.bind("Cannot parse version \"{0}\" of unit \"{1}\"",
-                    unitReference.getVersion(), unitReference.getId()), e);
+            throw new TargetDefinitionSyntaxException(
+                    NLS.bind("Cannot parse version \"{0}\" of unit \"{1}\"", version, unitReference.getId()), e);
         }
     }
 
