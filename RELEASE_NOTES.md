@@ -2,6 +2,11 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 4.0.10
+
+backports:
+- Support version-ranges and no-version for units in IU target locations
+
 ## 4.0.9
 
 backports:
