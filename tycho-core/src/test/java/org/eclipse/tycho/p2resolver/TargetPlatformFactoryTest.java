@@ -42,6 +42,7 @@ import java.util.Set;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
@@ -298,13 +299,24 @@ public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
     @Ignore("This test don't work because maven provides a 'not real' local repo to the test")
     public void testMavenArtifactsInTargetDefinitionResolveToMavenPath() throws Exception {
         File targetDefinition = resourceFile("targetresolver/mavenDep.target");
-        tpConfig.getTargetDefinitions().add(TargetDefinitionFile.read(targetDefinition));
+        tpConfig.addTargetDefinition(TargetDefinitionFile.read(targetDefinition));
         P2TargetPlatform targetPlatform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, List.of());
         File artifactLocation = targetPlatform.getArtifactLocation(
                 new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, "org.apache.commons.logging", "1.2.0"));
         assertNotNull(artifactLocation);
         Path p2ArtifactPath = artifactLocation.toPath();
         assertTrue(p2ArtifactPath.startsWith(localM2Repo));
+    }
+
+    @Test
+    public void testUnitsWithVersionRangeAndNoVersionInTargetDefinition() throws Exception {
+        File targetDefinition = resourceFile("targetresolver/versionRanges.target");
+        tpConfig.addTargetDefinition(TargetDefinitionFile.read(targetDefinition));
+        P2TargetPlatform tp = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, List.of());
+        Set<IInstallableUnit> ius = tp.getInstallableUnits();
+        assertThat(ius, hasItem(unitWithIdAndVersion(new VersionedId("jakarta.activation-api", "2.1.3"))));
+        assertThat(tp.getInstallableUnits(),
+                hasItem(unitWithIdAndVersion(new VersionedId("jakarta.inject.jakarta.inject-api", "1.0.5"))));
     }
 
     private static TargetDefinition plannerTargetDefinition(TestRepositories repository, IVersionedId unit) {
