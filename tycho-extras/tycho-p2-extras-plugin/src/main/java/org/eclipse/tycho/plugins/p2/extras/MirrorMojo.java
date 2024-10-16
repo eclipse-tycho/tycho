@@ -43,7 +43,7 @@ import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 /**
  * Maven plugin front-end for org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication.
  * Intended as a replacement for the <a href=
- * "https://help.eclipse.org/indigo/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_repositorytasks.htm"
+ * "https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_repositorytasks.htm"
  * >p2.mirror ant task</a>.
  */
 @Mojo(name = "mirror", threadSafe = true)

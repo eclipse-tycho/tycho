@@ -74,7 +74,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
     /**
      * Root directory (<a href=
-     * "https://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgiinstallarea"
+     * "https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgiinstallarea"
      * >osgi.install.area</a>) of the Equinox runtime used to execute tests.
      */
     @Parameter(defaultValue = "${project.build.directory}/work")

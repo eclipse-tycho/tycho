@@ -22,7 +22,7 @@ import java.util.Map;
  * Represents a PDE build.properties file as defined by
  * 
  * <pre>
- * {@link https://help.eclipse.org/indigo/index.jsp?topic=/org.eclipse.pde.doc.user/reference/pde_feature_generating_build.htm} .
+ * {@link https://help.eclipse.org/latest/index.jsp?topic=/org.eclipse.pde.doc.user/reference/pde_feature_generating_build.htm} .
  * </pre>
  * 
  * Note that not all keys defined by PDE are supported.

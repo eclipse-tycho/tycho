@@ -58,7 +58,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
     private static final Map<String, String> TARGET_ALIASES;
 
     static {
-        // https://help.eclipse.org/juno/topic/org.eclipse.jdt.doc.user/tasks/task-using_batch_compiler.htm
+        // https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.user/tasks/task-using_batch_compiler.htm
 
         Map<String, String> targetAliases = new HashMap<>();
         targetAliases.put("jsr14", "1.4");

@@ -476,7 +476,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
     }
 
     private void addProvidesAndProperty(Properties properties, String key, String value, int i) {
-        //see https://help.eclipse.org/2021-03/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_customizing_metadata.html
+        //see https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_customizing_metadata.html
         addProvides(properties, key.replace('-', '.'), value, null, i);
         addProperty(properties, key, value, i);
     }

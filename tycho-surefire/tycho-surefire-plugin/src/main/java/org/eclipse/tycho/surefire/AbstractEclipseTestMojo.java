@@ -109,7 +109,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
 
     /**
      * <a href=
-     * "https://help.eclipse.org/juno/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgiinstancearea"
+     * "https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgiinstancearea"
      * >OSGi data directory</a> (<code>osgi.instance.area</code>, aka the workspace) of the Equinox
      * runtime used to execute tests.
      */
@@ -544,7 +544,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
 
     /**
      * p2 <a href=
-     * "https://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html"
+     * "https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html"
      * >profile</a> name of the installation under test.
      *
      * Only relevant if {@link #testRuntime} is <code>p2Installed</code>. If tests are installed on

@@ -60,7 +60,7 @@ import org.eclipse.tycho.compiler.jdt.copied.LibraryInfo;
 import org.osgi.framework.Constants;
 
 /**
- * See https://help.eclipse.org/ganymede/topic/org.eclipse.jdt.doc.isv/guide/jdt_api_options.htm
+ * See https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.isv/guide/jdt_api_options.htm
  */
 
 @Component(role = org.codehaus.plexus.compiler.Compiler.class, hint = "jdt")

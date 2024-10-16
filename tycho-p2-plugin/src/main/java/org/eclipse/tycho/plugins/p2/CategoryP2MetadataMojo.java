@@ -31,7 +31,7 @@ import org.eclipse.tycho.p2tools.copiedfromp2.CategoryPublisherApplication;
 
 /**
  * Adds category IUs to existing metadata repository.
- * https://help.eclipse.org/galileo/index.jsp?topic
+ * https://help.eclipse.org/latest/index.jsp?topic
  * =/org.eclipse.platform.doc.isv/guide/p2_publisher.html
  */
 @Mojo(name = "category-p2-metadata", threadSafe = true)
