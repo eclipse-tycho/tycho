@@ -28,6 +28,7 @@ import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -50,8 +51,8 @@ import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
  * harness bundles. The bundles are resolved from the target platform of the project. Note that the
  * test runtime does typically <em>not</em> contain the entire target platform. If there are
  * implicitly required bundles (e.g. <code>org.apache.felix.scr</code> to make declarative services
- * work), they need to be added manually through an <code>extraRequirements</code> configuration on the
- * <code>target-platform-configuration</code> plugin.
+ * work), they need to be added manually through an <code>extraRequirements</code> configuration on
+ * the <code>target-platform-configuration</code> plugin.
  * </p>
  * <p>
  * This goal adopts the maven-failsafe paradigm, that works in the following way:
@@ -98,6 +99,9 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
 
     @Parameter(defaultValue = "${localRepository}", required = true, readonly = true)
     private ArtifactRepository localRepository;
+
+    @Component
+    protected org.apache.maven.repository.RepositorySystem oldRepositorySystem;
 
     /**
      * Configures the packaging type where this mojos applies
@@ -201,7 +205,7 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
     }
 
     private ArtifactResolutionResult resolveDependency(final Dependency dependency) {
-        final var artifact = repositorySystem.createDependencyArtifact(dependency);
+        final var artifact = oldRepositorySystem.createDependencyArtifact(dependency);
         final var remoteRepositories = new ArrayList<ArtifactRepository>(32);
         remoteRepositories.addAll(pluginRemoteRepositories);
         remoteRepositories.addAll(projectRemoteRepositories);
@@ -213,7 +217,7 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
                 .setResolveTransitively(true)//
                 .setCollectionFilter(new ProviderDependencyArtifactFilter())//
                 .setRemoteRepositories(remoteRepositories);
-        return repositorySystem.resolve(request);
+        return oldRepositorySystem.resolve(request);
     }
 
     private static final class ProviderDependencyArtifactFilter implements ArtifactFilter {
