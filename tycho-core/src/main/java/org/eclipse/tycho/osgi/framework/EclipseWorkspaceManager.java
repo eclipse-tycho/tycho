@@ -23,23 +23,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.Mojo;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
+import org.eclipse.sisu.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * The {@link EclipseWorkspaceManager} manages dedicated workspaces on a per thread basis using a
  * key object
  */
-@Component(role = EclipseWorkspaceManager.class)
-public class EclipseWorkspaceManager implements Disposable {
-
+@Singleton
+@Named
+public class EclipseWorkspaceManager {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Map<Thread, Map<Object, EclipseWorkspace<?>>> cache = new WeakHashMap<>();
     private final List<EclipseWorkspace<?>> toclean = new ArrayList<>();
-
-    @Requirement
-    private Logger logger;
 
     /**
      * @param key
@@ -64,7 +64,7 @@ public class EclipseWorkspaceManager implements Disposable {
         }
     }
 
-    @Override
+    @PreDestroy
     public void dispose() {
         cache.clear();
         for (EclipseWorkspace<?> workspace : toclean) {

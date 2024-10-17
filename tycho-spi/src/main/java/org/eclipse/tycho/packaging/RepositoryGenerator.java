@@ -18,10 +18,10 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.eclipse.tycho.ArtifactType;
+import org.slf4j.Logger;
 
 /**
  * A {@link RepositoryGenerator} is responsible for generate a specific repository format from a set
@@ -75,7 +75,7 @@ public interface RepositoryGenerator {
         local;
     }
 
-    static interface RepositoryConfiguration {
+    interface RepositoryConfiguration {
 
         /**
          * @return he base folder where the repository should be generated
@@ -102,6 +102,6 @@ public interface RepositoryGenerator {
         /**
          * @return the logger to issue logging messages
          */
-        Log getLog();
+        Logger getLogger();
     }
 }

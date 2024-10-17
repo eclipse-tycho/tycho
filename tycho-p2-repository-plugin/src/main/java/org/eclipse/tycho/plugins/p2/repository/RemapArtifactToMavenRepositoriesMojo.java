@@ -16,12 +16,13 @@ import java.net.URI;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
+
+import javax.inject.Inject;
 
 /**
  * Modify the artifact metadata of the provided p2 repository by adding extra mapping rules for
@@ -31,9 +32,10 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 @Mojo(name = "remap-artifacts-to-m2-repo", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public class RemapArtifactToMavenRepositoriesMojo extends AbstractRepositoryMojo {
 
-    @Component
-    MirrorApplicationService mirrorApp;
-    @Component
+    @Inject
+    private MirrorApplicationService mirrorApp;
+
+    @Inject
     private FileLockService fileLockService;
 
     @Override

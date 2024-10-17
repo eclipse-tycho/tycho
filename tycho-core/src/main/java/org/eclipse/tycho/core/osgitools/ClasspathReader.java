@@ -21,10 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.MavenArtifactKey;
 import org.eclipse.tycho.core.TychoProjectManager;
@@ -32,21 +28,26 @@ import org.eclipse.tycho.model.classpath.ClasspathParser;
 import org.eclipse.tycho.model.classpath.JUnitBundle;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.eclipse.tycho.model.project.EclipseProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = ClasspathReader.class)
-public class ClasspathReader implements Disposable {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-    private Map<String, Collection<ProjectClasspathEntry>> cache = new ConcurrentHashMap<>();
+@Singleton
+@Named
+public class ClasspathReader {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    Logger logger;
+    // TODO: preDestroy -> cache.clear? But WHY as container would destroy instance anyway!
+    private final Map<String, Collection<ProjectClasspathEntry>> cache = new ConcurrentHashMap<>();
 
-    @Requirement
-    TychoProjectManager projectManager;
+    private final TychoProjectManager projectManager;
 
-    @Override
-    public void dispose() {
-        cache.clear();
+    @Inject
+    public ClasspathReader(TychoProjectManager projectManager) {
+        this.projectManager = projectManager;
     }
 
     public Collection<ProjectClasspathEntry> parse(File basedir) throws IOException {

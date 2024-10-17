@@ -17,8 +17,6 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.OptionalResolutionAction;
@@ -26,11 +24,20 @@ import org.eclipse.tycho.p2maven.InstallableUnitPublisher;
 import org.eclipse.tycho.p2maven.actions.BundleDependenciesAction;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 
-@Component(role = InstallableUnitProvider.class, hint = "custom-bundle")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("custom-bundle")
 public class CustomBundleInstallableUnitProvider implements InstallableUnitProvider {
 
-	@Requirement
-	private InstallableUnitPublisher publisher;
+	private final InstallableUnitPublisher publisher;
+
+	@Inject
+	public CustomBundleInstallableUnitProvider(InstallableUnitPublisher publisher) {
+		this.publisher = publisher;
+	}
 
 	@Override
 	public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)

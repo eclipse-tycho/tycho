@@ -25,8 +25,6 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -43,6 +41,10 @@ import org.eclipse.tycho.osgi.framework.EclipseFramework;
 import org.eclipse.tycho.osgi.framework.EclipseWorkspaceManager;
 import org.eclipse.tycho.osgi.framework.Features;
 import org.osgi.framework.BundleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * This mojo allows to perform an eclipse-build on a project like it would be performed inside the
@@ -51,6 +53,7 @@ import org.osgi.framework.BundleException;
  */
 @Mojo(name = "eclipse-build", defaultPhase = LifecyclePhase.COMPILE, threadSafe = true, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class EclipseBuildMojo extends AbstractMojo {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	static final String PARAMETER_LOCAL = "local";
 
@@ -87,13 +90,13 @@ public class EclipseBuildMojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    @Component
+    @Inject
     private EclipseWorkspaceManager workspaceManager;
 
-    @Component
+    @Inject
     private EclipseApplicationManager eclipseApplicationManager;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override
@@ -132,14 +135,13 @@ public class EclipseBuildMojo extends AbstractMojo {
 			List<IMarker> errors = result.markers()
 					.filter(marker -> marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR).toList();
 			if (printMarker) {
-				Log log = getLog();
 				result.markers().filter(marker -> marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_INFO)
-						.forEach(info -> printMarker(info, result, log::info));
+						.forEach(info -> printMarker(info, result, s -> logger.info(String.valueOf(s))));
 				result.markers().filter(marker -> marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_WARNING)
-						.forEach(warn -> printMarker(warn, result, log::warn));
-				errors.forEach(error -> printMarker(error, result, log::error));
+						.forEach(warn -> printMarker(warn, result, s -> logger.warn(String.valueOf(s))));
+				errors.forEach(error -> printMarker(error, result, s -> logger.error(String.valueOf(s))));
 			}
-            if (failOnError && errors.size() > 0) {
+            if (failOnError && !errors.isEmpty()) {
                 String msg = errors.stream().map(problem -> asString(problem, result))
                         .collect(Collectors.joining(System.lineSeparator()));
                 throw new MojoFailureException("There are Build errors:" + System.lineSeparator() + msg);

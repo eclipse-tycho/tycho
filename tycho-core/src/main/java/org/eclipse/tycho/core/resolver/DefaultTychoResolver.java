@@ -20,9 +20,6 @@ import java.util.Properties;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
@@ -34,8 +31,15 @@ import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.resolver.TychoResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = TychoResolver.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class DefaultTychoResolver implements TychoResolver {
 
     private static final String SETUP_MARKER = "DefaultTychoResolver/Setup";
@@ -44,14 +48,17 @@ public class DefaultTychoResolver implements TychoResolver {
     private static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
     private static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
 
-    @Requirement
-    private Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement(hint = "p2")
-    private DependencyResolver dependencyResolver;
+    private final DependencyResolver dependencyResolver;
+    private final TychoProjectManager projectManager;
 
-    @Requirement()
-    TychoProjectManager projectManager;
+    @Inject
+    public DefaultTychoResolver(@Named("p2") DependencyResolver dependencyResolver,
+                                TychoProjectManager projectManager) {
+        this.dependencyResolver = dependencyResolver;
+        this.projectManager = projectManager;
+    }
 
     @Override
     public void setupProject(MavenSession session, MavenProject project) {

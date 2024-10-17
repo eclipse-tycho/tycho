@@ -32,7 +32,11 @@ import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.VersionRangeUpdateStrategy;
 import org.eclipse.tycho.versions.engine.Versions;
 
-@Component(role = MetadataManipulator.class, hint = "eclipse-feature")
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("eclipse-feature")
 public class FeatureXmlManipulator extends AbstractMetadataManipulator {
 
     @Override

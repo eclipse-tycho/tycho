@@ -33,6 +33,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -108,7 +109,7 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 
 		File annotBundleManifestFile = new File(verifier.getBasedir(),
 				"target.test/plugins/osgi.annotation.bundle_0.0.1/META-INF/MANIFEST.MF");
-		DefaultBundleReader reader = new DefaultBundleReader();
+		DefaultBundleReader reader = new DefaultBundleReader(new NoopFileLockService());
 		OsgiManifest annotBundleManifest = reader.loadManifest(annotBundleManifestFile);
 		Assert.assertEquals("tycho.test.package", annotBundleManifest.getValue("Export-Package"));
 		verifier.executeGoal("verify");

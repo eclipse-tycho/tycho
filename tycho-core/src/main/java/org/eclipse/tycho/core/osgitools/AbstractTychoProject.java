@@ -27,9 +27,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.AbstractLogEnabled;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.tycho.DependencyArtifacts;
@@ -50,27 +47,34 @@ import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependenc
 import org.eclipse.tycho.p2resolver.PomReactorProjectFacade;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.osgi.framework.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public abstract class AbstractTychoProject extends AbstractLogEnabled implements TychoProject {
+import javax.inject.Named;
+
+public abstract class AbstractTychoProject implements TychoProject {
 
     private static final String CTX_OSGI_BUNDLE_BASENAME = TychoConstants.CTX_BASENAME + "/tychoProject";
     private static final String CTX_MAVEN_SESSION = CTX_OSGI_BUNDLE_BASENAME + "/mavenSession";
     private static final String CTX_MAVEN_PROJECT = CTX_OSGI_BUNDLE_BASENAME + "/mavenProject";
     private static final String CTX_INITIAL_MAVEN_DEPENDENCIES = CTX_OSGI_BUNDLE_BASENAME + "/initialDependencies";
 
-    @Requirement
-    protected MavenDependenciesResolver projectDependenciesResolver;
-    @Requirement
-    protected LegacySupport legacySupport;
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    protected TychoProjectManager projectManager;
+    protected final MavenDependenciesResolver projectDependenciesResolver;
+    protected final LegacySupport legacySupport;
+    protected final TychoProjectManager projectManager;
+    protected final DependencyResolver dependencyResolver;
 
-    @Requirement
-    protected Logger logger;
-
-    @Requirement(hint = "p2")
-    protected DependencyResolver dependencyResolver;
+    public AbstractTychoProject(MavenDependenciesResolver projectDependenciesResolver,
+                                LegacySupport legacySupport,
+                                TychoProjectManager projectManager,
+                                @Named("p2") DependencyResolver dependencyResolver) {
+        this.projectDependenciesResolver = projectDependenciesResolver;
+        this.legacySupport = legacySupport;
+        this.projectManager = projectManager;
+        this.dependencyResolver = dependencyResolver;
+    }
 
     @Override
     public DependencyArtifacts getDependencyArtifacts(MavenProject project) {

@@ -153,8 +153,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         reactorProjects.add(createReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, bundleId));
 
         ReactorProjectStub sb = new ReactorProjectStub(bundle, bundleId, bundleId, bundleVersion, TYPE_ECLIPSE_PLUGIN);
-        SourcesBundleDependencyMetadataGenerator metadata = new SourcesBundleDependencyMetadataGenerator();
-        metadata.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
+        SourcesBundleDependencyMetadataGenerator metadata = new SourcesBundleDependencyMetadataGenerator(new MockMavenContext(null, logVerifier.getLogger()), null);
         DependencyMetadata generateMetadata = metadata.generateMetadata(new ArtifactMock(sb, "source"),
                 getEnvironments(), null, new PublisherOptions());
         sb.setDependencyMetadata(generateMetadata);

@@ -20,12 +20,13 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
+import org.slf4j.helpers.NOPLogger;
 
 public class TychoMavenLifecycleParticipantTest {
 
     @Test
     public void validateConsistentTychoVersionWithSameVersion() throws MavenExecutionException {
-        TychoMavenLifecycleParticipant tycho = new TychoMavenLifecycleParticipant(new SilentLog());
+        TychoMavenLifecycleParticipant tycho = new TychoMavenLifecycleParticipant(NOPLogger.NOP_LOGGER, null, null, null, null, null, null);
         MavenProject project = createProject();
         addTychoPlugin(project, "tycho-packaging-plugin", "0.22.0");
         addTychoPlugin(project, "tycho-versions-plugin", "0.22.0");
@@ -35,7 +36,7 @@ public class TychoMavenLifecycleParticipantTest {
 
     @Test
     public void validateConsistentTychoVersionWithNullAsVersion() throws MavenExecutionException {
-        TychoMavenLifecycleParticipant tycho = new TychoMavenLifecycleParticipant(new SilentLog());
+        TychoMavenLifecycleParticipant tycho = new TychoMavenLifecycleParticipant(NOPLogger.NOP_LOGGER, null, null, null, null, null, null);
         MavenProject project = createProject();
         addTychoPlugin(project, "tycho-packaging-plugin", null);
         addTychoPlugin(project, "tycho-versions-plugin", "0.23.0");
@@ -45,7 +46,7 @@ public class TychoMavenLifecycleParticipantTest {
 
     @Test(expected = MavenExecutionException.class)
     public void validateConsistentTychoVersionWithDifferentVersionsInSameProject() throws MavenExecutionException {
-        TychoMavenLifecycleParticipant tycho = new TychoMavenLifecycleParticipant(new SilentLog());
+        TychoMavenLifecycleParticipant tycho = new TychoMavenLifecycleParticipant(NOPLogger.NOP_LOGGER, null, null, null, null, null, null);
         MavenProject project = createProject();
         addTychoPlugin(project, "tycho-packaging-plugin", "0.22.0");
         addTychoPlugin(project, "tycho-versions-plugin", "0.23.0");
@@ -55,7 +56,7 @@ public class TychoMavenLifecycleParticipantTest {
 
     @Test(expected = MavenExecutionException.class)
     public void validateConsistentTychoVersionWithDifferentVersionsInDifferentProjects() throws MavenExecutionException {
-        TychoMavenLifecycleParticipant tycho = new TychoMavenLifecycleParticipant(new SilentLog());
+        TychoMavenLifecycleParticipant tycho = new TychoMavenLifecycleParticipant(NOPLogger.NOP_LOGGER, null, null, null, null, null, null);
         MavenProject project1 = createProject();
         addTychoPlugin(project1, "tycho-packaging-plugin", "0.22.0");
         MavenProject project2 = createProject();

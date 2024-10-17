@@ -20,40 +20,37 @@ import java.net.Proxy.Type;
 import java.net.URI;
 
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.LegacySupport;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.Authentication;
 import org.eclipse.aether.repository.AuthenticationContext;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
-@Component(role = ProxyHelper.class)
-public class ProxyHelper implements Initializable {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
-	@Requirement
-	protected Logger logger;
-	@Requirement
-	protected LegacySupport context;
+@Singleton
+@Named
+public class ProxyHelper {
+	private final Provider<MavenSession> mavenSessionProvider;
 
-	@Requirement
-	protected SettingsDecrypterHelper decrypter;
+	@Inject
+	public ProxyHelper(Provider<MavenSession> mavenSessionProvider) {
+		this.mavenSessionProvider = mavenSessionProvider;
+	}
 
-	private RepositorySystemSession repositorySession;
-
-	@Override
-	public void initialize() throws InitializationException {
-		MavenSession session = context.getSession();
-		if (session != null) {
-			repositorySession = session.getRepositorySession();
+	private RepositorySystemSession getRepositorySystemSession() {
+		try {
+			return mavenSessionProvider.get().getRepositorySession();
+		} catch (Exception e) {
+			return null;
 		}
 	}
 
 	public Proxy getProxy(URI uri) {
+		RepositorySystemSession repositorySession = getRepositorySystemSession();
 		if (repositorySession != null) {
 			RemoteRepository repository = new RemoteRepository.Builder(null, P2ArtifactRepositoryLayout.ID,
 					uri.toASCIIString()).build();
@@ -77,6 +74,7 @@ public class ProxyHelper implements Initializable {
 	}
 
 	public PasswordAuthentication getPasswordAuthentication(URI uri, RequestorType type) {
+		RepositorySystemSession repositorySession = getRepositorySystemSession();
 		if (repositorySession != null) {
 			RemoteRepository repository = new RemoteRepository.Builder(null, P2ArtifactRepositoryLayout.ID,
 					uri.toASCIIString()).build();
@@ -85,10 +83,11 @@ public class ProxyHelper implements Initializable {
 				Authentication authentication = mavenProxy.getAuthentication();
 				if (authentication != null) {
 					RemoteRepository repo = new RemoteRepository.Builder(repository).setProxy(mavenProxy).build();
-					AuthenticationContext authCtx = AuthenticationContext.forProxy(repositorySession, repo);
-					String password = authCtx.get(AuthenticationContext.PASSWORD);
-					return new PasswordAuthentication(authCtx.get(AuthenticationContext.USERNAME),
-							password == null ? new char[0] : password.toCharArray());
+					try (AuthenticationContext authCtx = AuthenticationContext.forProxy(repositorySession, repo)) {
+						String password = authCtx.get(AuthenticationContext.PASSWORD);
+						return new PasswordAuthentication(authCtx.get(AuthenticationContext.USERNAME),
+								password == null ? new char[0] : password.toCharArray());
+					}
 				}
 			}
 		}

@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.BuildDirectory;
@@ -29,6 +28,8 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
 import org.eclipse.tycho.p2.tools.BuildContext;
 
+import javax.inject.Inject;
+
 public abstract class AbstractP2Mojo extends AbstractMojo {
 
     @Parameter(property = "session", readonly = true)
@@ -40,7 +41,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     @Parameter(property = TychoProperties.BUILD_QUALIFIER)
     private String qualifier;
 
-    @Component
+    @Inject
     protected TychoProjectManager projectManager;
 
     protected MavenProject getProject() {

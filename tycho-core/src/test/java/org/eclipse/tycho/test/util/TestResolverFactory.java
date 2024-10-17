@@ -17,7 +17,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.IRepositoryIdManager;
@@ -39,6 +38,7 @@ import org.eclipse.tycho.p2resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2resolver.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2resolver.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2resolver.TargetPlatformFactoryImpl;
+import org.slf4j.Logger;
 
 public class TestResolverFactory implements P2ResolverFactory {
 
@@ -58,11 +58,7 @@ public class TestResolverFactory implements P2ResolverFactory {
         boolean offline = false;
         mavenContext = createMavenContext(offline, logger);
 
-        targetDefinitionResolverService = new TargetDefinitionResolverService();
-        targetDefinitionResolverService.setMavenContext(mavenContext);
-        targetDefinitionResolverService.setMavenDependenciesResolver(resolve);
-        targetDefinitionResolverService.setTargetDefinitionVariableResolver(
-                new DefaultTargetDefinitionVariableResolver(mavenContext, logger2));
+        targetDefinitionResolverService = new TargetDefinitionResolverService(mavenContext, resolve, new DefaultTargetDefinitionVariableResolver(mavenContext, null));
 
         File localMavenRepoRoot = mavenContext.getLocalRepositoryRoot();
         LocalRepositoryP2Indices localRepoIndices = createLocalRepoIndices(mavenContext);
@@ -86,10 +82,7 @@ public class TestResolverFactory implements P2ResolverFactory {
     }
 
     private LocalRepositoryP2Indices createLocalRepoIndices(MavenContext mavenContext) {
-        LocalRepositoryP2IndicesImpl localRepoIndices = new LocalRepositoryP2IndicesImpl();
-        localRepoIndices.setMavenContext(mavenContext);
-        localRepoIndices.setFileLockService(new NoopFileLockService());
-        return localRepoIndices;
+        return new LocalRepositoryP2IndicesImpl(new NoopFileLockService(), mavenContext);
     }
 
     @Override

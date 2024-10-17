@@ -35,11 +35,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
 import org.eclipse.osgi.internal.framework.FilterImpl;
@@ -62,11 +60,14 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
+import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
@@ -82,7 +83,12 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 
-@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_PLUGIN)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(PackagingType.TYPE_ECLIPSE_PLUGIN)
 public class OsgiBundleProject extends AbstractTychoProject implements BundleProject {
 
     private static final String CTX_OSGI_BUNDLE_BASENAME = TychoConstants.CTX_BASENAME + "/osgiBundle";
@@ -90,29 +96,35 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private static final String CTX_CLASSPATH = CTX_OSGI_BUNDLE_BASENAME + "/classPath";
     static final String CTX_ECLIPSE_PLUGIN_PROJECT = CTX_OSGI_BUNDLE_BASENAME + "/eclipsePluginProject";
 
-    @Requirement
-    private BundleReader bundleReader;
+    private final BundleReader bundleReader;
+    private final ClasspathReader classpathParser;
+    private final DependenciesResolver resolver;
+    private final ToolchainManager toolchainManager;
+    private final P2ResolverFactory resolverFactory;
+    private final BuildPropertiesParser buildPropertiesParser;
+    private final MavenBundleResolver mavenBundleResolver;
 
-    @Requirement
-    private ClasspathReader classpathParser;
-
-    @Requirement(hint = EquinoxResolver.HINT)
-    private DependenciesResolver resolver;
-
-    @Requirement
-    private Logger logger;
-
-    @Requirement
-    private ToolchainManager toolchainManager;
-
-    @Requirement
-    P2ResolverFactory resolverFactory;
-
-    @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
-
-    @Requirement
-    private MavenBundleResolver mavenBundleResolver;
+    @Inject
+    public OsgiBundleProject(MavenDependenciesResolver projectDependenciesResolver,
+                             LegacySupport legacySupport,
+                             TychoProjectManager projectManager,
+                             @Named("p2") DependencyResolver dependencyResolver,
+                             BundleReader bundleReader,
+                             ClasspathReader classpathParser,
+                             @Named(EquinoxResolver.HINT) DependenciesResolver resolver,
+                             ToolchainManager toolchainManager,
+                             P2ResolverFactory resolverFactory,
+                             BuildPropertiesParser buildPropertiesParser,
+                             MavenBundleResolver mavenBundleResolver) {
+        super(projectDependenciesResolver, legacySupport, projectManager, dependencyResolver);
+        this.bundleReader = bundleReader;
+        this.classpathParser = classpathParser;
+        this.resolver = resolver;
+        this.toolchainManager = toolchainManager;
+        this.resolverFactory = resolverFactory;
+        this.buildPropertiesParser = buildPropertiesParser;
+        this.mavenBundleResolver = mavenBundleResolver;
+    }
 
     @Override
     public ArtifactDependencyWalker getDependencyWalker(ReactorProject project) {
@@ -192,7 +204,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         }
 
                         if (locations.isEmpty() && !entry.rules.isEmpty()) {
-                            getLogger().warn("Empty classpath of required bundle " + otherArtifact);
+                            logger.warn("Empty classpath of required bundle " + otherArtifact);
                         }
 
                         classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations,
@@ -273,7 +285,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             if (sourceFolder.equals(new File(testCompileRoot))) {
                 // avoid duplicate source folders (bug 368445)
                 iterator.remove();
-                getLogger()
+                logger
                         .debug("Removed duplicate test compile root " + testCompileRoot + " from maven project model");
                 return;
             }
@@ -416,7 +428,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     if (matchingBundle != null) {
                         classpath.add(addBundleToClasspath(matchingBundle, path));
                     } else {
-                        getLogger().warn("Missing extra classpath entry " + entry.trim());
+                        logger.warn("Missing extra classpath entry " + entry.trim());
                     }
                 } else {
                     entry = entry.trim();
@@ -426,7 +438,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         ArtifactKey projectKey = getArtifactKey(project);
                         classpath.add(new DefaultClasspathEntry(project, projectKey, locations, null));
                     } else {
-                        getLogger().warn("Missing extra classpath entry " + entry);
+                        logger.warn("Missing extra classpath entry " + entry);
                     }
                 }
             }

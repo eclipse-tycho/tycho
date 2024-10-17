@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.ExecutionEnvironment;
 import org.eclipse.tycho.ExecutionEnvironment.SystemPackageEntry;
@@ -37,6 +36,7 @@ import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment.JavaInfo;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.Constants;
+import org.slf4j.Logger;
 
 /**
  * Creative copy&paste from org.eclipse.osgi.framework.internal.core.Framework

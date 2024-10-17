@@ -24,8 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.TargetEnvironment;
@@ -36,29 +34,34 @@ import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 /**
  * Service instance for resolving target definitions. Results are cached so that there is no
  * redundant computations in the common case where all modules have the same target definition file
  * configured.
  */
-@Component(role = TargetDefinitionResolverService.class)
+@Singleton
+@Named
 public class TargetDefinitionResolverService {
 
     private static final String CACHE_MISS_MESSAGE = "Target definition content cache miss: ";
 
-    private ConcurrentMap<ResolutionArguments, CompletableFuture<TargetDefinitionContent>> resolutionCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<ResolutionArguments, CompletableFuture<TargetDefinitionContent>> resolutionCache = new ConcurrentHashMap<>();
 
-    @Requirement
-    private MavenContext mavenContext;
+    private final MavenContext mavenContext;
+    private final MavenTargetLocationFactory dependenciesResolver;
+    private final TargetDefinitionVariableResolver varResolver;
 
-    @Requirement
-    private MavenTargetLocationFactory dependenciesResolver;
-
-    @Requirement
-    private TargetDefinitionVariableResolver varResolver;
-
-    // constructor for DS
-    public TargetDefinitionResolverService() {
+    @Inject
+    public TargetDefinitionResolverService(MavenContext mavenContext,
+                                           MavenTargetLocationFactory dependenciesResolver,
+                                           TargetDefinitionVariableResolver varResolver) {
+        this.mavenContext = mavenContext;
+        this.dependenciesResolver = dependenciesResolver;
+        this.varResolver = varResolver;
     }
 
     public TargetDefinitionContent getTargetDefinitionContent(TargetDefinition definition,
@@ -121,21 +124,6 @@ public class TargetDefinitionResolverService {
                             + "All entries differ, but there are entries which only differ in one parameter: "
                             + fieldsInWhichDistanceOneEntriesDiffer);
         }
-    }
-
-    // setter for DS
-    public void setMavenContext(MavenContext mavenContext) {
-        this.mavenContext = mavenContext;
-    }
-
-    // setter for DS
-    public void setMavenDependenciesResolver(MavenTargetLocationFactory mavenDependenciesResolver) {
-        this.dependenciesResolver = mavenDependenciesResolver;
-    }
-
-    // setter for DS
-    public void setTargetDefinitionVariableResolver(TargetDefinitionVariableResolver varResolver) {
-        this.varResolver = varResolver;
     }
 
     private static final class ResolutionArguments {

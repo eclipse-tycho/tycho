@@ -49,7 +49,6 @@ import org.apache.maven.model.building.ModelProblem;
 import org.apache.maven.model.building.ModelProblem.Severity;
 import org.apache.maven.model.building.Result;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -60,6 +59,8 @@ import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencies;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
 @Singleton
@@ -68,18 +69,19 @@ import org.sonatype.maven.polyglot.mapping.Mapping;
 public class TychoGraphBuilder implements GraphBuilder {
 
 	private static final boolean DEBUG = Boolean.getBoolean("tycho.graphbuilder.debug");
-	@Inject
-	private Logger log;
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	private final Map<String, Mapping> polyglotMappings;
+	private final MavenProjectDependencyProcessor dependencyProcessor;
+	private final DefaultGraphBuilder defaultGraphBuilder;
 
 	@Inject
-	private Map<String, Mapping> polyglotMappings;
-
-	@Inject
-	private MavenProjectDependencyProcessor dependencyProcessor;
-	private DefaultGraphBuilder defaultGraphBuilder;
-
-	@Inject
-	public TychoGraphBuilder(DefaultGraphBuilder defaultGraphBuilder) {
+	public TychoGraphBuilder(Map<String, Mapping> polyglotMappings,
+							 MavenProjectDependencyProcessor dependencyProcessor,
+							 DefaultGraphBuilder defaultGraphBuilder) {
+		this.polyglotMappings = polyglotMappings;
+		this.dependencyProcessor = dependencyProcessor;
 		this.defaultGraphBuilder = defaultGraphBuilder;
 	}
 

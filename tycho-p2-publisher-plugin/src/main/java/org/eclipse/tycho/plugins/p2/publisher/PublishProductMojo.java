@@ -30,13 +30,13 @@ import java.util.Optional;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
+import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQuery;
@@ -49,7 +49,6 @@ import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.Interpolator;
-import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
@@ -64,6 +63,9 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.osgi.framework.Version;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * <p>
@@ -84,16 +86,13 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      */
     private static final String FLAVOR = "tooling";
 
-    @Component(role = UnArchiver.class, hint = "zip")
-    private UnArchiver deflater;
+    @Inject
+    private Provider<ZipUnArchiver> deflaterProvider;
 
-    @Component
+    @Inject
     private FileLockService fileLockService;
 
-    @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
-    private EclipseRepositoryProject eclipseRepositoryProject;
-
-    @Component
+    @Inject
     private ReactorRepositoryManager reactorRepoManager;
 
     /**
@@ -224,6 +223,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 try (var locked = fileLockService.lock(equinoxExecFeature)) {
                     // unzip now then:
                     unzipped.mkdirs();
+                    ZipUnArchiver deflater = deflaterProvider.get();
                     deflater.setSourceFile(equinoxExecFeature);
                     deflater.setDestDirectory(unzipped);
                     deflater.extract();

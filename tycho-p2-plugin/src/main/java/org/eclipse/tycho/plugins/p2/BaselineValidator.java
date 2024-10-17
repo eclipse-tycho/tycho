@@ -33,9 +33,6 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TychoConstants;
@@ -49,8 +46,15 @@ import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.zipcomparator.internal.ClassfileComparator.ClassfileArtifactDelta;
 import org.eclipse.tycho.zipcomparator.internal.CompoundArtifactDelta;
 import org.eclipse.tycho.zipcomparator.internal.SimpleArtifactDelta;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = BaselineValidator.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class BaselineValidator {
 
     private static class MissingArtifactDelta implements ArtifactDelta {
@@ -70,14 +74,14 @@ public class BaselineValidator {
         }
     }
 
-    @Requirement
-    private Logger log;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement(hint = "zip")
+    @Inject
+    @Named("zip")
     private ArtifactComparator zipComparator;
 
-    @Requirement
-    BaselineService baselineService;
+    @Inject
+    private BaselineService baselineService;
 
     public Map<String, IP2Artifact> validateAndReplace(MavenProject project, ComparisonData data,
             Map<String, IP2Artifact> reactorMetadata, List<Repository> baselineRepositories, BaselineMode baselineMode,
@@ -103,7 +107,7 @@ public class BaselineValidator {
                 if (delta != null) {
                     if (data.writeDelta()) {
                         File logdir = new File(project.getBuild().getDirectory(), "artifactcomparison");
-                        log.info("Artifact comparison detailed log directory " + logdir.getAbsolutePath());
+                        logger.info("Artifact comparison detailed log directory " + logdir.getAbsolutePath());
                         for (Map.Entry<String, ArtifactDelta> classifier : delta.getMembers().entrySet()) {
                             classifier.getValue().writeDetails(new File(logdir, classifier.getKey()));
                         }
@@ -116,7 +120,7 @@ public class BaselineValidator {
                     if (shouldFail) {
                         throw new MojoExecutionException(delta.getDetailedMessage());
                     } else if (shouldWarn(baselineMode, delta)) {
-                        log.warn(project.toString() + ": " + delta.getDetailedMessage());
+                        logger.warn(project.toString() + ": " + delta.getDetailedMessage());
                     }
                 }
 
@@ -131,7 +135,7 @@ public class BaselineValidator {
                         File reactorFile = reactorMetadata.get(classifier).getLocation();
                         if (baseLineFile.isFile() && baseLineFile.length() == 0L) {
                             // workaround for possibly corrupted download - bug 484003
-                            log.error("Baseline file " + baseLineFile.getAbsolutePath() + " is empty. Will not replace "
+                            logger.error("Baseline file " + baseLineFile.getAbsolutePath() + " is empty. Will not replace "
                                     + reactorFile);
                         } else {
                             FileUtils.copyFile(baseLineFile, reactorFile);
@@ -162,7 +166,7 @@ public class BaselineValidator {
                                 try {
                                     MethodUtils.invokeMethod(project, true, "setAttachedArtifacts", list);
                                 } catch (ReflectiveOperationException ignored) {
-                                    log.warn("The attached artifact " + classifier
+                                    logger.warn("The attached artifact " + classifier
                                             + " is not present in the baseline, but could not be removed");
                                 }
                             }
@@ -180,7 +184,7 @@ public class BaselineValidator {
                     // baselineReplace==common build artifacts are inconsistent
                     DefaultReactorProject.adapt(project)
                             .setContextValue(TychoConstants.KEY_BASELINE_REPLACE_ARTIFACT_MAIN, true);
-                    if (log.isInfoEnabled()) {
+                    if (logger.isInfoEnabled()) {
                         StringBuilder msg = new StringBuilder();
                         msg.append(project.toString());
                         msg.append("\n    The main artifact has been replaced with the baseline version.\n");
@@ -196,11 +200,11 @@ public class BaselineValidator {
                             msg.append(removed.toString());
                             msg.append("\n");
                         }
-                        log.info(msg.toString());
+                        logger.info(msg.toString());
                     }
                 }
             } else {
-                log.info("No baseline version " + project.getId());
+                logger.info("No baseline version " + project.getId());
             }
         }
         return result;
@@ -284,7 +288,7 @@ public class BaselineValidator {
                     result.put(deltaKey, delta);
                 }
             } catch (IOException e) {
-                log.warn("Elementwise comparison of zip-file failed", e);
+                logger.warn("Elementwise comparison of zip-file failed", e);
                 // do byte-to-byte comparison if jar comparison fails for whatever reason
                 if (!FileUtils.contentEquals(baselineArtifact.getLocation(), reactorArtifact.getLocation())) {
                     result.put(deltaKey, new SimpleArtifactDelta("different"));

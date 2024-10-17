@@ -17,7 +17,6 @@ import java.util.Map;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -29,6 +28,8 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 
+import javax.inject.Inject;
+
 /**
  * This mojo could be added to a build if validation of the classpath is desired before the
  * compile-phase.
@@ -39,7 +40,7 @@ public class ValidateClassPathMojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    @Component(role = TychoProject.class)
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
     @Override

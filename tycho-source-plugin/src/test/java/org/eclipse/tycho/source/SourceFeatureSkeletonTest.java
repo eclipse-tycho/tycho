@@ -19,13 +19,13 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
-import org.apache.maven.plugin.testing.SilentLog;
 import org.eclipse.tycho.model.Feature;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.slf4j.helpers.NOPLogger;
 
 @RunWith(JUnit4.class)
 public class SourceFeatureSkeletonTest extends AbstractMojoTestCase {
@@ -36,7 +36,7 @@ public class SourceFeatureSkeletonTest extends AbstractMojoTestCase {
     @Override
     public void setUp() throws Exception {
         mojo = new SourceFeatureMojo();
-        setVariableValueToObject(mojo, "logger", new SilentLog());
+        setVariableValueToObject(mojo, "logger", NOPLogger.NOP_LOGGER);
         setVariableValueToObject(mojo, "labelSuffix", " Developer Resources");
     }
 

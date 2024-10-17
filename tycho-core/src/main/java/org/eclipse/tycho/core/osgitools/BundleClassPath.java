@@ -20,9 +20,9 @@ import org.eclipse.tycho.ClasspathEntry.AccessRule;
 
 public class BundleClassPath {
 
-    private List<ClasspathEntry> classpath;
-    private List<AccessRule> strictBootClasspathAccessRules;
-    private List<AccessRule> bootClasspathExtraAccessRules;
+    private final List<ClasspathEntry> classpath;
+    private final List<AccessRule> strictBootClasspathAccessRules;
+    private final List<AccessRule> bootClasspathExtraAccessRules;
 
     BundleClassPath(List<ClasspathEntry> classpath, List<AccessRule> strictBootClasspathAccessRules,
             List<AccessRule> bootClasspathExtraAccessRules) {

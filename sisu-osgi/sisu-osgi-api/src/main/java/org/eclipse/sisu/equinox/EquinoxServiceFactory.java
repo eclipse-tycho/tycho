@@ -18,8 +18,8 @@ package org.eclipse.sisu.equinox;
  */
 public interface EquinoxServiceFactory {
 
-    public <T> T getService(Class<T> clazz);
+    <T> T getService(Class<T> clazz);
 
-    public <T> T getService(Class<T> clazz, String filter);
+    <T> T getService(Class<T> clazz, String filter);
 
 }

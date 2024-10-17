@@ -21,15 +21,18 @@ import java.util.Properties;
 
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.osgi.framework.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = DeclarativeServiceConfigurationReader.class)
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class DeclarativeServiceConfigurationReader {
 
     private static final String DS_PLUGIN = "org.eclipse.tycho:tycho-ds-plugin";
@@ -44,8 +47,7 @@ public class DeclarativeServiceConfigurationReader {
 
     private static final String PDE_DS_ANNOTATIONS_PREFS = ".settings/org.eclipse.pde.ds.annotations.prefs";
 
-    @Requirement
-    private Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public DeclarativeServicesConfiguration getConfiguration(ReactorProject reactorProject) throws IOException {
         return getConfiguration(Objects.requireNonNull(reactorProject.adapt(MavenProject.class)));

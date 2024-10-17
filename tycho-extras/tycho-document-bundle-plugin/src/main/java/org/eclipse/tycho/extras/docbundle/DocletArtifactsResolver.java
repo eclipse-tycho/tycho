@@ -27,27 +27,23 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 
-@Component(role = DocletArtifactsResolver.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class DocletArtifactsResolver {
 
-    @Requirement
-    private RepositorySystem repositorySystem;
+    private final RepositorySystem repositorySystem;
+    private final ResolutionErrorHandler resolutionErrorHandler;
+    private final LegacySupport legacySupport;
 
-    @Requirement
-    private ResolutionErrorHandler resolutionErrorHandler;
-
-    @Requirement
-    private LegacySupport legacySupport;
-
-    public DocletArtifactsResolver() {
-        // needed for plexus
-    }
-
-    DocletArtifactsResolver(RepositorySystem repositorySystem, ResolutionErrorHandler resolutionErrorHandler,
-            LegacySupport legacySupport) {
+    @Inject
+    public DocletArtifactsResolver(RepositorySystem repositorySystem,
+                                   ResolutionErrorHandler resolutionErrorHandler,
+                                   LegacySupport legacySupport) {
         this.repositorySystem = repositorySystem;
         this.resolutionErrorHandler = resolutionErrorHandler;
         this.legacySupport = legacySupport;

@@ -12,9 +12,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import java.util.Map;
 
-@Component(role = TransportProtocolHandler.class, hint = "https")
+@Singleton
+@Named("https")
 public class HttpsTransportProtocolHandler extends HttpTransportProtocolHandler {
-
+    @Inject
+    public HttpsTransportProtocolHandler(Map<String, HttpTransportFactory> transportFactoryMap, HttpCache httpCache) {
+        super(transportFactoryMap, httpCache);
+    }
 }

@@ -54,8 +54,7 @@ public class P2GeneratorImplTest {
 
     @Test
     public void testGenerateSourceBundleMetadata() throws Exception {
-        SourcesBundleDependencyMetadataGenerator p2GeneratorImpl = new SourcesBundleDependencyMetadataGenerator();
-        p2GeneratorImpl.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
+        SourcesBundleDependencyMetadataGenerator p2GeneratorImpl = new SourcesBundleDependencyMetadataGenerator(new MockMavenContext(null, logVerifier.getLogger()), null);
         File location = new File("src/test/resources/generator/bundle").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "org.acme", "foo", "0.0.1", "eclipse-plugin");
         Set<IInstallableUnit> units = p2GeneratorImpl
@@ -78,8 +77,7 @@ public class P2GeneratorImplTest {
     public void generateSourceBundleMetadataForProjectWithP2Inf() throws Exception {
         // p2.inf must not leak into sources bundle
 
-        SourcesBundleDependencyMetadataGenerator p2GeneratorImpl = new SourcesBundleDependencyMetadataGenerator();
-        p2GeneratorImpl.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
+        SourcesBundleDependencyMetadataGenerator p2GeneratorImpl = new SourcesBundleDependencyMetadataGenerator(new MockMavenContext(null, logVerifier.getLogger()), null);
         File location = new File("src/test/resources/generator/bundle-p2-inf").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "org.acme", "foo", "0.0.1", "eclipse-plugin");
         Set<IInstallableUnit> units = p2GeneratorImpl
@@ -139,10 +137,7 @@ public class P2GeneratorImplTest {
     }
 
     private DefaultDependencyMetadataGenerator createDependencyMetadataGenerator() {
-        DefaultDependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
-        generator.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
-        generator.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
-        return generator;
+        return new DefaultDependencyMetadataGenerator(new MockMavenContext(null, logVerifier.getLogger()), new BuildPropertiesParserForTesting(), null);
     }
 
     @Test

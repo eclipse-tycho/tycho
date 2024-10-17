@@ -23,7 +23,7 @@ import org.eclipse.tycho.model.PluginRef;
 
 public class DefaultPluginDescription extends DefaultArtifactDescriptor implements PluginDescription {
 
-    private PluginRef pluginRef;
+    private final PluginRef pluginRef;
 
     public DefaultPluginDescription(ArtifactKey key, File location, ReactorProject project, String classifier,
             PluginRef pluginRef, Collection<IInstallableUnit> installableUnits) {

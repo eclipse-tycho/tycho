@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
-//import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -43,11 +42,12 @@ import org.apache.maven.model.io.DefaultModelReader;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.sisu.Priority;
 import org.eclipse.tycho.TychoConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @Named("default")
@@ -67,25 +67,25 @@ public class TychoCiFriendlyVersions implements ModelVersionProcessor {
 
 	private static final Set<String> SIMPLE_PROPERTIES = Set.of(RELEASE_VERSION, MAJOR_VERSION, MINOR_VERSION,
 			MICRO_VERSION);
-	private Logger logger;
-	private Map<File, MavenProject> rawProjectCache = new ConcurrentHashMap<>();
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	private final Map<File, MavenProject> rawProjectCache = new ConcurrentHashMap<>();
+
+	private final DefaultModelReader defaultModelReader;
+	private final DefaultModelVersionProcessor defaultModelVersionProcessor;
+	private final Map<String, BuildTimestampProvider> buildTimestampProviders;
+	private final Provider<MavenSession> mavenSessionProvider;
 
 	@Inject
-	private DefaultModelReader defaultModelReader;
-
-	@Inject
-	private DefaultModelVersionProcessor defaultModelVersionProcessor;
-
-	@Inject
-	private Map<String, BuildTimestampProvider> buildTimestampProviders;
-
-	@Inject
-	private Provider<MavenSession> mavenSessionProvider;
-
-	@Inject
-	public TychoCiFriendlyVersions(Logger logger) {
-		this.logger = logger;
-
+	public TychoCiFriendlyVersions(DefaultModelReader defaultModelReader,
+								   DefaultModelVersionProcessor defaultModelVersionProcessor,
+								   Map<String, BuildTimestampProvider> buildTimestampProviders,
+								   Provider<MavenSession> mavenSessionProvider) {
+		this.defaultModelReader = defaultModelReader;
+		this.defaultModelVersionProcessor = defaultModelVersionProcessor;
+		this.buildTimestampProviders = buildTimestampProviders;
+		this.mavenSessionProvider = mavenSessionProvider;
 	}
 
 	@Override

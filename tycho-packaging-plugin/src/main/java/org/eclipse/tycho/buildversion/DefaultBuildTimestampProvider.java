@@ -17,17 +17,18 @@ import java.util.Date;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.build.BuildTimestampProvider;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Build timestamp provider that returns the same timestamp for all projects, the
  * ${maven.build.timestamp}.
  */
-@Component(role = BuildTimestampProvider.class, hint = DefaultBuildTimestampProvider.ROLE_HINT)
+@Singleton
+@Named
 public class DefaultBuildTimestampProvider implements BuildTimestampProvider {
-
-    static final String ROLE_HINT = "default";
 
     @Override
     public Date getTimestamp(MavenSession session, MavenProject project, MojoExecution execution) {

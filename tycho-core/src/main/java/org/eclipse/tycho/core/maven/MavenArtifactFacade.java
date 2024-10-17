@@ -26,7 +26,7 @@ import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
 public final class MavenArtifactFacade implements IArtifactFacade {
 
     private final Artifact mavenArtifact;
-    private String repositoryId;
+    private final String repositoryId;
 
     public MavenArtifactFacade(Artifact mavenArtifact) {
         this.mavenArtifact = mavenArtifact;

@@ -16,7 +16,6 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.Map;
 
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -29,6 +28,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
+import org.slf4j.Logger;
 
 class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryManager {
 
