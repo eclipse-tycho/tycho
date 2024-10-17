@@ -151,90 +151,26 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     }
 
-    private static class TargetRef implements TargetDefinition.TargetReferenceLocation {
-
-        private String uri;
-
-        public TargetRef(String uri) {
-            this.uri = uri;
-        }
-
+	private record TargetReference(String getUri) implements TargetDefinition.TargetReferenceLocation {
         @Override
         public String getTypeDescription() {
             return "Target";
         }
-
-        @Override
-        public String getUri() {
-            return uri;
-        }
-
     }
 
-	private static final class OSGIRepositoryLocation implements TargetDefinition.RepositoryLocation {
-
-		private String uri;
-		private Collection<Requirement> requirements;
-
-		public OSGIRepositoryLocation(String uri, Collection<Requirement> requirements) {
-			this.uri = uri;
-			this.requirements = requirements;
-		}
-
-		@Override
-		public String getUri() {
-			return uri;
-		}
-
-		@Override
-		public Collection<Requirement> getRequirements() {
-			return requirements;
-		}
-
+	private record OSGIRepositoryLocation(String getUri, Collection<Requirement> getRequirements)
+			implements TargetDefinition.RepositoryLocation {
 	}
 
-    private static class MavenLocation implements TargetDefinition.MavenGAVLocation {
+	private record MavenLocation(Collection<MavenDependency> getRoots, Collection<String> getIncludeDependencyScopes,
+			MissingManifestStrategy getMissingManifestStrategy, boolean includeSource,
+			Collection<BNDInstructions> getInstructions, DependencyDepth getIncludeDependencyDepth,
+			Collection<MavenArtifactRepositoryReference> getRepositoryReferences, Element getFeatureTemplate,
+			String label) implements TargetDefinition.MavenGAVLocation {
 
-        private final Collection<String> includeDependencyScopes;
-        private final MissingManifestStrategy manifestStrategy;
-        private final boolean includeSource;
-        private final Collection<BNDInstructions> instructions;
-        private final Collection<MavenDependency> roots;
-        private final DependencyDepth dependencyDepth;
-        private final Collection<MavenArtifactRepositoryReference> repositoryReferences;
-        private final Element featureTemplate;
-		private String label;
-
-        public MavenLocation(Collection<MavenDependency> roots, Collection<String> includeDependencyScopes,
-                MissingManifestStrategy manifestStrategy, boolean includeSource,
-                Collection<BNDInstructions> instructions, DependencyDepth dependencyDepth,
-				Collection<MavenArtifactRepositoryReference> repositoryReferences, Element featureTemplate,
-				String label) {
-            this.roots = roots;
-            this.includeDependencyScopes = includeDependencyScopes;
-            this.manifestStrategy = manifestStrategy;
-            this.includeSource = includeSource;
-            this.instructions = instructions;
-            this.dependencyDepth = dependencyDepth;
-            this.repositoryReferences = repositoryReferences;
-			this.label = label;
-            this.featureTemplate = featureTemplate == null ? null : (Element) featureTemplate.cloneNode(true);
-        }
-
-        @Override
-		public Collection<String> getIncludeDependencyScopes() {
-            return includeDependencyScopes;
-        }
-
-        @Override
-        public MissingManifestStrategy getMissingManifestStrategy() {
-            return manifestStrategy;
-        }
-
-        @Override
-        public boolean includeSource() {
-            return includeSource;
-        }
+		MavenLocation {
+			getFeatureTemplate = getFeatureTemplate == null ? null : (Element) getFeatureTemplate.cloneNode(true);
+		}
 
         @Override
         public String toString() {
@@ -249,36 +185,12 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return builder.toString();
         }
 
-        @Override
-        public Collection<BNDInstructions> getInstructions() {
-            return instructions;
-        }
-
-        @Override
-        public Collection<MavenDependency> getRoots() {
-            return roots;
-        }
-
-        @Override
-        public Collection<MavenArtifactRepositoryReference> getRepositoryReferences() {
-            return repositoryReferences;
-        }
-
-        @Override
-        public Element getFeatureTemplate() {
-            return featureTemplate;
-        }
-
-        @Override
-        public DependencyDepth getIncludeDependencyDepth() {
-            return dependencyDepth;
-        }
-
 		@Override
 		public String getLabel() {
 			if (label != null && !label.isBlank()) {
 				return label;
 			}
+			Element featureTemplate = getFeatureTemplate();
 			if (featureTemplate != null) {
 				String featureLabel = featureTemplate.getAttribute("label");
 				if (featureLabel != null && !featureLabel.isBlank()) {
@@ -289,6 +201,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 					return featureId;
 				}
 			}
+			Collection<MavenDependency> roots = getRoots();
 			if (roots.size() == 1) {
 				MavenDependency dependency = roots.iterator().next();
 				return MessageFormat.format("{0}:{1} ({2})", dependency.getGroupId(), dependency.getArtifactId(),
@@ -300,24 +213,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     }
 
-    private static final class MavenDependencyRoot implements MavenDependency {
-
-        private final Set<String> globalExcludes;
-        private final String groupId;
-        private final String artifactId;
-        private final String version;
-        private final String classifier;
-        private final String type;
-
-        public MavenDependencyRoot(String groupId, String artifactId, String version, String classifier, String type,
-                Set<String> globalExcludes) {
-            this.groupId = groupId;
-            this.artifactId = artifactId;
-            this.version = version;
-            this.classifier = classifier;
-            this.type = type;
-            this.globalExcludes = globalExcludes;
-        }
+	private record MavenDependencyRoot(String getGroupId, String getArtifactId, String getVersion, String getClassifier,
+			String getArtifactType, Set<String> globalExcludes) implements MavenDependency {
 
         private static String getKey(IArtifactFacade artifact) {
             if (artifact == null) {
@@ -330,31 +227,6 @@ public final class TargetDefinitionFile implements TargetDefinition {
             }
             key += ":" + artifact.getVersion();
             return key;
-        }
-
-        @Override
-        public String getGroupId() {
-            return groupId;
-        }
-
-        @Override
-        public String getArtifactId() {
-            return artifactId;
-        }
-
-        @Override
-        public String getVersion() {
-            return version;
-        }
-
-        @Override
-        public String getArtifactType() {
-            return type;
-        }
-
-        @Override
-        public String getClassifier() {
-            return classifier;
         }
 
         @Override
@@ -406,126 +278,24 @@ public final class TargetDefinitionFile implements TargetDefinition {
         return list.get(0);
     }
 
-    private static class IULocation implements TargetDefinition.InstallableUnitLocation {
+	private record IULocation(List<Unit> getUnits, List<Repository> getRepositories, IncludeMode getIncludeMode,
+			boolean includeAllEnvironments, boolean includeSource, boolean includeConfigurePhase,
+			FollowRepositoryReferences followRepositoryReferences) implements TargetDefinition.InstallableUnitLocation {
+	}
 
-        private final List<Unit> units;
-        private final List<Repository> repositories;
-        private final IncludeMode includeMode;
-        private final boolean includeAllEnvironments;
-        private final boolean includeSource;
-        private final boolean includeConfigurePhase;
-        private final FollowRepositoryReferences followRepositoryReferences;
+	private record OtherLocation(String getTypeDescription) implements Location {
+	}
 
-        IULocation(List<Unit> units, List<Repository> repositories, IncludeMode includeMode,
-                boolean includeAllEnvironments, boolean includeSource, boolean includeConfigurePhase,
-                FollowRepositoryReferences followRepositoryReferences) {
-            this.units = units;
-            this.repositories = repositories;
-            this.includeMode = includeMode;
-            this.includeAllEnvironments = includeAllEnvironments;
-            this.includeSource = includeSource;
-            this.includeConfigurePhase = includeConfigurePhase;
-            this.followRepositoryReferences = followRepositoryReferences;
-        }
+	private record Repository(String getId, String getLocation) implements TargetDefinition.Repository {
+		// the id is Maven specific, used to match credentials and mirrors
+	}
 
-        @Override
-        public List<? extends TargetDefinition.Unit> getUnits() {
-            return units;
-        }
-
-        @Override
-        public List<? extends TargetDefinition.Repository> getRepositories() {
-            return repositories;
-        }
-
-        @Override
-        public IncludeMode getIncludeMode() {
-            return includeMode;
-        }
-
-        @Override
-        public boolean includeAllEnvironments() {
-            return includeAllEnvironments;
-        }
-
-        @Override
-        public boolean includeSource() {
-            return includeSource;
-        }
-
-        @Override
-        public boolean includeConfigurePhase() {
-            return includeConfigurePhase;
-        }
-
-        @Override
-        public FollowRepositoryReferences followRepositoryReferences() {
-            return followRepositoryReferences;
-        }
-    }
-
-    private static class OtherLocation implements Location {
-        private final String description;
-
-        OtherLocation(String description) {
-            this.description = description;
-        }
-
-        @Override
-        public String getTypeDescription() {
-            return description;
-        }
-    }
-
-    private static final class Repository implements TargetDefinition.Repository {
-
-        private final String id;
-        private final String uri;
-
-        Repository(String id, String uri) {
-            this.id = id;
-            this.uri = uri;
-        }
-
-        @Override
-        public String getId() {
-            // this is Maven specific, used to match credentials and mirrors
-            return id;
-        }
-
-        @Override
-        public String getLocation() {
-            return uri;
-        }
-
-    }
-
-    private static class Unit implements TargetDefinition.Unit {
-
-        private String id;
-        private String version;
-
-        Unit(String id, String version) {
-            this.id = id;
-            this.version = version;
-        }
-
-        @Override
-        public String getId() {
-            return id;
-        }
-
-        @Override
-        public String getVersion() {
-            return version;
-        }
-
+	private record Unit(String getId, String getVersion) implements TargetDefinition.Unit {
 		@Override
 		public String toString() {
-			return "Unit [id=" + id + ", version=" + version + "]";
+			return "Unit [id=" + getId() + ", version=" + getVersion() + "]";
 		}
-
-    }
+	}
 
     private TargetDefinitionFile(Document document, String origin) throws TargetDefinitionSyntaxException {
         this.origin = origin;
@@ -684,7 +454,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
                 } else if (MavenGAVLocation.TYPE.equals(type)) {
                     locations.add(parseMavenLocation(locationDom));
                 } else if ("Target".equals(type)) {
-                    locations.add(new TargetRef(locationDom.getAttribute("uri")));
+                    locations.add(new TargetReference(locationDom.getAttribute("uri")));
 				} else if (TargetDefinition.RepositoryLocation.TYPE.equals(type)) {
 					locations.add(parseRepositoryLocation(locationDom));
                 } else {
