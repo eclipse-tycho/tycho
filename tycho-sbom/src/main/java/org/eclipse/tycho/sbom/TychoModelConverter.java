@@ -21,14 +21,19 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
+import org.cyclonedx.CycloneDxSchema;
 import org.cyclonedx.maven.DefaultModelConverter;
 import org.cyclonedx.maven.ModelConverter;
+import org.cyclonedx.model.Component;
+import org.cyclonedx.model.ExternalReference;
+import org.cyclonedx.model.Metadata;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -74,27 +79,45 @@ import org.slf4j.LoggerFactory;
  * &lt;/plugin&gt;
  * </pre>
  */
-@Component(role = ModelConverter.class)
-public class TychoModelConverter extends DefaultModelConverter {
+@Singleton
+@Named
+public class TychoModelConverter implements ModelConverter {
 	private static final String KEY_CONTEXT = TychoSBOMConfiguration.class.toString();
 	private static final Logger LOG = LoggerFactory.getLogger(TychoModelConverter.class);
 
-	@Inject
-	private P2RepositoryManager repositoryManager;
+	private final DefaultModelConverter defaultmodelConverter;
+	private final P2RepositoryManager repositoryManager;
+	private final TychoProjectManager projectManager;
+	private final TychoReactorReader reactorReader;
+	private final LegacySupport legacySupport;
 
 	@Inject
-	private TychoProjectManager projectManager;
+	public TychoModelConverter(DefaultModelConverter defaultmodelConverter,
+							   P2RepositoryManager repositoryManager,
+							   TychoProjectManager projectManager,
+							   TychoReactorReader reactorReader,
+							   LegacySupport legacySupport) {
+		this.defaultmodelConverter = defaultmodelConverter;
+		this.repositoryManager = repositoryManager;
+		this.projectManager = projectManager;
+		this.reactorReader = reactorReader;
+		this.legacySupport = legacySupport;
+	}
 
-	@Inject
-	private TychoReactorReader reactorReader;
+	@Override
+	public Component convertMavenDependency(org.apache.maven.artifact.Artifact artifact, CycloneDxSchema.Version version, boolean b) {
+		return defaultmodelConverter.convertMavenDependency(artifact, version, b);
+	}
 
-	@Inject
-	private LegacySupport legacySupport;
+	@Override
+	public Metadata convertMavenProject(MavenProject mavenProject, String s, CycloneDxSchema.Version version, boolean b, ExternalReference[] externalReferences) {
+		return defaultmodelConverter.convertMavenProject(mavenProject, s, version, b, externalReferences);
+	}
 
 	@Override
 	public String generatePackageUrl(org.apache.maven.artifact.Artifact mavenArtifact) {
 		Artifact artifact = RepositoryUtils.toArtifact(mavenArtifact);
-		return generatePackageUrl(artifact, true, true, () -> super.generatePackageUrl(mavenArtifact));
+		return generatePackageUrl(artifact, true, true, () -> defaultmodelConverter.generatePackageUrl(mavenArtifact));
 	}
 
 	@Override
@@ -105,7 +128,7 @@ public class TychoModelConverter extends DefaultModelConverter {
 	@Override
 	public String generateVersionlessPackageUrl(org.apache.maven.artifact.Artifact mavenArtifact) {
 		Artifact artifact = RepositoryUtils.toArtifact(mavenArtifact);
-		return generatePackageUrl(artifact, false, true, () -> super.generateVersionlessPackageUrl(mavenArtifact));
+		return generatePackageUrl(artifact, false, true, () -> defaultmodelConverter.generateVersionlessPackageUrl(mavenArtifact));
 	}
 
 	@Override
@@ -115,7 +138,7 @@ public class TychoModelConverter extends DefaultModelConverter {
 
 	@Override
 	public String generateClassifierlessPackageUrl(Artifact artifact) {
-		return generatePackageUrl(artifact, true, false, () -> super.generateClassifierlessPackageUrl(artifact));
+		return generatePackageUrl(artifact, true, false, () -> defaultmodelConverter.generateClassifierlessPackageUrl(artifact));
 	}
 
 	/**

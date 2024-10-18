@@ -18,13 +18,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.maven.model.Repository;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 
-@Component(role = EclipseApplicationManager.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class EclipseApplicationManager {
 
     private static final String FRAGMENT_COMPATIBILITY = "org.eclipse.osgi.compatibility.state";
@@ -42,11 +45,15 @@ public class EclipseApplicationManager {
 
     private final Map<TargetCacheKey, EclipseApplication> applicationCache = new ConcurrentHashMap<>();
 
-    @Requirement
-    private EclipseApplicationFactory applicationFactory;
+    private final EclipseApplicationFactory applicationFactory;
+
+    @Inject
+    public EclipseApplicationManager(EclipseApplicationFactory applicationFactory) {
+        this.applicationFactory = applicationFactory;
+    }
 
     public EclipseApplication getApplication(TargetPlatform targetPlatform, Bundles bundles, Features features,
-            String name) {
+                                             String name) {
 
         return applicationCache.computeIfAbsent(new TargetCacheKey(targetPlatform, bundles, features), key -> {
             EclipseApplication application = applicationFactory.createEclipseApplication(key.targetPlatform(), name);

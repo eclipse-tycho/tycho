@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
 
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.model.Feature;
@@ -35,17 +33,20 @@ import org.eclipse.tycho.versions.bundle.MutableBndFile;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.utils.ProductFileFilter;
 import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Update pom or Eclipse/OSGi version to make both versions consistent.
  */
 public abstract class VersionUpdater {
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private Logger logger;
+    private final VersionsEngine engine;
 
-    @Requirement
-    private VersionsEngine engine;
+    public VersionUpdater(VersionsEngine engine) {
+        this.engine = engine;
+    }
 
     private static interface VersionAdaptor {
         String getVersion(ProjectMetadata project, Logger logger) throws IOException;

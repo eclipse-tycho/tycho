@@ -14,8 +14,6 @@ package org.eclipse.tycho.core.resolver;
 
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.aether.spi.synccontext.SyncContextFactory;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.core.MavenDependenciesResolver;
@@ -24,32 +22,35 @@ import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 
-@Component(role = MavenTargetLocationFactory.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class MavenTargetLocationFactory {
 
-    @Requirement
-    SyncContextFactory syncContextFactory;
+    private final SyncContextFactory syncContextFactory;
+    private final MavenContext mavenContext;
+    private final MavenDependenciesResolver dependenciesResolver;
+    private final IProvisioningAgent provisioningAgent;
+    private final RepositorySystem repositorySystem;
+    private final org.eclipse.aether.RepositorySystem repositorySystem2;
+    private final LegacySupport legacySupport;
 
-    @Requirement
-    MavenContext mavenContext;
-
-    @Requirement
-    MavenDependenciesResolver dependenciesResolver;
-
-    @Requirement
-    IProvisioningAgent provisioningAgent;
-
-    @Requirement
-    RepositorySystem repositorySystem;
-
-    @Requirement
-    org.eclipse.aether.RepositorySystem repositorySystem2;
-
-    @Requirement
-    LegacySupport legacySupport;
+    @Inject
+    public MavenTargetLocationFactory(SyncContextFactory syncContextFactory, MavenContext mavenContext, MavenDependenciesResolver dependenciesResolver, IProvisioningAgent provisioningAgent, RepositorySystem repositorySystem, org.eclipse.aether.RepositorySystem repositorySystem2, LegacySupport legacySupport) {
+        this.syncContextFactory = syncContextFactory;
+        this.mavenContext = mavenContext;
+        this.dependenciesResolver = dependenciesResolver;
+        this.provisioningAgent = provisioningAgent;
+        this.repositorySystem = repositorySystem;
+        this.repositorySystem2 = repositorySystem2;
+        this.legacySupport = legacySupport;
+    }
 
     public TargetDefinitionContent resolveTargetDefinitionContent(MavenGAVLocation location,
-            IncludeSourceMode includeSourceMode) {
+                                                                  IncludeSourceMode includeSourceMode) {
         return new MavenTargetDefinitionContent(location, dependenciesResolver, includeSourceMode, provisioningAgent,
                 mavenContext, syncContextFactory, repositorySystem, legacySupport.getSession(), repositorySystem2);
     }

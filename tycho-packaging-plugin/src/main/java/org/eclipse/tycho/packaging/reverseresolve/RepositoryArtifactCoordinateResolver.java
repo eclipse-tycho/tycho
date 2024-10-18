@@ -32,12 +32,13 @@ import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This resolves against the maven (local) repository if the jar carry a
@@ -47,11 +48,14 @@ import org.eclipse.aether.resolution.ArtifactResult;
 @Named("local")
 public class RepositoryArtifactCoordinateResolver implements ArtifactCoordinateResolver {
 
-	@Inject
-	private RepositorySystem repositorySystem;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	private final RepositorySystem repositorySystem;
 
 	@Inject
-	private Logger log;
+	public RepositoryArtifactCoordinateResolver(RepositorySystem repositorySystem) {
+		this.repositorySystem = repositorySystem;
+	}
 
 	@Override
 	public Optional<Dependency> resolve(Dependency dep, MavenProject project, MavenSession session) {

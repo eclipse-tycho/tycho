@@ -31,8 +31,6 @@ import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
@@ -41,16 +39,17 @@ import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
-@Component(role = MavenContext.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class DefaultMavenContext implements MavenContext {
 
-    @Requirement
-    ArtifactHandlerManager artifactHandlerManager;
-    @Requirement
-    LegacySupport legacySupport;
-
-    @Requirement(hint = FilteringMavenLogger.HINT)
-    MavenLogger mavenLogger;
+    private final ArtifactHandlerManager artifactHandlerManager;
+    private final LegacySupport legacySupport;
+    private final MavenLogger mavenLogger;
 
     private Properties globalProps;
     private List<MavenRepositoryLocation> repositoryLocations;
@@ -60,7 +59,13 @@ public class DefaultMavenContext implements MavenContext {
     private Collection<ReactorProject> projects;
     private Boolean isOffline;
 
-    public DefaultMavenContext() {
+    @Inject
+    public DefaultMavenContext(ArtifactHandlerManager artifactHandlerManager,
+                               LegacySupport legacySupport,
+                               @Named(FilteringMavenLogger.HINT) MavenLogger mavenLogger) {
+        this.artifactHandlerManager = artifactHandlerManager;
+        this.legacySupport = legacySupport;
+        this.mavenLogger = mavenLogger;
     }
 
     @Override

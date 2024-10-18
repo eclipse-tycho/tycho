@@ -15,7 +15,7 @@ import java.util.Properties;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.LocalArtifactHandling;
-import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.core.resolver.TargetPlatformConfigurationReader;
 
 public class DependencyResolutionConfiguration {
 
@@ -29,6 +29,6 @@ public class DependencyResolutionConfiguration {
     public OptionalResolutionAction optionalDependencies;
     public List<ExtraRequirementConfiguration> extraRequirements;
     public Properties profileProperties;
-    @Parameter(property = DefaultTargetPlatformConfigurationReader.LOCAL_ARTIFACTS_PROPERTY, name = DefaultTargetPlatformConfigurationReader.LOCAL_ARTIFACTS)
+    @Parameter(property = TargetPlatformConfigurationReader.LOCAL_ARTIFACTS_PROPERTY, name = TargetPlatformConfigurationReader.LOCAL_ARTIFACTS)
     public LocalArtifactHandling localArtifacts;
 }

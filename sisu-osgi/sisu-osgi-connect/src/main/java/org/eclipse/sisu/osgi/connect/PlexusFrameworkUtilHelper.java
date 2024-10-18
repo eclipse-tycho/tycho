@@ -27,7 +27,7 @@ import org.osgi.framework.connect.FrameworkUtilHelper;
  */
 public class PlexusFrameworkUtilHelper implements FrameworkUtilHelper {
 
-	private static Set<FrameworkUtilHelper> helpers = ConcurrentHashMap.newKeySet();
+	private static final Set<FrameworkUtilHelper> helpers = ConcurrentHashMap.newKeySet();
 
 	@Override
 	public Optional<Bundle> getBundle(Class<?> classFromBundle) {

@@ -45,6 +45,7 @@ import org.osgi.framework.BundleException;
 
 import aQute.bnd.osgi.FileResource;
 import aQute.bnd.osgi.Jar;
+import org.slf4j.LoggerFactory;
 
 /**
  * This mojo adds the required headers to a source artifact for it to be used in PDE as a source
@@ -105,7 +106,7 @@ public class PDESourceBundleMojo extends AbstractMojo {
                 try (InputStream manifest = Files.newInputStream(jarRoot.resolve(JarFile.MANIFEST_NAME))) {
                     ManifestElement.parseBundleManifest(manifest, headers);
                 }
-                Resource l10n = OsgiSourceMojo.generateL10nFile(project, jarRoot, headers::get, hostName, getLog());
+                Resource l10n = OsgiSourceMojo.generateL10nFile(project, jarRoot, headers::get, hostName, LoggerFactory.getLogger(getClass()));
                 Path file = Path.of(l10n.getDirectory()).resolve(OsgiSourceMojo.MANIFEST_BUNDLE_LOCALIZATION_FILENAME);
                 sourceJar.putResource(OsgiSourceMojo.MANIFEST_BUNDLE_LOCALIZATION_FILENAME, new FileResource(file));
             }

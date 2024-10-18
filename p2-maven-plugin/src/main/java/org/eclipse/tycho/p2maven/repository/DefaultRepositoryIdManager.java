@@ -19,27 +19,38 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Helper class for the Remote*RepositoryManagers taking care of mapping repository URLs to the
  * settings.xml-configured mirrors and setting passwords.
  */
-@Component(role = IRepositoryIdManager.class)
+@Singleton
+@Named
 public class DefaultRepositoryIdManager implements IRepositoryIdManager {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Requirement
-	private MavenRepositorySettings settings;
-	@Requirement
-	private Logger logger;
-	// For some reason maven creates different instances of the component even if
-	// there should only be one...
-	private static final Map<URI, String> knownMavenRepositoryIds = new ConcurrentHashMap<>();
+    // TODO: wut? repositoryIds may CHANGE per project, as project may define new ones
+    // (and existing ID may override existing one in the context of project!)
+    // --
+    // For some reason maven creates different instances of the component even if
+    // there should only be one...
+    private static final Map<URI, String> knownMavenRepositoryIds = new ConcurrentHashMap<>();
+
+    private final MavenRepositorySettings settings;
+
+    @Inject
+    public DefaultRepositoryIdManager(MavenRepositorySettings settings) {
+        this.settings = settings;
+    }
 
     @Override
     public void addMapping(String mavenRepositoryId, URI location) {
@@ -128,5 +139,4 @@ public class DefaultRepositoryIdManager implements IRepositoryIdManager {
 	public MavenRepositorySettings getSettings() {
 		return settings;
 	}
-
 }

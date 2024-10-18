@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.util.Enumeration;
 
-import org.apache.maven.plugin.testing.SilentLog;
 import org.eclipse.tycho.compiler.jdt.copied.LibraryInfo;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +27,7 @@ public class JdkLibraryInfoProviderTest {
     @Test
     public void testGetLibraryInfoForCurrentlyRunningJDK() throws Exception {
         JdkLibraryInfoProviderStub libInfoProvider = new JdkLibraryInfoProviderStub(
-                new File("../tycho-lib-detector/target/classes/"), new SilentLog());
+                new File("../tycho-lib-detector/target/classes/"));
         String javaHome = System.getProperty("java.home");
         LibraryInfo libraryInfo = libInfoProvider.getLibraryInfo(javaHome);
 
@@ -48,7 +47,7 @@ public class JdkLibraryInfoProviderTest {
     @Test
     public void testGetLibraryInfoForFakeJDKWithoutJavaExecutable() throws Exception {
         JdkLibraryInfoProviderStub libInfoProvider = new JdkLibraryInfoProviderStub(
-                new File("../tycho-lib-detector/target/classes/"), new SilentLog());
+                new File("../tycho-lib-detector/target/classes/"));
         LibraryInfo libInfo = libInfoProvider
                 .getLibraryInfo(new File("src/test/resources/testJavaHome").getAbsolutePath());
         assertEquals("unknown", libInfo.getVersion());

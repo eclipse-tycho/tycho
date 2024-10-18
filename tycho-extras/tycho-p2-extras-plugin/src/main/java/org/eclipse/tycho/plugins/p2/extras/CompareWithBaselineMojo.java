@@ -23,12 +23,10 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
@@ -48,6 +46,8 @@ import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.osgi.framework.Version;
+
+import javax.inject.Inject;
 
 /**
  * This mojo compares versions the output artifacts of your module build with the version of the
@@ -106,16 +106,13 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Parameter(property = "onIllegalVersion", defaultValue = "fail", alias = "tycho.p2.baseline.onIllegalVersion")
     private ReportBehavior onIllegalVersion;
 
-    @Component()
-    P2ResolverFactory resolverFactory;
+    @Inject
+    private P2ResolverFactory resolverFactory;
 
-    @Component
-    private Logger plexusLogger;
-
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Component
+    @Inject
     private TargetPlatformFactory platformFactory;
 
     /**
@@ -124,7 +121,8 @@ public class CompareWithBaselineMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = BytesArtifactComparator.HINT)
     private String comparator;
-    @Component(role = ArtifactComparator.class)
+
+    @Inject
     protected Map<String, ArtifactComparator> artifactComparators;
 
     @Override

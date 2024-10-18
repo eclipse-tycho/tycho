@@ -19,9 +19,6 @@ import java.util.Optional;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
@@ -33,25 +30,31 @@ import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.helper.PluginConfigurationHelper;
 import org.eclipse.tycho.helper.PluginConfigurationHelper.Configuration;
 import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Build timestamp provider that inherits the timestamp of the fragment host
  */
-@Component(role = BuildTimestampProvider.class, hint = FragmentHostBuildTimestampProvider.ROLE_HINT)
+@Singleton
+@Named(FragmentHostBuildTimestampProvider.ROLE_HINT)
 public class FragmentHostBuildTimestampProvider implements BuildTimestampProvider {
 
 	static final String ROLE_HINT = "fragment-host";
 
-	@Requirement
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	@Inject
 	private TychoProjectManager projectManager;
 
-	@Requirement
-	private Logger logger;
-
-	@Requirement
+	@Inject
 	private TimestampFinder timestampFinder;
 
-	@Requirement
+	@Inject
 	private PluginConfigurationHelper configurationHelper;
 
 	@Override

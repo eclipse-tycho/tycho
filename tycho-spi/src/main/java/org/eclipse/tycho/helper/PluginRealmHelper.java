@@ -23,7 +23,6 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.InvalidPluginDescriptorException;
 import org.apache.maven.plugin.MavenPluginManager;
-import org.apache.maven.plugin.PluginDescriptorCache;
 import org.apache.maven.plugin.PluginDescriptorParsingException;
 import org.apache.maven.plugin.PluginManagerException;
 import org.apache.maven.plugin.PluginResolutionException;
@@ -32,11 +31,14 @@ import org.apache.maven.plugin.version.PluginVersionResolutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.ComponentDependency;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Helper class that allows execution of components from maven plugin class realms. Normally, these
@@ -69,47 +71,50 @@ import org.codehaus.plexus.logging.Logger;
  * </pre>
  * 
  */
-@Component(role = PluginRealmHelper.class)
+@Singleton
+@Named
 public class PluginRealmHelper {
-    public static interface PluginFilter {
-        public boolean accept(PluginDescriptor descriptor);
+    public interface PluginFilter {
+        boolean accept(PluginDescriptor descriptor);
     }
 
-    @Requirement
-    private Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private MavenPluginManager pluginManager;
+    private final BuildPluginManager buildPluginManager;
+    private final LifecyclePluginResolver lifecyclePluginResolver;
+    private final MavenPluginManager mavenPluginManager;
+    private final ProjectHelper projectHelper;
+    private final PlexusContainer plexusContainer; // TODO: get rid of this (or Maven should offer alternative)
 
-    @Requirement
-    private BuildPluginManager buildPluginManager;
-
-    @Requirement
-    private PluginDescriptorCache pluginDescriptorCache;
-
-    @Requirement
-    private LifecyclePluginResolver lifecyclePluginResolver;
-
-    @Requirement
-    protected MavenPluginManager mavenPluginManager;
-
-    @Requirement
-    private PlexusContainer plexus;
-
-    @Requirement
-    private ProjectHelper projectHelper;
+    @Inject
+    public PluginRealmHelper(BuildPluginManager buildPluginManager,
+                             LifecyclePluginResolver lifecyclePluginResolver,
+                             MavenPluginManager mavenPluginManager,
+                             ProjectHelper projectHelper,
+                             PlexusContainer plexusContainer) {
+        this.buildPluginManager = buildPluginManager;
+        this.lifecyclePluginResolver = lifecyclePluginResolver;
+        this.mavenPluginManager = mavenPluginManager;
+        this.projectHelper = projectHelper;
+        this.plexusContainer = plexusContainer;
+    }
 
     public <T> void visitPluginExtensions(MavenProject project, MavenSession mavenSession, Class<T> type,
-            Consumer<? super T> consumer) throws PluginVersionResolutionException, PluginDescriptorParsingException,
+                                          Consumer<? super T> consumer) throws PluginVersionResolutionException, PluginDescriptorParsingException,
             InvalidPluginDescriptorException, PluginResolutionException, PluginManagerException {
-        Set<String> visited = new HashSet<String>();
+        Set<String> visited = new HashSet<>();
+        logger.debug("PRH: Asked visit of {} @ {}", type.getName(), type.getClassLoader());
         execute(project, mavenSession, () -> {
             try {
-                plexus.lookupList(type).stream().filter(x -> visited.add(x.getClass().getName())).forEach(consumer);
+                plexusContainer.lookupList(type).stream().filter(x -> visited.add(x.getClass().getName())).forEach(x -> {
+                    logger.debug("PRH: Visiting {} @ {}", x.getClass().getName(), x.getClass().getClassLoader());
+                    consumer.accept(x);
+                });
             } catch (ComponentLookupException e) {
-                logger.debug("Cannot lookup any item of type: " + type);
+                logger.debug("PRH: Cannot lookup any item of type: " + type);
             }
         }, PluginRealmHelper::isTychoEmbedderPlugin);
+        logger.debug("PRH: Visited {} instance of type {} @ {}", visited.size(), type.getName(), type.getClassLoader());
     }
 
     public void execute(MavenProject project, MavenSession mavenSession, Runnable runnable, PluginFilter filter)

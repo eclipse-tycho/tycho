@@ -19,19 +19,21 @@ import java.util.Collections;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * <p>
@@ -43,6 +45,8 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
  */
 @Mojo(name = "publish-osgi-ee", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public final class PublishOsgiEEMojo extends AbstractPublishMojo {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * <p>
@@ -58,11 +62,8 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
     @Parameter(defaultValue = "false")
     private boolean skip;
 
-    @Component
+    @Inject
     private ToolchainManager toolchainManager;
-
-    @Component
-    private Logger logger;
 
     @Override
     protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)

@@ -39,12 +39,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -89,66 +83,64 @@ import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
-import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
-import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.resolver.P2MetadataProvider;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = DependencyResolver.class, hint = P2DependencyResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
-public class P2DependencyResolver implements DependencyResolver, Initializable {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+
+@Named(P2DependencyResolver.ROLE_HINT)
+public class P2DependencyResolver implements DependencyResolver {
 
     public static final String ROLE_HINT = "p2";
 
-    @Requirement
-    private BundleReader bundleReader;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private RepositorySystem repositorySystem;
+    private final BundleReader bundleReader;
+    private final RepositorySystem repositorySystem;
+    private final Provider<TychoProjectManager> projectManagerProvider;
+    private final PluginRealmHelper pluginRealmHelper;
+    private final LegacySupport context;
+    private final P2ResolverFactory resolverFactory;
+    private final DependencyMetadataGenerator generator;
+    private final BuildPropertiesParser buildPropertiesParser;
+    private final PomUnits pomUnits;
+    private final MavenDependenciesResolver dependenciesResolver;
+    private final Provider<TargetPlatformFactory> tpFactoryProvider;
 
-    @Requirement
-    private TychoProjectManager projectManager;
-
-    @Requirement
-    private PlexusContainer plexus;
-
-    @Requirement
-    private PluginRealmHelper pluginRealmHelper;
-
-    @Requirement
-    private LegacySupport context;
-
-    @Requirement
-    private P2ResolverFactory resolverFactory;
-
-    @Requirement(hint = DependencyMetadataGenerator.DEPENDENCY_ONLY)
-    private DependencyMetadataGenerator generator;
-
-    @Requirement
-    private ReactorRepositoryManager reactorRepositoryManager;
-
-    @Requirement
-    private LocalRepositoryP2Indices p2index;
-
-    @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
-
-    @Requirement
-    private PomUnits pomUnits;
-
-    @Requirement
-    private MavenDependenciesResolver dependenciesResolver;
-
-    @Requirement
-    private TargetPlatformFactory tpFactory;
-
-    @Requirement
-    private Logger logger;
+    @Inject
+    public P2DependencyResolver(BundleReader bundleReader,
+                                RepositorySystem repositorySystem,
+                                Provider<TychoProjectManager> projectManagerProvider,
+                                PluginRealmHelper pluginRealmHelper,
+                                LegacySupport context,
+                                P2ResolverFactory resolverFactory,
+                                @Named(DependencyMetadataGenerator.DEPENDENCY_ONLY) DependencyMetadataGenerator generator,
+                                BuildPropertiesParser buildPropertiesParser,
+                                PomUnits pomUnits,
+                                MavenDependenciesResolver dependenciesResolver,
+                                Provider<TargetPlatformFactory> tpFactoryProvider) {
+        this.bundleReader = bundleReader;
+        this.repositorySystem = repositorySystem;
+        this.projectManagerProvider = projectManagerProvider;
+        this.pluginRealmHelper = pluginRealmHelper;
+        this.context = context;
+        this.resolverFactory = resolverFactory;
+        this.generator = generator;
+        this.buildPropertiesParser = buildPropertiesParser;
+        this.pomUnits = pomUnits;
+        this.dependenciesResolver = dependenciesResolver;
+        this.tpFactoryProvider = tpFactoryProvider;
+    }
 
     @Override
     public void setupProjects(final MavenSession session, final MavenProject project,
@@ -157,7 +149,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
         if (PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION.equals(project.getPackaging())) {
             //Target projects do not have any (initial) dependency metadata
         } else {
-            TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
+            TargetPlatformConfiguration configuration = projectManagerProvider.get().getTargetPlatformConfiguration(project);
             List<TargetEnvironment> environments = configuration.getEnvironments();
             Collection<IDependencyMetadata> metadataMap = getDependencyMetadata(session, project, environments,
                     OptionalResolutionAction.OPTIONAL);
@@ -209,9 +201,9 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
         return reactorProject.computeContextValue(TargetPlatform.PRELIMINARY_TARGET_PLATFORM_KEY, () -> {
             logger.debug("Computing preliminary target platform for " + mavenProject);
             List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(mavenSession);
-            TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(mavenProject);
+            TargetPlatformConfiguration configuration = projectManagerProvider.get().getTargetPlatformConfiguration(mavenProject);
             TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
-            ExecutionEnvironmentConfiguration ee = projectManager.getExecutionEnvironmentConfiguration(mavenProject);
+            ExecutionEnvironmentConfiguration ee = projectManagerProvider.get().getExecutionEnvironmentConfiguration(mavenProject);
             for (ArtifactRepository repository : mavenProject.getRemoteArtifactRepositories()) {
                 addEntireP2RepositoryToTargetPlatform(repository, tpConfiguration);
             }
@@ -239,7 +231,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
                 tpConfiguration.setIgnoreLocalArtifacts(
                         configuration.getIgnoreLocalArtifacts() == LocalArtifactHandling.ignore);
             }
-            return tpFactory.createTargetPlatform(tpConfiguration, ee, reactorProjects, reactorProject);
+            return tpFactoryProvider.get().createTargetPlatform(tpConfiguration, ee, reactorProjects, reactorProject);
         });
     }
 
@@ -291,7 +283,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
     public PomDependencyCollector resolvePomDependencies(MavenSession session, MavenProject project) {
 
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
+        TargetPlatformConfiguration configuration = projectManagerProvider.get().getTargetPlatformConfiguration(project);
         PomDependencies pomDependencies = configuration.getPomDependencies();
         PomDependencyCollector collector = resolverFactory.newPomDependencyCollector(reactorProject);
         if (pomDependencies == PomDependencies.ignore) {
@@ -319,7 +311,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
             TargetPlatform targetPlatform, DependencyResolverConfiguration resolverConfiguration,
             List<TargetEnvironment> environments) {
         Objects.requireNonNull(targetPlatform);
-        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
+        TargetPlatformConfiguration configuration = projectManagerProvider.get().getTargetPlatformConfiguration(project);
 
         P2Resolver osgiResolverImpl = resolverFactory.createResolver(environments);
         List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
@@ -366,7 +358,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
         for (String additionalBundle : additionalBundles) {
             resolver.addAdditionalBundleDependency(additionalBundle);
         }
-        projectManager.getBndTychoProject(project)
+        projectManagerProvider.get().getBndTychoProject(project)
                 .ifPresent(processor -> AdditionalBundleRequirementsInstallableUnitProvider
                         .getBndClasspathRequirements(processor).forEach(resolver::addRequirement));
         // get reactor project with prepared optional dependencies // TODO use original IU and have the resolver create the modified IUs
@@ -418,14 +410,10 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
     }
 
     @Override
-    public void initialize() throws InitializationException {
-    }
-
-    @Override
     public void injectDependenciesIntoMavenModel(MavenProject project, TychoProject projectType,
             DependencyArtifacts dependencyArtifacts, DependencyArtifacts testDependencyArtifacts, Logger logger) {
         Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping;
-        TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
+        TargetPlatformConfiguration configuration = projectManagerProvider.get().getTargetPlatformConfiguration(project);
         if (configuration.getP2MetadataHandling() == InjectP2MavenMetadataHandling.inject) {
             descriptorMapping = resolverFactory::resolveDependencyDescriptor;
         } else if (configuration.getP2MetadataHandling() == InjectP2MavenMetadataHandling.validate) {

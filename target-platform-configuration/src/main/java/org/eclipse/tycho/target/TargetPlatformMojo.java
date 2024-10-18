@@ -16,13 +16,14 @@ package org.eclipse.tycho.target;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+
+import javax.inject.Inject;
 
 @Mojo(name = "target-platform", threadSafe = true)
 public class TargetPlatformMojo extends AbstractMojo {
@@ -33,7 +34,7 @@ public class TargetPlatformMojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    @Component
+    @Inject
     private TargetPlatformService platformService;
 
     @Override

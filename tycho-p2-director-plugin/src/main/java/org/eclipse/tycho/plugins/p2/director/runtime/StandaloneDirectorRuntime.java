@@ -16,13 +16,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxInstallationLaunchConfiguration;
 import org.eclipse.tycho.p2.tools.director.shared.AbstractDirectorApplicationCommand;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+import org.slf4j.Logger;
 
 /**
  * Eclipse installation with the p2 director application. This director runtime is itself a valid p2
@@ -33,7 +33,7 @@ public class StandaloneDirectorRuntime implements DirectorRuntime {
 
     private final File runtimeLocation;
     private final EquinoxLauncher launchHelper;
-    private Logger logger;
+    private final Logger logger;
     private final int forkedProcessTimeoutInSeconds;
 
     StandaloneDirectorRuntime(File runtimeLocation, EquinoxLauncher launchHelper, int forkedProcessTimeoutInSeconds,

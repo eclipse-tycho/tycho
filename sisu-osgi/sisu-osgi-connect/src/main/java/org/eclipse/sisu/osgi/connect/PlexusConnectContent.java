@@ -30,7 +30,7 @@ import org.osgi.framework.connect.ConnectModule;
  */
 class PlexusConnectContent implements ConnectContent, ConnectModule {
 	private final ClassLoader classLoader;
-	private final Optional<Map<String, String>> header;
+	private final Map<String, String> header;
 	private final String location;
 	private JarFile jarFile;
 
@@ -38,7 +38,7 @@ class PlexusConnectContent implements ConnectContent, ConnectModule {
 		this.jarFile = jarFile;
 		this.location = jarFile == null ? null : jarFile.getName();
 		this.classLoader = classLoader;
-		this.header = Optional.of(header);
+		this.header = header;
 	}
 
 	@Override
@@ -68,7 +68,7 @@ class PlexusConnectContent implements ConnectContent, ConnectModule {
 
 	@Override
 	public Optional<Map<String, String>> getHeaders() {
-		return header;
+		return Optional.ofNullable(header);
 	}
 
 	@Override
@@ -91,8 +91,8 @@ class PlexusConnectContent implements ConnectContent, ConnectModule {
 
 	private static final class ZipConnectEntry implements ConnectEntry {
 
-		private ZipEntry entry;
-		private JarFile jarFile;
+		private final ZipEntry entry;
+		private final JarFile jarFile;
 
 		public ZipConnectEntry(JarFile jarFile, ZipEntry entry) {
 			this.jarFile = jarFile;

@@ -57,9 +57,7 @@ public class MirrorStandaloneTest extends TychoPlexusTestCase {
         IProvisioningAgent agent = lookup(IProvisioningAgent.class);
         agent.getService(IArtifactRepositoryManager.class);
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
-        subject = new MirrorApplicationServiceImpl();
-        subject.setAgent(agent);
-        subject.setLogger(logVerifier.getLogger());
+        subject = new MirrorApplicationServiceImpl(logVerifier.getLogger(), agent);
         targetFolder = new BuildOutputDirectory(tempFolder.getRoot());
     }
 

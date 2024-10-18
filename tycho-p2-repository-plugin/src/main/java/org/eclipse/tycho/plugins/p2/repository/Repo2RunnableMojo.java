@@ -5,13 +5,14 @@ import java.net.URISyntaxException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.p2tools.copiedfromp2.Repo2Runnable;
 import org.eclipse.tycho.p2tools.copiedfromp2.RepositoryDescriptor;
+
+import javax.inject.Inject;
 
 /**
  * Mojo that provides the "repo2runnable" functionality described
@@ -20,7 +21,7 @@ import org.eclipse.tycho.p2tools.copiedfromp2.RepositoryDescriptor;
 @Mojo(name = "repo-to-runnable")
 public class Repo2RunnableMojo extends AbstractMojo {
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
     @Parameter
     private boolean createFragments;

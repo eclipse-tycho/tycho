@@ -62,8 +62,8 @@
 		</testResources>
 		<plugins>
 			<plugin>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-component-metadata</artifactId>
+				<groupId>org.eclipse.sisu</groupId>
+				<artifactId>sisu-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -170,13 +170,24 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
 		</dependency>
 		<dependency>
 	      <groupId>org.apache.maven.resolver</groupId>
 	      <artifactId>maven-resolver-util</artifactId>
-	      <version>1.9.20</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -193,7 +204,6 @@
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-interpolation</artifactId>
-			<version>1.27</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
@@ -252,11 +262,6 @@
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.util.promise</artifactId>
 			<version>1.3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>2.0.16</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>

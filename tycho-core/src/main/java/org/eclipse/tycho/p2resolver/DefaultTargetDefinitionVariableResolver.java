@@ -18,40 +18,41 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
-import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = TargetDefinitionVariableResolver.class)
-@SessionScoped
+@Singleton
+@Named
 public class DefaultTargetDefinitionVariableResolver implements TargetDefinitionVariableResolver {
 
     private static final Pattern SYSTEM_PROPERTY_PATTERN = createVariablePatternArgument("system_property");
     private static final Pattern PROJECT_LOC_PATTERN = createVariablePatternArgument("project_loc");
     private static final Pattern ENV_VAR_PATTERN = createVariablePatternArgument("env_var");
 
-    @Requirement
-    private MavenContext mavenContext;
-    @Requirement
-    private Logger logger;
-    private MavenSession mavenSession;
+    private final Logger logger;
+    private final MavenContext mavenContext;
+    private final Provider<MavenSession> mavenSessionProvider;
 
     @Inject
-    public DefaultTargetDefinitionVariableResolver(MavenSession mavenSession) {
-        this.mavenSession = mavenSession;
+    public DefaultTargetDefinitionVariableResolver(MavenContext mavenContext, Provider<MavenSession> mavenSessionProvider) {
+        this(LoggerFactory.getLogger(DefaultTargetDefinitionVariableResolver.class), mavenContext, mavenSessionProvider);
     }
 
-    /** for tests */
-    public DefaultTargetDefinitionVariableResolver(MavenContext mavenContext, Logger logger) {
-        this.mavenContext = mavenContext;
+    public DefaultTargetDefinitionVariableResolver(Logger logger,
+                                                   MavenContext mavenContext,
+                                                   Provider<MavenSession> mavenSessionProvider) {
         this.logger = logger;
+        this.mavenContext = mavenContext;
+        this.mavenSessionProvider = mavenSessionProvider;
     }
 
     @Override
@@ -103,8 +104,14 @@ public class DefaultTargetDefinitionVariableResolver implements TargetDefinition
     }
 
     private Iterable<ReactorProject> projects() {
-        if (mavenSession != null) {
-            List<MavenProject> projects = mavenSession.getAllProjects();
+        MavenSession session;
+        try {
+            session = mavenSessionProvider.get();
+        } catch (Exception e) {
+            session = null;
+        }
+        if (session != null) {
+            List<MavenProject> projects = session.getAllProjects();
             if (projects != null) {
                 return projects.stream().map(DefaultReactorProject::adapt).toList();
             }

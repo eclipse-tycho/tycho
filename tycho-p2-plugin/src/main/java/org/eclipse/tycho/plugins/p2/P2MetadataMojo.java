@@ -24,7 +24,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -41,6 +40,8 @@ import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.metadata.P2Generator.FileInfo;
 
+import javax.inject.Inject;
+
 @Mojo(name = "p2-metadata", threadSafe = true)
 public class P2MetadataMojo extends AbstractMojo {
     private static final Object LOCK = new Object();
@@ -51,11 +52,11 @@ public class P2MetadataMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     protected boolean attachP2Metadata;
 
-    @Component
+    @Inject
     protected MavenProjectHelper projectHelper;
 
-    @Component
-    P2Generator p2generator;
+    @Inject
+    protected P2Generator p2generator;
 
     /**
      * Project types which this plugin supports.
@@ -135,13 +136,13 @@ public class P2MetadataMojo extends AbstractMojo {
     @Parameter(property = "tycho.generateDownloadStatsProperty", defaultValue = "false")
     private boolean generateDownloadStatsProperty;
 
-    @Component
+    @Inject
     private BaselineValidator baselineValidator;
 
     @Parameter(property = "tycho.generateChecksums", defaultValue = "true")
     private boolean generateChecksums;
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
     @Parameter(defaultValue = "false")

@@ -38,14 +38,13 @@ import java.util.function.BiConsumer;
 import java.util.function.UnaryOperator;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -64,6 +63,7 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.packaging.IncludeValidationHelper;
 import org.osgi.framework.Version;
+import org.slf4j.Logger;
 
 /**
  * Goal to create a JAR-package containing all the source files of a osgi project.
@@ -162,16 +162,16 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     @Parameter(defaultValue = ReactorProject.SOURCE_ARTIFACT_CLASSIFIER)
     private String classifier;
 
-    @Component(role = TychoProject.class)
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
-    @Component
+    @Inject
     private IncludeValidationHelper includeValidationHelper;
 
-    @Component
+    @Inject
     private BundleReader bundleReader;
 
-    @Component
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
     public void setBuildPropertiesParser(BuildPropertiesParser buildPropertiesParser) {
@@ -234,7 +234,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             OsgiManifest manifest = bundleReader.loadManifest(project.getBasedir());
             Path basedir = project.getBasedir().toPath();
             String bsn = manifest.getBundleSymbolicName();
-            resources.add(generateL10nFile(project, basedir, manifest::getValue, bsn, getLog()));
+            resources.add(generateL10nFile(project, basedir, manifest::getValue, bsn, logger));
         }
         return resources;
     }
@@ -255,7 +255,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     }
 
     static Resource generateL10nFile(MavenProject project, Path basedir, UnaryOperator<String> manifest, String bsn,
-            Log log) throws MojoExecutionException {
+            Logger log) throws MojoExecutionException {
         Properties l10nProps = readL10nProps(manifest, basedir, log);
         String bundleName = getL10nResolvedValue(manifest, BUNDLE_NAME, l10nProps);
         if (bundleName == null) {
@@ -288,10 +288,10 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     }
 
     protected Properties readL10nProps(OsgiManifest manifest) throws MojoExecutionException {
-        return readL10nProps(manifest::getValue, project.getBasedir().toPath(), getLog());
+        return readL10nProps(manifest::getValue, project.getBasedir().toPath(), logger);
     }
 
-    protected static Properties readL10nProps(UnaryOperator<String> getManifestHeaderValue, Path basedir, Log log)
+    protected static Properties readL10nProps(UnaryOperator<String> getManifestHeaderValue, Path basedir, Logger log)
             throws MojoExecutionException {
         String bundleL10nBase = getManifestHeaderValue.apply(BUNDLE_LOCALIZATION);
         boolean hasL10nProperty = bundleL10nBase != null;

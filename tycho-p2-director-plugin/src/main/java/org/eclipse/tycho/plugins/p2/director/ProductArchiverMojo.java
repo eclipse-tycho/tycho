@@ -24,7 +24,6 @@ import java.util.concurrent.Executors;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -42,6 +41,8 @@ import org.codehaus.plexus.archiver.xz.XZArchiver;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.plugins.tar.TarGzArchiver;
+
+import javax.inject.Inject;
 
 /**
  * Creates archives with the product installations.
@@ -125,7 +126,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
     @Parameter
     private boolean parallel;
 
-    @Component
+    @Inject
     private MavenProjectHelper helper;
 
     @Override
