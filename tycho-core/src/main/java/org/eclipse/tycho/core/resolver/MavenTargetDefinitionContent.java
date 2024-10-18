@@ -43,7 +43,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.repository.RepositorySystem;
+import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.DependencyNode;
