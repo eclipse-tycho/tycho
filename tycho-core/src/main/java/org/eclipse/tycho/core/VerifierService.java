@@ -19,7 +19,7 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 
 public interface VerifierService {
 
-    public abstract boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri, BuildDirectory tempDirectory)
+    boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri, BuildDirectory tempDirectory)
             throws FacadeException;
 
 }

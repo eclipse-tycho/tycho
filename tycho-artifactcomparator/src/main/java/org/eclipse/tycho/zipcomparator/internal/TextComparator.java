@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
@@ -28,10 +27,14 @@ import com.github.difflib.DiffUtils;
 import com.github.difflib.UnifiedDiffUtils;
 import com.github.difflib.patch.Patch;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 /**
  * Compares text-like files by ignoring there line ending styles
  */
-@Component(role = ContentsComparator.class, hint = TextComparator.HINT)
+@Singleton
+@Named(TextComparator.HINT)
 public class TextComparator implements ContentsComparator {
 
     static final String HINT = "txt";

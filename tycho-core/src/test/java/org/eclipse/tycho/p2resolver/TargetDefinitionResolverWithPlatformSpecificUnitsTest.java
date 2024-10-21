@@ -157,7 +157,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest extends Tycho
         MavenContext mavenCtx = new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger());
         return new TargetDefinitionResolver(environments, ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS,
                 IncludeSourceMode.honor, ReferencedRepositoryMode.ignore, mavenCtx, null,
-                new DefaultTargetDefinitionVariableResolver(mavenCtx, logVerifier.getLogger()));
+                new DefaultTargetDefinitionVariableResolver(logVerifier.getLogger(), mavenCtx, null));
     }
 
     private static class FilterRepoLocationStubWithLauncherUnit implements TargetDefinition.InstallableUnitLocation {

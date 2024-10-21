@@ -23,10 +23,11 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
+
+import javax.inject.Inject;
 
 public abstract class AbstractChangeMojo extends AbstractMojo {
 
@@ -48,13 +49,13 @@ public abstract class AbstractChangeMojo extends AbstractMojo {
     @Parameter(property = "modules")
     private String modules;
 
-    @Component
+    @Inject
     private VersionsEngine engine;
 
     @Parameter(property = "session", readonly = true)
     protected MavenSession session;
 
-    @Component
+    @Inject
     private ProjectMetadataReader metadataReader;
 
     @Override

@@ -35,9 +35,6 @@ import java.util.stream.Collectors;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.container.Module;
 import org.eclipse.osgi.container.Module.Settings;
 import org.eclipse.osgi.container.Module.State;
@@ -82,34 +79,44 @@ import org.osgi.framework.namespace.NativeNamespace;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = DependenciesResolver.class, hint = EquinoxResolver.HINT)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(EquinoxResolver.HINT)
 public class EquinoxResolver implements DependenciesResolver {
 
     public static final String HINT = "equinox";
 
     private static final String FORCE_KEEP_USES = "First attempt at resolving bundle failed. Trying harder by keeping `uses` information... This may drastically slow down your build!";
 
-    @Requirement
-    private BundleReader manifestReader;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private Logger logger;
+    private final BundleReader manifestReader;
+    private final ToolchainManager toolchainManager;
+    private final BuildPropertiesParser buildPropertiesParser;
+    private final TychoProjectManager projectManager;
+    private final DependencyComputer dependencyComputer;
 
-    @Requirement
-    private ToolchainManager toolchainManager;
-
-    @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
-
-    @Requirement
-    TychoProjectManager projectManager;
-
-    @Requirement
-    private DependencyComputer dependencyComputer;
+    @Inject
+    public EquinoxResolver(BundleReader manifestReader,
+                           ToolchainManager toolchainManager,
+                           BuildPropertiesParser buildPropertiesParser,
+                           TychoProjectManager projectManager,
+                           DependencyComputer dependencyComputer) {
+        this.manifestReader = manifestReader;
+        this.toolchainManager = toolchainManager;
+        this.buildPropertiesParser = buildPropertiesParser;
+        this.projectManager = projectManager;
+        this.dependencyComputer = dependencyComputer;
+    }
 
     public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
-            DependencyArtifacts artifacts) throws BundleException {
+                                            DependencyArtifacts artifacts) throws BundleException {
         Objects.requireNonNull(artifacts, "DependencyArtifacts can't be null!");
         ScheduledExecutorService executorService = Executors
                 .newScheduledThreadPool(EquinoxResolverConfiguration.THREAD_COUNT);

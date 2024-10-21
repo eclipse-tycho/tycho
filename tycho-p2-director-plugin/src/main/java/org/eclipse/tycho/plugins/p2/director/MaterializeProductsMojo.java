@@ -27,12 +27,10 @@ import java.util.concurrent.Executors;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -51,6 +49,10 @@ import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 import org.eclipse.tycho.p2tools.copiedfromp2.PhaseSetFactory;
 import org.eclipse.tycho.plugins.p2.director.runtime.StandaloneDirectorRuntimeFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * <p>
@@ -69,6 +71,8 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
         internal, standalone
     }
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     /**
      * <p>
      * Comma-separated list of profile names to be published. Examples: JavaSE-11, JavaSE-17,
@@ -80,22 +84,19 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
     @Parameter
     private String EEProfiles;
 
-    @Component
+    @Inject
     private MojoExecution execution;
 
-    @Component
+    @Inject
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Component
+    @Inject
     private StandaloneDirectorRuntimeFactory standaloneDirectorFactory;
 
-    @Component
+    @Inject
     private ToolchainManager toolchainManager;
 
-    @Component
-    private Logger logger;
-
-    @Component
+    @Inject
     DirectorRuntime director;
 
     /**

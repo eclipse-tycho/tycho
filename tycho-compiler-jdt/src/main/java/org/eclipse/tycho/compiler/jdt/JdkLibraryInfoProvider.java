@@ -33,31 +33,33 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.LegacySupport;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.tycho.compiler.jdt.copied.LibraryInfo;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.version.TychoVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Determine and cache system library info (Java version, bootclasspath, extension and endorsed
  * directories) for given javaHome directories.
  */
-@Component(role = JdkLibraryInfoProvider.class)
+@Singleton
+@Named
 public class JdkLibraryInfoProvider {
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
+    @Inject
     private LegacySupport legacySupport;
 
-    @Requirement
+    @Inject
     private MavenDependenciesResolver dependenciesResolver;
 
-    @Requirement
-    private Logger log;
-
-    private Map<String, LibraryInfo> libraryInfoCache = new HashMap<>();
+    private final Map<String, LibraryInfo> libraryInfoCache = new HashMap<>();
     private File libDetectorJar;
     private Boolean isRunningOnJava9orLater;
 
@@ -76,7 +78,7 @@ public class JdkLibraryInfoProvider {
             executable = executable + ".exe";
         }
         if (!new File(executable).isFile()) {
-            getLog().warn(executable + " not found. Fallback to scan " + javaHome + "/lib/*.jar and " + javaHome
+            logger.warn(executable + " not found. Fallback to scan " + javaHome + "/lib/*.jar and " + javaHome
                     + "/lib/ext/*.jar for bootclasspath");
             return new LibraryInfo("unknown", scanLibFolders(javaHome), new String[0], new String[0]);
         }
@@ -185,10 +187,6 @@ public class JdkLibraryInfoProvider {
         } else {
             return path.split(Pattern.quote(File.pathSeparator));
         }
-    }
-
-    protected Logger getLog() {
-        return log;
     }
 
     protected File getLibDetectorJar() throws ArtifactResolutionException {

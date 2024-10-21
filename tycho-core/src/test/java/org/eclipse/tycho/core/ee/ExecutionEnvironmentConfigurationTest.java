@@ -19,13 +19,13 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.List;
 
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.SystemCapability;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExecutionEnvironmentConfigurationTest {
 
@@ -36,7 +36,7 @@ public class ExecutionEnvironmentConfigurationTest {
     private static final String STANDARD_PROFILE = "OSGi/Minimum-1.1";
     private static final String OTHER_STANDARD_PROFILE = "OSGi/Minimum-1.2";
 
-    ConsoleLogger logger = new ConsoleLogger(Logger.LEVEL_DISABLED, "no-op logger");
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     ExecutionEnvironmentConfiguration subject;
 

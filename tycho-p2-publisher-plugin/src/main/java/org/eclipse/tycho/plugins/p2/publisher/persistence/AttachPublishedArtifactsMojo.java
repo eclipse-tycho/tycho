@@ -19,15 +19,17 @@ import java.util.Map.Entry;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.PublishingRepositoryFacade;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * <p>
@@ -40,14 +42,13 @@ import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
     private static final Object LOCK = new Object();
 
-    @Component
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Inject
     private MavenProjectHelper projectHelper;
 
-    @Component()
+    @Inject
     ReactorRepositoryManager reactorRepoManager;
-
-    @Component
-    private Logger logger;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {

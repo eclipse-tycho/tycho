@@ -33,13 +33,8 @@ import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -69,44 +64,47 @@ import org.eclipse.tycho.p2maven.io.MetadataIO;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Component used to generate {@link IInstallableUnit}s from other artifacts
  *
  */
-@Component(role = InstallableUnitGenerator.class)
+@Singleton
+@Named
 public class InstallableUnitGenerator {
 
 	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump")
 			|| Boolean.getBoolean("tycho.p2.dump.units");
 
-	@Requirement
-	private Logger log;
-
 	private static final String KEY_UNITS = "InstallableUnitGenerator.units";
 
 	private static final String KEY_ARTIFACT_FILE = "InstallableUnitGenerator.artifactFile";
 
-	@Requirement
-	private IProvisioningAgent provisioningAgent;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final Map<Artifact, ArtifactUnits> artifactUnitMap = new ConcurrentHashMap<>();
 
-	@Requirement(role = InstallableUnitProvider.class)
-	private Map<String, InstallableUnitProvider> additionalUnitProviders;
+	private final IProvisioningAgent provisioningAgent;
+	private final Map<String, InstallableUnitProvider> additionalUnitProviders;
+	private final PluginRealmHelper pluginRealmHelper;
+	private final InstallableUnitPublisher publisher;
 
-	@Requirement
-	private PluginRealmHelper pluginRealmHelper;
-
-	@Requirement
-	private InstallableUnitPublisher publisher;
-
-	@Requirement
-	private PlexusContainer plexus;
-
-	@Requirement
-	ArtifactHandlerManager artifactHandlerManager;
-
-	private Map<Artifact, ArtifactUnits> artifactUnitMap = new ConcurrentHashMap<>();
+	@Inject
+	public InstallableUnitGenerator(IProvisioningAgent provisioningAgent,
+									Map<String, InstallableUnitProvider> additionalUnitProviders,
+									PluginRealmHelper pluginRealmHelper,
+									InstallableUnitPublisher publisher) {
+		this.provisioningAgent = provisioningAgent;
+		this.additionalUnitProviders = additionalUnitProviders;
+		this.pluginRealmHelper = pluginRealmHelper;
+		this.publisher = publisher;
+	}
 
 	/**
 	 * Computes the {@link IInstallableUnit}s for a collection of projects.
@@ -165,11 +163,11 @@ public class InstallableUnitGenerator {
 			boolean forceUpdate) throws CoreException {
 		init();
 		Objects.requireNonNull(session);
-		log.debug("Computing installable units for " + project + ", force update = " + forceUpdate);
+		logger.debug("Computing installable units for " + project + ", force update = " + forceUpdate);
 		synchronized (project) {
 			File basedir = project.getBasedir();
 			if (basedir == null || !basedir.isDirectory()) {
-				log.warn("No valid basedir for " + project + " found");
+				logger.warn("No valid basedir for " + project + " found");
 				return Collections.emptyList();
 			}
 			File projectArtifact = getProjectArtifact(project);
@@ -181,15 +179,15 @@ public class InstallableUnitGenerator {
 						// now check if we are classlaoder compatible...
 						Collection<IInstallableUnit> collection = (Collection<IInstallableUnit>) contextValue;
 						if (isCompatible(collection)) {
-							log.debug("Using cached value for " + project);
+							logger.debug("Using cached value for " + project);
 							return collection;
 						} else {
-							log.debug("Cannot use cached value for " + project
+							logger.debug("Cannot use cached value for " + project
 									+ " because of incompatible classloaders, update is forced");
 						}
 					}
 				} else {
-					log.info("Cannot use cached value for " + project
+					logger.info("Cannot use cached value for " + project
 							+ " because project artifact has changed, update is forced");
 				}
 			}
@@ -200,9 +198,9 @@ public class InstallableUnitGenerator {
 					artifactId);
 			Collection<IInstallableUnit> publishedUnits = publisher.publishMetadata(actions);
 			for (InstallableUnitProvider unitProvider : getProvider(project, session)) {
-				log.debug("Asking " + unitProvider + " for additional units for " + project);
+				logger.debug("Asking " + unitProvider + " for additional units for " + project);
 				Collection<IInstallableUnit> installableUnits = unitProvider.getInstallableUnits(project, session);
-				log.debug("Provider " + unitProvider + " generated " + installableUnits.size() + " (" + installableUnits
+				logger.debug("Provider " + unitProvider + " generated " + installableUnits.size() + " (" + installableUnits
 						+ ") units for " + project);
 				publishedUnits.addAll(installableUnits);
 			}
@@ -215,7 +213,7 @@ public class InstallableUnitGenerator {
 				}
 			}
 			if (result.isEmpty()) {
-				log.debug("Cannot generate any InstallableUnit for packaging type '" + packaging + "' for " + project);
+				logger.debug("Cannot generate any InstallableUnit for packaging type '" + packaging + "' for " + project);
 			}
 			project.setContextValue(KEY_UNITS, result);
 			project.setContextValue(KEY_ARTIFACT_FILE, projectArtifact);

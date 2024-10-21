@@ -13,16 +13,16 @@
 package org.eclipse.tycho.core.osgitools;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
-import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.osgi.framework.VersionRange;
 
-@Component(role = ClasspathContributor.class, hint = "metatype-annotations")
-@SessionScoped
+@Singleton
+@Named("metatype-annotations")
 public class MetatypeAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor {
 
     private static final String PACKAGE_NAME = "org.osgi.service.metatype.annotations";
@@ -31,8 +31,8 @@ public class MetatypeAnnotationsClasspathContributor extends AbstractSpecificati
     private static final VersionRange VERSION = new VersionRange("[1,2)");
 
     @Inject
-    protected MetatypeAnnotationsClasspathContributor(MavenSession session) {
-        super(session, PACKAGE_NAME, GROUP_ID, ARTIFACT_ID);
+    protected MetatypeAnnotationsClasspathContributor(MavenBundleResolver mavenBundleResolver, Provider<MavenSession> sessionProvider) {
+        super(mavenBundleResolver, sessionProvider, PACKAGE_NAME, GROUP_ID, ARTIFACT_ID);
     }
 
     @Override

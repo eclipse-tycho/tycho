@@ -19,9 +19,6 @@ import org.apache.maven.execution.BuildSummary;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.build.BuildListener;
 import org.eclipse.tycho.core.exceptions.VersionBumpRequiredException;
@@ -31,21 +28,29 @@ import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.osgi.framework.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = BuildListener.class, hint = "version-bump")
+import javax.inject.Inject;
+import javax.inject.Named;
+
+// TODO: this was a singleton component but none of the 3 dependencies are singletons!
+@Named("version-bump")
 public class VersionBumpBuildListener implements BuildListener {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private Logger logger;
+    private final ProjectMetadataReader metadataReader;
+    private final VersionsEngine engine;
+    private final ProjectHelper projectHelper;
 
-    @Requirement
-    private ProjectMetadataReader metadataReader;
-
-    @Requirement
-    private VersionsEngine engine;
-
-    @Requirement
-    private ProjectHelper projectHelper;
+    @Inject
+    public VersionBumpBuildListener(ProjectMetadataReader metadataReader,
+                                    VersionsEngine engine,
+                                    ProjectHelper projectHelper) {
+        this.metadataReader = metadataReader;
+        this.engine = engine;
+        this.projectHelper = projectHelper;
+    }
 
     @Override
     public void buildStarted(MavenSession session) {

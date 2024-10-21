@@ -30,26 +30,27 @@ import java.util.Objects;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = MavenAuthenticator.class)
-public class MavenAuthenticator extends Authenticator implements Initializable {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
+public class MavenAuthenticator extends Authenticator {
 
 	private static final Comparator<URI> LONGEST_PREFIX_MATCH = (loc1, loc2) -> {
 		// we wan't the longest prefix match, so first sort all uris by their length ...
@@ -66,22 +67,23 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 	private static final ThreadLocal<Stack<URI>> locationStack = ThreadLocal.withInitial(Stack::new);
 	private static final Map<URI, List<URI>> repositoryChain = new ConcurrentHashMap<>();
 
-	@Requirement
-	LegacySupport legacySupport;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Requirement
-	ProxyHelper proxyHelper;
+	private final LegacySupport legacySupport;
+	private final ProxyHelper proxyHelper;
+	private final IRepositoryIdManager repositoryIdManager;
+	private final MavenRepositorySettings mavenRepositorySettings;
 
-	@Requirement
-	IRepositoryIdManager repositoryIdManager;
-
-	@Requirement
-	MavenRepositorySettings mavenRepositorySettings;
-
-	@Requirement
-	Logger log;
-
-	private List<MavenRepositoryLocation> repositoryLocations;
+	@Inject
+	public MavenAuthenticator(LegacySupport legacySupport,
+							  ProxyHelper proxyHelper,
+							  IRepositoryIdManager repositoryIdManager,
+							  MavenRepositorySettings mavenRepositorySettings) {
+		this.legacySupport = legacySupport;
+		this.proxyHelper = proxyHelper;
+		this.repositoryIdManager = repositoryIdManager;
+		this.mavenRepositorySettings = mavenRepositorySettings;
+	}
 
 	public Credentials getServerCredentials(URI requestUri) {
 		Stack<URI> stack = locationStack.get();
@@ -96,7 +98,7 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 		List<MavenRepositoryLocation> locations = getMavenLocations();
 		return Stream.concat(Stream.of(requestUri),
 				repoStream.takeWhile(repo -> Objects.equals(repo.getHost(), requestUri.getHost()))).flatMap(uri -> {
-			log.debug("Fetching credentials for " + uri);
+			logger.debug("Fetching credentials for " + uri);
 			return locations.stream().filter(loc -> uriPrefixMatch(uri, loc.getURL()));
 		}).map(mavenRepositorySettings::getCredentials).filter(Objects::nonNull).findFirst().orElse(null);
 	}
@@ -105,10 +107,10 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 		String prefix = prefixUri.normalize().toASCIIString();
 		String match = matchUri.normalize().toASCIIString();
 		if (match.startsWith(prefix)) {
-			log.debug("Found matching " + prefixUri + " for " + matchUri);
+			logger.debug("Found matching " + prefixUri + " for " + matchUri);
 			return true;
 		}
-		log.debug(prefixUri + " does not match (prefix = " + prefix + ", to match = " + match + ")");
+		logger.debug(prefixUri + " does not match (prefix = " + prefix + ", to match = " + match + ")");
 		return false;
 	}
 
@@ -122,11 +124,10 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 	}
 
 	private List<MavenRepositoryLocation> getMavenLocations() {
-		Stream<MavenRepositoryLocation> locations = repositoryLocations.stream();
+		Stream<MavenRepositoryLocation> locations = getRepositoryLocations().stream();
 		locations = Stream.concat(locations, repositoryIdManager.getKnownMavenRepositoryLocations());
-		List<MavenRepositoryLocation> sorted = locations
-				.sorted(Comparator.comparing(MavenRepositoryLocation::getURL, LONGEST_PREFIX_MATCH)).toList();
-		return sorted;
+        return locations
+                .sorted(Comparator.comparing(MavenRepositoryLocation::getURL, LONGEST_PREFIX_MATCH)).toList();
 	}
 
 	public Authenticator preemtiveAuth(BiConsumer<String, String> headerConsumer, URI uri) {
@@ -187,14 +188,11 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 		headerConsumer.accept(header, "Basic " + encoding);
 	}
 
-	@Override
-	public void initialize() throws InitializationException {
+	private List<MavenRepositoryLocation> getRepositoryLocations() {
 		MavenSession session = legacySupport.getSession();
-		if (session == null) {
-			repositoryLocations = List.of();
-		} else {
+		if (session != null) {
 			List<MavenProject> projects = Objects.requireNonNullElse(session.getProjects(), Collections.emptyList());
-			repositoryLocations = projects.stream().map(MavenProject::getRemoteArtifactRepositories)
+			return projects.stream().map(MavenProject::getRemoteArtifactRepositories)
 					.flatMap(Collection::stream).filter(r -> r.getLayout() instanceof P2ArtifactRepositoryLayout)
 					.map(r -> {
 						try {
@@ -202,13 +200,13 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 						} catch (MalformedURLException | URISyntaxException e) {
 							return null;
 						}
-					}).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
+					}).filter(Objects::nonNull).toList();
 		}
-
+		return List.of();
 	}
 
 	public void enterLoad(URI location) {
-		log.debug("Enter loading repository " + location);
+		logger.debug("Enter loading repository " + location);
 		Stack<URI> stack = locationStack.get();
 		if (!stack.isEmpty()) {
 			List<URI> list = new ArrayList<>(locationStack.get());
@@ -220,7 +218,6 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 
 	public void exitLoad() {
 		URI pop = locationStack.get().pop();
-		log.debug("Exit loading repository " + pop);
+		logger.debug("Exit loading repository " + pop);
 	}
-
 }

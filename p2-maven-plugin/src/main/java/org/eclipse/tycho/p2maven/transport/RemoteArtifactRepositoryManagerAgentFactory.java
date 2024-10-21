@@ -12,9 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryComponent;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
@@ -22,21 +19,30 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.helper.MavenPropertyHelper;
 import org.eclipse.tycho.version.TychoVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = IAgentServiceFactory.class, hint = "org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager")
 public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServiceFactory {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Requirement
-	Logger logger;
+	private final IRepositoryIdManager repositoryIdManager;
+	private final MavenAuthenticator authenticator;
+	private final MavenPropertyHelper propertyHelper;
 
-	@Requirement
-	IRepositoryIdManager repositoryIdManager;
-
-	@Requirement
-	MavenAuthenticator authenticator;
-
-	@Requirement
-	MavenPropertyHelper propertyHelper;
+	@Inject
+	public RemoteArtifactRepositoryManagerAgentFactory(IRepositoryIdManager repositoryIdManager,
+													   MavenAuthenticator authenticator,
+													   MavenPropertyHelper propertyHelper) {
+		this.repositoryIdManager = repositoryIdManager;
+		this.authenticator = authenticator;
+		this.propertyHelper = propertyHelper;
+	}
 
 	@Override
 	public Object createService(IProvisioningAgent agent) {

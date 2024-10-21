@@ -15,31 +15,32 @@ package org.eclipse.tycho.apitools;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
-import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
-import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.AbstractSpecificationClasspathContributor;
+import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.osgi.framework.VersionRange;
 
-@Component(role = ClasspathContributor.class, hint = "apitools-annotations")
-@SessionScoped
+@Singleton
+@Named("apitools-annotations")
 public class ApiAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor {
 
 	private static final String PACKAGE_NAME = "org.eclipse.pde.api.tools.annotations";
 	private static final String GROUP_ID = "org.eclipse.pde";
 	private static final String ARTIFACT_ID = "org.eclipse.pde.api.tools.annotations";
 	private static final VersionRange VERSION = new VersionRange("[1,2)");
-	private TychoProjectManager projectManager;
+	private final TychoProjectManager projectManager;
 
 	@Inject
-	public ApiAnnotationsClasspathContributor(MavenSession session, TychoProjectManager projectManager) {
-		super(session, PACKAGE_NAME, GROUP_ID, ARTIFACT_ID);
+	public ApiAnnotationsClasspathContributor(MavenBundleResolver mavenBundleResolver, Provider<MavenSession> sessionProvider, TychoProjectManager projectManager) {
+		super(mavenBundleResolver, sessionProvider, PACKAGE_NAME, GROUP_ID, ARTIFACT_ID);
 		this.projectManager = projectManager;
 	}
 

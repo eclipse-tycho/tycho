@@ -36,8 +36,6 @@ import org.apache.maven.model.io.ModelReader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -52,6 +50,8 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.packaging.osgiresolve.OSGiResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
+
+import javax.inject.Inject;
 
 /**
  * This mojo verifies the pom of the project that is can be resolved against
@@ -74,10 +74,10 @@ public class VerifyPomMojo extends AbstractMojo {
 	@Parameter(property = "tycho.verify.failOnError")
 	private boolean failOnError;
 
-	@Component
+	@Inject
 	private RepositorySystem repositorySystem;
 
-	@Component
+	@Inject
 	private ModelReader modelReader;
 
 	@Override
@@ -87,13 +87,12 @@ public class VerifyPomMojo extends AbstractMojo {
 			return;
 		}
 		File pom;
-		Log log = getLog();
 		boolean isPlugin = PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging());
 		boolean isFeature = PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging());
 		if (isPlugin || isFeature) {
 			pom = project.getFile();
 		} else {
-			log.info("Skipped project because of incompatible packaging type");
+			getLog().info("Skipped project because of incompatible packaging type");
 			return;
 		}
 		try {
@@ -144,16 +143,16 @@ public class VerifyPomMojo extends AbstractMojo {
 			OSGiResolver resolver = new OSGiResolver(
 					new File(project.getBuild().getDirectory(), UUID.randomUUID().toString()));
 			Map<Bundle, TrackedDependency> bundleMap = new HashMap<>();
-			log.info("Using " + filesToResolve.size() + " artifacts to check OSGi consistency");
+			getLog().info("Using " + filesToResolve.size() + " artifacts to check OSGi consistency");
 			for (TrackedDependency tracked : filesToResolve) {
 				try {
 					Bundle install = resolver.install(tracked.file);
 					if (install != null) {
-						log.debug("Installed " + tracked.id + " as " + install.getSymbolicName());
+						getLog().debug("Installed " + tracked.id + " as " + install.getSymbolicName());
 						bundleMap.put(install, tracked);
 					} else {
 						// might not be an OSGi bundle... but maybe not an issue...
-						log.debug("Cannot install resolved dependency " + tracked.id + " ("
+						getLog().debug("Cannot install resolved dependency " + tracked.id + " ("
 								+ tracked.file.getAbsolutePath()
 								+ ") for verification inside OSGi, maven compilation might still work");
 					}
@@ -163,7 +162,7 @@ public class VerifyPomMojo extends AbstractMojo {
 			}
 			Map<Bundle, String> resolveErrors = resolver.resolve();
 			if (resolveErrors.isEmpty()) {
-				log.info("No consistency errors found");
+				getLog().info("No consistency errors found");
 			} else {
 				Iterator<Entry<Bundle, String>> iterator = resolveErrors.entrySet().stream()
 						.sorted(Comparator.comparing(Entry::getKey,

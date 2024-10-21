@@ -13,17 +13,24 @@
 
 package org.eclipse.tycho.osgi.configuration;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.BuildPropertiesParser;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "BuildPropertiesReaderConfigurator")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("BuildPropertiesReaderConfigurator")
 public class BuildPropertiesParserConfigurator implements EquinoxLifecycleListener {
 
-    @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
+    private final BuildPropertiesParser buildPropertiesParser;
+
+    @Inject
+    public BuildPropertiesParserConfigurator(BuildPropertiesParser buildPropertiesParser) {
+        this.buildPropertiesParser = buildPropertiesParser;
+    }
 
     /**
      * Registers the {@link BuildPropertiesParser} plexus component as an OSGi service so it can be

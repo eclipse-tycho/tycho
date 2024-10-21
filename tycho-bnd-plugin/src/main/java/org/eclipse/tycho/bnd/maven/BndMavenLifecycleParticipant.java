@@ -30,14 +30,17 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.bnd.BndPluginManager;
 
 import aQute.bnd.build.Project;
 import aQute.bnd.build.Workspace;
 import aQute.bnd.osgi.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * This component injects information from the BND model into the maven model,
@@ -51,7 +54,8 @@ import aQute.bnd.osgi.Constants;
  * <code>test<code> maven dependency</li>
  * </ul>
  */
-@Component(role = AbstractMavenLifecycleParticipant.class)
+@Singleton
+@Named
 public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
 	private static final Set<Entry<String, String>> BND_TO_MAVEN_MAPPING = Map.of(//
@@ -60,11 +64,14 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 			Constants.TESTPATH, Artifact.SCOPE_TEST //
 	).entrySet();
 
-	@Requirement
-	private Logger logger;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Requirement
-	private BndPluginManager bndPluginManager;
+	private final BndPluginManager bndPluginManager;
+
+	@Inject
+	public BndMavenLifecycleParticipant(BndPluginManager bndPluginManager) {
+		this.bndPluginManager = bndPluginManager;
+	}
 
 	@Override
 	public void afterProjectsRead(MavenSession session) throws MavenExecutionException {

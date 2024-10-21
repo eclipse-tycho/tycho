@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.helpers.NOPLogger;
 
 public class StandardExecutionEnvironmentTest {
 
@@ -51,33 +52,33 @@ public class StandardExecutionEnvironmentTest {
     @Before
     public void setUp() throws Exception {
         javaSECompact1Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact1-1.8", null, null,
-                new SilentLog());
+                NOPLogger.NOP_LOGGER);
         javaSECompact2Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact2-1.8", null, null,
-                new SilentLog());
+                NOPLogger.NOP_LOGGER);
         javaSECompact3Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact3-1.8", null, null,
-                new SilentLog());
-        javaSE9Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-9", null, null, new SilentLog());
+                NOPLogger.NOP_LOGGER);
+        javaSE9Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-9", null, null, NOPLogger.NOP_LOGGER);
         javaSE8Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.8", null, null,
-                new SilentLog());
+                NOPLogger.NOP_LOGGER);
         javaSE7Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.7", null, null,
-                new SilentLog());
+                NOPLogger.NOP_LOGGER);
         javaSE6Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.6", null, null,
-                new SilentLog());
-        j2SE5Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5", null, null, new SilentLog());
-        j2SE14Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4", null, null, new SilentLog());
-        j2SE13Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.3", null, null, new SilentLog());
-        j2SE12Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.2", null, null, new SilentLog());
-        jre11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JRE-1.1", null, null, new SilentLog());
+                NOPLogger.NOP_LOGGER);
+        j2SE5Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5", null, null, NOPLogger.NOP_LOGGER);
+        j2SE14Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4", null, null, NOPLogger.NOP_LOGGER);
+        j2SE13Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.3", null, null, NOPLogger.NOP_LOGGER);
+        j2SE12Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.2", null, null, NOPLogger.NOP_LOGGER);
+        jre11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JRE-1.1", null, null, NOPLogger.NOP_LOGGER);
         cdc11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("CDC-1.1/Foundation-1.1", null, null,
-                new SilentLog());
+                NOPLogger.NOP_LOGGER);
         cdc10Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("CDC-1.0/Foundation-1.0", null, null,
-                new SilentLog());
+                NOPLogger.NOP_LOGGER);
         osgiMin10Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("OSGi/Minimum-1.0", null, null,
-                new SilentLog());
+                NOPLogger.NOP_LOGGER);
         osgiMin11Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("OSGi/Minimum-1.1", null, null,
-                new SilentLog());
+                NOPLogger.NOP_LOGGER);
         osgiMin12Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("OSGi/Minimum-1.2", null, null,
-                new SilentLog());
+                NOPLogger.NOP_LOGGER);
     }
 
     @Test
@@ -199,7 +200,7 @@ public class StandardExecutionEnvironmentTest {
     @Test
     public void testUnknownEnv() throws Throwable {
         assertThrows(UnknownEnvironmentException.class,
-                () -> ExecutionEnvironmentUtils.getExecutionEnvironment("foo", null, null, new SilentLog()));
+                () -> ExecutionEnvironmentUtils.getExecutionEnvironment("foo", null, null, NOPLogger.NOP_LOGGER));
     }
 
     @Test
@@ -221,6 +222,6 @@ public class StandardExecutionEnvironmentTest {
     }
 
     private StandardExecutionEnvironment getStandardExecutionEnvironment(int version) {
-        return ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-" + version, null, null, new SilentLog());
+        return ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-" + version, null, null, NOPLogger.NOP_LOGGER);
     }
 }

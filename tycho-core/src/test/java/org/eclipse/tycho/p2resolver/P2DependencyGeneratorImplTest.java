@@ -51,9 +51,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Before
     public void resetTestSubjectAndResultFields() {
-        subject = new P2GeneratorImpl(true);
-        subject.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
-        subject.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
+        subject = new P2GeneratorImpl(true, new MockMavenContext(null, logVerifier.getLogger()), new BuildPropertiesParserForTesting(), null);
     }
 
     private void generateDependencies(String testProjectId, String packagingType) throws IOException {

@@ -37,19 +37,21 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 import org.eclipse.tycho.p2maven.transport.Response.ResponseConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * A transport using Java11 HttpClient
  */
-@Component(role = HttpTransportFactory.class, hint = Java11HttpTransportFactory.HINT)
-public class Java11HttpTransportFactory implements HttpTransportFactory, Initializable {
+@Singleton
+@Named(Java11HttpTransportFactory.HINT)
+public class Java11HttpTransportFactory implements HttpTransportFactory {
 	private static final int MAX_DISCARD = 1024 * 10;
 	private static final byte[] DUMMY_BUFFER = new byte[MAX_DISCARD];
 
@@ -64,31 +66,57 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE MMMd HH:mm:ss yyyy", Locale.ENGLISH)));
 
 	static final String HINT = "Java11Client";
-	@Requirement
-	ProxyHelper proxyHelper;
-	@Requirement
-	MavenAuthenticator authenticator;
-	@Requirement
-	Logger logger;
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	private final ProxyHelper proxyHelper;
+	private final MavenAuthenticator authenticator;
 
 	private HttpClient client;
 	private HttpClient clientHttp1;
+
+	@Inject
+	public Java11HttpTransportFactory(ProxyHelper proxyHelper, MavenAuthenticator authenticator) {
+		this.proxyHelper = proxyHelper;
+		this.authenticator = authenticator;
+
+		ProxySelector proxySelector = new ProxySelector() {
+
+			@Override
+			public List<Proxy> select(URI uri) {
+				Proxy proxy = proxyHelper.getProxy(uri);
+				return List.of(proxy);
+			}
+
+			@Override
+			public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+				// anything useful we can do here?
+
+			}
+		};
+		client = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(TIMEOUT_SECONDS))
+				.followRedirects(Redirect.NEVER)
+				.proxy(proxySelector).build();
+		clientHttp1 = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(TIMEOUT_SECONDS))
+				.version(Version.HTTP_1_1).followRedirects(Redirect.NEVER)
+				.proxy(proxySelector).build();
+	}
 
 	@Override
 	public HttpTransport createTransport(URI uri) {
 		Java11HttpTransport transport = new Java11HttpTransport(client, clientHttp1, HttpRequest.newBuilder().uri(uri),
 				uri, logger);
-		authenticator.preemtiveAuth((k, v) -> transport.setHeader(k, v), uri);
+		authenticator.preemtiveAuth(transport::setHeader, uri);
 		return transport;
 	}
 
 	private static final class Java11HttpTransport implements HttpTransport {
 
-		private Builder builder;
-		private HttpClient client;
-		private Logger logger;
-		private HttpClient clientHttp1;
-		private URI uri;
+		private final Builder builder;
+		private final HttpClient client;
+		private final Logger logger;
+		private final HttpClient clientHttp1;
+		private final URI uri;
 
 		public Java11HttpTransport(HttpClient client, HttpClient clientHttp1, Builder builder, URI uri, Logger logger) {
 			this.client = client;
@@ -251,31 +279,6 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 			}
 			return 0L;
 		}
-	}
-
-	@Override
-	public void initialize() throws InitializationException {
-		ProxySelector proxySelector = new ProxySelector() {
-
-			@Override
-			public List<Proxy> select(URI uri) {
-				Proxy proxy = proxyHelper.getProxy(uri);
-				return List.of(proxy);
-			}
-
-			@Override
-			public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
-				// anything useful we can do here?
-
-			}
-		};
-		client = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(TIMEOUT_SECONDS))
-				.followRedirects(Redirect.NEVER)
-				.proxy(proxySelector).build();
-		clientHttp1 = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(TIMEOUT_SECONDS))
-				.version(Version.HTTP_1_1).followRedirects(Redirect.NEVER)
-				.proxy(proxySelector).build();
-
 	}
 
 	private static boolean isGoaway(Throwable e) {

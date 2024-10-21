@@ -16,13 +16,19 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.codehaus.plexus.PlexusTestCase;
+import org.eclipse.sisu.launch.InjectedTest;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 import org.eclipse.tycho.zipcomparator.internal.ClassfileComparator;
 import org.eclipse.tycho.zipcomparator.internal.ContentsComparator;
 import org.eclipse.tycho.zipcomparator.internal.ManifestComparator;
 import org.eclipse.tycho.zipcomparator.internal.PropertiesComparator;
+import org.junit.Test;
 
-public class ContentsComparatorTest extends PlexusTestCase {
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class ContentsComparatorTest extends InjectedTest {
+    @Test
     public void testManifest() throws Exception {
         assertTrue(isContentEqual(ManifestComparator.TYPE, "src/test/resources/manifest/MANIFEST.MF",
                 "src/test/resources/manifest/MANIFEST.MF"));
@@ -32,6 +38,7 @@ public class ContentsComparatorTest extends PlexusTestCase {
                 "src/test/resources/manifest/MANIFEST3.MF"));
     }
 
+    @Test
     public void testClassfile() throws Exception {
         assertTrue(isContentEqual(ClassfileComparator.TYPE,
                 "target/test-classes/org/eclipse/tycho/jarcomparator/testdata/JavaClass.class",
@@ -41,6 +48,7 @@ public class ContentsComparatorTest extends PlexusTestCase {
                 "target/test-classes/org/eclipse/tycho/jarcomparator/testdata/JavaClass$1.class"));
     }
 
+    @Test
     public void testProperties() throws Exception {
         assertTrue(isContentEqual(PropertiesComparator.TYPE, "src/test/resources/properties/props.properties",
                 "src/test/resources/properties/props.properties"));
@@ -50,6 +58,7 @@ public class ContentsComparatorTest extends PlexusTestCase {
                 "src/test/resources/properties/props3.properties"));
     }
 
+    @Test
     public void testWithMalformedClasses() throws Exception {
         assertTrue(isContentEqual(ClassfileComparator.TYPE, "src/test/resources/classfiles/MalformedClass1.clazz",
                 "src/test/resources/classfiles/MalformedClass1.clazz"));

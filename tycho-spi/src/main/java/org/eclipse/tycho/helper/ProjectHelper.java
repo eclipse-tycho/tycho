@@ -27,22 +27,28 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
-@Component(role = ProjectHelper.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class ProjectHelper {
 
-    @Requirement
-    private MojoDescriptorCreator mojoDescriptorCreator;
+    private final MojoDescriptorCreator mojoDescriptorCreator;
+    private final LegacySupport legacySupport;
 
-    @Requirement
-    private LegacySupport legacySupport;
+    private final Map<String, Plugin> cliPlugins = new ConcurrentHashMap<String, Plugin>();
 
-    private Map<String, Plugin> cliPlugins = new ConcurrentHashMap<String, Plugin>();
+    @Inject
+    public ProjectHelper(MojoDescriptorCreator mojoDescriptorCreator, LegacySupport legacySupport) {
+        this.mojoDescriptorCreator = mojoDescriptorCreator;
+        this.legacySupport = legacySupport;
+    }
 
     /**
      * Get all plugins for a project, either configured directly or specified on the commandline

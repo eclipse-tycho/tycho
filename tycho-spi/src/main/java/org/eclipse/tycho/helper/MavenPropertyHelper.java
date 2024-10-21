@@ -19,14 +19,21 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.settings.Profile;
 import org.apache.maven.settings.Settings;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 
-@Component(role = MavenPropertyHelper.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class MavenPropertyHelper {
 
-    @Requirement
-    LegacySupport legacySupport;
+    private final LegacySupport legacySupport;
+
+    @Inject
+    public MavenPropertyHelper(LegacySupport legacySupport) {
+        this.legacySupport = legacySupport;
+    }
 
     /**
      * Returns a global (user) property of the given key, the search order is

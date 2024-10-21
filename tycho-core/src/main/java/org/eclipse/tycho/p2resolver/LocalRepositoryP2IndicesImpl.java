@@ -16,8 +16,6 @@ package org.eclipse.tycho.p2resolver;
 import java.io.File;
 import java.io.IOException;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
@@ -25,14 +23,18 @@ import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
-@Component(role = LocalRepositoryP2Indices.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
 
     // injected members
-    @Requirement
-    private FileLockService fileLockService;
-    @Requirement
-    private MavenContext mavenContext;
+    private final FileLockService fileLockService;
+    private final MavenContext mavenContext;
+
     private File localRepositoryRoot;
 
     // derived members
@@ -40,8 +42,10 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
     private TychoRepositoryIndex artifactsIndex;
     private TychoRepositoryIndex metadataIndex;
 
-    public void setFileLockService(FileLockService fileLockService) {
+    @Inject
+    public LocalRepositoryP2IndicesImpl(FileLockService fileLockService, MavenContext mavenContext) {
         this.fileLockService = fileLockService;
+        this.mavenContext = mavenContext;
     }
 
     private void checkInitialized() {
@@ -96,13 +100,4 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
         }
         return localRepositoryRoot;
     }
-
-    public void setLocalRepositoryRoot(File localRepositoryRoot) {
-        this.localRepositoryRoot = localRepositoryRoot;
-    }
-
-    public void setMavenContext(MavenContext context) {
-        mavenContext = context;
-    }
-
 }

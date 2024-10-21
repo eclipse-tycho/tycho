@@ -17,18 +17,27 @@ import java.util.List;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 
-@Component(role = DependencyMetadataGenerator.class, hint = DependencyMetadataGenerator.DEPENDENCY_ONLY)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(DependencyMetadataGenerator.DEPENDENCY_ONLY)
 public class DefaultDependencyMetadataGenerator extends P2GeneratorImpl implements DependencyMetadataGenerator {
 
-    public DefaultDependencyMetadataGenerator() {
-        super(true);
+    @Inject
+    public DefaultDependencyMetadataGenerator(MavenContext mavenContext, BuildPropertiesParser buildPropertiesParser, BundleReader bundleReader) {
+        super(true, mavenContext, buildPropertiesParser, bundleReader);
     }
 
     @Override

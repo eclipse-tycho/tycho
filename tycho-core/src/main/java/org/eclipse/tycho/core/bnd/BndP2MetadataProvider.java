@@ -19,8 +19,6 @@ import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.IDependencyMetadata;
@@ -32,11 +30,19 @@ import org.eclipse.tycho.UnmodifiableDependencyMetadata;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 import org.eclipse.tycho.resolver.P2MetadataProvider;
 
-@Component(role = P2MetadataProvider.class, hint = TychoConstants.PDE_BND)
-public class BndP2MetadataProvider implements P2MetadataProvider {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-    @Requirement(hint = TychoConstants.PDE_BND)
-    InstallableUnitProvider installableUnitProvider;
+@Singleton
+@Named(TychoConstants.PDE_BND)
+public class BndP2MetadataProvider implements P2MetadataProvider {
+    private final InstallableUnitProvider installableUnitProvider;
+
+    @Inject
+    public BndP2MetadataProvider(@Named(TychoConstants.PDE_BND) InstallableUnitProvider installableUnitProvider) {
+        this.installableUnitProvider = installableUnitProvider;
+    }
 
     @Override
     public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,

@@ -18,10 +18,6 @@ import java.util.Map;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata;
@@ -32,14 +28,23 @@ import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2resolver.AttachedArtifact;
 import org.eclipse.tycho.resolver.P2MetadataProvider;
 
-@Component(role = P2MetadataProvider.class, hint = "SourcesP2MetadataProvider")
-public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializable {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-    @Requirement(hint = DependencyMetadataGenerator.SOURCE_BUNDLE)
-    private DependencyMetadataGenerator sourcesGenerator;
+@Singleton
+@Named("SourcesP2MetadataProvider")
+public class SourcesP2MetadataProvider implements P2MetadataProvider {
 
-    @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
+    private final DependencyMetadataGenerator sourcesGenerator;
+    private final BuildPropertiesParser buildPropertiesParser;
+
+    @Inject
+    public SourcesP2MetadataProvider(@Named(DependencyMetadataGenerator.SOURCE_BUNDLE) DependencyMetadataGenerator sourcesGenerator,
+                                     BuildPropertiesParser buildPropertiesParser) {
+        this.sourcesGenerator = sourcesGenerator;
+        this.buildPropertiesParser = buildPropertiesParser;
+    }
 
     @Override
     public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
@@ -50,9 +55,5 @@ public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializa
                     .generateMetadata(sourcesArtifact, null, OptionalResolutionAction.REQUIRE, new PublisherOptions()));
         }
         return null;
-    }
-
-    @Override
-    public void initialize() throws InitializationException {
     }
 }

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -27,7 +28,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.maven.model.Model;
+import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelParseException;
+import org.apache.maven.model.io.ModelWriter;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,6 +45,10 @@ import org.xml.sax.SAXParseException;
 public abstract class AbstractXMLTychoMapping extends AbstractTychoMapping {
 
     private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
+
+    public AbstractXMLTychoMapping(Map<String, ModelWriter> modelWriters, Map<String, ModelProcessor> modelProcessors) {
+        super(modelWriters, modelProcessors);
+    }
 
     @Override
     protected void initModel(Model model, Reader artifactReader, Path artifactFile) throws IOException {

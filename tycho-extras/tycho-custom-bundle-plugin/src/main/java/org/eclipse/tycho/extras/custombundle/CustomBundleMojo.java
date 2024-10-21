@@ -29,17 +29,18 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * Builds OSGi bundle
@@ -86,10 +87,10 @@ public class CustomBundleMojo extends AbstractMojo {
 	@Parameter
 	private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
-	@Component(role = Archiver.class, hint = "jar")
-	private JarArchiver jarArchiver;
+	@Inject
+	private Provider<JarArchiver> jarArchiverProvider;
 
-	@Component
+	@Inject
 	private MavenProjectHelper projectHelper;
 
 	@Override
@@ -97,7 +98,7 @@ public class CustomBundleMojo extends AbstractMojo {
 		File outputJarFile = getOutputJarFile();
 
 		MavenArchiver archiver = new MavenArchiver();
-		archiver.setArchiver(jarArchiver);
+		archiver.setArchiver(jarArchiverProvider.get());
 		archiver.setOutputFile(outputJarFile);
 
 		try {

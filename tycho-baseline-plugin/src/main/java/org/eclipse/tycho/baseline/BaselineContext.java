@@ -15,12 +15,12 @@ package org.eclipse.tycho.baseline;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoFailureException;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.ArtifactKey;
 import org.osgi.framework.Version;
+import org.slf4j.Logger;
 
 public interface BaselineContext {
 

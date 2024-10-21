@@ -44,7 +44,6 @@ import org.codehaus.plexus.compiler.CompilerOutputStyle;
 import org.codehaus.plexus.compiler.CompilerResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
@@ -58,12 +57,19 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.tycho.compiler.jdt.copied.LibraryInfo;
 import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * See https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.isv/guide/jdt_api_options.htm
  */
 
-@Component(role = org.codehaus.plexus.compiler.Compiler.class, hint = "jdt")
+@Singleton
+@Named("jdt")
 public class JDTCompiler extends AbstractCompiler {
 
     private static final String SEPARATOR = "----------";
@@ -81,14 +87,14 @@ public class JDTCompiler extends AbstractCompiler {
 
     static final String COMPILER_NAME = getCompilerName();
 
-    @Requirement
-    private JdkLibraryInfoProvider jdkLibInfoProvider;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private Logger logger;
+    private final JdkLibraryInfoProvider jdkLibInfoProvider;
 
-    public JDTCompiler() {
+    @Inject
+    public JDTCompiler(JdkLibraryInfoProvider jdkLibInfoProvider) {
         super(CompilerOutputStyle.ONE_OUTPUT_FILE_PER_INPUT_FILE, ".java", ".class", null);
+        this.jdkLibInfoProvider = jdkLibInfoProvider;
     }
 
     // ----------------------------------------------------------------------

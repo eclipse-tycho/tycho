@@ -20,7 +20,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 
-import org.apache.maven.plugin.testing.SilentLog;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.TargetPlatform;
@@ -34,6 +33,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.helpers.NOPLogger;
 
 public class FeatureXmlTransformerTest {
     private static ArtifactKey rcpFeatureInTP;
@@ -51,7 +51,7 @@ public class FeatureXmlTransformerTest {
 
     @Test
     public void testExpandReferences() throws Exception {
-        subject = new FeatureXmlTransformer(new SilentLog(), new NoopFileLockService());
+        subject = new FeatureXmlTransformer(NOPLogger.NOP_LOGGER, new NoopFileLockService());
         Feature feature = Feature
                 .read(new File(TestUtil.getBasedir("projects/featureXmlVersionExpansion/"), "feature.xml"));
 

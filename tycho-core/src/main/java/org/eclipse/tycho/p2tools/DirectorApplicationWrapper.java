@@ -14,9 +14,6 @@ package org.eclipse.tycho.p2tools;
 
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -27,22 +24,31 @@ import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 import org.eclipse.tycho.p2tools.copiedfromp2.DirectorApplication;
 import org.eclipse.tycho.p2tools.copiedfromp2.ILog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = DirectorRuntime.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public final class DirectorApplicationWrapper implements DirectorRuntime {
     /**
      * @see org.eclipse.equinox.app.IApplication#EXIT_OK
      */
-    static final Integer EXIT_OK = Integer.valueOf(0);
+    static final Integer EXIT_OK = 0;
 
-    @Requirement
-    Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    IProvisioningAgentProvider agentProvider;
+    private final IProvisioningAgentProvider agentProvider;
+    private final IProvisioningAgent agent;
 
-    @Requirement
-    IProvisioningAgent agent;
+    @Inject
+    public DirectorApplicationWrapper(IProvisioningAgentProvider agentProvider, IProvisioningAgent agent) {
+        this.agentProvider = agentProvider;
+        this.agent = agent;
+    }
 
     @Override
     public Command newInstallCommand(String name) {
@@ -51,10 +57,10 @@ public final class DirectorApplicationWrapper implements DirectorRuntime {
 
     private static class DirectorApplicationWrapperCommand extends AbstractDirectorApplicationCommand implements ILog {
 
-        private Logger logger;
-        private String name;
-        private IProvisioningAgentProvider agentProvider;
-        private IProvisioningAgent agent;
+        private final Logger logger;
+        private final String name;
+        private final IProvisioningAgentProvider agentProvider;
+        private final IProvisioningAgent agent;
 
         public DirectorApplicationWrapperCommand(String name, IProvisioningAgentProvider agentProvider,
                 IProvisioningAgent agent, Logger logger) {

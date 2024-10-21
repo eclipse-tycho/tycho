@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
@@ -61,6 +60,7 @@ import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
 import org.eclipse.tycho.p2tools.copiedfromp2.PermissiveSlicer;
 import org.eclipse.tycho.p2tools.copiedfromp2.RepositoryDescriptor;
 import org.eclipse.tycho.p2tools.copiedfromp2.Slicer;
+import org.slf4j.Logger;
 
 public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfromp2.MirrorApplication {
 

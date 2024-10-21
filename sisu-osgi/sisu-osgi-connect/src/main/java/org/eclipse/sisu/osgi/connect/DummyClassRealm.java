@@ -24,15 +24,15 @@ import java.util.jar.JarFile;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.logging.Logger;
+import org.slf4j.Logger;
 
 final class DummyClassRealm extends ClassRealm {
 
 	private static final String JAR_PREFIX = "jar:";
 	private static final String JAR_FILE_PREFIX = JAR_PREFIX + "file:";
-	private ClassLoader classLoader;
+	private final ClassLoader classLoader;
+	private final Logger logger;
 	private List<URL> urls;
-	private Logger logger;
 
 	DummyClassRealm(String id, ClassLoader classLoader, Logger logger) {
 		super(new ClassWorld(), id, classLoader);

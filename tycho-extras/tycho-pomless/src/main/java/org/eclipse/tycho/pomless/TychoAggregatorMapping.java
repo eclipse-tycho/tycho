@@ -24,16 +24,25 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.apache.maven.model.Model;
-import org.codehaus.plexus.component.annotations.Component;
+import org.apache.maven.model.building.ModelProcessor;
+import org.apache.maven.model.io.ModelWriter;
+import org.eclipse.sisu.Typed;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
-@Component(role = Mapping.class, hint = "tycho-aggregator")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("tycho-aggregator")
+@Typed(Mapping.class)
 public class TychoAggregatorMapping extends AbstractTychoMapping {
 
     private static final String TYCHO_AUTOMATIC_GENERATED_FILE_HEADER_PREFIX = "## tycho automatic module detection";
@@ -45,6 +54,11 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
 
     private static final Set<String> COMMON_NAMES = Set.of(System.getProperty(TYCHO_POMLESS_AGGREGATOR_NAMES_PROPERTY,
             "bundles,plugins,tests,features,sites,products,releng").split(","));
+
+    @Inject
+    public TychoAggregatorMapping(Map<String, ModelWriter> modelWriters, Map<String, ModelProcessor> modelProcessors) {
+        super(modelWriters, modelProcessors);
+    }
 
     @Override
     protected String getPackaging() {
