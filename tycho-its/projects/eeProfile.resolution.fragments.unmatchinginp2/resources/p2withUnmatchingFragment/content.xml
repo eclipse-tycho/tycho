@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.2.0'?>
+<repository name='file:////Users/heikoklare/dev/eclipse/tycho/git/tycho/tycho-its/repositories/compiler.fragments.unmatchinginp2 - metadata' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1727095539506'/>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <units size='2'>
+    <unit id='compiler.fragments.unmatchinginp2' version='1.0.0.202409231244' generation='2'>
+      <update id='compiler.fragments.unmatchinginp2' range='[0.0.0,1.0.0.202409231244)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='4'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='compiler.fragments.unmatchinginp2' version='1.0.0.202409231244'/>
+        <provided namespace='osgi.bundle' name='compiler.fragments.unmatchinginp2' version='1.0.0.202409231244'/>
+        <provided namespace='osgi.identity' name='compiler.fragments.unmatchinginp2' version='1.0.0.202409231244'>
+          <properties size='1'>
+            <property name='type' value='osgi.bundle'/>
+          </properties>
+        </provided>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='4'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.swt.unmatching' range='[1.0.0.202409231244,1.0.0.202409231244]'>
+          <filter>
+            (&amp;(osgi.arch=unmatching)(osgi.os=unmatching)(osgi.ws=unmatching)(!(org.eclipse.swt.buildtime=true)))
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.swt.gtk.linux.x86' range='[1.0.0.202409231244,1.0.0.202409231244]'>
+          <filter>
+            (&amp;(osgi.arch=x86)(osgi.os=linux)(osgi.ws=gtk)(!(org.eclipse.swt.buildtime=true)))
+          </filter>
+        </required>
+        <requiredProperties namespace='osgi.ee' match='(&amp;(osgi.ee=JavaSE)(version=1.8))'>
+          <description>
+            compiler.fragments.unmatchinginp2
+          </description>
+        </requiredProperties>
+        <required namespace='org.eclipse.equinox.p2.iu' name='compiler.fragments.unmatchinginp2.source' range='[1.0.0.202409231244,1.0.0.202409231244]' optional='true'>
+          <filter>
+            (org.eclipse.update.install.sources=true)
+          </filter>
+        </required>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='compiler.fragments.unmatchinginp2' version='1.0.0.202409231244'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: compiler.fragments.unmatchinginp2;singleton:=true&#xA;Bundle-Version: 1.0.0.202409231244&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='compiler.fragments.unmatchinginp2.unmatching' version='1.0.0.202409231244' generation='2'>
+      <update id='compiler.fragments.unmatchinginp2.unmatching' range='[0.0.0,1.0.0.202409231244)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='%fragmentName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='fragment'/>
+      </properties>
+      <provides size='6'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='compiler.fragments.unmatchinginp2.unmatching' version='1.0.0.202409231244'/>
+        <provided namespace='osgi.bundle' name='compiler.fragments.unmatchinginp2.unmatching' version='1.0.0.202409231244'/>
+        <provided namespace='java.package' name='org.eclipse.swt.graphics' version='0.0.0'/>
+        <provided namespace='osgi.identity' name='compiler.fragments.unmatchinginp2.unmatching' version='1.0.0.202409231244'>
+          <properties size='1'>
+            <property name='type' value='osgi.fragment'/>
+          </properties>
+        </provided>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='osgi.fragment' name='compiler.fragments.unmatchinginp2' version='1.0.0.202409231244'/>
+      </provides>
+      <requires size='3'>
+        <required namespace='osgi.bundle' name='compiler.fragments.unmatchinginp2' range='[1.0.0,1.1.0)'/>
+        <requiredProperties namespace='osgi.ee' match='(&amp;(osgi.ee=JavaSE)(version=1.8))'>
+          <description>
+            compiler.fragments.unmatchinginp2.unmatching
+          </description>
+        </requiredProperties>
+        <required namespace='org.eclipse.equinox.p2.iu' name='compiler.fragments.unmatchinginp2.unmatching.source' range='[1.0.0.202409231244,1.0.0.202409231244]' optional='true'>
+          <filter>
+            (org.eclipse.update.install.sources=true)
+          </filter>
+        </required>
+      </requires>
+      <filter>
+        (&amp;(osgi.arch=unknown)(osgi.os=unknown)(osgi.ws=unknown))
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='compiler.fragments.unmatchinginp2.unmatching' version='1.0.0.202409231244'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: compiler.fragments.unmatchinginp2.unmatching; singleton:=true&#xA;Bundle-Version: 1.0.0.202409231244&#xA;Fragment-Host: compiler.fragments.unmatchinginp2;bundle-version=&quot;[1.0.0,1.1.0)&quot;&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+  </units>
+</repository>
