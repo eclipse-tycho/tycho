@@ -70,6 +70,8 @@
 		<equinoxVersion>3.21.0</equinoxVersion>
 		<ecjVersion>3.38.0</ecjVersion>
 		<bnd.version>7.0.0</bnd.version>
+		<junit5.version>5.11.3</junit5.version>
+		<junit5.platform.version>1.11.3</junit5.platform.version>
 	    <!-- these are referenced from src/main/resources/META-INF/plexus/components.xml -->
 		<resources-plugin.version>3.3.1</resources-plugin.version>
 		<install-plugin.version>3.1.1</install-plugin.version>
@@ -209,7 +211,7 @@
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-api</artifactId>
-				<version>5.11.3</version>
+				<version>${junit5.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
