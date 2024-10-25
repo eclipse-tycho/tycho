@@ -13,6 +13,7 @@
 
 package org.eclipse.tycho.core.locking;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -95,12 +96,8 @@ public class LockProcess {
             String classNamePath = LockProcess.class.getName().replace('.', '/') + ".class";
             File tmpClassFile = new File(tmpClassDir, classNamePath);
             tmpClassFile.getParentFile().mkdirs();
-            try (OutputStream out = new FileOutputStream(tmpClassFile)) {
-                byte[] buffer = new byte[1024];
-                int read = 0;
-                while ((read = in.read(buffer, 0, buffer.length)) != -1) {
-                    out.write(buffer, 0, read);
-                }
+            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tmpClassFile))) {
+                in.transferTo(out);
                 in.close();
             }
         } catch (IOException e) {

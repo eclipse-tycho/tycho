@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -47,7 +48,7 @@ import de.pdark.decentxml.XMLWriter;
 /**
  * This allows to update a target file to use newer version of specified items, e.g. IUs from
  * updatesites or maven coordinates. In the simplest form this is called like
- * 
+ *
  * <pre>
  * mvn -f [path to target project] tycho-version-bump:update-target
  * </pre>
@@ -162,7 +163,8 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         }
         if (changed) {
             String enc = target.getEncoding() != null ? target.getEncoding() : "UTF-8";
-            try (Writer w = new OutputStreamWriter(new FileOutputStream(file), enc); XMLWriter xw = new XMLWriter(w)) {
+            try (Writer w = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file)), enc);
+                    XMLWriter xw = new XMLWriter(w)) {
                 try {
                     target.toXML(xw);
                 } finally {

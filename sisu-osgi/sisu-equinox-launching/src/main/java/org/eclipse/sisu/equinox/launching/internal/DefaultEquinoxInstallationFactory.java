@@ -150,7 +150,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             File configIni = new File(location, TychoConstants.CONFIG_INI_PATH);
             File configurationLocation = configIni.getParentFile();
             configurationLocation.mkdirs();
-            try (FileOutputStream fos = new FileOutputStream(configIni)) {
+            try (OutputStream fos = new BufferedOutputStream(new FileOutputStream(configIni))) {
                 p.store(fos, null);
             }
 
@@ -201,7 +201,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
 
     /**
      * See
-     * 
+     *
      * <pre>
      * https://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgidev
      * </pre>

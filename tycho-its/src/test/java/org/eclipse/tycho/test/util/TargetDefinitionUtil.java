@@ -13,10 +13,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -55,7 +57,7 @@ public class TargetDefinitionUtil {
 				repository.setAttribute("location", relocationBasedir.toURI().resolve(repositoryURL).toString());
 			}
 		}
-		try (FileOutputStream output = new FileOutputStream(targetDefinitionFile)) {
+		try (OutputStream output = new BufferedOutputStream(new FileOutputStream(targetDefinitionFile))) {
 			TargetDefinitionFile.writeDocument(platform, output);
 		}
 	}
@@ -83,7 +85,7 @@ public class TargetDefinitionUtil {
 				}
 			}
 		}
-		try (FileOutputStream output = new FileOutputStream(targetDefinitionFile)) {
+		try (OutputStream output = new BufferedOutputStream(new FileOutputStream(targetDefinitionFile))) {
 			TargetDefinitionFile.writeDocument(platform, output);
 		}
 	}
@@ -110,7 +112,7 @@ public class TargetDefinitionUtil {
 				}
 			}
 		}
-		try (FileOutputStream output = new FileOutputStream(targetDefinitionFile)) {
+		try (OutputStream output = new BufferedOutputStream(new FileOutputStream(targetDefinitionFile))) {
 			TargetDefinitionFile.writeDocument(platform, output);
 		}
 	}

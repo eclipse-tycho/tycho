@@ -17,6 +17,7 @@ import static org.eclipse.tycho.p2.repository.ArtifactProviderImplUtilities.canW
 import static org.eclipse.tycho.p2.repository.ArtifactProviderImplUtilities.canWriteToSink;
 import static org.eclipse.tycho.p2.repository.BundleConstants.BUNDLE_ID;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -440,7 +441,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
             artifactFile.getParentFile().mkdirs();
 
             try {
-                currentOutputStream = new FileOutputStream(artifactFile);
+                currentOutputStream = new BufferedOutputStream(new FileOutputStream(artifactFile));
             } catch (FileNotFoundException e) {
                 throw new ArtifactSinkException("I/O error while creating artifact file " + artifactFile, e);
             }

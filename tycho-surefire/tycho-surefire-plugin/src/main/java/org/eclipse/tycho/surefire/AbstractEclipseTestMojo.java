@@ -23,6 +23,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -515,7 +516,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     /**
      * Additional root IUs to install, only relevant if {@link #testRuntime} is
      * <code>p2Installed</code>.
-     * 
+     *
      * <pre>
      * &lt;install&gt;
      *    &lt;iu&gt;
@@ -531,7 +532,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     /**
      * Additional repositories used to install units from, only relevant if {@link #testRuntime} is
      * <code>p2Installed</code>.
-     * 
+     *
      * <pre>
     * &lt;repositories&gt;
     *   &lt;repository&gt;
@@ -539,7 +540,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     *   &lt;/repository&gt;
     * &lt;/repositories&gt;
      * </pre>
-     * 
+     *
      */
     @Parameter(name = "repositories")
     private List<Repository> repositories;
@@ -978,7 +979,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         Properties p = new Properties();
         p.putAll(propertiesMap);
         try {
-            try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
                 p.store(out, null);
             }
         } catch (IOException e) {

@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -76,7 +77,8 @@ public class CategoryP2MetadataMojo extends AbstractP2MetadataMojo {
             try {
                 if (jar && xmlFile.exists()) {
                     //need to recreate the jar
-                    try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile))) {
+                    try (JarOutputStream jarOutputStream = new JarOutputStream(
+                            new BufferedOutputStream(new FileOutputStream(jarFile)))) {
                         jarOutputStream.putNextEntry(new JarEntry(xmlFile.getName()));
                         Files.copy(xmlFile.toPath(), jarOutputStream);
                     }

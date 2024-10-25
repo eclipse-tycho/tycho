@@ -12,9 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2tools;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -77,7 +79,7 @@ public class RepositoryReferenceTool {
      * <li>The results of the referenced reactor modules,
      * <li>The non-reactor content of the module's target platform.
      * </ol>
-     * 
+     *
      * @param module
      *            The current Maven project
      * @param session
@@ -120,7 +122,8 @@ public class RepositoryReferenceTool {
         try {
             File repositoryLocation = new File(project.getBuild().getDirectory(), "targetPlatformRepository");
             repositoryLocation.mkdirs();
-            try (FileOutputStream stream = new FileOutputStream(new File(repositoryLocation, "content.xml"))) {
+            try (OutputStream stream = new BufferedOutputStream(
+                    new FileOutputStream(new File(repositoryLocation, "content.xml")))) {
 
                 TargetPlatform targetPlatform = projectManager.getTargetPlatform(project)
                         .orElseThrow(() -> new MojoFailureException(TychoConstants.TYCHO_NOT_CONFIGURED + project));

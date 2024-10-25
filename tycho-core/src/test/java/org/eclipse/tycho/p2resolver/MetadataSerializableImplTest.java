@@ -14,10 +14,12 @@ package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -84,7 +86,7 @@ public class MetadataSerializableImplTest extends TychoPlexusTestCase {
 
     private void serialize(MetadataSerializableImpl subject, Set<IInstallableUnit> units, File tmpDir)
             throws FileNotFoundException, IOException {
-        try (FileOutputStream os = new FileOutputStream(new File(tmpDir, "content.xml"))) {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(tmpDir, "content.xml")))) {
             subject.serialize(os, units);
         }
     }

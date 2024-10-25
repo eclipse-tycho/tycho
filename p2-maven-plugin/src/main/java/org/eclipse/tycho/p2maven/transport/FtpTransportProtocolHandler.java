@@ -1,14 +1,13 @@
 package org.eclipse.tycho.p2maven.transport;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.net.ftp.*;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
-import org.eclipse.tycho.MavenRepositorySettings.Credentials;
+import static java.lang.String.format;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.SocketException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -16,7 +15,18 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static java.lang.String.format;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPCmd;
+import org.apache.commons.net.ftp.FTPConnectionClosedException;
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPReply;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
+import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 
 /**
  * Handles files discovery over the FTP protocol.
@@ -93,7 +103,7 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
             final File tempFile = Files.createTempFile(parent.toPath(), "download", ".tmp").toFile();
             tempFile.deleteOnExit();
 
-            try (final OutputStream os = new FileOutputStream(tempFile)) {
+			try (final OutputStream os = new BufferedOutputStream(new FileOutputStream(tempFile))) {
                 if (!client.retrieveFile(remotePath, os)) {
                     final String message = client.getReplyString();
                     throw new IOException(format("Error retrieving file: %s. Message: %s", remotePath, message));
