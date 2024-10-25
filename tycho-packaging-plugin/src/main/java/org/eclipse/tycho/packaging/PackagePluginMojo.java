@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Christoph Läubrich 	- Issue #177 - Automatically translate maven-pom information to osgi Bundle-Header
- *    						- Issue #572 - Insert dynamic dependencies into the jar included pom 
+ *    						- Issue #572 - Insert dynamic dependencies into the jar included pom
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -87,7 +88,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	 * configuration is specified, the default value is <code>true</code>. If the
 	 * maven descriptor should not be added to the artifact, use the following
 	 * configuration:
-	 * 
+	 *
 	 * <pre>
 	 * &lt;plugin&gt;
 	 *   &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
@@ -110,19 +111,19 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	 * MANIFEST header. When using this parameter, property ${tycho.scmUrl} must be
 	 * set and be a valid
 	 * <a href="https://maven.apache.org/scm/scm-url-format.html">maven SCM URL</a>.
-	 * 
+	 *
 	 * Example configuration:
-	 * 
+	 *
 	 * <pre>
 	 *         &lt;sourceReferences&gt;
 	 *           &lt;generate&gt;true&lt;/generate&gt;
 	 *         &lt;/sourceReferences&gt;
 	 * </pre>
-	 * 
+	 *
 	 * Note that a {@link SourceReferencesProvider} component must be registered for
 	 * the SCM type being used. You may also override the generated value by
 	 * configuring:
-	 * 
+	 *
 	 * <pre>
 	 *         &lt;sourceReferences&gt;
 	 *           &lt;generate&gt;true&lt;/generate&gt;
@@ -327,7 +328,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 		if (!parentFile.mkdirs() && !parentFile.exists()) {
 			throw new IOException("creating target directory " + parentFile.getAbsolutePath() + " failed");
 		}
-		try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(output))) {
+		try (OutputStream os = new BufferedOutputStream(new FileOutputStream(output))) {
 			mf.write(os);
 		}
 	}

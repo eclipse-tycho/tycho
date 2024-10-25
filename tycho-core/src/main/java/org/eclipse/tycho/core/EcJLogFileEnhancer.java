@@ -14,11 +14,10 @@ package org.eclipse.tycho.core;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -93,7 +92,7 @@ public class EcJLogFileEnhancer implements AutoCloseable {
             throws IOException, FileNotFoundException {
         for (File file : needsUpdate) {
             Document document = documents.get(file);
-            try (Writer w = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+            try (Writer w = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8);
                     XMLWriter xw = new XMLWriter(w)) {
                 document.toXML(xw);
             }

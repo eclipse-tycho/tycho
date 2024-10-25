@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -102,7 +103,7 @@ public class FeatureGenerator {
         }
         File tempFile = File.createTempFile("feature", ".jar");
         tempFile.deleteOnExit();
-        try (JarOutputStream stream = new JarOutputStream(new FileOutputStream(tempFile))) {
+        try (JarOutputStream stream = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempFile)))) {
             stream.putNextEntry(new ZipEntry(FEATURE_XML_ENTRY));
             OutputStreamWriter writer = new OutputStreamWriter(stream);
             prettyPrintXml(doc, writer);

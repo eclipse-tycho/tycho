@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -22,13 +22,13 @@ import org.eclipse.equinox.internal.security.auth.nls.SecAuthMessages;
 
 /**
  * PLEASE READ BEFORE CHANGING THIS FILE
- * 
+ *
  * At present most of the methods expect only file URLs. The API methods
  * take URLs for possible future expansion, and there is some code below
  * that would work with some other URL types, but the only supported URL
  * types at this time are file URLs. Also note that URL paths should not
- * be encoded (spaces should be spaces, not "%x20"). 
- *  
+ * be encoded (spaces should be spaces, not "%x20").
+ *
  * On encoding: Java documentation recommends using File.toURI().toURL().
  * However, in this process non-alphanumeric characters (including spaces)
  * get encoded and can not be used with the rest of Eclipse methods that
@@ -73,10 +73,10 @@ public class StorageUtils {
 				if (parent != null && !parent.exists())
 					parent.mkdirs();
 			}
-			return new FileOutputStream(file);
+			return new BufferedOutputStream(new FileOutputStream(file));
 		}
-		// note that code below does not work for File URLs - "by design" Java 
-		// does not support creating output streams on file URLs. Code below should work 
+		// note that code below does not work for File URLs - "by design" Java
+		// does not support creating output streams on file URLs. Code below should work
 		// for HTTP URLs; no idea as to the other types of URLs
 		URLConnection connection = url.openConnection();
 		connection.setDoOutput(true);
@@ -89,7 +89,7 @@ public class StorageUtils {
 		try {
 			return url.openStream();
 		} catch (FileNotFoundException e) {
-			return null; // this is all right, means new file 
+			return null; // this is all right, means new file
 		}
 	}
 
@@ -114,7 +114,7 @@ public class StorageUtils {
 	}
 
 	/**
-	 * The {@link String#getBytes()} truncates non-ASCII chars. As a result 
+	 * The {@link String#getBytes()} truncates non-ASCII chars. As a result
 	 * new String(string.getBytes()) is not the same as the original string. Moreover,
 	 * the default Java encoding can be changed via system variables or startup conditions.
 	 */
@@ -126,10 +126,10 @@ public class StorageUtils {
 
 	/**
 	 * The new String(byte[]) method uses default system encoding which
-	 * might not properly process non-ASCII characters. 
-	 * 
-	 * Pairing {@link #getBytes(String)} and {@link #getString(byte[])} methods allows round trip 
-	 * of non-ASCII characters. 
+	 * might not properly process non-ASCII characters.
+	 *
+	 * Pairing {@link #getBytes(String)} and {@link #getString(byte[])} methods allows round trip
+	 * of non-ASCII characters.
 	 */
 	static public String getString(byte[] bytes) {
 		if (bytes == null)

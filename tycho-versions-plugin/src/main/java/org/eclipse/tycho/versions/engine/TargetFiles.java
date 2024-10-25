@@ -6,12 +6,13 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -52,7 +53,7 @@ public class TargetFiles {
     private void writeTarget(File targetFile, Document document)
             throws IOException, UnsupportedEncodingException, FileNotFoundException {
         String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
-        try (Writer w = new OutputStreamWriter(new FileOutputStream(targetFile), enc);
+        try (Writer w = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(targetFile)), enc);
                 XMLWriter xw = new XMLWriter(w)) {
             try {
                 document.toXML(xw);

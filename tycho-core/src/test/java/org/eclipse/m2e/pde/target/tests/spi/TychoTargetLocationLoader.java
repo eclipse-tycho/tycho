@@ -12,10 +12,9 @@
  *******************************************************************************/
 package org.eclipse.m2e.pde.target.tests.spi;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,8 +74,7 @@ public class TychoTargetLocationLoader implements TargetLocationLoader {
     @Override
     public ITargetLocation resolveMavenTarget(String targetXML, File tempDir) throws Exception {
         File targetFile = new File(tempDir, "test.target");
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(targetFile),
-                StandardCharsets.UTF_8)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(targetFile.toPath(), StandardCharsets.UTF_8)) {
             writer.write("<target name=\"test-target-platform\"><locations>");
             writer.write(targetXML);
             writer.write("</locations></target>");

@@ -110,7 +110,7 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
             reconcile();
             // minimize time window for corrupting the file by first writing to a temp file, then moving it
             File tempFile = File.createTempFile("index", "tmp", indexFile.getParentFile());
-            write(new FileOutputStream(tempFile));
+            write(new BufferedOutputStream(new FileOutputStream(tempFile)));
             if (indexFile.isFile()) {
                 indexFile.delete();
             }

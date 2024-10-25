@@ -17,14 +17,13 @@ package org.eclipse.tycho.extras.docbundle.runner;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -146,7 +145,7 @@ public class ConvertSchemaToHtmlRunner implements Callable<ConvertSchemaToHtmlRe
 					}
 					File file = new File(directory, id.replace('.', '_') + ".html"); //$NON-NLS-1$
 					try (PrintWriter out = new PrintWriter(
-							new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8), true)) {
+							Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8), true)) {
 						fTransformer.transform(schema, out, cssURL, SchemaTransformer.BUILD);
 					}
 				} finally {
