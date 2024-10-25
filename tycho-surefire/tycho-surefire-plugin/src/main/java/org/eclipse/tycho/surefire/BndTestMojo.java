@@ -12,8 +12,10 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -148,7 +150,7 @@ public class BndTestMojo extends AbstractTestMojo {
 
     /**
      * Configure the tester to use usually one of
-     * 
+     *
      * <ul>
      * <li>{@value #TESTER_DEFAULT}</li>
      * <li>{@value #TESTER_JUNIT_PLATFORM}</li>
@@ -167,7 +169,7 @@ public class BndTestMojo extends AbstractTestMojo {
 
     /**
      * Configure the run framework to use usually one of
-     * 
+     *
      * <ul>
      * <li>{@value #FW_FELIX}</li>
      * <li>{@value #FW_EQUINOX}</li>
@@ -186,7 +188,7 @@ public class BndTestMojo extends AbstractTestMojo {
      * <li>{@value #ENGINE_VINTAGE_ENGINE} - if your test only contains JUnit 3/4</li>
      * <li>{@value #ENGINES_DEFAULT} - if you want to use both engines</li>
      * </ul>
-     * 
+     *
      */
     @Parameter(defaultValue = ENGINES_DEFAULT, required = true)
     private String testEngines;
@@ -230,7 +232,7 @@ public class BndTestMojo extends AbstractTestMojo {
         properties.setProperty(Constants.RUNFW, runfw);
         properties.setProperty(Constants.RUNPROPERTIES, buildRunProperties());
         try {
-            try (FileOutputStream out = new FileOutputStream(runfile)) {
+            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(runfile))) {
                 properties.store(out, null);
             }
             String javaExecutable = getJavaExecutable();

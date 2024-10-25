@@ -12,11 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging.reverseresolve;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.List;
@@ -43,7 +45,7 @@ import kong.unirest.Unirest;
 import kong.unirest.json.JSONObject;
 
 /**
- * 
+ *
  * Use the maven rest API to find an artifact based on its sha1 sum.
  */
 @Component(role = ArtifactCoordinateResolver.class, hint = "central")
@@ -158,7 +160,7 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 			properties.setProperty(KEY_ARTIFACT_ID, dependency.getArtifactId());
 			properties.setProperty(KEY_VERSION, dependency.getVersion());
 			properties.setProperty(KEY_TYPE, dependency.getType());
-			try (FileOutputStream stream = new FileOutputStream(cacheFile)) {
+			try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(cacheFile))) {
 				properties.store(stream, null);
 			}
 		} catch (IOException e) {

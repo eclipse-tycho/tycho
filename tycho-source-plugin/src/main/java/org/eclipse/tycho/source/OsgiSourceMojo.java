@@ -20,6 +20,7 @@ import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME;
 import static org.osgi.framework.Constants.BUNDLE_VENDOR;
 import static org.osgi.framework.Constants.BUNDLE_VERSION;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -137,10 +138,10 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     /**
      * Additional files to be included in the source bundle jar. This can be used when
-     * <code>src.includes</code> in build.properties is not flexible enough , e.g. for files which would
-     * otherwise conflict with files in <code>bin.includes</code><br/>
+     * <code>src.includes</code> in build.properties is not flexible enough , e.g. for files which
+     * would otherwise conflict with files in <code>bin.includes</code><br/>
      * Example:<br/>
-     * 
+     *
      * <pre>
      * &lt;additionalFileSets&gt;
      *  &lt;fileSet&gt;
@@ -148,7 +149,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
      *   &lt;includes&gt;
      *    &lt;include&gt;&#42;&#42;/*&lt;/include&gt;
      *   &lt;/includes&gt;
-     *  &lt;/fileSet&gt;     
+     *  &lt;/fileSet&gt;
      * &lt;/additionalFileSets&gt;
      * </pre>
      */
@@ -276,7 +277,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         sourceL10nProps.setProperty(I18N_KEY_BUNDLE_VENDOR, bundleVendor);
         File l10nPropsFile = new File(l10nOutputDir, MANIFEST_BUNDLE_LOCALIZATION_FILENAME);
         l10nPropsFile.getParentFile().mkdirs();
-        try (OutputStream out = new FileOutputStream(l10nPropsFile)) {
+        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(l10nPropsFile))) {
             sourceL10nProps.store(out, "Source Bundle Localization");
         } catch (IOException e) {
             throw new MojoExecutionException("error while generating source bundle localization file", e);

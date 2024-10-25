@@ -13,9 +13,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2tools;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLConnection;
@@ -521,7 +523,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         properties.setProperty("version", "1");
         properties.setProperty("artifact.repository.factory.order", "artifacts.xml,!");
         properties.setProperty("metadata.repository.factory.order", "content.xml,!");
-        try (FileOutputStream stream = new FileOutputStream(new File(repositoryDestination, P2_INDEX_FILE))) {
+        try (OutputStream stream = new BufferedOutputStream(
+                new FileOutputStream(new File(repositoryDestination, P2_INDEX_FILE)))) {
             properties.store(stream, null);
         } catch (IOException e) {
             throw new FacadeException("writing index file failed", e);
@@ -531,7 +534,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     private void compressXml(File repositoryDestination, String name) throws FacadeException {
         File jarFile = new File(repositoryDestination, name + ".jar");
         File xmlFile = new File(repositoryDestination, name + ".xml");
-        try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile))) {
+        try (JarOutputStream jarOutputStream = new JarOutputStream(
+                new BufferedOutputStream(new FileOutputStream(jarFile)))) {
             jarOutputStream.putNextEntry(new JarEntry(xmlFile.getName()));
             Files.copy(xmlFile.toPath(), jarOutputStream);
         } catch (IOException e) {

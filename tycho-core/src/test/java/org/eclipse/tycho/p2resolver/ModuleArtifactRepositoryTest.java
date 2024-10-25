@@ -236,8 +236,7 @@ public class ModuleArtifactRepositoryTest extends TychoPlexusTestCase {
 
     private static void generateBinaryTestFile(File file, int size) throws IOException {
         file.getParentFile().mkdirs();
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            OutputStream os = new BufferedOutputStream(fos);
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             for (int i = 0; i < size; ++i) {
                 os.write(0);
             }
