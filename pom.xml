@@ -61,7 +61,7 @@
 		<plexusVersion>2.2.0</plexusVersion>
 		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
 		<plexusCompilerVersion>2.15.0</plexusCompilerVersion>
-		<pluginToolsVersion>3.15.0</pluginToolsVersion>
+		<pluginToolsVersion>3.15.1</pluginToolsVersion>
 		<jgit-version>7.0.0.202409031743-r</jgit-version>
 		<maven-version>3.9.9</maven-version>
 		<sisu-version>0.9.0.M3</sisu-version>
