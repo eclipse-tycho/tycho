@@ -13,10 +13,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -54,7 +56,6 @@ import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
-import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -92,6 +93,7 @@ import org.eclipse.tycho.p2.repository.MetadataIO;
 import org.eclipse.tycho.p2maven.actions.CategoryDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductDependenciesAction;
 import org.eclipse.tycho.p2maven.actions.ProductFile2;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.osgi.framework.BundleException;
 
 @Component(role = P2Generator.class)
@@ -485,7 +487,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
     }
 
     private static void writeProperties(Properties properties, File outputFile) throws IOException {
-        try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+        try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile))) {
             properties.store(outputStream, null);
         }
     }

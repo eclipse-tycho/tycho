@@ -14,10 +14,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -348,7 +350,7 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     private static void writeProperties(Properties props, File propertiesFile) throws IOException {
         propertiesFile.getParentFile().mkdirs();
-        try (FileOutputStream out = new FileOutputStream(propertiesFile)) {
+        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(propertiesFile))) {
             props.store(out, "");
         }
     }

@@ -12,11 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.text.DateFormat;
@@ -72,7 +74,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 
 	/**
 	 * Fetches the cache entry for this URI
-	 * 
+	 *
 	 * @param uri
 	 * @return
 	 * @throws FileNotFoundException if the URI is know to be not found
@@ -266,7 +268,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 				}
 				response.checkResponseCode();
 				tempFile = File.createTempFile("download", ".tmp", file.getParentFile());
-				try (FileOutputStream os = new FileOutputStream(tempFile)) {
+				try (OutputStream os = new BufferedOutputStream(new FileOutputStream(tempFile))) {
 					response.transferTo(os);
 				} catch (IOException e) {
 					tempFile.delete();
@@ -390,7 +392,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 				}
 			}
 			FileUtils.forceMkdir(file.getParentFile());
-			try (FileOutputStream out = new FileOutputStream(headerFile)) {
+			try (OutputStream out = new BufferedOutputStream(new FileOutputStream(headerFile))) {
 				// we store the header here, this might be a 404 response or (permanent)
 				// redirect we probably need to work with later on
 				header.store(out, null);

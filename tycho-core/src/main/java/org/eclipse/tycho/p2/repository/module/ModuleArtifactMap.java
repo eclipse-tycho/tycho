@@ -14,10 +14,12 @@ package org.eclipse.tycho.p2.repository.module;
 
 import static org.eclipse.tycho.p2.repository.BundleConstants.BUNDLE_ID;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,7 +36,7 @@ import org.eclipse.tycho.p2.repository.RepositoryReader;
 /**
  * {@link RepositoryReader} that reads the artifact file locations from the
  * "local-artifacts.properties" file.
- * 
+ *
  * @see TychoConstants#FILE_NAME_LOCAL_ARTIFACTS
  */
 class ModuleArtifactMap {
@@ -56,7 +58,7 @@ class ModuleArtifactMap {
     }
 
     private ModuleArtifactMap(File repositoryRoot) {
-        // TODO constant FILE_NAME_LOCAL_ARTIFACTS should only be needed here 
+        // TODO constant FILE_NAME_LOCAL_ARTIFACTS should only be needed here
         this.mapFile = new File(repositoryRoot, TychoConstants.FILE_NAME_LOCAL_ARTIFACTS);
         this.automaticArtifactFolder = new File(repositoryRoot, "extraArtifacts");
     }
@@ -143,7 +145,8 @@ class ModuleArtifactMap {
             if (entry.getKey() == null) {
                 outputProperties.put(TychoConstants.KEY_ARTIFACT_MAIN, entry.getValue().getAbsolutePath());
             } else {
-                outputProperties.put(TychoConstants.KEY_ARTIFACT_ATTACHED + entry.getKey(), entry.getValue().getAbsolutePath());
+                outputProperties.put(TychoConstants.KEY_ARTIFACT_ATTACHED + entry.getKey(),
+                        entry.getValue().getAbsolutePath());
             }
         }
 
@@ -159,7 +162,7 @@ class ModuleArtifactMap {
     }
 
     private static void writeProperties(Properties properties, File outputFile) throws IOException {
-        try (FileOutputStream outputStream = new FileOutputStream(outputFile);) {
+        try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile))) {
             properties.store(outputStream, null);
         }
     }

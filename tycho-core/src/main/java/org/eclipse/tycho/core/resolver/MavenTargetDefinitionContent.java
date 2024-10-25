@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -368,7 +369,8 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         attr.putValue(Constants.BUNDLE_NAME, "Source Bundle for " + symbolicName + ":" + bundleVersion);
         attr.putValue(Constants.BUNDLE_SYMBOLICNAME, symbolicName + ".source");
         attr.putValue(Constants.BUNDLE_VERSION, bundleVersion);
-        try (JarOutputStream stream = new JarOutputStream(new FileOutputStream(tempFile), manifest)) {
+        try (JarOutputStream stream = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempFile)),
+                manifest)) {
             try (JarFile jar = new JarFile(sourceFile)) {
                 Enumeration<JarEntry> entries = jar.entries();
                 while (entries.hasMoreElements()) {
