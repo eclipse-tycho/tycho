@@ -31,9 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.apache.commons.io.FileUtils;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -43,8 +40,15 @@ import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = org.eclipse.equinox.internal.p2.repository.Transport.class, hint = "tycho")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("tycho")
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
 		implements IAgentServiceFactory {
 
@@ -66,21 +70,19 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 				}
 			});
 
-	private NumberFormat numberFormat = NumberFormat.getNumberInstance();
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
+	private final LongAdder requests = new LongAdder();
+	private final LongAdder indexRequests = new LongAdder();
 
-	@Requirement
-	Logger logger;
+	private final TransportCacheConfig cacheConfig;
+	private final Map<String, TransportProtocolHandler> transportProtocolHandlers;
 
-	@Requirement
-	TransportCacheConfig cacheConfig;
+	@Inject
+	public TychoRepositoryTransport(TransportCacheConfig cacheConfig, Map<String, TransportProtocolHandler> transportProtocolHandlers) {
+		this.cacheConfig = cacheConfig;
+		this.transportProtocolHandlers = transportProtocolHandlers;
 
-	@Requirement(role = TransportProtocolHandler.class)
-	Map<String, TransportProtocolHandler> transportProtocolHandlers;
-
-	private LongAdder requests = new LongAdder();
-	private LongAdder indexRequests = new LongAdder();
-
-	public TychoRepositoryTransport() {
 		numberFormat.setMaximumFractionDigits(2);
 	}
 

@@ -30,7 +30,6 @@ import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -38,7 +37,6 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
@@ -47,6 +45,10 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
 
 @Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
 public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
@@ -105,17 +107,20 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     @Parameter(defaultValue = "${project.build.directory}/site")
     private File target;
 
-    @Component
+    @Inject
     private FeatureXmlTransformer featureXmlTransformer;
 
-    @Component
+    @Inject
     private LicenseFeatureHelper licenseFeatureHelper;
 
-	@Component
+    @Inject
 	private TargetPlatformService platformService;
 
-	@Component
+    @Inject
 	private BuildPropertiesParser buildPropertiesParser;
+
+    @Inject
+    private Provider<JarArchiver> jarArchiverProvider;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -159,7 +164,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
             outputJar.getParentFile().mkdirs();
 
             MavenArchiver archiver = new MavenArchiver();
-            JarArchiver jarArchiver = getJarArchiver();
+            JarArchiver jarArchiver = jarArchiverProvider.get();
             archiver.setArchiver(jarArchiver);
             archiver.setOutputFile(outputJar);
             jarArchiver.setDestFile(outputJar);
@@ -282,13 +287,5 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 			return;
 		}
 		featureXmlTransformer.expandReferences(feature, targetPlatform);
-    }
-
-    private JarArchiver getJarArchiver() throws MojoExecutionException {
-        try {
-			return plexus.lookup(JarArchiver.class, "jar");
-        } catch (ComponentLookupException e) {
-            throw new MojoExecutionException("Unable to get JarArchiver", e);
-        }
     }
 }

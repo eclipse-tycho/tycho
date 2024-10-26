@@ -20,26 +20,32 @@ import java.util.Objects;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.build.BuildListener;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
 import org.eclipse.tycho.helper.PluginConfigurationHelper;
 import org.eclipse.tycho.helper.PluginConfigurationHelper.Configuration;
 import org.eclipse.tycho.helper.ProjectHelper;
 
-@Component(role = BuildListener.class, hint = "javadoc")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("javadoc")
 public class JavadocBuildListener implements BuildListener {
 
 	private static final String JAVADOC_GOAL = "javadoc";
 	private static final String ARTIFACT_ID = "maven-javadoc-plugin";
 	private static final String GROUP_ID = "org.apache.maven.plugins";
 
-	@Requirement
-	private ProjectHelper projectHelper;
+	private final ProjectHelper projectHelper;
+	private final PluginConfigurationHelper configurationHelper;
 
-	@Requirement
-	private PluginConfigurationHelper configurationHelper;
+	@Inject
+	public JavadocBuildListener(ProjectHelper projectHelper, PluginConfigurationHelper configurationHelper) {
+		this.projectHelper = projectHelper;
+		this.configurationHelper = configurationHelper;
+	}
 
 	@Override
 	public void buildStarted(MavenSession session) {
@@ -51,7 +57,7 @@ public class JavadocBuildListener implements BuildListener {
 				List<MavenProject> additionalProjects = configuration.getString("sourcepath").stream()
 						.flatMap(sourcepath -> {
 							return Arrays.stream(sourcepath.split(";|:"));
-						}).map(s -> s.strip()).map(s -> new File(project.getBasedir(), s).toPath().normalize())
+						}).map(String::strip).map(s -> new File(project.getBasedir(), s).toPath().normalize())
 						.map(sourcePath -> getProject(sourcePath, projects)).filter(Objects::nonNull).distinct()
 						.toList();
 				MavenDependencyInjector.injectMavenProjectDependencies(project, additionalProjects);

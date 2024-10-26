@@ -46,7 +46,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.artifact.ProjectArtifact;
@@ -57,7 +56,6 @@ import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
 import org.codehaus.plexus.compiler.util.scan.SimpleSourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.StaleSourceScanner;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -107,6 +105,10 @@ import org.osgi.framework.namespace.ExecutionEnvironmentNamespace;
 import org.osgi.resource.Namespace;
 
 import copied.org.apache.maven.plugin.AbstractCompilerMojo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo implements JavaCompilerConfiguration {
 
@@ -122,6 +124,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     private static final Set<String> MATCH_ALL = Collections.singleton("**/*");
 
     private static final String PREFS_FILE_PATH = ".settings" + File.separator + "org.eclipse.jdt.core.prefs";
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Parameter(property = "project", readonly = true)
     protected MavenProject project;
@@ -192,7 +196,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Parameter(defaultValue = "SYSTEM")
     private JDKUsage useJDK;
 
-    @Component
+    @Inject
     private ToolchainManagerPrivate toolChainManager;
 
     /**
@@ -268,10 +272,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Parameter(defaultValue = "consider")
     private PomDependencies pomOnlyDependencies = PomDependencies.consider;
 
-    @Component(role = TychoProject.class)
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
-    @Component
+    @Inject
     private BundleReader bundleReader;
 
     /**
@@ -333,20 +337,20 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Parameter
     private String log;
 
-    @Component
+    @Inject
     ToolchainProvider toolchainProvider;
 
-    @Component
+    @Inject
     private ToolchainManager toolchainManager;
 
-    @Component
+    @Inject
     private PluginRealmHelper pluginRealmHelper;
 
-    @Component
-    private Logger logger;
-
-    @Component
+    @Inject
     private MavenDependenciesResolver dependenciesResolver;
+
+    @Inject
+    private TychoProjectManager tychoProjectManager;
 
     private StandardExecutionEnvironment[] manifestBREEs;
 
@@ -355,9 +359,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     private List<String> currentSourceRoots;
 
     private List<String> currentExcludes;
-
-    @Component
-    private TychoProjectManager tychoProjectManager;
 
     private Integer currentRelease;
 

@@ -44,7 +44,7 @@ import aQute.bnd.osgi.Constants;
  */
 class EclipseModuleConnector implements ModuleConnector {
 
-    private Map<String, ConnectModule> modules = new ConcurrentHashMap<>();
+    private final Map<String, ConnectModule> modules = new ConcurrentHashMap<>();
 
     public EclipseModuleConnector() {
     }

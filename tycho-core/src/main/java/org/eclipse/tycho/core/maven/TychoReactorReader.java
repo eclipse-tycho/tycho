@@ -19,36 +19,43 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
-import org.apache.maven.SessionScoped;
 import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.internal.MavenWorkspaceReader;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
+import org.eclipse.sisu.Typed;
 import org.eclipse.tycho.PackagingType;
 
 /**
  * An implementation of a workspace reader similar to what maven does but for the Tycho packaging
  * types
  */
-@SessionScoped
-@Component(role = WorkspaceReader.class, hint = TychoReactorReader.HINT)
+@Singleton
+@Named(TychoReactorReader.HINT)
+@Typed(WorkspaceReader.class)
 public class TychoReactorReader implements MavenWorkspaceReader {
     static final String HINT = "tycho-reactor";
 
-    private final Map<String, MavenProject> projectsByGAV;
+    private final Provider<MavenSession> sessionProvider;
     private final WorkspaceRepository repository;
 
     @Inject
-    public TychoReactorReader(MavenSession session) {
-        this.projectsByGAV = session.getProjects().stream()
+    public TychoReactorReader(Provider<MavenSession> sessionProvider) {
+        this.sessionProvider = sessionProvider;
+        this.repository = new WorkspaceRepository(HINT, null);
+    }
+
+    private Map<String, MavenProject> projectsByGAV() {
+        return sessionProvider.get().getProjects().stream()
                 .collect(toMap(s -> ArtifactUtils.key(s.getGroupId(), s.getArtifactId(), s.getVersion()), identity()));
-        repository = new WorkspaceRepository(HINT, null);
     }
 
     @Override
@@ -71,7 +78,7 @@ public class TychoReactorReader implements MavenWorkspaceReader {
         if (isTychoReactorArtifact(artifact)) {
             String projectKey = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(),
                     artifact.getVersion());
-            MavenProject project = projectsByGAV.get(projectKey);
+            MavenProject project = projectsByGAV().get(projectKey);
             if (project != null) {
                 if (PackagingType.TYCHO_PACKAGING_TYPES.contains(project.getPackaging())) {
                     return Optional.of(project);
@@ -102,7 +109,7 @@ public class TychoReactorReader implements MavenWorkspaceReader {
 
     @Override
     public Model findModel(Artifact artifact) {
-        MavenProject project = projectsByGAV
+        MavenProject project = projectsByGAV()
                 .get(ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion()));
         return project == null ? null : project.getModel();
     }

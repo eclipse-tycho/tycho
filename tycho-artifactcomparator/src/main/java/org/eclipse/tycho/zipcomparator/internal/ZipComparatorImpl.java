@@ -33,25 +33,28 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.MatchPatterns;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = ArtifactComparator.class, hint = ZipComparatorImpl.TYPE)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(ZipComparatorImpl.TYPE)
 public class ZipComparatorImpl implements ArtifactComparator {
 
     public static final String TYPE = "zip";
 
     private static final List<String> IGNORED_PATTERNS = List.of("META-INF/maven/**");
 
-    @Requirement
-    private Logger log;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
+    @Inject
     private Map<String, ContentsComparator> comparators;
 
     @Override
@@ -76,7 +79,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
                 }
             }
         } catch (IOException e) {
-            log.debug("Comparing baseline=" + baseline + " with reactor=" + reactor + " failed: " + e
+            logger.debug("Comparing baseline=" + baseline + " with reactor=" + reactor + " failed: " + e
                     + " using direct byte compare!", e);
             //this can happen if we compare files that seem zip files but are actually not, for example an embedded jar can be an (empty) dummy file... in this case we should fall back to dumb byte compare (better than fail...)
             if (FileUtils.contentEquals(baseline, reactor)) {
@@ -139,7 +142,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
                     return comparator.getDelta(new ComparatorInputStream(baselineBytes),
                             new ComparatorInputStream(reactorBytes), data);
                 } catch (IOException e) {
-                    log.debug("comparing entry " + name + " (baseline = " + baselineJar.getName() + ", reactor="
+                    logger.debug("comparing entry " + name + " (baseline = " + baselineJar.getName() + ", reactor="
                             + reactorJar.getName() + ") using " + comparator.getClass().getName() + " failed with: " + e
                             + ", using direct byte compare", e);
                 }

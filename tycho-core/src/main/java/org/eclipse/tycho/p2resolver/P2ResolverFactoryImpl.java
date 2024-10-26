@@ -30,9 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -41,52 +38,51 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProjectManager;
-import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = P2ResolverFactory.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
-    @Requirement
-    IProvisioningAgent agent;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private MavenContext mavenContext;
-    @Requirement
-    private LocalRepositoryP2Indices localRepoIndices;
-    @Requirement
-    private TargetDefinitionResolverService targetDefinitionResolverService;
-    private ConcurrentMap<IInstallableUnit, Optional<Entry<IInstallableUnit, IRequiredCapability>>> hostRequirementMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<IInstallableUnit, Optional<Entry<IInstallableUnit, IRequiredCapability>>> hostRequirementMap = new ConcurrentHashMap<>();
 
-    @Requirement
-    private TychoProjectManager projectManager;
+    private final IProvisioningAgent agent;
+    private final MavenContext mavenContext;
+    private final Provider<TychoProjectManager> projectManagerProvider;
+    private final PomUnits pomUnits;
+    private final Provider<TargetPlatformFactory> targetPlatformFactoryProvider;
 
-    @Requirement
-    private PomUnits pomUnits;
-
-    @Requirement
-    private Logger logger;
-
-    @Requirement
-    private IRepositoryIdManager repositoryIdManager;
-
-    @Requirement
-    private MavenBundleResolver bundleResolver;
-
-    @Requirement
-    private TargetPlatformFactory targetPlatformFactory;
+    @Inject
+    public P2ResolverFactoryImpl(IProvisioningAgent agent,
+                                 MavenContext mavenContext,
+                                 Provider<TychoProjectManager> projectManagerProvider,
+                                 PomUnits pomUnits,
+                                 Provider<TargetPlatformFactory> targetPlatformFactoryProvider) {
+        this.agent = agent;
+        this.mavenContext = mavenContext;
+        this.projectManagerProvider = projectManagerProvider; // TODO: cycle
+        this.pomUnits = pomUnits;
+        this.targetPlatformFactoryProvider = targetPlatformFactoryProvider;
+    }
 
     private IProvisioningAgent getAgent() {
         //force triggering service loads... just in case not initialized yet ...
@@ -105,7 +101,7 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     @Override
     public P2Resolver createResolver(Collection<TargetEnvironment> environments) {
-        return new P2ResolverImpl(targetPlatformFactory, this, mavenContext.getLogger(), environments);
+        return new P2ResolverImpl(targetPlatformFactoryProvider.get(), this, mavenContext.getLogger(), environments);
     }
 
     public Set<IInstallableUnit> calculateDependencyFragments(ResolutionData data,
@@ -184,20 +180,6 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         return Optional.empty();
     }
 
-    // setters for DS
-
-    public void setMavenContext(MavenContext mavenContext) {
-        this.mavenContext = mavenContext;
-    }
-
-    public void setLocalRepositoryIndices(LocalRepositoryP2Indices localRepoIndices) {
-        this.localRepoIndices = localRepoIndices;
-    }
-
-    public void setTargetDefinitionResolverService(TargetDefinitionResolverService targetDefinitionResolverService) {
-        this.targetDefinitionResolverService = targetDefinitionResolverService;
-    }
-
     @Override
     public MavenDependencyDescriptor resolveDependencyDescriptor(ArtifactDescriptor artifactDescriptor) {
         return artifactDescriptor.getInstallableUnits().stream().filter(IInstallableUnit.class::isInstance)
@@ -251,6 +233,6 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     }
 
     public TychoProjectManager getProjectManager() {
-        return projectManager;
+        return projectManagerProvider.get();
     }
 }

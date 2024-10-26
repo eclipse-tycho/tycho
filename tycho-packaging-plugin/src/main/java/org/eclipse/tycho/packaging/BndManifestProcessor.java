@@ -22,14 +22,12 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-import org.apache.maven.SessionScoped;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.classpath.ClasspathContributor;
@@ -44,6 +42,8 @@ import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.Analyzer;
 import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.resource.CapReqBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Uses BND to compute a manifest and enhance the existing one with additional
@@ -54,24 +54,17 @@ import aQute.bnd.osgi.resource.CapReqBuilder;
  * <code>Bundle-RequiredExecutionEnvironment</code></li>
  * </ul>
  */
-@SessionScoped
-@Component(role = ManifestProcessor.class, hint = "bnd", instantiationStrategy = "")
+@Singleton
+@Named("bnd")
 public class BndManifestProcessor implements ManifestProcessor {
-
-	@Requirement
-	private PluginRealmHelper pluginRealmHelper;
-	@Requirement
-	private Logger logger;
-
-	@Requirement
-	private PluginConfigurationHelper configurationHelper;
-
-	private MavenSession mavenSession;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Inject
-	public BndManifestProcessor(MavenSession mavenSession) {
-		this.mavenSession = mavenSession;
-	}
+	private PluginRealmHelper pluginRealmHelper;
+	@Inject
+	private PluginConfigurationHelper configurationHelper;
+	@Inject
+	private MavenSession mavenSession;
 
 	@Override
 	public void processManifest(MavenProject mavenProject, Manifest manifest) {

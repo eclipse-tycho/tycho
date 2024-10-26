@@ -23,7 +23,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
-import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.core.resolver.TargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.PomDependencies;
 import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
@@ -77,7 +77,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
     *&lt;/environments&gt;
      * </pre>
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.ENVIRONMENTS)
+    @Parameter(name = TargetPlatformConfigurationReader.ENVIRONMENTS)
     private TargetEnvironment[] environments;
 
     /**
@@ -92,7 +92,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * <li>{@code <location>} to define target location inline</li>
      * </ul>
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.TARGET)
+    @Parameter(name = TargetPlatformConfigurationReader.TARGET)
     private TargetParameterObject target;
 
     /**
@@ -121,7 +121,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * resolution is activated and {@link PomDependencies#consider} otherwhise.
      * </p>
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.POM_DEPENDENCIES, property = DefaultTargetPlatformConfigurationReader.PROPERTY_POM_DEPENDENCIES)
+    @Parameter(name = TargetPlatformConfigurationReader.POM_DEPENDENCIES, property = TargetPlatformConfigurationReader.PROPERTY_POM_DEPENDENCIES)
     private PomDependencies pomDependencies;
 
     /**
@@ -133,16 +133,16 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * dependencies (eg shipping a JRE inside products with Eclipse JustJ).
      * </p>
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.EXECUTION_ENVIRONMENT)
+    @Parameter(name = TargetPlatformConfigurationReader.EXECUTION_ENVIRONMENT)
     private String executionEnvironment;
 
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.EXECUTION_ENVIRONMENT_DEFAULT)
+    @Parameter(name = TargetPlatformConfigurationReader.EXECUTION_ENVIRONMENT_DEFAULT)
     private String executionEnvironmentDefault;
 
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.BREE_HEADER_SELECTION_POLICY)
+    @Parameter(name = TargetPlatformConfigurationReader.BREE_HEADER_SELECTION_POLICY)
     private BREEHeaderSelectionPolicy breeHeaderSelectionPolicy;
 
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS, defaultValue = "true")
+    @Parameter(name = TargetPlatformConfigurationReader.RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS, defaultValue = "true")
     private boolean resolveWithExcutionEnvironmentConstraints;
 
     /**
@@ -156,7 +156,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * always use lazy resolve for best performance and maximum of features, e.g. using mixed maven
      * builds require lazy resolving of that projects depend on the plain maven projects.
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.REQUIRE_EAGER_RESOLVE, defaultValue = "false", property = DefaultTargetPlatformConfigurationReader.PROPERTY_REQUIRE_EAGER_RESOLVE, alias = DefaultTargetPlatformConfigurationReader.PROPERTY_ALIAS_REQUIRE_EAGER_RESOLVE)
+    @Parameter(name = TargetPlatformConfigurationReader.REQUIRE_EAGER_RESOLVE, defaultValue = "false", property = TargetPlatformConfigurationReader.PROPERTY_REQUIRE_EAGER_RESOLVE, alias = TargetPlatformConfigurationReader.PROPERTY_ALIAS_REQUIRE_EAGER_RESOLVE)
     private boolean requireEagerResolve;
 
     /**
@@ -205,7 +205,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * </pre>
      * </p>
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.FILTERS)
+    @Parameter(name = TargetPlatformConfigurationReader.FILTERS)
     private List<CapabilityPattern> filters;
 
     /**
@@ -214,7 +214,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * (transitive) dependency needed for compilation but not for the runtime that would cause
      * problems otherwise.
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.EXCLUSIONS)
+    @Parameter(name = TargetPlatformConfigurationReader.EXCLUSIONS)
     private List<Exclusion> exclusions;
 
     /**
@@ -240,10 +240,10 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      *  &lt;/plugin>
      * </pre>
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.DEPENDENCY_RESOLUTION)
+    @Parameter(name = TargetPlatformConfigurationReader.DEPENDENCY_RESOLUTION)
     private DependencyResolutionConfiguration dependencyResolution;
 
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.TARGET_DEFINITION_INCLUDE_SOURCE)
+    @Parameter(name = TargetPlatformConfigurationReader.TARGET_DEFINITION_INCLUDE_SOURCE)
     private IncludeSourceMode targetDefinionIncludeSource;
 
     /**
@@ -251,7 +251,7 @@ public class TargetPlatformConfigurationMojo extends AbstractMojo {
      * default is <code>include</code>. To disable the use of referenced repositories, pass
      * <code>ignore</code>.
      */
-    @Parameter(name = DefaultTargetPlatformConfigurationReader.REFERENCED_REPOSITORY_MODE)
+    @Parameter(name = TargetPlatformConfigurationReader.REFERENCED_REPOSITORY_MODE)
     private ReferencedRepositoryMode referencedRepositoryMode;
 
     @Override

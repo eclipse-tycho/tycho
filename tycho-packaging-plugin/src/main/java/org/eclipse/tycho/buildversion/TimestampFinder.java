@@ -22,22 +22,22 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.osgi.framework.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * A helper for discovering common timestamps in strings
  */
-@Component(role = TimestampFinder.class)
+@Singleton
+@Named
 public class TimestampFinder {
-
-	@Requirement
-	Logger logger;
-
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static Map<SimpleDateFormat, Pattern> defaultPatterns() {
         Map<SimpleDateFormat, Pattern> result = new LinkedHashMap<>();

@@ -26,19 +26,21 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.eclipse.tycho.packaging.RepositoryGenerator;
 import org.eclipse.tycho.packaging.RepositoryGenerator.RepositoryConfiguration;
 import org.eclipse.tycho.packaging.RepositoryGenerator.RepositoryLayout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * Generates an OSGi repository from the current reactor projects
@@ -52,6 +54,8 @@ public class PackageRepositoryMojo extends AbstractMojo implements RepositoryCon
 	static final String DEFAULT_REPOSITORY_TYPE = OSGiRepositoryGenerator.HINT;
 
 	static final String PARAMETER_REPOSITORY_TYPE = "repositoryType";
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Parameter(property = "session", readonly = true)
 	protected MavenSession session;
@@ -98,13 +102,13 @@ public class PackageRepositoryMojo extends AbstractMojo implements RepositoryCon
 	@Parameter
 	private PlexusConfiguration settings;
 
-	@Component(role = Archiver.class, hint = "zip")
-	private ZipArchiver zipArchiver;
+	@Inject
+	private Provider<ZipArchiver> zipArchiverProvider;
 
-	@Component(role = RepositoryGenerator.class)
+	@Inject
 	private Map<String, RepositoryGenerator> generators;
 
-	@Component
+	@Inject
 	private MavenProjectHelper mavenProjectHelper;
 
 	@Override
@@ -121,6 +125,7 @@ public class PackageRepositoryMojo extends AbstractMojo implements RepositoryCon
 			String executionId = execution.getExecutionId();
 			if (repository.isDirectory()) {
 				File destFile = new File(destination, project.getArtifactId() + "-" + repository.getName() + ".zip");
+				ZipArchiver zipArchiver = zipArchiverProvider.get();
 				zipArchiver.addDirectory(repository);
 				zipArchiver.setDestFile(destFile);
 				zipArchiver.createArchive();
@@ -162,8 +167,8 @@ public class PackageRepositoryMojo extends AbstractMojo implements RepositoryCon
 	}
 
 	@Override
-	public Log getLog() {
-		return super.getLog();
+	public Logger getLogger() {
+		return logger;
 	}
 
 	@Override

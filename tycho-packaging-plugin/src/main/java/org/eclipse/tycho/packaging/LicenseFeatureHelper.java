@@ -27,8 +27,6 @@ import java.util.zip.ZipFile;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.ArchivedFileSet;
 import org.codehaus.plexus.archiver.util.DefaultArchivedFileSet;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildProperties;
@@ -40,14 +38,16 @@ import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;
 
-@Component(role = LicenseFeatureHelper.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class LicenseFeatureHelper {
 
-	@Requirement()
+	@Inject
 	TychoProjectManager projectManager;
-
-    public LicenseFeatureHelper() {
-    }
 
     /**
      * Get the license feature jar for feature (or <code>null</code> if it has no license feature).

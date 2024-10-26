@@ -23,8 +23,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -46,6 +44,10 @@ import aQute.bnd.osgi.Analyzer;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * This mojo generates <a href=
@@ -62,6 +64,9 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 
 	public static final String CONTEXT_KEY_MANIFEST_HEADER = "DeclarativeServicesMojoHeader";
 	public static final String SERVICE_COMPONENT_HEADER = "Service-Component";
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
 	/**
 	 * Controls if the DS components annotations are made available on the
 	 * compile-classpath, this means no explicit import is required.
@@ -119,13 +124,13 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 	@Parameter(property = "project", readonly = true)
 	protected MavenProject project;
 
-	@Component
+	@Inject
 	private TychoProjectManager manager;
 
-	@Component
+	@Inject
 	private DeclarativeServiceConfigurationReader configurationReader;
 
-	@Component
+	@Inject
 	private PluginRealmHelper pluginRealmHelper;
 
 	@Parameter(property = "session", readonly = true)
@@ -146,8 +151,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					return;
 				}
 				Version dsVersion = configuration.getSpecificationVersion();
-				Log log = getLog();
-				log.info("Using Declarative Service specification version " + dsVersion
+				logger.info("Using Declarative Service specification version " + dsVersion
 						+ " to generate component definitions");
 				boolean isDs12 = dsVersion.getMajor() == 1 && dsVersion.getMinor() == 2;
 				String childPath = configuration.getPath();
@@ -169,8 +173,8 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 								try {
 									analyzer.addClasspath(file);
 								} catch (IOException e) {
-									log.warn("Can't add file " + file + " as classpath entry to ds analyzer",
-											log.isDebugEnabled() ? e : null);
+									logger.warn("Can't add file " + file + " as classpath entry to ds analyzer",
+											logger.isDebugEnabled() ? e : null);
 								}
 							}
 						}
@@ -190,7 +194,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					});
 					if (isDs12) {
 						// see https://github.com/bndtools/bnd/issues/5548
-						log.warn(
+						logger.warn(
 								"Generating of XML DS 1.2 might be not fully supported and validation is disabled (see https://github.com/bndtools/bnd/issues/5548), please upgrade to at least 1.3");
 					} else {
 						// https://bnd.bndtools.org/instructions/dsannotations-options.html
@@ -200,10 +204,10 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					analyzer.addBasicPlugin(new DSAnnotations());
 					analyzer.analyze();
 					for (String warning : analyzer.getWarnings()) {
-						log.warn(warning);
+						logger.warn(warning);
 					}
 					for (String error : analyzer.getErrors()) {
-						log.error(error);
+						logger.error(error);
 					}
 					if (!analyzer.getErrors().isEmpty()) {
 						throw new MojoFailureException(
@@ -227,7 +231,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 							keep++;
 							continue;
 						}
-						log.info("\t" + name);
+						logger.info("\t" + name);
 						generated++;
 						Resource resource = analyzer.getJar().getResource(component);
 						if (resource != null) {
@@ -237,9 +241,9 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 						}
 					}
 					if (keep > 0) {
-						log.info(generated + " component(s) where generated, " + keep + " where kept.");
+						logger.info(generated + " component(s) where generated, " + keep + " where kept.");
 					} else {
-						log.info(generated + " component(s) where generated.");
+						logger.info(generated + " component(s) where generated.");
 					}
 				}
 			} catch (Exception e) {

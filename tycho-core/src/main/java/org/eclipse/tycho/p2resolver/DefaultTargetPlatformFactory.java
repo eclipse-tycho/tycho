@@ -19,8 +19,6 @@ package org.eclipse.tycho.p2resolver;
 import java.io.File;
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
@@ -39,34 +37,44 @@ import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 
-@Component(role = TargetPlatformFactory.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class DefaultTargetPlatformFactory implements TargetPlatformFactory {
 
     // TODO cache these instances in an p2 agent, and not here
     private LocalMetadataRepository localMetadataRepository;
     private LocalArtifactRepository localArtifactRepository;
 
-    @Requirement
-    private IProvisioningAgent agent;
-
-    @Requirement
-    private MavenContext mavenContext;
-
-    @Requirement
-    private LocalRepositoryP2Indices localRepoIndices;
-
-    @Requirement
-    private IRepositoryIdManager repositoryIdManager;
-
-    @Requirement
-    private MavenBundleResolver bundleResolver;
-
-    @Requirement
-    private TychoProjectManager projectManager;
-
-    @Requirement
-    private TargetDefinitionResolverService targetDefinitionResolverService;
     private TargetPlatformFactoryImpl impl;
+
+    private final IProvisioningAgent agent;
+    private final MavenContext mavenContext;
+    private final LocalRepositoryP2Indices localRepoIndices;
+    private final IRepositoryIdManager repositoryIdManager;
+    private final MavenBundleResolver bundleResolver;
+    private final TychoProjectManager projectManager;
+    private final TargetDefinitionResolverService targetDefinitionResolverService;
+
+    @Inject
+    public DefaultTargetPlatformFactory(IProvisioningAgent agent,
+                                        MavenContext mavenContext,
+                                        LocalRepositoryP2Indices localRepoIndices,
+                                        IRepositoryIdManager repositoryIdManager,
+                                        MavenBundleResolver bundleResolver,
+                                        TychoProjectManager projectManager,
+                                        TargetDefinitionResolverService targetDefinitionResolverService) {
+        this.agent = agent;
+        this.mavenContext = mavenContext;
+        this.localRepoIndices = localRepoIndices;
+        this.repositoryIdManager = repositoryIdManager;
+        this.bundleResolver = bundleResolver;
+        this.projectManager = projectManager;
+        this.targetDefinitionResolverService = targetDefinitionResolverService;
+    }
 
     @Override
     public TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,

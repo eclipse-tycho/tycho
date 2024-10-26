@@ -36,27 +36,32 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.DependencyResolutionException;
 import org.eclipse.tycho.core.MavenDependenciesResolver;
 import org.eclipse.tycho.core.MavenModelFacade;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = MavenDependenciesResolver.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class MavenDependenciesResolverConfigurer implements MavenDependenciesResolver {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private Logger logger;
+    private final LegacySupport context;
+    private final RepositorySystem repositorySystem;
 
-    @Requirement
-    private LegacySupport context;
-
-    @Requirement
-    private RepositorySystem repositorySystem;
+    @Inject
+    public MavenDependenciesResolverConfigurer(LegacySupport context, RepositorySystem repositorySystem) {
+        this.context = context;
+        this.repositorySystem = repositorySystem;
+    }
 
     @Override
     public Collection<?> resolve(String groupId, String artifactId, String version, String packaging, String classifier,

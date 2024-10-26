@@ -16,7 +16,6 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -29,6 +28,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
+import org.slf4j.Logger;
 
 class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
 

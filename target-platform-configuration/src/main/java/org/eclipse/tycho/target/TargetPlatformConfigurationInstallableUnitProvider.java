@@ -21,9 +21,6 @@ import java.util.UUID;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -35,24 +32,26 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
-import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.core.resolver.TargetPlatformConfigurationReader;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Provides additional requirements defined in the target platform configuration
  *
  */
-@Component(role = InstallableUnitProvider.class, hint = "target")
+@Singleton
+@Named("target")
 public class TargetPlatformConfigurationInstallableUnitProvider implements InstallableUnitProvider {
 
-    @Requirement
-    private DefaultTargetPlatformConfigurationReader configurationReader;
+    @Inject
+    private TargetPlatformConfigurationReader configurationReader;
 
-    @Requirement
-    private Logger logger;
-
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override
@@ -89,7 +88,6 @@ public class TargetPlatformConfigurationInstallableUnitProvider implements Insta
     }
 
     private static IInstallableUnit createUnitRequiring(Collection<IRequirement> requirements) {
-
         InstallableUnitDescription result = new MetadataFactory.InstallableUnitDescription();
         result.setId("target-platform-extra-requirements-" + UUID.randomUUID());
         result.setVersion(Version.createOSGi(0, 0, 0, String.valueOf(System.currentTimeMillis())));

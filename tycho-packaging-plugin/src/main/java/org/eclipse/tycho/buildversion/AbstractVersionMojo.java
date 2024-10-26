@@ -16,7 +16,6 @@ import java.io.File;
 import java.util.Map;
 
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
@@ -26,6 +25,8 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.IU;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
+import javax.inject.Inject;
+
 public abstract class AbstractVersionMojo extends AbstractMojo {
 
     @Parameter(property = "project", required = true, readonly = true)
@@ -34,10 +35,10 @@ public abstract class AbstractVersionMojo extends AbstractMojo {
     @Parameter(property = "project.packaging", required = true, readonly = true)
     protected String packaging;
 
-    @Component(role = TychoProject.class)
+    @Inject
     protected Map<String, TychoProject> projectTypes;
 
-	@Component
+	@Inject
 	BuildContext buildContext;
 
     protected String getOSGiVersion() {

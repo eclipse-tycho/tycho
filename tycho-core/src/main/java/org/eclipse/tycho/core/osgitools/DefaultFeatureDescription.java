@@ -23,9 +23,9 @@ import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 
 public class DefaultFeatureDescription extends DefaultArtifactDescriptor implements FeatureDescription {
-    private Feature feature;
+    private final Feature feature;
 
-    private FeatureRef featureRef;
+    private final FeatureRef featureRef;
 
     public DefaultFeatureDescription(ArtifactKey key, File location, ReactorProject project, String classifier,
             Feature feature, FeatureRef featureRef, Collection<IInstallableUnit> installableUnits) {

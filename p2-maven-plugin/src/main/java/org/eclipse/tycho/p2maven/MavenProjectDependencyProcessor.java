@@ -32,8 +32,6 @@ import java.util.stream.Stream;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -48,11 +46,16 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.p2maven.io.MetadataIO;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 /**
- * THis component computes dependencies between projects
+ * This component computes dependencies between projects
  *
  */
-@Component(role = MavenProjectDependencyProcessor.class)
+@Singleton
+@Named
 public class MavenProjectDependencyProcessor {
 
 	private static final ProjectDependencies EMPTY_DEPENDENCIES = new ProjectDependencies(Map.of(), Set.of());
@@ -60,11 +63,14 @@ public class MavenProjectDependencyProcessor {
 	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump")
 			|| Boolean.getBoolean("tycho.p2.dump.dependencies");
 
-	@Requirement
-	private InstallableUnitGenerator generator;
+	private final InstallableUnitGenerator generator;
+	private final InstallableUnitSlicer slicer;
 
-	@Requirement
-	private InstallableUnitSlicer slicer;
+	@Inject
+	public MavenProjectDependencyProcessor(InstallableUnitGenerator generator, InstallableUnitSlicer slicer) {
+		this.generator = generator;
+		this.slicer = slicer;
+	}
 
 	/**
 	 * Computes the {@link ProjectDependencyClosure} of the given collection of

@@ -17,7 +17,6 @@ import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -25,6 +24,8 @@ import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
+
+import javax.inject.Inject;
 
 /**
  * Updates the artifact repository metadata checksums and size of modified artifacts in the given
@@ -61,9 +62,9 @@ public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
     @Parameter(defaultValue = "true", property = "p2.repository.xz.keep")
     private boolean keepNonXzIndexFiles;
 
-    @Component
-    MirrorApplicationService mirrorApp;
-    @Component
+    @Inject
+    private MirrorApplicationService mirrorApp;
+    @Inject
     private FileLockService fileLockService;
 
     @Override

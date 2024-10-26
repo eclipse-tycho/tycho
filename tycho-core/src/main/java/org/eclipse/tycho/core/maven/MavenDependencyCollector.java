@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
@@ -24,6 +23,7 @@ import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.model.PluginRef;
+import org.slf4j.Logger;
 
 /**
  * Generates list of Maven dependencies from project OSGi/Eclipse dependencies

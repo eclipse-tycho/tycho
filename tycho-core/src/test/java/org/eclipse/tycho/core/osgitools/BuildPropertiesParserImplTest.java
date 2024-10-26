@@ -49,7 +49,7 @@ public class BuildPropertiesParserImplTest {
         when(project1.getBasedir()).thenReturn(new File("/bathToProject1"));
         when(project2.getBasedir()).thenReturn(new File("/bathToProject2"));
 
-        parser = new BuildPropertiesParserImpl();
+        parser = new BuildPropertiesParserImpl(null);
     }
 
     @Test

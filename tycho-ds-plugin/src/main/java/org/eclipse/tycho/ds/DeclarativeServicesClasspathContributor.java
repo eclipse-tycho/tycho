@@ -18,13 +18,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
-import org.apache.maven.SessionScoped;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ResolvedArtifactKey;
@@ -34,6 +34,7 @@ import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.core.osgitools.AbstractSpecificationClasspathContributor;
+import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 
@@ -43,8 +44,8 @@ import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Processor;
 
-@Component(role = ClasspathContributor.class, hint = "ds-annotations")
-@SessionScoped
+@Singleton
+@Named("ds-annotations")
 public class DeclarativeServicesClasspathContributor extends AbstractSpecificationClasspathContributor
 		implements ClasspathContributor {
 
@@ -56,18 +57,20 @@ public class DeclarativeServicesClasspathContributor extends AbstractSpecificati
 	private static final String DS_ANNOTATIONS_1_2_ARTIFACT_ID = "osgi.cmpn";
 	private static final String DS_ANNOTATIONS_1_2_VERSION = "5.0.0";
 
-	@Requirement
-	DeclarativeServiceConfigurationReader configurationReader;
-
-	@Requirement
-	MavenDependenciesResolver dependenciesResolver;
-
-	@Requirement
-	TychoProjectManager projectManager;
+	private final DeclarativeServiceConfigurationReader configurationReader;
+	private final MavenDependenciesResolver dependenciesResolver;
+	private final TychoProjectManager projectManager;
 
 	@Inject
-	public DeclarativeServicesClasspathContributor(MavenSession session) {
-		super(session, DS_ANNOTATIONS_PACKAGE, DS_ANNOTATIONS_GROUP_ID, DS_ANNOTATIONS_ARTIFACT_ID);
+	public DeclarativeServicesClasspathContributor(MavenBundleResolver mavenBundleResolver,
+												   Provider<MavenSession> sessionProvider,
+												   DeclarativeServiceConfigurationReader configurationReader,
+												   MavenDependenciesResolver dependenciesResolver,
+												   TychoProjectManager projectManager) {
+		super(mavenBundleResolver, sessionProvider, DS_ANNOTATIONS_PACKAGE, DS_ANNOTATIONS_GROUP_ID, DS_ANNOTATIONS_ARTIFACT_ID);
+		this.configurationReader = configurationReader;
+		this.dependenciesResolver = dependenciesResolver;
+		this.projectManager = projectManager;
 	}
 
 	@Override
@@ -77,7 +80,7 @@ public class DeclarativeServicesClasspathContributor extends AbstractSpecificati
 			if (v.getMajor() == 1 && v.getMinor() == 2) {
 				// this is another artifact see https://github.com/osgi/osgi/issues/570
 				try {
-					Artifact artifact = dependenciesResolver.resolveArtifact(project, session, DS_ANNOTATIONS_GROUP_ID,
+					Artifact artifact = dependenciesResolver.resolveArtifact(project, sessionProvider.get(), DS_ANNOTATIONS_GROUP_ID,
 							DS_ANNOTATIONS_1_2_ARTIFACT_ID, DS_ANNOTATIONS_1_2_VERSION);
 					ArtifactKey artifactKey = projectManager.getArtifactKey(artifact);
 					return Optional.of(ResolvedArtifactKey.of(artifactKey, artifact.getFile()));

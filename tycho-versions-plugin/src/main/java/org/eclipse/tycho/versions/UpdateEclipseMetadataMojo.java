@@ -18,11 +18,12 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.versions.engine.EclipseVersionUpdater;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
+
+import javax.inject.Inject;
 
 /**
  * Update Eclipse/OSGi metadata (MANIFEST.MF, feature.xml, product.xml) version to match
@@ -35,10 +36,10 @@ public class UpdateEclipseMetadataMojo extends AbstractMojo {
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
-    @Component
+    @Inject
     private ProjectMetadataReader pomReader;
 
-    @Component
+    @Inject
     private EclipseVersionUpdater metadataUpdater;
 
     @Override

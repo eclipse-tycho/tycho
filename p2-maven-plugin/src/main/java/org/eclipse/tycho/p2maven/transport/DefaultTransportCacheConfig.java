@@ -16,42 +16,26 @@ import java.io.File;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.aether.transfer.TransferListener;
 import org.eclipse.tycho.TychoConstants;
 
-@Component(role = TransportCacheConfig.class)
-public class DefaultTransportCacheConfig implements TransportCacheConfig, Initializable {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
+public class DefaultTransportCacheConfig implements TransportCacheConfig {
 
 	private boolean offline;
 	private boolean update;
 	private boolean interactive;
 
-	@Requirement
-	private LegacySupport legacySupport;
-	private File cacheLocation;
+	private final LegacySupport legacySupport;
 
-	@Override
-	public void initialize() throws InitializationException {
-		File repoDir;
-		MavenSession session = legacySupport.getSession();
-		if (session == null) {
-			repoDir = TychoConstants.DEFAULT_USER_LOCALREPOSITORY;
-			offline = false;
-			update = false;
-			interactive = false;
-		} else {
-			offline = session.isOffline();
-			repoDir = new File(session.getLocalRepository().getBasedir());
-			update = session.getRequest().isUpdateSnapshots();
-			interactive = session.getRequest().isInteractiveMode() && showTransferProgress(session);
-		}
-
-		cacheLocation = new File(repoDir, ".cache/tycho");
-		cacheLocation.mkdirs();
+	@Inject
+	public DefaultTransportCacheConfig(LegacySupport legacySupport) {
+		this.legacySupport = legacySupport;
 	}
 
 	private boolean showTransferProgress(MavenSession session) {
@@ -79,6 +63,22 @@ public class DefaultTransportCacheConfig implements TransportCacheConfig, Initia
 
 	@Override
 	public File getCacheLocation() {
+		File repoDir;
+		MavenSession session = legacySupport.getSession();
+		if (session == null) {
+			repoDir = TychoConstants.DEFAULT_USER_LOCALREPOSITORY;
+			offline = false;
+			update = false;
+			interactive = false;
+		} else {
+			offline = session.isOffline();
+			repoDir = new File(session.getLocalRepository().getBasedir());
+			update = session.getRequest().isUpdateSnapshots();
+			interactive = session.getRequest().isInteractiveMode() && showTransferProgress(session);
+		}
+
+		File cacheLocation = new File(repoDir, ".cache/tycho");
+		cacheLocation.mkdirs();
 		return cacheLocation;
 	}
 

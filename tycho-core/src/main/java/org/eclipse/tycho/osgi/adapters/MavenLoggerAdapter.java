@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.adapters;
 
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.slf4j.Logger;
 
 public class MavenLoggerAdapter implements MavenLogger {
 

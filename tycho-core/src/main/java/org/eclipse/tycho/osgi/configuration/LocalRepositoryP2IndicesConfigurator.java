@@ -12,17 +12,24 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.configuration;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "LocalRepositoryP2Indices")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("LocalRepositoryP2Indices")
 public class LocalRepositoryP2IndicesConfigurator implements EquinoxLifecycleListener {
 
-    @Requirement
-    LocalRepositoryP2Indices indices;
+    private final LocalRepositoryP2Indices indices;
+
+    @Inject
+    public LocalRepositoryP2IndicesConfigurator(LocalRepositoryP2Indices indices) {
+        this.indices = indices;
+    }
 
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {

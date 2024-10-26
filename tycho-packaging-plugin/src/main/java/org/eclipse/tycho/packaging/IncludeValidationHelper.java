@@ -24,25 +24,31 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.eclipse.tycho.BuildProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = IncludeValidationHelper.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class IncludeValidationHelper {
+	private final Logger logger;
 
-	@Requirement
-	private Logger log;
-
+	@Inject
 	public IncludeValidationHelper() {
+		this(LoggerFactory.getLogger(IncludeValidationHelper.class));
 	}
 
-	public IncludeValidationHelper(Logger log) {
-		this.log = log;
+	public IncludeValidationHelper(Logger logger) {
+		this.logger = logger;
 	}
 
 	public void checkBinIncludesExist(MavenProject project, BuildProperties buildProperties, boolean strict,
-			String... ignoredIncludes) throws MojoExecutionException {
+									  String... ignoredIncludes) throws MojoExecutionException {
 		checkIncludesExist("bin.includes", buildProperties.getBinIncludes(), project, strict, ignoredIncludes);
 	}
 
@@ -62,7 +68,7 @@ public class IncludeValidationHelper {
 			if (strict) {
 				throw new MojoExecutionException(message);
 			} else {
-				log.warn(message);
+				logger.warn(message);
 			}
 		}
 		for (String includePattern : includePatterns) {
@@ -88,7 +94,7 @@ public class IncludeValidationHelper {
 			if (strict) {
 				throw new MojoExecutionException(message);
 			} else {
-				log.warn(message);
+				logger.warn(message);
 			}
 		}
 	}

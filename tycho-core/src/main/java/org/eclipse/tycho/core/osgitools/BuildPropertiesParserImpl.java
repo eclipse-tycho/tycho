@@ -28,9 +28,6 @@ import java.util.stream.Collectors;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.Interpolator;
@@ -38,13 +35,23 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.BuildPropertiesImpl;
 import org.eclipse.tycho.core.maven.TychoInterpolator;
 
-@Component(role = BuildPropertiesParser.class)
-public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposable {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
+@Singleton
+@Named
+public class BuildPropertiesParserImpl implements BuildPropertiesParser {
+
+    // TODO: preDestroy -> cache.clear? But WHY as container would destroy instance anyway!
     private final Map<String, BuildPropertiesImpl> cache = new HashMap<>();
 
-    @Requirement
-    LegacySupport legacySupport;
+    private final LegacySupport legacySupport;
+
+    @Inject
+    public BuildPropertiesParserImpl(LegacySupport legacySupport) {
+        this.legacySupport = legacySupport;
+    }
 
     @Override
     public BuildProperties parse(ReactorProject project) {
@@ -90,11 +97,6 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
             cache.put(filePath, buildProperties);
         }
         return buildProperties;
-    }
-
-    @Override
-    public void dispose() {
-        cache.clear();
     }
 
     protected static Properties readProperties(File propsFile, MavenProject mavenProject) {

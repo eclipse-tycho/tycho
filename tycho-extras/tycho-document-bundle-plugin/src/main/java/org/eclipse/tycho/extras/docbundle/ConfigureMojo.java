@@ -30,6 +30,7 @@ public class ConfigureMojo extends AbstractMojo {
 	 * name of the parameter to inject javadoc source dependencies
 	 */
 	public static final String PARAM_INJECT_JAVADOC_DEPENDENCIES = "injectJavadocDependencies";
+
 	@Parameter(name = PARAM_INJECT_JAVADOC_DEPENDENCIES)
 	private boolean dummyBoolean;
 

@@ -25,9 +25,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -49,30 +46,39 @@ import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = TargetPlatformService.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class DefaultTargetPlatformService implements TargetPlatformService {
 
-    @Requirement
-    private Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private LegacySupport legacySupport;
+    private final LegacySupport legacySupport;
+    private final DependencyResolver dependencyResolver;
+    private final ReactorRepositoryManager repositoryManager;
+    private final Provider<TargetPlatformFactory> tpFactoryProvider;
+    private final IProvisioningAgent agent;
 
-    @Requirement(hint = "p2")
-    private DependencyResolver dependencyResolver;
-
-    @Requirement
-    private ReactorRepositoryManager repositoryManager;
-
-    @Requirement
-    private P2ResolverFactory p2ResolverFactory;
-
-    @Requirement
-    private TargetPlatformFactory tpFactory;
-
-    @Requirement
-    private IProvisioningAgent agent;
+    @Inject
+    public DefaultTargetPlatformService(LegacySupport legacySupport,
+                                        @Named("p2") DependencyResolver dependencyResolver,
+                                        ReactorRepositoryManager repositoryManager,
+                                        P2ResolverFactory p2ResolverFactory,
+                                        Provider<TargetPlatformFactory> tpFactoryProvider,
+                                        IProvisioningAgent agent) {
+        this.legacySupport = legacySupport;
+        this.dependencyResolver = dependencyResolver;
+        this.repositoryManager = repositoryManager;
+        this.tpFactoryProvider = tpFactoryProvider;
+        this.agent = agent;
+    }
 
     @Override
     public Optional<TargetPlatform> getTargetPlatform() throws DependencyResolutionException {
@@ -146,7 +152,7 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
                 PomDependencyCollector pomDependenciesCollector = dependencyResolver
                         .resolvePomDependencies(mavenSession, project.adapt(MavenProject.class));
                 List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
-                return tpFactory.createTargetPlatformWithUpdatedReactorContent(preliminaryTargetPlatform,
+                return tpFactoryProvider.get().createTargetPlatformWithUpdatedReactorContent(preliminaryTargetPlatform,
                         upstreamProjectResults, pomDependenciesCollector);
             }
         });

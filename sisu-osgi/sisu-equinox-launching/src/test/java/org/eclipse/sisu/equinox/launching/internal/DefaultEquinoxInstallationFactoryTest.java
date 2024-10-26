@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.launching.BundleReference;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
@@ -78,7 +77,7 @@ public class DefaultEquinoxInstallationFactoryTest {
         instDesc = new DefaultEquinoxInstallationDescription();
         defaultLevel = new BundleStartLevel(null, 7, false);
 
-        subject = new DefaultEquinoxInstallationFactory(mock(Logger.class));
+        subject = new DefaultEquinoxInstallationFactory(null);
     }
 
     @Test

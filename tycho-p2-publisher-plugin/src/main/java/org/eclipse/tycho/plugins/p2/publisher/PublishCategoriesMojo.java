@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -29,13 +28,13 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.DependencySeed;
-import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
+
+import javax.inject.Inject;
 
 /**
  * <p>
@@ -47,7 +46,7 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 @Mojo(name = "publish-categories", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public final class PublishCategoriesMojo extends AbstractPublishMojo {
 
-    @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
+    @Inject
     private EclipseRepositoryProject eclipseRepositoryProject;
 
     /**

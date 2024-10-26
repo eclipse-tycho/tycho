@@ -18,21 +18,35 @@ package org.eclipse.tycho.pomless;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Properties;
 import java.util.function.Supplier;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Organization;
-import org.codehaus.plexus.component.annotations.Component;
+import org.apache.maven.model.building.ModelProcessor;
+import org.apache.maven.model.io.ModelWriter;
+import org.eclipse.sisu.Typed;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.w3c.dom.Element;
 
-@Component(role = Mapping.class, hint = TychoFeatureMapping.PACKAGING)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(TychoFeatureMapping.PACKAGING)
+@Typed(Mapping.class)
 public class TychoFeatureMapping extends AbstractXMLTychoMapping {
 
     private static final String NAME_PREFIX = "[feature] ";
     private static final String FEATURE_XML = "feature.xml";
     public static final String PACKAGING = "eclipse-feature";
+
+    @Inject
+    public TychoFeatureMapping(Map<String, ModelWriter> modelWriters, Map<String, ModelProcessor> modelProcessors) {
+        super(modelWriters, modelProcessors);
+    }
 
     @Override
     protected String getPackaging() {

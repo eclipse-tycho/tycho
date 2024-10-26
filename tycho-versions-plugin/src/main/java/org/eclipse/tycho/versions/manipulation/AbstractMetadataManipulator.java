@@ -14,18 +14,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.pom.PomFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractMetadataManipulator implements MetadataManipulator {
-
-    @Requirement
-    protected Logger logger;
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected boolean isBundle(ProjectMetadata project) {
         PomFile pom = project.getMetadata(PomFile.class);

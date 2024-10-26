@@ -18,14 +18,16 @@ import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
+import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.eclipse.tycho.FileLockService;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * <p>
@@ -35,8 +37,8 @@ import org.eclipse.tycho.FileLockService;
 @Mojo(name = "archive-repository", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
 
-    @Component(role = Archiver.class, hint = "zip")
-    private Archiver inflater;
+    @Inject
+    private Provider<ZipArchiver> inflaterProvider;
 
     /**
      * <p>
@@ -52,7 +54,7 @@ public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter(defaultValue = "false")
     private boolean skipArchive;
 
-    @Component
+    @Inject
     private FileLockService fileLockService;
 
     @Override
@@ -64,6 +66,7 @@ public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
         File destFile = getBuildDirectory().getChild(finalName + ".zip");
         try (var repoLock = fileLockService.lockVirtually(repositoryLocation);
                 var destLock = fileLockService.lockVirtually(destFile);) {
+            ZipArchiver inflater = inflaterProvider.get();
             inflater.addFileSet(DefaultFileSet.fileSet(repositoryLocation).prefixed(""));
             inflater.setDestFile(destFile);
             inflater.createArchive();

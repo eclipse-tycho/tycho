@@ -26,8 +26,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.AbstractScanner;
@@ -98,12 +96,6 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
     protected boolean skip;
 
     @Component
-    protected PlexusContainer plexus;
-
-    @Component
-    protected MavenProjectHelper projectHelper;
-
-    @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
     @Component

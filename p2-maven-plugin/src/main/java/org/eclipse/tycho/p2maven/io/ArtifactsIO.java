@@ -21,6 +21,8 @@ import java.io.OutputStream;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -30,6 +32,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+@Singleton
+@Named
 public class ArtifactsIO {
 
     private static class Writer35M7 extends SimpleArtifactRepositoryIO.Writer {

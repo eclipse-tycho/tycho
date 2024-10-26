@@ -18,8 +18,6 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -41,15 +39,23 @@ import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.publisher.DownloadStatsAdvice;
 import org.osgi.framework.BundleException;
 
-@Component(role = DependencyMetadataGenerator.class, hint = DependencyMetadataGenerator.SOURCE_BUNDLE)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(DependencyMetadataGenerator.SOURCE_BUNDLE)
 public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGenerator
         implements DependencyMetadataGenerator {
 
-    @Requirement
-    private MavenContext mavenContext;
+    private final MavenContext mavenContext;
+    private final BuildPropertiesParser buildPropertiesParser;
 
-    @Requirement
-    private BuildPropertiesParser buildPropertiesParser;
+    @Inject
+    public SourcesBundleDependencyMetadataGenerator(MavenContext mavenContext, BuildPropertiesParser buildPropertiesParser) {
+        this.mavenContext = mavenContext;
+        this.buildPropertiesParser = buildPropertiesParser;
+    }
 
     @Override
     public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
@@ -124,9 +130,4 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
     protected BuildPropertiesParser getBuildPropertiesParser() {
         return buildPropertiesParser;
     }
-
-    public void setMavenContext(MavenContext mockMavenContext) {
-        mavenContext = mockMavenContext;
-    }
-
 }

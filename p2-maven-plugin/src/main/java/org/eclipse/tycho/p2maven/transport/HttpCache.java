@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import org.slf4j.Logger;
+
 import java.io.FileNotFoundException;
 import java.net.URI;
-
-import org.codehaus.plexus.logging.Logger;
 
 public interface HttpCache {
 

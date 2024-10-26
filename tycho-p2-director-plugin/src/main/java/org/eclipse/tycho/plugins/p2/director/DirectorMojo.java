@@ -28,7 +28,6 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -49,6 +48,8 @@ import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.p2tools.MavenDirectorLog;
 import org.eclipse.tycho.p2tools.copiedfromp2.DirectorApplication;
 import org.eclipse.tycho.p2tools.copiedfromp2.PhaseSetFactory;
+
+import javax.inject.Inject;
 
 /**
  * Allows to run the <a href=
@@ -87,16 +88,16 @@ import org.eclipse.tycho.p2tools.copiedfromp2.PhaseSetFactory;
 @Mojo(name = "director", defaultPhase = LifecyclePhase.NONE, threadSafe = true, requiresProject = false)
 public class DirectorMojo extends AbstractMojo {
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
-    @Component
+    @Inject
     private IProvisioningAgentProvider agentProvider;
 
-    @Component
+    @Inject
     private LegacySupport legacySupport;
 
-    @Component
+    @Inject
     private MojoExecution execution;
 
     /**

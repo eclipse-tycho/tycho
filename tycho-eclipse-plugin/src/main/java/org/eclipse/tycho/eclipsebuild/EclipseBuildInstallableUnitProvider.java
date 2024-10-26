@@ -18,8 +18,6 @@ import java.util.Optional;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
@@ -29,11 +27,20 @@ import org.eclipse.tycho.helper.PluginConfigurationHelper;
 import org.eclipse.tycho.helper.PluginConfigurationHelper.Configuration;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 
-@Component(role = InstallableUnitProvider.class, hint = "eclipse-build")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("eclipse-build")
 public class EclipseBuildInstallableUnitProvider implements InstallableUnitProvider {
 
-	@Requirement
-	PluginConfigurationHelper configurationHelper;
+	private final PluginConfigurationHelper configurationHelper;
+
+	@Inject
+	public EclipseBuildInstallableUnitProvider(PluginConfigurationHelper configurationHelper) {
+		this.configurationHelper = configurationHelper;
+	}
 
 	@Override
 	public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)

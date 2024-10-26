@@ -21,9 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.maven.model.Repository;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -41,25 +38,33 @@ import org.eclipse.tycho.helper.MavenPropertyHelper;
 import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
 import org.eclipse.tycho.p2maven.ListQueryable;
 import org.eclipse.tycho.p2maven.LoggerProgressMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Allows unique access to P2 repositories from maven
  */
-@Component(role = P2RepositoryManager.class)
+@Singleton
+@Named
 public class P2RepositoryManager {
 	private static final String PROPERTY_KEY = "eclipse.p2.maxDownloadAttempts";
 
-	@Requirement
-	MavenPropertyHelper propertyHelper;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Requirement
-	IRepositoryIdManager repositoryIdManager;
+	private final MavenPropertyHelper propertyHelper;
+	private final IRepositoryIdManager repositoryIdManager;
+	private final IProvisioningAgent agent;
 
-	@Requirement
-	IProvisioningAgent agent;
-
-	@Requirement
-	Logger logger;
+	@Inject
+	public P2RepositoryManager(MavenPropertyHelper propertyHelper, IRepositoryIdManager repositoryIdManager, IProvisioningAgent agent) {
+		this.propertyHelper = propertyHelper;
+		this.repositoryIdManager = repositoryIdManager;
+		this.agent = agent;
+	}
 
 	/**
 	 * Loads the {@link IArtifactRepository} from the given {@link Repository}, this

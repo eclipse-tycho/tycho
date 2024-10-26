@@ -44,7 +44,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -62,7 +61,6 @@ import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.equinox.app.IApplication;
@@ -72,6 +70,10 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.PGPService;
 import org.eclipse.tycho.p2maven.tools.TychoFeaturesAndBundlesPublisherApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 /**
  * <p>
@@ -120,6 +122,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     private static final List<String> DEFAULT_KEY_SERVER = List.of(PGPService.UBUNTU_KEY_SERVER,
             PGPService.MAVEN_CENTRAL_KEY_SERVER);
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -174,18 +178,16 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.directory}/repository")
     private File destination;
 
-    @Component
-    private Logger logger;
-    @Component
+    @Inject
     private RepositorySystem repositorySystem;
 
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
-    @Component
+    @Inject
     private PGPService pgpService;
 
     /**

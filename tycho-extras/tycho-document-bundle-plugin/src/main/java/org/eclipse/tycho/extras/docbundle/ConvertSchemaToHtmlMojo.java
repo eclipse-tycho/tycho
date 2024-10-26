@@ -27,8 +27,6 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -47,6 +45,8 @@ import org.eclipse.tycho.osgi.framework.EclipseWorkspace;
 import org.eclipse.tycho.osgi.framework.EclipseWorkspaceManager;
 import org.eclipse.tycho.osgi.framework.Features;
 import org.osgi.framework.BundleException;
+
+import javax.inject.Inject;
 
 /**
  * This mojo provides the functionality of
@@ -75,9 +75,9 @@ public class ConvertSchemaToHtmlMojo extends AbstractMojo {
 	@Parameter(property = "reactorProjects", required = true, readonly = true)
 	protected List<MavenProject> reactorProjects;
 
-	@Component
+	@Inject
 	private EclipseWorkspaceManager workspaceManager;
-	@Component
+	@Inject
 	private EclipseApplicationManager applicationManager;
 
 	@Override
@@ -127,10 +127,9 @@ public class ConvertSchemaToHtmlMojo extends AbstractMojo {
 		try (EclipseFramework framework = application.startFramework(workspace, List.of())) {
 			ConvertSchemaToHtmlResult result = framework.execute(new ConvertSchemaToHtmlRunner(manifestList,
 					destination, cssURL, searchPaths, project.getBasedir()));
-			Log log = getLog();
 			List<String> list = result.errors().toList();
 			if (!list.isEmpty()) {
-				list.forEach(log::error);
+				list.forEach(m -> getLog().error(m));
 				throw new MojoFailureException("There are schema generation errors");
 			}
 		} catch (BundleException e) {

@@ -21,18 +21,25 @@ import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.util.Objects;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.osgi.signedcontent.SignedContent;
 import org.eclipse.osgi.signedcontent.SignedContentFactory;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.osgi.framework.Bundle;
 
-@Component(role = SignedContentFactory.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class DefaultSignedContentFactory implements SignedContentFactory {
 
-	@Requirement(hint = "connect")
-	private EquinoxServiceFactory serviceFactory;
+	private final EquinoxServiceFactory serviceFactory;
+
+	@Inject
+	public DefaultSignedContentFactory(@Named("connect") EquinoxServiceFactory serviceFactory) {
+		this.serviceFactory = serviceFactory;
+	}
 
 	@Override
 	public SignedContent getSignedContent(File content) throws IOException, InvalidKeyException, SignatureException,

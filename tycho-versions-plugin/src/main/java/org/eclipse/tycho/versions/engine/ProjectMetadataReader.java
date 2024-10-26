@@ -19,30 +19,32 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.model.building.ModelProcessor;
-import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.versions.pom.GAV;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.pom.Profile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = ProjectMetadataReader.class, instantiationStrategy = "per-lookup")
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named
 public class ProjectMetadataReader {
     private static final String PACKAGING_POM = "pom";
 
-    @Requirement
-    private Logger log;
-    @Requirement
-    private PlexusContainer container;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Map<File, ProjectMetadata> projects = new LinkedHashMap<>();
 
-    private Map<File, ProjectMetadata> projects = new LinkedHashMap<>();
+    private final Map<String, ModelProcessor> modelProcessors;
+
+    @Inject
+    public ProjectMetadataReader(Map<String, ModelProcessor> modelProcessors) {
+        this.modelProcessors = modelProcessors;
+    }
 
     public void reset() {
         projects.clear();
@@ -51,7 +53,7 @@ public class ProjectMetadataReader {
     public PomFile addBasedir(File file, boolean recursive) throws IOException {
         // Unfold configuration inheritance
         if (!file.exists()) {
-            log.info("Project does not exist at " + file);
+            logger.info("Project does not exist at " + file);
             return null;
         }
 
@@ -70,7 +72,7 @@ public class ProjectMetadataReader {
         }
 
         if (isInvalidPomFile(pomFile)) {
-            log.warn("No pom file found at " + baseDir);
+            logger.warn("No pom file found at " + baseDir);
             return null;
         }
 
@@ -103,16 +105,9 @@ public class ProjectMetadataReader {
         return pom;
     }
 
-    private File lookupPomFile(File basedir) throws IOException {
-        List<ModelProcessor> modelprocessors;
-        try {
-            modelprocessors = container.lookupList(ModelProcessor.class);
-        } catch (ComponentLookupException e) {
-            throw new IOException("can't lookup ModelProcessors");
-        }
-
+    private File lookupPomFile(File basedir) {
         File pomFile = null;
-        for (ModelProcessor modelProcessor : modelprocessors) {
+        for (ModelProcessor modelProcessor : modelProcessors.values()) {
             File locatePom = modelProcessor.locatePom(basedir);
             if (locatePom.exists()) {
                 pomFile = locatePom;

@@ -22,23 +22,35 @@
 	<description>A build extension which allows to omit pom.xml files for all Eclipse PDE projects, Plug-ins(Bundles) and Features 
   as well as Eclipse Products, Target-Platforms and p2-repository definitions (category.xml).
   </description>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-component-metadata</artifactId>
-			</plugin>
-		</plugins>
-	</build>
 	<dependencies>
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>io.takari.polyglot</groupId>
 			<artifactId>polyglot-common</artifactId>
 			<version>0.7.2</version>
 		</dependency>
 		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-utils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-xml</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.sisu</groupId>
-			<artifactId>org.eclipse.sisu.plexus</artifactId>
+			<artifactId>org.eclipse.sisu.inject</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -77,4 +89,12 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.sisu</groupId>
+				<artifactId>sisu-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 </project>

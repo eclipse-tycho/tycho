@@ -44,7 +44,6 @@ public class MavenLocationUpdater {
 
     @Inject
     protected ArtifactHandlerManager artifactHandlerManager;
-
     @Inject
     protected RepositorySystem repositorySystem;
     @Inject

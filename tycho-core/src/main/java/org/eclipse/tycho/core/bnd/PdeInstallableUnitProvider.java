@@ -35,9 +35,6 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.eclipse.core.runtime.CoreException;
@@ -58,24 +55,34 @@ import aQute.bnd.osgi.Processor;
 import aQute.bnd.version.MavenVersion;
 import aQute.bnd.version.Version;
 import aQute.lib.manifest.ManifestUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * This provides the basics we need to sort the build by scanning the sourcecode for packages
  * provided and compute a preliminary manifest
  */
-@Component(role = InstallableUnitProvider.class, hint = TychoConstants.PDE_BND)
+@Singleton
+@Named(TychoConstants.PDE_BND)
 public class PdeInstallableUnitProvider implements InstallableUnitProvider {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private Logger logger;
-    @Requirement
-    private TychoProjectManager projectManager;
-    @Requirement
-    private InstallableUnitGenerator installableUnitGenerator;
-    @Requirement
-    private MavenDependenciesResolver mavenDependenciesResolver;
+    private final TychoProjectManager projectManager;
+    private final  InstallableUnitGenerator installableUnitGenerator;
+    private final MavenDependenciesResolver mavenDependenciesResolver;
 
-    private Map<MavenProject, Collection<IInstallableUnit>> cache = new ConcurrentHashMap<>();
+    private final Map<MavenProject, Collection<IInstallableUnit>> cache = new ConcurrentHashMap<>();
+
+    @Inject
+    public PdeInstallableUnitProvider(TychoProjectManager projectManager, InstallableUnitGenerator installableUnitGenerator, MavenDependenciesResolver mavenDependenciesResolver) {
+        this.projectManager = projectManager;
+        this.installableUnitGenerator = installableUnitGenerator;
+        this.mavenDependenciesResolver = mavenDependenciesResolver;
+    }
 
     @Override
     public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)

@@ -23,8 +23,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.DependencyArtifacts;
@@ -42,10 +40,15 @@ import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 /**
  * Tool to obtain the list of p2 repositories that contain the dependencies of a module.
  */
-@Component(role = RepositoryReferenceTool.class)
+@Singleton
+@Named
 public class RepositoryReferenceTool {
     /**
      * Option to indicate that the publisher results of the given module shall be included in the
@@ -53,17 +56,21 @@ public class RepositoryReferenceTool {
      */
     public static final int REPOSITORIES_INCLUDE_CURRENT_MODULE = 1;
 
-    @Requirement(hint = "p2")
-    private DependencyResolver dependencyResolver;
+    private final DependencyResolver dependencyResolver;
+    private final MetadataSerializable serializer;
+    private final TychoProjectManager projectManager;
+    private final ReactorRepositoryManager repositoryManager;
 
-    @Requirement
-    private MetadataSerializable serializer;
-
-    @Requirement
-    private TychoProjectManager projectManager;
-
-    @Requirement
-    private ReactorRepositoryManager repositoryManager;
+    @Inject
+    public RepositoryReferenceTool(@Named("p2") DependencyResolver dependencyResolver,
+                                   MetadataSerializable serializer,
+                                   TychoProjectManager projectManager,
+                                   ReactorRepositoryManager repositoryManager) {
+        this.dependencyResolver = dependencyResolver;
+        this.serializer = serializer;
+        this.projectManager = projectManager;
+        this.repositoryManager = repositoryManager;
+    }
 
     /**
      * Returns the list of visible p2 repositories for the build of the current module. The list

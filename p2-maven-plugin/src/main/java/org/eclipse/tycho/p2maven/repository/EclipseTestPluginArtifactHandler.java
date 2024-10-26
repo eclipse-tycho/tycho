@@ -12,11 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.repository;
 
-import org.apache.maven.artifact.handler.ArtifactHandler;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactType;
 
-@Component(role = ArtifactHandler.class, hint = ArtifactType.TYPE_ECLIPSE_TEST_PLUGIN)
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(ArtifactType.TYPE_ECLIPSE_TEST_PLUGIN)
 public class EclipseTestPluginArtifactHandler extends AbstractArtifactHandler {
 
 	public EclipseTestPluginArtifactHandler() {

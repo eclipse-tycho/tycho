@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.osgi.container.ModuleCapability;
 import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
@@ -48,6 +47,9 @@ import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.resource.Capability;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 /**
  * Helper class that computes compile dependencies of a bundle project.
  * 
@@ -57,7 +59,8 @@ import org.osgi.resource.Capability;
  * Note that some functionality, namely SecondaryDependencies, ExtraClasspathEntries and
  * isPatchFragment, has been removed due to time constraints.
  */
-@Component(role = DependencyComputer.class)
+@Singleton
+@Named
 public class DependencyComputer {
 
     public static class DependencyEntry {

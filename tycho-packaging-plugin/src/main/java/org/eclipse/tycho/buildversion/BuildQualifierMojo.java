@@ -29,7 +29,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -39,6 +38,8 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
 import org.eclipse.tycho.core.VersioningHelper;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.osgi.framework.Version;
+
+import javax.inject.Inject;
 
 /**
  * <p>
@@ -123,10 +124,10 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     @Parameter(property = "mojoExecution", readonly = true)
     protected MojoExecution execution;
 
-	@Component(role = BuildTimestampProvider.class)
-	protected Map<String, BuildTimestampProvider> timestampProviders;
+    @Inject
+    protected Map<String, BuildTimestampProvider> timestampProviders;
 
-	@Component
+    @Inject
 	private BuildPropertiesParser buildPropertiesParser;
 
 	/**
@@ -266,7 +267,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 	}
 
     protected Date getBuildTimestamp() throws MojoExecutionException {
-        String hint = timestampProvider != null ? timestampProvider : DefaultBuildTimestampProvider.ROLE_HINT;
+        String hint = timestampProvider != null ? timestampProvider : "default";
         BuildTimestampProvider provider = timestampProviders.get(hint);
         if (provider == null) {
             throw new MojoExecutionException("Unable to lookup BuildTimestampProvider with hint='" + hint + "'");

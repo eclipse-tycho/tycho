@@ -35,18 +35,15 @@ import org.apache.maven.model.PluginExecution;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.AbstractScanner;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildProperties;
@@ -68,6 +65,10 @@ import org.eclipse.tycho.packaging.LicenseFeatureHelper;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generates a source feature for projects of packaging type <code>eclipse-feature</code>. By
@@ -113,6 +114,8 @@ public class SourceFeatureMojo extends AbstractMojo {
     private static final String FEATURE_PROPERTIES = "feature.properties";
 
     private static final String GEN_DIR = "sources-feature";
+    
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
@@ -200,7 +203,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
-    @Component
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
     /**
@@ -210,22 +213,19 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Parameter(property = "project.build.finalName")
     private String finalName;
 
-    @Component(role = Archiver.class, hint = "jar")
-    private JarArchiver jarArchiver;
+    @Inject
+    private Provider<JarArchiver> jarArchiverProvider;
 
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
-    @Component
+    @Inject
     private LicenseFeatureHelper licenseFeatureHelper;
 
-    @Component()
+    @Inject
     P2ResolverFactory factory;
 
-    @Component
-    private Logger logger;
-
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override
@@ -240,7 +240,7 @@ public class SourceFeatureMojo extends AbstractMojo {
                 File sourceFeatureXml = generateSourceFeatureXml(mergedSourceFeatureProps, sourceFeatureTemplateProps);
                 writeProperties(mergedSourceFeatureProps, getMergedSourceFeaturePropertiesFile());
                 MavenArchiver archiver = new MavenArchiver();
-                archiver.setArchiver(jarArchiver);
+                archiver.setArchiver(jarArchiverProvider.get());
                 File outputJarFile = getOutputJarFile();
                 archiver.setOutputFile(outputJarFile);
                 File template = new File(project.getBasedir(), FEATURE_TEMPLATE_DIR);

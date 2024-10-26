@@ -26,7 +26,11 @@ import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.pom.PomFile;
 
-@Component(role = MetadataManipulator.class, hint = "p2-installable-unit")
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("p2-installable-unit")
 public class P2iuXmlManipulator extends AbstractMetadataManipulator {
 
     @Override

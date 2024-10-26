@@ -41,7 +41,6 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
@@ -55,6 +54,7 @@ import org.osgi.framework.connect.ConnectContent;
 import org.osgi.framework.connect.ConnectFrameworkFactory;
 import org.osgi.framework.connect.ConnectModule;
 import org.osgi.framework.connect.ModuleConnector;
+import org.slf4j.Logger;
 
 /**
  * The PlexusModuleConnector scans a linear classpath for bundles and install

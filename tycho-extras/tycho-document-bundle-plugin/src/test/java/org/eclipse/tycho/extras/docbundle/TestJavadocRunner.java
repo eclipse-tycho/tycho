@@ -32,6 +32,7 @@ import org.apache.maven.plugin.testing.SilentLog;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.junit.jupiter.api.Test;
+import org.slf4j.helpers.NOPLogger;
 
 class TestJavadocRunner {
 
@@ -138,8 +139,8 @@ class TestJavadocRunner {
 	private JavadocRunner buildTestRunner() {
 		final JavadocRunner javadocRunner = new JavadocRunner();
 		javadocRunner.setDocletArtifactsResolver(mock(DocletArtifactsResolver.class));
-		javadocRunner.setLog(new SilentLog());
-		javadocRunner.setBundleReader(new DefaultBundleReader());
+		javadocRunner.setLogger(NOPLogger.NOP_LOGGER);
+		javadocRunner.setBundleReader(new DefaultBundleReader(null));
 		return javadocRunner;
 	}
 }

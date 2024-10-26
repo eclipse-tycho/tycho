@@ -23,7 +23,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.apache.maven.model.Model;
+import org.apache.maven.model.building.ModelProcessor;
+import org.apache.maven.model.io.ModelWriter;
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.sisu.Typed;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.eclipse.tycho.pomless.NoParentPomFound;
@@ -33,10 +36,21 @@ import org.sonatype.maven.polyglot.mapping.Mapping;
 import aQute.bnd.build.Project;
 import aQute.bnd.build.Workspace;
 
-@Component(role = Mapping.class, hint = "bnd-workspace")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("bnd-workspace")
+@Typed(Mapping.class)
 public class BndWorkspaceMapping extends AbstractTychoMapping {
 
-	private Map<String, List<String>> modulesCache = new ConcurrentHashMap<String, List<String>>();
+	private final Map<String, List<String>> modulesCache = new ConcurrentHashMap<>();
+
+	@Inject
+	public BndWorkspaceMapping(Map<String, ModelWriter> modelWriters, Map<String, ModelProcessor> modelProcessors) {
+		super(modelWriters, modelProcessors);
+	}
 
 	@Override
 	public float getPriority() {
@@ -98,8 +112,7 @@ public class BndWorkspaceMapping extends AbstractTychoMapping {
 		model.setGroupId(workspaceRoot.getFileName().toString());
 		model.setArtifactId("bnd-parent");
 		model.setVersion("1.0.0");
-		try {
-			Workspace workspace = Workspace.findWorkspace(cnfFolder.toFile());
+		try (Workspace workspace = Workspace.findWorkspace(cnfFolder.toFile())) {
 			String g = workspace.getProperty(TychoConstants.PROP_GROUP_ID);
 			if (g != null) {
 				model.setGroupId(g);

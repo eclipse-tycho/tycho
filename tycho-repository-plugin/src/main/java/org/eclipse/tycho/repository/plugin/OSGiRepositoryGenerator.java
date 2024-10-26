@@ -23,9 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.eclipse.tycho.MavenArtifactNamespace;
 import org.eclipse.tycho.packaging.RepositoryGenerator;
@@ -36,8 +34,13 @@ import aQute.bnd.osgi.repository.XMLResourceGenerator;
 import aQute.bnd.osgi.resource.CapReqBuilder;
 import aQute.bnd.osgi.resource.ResourceBuilder;
 import aQute.libg.cryptography.SHA256;
+import org.slf4j.Logger;
 
-@Component(role = RepositoryGenerator.class, hint = OSGiRepositoryGenerator.HINT)
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named(OSGiRepositoryGenerator.HINT)
 public class OSGiRepositoryGenerator implements RepositoryGenerator {
 
 	static final String HINT = "osgi";
@@ -59,7 +62,7 @@ public class OSGiRepositoryGenerator implements RepositoryGenerator {
 		} else {
 			folder = null;
 		}
-		Log log = repoConfig.getLog();
+		Logger log = repoConfig.getLogger();
 		for (MavenProject project : projects) {
 			ResourceBuilder rb = new ResourceBuilder();
 			try {

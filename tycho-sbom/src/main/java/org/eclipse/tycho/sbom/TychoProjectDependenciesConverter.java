@@ -23,9 +23,12 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.cyclonedx.maven.DefaultProjectDependenciesConverter;
 import org.cyclonedx.maven.ProjectDependenciesConverter;
@@ -35,6 +38,7 @@ import org.cyclonedx.model.Metadata;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.sisu.Priority;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -43,9 +47,14 @@ import org.eclipse.tycho.p2.tools.P2DependencyTreeGenerator.DependencyTreeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@org.codehaus.plexus.component.annotations.Component(role = ProjectDependenciesConverter.class)
-public class TychoProjectDependenciesConverter extends DefaultProjectDependenciesConverter {
+@Singleton
+@Named
+@Priority(10)
+public class TychoProjectDependenciesConverter implements ProjectDependenciesConverter {
 	private static final Logger LOG = LoggerFactory.getLogger(TychoProjectDependenciesConverter.class);
+
+	@Inject
+	private DefaultProjectDependenciesConverter defaultProjectDependenciesConverter;
 
 	@Inject
 	private LegacySupport legacySupport;
@@ -57,6 +66,11 @@ public class TychoProjectDependenciesConverter extends DefaultProjectDependencie
 	private P2DependencyTreeGenerator dependencyGenerator;
 
 	private final Map<IInstallableUnit, List<String>> bomRepresentations = new ConcurrentHashMap<>();
+
+	@Override
+	public BomDependencies extractBOMDependencies(MavenProject mavenProject, MavenDependencyScopes mavenDependencyScopes, String[] strings) throws MojoExecutionException {
+		return defaultProjectDependenciesConverter.extractBOMDependencies(mavenProject, mavenDependencyScopes, strings);
+	}
 
 	@Override
 	public void cleanupBomDependencies(Metadata metadata, Map<String, Component> components,

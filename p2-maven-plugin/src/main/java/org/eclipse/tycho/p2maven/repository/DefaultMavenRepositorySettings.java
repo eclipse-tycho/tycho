@@ -28,40 +28,38 @@ import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.StringUtils;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.p2maven.helper.SettingsDecrypterHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = MavenRepositorySettings.class)
-public class DefaultMavenRepositorySettings implements MavenRepositorySettings, Initializable {
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
+public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
 
     private static final ArtifactRepositoryPolicy P2_REPOSITORY_POLICY = new ArtifactRepositoryPolicy(true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);
 
-    @Requirement
-    private Logger logger;
-    @Requirement
-	private LegacySupport legacySupport;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private SettingsDecrypterHelper decrypter;
+	private final LegacySupport legacySupport;
+    private final SettingsDecrypterHelper decrypter;
+    private final ArtifactRepositoryLayout p2layout;
 
-    @Requirement(hint = "p2")
-    private ArtifactRepositoryLayout p2layout;
-
-	private Map<String, URI> idToMirrorMap = new HashMap<>();
+	private final Map<String, URI> idToMirrorMap = new HashMap<>();
 
 	private Settings settings;
 
@@ -69,12 +67,16 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 
 	private RepositorySystemSession repositorySession;
 
-    public DefaultMavenRepositorySettings() {
-        // for plexus
+    @Inject
+    public DefaultMavenRepositorySettings(LegacySupport legacySupport, SettingsDecrypterHelper decrypter, @Named("p2") ArtifactRepositoryLayout p2layout) {
+        this.legacySupport = legacySupport;
+        this.decrypter = decrypter;
+        this.p2layout = p2layout;
     }
 
 	public DefaultMavenRepositorySettings(RepositorySystemSession repositorySystemSession) {
 		// for test
+        this(null, null, null);
 		repositorySession = repositorySystemSession;
     }
 
@@ -86,6 +88,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 		if (idToMirrorMap.containsKey(location.getId())) {
 			return new MavenRepositoryLocation(location.getId(), idToMirrorMap.get(location.getId()));
 		}
+        initialize();
 		ArtifactRepository locationAsMavenRepository = new MavenArtifactRepository(location.getId(),
                 location.getURL().toString(), p2layout, P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
 		Mirror mirror = getTychoMirror(locationAsMavenRepository, mirrors);
@@ -100,6 +103,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 		if (location.getId() == null) {
             return null;
         }
+        initialize();
 		Server serverSettings = settings.getServer(location.getId());
 
         if (serverSettings != null) {
@@ -113,6 +117,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 
     public Mirror getTychoMirror(ArtifactRepository repository, List<Mirror> mirrors) {
         // if we find a mirror the default way (the maven way) we will use that mirror
+        initialize();
 		Mirror mavenMirror = getMirror(repositorySession, RepositoryUtils.toRepo(repository)).orElse(null);
         if (mavenMirror != null || mirrors == null) {
             return mavenMirror;
@@ -152,9 +157,8 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 		}
 	}
 
-	@Override
-	public void initialize() throws InitializationException {
-		MavenSession session = legacySupport.getSession();
+	private void initialize() {
+		MavenSession session = legacySupport != null ? legacySupport.getSession() : null;
 		if (session != null) {
 			settings = session.getSettings();
 			mirrors = session.getRequest().getMirrors();
@@ -167,6 +171,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 
 	@Override
 	public Stream<MavenRepositoryLocation> getMirrors() {
+        initialize();
 		return mirrors.stream().map(m -> new MavenRepositoryLocation(m.getId(), URI.create(m.getUrl())));
 	}
 

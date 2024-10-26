@@ -33,9 +33,6 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.DefaultArtifactKey;
@@ -55,45 +52,37 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 import org.osgi.framework.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = DefaultTargetPlatformConfigurationReader.class)
-public class DefaultTargetPlatformConfigurationReader {
-    public static final String TARGET_DEFINITION_INCLUDE_SOURCE = "targetDefinitionIncludeSource";
-    public static final String REFERENCED_REPOSITORY_MODE = "referencedRepositoryMode";
-    public static final String DEPENDENCY_RESOLUTION = "dependency-resolution";
-    public static final String OPTIONAL_DEPENDENCIES = "optionalDependencies";
-    public static final String LOCAL_ARTIFACTS = "localArtifacts";
-    public static final String LOCAL_ARTIFACTS_PROPERTY = "tycho.localArtifacts";
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
-    public static final String FILTERS = "filters";
-    public static final String RESOLVE_WITH_EXECUTION_ENVIRONMENT_CONSTRAINTS = "resolveWithExecutionEnvironmentConstraints";
-    public static final String REQUIRE_EAGER_RESOLVE = "requireEagerResolve";
-    public static final String PROPERTY_REQUIRE_EAGER_RESOLVE = "tycho.target.eager";
-    public static final String PROPERTY_ALIAS_REQUIRE_EAGER_RESOLVE = "tycho.resolver.classic";
-    public static final String BREE_HEADER_SELECTION_POLICY = "breeHeaderSelectionPolicy";
-    public static final String EXECUTION_ENVIRONMENT_DEFAULT = "executionEnvironmentDefault";
-    public static final String EXECUTION_ENVIRONMENT = "executionEnvironment";
-    public static final String POM_DEPENDENCIES = "pomDependencies";
-    public static final String PROPERTY_POM_DEPENDENCIES = "tycho.target.pomDependencies";
-    public static final String TARGET = "target";
-    public static final String RESOLVER = "resolver";
-    public static final String ENVIRONMENTS = "environments";
-    public static final String EXCLUSIONS = "exclusions";
+@Singleton
+@Named
+public class DefaultTargetPlatformConfigurationReader implements TargetPlatformConfigurationReader {
     private static final String OPTIONAL_RESOLUTION_REQUIRE = "require";
     private static final String OPTIONAL_RESOLUTION_IGNORE = "ignore";
     private static final String OPTIONAL_RESOLUTION_OPTIONAL = "optional";
-    @Requirement
-    private Logger logger;
 
-    @Requirement
-    private TychoProjectManager projectManager;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private TargetPlatformFilterConfigurationReader filterReader;
+    private final Provider<TychoProjectManager> projectManagerProvider;
+    private final TargetPlatformFilterConfigurationReader filterReader;
+    private final TargetPlatformArtifactResolver platformArtifactResolver;
 
-    @Requirement
-    private TargetPlatformArtifactResolver platformArtifactResolver;
+    @Inject
+    public DefaultTargetPlatformConfigurationReader(Provider<TychoProjectManager> projectManagerProvider,
+                                                    TargetPlatformFilterConfigurationReader filterReader,
+                                                    TargetPlatformArtifactResolver platformArtifactResolver) {
+        this.projectManagerProvider = projectManagerProvider; // TODO: they form a cycle! Depend on each other, refactor
+        this.filterReader = filterReader;
+        this.platformArtifactResolver = platformArtifactResolver;
+    }
 
+    @Override
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project)
             throws TargetPlatformConfigurationException {
         TargetPlatformConfiguration result = new TargetPlatformConfiguration();
@@ -102,7 +91,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 getStringValue(null, session, PROPERTY_REQUIRE_EAGER_RESOLVE, PROPERTY_ALIAS_REQUIRE_EAGER_RESOLVE));
         setLocalArtifacts(result, getStringValue(null, session, LOCAL_ARTIFACTS_PROPERTY, null));
         //Now use org.eclipse.tycho:target-platform-configuration if provided
-        TychoProject tychoProject = projectManager.getTychoProject(project).orElse(null);
+        TychoProject tychoProject = projectManagerProvider.get().getTychoProject(project).orElse(null);
         Plugin plugin = project.getPlugin("org.eclipse.tycho:target-platform-configuration");
         if (plugin != null) {
             Xpp3Dom configuration = (Xpp3Dom) plugin.getConfiguration();

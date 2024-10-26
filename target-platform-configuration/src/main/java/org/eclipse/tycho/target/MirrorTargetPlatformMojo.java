@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -52,6 +51,8 @@ import org.eclipse.tycho.p2maven.InstallableUnitSlicer;
 import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
 import org.eclipse.tycho.p2maven.SlicingOptions;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
+
+import javax.inject.Inject;
 
 /**
  * Supports mirroring the computed target platform of the current project, this behaves similar to
@@ -104,19 +105,19 @@ public class MirrorTargetPlatformMojo extends AbstractMojo {
     @Parameter
     private SlicingOptions options;
 
-    @Component
+    @Inject
     private TargetPlatformService platformService;
 
-    @Component
+    @Inject
     private MirrorApplicationService mirrorService;
 
-    @Component
+    @Inject
     private ReactorRepositoryManager repositoryManager;
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
-    @Component
+    @Inject
     private InstallableUnitSlicer installableUnitSlicer;
 
     @Override

@@ -18,8 +18,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryIO;
@@ -30,10 +28,19 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 
-@Component(role = MetadataSerializable.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class MetadataSerializableImpl implements MetadataSerializable {
-    @Requirement
-    private IProvisioningAgent agent;
+    private final IProvisioningAgent agent;
+
+    @Inject
+    public MetadataSerializableImpl(IProvisioningAgent agent) {
+        this.agent = agent;
+    }
 
     @Override
     public void serialize(OutputStream stream, Set<IInstallableUnit> installableUnits) throws IOException {

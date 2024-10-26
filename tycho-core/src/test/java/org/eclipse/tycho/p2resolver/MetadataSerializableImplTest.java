@@ -51,7 +51,7 @@ public class MetadataSerializableImplTest extends TychoPlexusTestCase {
         File tmpDir = createTempDir("repo");
         try {
             Set<IInstallableUnit> units = new HashSet<>();
-            MetadataSerializableImpl subject = new MetadataSerializableImpl();
+            MetadataSerializableImpl subject = new MetadataSerializableImpl(null);
             serialize(subject, units, tmpDir);
             assertEquals(units, deserialize(tmpDir));
         } finally {
@@ -66,7 +66,7 @@ public class MetadataSerializableImplTest extends TychoPlexusTestCase {
         try {
             Set<IInstallableUnit> units = new HashSet<>(
                     Arrays.asList(InstallableUnitUtil.createIU("org.example.test", "1.0.0")));
-            MetadataSerializableImpl subject = new MetadataSerializableImpl();
+            MetadataSerializableImpl subject = new MetadataSerializableImpl(null);
             serialize(subject, units, tmpDir);
             assertEquals(units, deserialize(tmpDir));
         } finally {

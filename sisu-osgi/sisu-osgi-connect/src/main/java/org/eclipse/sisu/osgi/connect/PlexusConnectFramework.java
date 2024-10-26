@@ -24,7 +24,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.osgi.framework.Bundle;
@@ -44,6 +43,8 @@ import org.osgi.service.log.LogListener;
 import org.osgi.service.log.LogReaderService;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.Marker;
 
 /**
  * 
@@ -87,18 +88,72 @@ class PlexusConnectFramework //
 		return framework;
 	}
 
+
+	// Logger
+
 	@Override
-	public void debug(String message) {
-		debug(message, null);
+	public String getName() {
+		return String.format("%s (realm = %s, factory = %s)", uuid, realm.getId(), factory);
 	}
 
 	@Override
-	public void debug(String message, Throwable throwable) {
-		logger.debug(format(message), throwable);
+	public boolean isTraceEnabled() {
+		return logger.isTraceEnabled();
 	}
 
-	private String format(String message) {
-		return String.format("[%s][%s] %s", getUuid(), realm.getId(), message);
+	@Override
+	public void trace(String s) {
+		logger.trace(s);
+	}
+
+	@Override
+	public void trace(String s, Object o) {
+		logger.trace(s, o);
+	}
+
+	@Override
+	public void trace(String s, Object o, Object o1) {
+		logger.trace(s, o, o1);
+	}
+
+	@Override
+	public void trace(String s, Object... objects) {
+		logger.trace(s, objects);
+	}
+
+	@Override
+	public void trace(String s, Throwable throwable) {
+		logger.trace(s, throwable);
+	}
+
+	@Override
+	public boolean isTraceEnabled(Marker marker) {
+		return logger.isTraceEnabled(marker);
+	}
+
+	@Override
+	public void trace(Marker marker, String s) {
+		logger.trace(marker, s);
+	}
+
+	@Override
+	public void trace(Marker marker, String s, Object o) {
+		logger.trace(marker, s, o);
+	}
+
+	@Override
+	public void trace(Marker marker, String s, Object o, Object o1) {
+		logger.trace(marker, s, o, o1);
+	}
+
+	@Override
+	public void trace(Marker marker, String s, Object... objects) {
+		logger.trace(marker, s, objects);
+	}
+
+	@Override
+	public void trace(Marker marker, String s, Throwable throwable) {
+		logger.trace(marker, s, throwable);
 	}
 
 	@Override
@@ -107,13 +162,58 @@ class PlexusConnectFramework //
 	}
 
 	@Override
-	public void info(String message) {
-		info(message, null);
+	public void debug(String s) {
+		logger.debug(s);
 	}
 
 	@Override
-	public void info(String message, Throwable throwable) {
-		logger.info(format(message), throwable);
+	public void debug(String s, Object o) {
+		logger.debug(s, o);
+	}
+
+	@Override
+	public void debug(String s, Object o, Object o1) {
+		logger.debug(s, o, o1);
+	}
+
+	@Override
+	public void debug(String s, Object... objects) {
+		logger.debug(s, objects);
+	}
+
+	@Override
+	public void debug(String s, Throwable throwable) {
+		logger.debug(s, throwable);
+	}
+
+	@Override
+	public boolean isDebugEnabled(Marker marker) {
+		return logger.isDebugEnabled(marker);
+	}
+
+	@Override
+	public void debug(Marker marker, String s) {
+		logger.debug(marker, s);
+	}
+
+	@Override
+	public void debug(Marker marker, String s, Object o) {
+		logger.debug(marker, s, o);
+	}
+
+	@Override
+	public void debug(Marker marker, String s, Object o, Object o1) {
+		logger.debug(marker, s, o, o1);
+	}
+
+	@Override
+	public void debug(Marker marker, String s, Object... objects) {
+		logger.debug(marker, s, objects);
+	}
+
+	@Override
+	public void debug(Marker marker, String s, Throwable throwable) {
+		logger.debug(marker, s, throwable);
 	}
 
 	@Override
@@ -122,13 +222,58 @@ class PlexusConnectFramework //
 	}
 
 	@Override
-	public void warn(String message) {
-		warn(message, null);
+	public void info(String s) {
+		logger.info(s);
 	}
 
 	@Override
-	public void warn(String message, Throwable throwable) {
-		logger.warn(format(message), throwable);
+	public void info(String s, Object o) {
+		logger.info(s, o);
+	}
+
+	@Override
+	public void info(String s, Object o, Object o1) {
+		logger.info(s, o, o1);
+	}
+
+	@Override
+	public void info(String s, Object... objects) {
+		logger.info(s, objects);
+	}
+
+	@Override
+	public void info(String s, Throwable throwable) {
+		logger.info(s, throwable);
+	}
+
+	@Override
+	public boolean isInfoEnabled(Marker marker) {
+		return logger.isInfoEnabled(marker);
+	}
+
+	@Override
+	public void info(Marker marker, String s) {
+		logger.info(marker, s);
+	}
+
+	@Override
+	public void info(Marker marker, String s, Object o) {
+		logger.info(marker, s, o);
+	}
+
+	@Override
+	public void info(Marker marker, String s, Object o, Object o1) {
+		logger.info(marker, s, o, o1);
+	}
+
+	@Override
+	public void info(Marker marker, String s, Object... objects) {
+		logger.info(marker, s, objects);
+	}
+
+	@Override
+	public void info(Marker marker, String s, Throwable throwable) {
+		logger.info(marker, s, throwable);
 	}
 
 	@Override
@@ -137,13 +282,58 @@ class PlexusConnectFramework //
 	}
 
 	@Override
-	public void error(String message) {
-		error(message, null);
+	public void warn(String s) {
+		logger.warn(s);
 	}
 
 	@Override
-	public void error(String message, Throwable throwable) {
-		logger.error(format(message), throwable);
+	public void warn(String s, Object o) {
+		logger.warn(s, o);
+	}
+
+	@Override
+	public void warn(String s, Object... objects) {
+		logger.warn(s, objects);
+	}
+
+	@Override
+	public void warn(String s, Object o, Object o1) {
+		logger.warn(s, o, o1);
+	}
+
+	@Override
+	public void warn(String s, Throwable throwable) {
+		logger.warn(s, throwable);
+	}
+
+	@Override
+	public boolean isWarnEnabled(Marker marker) {
+		return logger.isWarnEnabled(marker);
+	}
+
+	@Override
+	public void warn(Marker marker, String s) {
+		logger.warn(marker, s);
+	}
+
+	@Override
+	public void warn(Marker marker, String s, Object o) {
+		logger.warn(marker, s, o);
+	}
+
+	@Override
+	public void warn(Marker marker, String s, Object o, Object o1) {
+		logger.warn(marker, s, o, o1);
+	}
+
+	@Override
+	public void warn(Marker marker, String s, Object... objects) {
+		logger.warn(marker, s, objects);
+	}
+
+	@Override
+	public void warn(Marker marker, String s, Throwable throwable) {
+		logger.warn(marker, s, throwable);
 	}
 
 	@Override
@@ -152,39 +342,62 @@ class PlexusConnectFramework //
 	}
 
 	@Override
-	public void fatalError(String message) {
-		logger.fatalError(format(message));
+	public void error(String s) {
+		logger.error(s);
 	}
 
 	@Override
-	public void fatalError(String message, Throwable throwable) {
-		logger.fatalError(format(message), throwable);
+	public void error(String s, Object o) {
+		logger.error(s, o);
 	}
 
 	@Override
-	public boolean isFatalErrorEnabled() {
-		return logger.isFatalErrorEnabled();
+	public void error(String s, Object o, Object o1) {
+		logger.error(s, o, o1);
 	}
 
 	@Override
-	public int getThreshold() {
-		return logger.getThreshold();
+	public void error(String s, Object... objects) {
+		logger.error(s, objects);
 	}
 
 	@Override
-	public void setThreshold(int threshold) {
-		logger.setThreshold(threshold);
+	public void error(String s, Throwable throwable) {
+		logger.error(s, throwable);
 	}
 
 	@Override
-	public Logger getChildLogger(String name) {
-		return logger.getChildLogger(format(name));
+	public boolean isErrorEnabled(Marker marker) {
+		return logger.isErrorEnabled(marker);
 	}
 
 	@Override
-	public String getName() {
-		return String.format("%s (realm = %s, factory = %s)", uuid, realm.getId(), factory);
+	public void error(Marker marker, String s) {
+		logger.error(marker, s);
 	}
+
+	@Override
+	public void error(Marker marker, String s, Object o) {
+		logger.error(marker, s, o);
+	}
+
+	@Override
+	public void error(Marker marker, String s, Object o, Object o1) {
+		logger.error(marker, s, o, o1);
+	}
+
+	@Override
+	public void error(Marker marker, String s, Object... objects) {
+		logger.error(marker, s, objects);
+	}
+
+	@Override
+	public void error(Marker marker, String s, Throwable throwable) {
+		logger.error(marker, s, throwable);
+	}
+
+
+	// End Logger
 
 	@Override
 	public EquinoxServiceFactory getServiceFactory() {
@@ -257,6 +470,10 @@ class PlexusConnectFramework //
 			debug("No bundle matched for " + location);
 		}
 		return Optional.empty();
+	}
+
+	private String format(String message) {
+		return String.format("[%s][%s] %s", getUuid(), realm.getId(), message);
 	}
 
 	static URI getLocationFromClass(Class<?> classFromBundle) {

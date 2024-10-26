@@ -16,19 +16,20 @@ import java.util.Collection;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 
+import javax.inject.Inject;
+
 public abstract class AbstractPublishMojo extends AbstractP2Mojo {
     private static final Object LOCK = new Object();
 
-    @Component
+    @Inject
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Component()
+    @Inject
     PublisherServiceFactory publisherServiceFactory;
 
     @Override

@@ -20,31 +20,35 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = StandaloneDirectorRuntimeFactory.class)
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public class StandaloneDirectorRuntimeFactory {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Requirement
-    private RepositorySystem repositorySystem;
+    private final RepositorySystem repositorySystem;
+    private final DirectorRuntime bootstrapDirector;
+    private final EquinoxLauncher launchHelper;
 
-    @Requirement
-    DirectorRuntime bootstrapDirector;
-
-    @Requirement
-    private EquinoxLauncher launchHelper;
-
-    @Requirement
-    private Logger logger;
+    @Inject
+    public StandaloneDirectorRuntimeFactory(RepositorySystem repositorySystem, DirectorRuntime bootstrapDirector, EquinoxLauncher launchHelper) {
+        this.repositorySystem = repositorySystem;
+        this.bootstrapDirector = bootstrapDirector;
+        this.launchHelper = launchHelper;
+    }
 
     public StandaloneDirectorRuntime createStandaloneDirector(File installLocation,
-            ArtifactRepository localMavenRepository, int forkedProcessTimeoutInSeconds) throws MojoExecutionException {
+                                                              ArtifactRepository localMavenRepository, int forkedProcessTimeoutInSeconds) throws MojoExecutionException {
 
         installStandaloneDirector(installLocation, localMavenRepository);
         return new StandaloneDirectorRuntime(installLocation, launchHelper, forkedProcessTimeoutInSeconds, logger);

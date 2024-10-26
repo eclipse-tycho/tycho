@@ -22,40 +22,40 @@ import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.internal.MavenWorkspaceReader;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
+import org.eclipse.sisu.Typed;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(role = WorkspaceReader.class, hint = "TychoWorkspaceReader")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("TychoWorkspaceReader")
+@Typed(WorkspaceReader.class)
 public class TychoWorkspaceReader implements MavenWorkspaceReader {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private final WorkspaceRepository repository;
+    private final LegacySupport legacySupport;
+    private final ModelWriter modelWriter;
 
-    @Requirement
-    private LegacySupport legacySupport;
-
-    @Requirement
-    private Logger logger;
-
-    @Requirement
-    private ModelWriter modelWriter;
-
-    @Requirement
-    private TychoProjectManager projectManager;
-
-    public TychoWorkspaceReader() {
-        repository = new WorkspaceRepository("tycho", null);
+    @Inject
+    public TychoWorkspaceReader(LegacySupport legacySupport, ModelWriter modelWriter) {
+        this.repository = new WorkspaceRepository("tycho", null);
+        this.legacySupport = legacySupport;
+        this.modelWriter = modelWriter;
     }
 
     @Override

@@ -14,19 +14,25 @@ package org.eclipse.tycho.core.bnd;
 
 import java.util.Map;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-
 import aQute.bnd.build.Workspace;
 import aQute.bnd.service.RepositoryPlugin;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Manager that collects BndPlugins in the plexus domain and installs them into a workspace
  */
-@Component(role = BndPluginManager.class)
+@Singleton
+@Named
 public class BndPluginManager {
-    @Requirement
-    private Map<String, RepositoryPlugin> repositoryPlugins;
+    private final Map<String, RepositoryPlugin> repositoryPlugins;
+
+    @Inject
+    public BndPluginManager(Map<String, RepositoryPlugin> repositoryPlugins) {
+        this.repositoryPlugins = repositoryPlugins;
+    }
 
     public void setupWorkspace(Workspace ws) {
         repositoryPlugins.values().forEach(ws::addBasicPlugin);

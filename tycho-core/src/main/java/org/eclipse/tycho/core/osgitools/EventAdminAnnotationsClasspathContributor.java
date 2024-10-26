@@ -13,16 +13,16 @@
 package org.eclipse.tycho.core.osgitools;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
-import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.osgi.framework.VersionRange;
 
-@Component(role = ClasspathContributor.class, hint = "eventadmin-annotations")
-@SessionScoped
+@Singleton
+@Named("eventadmin-annotations")
 public class EventAdminAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor {
 
     private static final String PACKAGE_NAME = "org.osgi.service.event.annotations";
@@ -32,8 +32,8 @@ public class EventAdminAnnotationsClasspathContributor extends AbstractSpecifica
     private static final VersionRange VERSION = new VersionRange("[1.3,2)");
 
     @Inject
-    protected EventAdminAnnotationsClasspathContributor(MavenSession session) {
-        super(session, PACKAGE_NAME, GROUP_ID, ARTIFACT_ID);
+    protected EventAdminAnnotationsClasspathContributor(MavenBundleResolver mavenBundleResolver, Provider<MavenSession> sessionProvider) {
+        super(mavenBundleResolver, sessionProvider, PACKAGE_NAME, GROUP_ID, ARTIFACT_ID);
     }
 
     @Override
