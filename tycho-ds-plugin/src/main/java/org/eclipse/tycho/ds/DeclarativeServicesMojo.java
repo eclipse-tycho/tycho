@@ -237,9 +237,9 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 						}
 					}
 					if (keep > 0) {
-						log.info(generated + " component(s) where generated, " + keep + " where kept.");
+						log.info(generated + " component(s) were generated, " + keep + " existing component(s) were kept.");
 					} else {
-						log.info(generated + " component(s) where generated.");
+						log.info(generated + " component(s) were generated.");
 					}
 				}
 			} catch (Exception e) {
