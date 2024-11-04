@@ -141,6 +141,14 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	@Parameter(defaultValue = "false", property = "tycho.apitools.enhanceLogs")
 	private boolean enhanceLogs;
 
+	/**
+	 * Configures if the API Analysis should run as a workspace job, this ensure
+	 * that no other actions are allowed to run in parallel what sometimes can
+	 * result in failures to execute the api-analysis
+	 */
+	@Parameter(defaultValue = "true", property = "tycho.apitools.runAsJob")
+	private boolean runAsJob;
+
 	@Component
 	private EclipseWorkspaceManager workspaceManager;
 
@@ -350,7 +358,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			ApiAnalysis analysis = new ApiAnalysis(baselineBundles, dependencyBundles, project.getName(),
 					eclipseProject.getFile(fileToPath(apiFilter)), eclipseProject.getFile(fileToPath(apiPreferences)),
 					fileToPath(project.getBasedir()), debug, fileToPath(project.getArtifact().getFile()),
-					stringToPath(project.getBuild().getOutputDirectory()));
+					stringToPath(project.getBuild().getOutputDirectory()), runAsJob);
 			return eclipseFramework.execute(analysis);
 		} catch (Exception e) {
 			throw new MojoExecutionException("Execute ApiApplication failed", e);
