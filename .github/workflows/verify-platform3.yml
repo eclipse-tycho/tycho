@@ -1,0 +1,77 @@
+# This workflow will build a "Eclipse Platform SWT Bundles" using the eclipse.platform.swt repository as it contains platform specific codes
+# For more information see: https://github.com/eclipse-platform/eclipse.platform.swt/
+
+name: Verify Eclipse Platform SWT Build
+concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+on:
+  pull_request:
+    branches: 
+     - 'tycho-4.0.x'
+
+jobs:
+  build-swt:
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config: 
+          - { name: Linux, os: ubuntu-latest, native: gtk.linux.x86_64 }
+          - { name: Windows, os: windows-latest, native: win32.win32.x86_64 }
+          - { name: MacOS x86, os: macos-13, native: cocoa.macosx.x86_64 }
+          - { name: MacOS ARM, os: macos-latest, native: cocoa.macosx.aarch64 }
+    name: Verify ${{ matrix.config.name }}
+    steps:
+    - name: Checkout tycho code
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      with:
+       path: 'tycho'
+    - name: Checkout platform code
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      with:
+       path: 'swt'
+       submodules: 'recursive'
+       lfs: true
+       repository: 'eclipse-platform/eclipse.platform.swt'
+       fetch-depth: 0
+    - name: Set up Java
+      uses: actions/setup-java@2dfa2011c5b2a0f1489bf9e433881c92c1631f88 # v4.3.0
+      with:
+        java-version: |
+            11
+            21
+            17
+        distribution: 'temurin'
+    - name: Cache local Maven repository
+      uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-verify-platform-swt-t4-${{ hashFiles('**/pom.xml', '**/*.target') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-verify-platform-swt-
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1 # v5
+      with:
+        maven-version: 3.9.9
+    - name: Build Tycho
+      working-directory: 'tycho'
+      run: >- 
+        mvn -U -V -e -B -ntp
+        -DskipTests
+        --file pom.xml
+        -T1C
+        clean install
+    - name: Run Platform SWT Build
+      working-directory: 'swt'
+      shell: bash
+      run: >- 
+        mvn
+        -ntp
+        --batch-mode
+        -Pbuild-individual-bundles
+        -Pbree-libs
+        -DskipTests
+        -Dtycho.version=$(mvn help:evaluate -f ../tycho -Dexpression=project.version -q -DforceStdout)
+        -T1C
+        clean verify
