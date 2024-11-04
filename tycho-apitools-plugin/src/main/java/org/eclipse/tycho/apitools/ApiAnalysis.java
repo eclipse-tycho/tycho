@@ -103,10 +103,12 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 	private String apiPreferences;
 	private String binaryArtifact;
 	private String outputDir;
+	private boolean runAsJob;
 
 	ApiAnalysis(Collection<Path> baselineBundles, Collection<Path> dependencyBundles, String baselineName,
 			Path apiFilterFile, Path apiPreferences, Path projectDir, boolean debug, Path binaryArtifact,
-			Path outputDir) {
+			Path outputDir, boolean runAsJob) {
+		this.runAsJob = runAsJob;
 		this.targetBundles = dependencyBundles.stream().map(ApiAnalysis::pathAsString).toList();
 		this.baselineBundles = baselineBundles.stream().map(ApiAnalysis::pathAsString).toList();
 		this.baselineName = baselineName;
@@ -163,51 +165,61 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		IPath projectPath = IPath.fromOSString(projectDir);
 		IProject project = getProject(projectPath);
 		ApiAnalysisResult result = new ApiAnalysisResult(getVersion());
-		WorkspaceJob job = new WorkspaceJob("Tycho API Analysis") {
+		IStatus status;
+		if (runAsJob) {
+			WorkspaceJob job = new WorkspaceJob("Tycho API Analysis") {
 
-			@Override
-			public IStatus runInWorkspace(IProgressMonitor monitor) {
-				try {
-					BundleComponent projectComponent = getApiComponent(project, projectPath);
-					IApiBaseline baseline = createBaseline(baselineBundles, baselineName + " - baseline");
-					ResolverError[] resolverErrors = projectComponent.getErrors();
-					if (resolverErrors != null && resolverErrors.length > 0) {
-						for (ResolverError error : resolverErrors) {
-							result.addResolverError(error);
-						}
-					}
-					IApiFilterStore filterStore = getApiFilterStore(projectComponent);
-					Properties preferences = getPreferences();
-					BaseApiAnalyzer analyzer = new BaseApiAnalyzer();
-					try {
-						analyzer.setContinueOnResolverError(true);
-						analyzer.analyzeComponent(null, filterStore, preferences, baseline, projectComponent,
-								new BuildContext(), new NullProgressMonitor());
-						IApiProblem[] problems = analyzer.getProblems();
-						for (IApiProblem problem : problems) {
-							result.addProblem(problem, project);
-							debug(String.valueOf(problem));
-						}
-					} finally {
-						analyzer.dispose();
-						ResourcesPlugin.getWorkspace().save(true, new NullProgressMonitor());
-					}
-				} catch (Exception e) {
-					return Status.error("Api Analysis failed", e);
+				@Override
+				public IStatus runInWorkspace(IProgressMonitor monitor) {
+					return performAPIAnalysis(project, projectPath, result);
 				}
-				return Status.OK_STATUS;
-			}
-		};
-		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
-		job.schedule();
-		job.join();
-		IStatus status = job.getResult();
+
+			};
+			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+			job.schedule();
+			job.join();
+			status = job.getResult();
+		} else {
+			status = performAPIAnalysis(project, projectPath, result);
+		}
 		JRTUtil.reset(); // reclaim space due to loaded multiple JRTUtil should better be fixed to not
 							// use that much space
 		if (!status.isOK() && status.getException() instanceof Exception error) {
 			throw error;
 		}
 		return result;
+	}
+
+	private IStatus performAPIAnalysis(IProject project, IPath projectPath, ApiAnalysisResult result) {
+		try {
+			BundleComponent projectComponent = getApiComponent(project, projectPath);
+			IApiBaseline baseline = createBaseline(baselineBundles, baselineName + " - baseline");
+			ResolverError[] resolverErrors = projectComponent.getErrors();
+			if (resolverErrors != null && resolverErrors.length > 0) {
+				for (ResolverError error : resolverErrors) {
+					result.addResolverError(error);
+				}
+			}
+			IApiFilterStore filterStore = getApiFilterStore(projectComponent);
+			Properties preferences = getPreferences();
+			BaseApiAnalyzer analyzer = new BaseApiAnalyzer();
+			try {
+				analyzer.setContinueOnResolverError(true);
+				analyzer.analyzeComponent(null, filterStore, preferences, baseline, projectComponent,
+						new BuildContext(), new NullProgressMonitor());
+				IApiProblem[] problems = analyzer.getProblems();
+				for (IApiProblem problem : problems) {
+					result.addProblem(problem, project);
+					debug(String.valueOf(problem));
+				}
+			} finally {
+				analyzer.dispose();
+				ResourcesPlugin.getWorkspace().save(true, new NullProgressMonitor());
+			}
+		} catch (Exception e) {
+			return Status.error("Api Analysis failed", e);
+		}
+		return Status.OK_STATUS;
 	}
 
 	private String getVersion() {
