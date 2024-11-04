@@ -26,6 +26,7 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.gpg.AbstractGpgSigner;
@@ -57,6 +58,7 @@ import org.bouncycastle.openpgp.operator.bc.BcPGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.bc.BcPGPDigestCalculatorProvider;
 import org.bouncycastle.openpgp.operator.bc.BcPGPKeyPair;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
+import org.bouncycastle.util.encoders.Hex;
 
 public class BouncyCastleSigner extends AbstractGpgSigner {
 
@@ -73,6 +75,8 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
     private PGPSecretKey secretKey;
 
     private PGPPrivateKey privateKey;
+
+    public static final String NAME = "bc";
 
     /**
      * Create an empty instance that needs to be configured before it is used.
@@ -348,5 +352,19 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
             var target = Files.createTempFile("pgp", ".info");
             signer.generateSignature(target.toFile());
         }
+    }
+
+    @Override
+    public String signerName() {
+        return NAME;
+    }
+
+    @Override
+    public String getKeyInfo() {
+        Iterator<String> userIds = secretKey.getPublicKey().getUserIDs();
+        if (userIds.hasNext()) {
+            return userIds.next();
+        }
+        return Hex.toHexString(secretKey.getPublicKey().getFingerprint());
     }
 }
