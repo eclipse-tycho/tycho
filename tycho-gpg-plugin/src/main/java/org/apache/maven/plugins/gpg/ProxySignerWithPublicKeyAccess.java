@@ -42,7 +42,7 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
         this.delegate = delegate;
         this.setLog(delegate.getLog());
         // The pgpInfo is used only for testing purposes.
-        if ("bc".equals(signer) || pgpInfo != null || secretKeys != null) {
+        if (BouncyCastleSigner.NAME.equals(signer) || pgpInfo != null || secretKeys != null) {
             try {
                 this.signer = getSigner(pgpInfo, secretKeys);
             } catch (MojoExecutionException | MojoFailureException | IOException | PGPException e) {
@@ -215,5 +215,15 @@ public class ProxySignerWithPublicKeyAccess extends AbstractGpgSigner {
         } catch (CommandLineException e) {
             throw new MojoExecutionException("Unable to execute gpg command", e);
         }
+    }
+
+    @Override
+    public String signerName() {
+        return signer.signerName();
+    }
+
+    @Override
+    public String getKeyInfo() {
+        return signer.getKeyInfo();
     }
 }
