@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,8 +41,6 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
-import org.eclipse.osgi.internal.framework.FilterImpl;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -55,7 +52,6 @@ import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetEnvironment;
@@ -85,8 +81,6 @@ import org.eclipse.tycho.model.classpath.JUnitClasspathContainerEntry;
 import org.eclipse.tycho.model.classpath.LibraryClasspathEntry;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.osgi.framework.Filter;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
 
 @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_PLUGIN)
 public class OsgiBundleProject extends AbstractTychoProject implements BundleProject {
@@ -480,12 +474,18 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 }
             }
         }
+        Collection<TargetEnvironment> environments = projectManager
+                .getTargetEnvironments(project.adapt(MavenProject.class));
         //Fragments are like embedded dependencies...
         for (ArtifactDescriptor fragment : artifacts.getFragments()) {
             File location = fragment.getLocation(true);
             if (location != null) {
-                classpath.add(new DefaultClasspathEntry(null, readArtifactKey(location),
-                        Collections.singletonList(location), null));
+                OsgiManifest manifest = bundleReader.loadManifest(location);
+                Filter filter = manifest.getTargetEnvironmentFilter();
+                if (filter == null || environments.stream().anyMatch(env -> env.match(filter))) {
+                    classpath.add(new DefaultClasspathEntry(null, readArtifactKey(location),
+                            Collections.singletonList(location), null));
+                }
             }
         }
     }
@@ -550,53 +550,12 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public TargetEnvironment getImplicitTargetEnvironment(MavenProject project) {
-        String filterStr = getManifestValue(EclipsePlatformNamespace.ECLIPSE_PLATFORM_FILTER_HEADER, project);
-
-        if (filterStr != null) {
-            try {
-                FilterImpl filter = FilterImpl.newInstance(filterStr);
-
-                String ws = sn(filter.getPrimaryKeyValue(PlatformPropertiesUtils.OSGI_WS));
-                String os = sn(filter.getPrimaryKeyValue(PlatformPropertiesUtils.OSGI_OS));
-                String arch = sn(filter.getPrimaryKeyValue(PlatformPropertiesUtils.OSGI_ARCH));
-
-                // validate if os/ws/arch are not null and actually match the filter
-                if (ws != null && os != null && arch != null) {
-                    Map<String, String> properties = new HashMap<>();
-                    properties.put(PlatformPropertiesUtils.OSGI_WS, ws);
-                    properties.put(PlatformPropertiesUtils.OSGI_OS, os);
-                    properties.put(PlatformPropertiesUtils.OSGI_ARCH, arch);
-
-                    if (filter.matches(properties)) {
-                        return new TargetEnvironment(os, ws, arch);
-                    }
-                }
-            } catch (InvalidSyntaxException e) {
-                // at least we tried...
-            }
-        }
-
-        return null;
+        return getManifest(DefaultReactorProject.adapt(project)).getImplicitTargetEnvironment();
     }
 
     @Override
     public Filter getTargetEnvironmentFilter(MavenProject project) {
-        String filterStr = getManifestValue(EclipsePlatformNamespace.ECLIPSE_PLATFORM_FILTER_HEADER, project);
-        if (filterStr != null) {
-            try {
-                return FrameworkUtil.createFilter(filterStr);
-            } catch (InvalidSyntaxException e) {
-                // at least we tried...
-            }
-        }
-        return super.getTargetEnvironmentFilter(project);
-    }
-
-    private static String sn(String str) {
-        if (str != null && !str.isBlank()) {
-            return str;
-        }
-        return null;
+        return getManifest(DefaultReactorProject.adapt(project)).getTargetEnvironmentFilter();
     }
 
     @Override

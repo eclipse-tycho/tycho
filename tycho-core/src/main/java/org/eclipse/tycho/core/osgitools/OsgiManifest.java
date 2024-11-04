@@ -5,18 +5,26 @@ import static org.osgi.framework.Constants.BUNDLE_VERSION;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.Attributes.Name;
 
 import org.eclipse.osgi.container.builders.OSGiManifestBuilderFactory;
+import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
 import org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap;
+import org.eclipse.osgi.internal.framework.FilterImpl;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.PlatformPropertiesUtils;
+import org.eclipse.tycho.TargetEnvironment;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.Version;
 
 /**
@@ -202,6 +210,53 @@ public class OsgiManifest {
             }
         }
         return result;
+    }
+
+    public Filter getTargetEnvironmentFilter() {
+        String filterStr = getValue(EclipsePlatformNamespace.ECLIPSE_PLATFORM_FILTER_HEADER);
+        if (filterStr != null) {
+            try {
+                return FrameworkUtil.createFilter(filterStr);
+            } catch (InvalidSyntaxException e) {
+                // at least we tried...
+            }
+        }
+        return null;
+    }
+
+    public TargetEnvironment getImplicitTargetEnvironment() {
+        String filterStr = getValue(EclipsePlatformNamespace.ECLIPSE_PLATFORM_FILTER_HEADER);
+        if (filterStr != null) {
+            try {
+                FilterImpl filter = FilterImpl.newInstance(filterStr);
+
+                String ws = sn(filter.getPrimaryKeyValue(PlatformPropertiesUtils.OSGI_WS));
+                String os = sn(filter.getPrimaryKeyValue(PlatformPropertiesUtils.OSGI_OS));
+                String arch = sn(filter.getPrimaryKeyValue(PlatformPropertiesUtils.OSGI_ARCH));
+
+                // validate if os/ws/arch are not null and actually match the filter
+                if (ws != null && os != null && arch != null) {
+                    Map<String, String> properties = new HashMap<>();
+                    properties.put(PlatformPropertiesUtils.OSGI_WS, ws);
+                    properties.put(PlatformPropertiesUtils.OSGI_OS, os);
+                    properties.put(PlatformPropertiesUtils.OSGI_ARCH, arch);
+
+                    if (filter.matches(properties)) {
+                        return new TargetEnvironment(os, ws, arch);
+                    }
+                }
+            } catch (InvalidSyntaxException e) {
+                // at least we tried...
+            }
+        }
+        return null;
+    }
+
+    private static String sn(String str) {
+        if (str != null && !str.isBlank()) {
+            return str;
+        }
+        return null;
     }
 
 }
