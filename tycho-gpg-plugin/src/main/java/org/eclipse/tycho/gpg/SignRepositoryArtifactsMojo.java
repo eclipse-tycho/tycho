@@ -166,7 +166,7 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
     }
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() throws MojoExecutionException, MojoFailureException {
 
         var signer = newSigner(project);
         var keys = KeyStore.create();
