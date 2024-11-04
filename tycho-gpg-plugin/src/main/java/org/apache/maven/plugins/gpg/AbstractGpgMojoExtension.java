@@ -11,16 +11,22 @@ package org.apache.maven.plugins.gpg;
 
 import java.io.File;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
 public abstract class AbstractGpgMojoExtension extends AbstractGpgMojo {
 
     @Override
-    protected ProxySignerWithPublicKeyAccess newSigner(MavenProject project)
-            throws MojoExecutionException, MojoFailureException {
+    protected ProxySignerWithPublicKeyAccess newSigner(MavenProject project) throws MojoFailureException {
         return new ProxySignerWithPublicKeyAccess(super.newSigner(project), getSigner(), getPGPInfo(), getSecretKeys());
+    }
+
+    @Override
+    protected AbstractGpgSigner createSigner(String name) throws MojoFailureException {
+        //due to legacy reasons we actually used a GpgSigner as a delegate
+        //(see org.apache.maven.plugins.gpg.ProxySignerWithPublicKeyAccess.getSigner(File, File))
+        //it would be better to actually create the BouncyCastleSigner already here!
+        return super.createSigner(GpgSigner.NAME);
     }
 
     protected String getSigner() {
