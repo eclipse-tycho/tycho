@@ -594,6 +594,7 @@
 		<module>tycho-bnd-plugin</module>
 		<module>tycho-repository-plugin</module>
 		<module>tycho-eclipse-plugin</module>
+		<module>tycho-wrap-plugin</module>
 	</modules>
 	<profiles>
 		<profile>

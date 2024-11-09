@@ -13,15 +13,15 @@ Specifying no version is equivalent to `0.0.0` which resolves to the latest vers
 All of the following variants to specify a version are now possible:
 ```
 <target name="my-target">
-	<locations>
-		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/releases/2024-09/"/>
-			<unit id="org.eclipse.pde.feature.group" version="3.16.0.v20240903-0240"/>
-			<unit id="jakarta.annotation-api" version="0.0.0"/>
-			<unit id="org.eclipse.sdk"/>
-			<unit id="jakarta.inject.jakarta.inject-api" version="[1.0,2)"/>
-		</location>
-	</locations>
+    <locations>
+        <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+            <repository location="https://download.eclipse.org/releases/2024-09/"/>
+            <unit id="org.eclipse.pde.feature.group" version="3.16.0.v20240903-0240"/>
+            <unit id="jakarta.annotation-api" version="0.0.0"/>
+            <unit id="org.eclipse.sdk"/>
+            <unit id="jakarta.inject.jakarta.inject-api" version="[1.0,2)"/>
+        </location>
+    </locations>
 </target>
 ```
 
@@ -34,6 +34,35 @@ that manually can be a daunting task.
 There is now a new `tycho-version-bump:update-manifest` mojo that helps in calculate the
 lower bound and update the manifest accordingly.
 
+## new `wrap` mojo
+
+With maven, jars (or more general artifacts) can be build in numerous ways, not all include
+the maven-jar-plugin (e.g. maven-assembly-plugin) and not all are easily
+combined with maven-bundle or bnd-maven plugin.
+
+Tycho now provides a new `tycho-wrap:wrap mojo` that closes this gap by allowing to
+specify an arbitrary input and output, some bnd instructions and (optionally) attach the result to the maven project.
+
+This has the advantage that projects are able to publish two "flavors" of their artifact a plain one and an OSGi-fied one that could
+help to convince projects to provide such things as it has zero influence to their build and ways how they build artifacts.
+
+In the simplest form it can be used like this:
+
+```xml
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-wrap-plugin</artifactId>
+    <version>5.0.0-SNAPSHOT</version>
+    <executions>
+        <execution>
+            <id>make-bundle</id>
+            <goals>
+                <goal>wrap</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+```
 
 ## support bumping maven target locations
 
