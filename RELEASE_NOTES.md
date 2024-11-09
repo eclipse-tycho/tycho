@@ -6,6 +6,7 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 backports:
 - Support version-ranges and no-version for units in IU target locations
+- Add new `tycho-wrap:wrap`
 
 ## 4.0.9
 
