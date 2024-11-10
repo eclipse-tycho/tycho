@@ -51,6 +51,7 @@ public class TarGzArchiver {
     private File destFile;
     private List<File> sourceDirs = new ArrayList<>();
     private Log log = new SystemStreamLog();
+    private boolean storeCreationTime;
 
     public TarGzArchiver() {
     }
@@ -63,6 +64,10 @@ public class TarGzArchiver {
         this.destFile = destFile;
     }
 
+    public void setStoreCreationTimeAttribute(boolean storeCreationTime) {
+        this.storeCreationTime = storeCreationTime;
+    }
+
     public void addDirectory(File directory) {
         this.sourceDirs.add(directory);
     }
@@ -70,12 +75,10 @@ public class TarGzArchiver {
     public void createArchive() throws IOException {
         validate();
         log.info("Building tar: " + destFile);
-        TarArchiveOutputStream tarStream = null;
-        try {
-            destFile.getAbsoluteFile().getParentFile().mkdirs();
-            GzipCompressorOutputStream gzipStream = new GzipCompressorOutputStream(
-                    new BufferedOutputStream(new FileOutputStream(destFile)));
-            tarStream = new TarArchiveOutputStream(gzipStream, "UTF-8");
+        destFile.getAbsoluteFile().getParentFile().mkdirs();
+        try (GzipCompressorOutputStream gzipStream = new GzipCompressorOutputStream(
+                new BufferedOutputStream(new FileOutputStream(destFile)));
+                TarArchiveOutputStream tarStream = new TarArchiveOutputStream(gzipStream, "UTF-8");) {
             // allow "long" file paths (> 100 chars)
             tarStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
             tarStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
@@ -83,10 +86,6 @@ public class TarGzArchiver {
                 for (File child : sourceDir.listFiles()) {
                     addToTarRecursively(sourceDir, child, tarStream);
                 }
-            }
-        } finally {
-            if (tarStream != null) {
-                tarStream.close();
             }
         }
     }
@@ -133,6 +132,9 @@ public class TarGzArchiver {
             tarEntry.setMode(FilePermissionHelper.toOctalFileMode(attrs.permissions()));
         }
         tarEntry.setModTime(source.lastModified());
+        if (!storeCreationTime) { // GNU  tar cannot handle 'LIBARCHIVE.creationtime' attributes and emits a lot of warnings on it
+            tarEntry.setCreationTime(null);
+        }
         return tarEntry;
     }
 
