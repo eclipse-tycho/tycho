@@ -125,6 +125,15 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
     @Parameter
     private boolean parallel;
 
+    /**
+     * Controls if for {@code .tar.gz} archives the creation-time is stored as
+     * {@code LIBARCHIVE.creationtime } attribute in each entry. Currently {@code GNU tar} does not
+     * support that attributes and emits warnings about the {@code unknown extended header keyword
+     * 'LIBARCHIVE.creationtime'} when extracting such archive.
+     */
+    @Parameter(defaultValue = "false")
+    private boolean storeCreationTime;
+
     @Component
     private MavenProjectHelper helper;
 
@@ -230,6 +239,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
 
     private void createCommonsCompressTarGz(File productArchive, File sourceDir) throws IOException {
         TarGzArchiver archiver = new TarGzArchiver();
+        archiver.setStoreCreationTimeAttribute(storeCreationTime);
         archiver.setLog(getLog());
         archiver.addDirectory(sourceDir);
         archiver.setDestFile(productArchive);
