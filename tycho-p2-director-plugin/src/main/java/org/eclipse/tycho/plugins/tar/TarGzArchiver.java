@@ -52,6 +52,7 @@ public class TarGzArchiver {
     private File destFile;
     private List<File> sourceDirs = new ArrayList<>();
     private Log log = new SystemStreamLog();
+    private boolean storeCreationTime;
 
     public TarGzArchiver() {
     }
@@ -62,6 +63,10 @@ public class TarGzArchiver {
 
     public void setDestFile(File destFile) {
         this.destFile = destFile;
+    }
+
+    public void setStoreCreationTimeAttribute(boolean storeCreationTime) {
+        this.storeCreationTime = storeCreationTime;
     }
 
     public void addDirectory(File directory) {
@@ -129,6 +134,9 @@ public class TarGzArchiver {
             tarEntry.setMode(FilePermissionHelper.toOctalFileMode(attrs.permissions()));
         }
         tarEntry.setModTime(source.lastModified());
+        if (!storeCreationTime) { // GNU  tar cannot handle 'LIBARCHIVE.creationtime' attributes and emits a lot of warnings on it
+            tarEntry.setCreationTime(null);
+        }
         return tarEntry;
     }
 
