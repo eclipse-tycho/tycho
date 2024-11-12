@@ -7,6 +7,10 @@ This page describes the noteworthy improvements provided by each release of Ecli
 backports:
 - Support version-ranges and no-version for units in IU target locations
 - Add new `tycho-wrap:wrap`
+- Add new option to API tools verify goal to runAsJob
+- Add option to control write LIBARCHIVE.creationtime attribute in tar.gz archive entries
+- Only add matching fragments to the classpath
+
 
 ## 4.0.9
 
