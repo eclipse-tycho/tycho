@@ -70,6 +70,7 @@
 		<surefire-version>3.5.2</surefire-version>
 		<equinoxVersion>3.21.0</equinoxVersion>
 		<ecjVersion>3.39.0</ecjVersion>
+		<bouncycastleVersion>1.79</bouncycastleVersion>
 		<bnd.version>7.0.0</bnd.version>
 		<junit5.version>5.11.3</junit5.version>
 		<junit5.platform.version>1.11.3</junit5.platform.version>
@@ -314,17 +315,17 @@
 			<dependency>
 				<groupId>org.bouncycastle</groupId>
 				<artifactId>bcpg-jdk18on</artifactId>
-				<version>1.78.1</version>
+				<version>${bouncycastleVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.bouncycastle</groupId>
 				<artifactId>bcprov-jdk18on</artifactId>
-				<version>1.78.1</version>
+				<version>${bouncycastleVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.bouncycastle</groupId>
 				<artifactId>bcutil-jdk18on</artifactId>
-				<version>1.78.1</version>
+				<version>${bouncycastleVersion}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
