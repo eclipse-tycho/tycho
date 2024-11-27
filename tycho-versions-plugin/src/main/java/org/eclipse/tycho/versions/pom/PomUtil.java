@@ -48,8 +48,8 @@ public class PomUtil {
                 String unexpandedProperty = m.group();
                 String propertyName = m.group(1);
                 m.appendReplacement(resolvedVersionBuilder,
-                        properties.stream().filter(p -> p.getName().equals(propertyName)).map(p -> p.getValue())
-                                .findFirst().orElse(unexpandedProperty));
+                        Matcher.quoteReplacement(properties.stream().filter(p -> p.getName().equals(propertyName))
+                                .map(p -> p.getValue()).findFirst().orElse(unexpandedProperty)));
             }
             m.appendTail(resolvedVersionBuilder);
             return resolvedVersionBuilder.toString();
