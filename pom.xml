@@ -69,7 +69,7 @@
 		<surefire-version>3.5.2</surefire-version>
 		<equinoxVersion>3.21.0</equinoxVersion>
 		<ecjVersion>3.38.0</ecjVersion>
-		<bnd.version>7.0.0</bnd.version>
+		<bnd.version>7.1.0</bnd.version>
 		<junit5.version>5.11.3</junit5.version>
 		<junit5.platform.version>1.11.3</junit5.platform.version>
 	    <!-- these are referenced from src/main/resources/META-INF/plexus/components.xml -->
