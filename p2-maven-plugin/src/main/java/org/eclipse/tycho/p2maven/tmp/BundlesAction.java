@@ -13,7 +13,7 @@
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   SAP AG - make optional dependencies non-greedy by default; allow setting greedy through directive (bug 247099)
- *   Red Hat Inc. - Bug 460967 
+ *   Red Hat Inc. - Bug 460967
  *   Christoph Läubrich - Bug 574952 p2 should distinguish between "product plugins" and "configuration plugins" (gently sponsored by Compart AG)
  ******************************************************************************/
 package org.eclipse.tycho.p2maven.tmp;
@@ -121,7 +121,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE}
 	 * namespace representing and OSGi bundle resource
-	 * 
+	 *
 	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_BUNDLE = "bundle"; //$NON-NLS-1$
@@ -129,7 +129,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE}
 	 * namespace representing a source bundle
-	 * 
+	 *
 	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_SOURCE = "source"; //$NON-NLS-1$
@@ -159,7 +159,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * Manifest header directive for specifying how optional runtime requirements
 	 * shall be handled during installation.
-	 * 
+	 *
 	 * @see #INSTALLATION_GREEDY
 	 */
 	public static final String INSTALLATION_DIRECTIVE = "x-installation"; //$NON-NLS-1$
@@ -541,13 +541,13 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	/*
 	 * @param hostId
-	 * 
+	 *
 	 * @param bd
-	 * 
+	 *
 	 * @param locale
-	 * 
+	 *
 	 * @param localizedStrings
-	 * 
+	 *
 	 * @return installableUnitFragment
 	 */
 	private static IInstallableUnitFragment createLocalizationFragmentOfHost(BundleDescription bd, String hostId,
@@ -876,35 +876,20 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	public static Dictionary<String, String> basicLoadManifest(File bundleLocation)
 			throws IOException, BundleException {
-		InputStream manifestStream = null;
-		ZipFile jarFile = null;
 		if ("jar".equalsIgnoreCase(IPath.fromOSString(bundleLocation.getName()).getFileExtension()) && bundleLocation.isFile()) { //$NON-NLS-1$
-			jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
-			ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
-			if (manifestEntry != null) {
-				manifestStream = jarFile.getInputStream(manifestEntry);
+			try (ZipFile jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ)) {
+				ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
+				if (manifestEntry != null) {
+					return parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(jarFile.getInputStream(manifestEntry));
+				}
 			}
 		} else {
 			File manifestFile = new File(bundleLocation, JarFile.MANIFEST_NAME);
 			if (manifestFile.exists()) {
-				manifestStream = new BufferedInputStream(new FileInputStream(manifestFile));
+				return parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(new BufferedInputStream(new FileInputStream(manifestFile)));
 			}
 		}
-		try {
-			if (manifestStream != null) {
-				return parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(manifestStream);
-			}
-		} finally {
-			try {
-				if (jarFile != null)
-					jarFile.close();
-			} catch (IOException e2) {
-				// Ignore
-			}
-		}
-
 		return null;
-
 	}
 
 	private static Dictionary<String, String> parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(
@@ -1019,13 +1004,13 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	/**
 	 * Publishes bundle IUs to the p2 metadata and artifact repositories.
-	 * 
+	 *
 	 * @param bundleDescriptions Equinox framework descriptions of the bundles to
 	 *                           publish.
 	 * @param result             Used to attach status for the publication
 	 *                           operation.
 	 * @param monitor            Used to fire progress events.
-	 * 
+	 *
 	 * @deprecated Use
 	 *             {@link #generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherInfo info, IPublisherResult result, IProgressMonitor monitor)}
 	 *             with {@link IPublisherInfo} set to <code>null</code>
@@ -1038,10 +1023,10 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	/**
 	 * Publishes bundle IUs to the p2 metadata and artifact repositories.
-	 * 
+	 *
 	 * @param bundleDescriptions Equinox framework descriptions of the bundles to
 	 *                           publish.
-	 * @param publisherInfo               Configuration and publication advice information.
+	 * @param publisherInfo      Configuration and publication advice information.
 	 * @param result             Used to attach status for the publication
 	 *                           operation.
 	 * @param monitor            Used to fire progress events.
