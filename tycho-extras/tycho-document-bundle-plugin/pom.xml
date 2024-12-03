@@ -59,7 +59,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.help.base</artifactId>
-			<version>4.4.500</version>
+			<version>4.4.600</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.pde</groupId>
