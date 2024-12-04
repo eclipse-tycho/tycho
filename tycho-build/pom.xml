@@ -59,7 +59,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.publisher</artifactId>
-			<version>1.9.200</version>
+			<version>1.9.300</version>
 		</dependency>
 
 		<dependency>
