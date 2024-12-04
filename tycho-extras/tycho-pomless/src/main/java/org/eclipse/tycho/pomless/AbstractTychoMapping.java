@@ -43,6 +43,7 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.building.FileModelSource;
 import org.apache.maven.model.building.ModelProcessor;
+import org.apache.maven.model.io.ModelParseException;
 import org.apache.maven.model.io.ModelReader;
 import org.apache.maven.model.io.ModelWriter;
 import org.codehaus.plexus.PlexusContainer;
@@ -148,6 +149,11 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     public Model read(Reader input, Map<String, ?> options) throws IOException {
         Path file = getLocation(options).orElseThrow(() -> new IOException("Failed to obtain file location"));
         return read(input, file, options);
+    }
+
+    @Override
+    public Model read(Path input, Map<String, ?> options) throws IOException, ModelParseException {
+        return read(input.toFile(), options);
     }
 
     private Model read(Reader artifactReader, Path artifactFile, Map<String, ?> options) throws IOException {

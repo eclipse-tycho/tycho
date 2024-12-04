@@ -41,9 +41,9 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.aether.RepositorySystem;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
@@ -155,6 +155,7 @@ public final class MavenDependencyInjector {
                 .flatMap(definition -> definition.getLocations().stream()).filter(MavenGAVLocation.class::isInstance)
                 .map(MavenGAVLocation.class::cast).flatMap(location -> location.getRepositoryReferences().stream())
                 .toList();
+        //FIXME this should be injected in the model building phase so maven can figure it out directly!
         if (repositoryReferences != null && !repositoryReferences.isEmpty()) {
             Map<String, ArtifactRepository> repositoryMap = project.getRemoteArtifactRepositories().stream()
                     .collect(Collectors.toMap(MavenDependencyInjector::getId, Function.identity(), (a, b) -> a,
@@ -163,19 +164,19 @@ public final class MavenDependencyInjector {
                 String id = getId(reference);
                 ArtifactRepository artifactRepository = repositoryMap.get(id);
                 if (artifactRepository == null) {
-                    repositoryMap.put(id,
-                            repositorySystem.createArtifactRepository(id, reference.getUrl(), null, null, null));
+//                    repositoryMap.put(id,
+//                            repositorySystem.createArtifactRepository(id, reference.getUrl(), null, null, null));
                 } else if (!artifactRepository.getUrl().equals(reference.getUrl())) {
                     logger.warn("Target defines an artifact repository with the ID " + id
                             + " but there is already a repository for that ID mapped to a different URL! (target URL = "
                             + reference.getUrl() + ", existing URL = " + artifactRepository.getUrl());
                 }
             }
-            List<ArtifactRepository> artifactRepositories = new ArrayList<>(repositoryMap.values());
-            repositorySystem.injectMirror(artifactRepositories, settings.getMirrors());
-            repositorySystem.injectProxy(artifactRepositories, settings.getProxies());
-            repositorySystem.injectAuthentication(artifactRepositories, settings.getServers());
-            project.setRemoteArtifactRepositories(artifactRepositories);
+//            List<ArtifactRepository> artifactRepositories = new ArrayList<>(repositoryMap.values());
+//            repositorySystem.injectMirror(artifactRepositories, settings.getMirrors());
+//            repositorySystem.injectProxy(artifactRepositories, settings.getProxies());
+//            repositorySystem.injectAuthentication(artifactRepositories, settings.getServers());
+//            project.setRemoteArtifactRepositories(artifactRepositories);
         }
     }
 

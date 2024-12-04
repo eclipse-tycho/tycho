@@ -16,35 +16,28 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.InvalidRepositoryException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.aether.RepositorySystem;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.DependencyResolutionException;
 import org.eclipse.tycho.core.MavenDependenciesResolver;
 import org.eclipse.tycho.core.MavenModelFacade;
-import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 
 @Component(role = MavenDependenciesResolver.class)
 public class MavenDependenciesResolverConfigurer implements MavenDependenciesResolver {
@@ -62,68 +55,70 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
     public Collection<?> resolve(String groupId, String artifactId, String version, String packaging, String classifier,
             Collection<String> scopes, int depth, Collection<MavenArtifactRepositoryReference> additionalRepositories,
             Object session) throws DependencyResolutionException {
-        Artifact artifact;
-        if (classifier != null && !classifier.isEmpty()) {
-            artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, packaging,
-                    classifier);
-        } else {
-            artifact = repositorySystem.createArtifact(groupId, artifactId, version, null, packaging);
-        }
-        logger.debug("Resolving " + artifact);
-        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-        request.setArtifact(artifact);
-        MavenSession mavenSession = getMavenSession(session);
-        request.setResolveRoot(true);
-        request.setOffline(mavenSession.isOffline());
-        request.setCollectionFilter(a -> isValidScope(a, scopes));
-        request.setResolutionFilter(new ArtifactFilter() {
-            @Override
-            public boolean include(Artifact a) {
-                List<String> trail = a.getDependencyTrail();
-                if (logger.isDebugEnabled()) {
-                    logger.debug("[depth=" + trail.size() + ", scope matches =" + isValidScope(a, scopes) + "][" + a
-                            + "][" + trail.stream().collect(Collectors.joining(" >> ")) + "]");
-                }
-                return trail.size() <= depth && isValidScope(a, scopes);
-            }
-        });
-        request.setLocalRepository(mavenSession.getLocalRepository());
-        request.setResolveTransitively(depth > 0);
-        request.setRemoteRepositories(
-                getEffectiveRepositories(mavenSession.getCurrentProject(), additionalRepositories, repositorySystem));
-        repositorySystem.injectMirror(request.getRemoteRepositories(), mavenSession.getSettings().getMirrors());
-        repositorySystem.injectProxy(request.getRemoteRepositories(), mavenSession.getSettings().getProxies());
-        repositorySystem.injectAuthentication(request.getRemoteRepositories(), mavenSession.getSettings().getServers());
-        ArtifactResolutionResult result = repositorySystem.resolve(request);
-        if (result.hasExceptions()) {
-            throw new DependencyResolutionException("resolving " + artifact + " failed!", result.getExceptions());
-        }
-        return result.getArtifacts().stream().filter(a -> a.getFile() != null).map(MavenArtifactFacade::new).toList();
+//        Artifact artifact;
+//        if (classifier != null && !classifier.isEmpty()) {
+//            artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, packaging,
+//                    classifier);
+//        } else {
+//            artifact = repositorySystem.createArtifact(groupId, artifactId, version, null, packaging);
+//        }
+//        logger.debug("Resolving " + artifact);
+//        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
+//        request.setArtifact(artifact);
+//        MavenSession mavenSession = getMavenSession(session);
+//        request.setResolveRoot(true);
+//        request.setOffline(mavenSession.isOffline());
+//        request.setCollectionFilter(a -> isValidScope(a, scopes));
+//        request.setResolutionFilter(new ArtifactFilter() {
+//            @Override
+//            public boolean include(Artifact a) {
+//                List<String> trail = a.getDependencyTrail();
+//                if (logger.isDebugEnabled()) {
+//                    logger.debug("[depth=" + trail.size() + ", scope matches =" + isValidScope(a, scopes) + "][" + a
+//                            + "][" + trail.stream().collect(Collectors.joining(" >> ")) + "]");
+//                }
+//                return trail.size() <= depth && isValidScope(a, scopes);
+//            }
+//        });
+//        request.setLocalRepository(mavenSession.getLocalRepository());
+//        request.setResolveTransitively(depth > 0);
+//        request.setRemoteRepositories(
+//                getEffectiveRepositories(mavenSession.getCurrentProject(), additionalRepositories, repositorySystem));
+//        repositorySystem.injectMirror(request.getRemoteRepositories(), mavenSession.getSettings().getMirrors());
+//        repositorySystem.injectProxy(request.getRemoteRepositories(), mavenSession.getSettings().getProxies());
+//        repositorySystem.injectAuthentication(request.getRemoteRepositories(), mavenSession.getSettings().getServers());
+//        ArtifactResolutionResult result = repositorySystem.resolve(request);
+//        if (result.hasExceptions()) {
+//            throw new DependencyResolutionException("resolving " + artifact + " failed!", result.getExceptions());
+//        }
+//        return result.getArtifacts().stream().filter(a -> a.getFile() != null).map(MavenArtifactFacade::new).toList();
+        return null;
     }
 
     @SuppressWarnings("deprecation")
     public static List<ArtifactRepository> getEffectiveRepositories(MavenProject project,
             Collection<MavenArtifactRepositoryReference> additionalRepositories, RepositorySystem repositorySystem) {
         List<ArtifactRepository> projectRepositories;
-        if (project == null) {
-            try {
-                projectRepositories = List.of(repositorySystem.createDefaultRemoteRepository());
-            } catch (InvalidRepositoryException e) {
-                projectRepositories = List.of();
-            }
-        } else {
-            projectRepositories = project.getRemoteArtifactRepositories();
-        }
-
-        if (additionalRepositories != null && !additionalRepositories.isEmpty()) {
-            List<ArtifactRepository> repositories = new ArrayList<>(projectRepositories);
-            for (MavenArtifactRepositoryReference reference : additionalRepositories) {
-                repositories.add(repositorySystem.createArtifactRepository(reference.getId(), reference.getUrl(), null,
-                        null, null));
-            }
-            return repositorySystem.getEffectiveRepositories(repositories);
-        }
-        return projectRepositories;
+//        if (project == null) {
+//            try {
+//                projectRepositories = List.of(repositorySystem.createDefaultRemoteRepository());
+//            } catch (InvalidRepositoryException e) {
+//                projectRepositories = List.of();
+//            }
+//        } else {
+//            projectRepositories = project.getRemoteArtifactRepositories();
+//        }
+//
+//        if (additionalRepositories != null && !additionalRepositories.isEmpty()) {
+//            List<ArtifactRepository> repositories = new ArrayList<>(projectRepositories);
+//            for (MavenArtifactRepositoryReference reference : additionalRepositories) {
+//                repositories.add(repositorySystem.createArtifactRepository(reference.getId(), reference.getUrl(), null,
+//                        null, null));
+//            }
+//            return repositorySystem.getEffectiveRepositories(repositories);
+//        }
+//        return projectRepositories;
+        return null;
     }
 
     protected boolean isValidScope(Artifact artifact, Collection<String> scopes) {
