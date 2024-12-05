@@ -46,7 +46,7 @@ public class TestListDependencies extends AbstractTychoExtrasIntegrationTest {
         try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
             File dependency = new File(reader.readLine());
             assertTrue(dependency.exists());
-            assertEquals("org.junit-4.13.2.v20230809-1000.jar", dependency.getName());
+            assertEquals("org.junit-4.13.2.v20240929-1000.jar", dependency.getName());
         }
     }
 }
