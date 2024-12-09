@@ -9,13 +9,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.pde;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.nio.file.Files;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.extras.its.AbstractTychoExtrasIntegrationTest;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class TestListDependencies extends AbstractTychoExtrasIntegrationTest {
@@ -26,27 +28,26 @@ public class TestListDependencies extends AbstractTychoExtrasIntegrationTest {
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         File file = new File(verifier.getBasedir(), "dependent/target/dependencies-list.txt");
-        Assert.assertTrue(file.exists());
+        assertTrue(file.exists());
         try (BufferedReader reader = Files.newBufferedReader(file.toPath());) {
             File dependency = new File(reader.readLine());
-            Assert.assertTrue(dependency.exists());
-            Assert.assertEquals("dependency-0.1.0-SNAPSHOT.jar", dependency.getName());
+            assertTrue(dependency.exists());
+            assertEquals("dependency-0.1.0-SNAPSHOT.jar", dependency.getName());
         }
     }
 
     @Test
     public void testDependencyWithNestedJar() throws Exception {
-        Verifier verifier = getVerifier("dependencyList/dependency-with-nested-jar", false);
-        verifier.addCliOption("-Dp2-repo=" + P2_REPO);
+        Verifier verifier = getVerifier("dependencyList/dependency-with-nested-jar");
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         File file = new File(verifier.getBasedir(), "target/dependencies-list.txt");
-        Assert.assertTrue(file.exists());
+        assertTrue(file.exists());
         try (BufferedReader reader = Files.newBufferedReader(file.toPath()) //
         ) { //
             File dependency = new File(reader.readLine());
-            Assert.assertTrue(dependency.exists());
-            Assert.assertEquals("org.junit-4.12.0.v201504281640.jar", dependency.getName());
+            assertTrue(dependency.exists());
+            assertEquals("org.junit-4.13.2.v20240929-1000.jar", dependency.getName());
         }
     }
 }
