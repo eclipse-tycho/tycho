@@ -118,7 +118,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-invoker-plugin</artifactId>
-					<version>3.8.1</version>
+					<version>3.9.0</version>
 					<configuration>
 						<debug>${invoker.debug}</debug>
 						<projectsDirectory>src/it</projectsDirectory>
