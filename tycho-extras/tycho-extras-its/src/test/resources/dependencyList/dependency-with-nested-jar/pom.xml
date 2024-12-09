@@ -33,7 +33,7 @@
 	<repositories>
 		<repository>
 			<id>p2-repo</id>
-			<url>${p2-repo}</url>
+			<url>${target-platform}</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>
