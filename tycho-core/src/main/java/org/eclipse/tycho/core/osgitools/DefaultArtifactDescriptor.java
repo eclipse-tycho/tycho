@@ -68,10 +68,13 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
         if (projectLocation != null) {
             return projectLocation;
         }
-        if (fetch && locationSupplier != null && (location == null || !location.exists())) {
+        if (fetch && locationSupplier != null && location == null) {
             File file = locationSupplier.apply(this);
             if (file != null) {
                 location = ArtifactCollection.normalizeLocation(file);
+                if (!location.exists()) {
+                    location = null;
+                }
             }
         }
         return location;
