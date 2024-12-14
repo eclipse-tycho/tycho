@@ -98,7 +98,14 @@ public class TargetPlatformArtifactResolverImpl implements TargetPlatformArtifac
 	@Override
 	public Optional<File> getReactorTargetFile(String groupId, String artifactId, String version, String classifier,
 			MavenSession session) throws TargetResolveException {
-		for (MavenProject project : session.getProjects()) {
+		if (session == null) {
+			return Optional.empty();
+		}
+		List<MavenProject> projects = session.getProjects();
+		if (projects == null) {
+			return Optional.empty();
+		}
+		for (MavenProject project : projects) {
 			if (groupId.equals(project.getGroupId()) && artifactId.equals(project.getArtifactId())
 					&& version.equals(project.getVersion())) {
 				if (classifier == null || classifier.isBlank()) {

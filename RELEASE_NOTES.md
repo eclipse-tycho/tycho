@@ -6,11 +6,18 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+## Support for implicit dependencies in target definitions
+
+In target definitions Tycho now supports to use the `<implicitDependencies>`, 
+see [Eclipse Help](https://help.eclipse.org/latest/topic/org.eclipse.pde.doc.user/guide/tools/editors/target_editor/environment_page.htm)
+for more details.
+
 ## Support for version ranges and no version for units in target definitions
 
 In target definitions Tycho now supports to use a range as version of a unit or to skip the version entirely in `InstallableUnit` locations, just like Eclipse-PDE.
 Specifying no version is equivalent to `0.0.0` which resolves to the latest version available.
 All of the following variants to specify a version are now possible:
+
 ```
 <target name="my-target">
     <locations>
