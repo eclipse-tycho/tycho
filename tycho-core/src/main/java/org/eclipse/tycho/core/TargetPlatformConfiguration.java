@@ -29,10 +29,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
@@ -267,7 +270,9 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     @Override
     public List<ArtifactKey> getAdditionalArtifacts() {
-        return extraRequirements;
+        Stream<DefaultArtifactKey> targetFiles = getTargets().stream().flatMap(tdf -> tdf.implicitDependencies())
+                .map(id -> new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, id.getId()));
+        return Stream.concat(extraRequirements.stream(), targetFiles).distinct().toList();
     }
 
     @Override

@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -213,6 +214,11 @@ public class InstallableUnitLocationUpdater {
         @Override
         public String getTargetEE() {
             return delegate.getTargetEE();
+        }
+
+        @Override
+        public Stream<ImplicitDependency> implicitDependencies() {
+            return delegate.implicitDependencies();
         }
 
     }

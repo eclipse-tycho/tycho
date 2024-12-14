@@ -2,6 +2,10 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 4.0.11
+backports:
+- Support for implicit dependencies in target definitions
+
 ## 4.0.10
 
 backports:

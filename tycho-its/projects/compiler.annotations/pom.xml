@@ -6,16 +6,8 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 	<properties>
-		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
-		<repo-url>https://download.eclipse.org/releases/2022-03/</repo-url>
+		<tycho-version>5.0.0-SNAPSHOT</tycho-version>
 	</properties>
-	<repositories>
-		<repository>
-			<id>featureRepo</id>
-			<layout>p2</layout>
-			<url>${repo-url}</url>
-		</repository>
-	</repositories>
 	<build>
 		<plugins>
 			<plugin>
