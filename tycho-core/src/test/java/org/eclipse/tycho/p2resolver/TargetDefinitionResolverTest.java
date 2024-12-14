@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -301,6 +302,11 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
         @Override
         public String getTargetEE() {
             return null;
+        }
+
+        @Override
+        public Stream<ImplicitDependency> implicitDependencies() {
+            return Stream.empty();
         }
 
     }
