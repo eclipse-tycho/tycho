@@ -108,13 +108,25 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 		assertTrue(dependencies.getAbsoluteFile() + " not found!", dependencies.isFile());
 		List<String> lines = Files.readAllLines(dependencies.toPath());
 		String collect = lines.stream().collect(Collectors.joining(",\r\n"));
-		// TODO we should possibly accept others that supply the ds annotations here?
 		assertTrue("org.eclipse.osgi.services not found in dependencies: " + collect,
-				lines.stream().anyMatch(s -> s.contains("org.eclipse.osgi.services")));
+				lines.stream().anyMatch(s -> s.contains("org.osgi.service.component.annotations")));
 		assertTrue("org.osgi.annotation.bundle not found in dependencies: " + collect,
 				lines.stream().anyMatch(s -> s.contains("org.osgi.annotation.bundle")));
 		assertTrue("org.osgi.annotation.versioning not found in dependencies: " + collect,
 				lines.stream().anyMatch(s -> s.contains("org.osgi.annotation.versioning")));
+	}
+
+	@Test
+	public void testImplicitJDTAnnotations() throws Exception {
+		Verifier verifier = getVerifier("compiler.annotations", false, true);
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+		File dependencies = new File(verifier.getBasedir(), "target/dependencies-list.txt");
+		assertTrue(dependencies.getAbsoluteFile() + " not found!", dependencies.isFile());
+		List<String> lines = Files.readAllLines(dependencies.toPath());
+		String collect = lines.stream().collect(Collectors.joining(",\r\n"));
+		assertTrue("org.eclipse.osgi.services not found in dependencies: " + collect,
+				lines.stream().anyMatch(s -> s.contains("org.eclipse.jdt.annotation")));
 	}
 
 }

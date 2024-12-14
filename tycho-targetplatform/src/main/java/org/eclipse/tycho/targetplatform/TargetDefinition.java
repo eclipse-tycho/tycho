@@ -21,6 +21,7 @@ package org.eclipse.tycho.targetplatform;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
@@ -54,8 +55,20 @@ public interface TargetDefinition {
 	@Override
 	public boolean equals(Object obj);
 
+	/**
+	 * 
+	 * @return a stream of implicit dependencies defined in the target to add as an
+	 *         additional dependency to every project
+	 */
+	Stream<ImplicitDependency> implicitDependencies();
+
 	@Override
 	public int hashCode();
+
+	public interface ImplicitDependency {
+
+		String getId();
+	}
 
 	public interface Location {
 
