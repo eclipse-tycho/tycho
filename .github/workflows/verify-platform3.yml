@@ -40,8 +40,8 @@ jobs:
       with:
         java-version: |
             11
-            21
             17
+            21
         distribution: 'temurin'
     - name: Cache local Maven repository
       uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
@@ -55,6 +55,8 @@ jobs:
       with:
         maven-version: 3.9.9
     - name: Build Tycho
+      env:
+        JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
       working-directory: 'tycho'
       run: >- 
         mvn -U -V -e -B -ntp
@@ -63,6 +65,8 @@ jobs:
         -T1C
         clean install
     - name: Run Platform SWT Build
+      env:
+        JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
       working-directory: 'swt'
       shell: bash
       run: >- 
