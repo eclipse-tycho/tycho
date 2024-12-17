@@ -31,8 +31,8 @@ jobs:
       with:
         java-version: |
             11
-            21
             17
+            21
         distribution: 'temurin'
     - name: Cache local Maven repository
       uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
@@ -57,7 +57,7 @@ jobs:
         clean install
     - name: Run Platform Build
       env:
-       JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+       JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
       working-directory: 'platform'
       run: >- 
         xvfb-run mvn
