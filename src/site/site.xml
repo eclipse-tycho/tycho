@@ -25,7 +25,7 @@
 			<item name="Properties">
 				<item name="Build Properties" href="BuildProperties.html" />
 				<item name="System Properties" href="SystemProperties.html" />
-            	<item name="Tycho Properties" href="TychoProperties.html" />
+				<item name="Tycho Properties" href="TychoProperties.html" />
 			</item>
 		</menu>
 		<menu name="Other Tycho Plugins" inherit="top">
@@ -43,12 +43,17 @@
 			<item name="Source Plugin" href="tycho-source-plugin/plugin-info.html" />
 			<item name="Versions Plugin" href="tycho-versions-plugin/plugin-info.html" />
 		</menu>
-        <!-- always include all reports -->
-        <menu ref="reports" inherit="bottom"/>
+		<!-- always include all reports -->
+		<menu ref="reports" inherit="bottom"/>
 	</body>
 	<skin>
 		<groupId>org.apache.maven.skins</groupId>
 		<artifactId>maven-fluido-skin</artifactId>
-		<version>2.0.0-M10</version>
+		<version>2.0.1</version>
 	</skin>
+	<custom>
+		<fluidoSkin>
+			<sourceLineNumbersEnabled>true</sourceLineNumbersEnabled>
+		</fluidoSkin>
+	</custom>
 </site>
