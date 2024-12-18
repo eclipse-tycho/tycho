@@ -30,6 +30,7 @@
 	</repositories>
 
 	<modules>
+		<module>example-plugin</module>
 		<module>example-feature</module>
 		<module>example-product</module>
 	</modules>
@@ -65,6 +66,13 @@
 			<id>useProvisionedProductDirector</id>
 			<modules>
 				<module>extProductTestDirector</module>
+			</modules>
+		</profile>
+		<profile>
+			<!-- scenario 4: run tests on a feature -->
+			<id>noProduct</id>
+			<modules>
+				<module>pluginTest</module>
 			</modules>
 		</profile>
 	</profiles>
