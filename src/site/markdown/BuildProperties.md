@@ -2,7 +2,7 @@
 
 Tycho uses the `build.properties` file [as defined by PDE](https://help.eclipse.org/latest/index.jsp?topic=/org.eclipse.pde.doc.user/reference/pde_feature_generating_build.htm) to configure various aspects of the build.
 
-Note that Tycho only supports a subset of keys defined by PDE. 
+Note that Tycho only supports a subset of keys defined by PDE.
 If a key is not supported, this may be because:
 
 * it's legacy/deprecated
@@ -10,8 +10,8 @@ If a key is not supported, this may be because:
 * there are other ways to achieve the desired configuration (e.g. using pom.xml)
 * it's a missing feature
 
-In additional to the PDE properties, Tycho supports property expressions like `${project.version}` in `build.properties` values. 
-These expressions are only used in a Tycho build, not when using the Eclipse IDE incremental build.  
+In additional to the PDE properties, Tycho supports property expressions like `${project.version}` in `build.properties` values.
+These expressions are only used in a Tycho build, not when using the Eclipse IDE incremental build.
 
 See the table below for which keys in `build.properties` defined by PDE are supported by Tycho or if not, whether there are alternatives when using Tycho.
 
@@ -21,7 +21,7 @@ Key | Value
 --- | ---
 bin.includes | supported
 bin.excludes | supported
-qualifier    | not supported - use [Build Qualifer Mojo](tycho-packaging-plugin/build-qualifier-mojo.html) instead
+qualifier    | not supported - use [Build Qualifier Mojo](tycho-packaging-plugin/build-qualifier-mojo.html) instead
 forceContextQualifier | supported
 custom*      | not supported
 
@@ -38,7 +38,7 @@ src.includes | supported
 src.excludes | supported
 jars.extra.classpath | only supported in the form `platform:/plugin/<Bundle-SymbolicName>[/path/to/nested/jar]`
 jars.compile.order | supported
-additional.bundles | supported (since Tycho 2.4.0)
+additional.bundles | supported
 
 
 ## Compiler-specific properties
@@ -53,7 +53,7 @@ javacWarnings.library | not supported - use [compilerArgument](https://wiki.ecli
 javacErrors.library | not supported - use [compilerArgument](https://wiki.eclipse.org/Tycho/FAQ#How_to_configure_warning.2Ferror_settings_of_the_OSGi_compiler.3F) instead.
 javacDefaultEncoding.library | supported
 javacCustomEncodings.library | not supported
-javacProjectSettings | not supported. Use [useProjectSettings](tycho-compiler-plugin/compile-mojo.html#useProjectSettings) or [compilerArgs](tycho-compiler-plugin/compile-mojo.html#compilerArgs) instead. 
+javacProjectSettings | not supported. Use [useProjectSettings](tycho-compiler-plugin/compile-mojo.html#useProjectSettings) or [compilerArgs](tycho-compiler-plugin/compile-mojo.html#compilerArgs) instead.
 compilerArg | not supported. Use [compilerArgs](tycho-compiler-plugin/compile-mojo.html#compilerArgs) instead
 compilerAdapter | not supported. Use [compilerId](tycho-compiler-plugin/compile-mojo.html#compilerId) instead
 compilerAdapter.useLog | not supported
@@ -66,8 +66,8 @@ Key | Value
 --- | ---
 root | supported
 root.config | supported
-root.folder | supported (since Tycho 0.27.0)
-root.config.folder | supported (since Tycho 0.27.0)
+root.folder | supported
+root.config.folder | supported
 root.permissions | supported
 root.link | supported
 generate.feature | not supported - use [Tycho Source Plugin](tycho-source-plugin/plugin-info.html) instead

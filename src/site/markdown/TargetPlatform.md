@@ -25,11 +25,11 @@ Each module can have its own target platform, although with the normal configura
 
 ### Simple target platform configuration
 
-In order allow Tycho to resolve the project dependencies against anything from a specific p2 repository, add that repository in the `<repositories>` section of the POM.
+In order to allow Tycho to resolve the project dependencies against anything from a specific p2 repository, add that repository in the `<repositories>` section of the POM.
 
 Example:
 
-```
+```xml
 <repository>
    <id>eclipse-indigo</id>
    <url>http://download.eclipse.org/releases/2023-12</url>
@@ -37,7 +37,7 @@ Example:
 </repository>
 ```
 
-In terms of the target platform, this means that the entire content of the specified p2 repositories become part of the target platform.
+In terms of the target platform, this means that the entire content of the specified p2 repositories becomes part of the target platform.
 
 Background: In a normal (i.e. non-Tycho) Maven project, one can configure Maven repositories which can be used by Maven to resolve the project dependencies.
 Tycho can use p2 repositories for resolving OSGi dependencies.
@@ -45,11 +45,11 @@ The p2 repositories need to be marked with layout=p2. (The normal Maven dependen
 
 ### Target files
 
-The PDE target definition file format (*.target) allows to select a subset of units (bundles, features, etc.).
+The PDE target definition file format (`*.target`) allows to select a subset of units (bundles, features, etc.).
 
 In order to add the content of a target definition file (see "Content" tab of the Target Editor) to the target platform in the Tycho build, place the target file in a eclipse-target-definition module and configure it in the target-platform-configuration build plugin. Example:
 
-```
+```xml
 <plugin>
    <groupId>org.eclipse.tycho</groupId>
    <artifactId>target-platform-configuration</artifactId>
@@ -91,9 +91,9 @@ In case multiple target platform configuration approaches are combined, the targ
 
 Apart from the explicitly configured content, the target platform also contains the following artifacts:
 
-Other artifacts from the same reactor
-Locally built artifacts in the local Maven repository
-Finally, it is possible to remove artifacts again from the target platform through a filtering syntax.
+* Other artifacts from the same reactor
+* Locally built artifacts in the local Maven repository
+* Finally, it is possible to remove artifacts again from the target platform through a filtering syntax.
 
 ### Locally built artifacts
 
@@ -111,7 +111,7 @@ See https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifact
 
 ### Dependency resolution troubleshooting
 
-Run mvn with the flags -Dtycho.debug.resolver=true and -X to see debug output.
+Run mvn with the flags `-Dtycho.debug.resolver=true` and `-X` to see debug output.
 
 This will debug
 
@@ -124,12 +124,12 @@ This will debug
 
 To list all the available IUs in an Eclipse p2 repository, run:
 
-```
+```shell
 java -jar plugins/org.eclipse.equinox.launcher_1.6.600.v20231106-1826.jar -debug -consolelog -application org.eclipse.equinox.p2.director -repository https://download.eclipse.org/releases/latest/ -list
 ```
 
 Java is used (instead of the eclipse binary) so that the console output appears in the shell.
-Make sure your shell is inside the Eclipse root directory
+Make sure your shell is inside the Eclipse root directory.
 
 You will need to replace that version number for org.eclipse.equinox.launcher with the one found inside your Eclipse installation.
 You will need to replace the Eclipse repository with the one you want a list of.
