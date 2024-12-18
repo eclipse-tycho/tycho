@@ -1,5 +1,5 @@
-# This workflow will build a "Eclipse Platform Individual Bundles" using the eclipse.platform repository as it contains the largest set of inter-related bundles
-# For more information see: https://github.com/eclipse-platform/eclipse.platform
+# This workflow will build a "Eclipse Platform SWT Bundles" using the eclipse.platform.swt repository as it contains platform specific codes
+# For more information see: https://github.com/eclipse-platform/eclipse.platform.swt/
 
 name: Verify Eclipse Platform SWT Build
 concurrency: 
@@ -40,8 +40,8 @@ jobs:
       with:
         java-version: |
             11
-            21
             17
+            21
         distribution: 'temurin'
     - name: Cache local Maven repository
       uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
@@ -55,6 +55,8 @@ jobs:
       with:
         maven-version: 3.9.9
     - name: Build Tycho
+      env:
+        JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
       working-directory: 'tycho'
       run: >- 
         mvn -U -V -e -B -ntp
@@ -63,6 +65,8 @@ jobs:
         -T1C
         clean install
     - name: Run Platform SWT Build
+      env:
+        JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
       working-directory: 'swt'
       shell: bash
       run: >- 
