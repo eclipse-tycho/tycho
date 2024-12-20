@@ -194,6 +194,15 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     @Parameter(property = "source.forceCreation", defaultValue = "false")
     private boolean forceCreation;
 
+    /**
+     * Timestamp for reproducible output archive entries, either formatted as ISO 8601 extended
+     * offset date-time (e.g. in UTC such as '2011-12-03T10:15:30Z' or with an offset
+     * '2019-10-05T20:37:42+06:00'), or as an int representing seconds since the epoch (like
+     * <a href= "https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>).
+     */
+    @Parameter(defaultValue = "${project.build.outputTimestamp}")
+    private String outputTimestamp;
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
@@ -348,6 +357,9 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     protected MavenArchiver createArchiver() throws MojoExecutionException {
         MavenArchiver archiver = new MavenArchiver();
         archiver.setArchiver(jarArchiver);
+
+        // configure for Reproducible Builds based on outputTimestamp value
+        archiver.configureReproducibleBuild(outputTimestamp);
 
         if (project.getBuild() != null) {
             List<Resource> resources = project.getBuild().getResources();
