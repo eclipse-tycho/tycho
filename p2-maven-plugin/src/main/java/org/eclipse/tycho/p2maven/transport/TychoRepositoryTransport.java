@@ -43,6 +43,9 @@ import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 @Component(role = org.eclipse.equinox.internal.p2.repository.Transport.class, hint = "tycho")
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
@@ -94,28 +97,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 
 	@Override
 	public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
-		String id = "p2"; // TODO we might compute the id from the IRepositoryIdManager based on the URI?
-		if (cacheConfig.isInteractive()) {
-			logger.info("Downloading from " + id + ": " + toDownload);
-		}
-		try {
-			DownloadStatusOutputStream statusOutputStream = new DownloadStatusOutputStream(target,
-					"Download of " + toDownload);
-			stream(toDownload, monitor).transferTo(statusOutputStream);
-			DownloadStatus downloadStatus = statusOutputStream.getStatus();
-			if (cacheConfig.isInteractive()) {
-				logger.info("Downloaded from " + id + ": " + toDownload + " ("
-						+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize()) + " at "
-						+ FileUtils.byteCountToDisplaySize(downloadStatus.getTransferRate()) + "/s)");
-			}
-			return reportStatus(downloadStatus, target);
-		} catch (AuthenticationFailedException e) {
-			return Status.error("authentication failed for " + toDownload, e);
-		} catch (IOException e) {
-			return reportStatus(Status.error("download from " + toDownload + " failed", e), target);
-		} catch (CoreException e) {
-			return reportStatus(e.getStatus(), target);
-		}
+		return downloadArtifact(toDownload, target, null, monitor);
 	}
 
 	private IStatus reportStatus(IStatus status, OutputStream target) {
@@ -123,6 +105,73 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 			stateful.setStatus(status);
 		}
 		return status;
+	}
+
+	@Override
+	public IStatus downloadArtifact(URI source, OutputStream target, IArtifactDescriptor descriptor,
+			IProgressMonitor monitor) {
+		if (descriptor != null) {
+			// TODO query the p2 pools!
+			Path cacheLocation = getCacheLocation(descriptor);
+			if (Files.isRegularFile(cacheLocation)) {
+				// TODO need to check local properties!
+				try {
+					Files.copy(cacheLocation, target);
+				} catch (IOException e) {
+					return reportStatus(Status.error("download from " + source + " failed", e), target);
+				}
+				return reportStatus(Status.OK_STATUS, target);
+			} else {
+				// TODO need to download to cache!
+			}
+		}
+		String id = "p2"; // TODO we might compute the id from the IRepositoryIdManager based on the URI?
+		boolean printMessage = cacheConfig.isInteractive() && !cacheConfig.isOffline();
+		if (printMessage) {
+			logger.info("Downloading from " + id + ": " + source);
+		}
+		try {
+			DownloadStatusOutputStream statusOutputStream = new DownloadStatusOutputStream(target,
+					"Download of " + source);
+			stream(source, monitor).transferTo(statusOutputStream);
+			DownloadStatus downloadStatus = statusOutputStream.getStatus();
+			if (printMessage) {
+				logger.info("Downloaded from " + id + ": " + source + " ("
+						+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize()) + " at "
+						+ FileUtils.byteCountToDisplaySize(downloadStatus.getTransferRate()) + "/s)");
+			}
+			return reportStatus(downloadStatus, target);
+		} catch (AuthenticationFailedException e) {
+			return Status.error("authentication failed for " + source, e);
+		} catch (IOException e) {
+			return reportStatus(Status.error("download from " + source + " failed", e), target);
+		} catch (CoreException e) {
+			return reportStatus(e.getStatus(), target);
+		}
+	}
+
+	private Path getCacheLocation(IArtifactDescriptor descriptor) {
+		Path location = cacheConfig.getCacheLocation().toPath();
+		IArtifactKey artifactKey = descriptor.getArtifactKey();
+		// TODO check the maven properties and construct a path to the local repo!
+		return location.resolve(getClassifier(artifactKey)).resolve(artifactKey.getId())
+				.resolve(getVersion(artifactKey));
+	}
+
+	private String getVersion(IArtifactKey artifactKey) {
+		Version version = artifactKey.getVersion();
+		if (version == null) {
+			return "0.0.0";
+		}
+		return version.toString();
+	}
+
+	private String getClassifier(IArtifactKey artifactKey) {
+		String classifier = artifactKey.getClassifier();
+		if (classifier == null || classifier.isBlank()) {
+			return "artifacts";
+		}
+		return classifier;
 	}
 
 	@Override
