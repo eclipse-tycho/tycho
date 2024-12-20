@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -163,6 +164,16 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	@Parameter(defaultValue = "true")
 	private boolean checkServiceComponentFilesExist = true;
 
+	/**
+	 * Timestamp for reproducible output archive entries, either formatted as ISO
+	 * 8601 extended offset date-time (e.g. in UTC such as '2011-12-03T10:15:30Z' or
+	 * with an offset '2019-10-05T20:37:42+06:00'), or as an int representing
+	 * seconds since the epoch (like <a href=
+	 * "https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>).
+	 */
+	@Parameter(defaultValue = "${project.build.outputTimestamp}")
+	private String outputTimestamp;
+
 	@Component
 	private SourceReferenceComputer soureReferenceComputer;
 
@@ -211,6 +222,9 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 		try {
 			File jarFile = new File(project.getBasedir(), jarName);
 			JarArchiver archiver = new JarArchiver();
+			// configure for Reproducible Builds based on outputTimestamp value
+			MavenArchiver.parseBuildOutputTimestamp(outputTimestamp).map(FileTime::from)
+					.ifPresent(modifiedTime -> archiver.configureReproducibleBuild(modifiedTime));
 			archiver.setDestFile(jarFile);
 			File outputDirectory = jar.getOutputDirectory();
 			if (!outputDirectory.mkdirs() && !outputDirectory.exists()) {
@@ -237,6 +251,9 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 		try {
 			MavenArchiver archiver = new MavenArchiver();
 			archiver.setArchiver(jarArchiver);
+
+			// configure for Reproducible Builds based on outputTimestamp value
+			archiver.configureReproducibleBuild(outputTimestamp);
 
 			File pluginFile = new File(buildDirectory, finalName + ".jar");
 			if (pluginFile.exists()) {

@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +35,7 @@ import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -174,6 +176,15 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project.build.directory}/repository")
     private File destination;
+
+    /**
+     * Timestamp for reproducible output archive entries, either formatted as ISO 8601 extended
+     * offset date-time (e.g. in UTC such as '2011-12-03T10:15:30Z' or with an offset
+     * '2019-10-05T20:37:42+06:00'), or as an int representing seconds since the epoch (like
+     * <a href="https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>).
+     */
+    @Parameter(defaultValue = "${project.build.outputTimestamp}")
+    private String outputTimestamp;
 
     @Component
     private Logger logger;
@@ -399,6 +410,9 @@ public class MavenP2SiteMojo extends AbstractMojo {
             throw new MojoFailureException("P2 publisher return code was " + result);
         }
         ZipArchiver archiver = new ZipArchiver();
+        // configure for Reproducible Builds based on outputTimestamp value
+        MavenArchiver.parseBuildOutputTimestamp(outputTimestamp).map(FileTime::from)
+                .ifPresent(modifiedTime -> archiver.configureReproducibleBuild(modifiedTime));
         File destFile = new File(buildDirectory, "p2-site.zip");
         archiver.setDestFile(destFile);
         archiver.addFileSet(new DefaultFileSet(destination));
