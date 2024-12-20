@@ -75,7 +75,6 @@ public interface ReactorProject extends IDependencyMetadata {
     /**
      * Returns the (editable) list of {@link DependencySeed}s for the given project.
      */
-    @SuppressWarnings("unchecked")
     default List<DependencySeed> getDependencySeeds() {
         return computeContextValue(TychoConstants.CTX_DEPENDENCY_SEEDS, () -> new CopyOnWriteArrayList<>());
     }

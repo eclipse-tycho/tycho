@@ -116,11 +116,11 @@ public abstract class AbstractP2MetadataMojo extends AbstractMojo {
         arguments.add("-source");
         arguments.add(getUpdateSiteLocation().getAbsolutePath());
         arguments.add("-metadataRepository");
-        arguments.add(getUpdateSiteLocation().toURL().toExternalForm());
+        arguments.add(getUpdateSiteLocation().toURI().toString());
         arguments.add("-metadataRepositoryName");
         arguments.add(metadataRepositoryName);
         arguments.add("-artifactRepository");
-        arguments.add(getUpdateSiteLocation().toURL().toExternalForm());
+        arguments.add(getUpdateSiteLocation().toURI().toString());
         arguments.add("-artifactRepositoryName");
         arguments.add(artifactRepositoryName);
         arguments.add("-noDefaultIUs");
