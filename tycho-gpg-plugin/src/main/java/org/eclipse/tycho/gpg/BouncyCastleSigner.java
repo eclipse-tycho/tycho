@@ -33,6 +33,7 @@ import org.apache.maven.plugins.gpg.AbstractGpgSigner;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.CompressionAlgorithmTags;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
+import org.bouncycastle.bcpg.PublicKeyPacket;
 import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
 import org.bouncycastle.bcpg.sig.KeyFlags;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
@@ -138,7 +139,8 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
         var publicKey = secretKey.getPublicKey();
         var signatureGenerator = new PGPSignatureGenerator(
                 new JcaPGPContentSignerBuilder(publicKey.getAlgorithm(), HashAlgorithmTags.SHA256)
-                        .setProvider(BouncyCastleProvider.PROVIDER_NAME));
+                        .setProvider(BouncyCastleProvider.PROVIDER_NAME),
+                publicKey);
         signatureGenerator.init(PGPSignature.BINARY_DOCUMENT, privateKey);
         var subpackets = new PGPSignatureSubpacketGenerator();
         subpackets.setIssuerFingerprint(false, publicKey);
@@ -244,7 +246,8 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
         var publicKeyRings = new ArrayList<PGPPublicKeyRing>();
         var secretKeyRings = new ArrayList<PGPSecretKeyRing>();
         for (var userID : userIDs) {
-            var signingKeyPair = new BcPGPKeyPair(PGPPublicKey.RSA_SIGN, keyPairGenerator.generateKeyPair(), now);
+            var signingKeyPair = new BcPGPKeyPair(PublicKeyPacket.VERSION_4, PGPPublicKey.RSA_GENERAL,
+                    keyPairGenerator.generateKeyPair(), now);
             var signatureSubpacketGenerator = new PGPSignatureSubpacketGenerator();
             signatureSubpacketGenerator.setKeyFlags(false, KeyFlags.SIGN_DATA | KeyFlags.CERTIFY_OTHER);
             signatureSubpacketGenerator.setPreferredSymmetricAlgorithms(false,
@@ -254,15 +257,17 @@ public class BouncyCastleSigner extends AbstractGpgSigner {
             signatureSubpacketGenerator.setPreferredCompressionAlgorithms(false,
                     new int[] { CompressionAlgorithmTags.ZIP, CompressionAlgorithmTags.BZIP2 });
 
-            var encryptionKeyPair = new BcPGPKeyPair(PGPPublicKey.RSA_ENCRYPT, keyPairGenerator.generateKeyPair(), now);
+            var encryptionKeyPair = new BcPGPKeyPair(PublicKeyPacket.VERSION_4, PGPPublicKey.RSA_GENERAL,
+                    keyPairGenerator.generateKeyPair(), now);
             var encryptionSubpacketGenerator = new PGPSignatureSubpacketGenerator();
             encryptionSubpacketGenerator.setKeyFlags(false, KeyFlags.ENCRYPT_COMMS | KeyFlags.ENCRYPT_STORAGE);
 
             var digestCalculator = new BcPGPDigestCalculatorProvider().get(HashAlgorithmTags.SHA1);
             var signatureSubpacketVector = signatureSubpacketGenerator.generate();
-            var contentSignerBuilder = new BcPGPContentSignerBuilder(PGPPublicKey.RSA_SIGN, HashAlgorithmTags.SHA256);
+            var contentSignerBuilder = new BcPGPContentSignerBuilder(PGPPublicKey.RSA_GENERAL,
+                    HashAlgorithmTags.SHA256);
             var secretKeyEncryptorBuilder = new BcPBESecretKeyEncryptorBuilder(SymmetricKeyAlgorithmTags.AES_256);
-            var keyRingGenerator = new PGPKeyRingGenerator(PGPPublicKey.RSA_SIGN, signingKeyPair, userID,
+            var keyRingGenerator = new PGPKeyRingGenerator(PGPPublicKey.RSA_GENERAL, signingKeyPair, userID,
                     digestCalculator, signatureSubpacketVector, null, contentSignerBuilder,
                     secretKeyEncryptorBuilder.build(passphrase.toCharArray()));
             keyRingGenerator.addSubKey(encryptionKeyPair, encryptionSubpacketGenerator.generate(), null);

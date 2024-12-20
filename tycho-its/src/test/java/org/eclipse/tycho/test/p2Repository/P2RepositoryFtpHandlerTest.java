@@ -92,7 +92,6 @@ public class P2RepositoryFtpHandlerTest extends AbstractTychoIntegrationTest {
         return entry;
     }
 
-    @SuppressWarnings("TextBlockMigration")
     private String getFeatResponse() {
         return "Extensions supported:\r\n" +
                " MDTM\r\n" +
