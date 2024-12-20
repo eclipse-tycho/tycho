@@ -563,6 +563,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         if (configuredProfile != null) {
             // non standard profile, stick to it
             sink.setProfileConfiguration(configuredProfileName, reason);
+            return;
         }
         StandardExecutionEnvironment currentProfile = ExecutionEnvironmentUtils.getExecutionEnvironment(
                 "JavaSE-" + Runtime.version().feature(), toolchainManager, mavenSession, logger);
