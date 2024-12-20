@@ -105,6 +105,16 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     @Parameter(defaultValue = "${project.build.directory}/site")
     private File target;
 
+    /**
+     * Timestamp for reproducible output archive entries, either formatted as ISO
+     * 8601 extended offset date-time (e.g. in UTC such as '2011-12-03T10:15:30Z' or
+     * with an offset '2019-10-05T20:37:42+06:00'), or as an int representing
+     * seconds since the epoch (like <a href=
+     * "https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>).
+     */
+    @Parameter(defaultValue = "${project.build.outputTimestamp}")
+    private String outputTimestamp;
+
     @Component
     private FeatureXmlTransformer featureXmlTransformer;
 
@@ -161,6 +171,8 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
             MavenArchiver archiver = new MavenArchiver();
             JarArchiver jarArchiver = getJarArchiver();
             archiver.setArchiver(jarArchiver);
+            // configure for Reproducible Builds based on outputTimestamp value
+            archiver.configureReproducibleBuild(outputTimestamp);
             archiver.setOutputFile(outputJar);
             jarArchiver.setDestFile(outputJar);
 

@@ -14,7 +14,9 @@ package org.eclipse.tycho.packaging;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.attribute.FileTime;
 
+import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -50,6 +52,16 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
     @Parameter(property = "project.basedir", required = true, readonly = true)
     private File basedir;
 
+    /**
+     * Timestamp for reproducible output archive entries, either formatted as ISO
+     * 8601 extended offset date-time (e.g. in UTC such as '2011-12-03T10:15:30Z' or
+     * with an offset '2019-10-05T20:37:42+06:00'), or as an int representing
+     * seconds since the epoch (like <a href=
+     * "https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>).
+     */
+    @Parameter(defaultValue = "${project.build.outputTimestamp}")
+    private String outputTimestamp;
+
     @Component
     private IUXmlTransformer iuTransformer;
 
@@ -65,6 +77,11 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
             getLog().info("Skip packaging");
             return;
         }
+
+        // configure for Reproducible Builds based on outputTimestamp value
+        MavenArchiver.parseBuildOutputTimestamp(outputTimestamp).map(FileTime::from)
+            .ifPresent(modifiedTime -> zipArchiver.configureReproducibleBuild(modifiedTime));
+
         synchronized (LOCK) {
             outputDirectory.mkdirs();
 
