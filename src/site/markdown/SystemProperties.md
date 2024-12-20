@@ -29,10 +29,10 @@ tycho.comparator.threshold | bytes | 5242880 (~5MB) | gives the number of bytes 
 
 ## P2
 
-These properties control the behaviour of P2 used by Tycho
+These properties control the behavior of P2 used by Tycho
 
 Name | Value | Default | Documentation
 --- | --- | --- | ---
 eclipse.p2.mirrors | true / false | true | Each p2 site can define a list of artifact repository mirrors, this controls if P2 mirrors should be used. This is independent from configuring mirrors in the maven configuration to be used by Tycho!
-eclipse.p2.maxDownloadAttempts | _any positive integer_ | 3 | Describes how often Tycho attempts to re-download an artifact from a p2 repository in case e.g. a bad mirror was used. One can think of this value as the maximum number of mirrors Tycho/p2 will check. 
+eclipse.p2.maxDownloadAttempts | _any positive integer_ | 3 | Describes how often Tycho attempts to re-download an artifact from a p2 repository in case e.g. a bad mirror was used. One can think of this value as the maximum number of mirrors Tycho/p2 will check.
 
