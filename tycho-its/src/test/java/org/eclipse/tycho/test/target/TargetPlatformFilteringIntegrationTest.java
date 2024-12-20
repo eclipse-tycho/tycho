@@ -22,7 +22,7 @@ public class TargetPlatformFilteringIntegrationTest extends AbstractTychoIntegra
 	@Test
 	public void test() throws Exception {
 		Verifier verifier = getVerifier("target.restriction.filter", false);
-		verifier.addCliOption("-De342-repo=" + "https:////download.eclipse.org/releases/2021-06/");
+		verifier.addCliOption("-De342-repo=" + "https:////download.eclipse.org/releases/2024-09/");
 		verifier.addCliOption("-De352-repo=" + P2Repositories.ECLIPSE_LATEST.toString().replace("/", "//"));
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
