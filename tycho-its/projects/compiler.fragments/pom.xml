@@ -9,7 +9,7 @@
 	<packaging>eclipse-plugin</packaging>
 
 	<properties>
-		<tycho-version>3.0.0-SNAPSHOT</tycho-version>
+		<tycho-version>4.0.10</tycho-version>
 	</properties>
 
 	<build>
