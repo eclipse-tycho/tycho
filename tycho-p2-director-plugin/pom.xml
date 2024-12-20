@@ -96,6 +96,11 @@
 			<artifactId>tycho-p2-plugin</artifactId>
 			<version>${project.version}</version>	
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-archiver</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
