@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<unit id='reproducible.iu' version='1.0.0' singleton='false'>
+  <update id='reproducible.iu' range='[0.0.0,1.0.0)' severity='0'/>
+  <properties>
+    <property name='org.eclipse.equinox.p2.name' value='Root files for my product'/>
+  </properties>
+  <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
+    <touchpointData>
+    <instructions>
+      <instruction key='install'>
+        unzip(source:@artifact, target:${installFolder});
+      </instruction>
+      <instruction key='uninstall'>
+        cleanupzip(source:@artifact, target:${installFolder});
+      </instruction>
+    </instructions>
+  </touchpointData>
+</unit>

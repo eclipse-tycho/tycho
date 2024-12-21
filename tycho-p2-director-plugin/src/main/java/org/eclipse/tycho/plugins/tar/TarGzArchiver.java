@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class TarGzArchiver {
     private List<File> sourceDirs = new ArrayList<>();
     private Log log = new SystemStreamLog();
     private boolean storeCreationTime;
+    private FileTime outputTimestamp = null;
 
     public TarGzArchiver() {
     }
@@ -67,6 +69,10 @@ public class TarGzArchiver {
 
     public void setStoreCreationTimeAttribute(boolean storeCreationTime) {
         this.storeCreationTime = storeCreationTime;
+    }
+
+    public void configureReproducibleBuild(FileTime timestamp) {
+        this.outputTimestamp = timestamp;
     }
 
     public void addDirectory(File directory) {
@@ -133,9 +139,15 @@ public class TarGzArchiver {
         if (attrs != null) {
             tarEntry.setMode(FilePermissionHelper.toOctalFileMode(attrs.permissions()));
         }
-        tarEntry.setModTime(source.lastModified());
+        if (outputTimestamp == null) {
+            tarEntry.setModTime(source.lastModified());
+        } else {
+            tarEntry.setModTime(outputTimestamp);
+        }
         if (!storeCreationTime) { // GNU  tar cannot handle 'LIBARCHIVE.creationtime' attributes and emits a lot of warnings on it
             tarEntry.setCreationTime(null);
+        } else if (outputTimestamp != null) {
+            tarEntry.setCreationTime(outputTimestamp);
         }
         return tarEntry;
     }
