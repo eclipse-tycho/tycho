@@ -255,6 +255,9 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
         TarGzArchiver archiver = new TarGzArchiver();
         archiver.setStoreCreationTimeAttribute(storeCreationTime);
         archiver.setLog(getLog());
+        // configure for Reproducible Builds based on outputTimestamp value
+        MavenArchiver.parseBuildOutputTimestamp(outputTimestamp).map(FileTime::from)
+                .ifPresent(modifiedTime -> archiver.configureReproducibleBuild(modifiedTime));
         archiver.addDirectory(sourceDir);
         archiver.setDestFile(productArchive);
         archiver.createArchive();
