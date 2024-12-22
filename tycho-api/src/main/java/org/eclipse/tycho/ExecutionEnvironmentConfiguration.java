@@ -86,6 +86,10 @@ public interface ExecutionEnvironmentConfiguration {
 
     public boolean isIgnoredByResolver();
 
+    default boolean isResolveWithEEConstraints() {
+        return !isIgnoredByResolver();
+    }
+
     /**
      * @return all known Execution Environments accessible for the same scope
      */
