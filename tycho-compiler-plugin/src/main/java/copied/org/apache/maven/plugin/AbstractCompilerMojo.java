@@ -59,9 +59,9 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
     protected static final String JDT_COMPILER_ID = "jdt";
 
-    public static final String DEFAULT_SOURCE_VERSION = "11";
+    public static final String DEFAULT_SOURCE_VERSION = Integer.toString(Runtime.version().feature());
 
-    public static final String DEFAULT_TARGET_VERSION = "11";
+    public static final String DEFAULT_TARGET_VERSION = DEFAULT_SOURCE_VERSION;
 
     // ----------------------------------------------------------------------
     // Configurables
