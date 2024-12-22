@@ -14,11 +14,13 @@ package org.eclipse.tycho.repository.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.execution.MavenSession;
@@ -98,6 +100,16 @@ public class PackageRepositoryMojo extends AbstractMojo implements RepositoryCon
 	@Parameter
 	private PlexusConfiguration settings;
 
+	/**
+	 * Timestamp for reproducible output archive entries, either formatted as ISO
+	 * 8601 extended offset date-time (e.g. in UTC such as '2011-12-03T10:15:30Z' or
+	 * with an offset '2019-10-05T20:37:42+06:00'), or as an int representing
+	 * seconds since the epoch (like <a href=
+	 * "https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>).
+	 */
+	@Parameter(defaultValue = "${project.build.outputTimestamp}")
+	private String outputTimestamp;
+
 	@Component(role = Archiver.class, hint = "zip")
 	private ZipArchiver zipArchiver;
 
@@ -109,6 +121,10 @@ public class PackageRepositoryMojo extends AbstractMojo implements RepositoryCon
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
+		// configure for Reproducible Builds based on outputTimestamp value
+		MavenArchiver.parseBuildOutputTimestamp(outputTimestamp).map(FileTime::from)
+			.ifPresent(modifiedTime -> zipArchiver.configureReproducibleBuild(modifiedTime));
+
 		RepositoryGenerator generator = generators.get(repositoryType);
 		if (generator == null) {
 			throw new MojoFailureException(
