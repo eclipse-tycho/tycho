@@ -1,9 +1,9 @@
 # Structured Build Layout and Pomless Builds
 
-Tycho supports any layout of your build, but you can save you a lot of configuration work if you are using the so called **Structured Build Layout**.
+Tycho supports any layout of your build, but you can save a lot of configuration effort if you use the so called **Structured Build Layout**.
 
 ## Structured Build Layout
-A structured build layout usually has the following folder layout, even though you might not use all of the depending on your project:
+A structured build layout usually has the following folders, even though you might not use all of them depending on your project:
 
 - `root folder` - this usually contains your parent pom where you configure the plugins to use
     - `bundles` (or `plugins`) - this contains your bundles that make up your application
@@ -23,71 +23,68 @@ A structured build layout usually has the following folder layout, even though y
 
 ## Pomless Builds
 Given the above layout, Tycho now has a good knowledge about what your build artifacts are.
-In contrast to a traditional maven build where each module has to contain a `pom.xml` file Tycho can derive most if not all from your existing data, that is the files you are created and using in our IDE, 
-there are only a few steps to consider:
+In a traditional Maven build each module has to contain a `pom.xml` file.
+Tycho however can derive most of the information from other already existing files, if your project follows the above structured build layout.
 
-1. Add a folder called `.mvn` to the root
-2. Inside the `.mvn` folder place a file called `extensions.xml` with the following content:
-
-```
+- Add a folder called `.mvn` to the root
+- Inside the `.mvn` folder place a file called `extensions.xml` with the following content:
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <extensions>
-  <extension>
-    <groupId>org.eclipse.tycho</groupId>
-    <artifactId>tycho-build</artifactId>
-    <version>${tycho-version}</version>
-  </extension>
+   <extension>
+      <groupId>org.eclipse.tycho</groupId>
+      <artifactId>tycho-build</artifactId>
+      <version>${tycho-version}</version>
+   </extension>
 </extensions>
 ```
 
-3. create a file called `maven.config` in the `.mvn` folder with the following content (adjust the version accordingly!):
-
+- Create a file called `maven.config` in the `.mvn` folder with the following content (adjust the version accordingly!):
+```properties
+-Dtycho-version=4.0.10
 ```
--Dtycho-version=3.0.0
-```
 
-4. finally create a `pom.xml` with the following content in the root folder:
-
-```
+- Finally create a `pom.xml` with the following content in the root folder:
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId> ... your desired group id ...</groupId>
-	<artifactId>parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
-	
-	<modules>
-		<module>bundles</module>
-		<module>features</module>
-		<module>sites</module>
-		<module>products</module>
-	</modules>
-	
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<extensions>true</extensions>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<target>
-						<file>../../target-platform.target</file>
-					</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+   xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <modelVersion>4.0.0</modelVersion>
+   <groupId> ... your desired group id ...</groupId>
+   <artifactId>parent</artifactId>
+   <version>1.0.0-SNAPSHOT</version>
+   <packaging>pom</packaging>
+
+   <modules>
+      <module>bundles</module>
+      <module>features</module>
+      <module>sites</module>
+      <module>products</module>
+   </modules>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>tycho-maven-plugin</artifactId>
+            <version>${tycho-version}</version>
+            <extensions>true</extensions>
+         </plugin>
+         <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>target-platform-configuration</artifactId>
+            <version>${tycho-version}</version>
+            <configuration>
+               <target>
+                  <file>../../target-platform.target</file>
+               </target>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
 </project>
 ```
 
-5. You can now run your build with `mvn clean verify`
+- You can now run your build with `mvn verify`.
