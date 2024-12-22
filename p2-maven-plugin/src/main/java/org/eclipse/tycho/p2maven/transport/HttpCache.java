@@ -24,9 +24,9 @@ public interface HttpCache {
 	 * 
 	 * @param uri
 	 * @return
-	 * @throws FileNotFoundException
-	 *             if the URI is know to be not found
+	 * @throws FileNotFoundException    if the URI is know to be not found
+	 * @throws RedirectionLoopException if the URI redirects to itself
 	 */
-	CacheEntry getCacheEntry(URI uri, Logger logger) throws FileNotFoundException;
+	CacheEntry getCacheEntry(URI uri, Logger logger) throws FileNotFoundException, RedirectionLoopException;
 
 }

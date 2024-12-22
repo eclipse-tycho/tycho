@@ -77,10 +77,11 @@ public class SharedHttpCacheStorage implements HttpCache {
 	 *
 	 * @param uri
 	 * @return
-	 * @throws FileNotFoundException if the URI is know to be not found
+	 * @throws FileNotFoundException    if the URI is know to be not found
+	 * @throws RedirectionLoopException if the URI redirects to itself
 	 */
 	@Override
-	public CacheEntry getCacheEntry(URI uri, Logger logger) throws FileNotFoundException {
+	public CacheEntry getCacheEntry(URI uri, Logger logger) throws FileNotFoundException, RedirectionLoopException {
 		URI normalized = uri.normalize();
 		CacheLine cacheLine = getCacheLine(normalized);
 		if (!cacheConfig.isUpdate()) { // if not updates are forced ...
@@ -89,6 +90,12 @@ public class SharedHttpCacheStorage implements HttpCache {
 				throw new FileNotFoundException(normalized.toASCIIString());
 			}
 			if (code == HttpURLConnection.HTTP_MOVED_PERM) {
+				URI redirect = cacheLine.getRedirect(normalized);
+				if (normalized.equals(redirect.normalize())) {
+					logger.warn("Request to " + normalized + " would redirect to itself, this would cause a loop");
+					throw new RedirectionLoopException(normalized.toASCIIString());
+				}
+
 				return getCacheEntry(cacheLine.getRedirect(normalized), logger);
 			}
 		}
