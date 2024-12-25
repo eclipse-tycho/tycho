@@ -24,9 +24,7 @@
                 <artifactId>target-platform-configuration</artifactId>
                 <version>${tycho-version}</version>
                 <configuration>
-                    <resolver>p2</resolver>
                     <pomDependencies>consider</pomDependencies>
-                    <executionEnvironment>JavaSE-11</executionEnvironment>
                     <target>
                         <artifact>
                             <groupId>tycho-its-project.variables.env</groupId>

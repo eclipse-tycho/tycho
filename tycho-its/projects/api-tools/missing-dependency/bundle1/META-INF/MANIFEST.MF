@@ -4,6 +4,6 @@ Bundle-Name: Plugin with API
 Bundle-SymbolicName: api-bundle-1
 Bundle-Version: 0.0.1.qualifier
 Require-Bundle: org.eclipse.core.runtime
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: bundle
 Automatic-Module-Name: bundle

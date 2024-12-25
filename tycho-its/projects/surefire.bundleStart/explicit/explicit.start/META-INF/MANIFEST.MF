@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Start
 Bundle-SymbolicName: explicit.start;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Activator: explicit.start.Activator
 Require-Bundle: system.bundle
 Export-Package: explicit.start

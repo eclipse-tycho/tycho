@@ -3,4 +3,4 @@ Bundle-ManifestVersion: 2
 Bundle-Name: ExecutionEnvironments Test
 Bundle-SymbolicName: tycho937
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-17

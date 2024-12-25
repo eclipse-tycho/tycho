@@ -3,6 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: bundle
 Bundle-SymbolicName: bundle
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: bundle
 Require-Bundle: org.apache.commons.lang3
