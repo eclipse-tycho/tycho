@@ -4,5 +4,5 @@ Bundle-Name: My Bundle
 Bundle-SymbolicName: my.bundle
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: my.bundle
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: my.bundle;version="1.0.0"

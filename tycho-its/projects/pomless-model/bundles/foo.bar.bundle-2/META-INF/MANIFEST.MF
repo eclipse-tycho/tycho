@@ -4,4 +4,4 @@ Bundle-Name: Plugin
 Bundle-SymbolicName: foo.bar.bundle-2
 Bundle-Version: 1.0.0
 Automatic-Module-Name: foo.bar.plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -3,6 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: JUnit5 Suite Test Plug-in
 Bundle-SymbolicName: bundle.test.junit59suite
 Bundle-Version: 1.0.0
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: org.junit.jupiter.api;version="5.9.0",
  org.junit.platform.suite.api;version="1.9.0"
