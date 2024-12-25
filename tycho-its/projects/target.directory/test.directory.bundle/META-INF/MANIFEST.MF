@@ -4,5 +4,5 @@ Bundle-Name: Bundle
 Bundle-SymbolicName: test.directory.bundle
 Bundle-Version: 0.0.1.qualifier
 Automatic-Module-Name: test.bundle
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: directory.bundle;bundle-version="0.0.1"

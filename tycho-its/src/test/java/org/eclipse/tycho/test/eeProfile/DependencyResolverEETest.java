@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.eeProfile;
 
+import static org.junit.Assert.assertThrows;
+
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
@@ -39,8 +42,18 @@ public class DependencyResolverEETest extends AbstractTychoIntegrationTest {
 	@Test
 	public void breeForDependencyHigherThanCurrentBREE() throws Exception {
 		Verifier verifier = getVerifier("/eeProfile/dependencyHigherBREE", false);
+		verifier.setSystemProperty("resolveWithConstraints", "false");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
+	public void breeForDependencyHigherThanCurrentBREEAndConstraints() throws Exception {
+		Verifier verifier = getVerifier("/eeProfile/dependencyHigherBREE", false);
+		verifier.setSystemProperty("resolveWithConstraints", "true");
+		assertThrows(VerificationException.class, () -> verifier.executeGoal("verify"));
+		verifier.verifyTextInLog(
+				"requires Execution Environment that matches (&(osgi.ee=JavaSE)(version=1.8)) but the current resolution context uses [a.jre.javase 1.6.0]");
 	}
 
 }

@@ -3,6 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: An Eclipse PDE Bundle
 Bundle-SymbolicName: tycho.demo.util
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.eclipse.tycho.demo.plugin
 Import-Package: org.eclipse.tycho.demo.api
