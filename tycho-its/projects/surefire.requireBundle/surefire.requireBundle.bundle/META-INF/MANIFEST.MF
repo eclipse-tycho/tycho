@@ -4,7 +4,7 @@ Bundle-Name: Bundle
 Bundle-SymbolicName: surefire.requireBundle.core;singleton:=true
 Bundle-Version: 0.0.1.qualifier
 Bundle-Vendor: STEGMANNSYSTEMS
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.tycho.debugtychosurefire.bundle
 Require-Bundle: org.junit,

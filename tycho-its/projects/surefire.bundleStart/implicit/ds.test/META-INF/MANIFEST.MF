@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Bundle
 Bundle-SymbolicName: ds.test;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Service-Component: OSGI-INF/component.xml
 Require-Bundle: org.junit;bundle-version="4.5.0",
  system.bundle

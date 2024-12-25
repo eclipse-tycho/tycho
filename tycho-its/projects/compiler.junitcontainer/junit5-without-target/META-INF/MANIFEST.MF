@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: junit5-without-target
 Bundle-SymbolicName: junit5.without.target
 Bundle-Version: 1.0.0
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: bundle.test
