@@ -310,7 +310,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
                                 List<Exception> errors = new ArrayList<>();
                                 for (String keyServer : keyServers) {
                                     try {
-                                        PGPPublicKeyRing publicKey = pgpService.getPublicKey(keyID, keyServer, session,
+                                        PGPPublicKeyRing publicKey = pgpService.getPublicKey(keyID, keyServer,
                                                 keyServerRetry);
                                         if (publicKey != null) {
                                             publicKeys.put(keyID, publicKey);
