@@ -63,6 +63,7 @@ import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor;
 import org.eclipse.tycho.p2maven.MavenProjectDependencyProcessor.ProjectDependencyClosure;
+import org.eclipse.tycho.p2maven.transport.TransportCacheConfig;
 import org.eclipse.tycho.resolver.TychoResolver;
 import org.eclipse.tycho.version.TychoVersion;
 
@@ -102,6 +103,9 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     @Requirement
     TychoProjectManager projectManager;
+
+    @Requirement
+    TransportCacheConfig transportCacheConfig;
 
     public TychoMavenLifecycleParticipant() {
         // needed for plexus
@@ -374,8 +378,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     private void configureComponents(MavenSession session) {
         // TODO why does the bundle reader need to cache stuff in the local maven repository?
-        File localRepository = new File(session.getLocalRepository().getBasedir());
-        ((DefaultBundleReader) bundleReader).setLocationRepository(localRepository);
+        ((DefaultBundleReader) bundleReader).setCacheLocation(transportCacheConfig.getCacheLocation());
     }
 
 }

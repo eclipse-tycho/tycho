@@ -49,8 +49,12 @@ public class DefaultTransportCacheConfig implements TransportCacheConfig, Initia
 			update = session.getRequest().isUpdateSnapshots();
 			interactive = session.getRequest().isInteractiveMode() && showTransferProgress(session);
 		}
-
-		cacheLocation = new File(repoDir, ".cache/tycho");
+		String property = System.getProperty("tycho.p2.transport.cache");
+		if (property == null || property.isBlank()) {
+			cacheLocation = new File(repoDir, ".cache/tycho");
+		} else {
+			cacheLocation = new File(property);
+		}
 		cacheLocation.mkdirs();
 	}
 

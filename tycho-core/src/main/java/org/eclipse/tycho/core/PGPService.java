@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPublicKeyRing;
@@ -44,13 +43,13 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.tycho.p2maven.transport.TransportCacheConfig;
 
 @Component(role = PGPService.class)
 public class PGPService {
 
     //See GpgSigner.SIGNATURE_EXTENSION
     private static final String SIGNATURE_EXTENSION = ".asc";
-    private static final String CACHE_RELPATH = ".cache/tycho/pgpkeys";
 
     public static final String MAVEN_CENTRAL_KEY_SERVER = "http://pgp.mit.edu/pks/lookup?op=get&search={0}";
     public static final String UBUNTU_KEY_SERVER = "https://keyserver.ubuntu.com/pks/lookup?op=get&search={0}";
@@ -60,6 +59,9 @@ public class PGPService {
 
     @Requirement
     RepositorySystem repositorySystem;
+
+    @Requirement
+    TransportCacheConfig transportCacheConfig;
 
     /**
      * Get the attached PGP signature for the given MavenProject
@@ -97,12 +99,11 @@ public class PGPService {
      * @throws IOException
      * @throws PGPException
      */
-    public PGPPublicKeyRing getPublicKey(long keyID, String keyServerUrl, MavenSession session, int keyServerRetry)
+    public PGPPublicKeyRing getPublicKey(long keyID, String keyServerUrl, int keyServerRetry)
             throws IOException, PGPException {
         String hexKey = "0x" + Long.toHexString(keyID).toUpperCase();
         logger.info("Fetching PGP key with id " + hexKey);
-        File localRepoRoot = new File(session.getLocalRepository().getBasedir());
-        File keyCacheFile = new File(new File(localRepoRoot, CACHE_RELPATH), hexKey + ".pub");
+        File keyCacheFile = new File(new File(transportCacheConfig.getCacheLocation(), "pgpkeys"), hexKey + ".pub");
         InputStream keyStream;
         if (keyCacheFile.isFile()) {
             logger.debug("Fetching key from cache: " + keyCacheFile.getAbsolutePath());

@@ -42,7 +42,7 @@ public class DefaultBundleReaderTest extends TychoPlexusTestCase {
         cacheDir.delete();
         cacheDir.mkdirs();
         bundleReader = (DefaultBundleReader) lookup(BundleReader.class);
-        bundleReader.setLocationRepository(cacheDir);
+        bundleReader.setCacheLocation(cacheDir);
     }
 
     @After
@@ -106,7 +106,7 @@ public class DefaultBundleReaderTest extends TychoPlexusTestCase {
     public void testGetEntryExternalJar() throws Exception {
         File bundleJar = getTestJar();
         // 370958 IOException will only occur if extraction dir exists already
-        new File(new File(cacheDir, DefaultBundleReader.CACHE_PATH), bundleJar.getName()).mkdirs();
+        new File(cacheDir, bundleJar.getName()).mkdirs();
         File externalLib = bundleReader.getEntry(bundleJar, "external:$user.home$/external-lib.jar");
         assertNull(externalLib);
     }

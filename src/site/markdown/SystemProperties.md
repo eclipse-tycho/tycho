@@ -29,10 +29,20 @@ tycho.comparator.threshold | bytes | 5242880 (~5MB) | gives the number of bytes 
 
 ## P2
 
-These properties control the behaviour of P2 used by Tycho
+These properties control the behavior of P2 used by Tycho
 
 Name | Value | Default | Documentation
 --- | --- | --- | ---
 eclipse.p2.mirrors | true / false | true | Each p2 site can define a list of artifact repository mirrors, this controls if P2 mirrors should be used. This is independent from configuring mirrors in the maven configuration to be used by Tycho!
 eclipse.p2.maxDownloadAttempts | _any positive integer_ | 3 | Describes how often Tycho attempts to re-download an artifact from a p2 repository in case e.g. a bad mirror was used. One can think of this value as the maximum number of mirrors Tycho/p2 will check. 
 
+### Tycho P2 Transport
+
+These properties control how Tycho downloads artifacts from P2 servers
+
+Name | Value | Default | Documentation
+--- | --- | --- | ---
+tycho.p2.transport.cache | file path | local maven repository | Specify the location where Tycho stores certain cache files to speed up successive builds
+tycho.p2.transport.debug | true/false | false | enable debugging of the Tycho Transport
+tycho.p2.transport.max-download-threads | number | 4 | maximum number of threads that should be used to download artifacts in parallel
+tycho.p2.transport.min-cache-minutes | number | 60 | Number of minutes that a cache entry is assumed to be fresh and is not fetched again from the server
