@@ -42,7 +42,6 @@ import org.eclipse.tycho.TychoConstants;
 public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {
 
     private static final long LOCK_TIMEOUT = Long.getLong("tycho.bundlereader.lock.timeout", 5 * 60 * 1000L);
-    public static final String CACHE_PATH = ".cache/tycho";
     private final Map<String, OsgiManifest> manifestCache = new HashMap<>();
 
     private File cacheDir;
@@ -160,8 +159,8 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
         return OsgiManifest.parse(new FileInputStream(manifestFile), manifestFile.getAbsolutePath());
     }
 
-    public void setLocationRepository(File basedir) {
-        this.cacheDir = new File(basedir, CACHE_PATH);
+    public void setCacheLocation(File basedir) {
+        this.cacheDir = basedir;
     }
 
     @Override

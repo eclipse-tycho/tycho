@@ -231,4 +231,8 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 		}
 	}
 
+	TransportCacheConfig getCacheConfig() {
+		return cacheConfig;
+	}
+
 }
