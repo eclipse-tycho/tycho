@@ -43,6 +43,7 @@ import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 @Component(role = org.eclipse.equinox.internal.p2.repository.Transport.class, hint = "tycho")
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
@@ -85,44 +86,30 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 	}
 
 	@Override
-	public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
-		if (startPos > 0) {
-			return Status.error("range downloads are not implemented");
-		}
-		return download(toDownload, target, monitor);
-	}
-
-	@Override
-	public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
+	public IStatus downloadArtifact(URI source, OutputStream target, IArtifactDescriptor descriptor,
+			IProgressMonitor monitor) {
 		String id = "p2"; // TODO we might compute the id from the IRepositoryIdManager based on the URI?
 		if (cacheConfig.isInteractive()) {
-			logger.info("Downloading from " + id + ": " + toDownload);
+			logger.info("Downloading from " + id + ": " + source);
 		}
 		try {
 			DownloadStatusOutputStream statusOutputStream = new DownloadStatusOutputStream(target,
-					"Download of " + toDownload);
-			stream(toDownload, monitor).transferTo(statusOutputStream);
+					"Download of " + source);
+			stream(source, monitor).transferTo(statusOutputStream);
 			DownloadStatus downloadStatus = statusOutputStream.getStatus();
 			if (cacheConfig.isInteractive()) {
-				logger.info("Downloaded from " + id + ": " + toDownload + " ("
+				logger.info("Downloaded from " + id + ": " + source + " ("
 						+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize()) + " at "
 						+ FileUtils.byteCountToDisplaySize(downloadStatus.getTransferRate()) + "/s)");
 			}
 			return reportStatus(downloadStatus, target);
 		} catch (AuthenticationFailedException e) {
-			return Status.error("authentication failed for " + toDownload, e);
+			return Status.error("authentication failed for " + source, e);
 		} catch (IOException e) {
-			return reportStatus(Status.error("download from " + toDownload + " failed", e), target);
+			return reportStatus(Status.error("download from " + source + " failed", e), target);
 		} catch (CoreException e) {
 			return reportStatus(e.getStatus(), target);
 		}
-	}
-
-	private IStatus reportStatus(IStatus status, OutputStream target) {
-		if (target instanceof IStateful stateful) {
-			stateful.setStatus(status);
-		}
-		return status;
 	}
 
 	@Override
@@ -166,6 +153,19 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 						+ " for p2.index)");
 			}
 		}
+	}
+
+	@Override
+	public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
+		return downloadArtifact(toDownload, target, null, monitor);
+	}
+
+	@Override
+	public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
+		if (startPos > 0) {
+			return Status.error("range downloads are not implemented");
+		}
+		return downloadArtifact(toDownload, target, null, monitor);
 	}
 
 	TransportProtocolHandler getHandler(URI uri) {
@@ -228,6 +228,13 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 
 	TransportCacheConfig getCacheConfig() {
 		return cacheConfig;
+	}
+
+	private static IStatus reportStatus(IStatus status, OutputStream target) {
+		if (target instanceof IStateful stateful) {
+			stateful.setStatus(status);
+		}
+		return status;
 	}
 
 }
