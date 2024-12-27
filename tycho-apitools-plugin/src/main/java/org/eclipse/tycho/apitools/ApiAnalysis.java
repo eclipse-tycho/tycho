@@ -31,6 +31,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFolder;
@@ -93,6 +95,9 @@ import org.osgi.framework.FrameworkUtil;
  * Performs the API Analysis inside the embedded OSGi Frameworks
  */
 public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
+
+	private static final Pattern COMPONENT_DISPOSED_ERROR = Pattern
+			.compile("Component '(.+)' in the baseline '(.+)' is disposed");
 
 	private Collection<String> baselineBundles;
 	private Collection<String> targetBundles;
@@ -164,7 +169,36 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		deleteAllProjects();
 		IPath projectPath = IPath.fromOSString(projectDir);
 		IProject project = getProject(projectPath);
-		ApiAnalysisResult result = new ApiAnalysisResult(getVersion());
+		RuntimeException exception = new RuntimeException("Can't get API result due to API application error");
+		String version = getVersion();
+		for (int i = 0; i < 5; i++) {
+			ApiAnalysisResult result = new ApiAnalysisResult(version);
+			IStatus status = runAnalysis(projectPath, project, result);
+			if (!status.isOK() && status.getException() instanceof Exception error) {
+				if (isRecoverable(error)) {
+					exception.addSuppressed(error);
+					TimeUnit.SECONDS.sleep(10);
+					continue;
+				}
+				throw error;
+			}
+			return result;
+		}
+		throw exception;
+	}
+
+	private boolean isRecoverable(Exception error) {
+		if (error instanceof CoreException) {
+			String message = error.getMessage();
+			if (message != null) {
+				return COMPONENT_DISPOSED_ERROR.matcher(message).matches();
+			}
+		}
+		return false;
+	}
+
+	private IStatus runAnalysis(IPath projectPath, IProject project, ApiAnalysisResult result)
+			throws InterruptedException {
 		IStatus status;
 		if (runAsJob) {
 			WorkspaceJob job = new WorkspaceJob("Tycho API Analysis") {
@@ -184,10 +218,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		}
 		JRTUtil.reset(); // reclaim space due to loaded multiple JRTUtil should better be fixed to not
 							// use that much space
-		if (!status.isOK() && status.getException() instanceof Exception error) {
-			throw error;
-		}
-		return result;
+		return status;
 	}
 
 	private IStatus performAPIAnalysis(IProject project, IPath projectPath, ApiAnalysisResult result) {
