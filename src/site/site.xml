@@ -20,7 +20,11 @@
 			</item>
 			<item name="Tycho CI Friendly Versions" href="TychoCiFriendly.html" />
 			<item name="Creating update sites using category.xml" href="Category.html">
+			</item>
+			<item name="Repositories" href="Repositories.html">
 				<item name="Tycho P2 Repository Plugin" href="tycho-p2-repository-plugin/plugin-info.html" />
+				<item name="Tycho P2 Repository Plugin" href="tycho-p2-repository-plugin/plugin-info.html" />
+				
 			</item>
 			<item name="Properties">
 				<item name="Build Properties" href="BuildProperties.html" />

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- includes three bundles in different ways; note: the bundles do not require each other -->
+<site>
+   <bundle id="org.eclipse.osgi" version="3.5.2.R35x_v20100126"/>
+</site>

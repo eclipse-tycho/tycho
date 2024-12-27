@@ -31,7 +31,7 @@ import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLIOSource;
 import de.pdark.decentxml.XMLParser;
 
-public class P2ExtrasPlugin extends AbstractTychoIntegrationTest {
+public class P2ExtrasPluginTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testBaseline() throws Exception {
@@ -171,7 +171,7 @@ public class P2ExtrasPlugin extends AbstractTychoIntegrationTest {
 		if ("zipped".equals(element.getAttributeValue("key"))) {
 			return true;
 		}
-		return element.getChildren().stream().anyMatch(P2ExtrasPlugin::hasChildWithZippedAttribute);
+		return element.getChildren().stream().anyMatch(P2ExtrasPluginTest::hasChildWithZippedAttribute);
 	}
 
 }
