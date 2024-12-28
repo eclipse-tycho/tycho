@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.tycho.transport.TransportProtocolHandler;
 
 @Component(role = TransportProtocolHandler.class, hint = "file")
 public class FileTransportProtocolHandler implements TransportProtocolHandler {
