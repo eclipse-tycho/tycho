@@ -23,6 +23,9 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.NumberFormat;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -44,6 +47,8 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.transport.ArtifactDownloadProvider;
+import org.eclipse.tycho.transport.TransportProtocolHandler;
 
 @Component(role = org.eclipse.equinox.internal.p2.repository.Transport.class, hint = "tycho")
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
@@ -78,6 +83,9 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 	@Requirement(role = TransportProtocolHandler.class)
 	Map<String, TransportProtocolHandler> transportProtocolHandlers;
 
+	@Requirement // TODO @Inject results in a list with multiple items of the same provider!
+	List<ArtifactDownloadProvider> artifactDownloadProvider;
+
 	private LongAdder requests = new LongAdder();
 	private LongAdder indexRequests = new LongAdder();
 
@@ -88,6 +96,17 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 	@Override
 	public IStatus downloadArtifact(URI source, OutputStream target, IArtifactDescriptor descriptor,
 			IProgressMonitor monitor) {
+		if (descriptor != null) {
+			Iterator<ArtifactDownloadProvider> iterator = artifactDownloadProvider.stream().distinct()
+					.sorted(Comparator.comparingInt(ArtifactDownloadProvider::getPriority).reversed()).iterator();
+			while (iterator.hasNext()) {
+				ArtifactDownloadProvider provider = iterator.next();
+				IStatus status = provider.downloadArtifact(source, target, descriptor);
+				if (!status.matches(IStatus.CANCEL)) {
+					return reportStatus(status, target);
+				}
+			}
+		}
 		String id = "p2"; // TODO we might compute the id from the IRepositoryIdManager based on the URI?
 		if (cacheConfig.isInteractive()) {
 			logger.info("Downloading from " + id + ": " + source);

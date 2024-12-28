@@ -27,6 +27,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.tycho.MavenRepositorySettings.Credentials;
+import org.eclipse.tycho.transport.TransportProtocolHandler;
 
 /**
  * Handles files discovery over the FTP protocol.
