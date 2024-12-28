@@ -3,12 +3,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>reproducible.archive.timestamps</groupId>
-	<artifactId>reproducible.archive.timestamps.parent</artifactId>
+	<groupId>reproducible.build</groupId>
+	<artifactId>reproducible.build.parent</artifactId>
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
 
 	<modules>
+	  <module>reproducible.buildqualifier</module>
 		<module>reproducible.bundle</module>
 		<module>reproducible.bundle.feature</module>
 		<module>reproducible.iu</module>
