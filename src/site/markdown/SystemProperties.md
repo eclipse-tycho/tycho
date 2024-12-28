@@ -46,3 +46,6 @@ tycho.p2.transport.cache | file path | local maven repository | Specify the loca
 tycho.p2.transport.debug | true/false | false | enable debugging of the Tycho Transport
 tycho.p2.transport.max-download-threads | number | 4 | maximum number of threads that should be used to download artifacts in parallel
 tycho.p2.transport.min-cache-minutes | number | 60 | Number of minutes that a cache entry is assumed to be fresh and is not fetched again from the server
+tycho.p2.transport.bundlepools.priority | number | 100 | priority used for bundle pools
+tycho.p2.transport.bundlepools.shared | true/false | true | query shared bundle pools for artifacts before downloading them from remote servers
+tycho.p2.transport.bundlepools.workspace | true/false | true | query Workspace bundle pools for artifacts before downloading them from remote servers
