@@ -16,6 +16,8 @@ package org.eclipse.tycho;
 
 import java.util.regex.Pattern;
 
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+
 public interface TychoConstants {
 
     public static final String ECLIPSE_LATEST = "https://download.eclipse.org/releases/2024-12/";
@@ -146,4 +148,5 @@ public interface TychoConstants {
     String SUFFIX_QUALIFIER = ".qualifier";
 
     String SUFFIX_SNAPSHOT = "-SNAPSHOT";
+    String PROP_DOWNLOAD_CHECKSUM_PREFIX = IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".";
 }
