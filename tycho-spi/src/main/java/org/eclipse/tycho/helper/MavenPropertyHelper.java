@@ -90,7 +90,19 @@ public class MavenPropertyHelper {
                 return systemProperty;
             }
         }
-        // java sysem properties last
+        // java system properties last
         return System.getProperty(key, defaultValue);
+    }
+
+    public boolean getGlobalBooleanProperty(String key, boolean defaultValue) {
+        return Boolean.parseBoolean(getGlobalProperty(key, Boolean.toString(defaultValue)));
+    }
+
+    public int getGlobalIntProperty(String key, int defaultValue) {
+        try {
+            return Integer.parseInt(getGlobalProperty(key, Integer.toString(defaultValue)));
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 }

@@ -17,6 +17,8 @@ package org.eclipse.tycho;
 import java.io.File;
 import java.util.regex.Pattern;
 
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+
 public interface TychoConstants {
 
     String USER_HOME = System.getProperty("user.home");
@@ -152,4 +154,5 @@ public interface TychoConstants {
     String SUFFIX_QUALIFIER = ".qualifier";
 
     String SUFFIX_SNAPSHOT = "-SNAPSHOT";
+    String PROP_DOWNLOAD_CHECKSUM_PREFIX = IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".";
 }
