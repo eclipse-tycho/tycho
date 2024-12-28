@@ -21,6 +21,7 @@ import java.util.Objects;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.transport.TransportProtocolHandler;
 
 @Component(role = TransportProtocolHandler.class, hint = "http")
 public class HttpTransportProtocolHandler implements TransportProtocolHandler {

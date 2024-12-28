@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.transport.TransportProtocolHandler;
 
 public class TychoRepositoryTransportCacheManager extends CacheManager {
 

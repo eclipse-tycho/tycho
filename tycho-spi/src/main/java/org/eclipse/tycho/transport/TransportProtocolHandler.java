@@ -10,12 +10,16 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2maven.transport;
+package org.eclipse.tycho.transport;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.transport.TransportProtocolHandler;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 
-@Component(role = TransportProtocolHandler.class, hint = "https")
-public class HttpsTransportProtocolHandler extends HttpTransportProtocolHandler {
+public interface TransportProtocolHandler {
+
+    long getLastModified(URI uri) throws IOException;
+
+    File getFile(URI remoteFile) throws IOException;
 
 }
