@@ -154,7 +154,7 @@ public class MavenArtifactDownloadProvider implements ArtifactDownloadProvider {
 				if (path != null) {
 					String content = Files.readString(path);
 					if (entry.getValue().equals(content)) {
-//						checksumMatch = true;
+						checksumMatch = true;
 						break;
 					}
 					// checksum mismatch no need to further bother maven for this file
