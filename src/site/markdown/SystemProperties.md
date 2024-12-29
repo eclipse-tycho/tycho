@@ -49,3 +49,5 @@ tycho.p2.transport.min-cache-minutes | number | 60 | Number of minutes that a ca
 tycho.p2.transport.bundlepools.priority | number | 100 | priority used for bundle pools
 tycho.p2.transport.bundlepools.shared | true/false | true | query shared bundle pools for artifacts before downloading them from remote servers
 tycho.p2.transport.bundlepools.workspace | true/false | true | query Workspace bundle pools for artifacts before downloading them from remote servers
+tycho.p2.transport.mavenmirror.enabled | true/false | true | if enough metadata is supplied in the P2 data, use global configured maven repositories as a possible mirror for P2 artifacts
+tycho.p2.transport.mavenmirror.priority | number | 500 | priority used for maven as a P2 mirror
