@@ -34,6 +34,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.internal.resources.CharsetDeltaJob;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -169,7 +170,9 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		deleteAllProjects();
 		IPath projectPath = IPath.fromOSString(projectDir);
 		IProject project = getProject(projectPath);
-		RuntimeException exception = new RuntimeException("Can't get API result due to API application error");
+		jobManager.join(CharsetDeltaJob.FAMILY_CHARSET_DELTA, null);
+		jobManager.join(org.eclipse.pde.internal.core.PluginModelManager.class, null);
+		RuntimeException exception = new RuntimeException("Can't get API result due to API application error(s)");
 		String version = getVersion();
 		for (int i = 0; i < 5; i++) {
 			ApiAnalysisResult result = new ApiAnalysisResult(version);
@@ -187,14 +190,18 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		throw exception;
 	}
 
-	private boolean isRecoverable(Exception error) {
-		if (error instanceof CoreException) {
-			String message = error.getMessage();
-			if (message != null) {
-				return COMPONENT_DISPOSED_ERROR.matcher(message).matches();
+	private boolean isRecoverable(Throwable throwable) {
+		if (throwable == null) {
+			return false;
+		}
+		if (throwable instanceof CoreException) {
+			String message = throwable.getMessage();
+			if (message != null && COMPONENT_DISPOSED_ERROR.matcher(message).find()) {
+				debug("Recoverable error found: " + message + " retry analysis again...");
+				return true;
 			}
 		}
-		return false;
+		return isRecoverable(throwable.getCause());
 	}
 
 	private IStatus runAnalysis(IPath projectPath, IProject project, ApiAnalysisResult result)
@@ -480,8 +487,8 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		IWorkspaceDescription desc = workspace.getDescription();
 		desc.setAutoBuilding(false);
 		workspace.setDescription(desc);
-		PDECore.getDefault().getPreferencesManager().setValue(ICoreConstants.DISABLE_API_ANALYSIS_BUILDER, false);
-		PDECore.getDefault().getPreferencesManager().setValue(ICoreConstants.RUN_API_ANALYSIS_AS_JOB, false);
+		PDECore.getDefault().getPreferencesManager().setValue(ICoreConstants.DISABLE_API_ANALYSIS_BUILDER, true);
+		PDECore.getDefault().getPreferencesManager().setValue(ICoreConstants.RUN_API_ANALYSIS_AS_JOB, runAsJob);
 	}
 
 	private Properties getPreferences() throws IOException {
