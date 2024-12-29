@@ -599,18 +599,22 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             MavenSession mavenSession, ExecutionEnvironmentConfiguration sink) {
         StandardExecutionEnvironment configuredProfile = ExecutionEnvironmentUtils
                 .getExecutionEnvironment(configuredProfileName, toolchainManager, mavenSession, logger);
-        if (configuredProfile != null) {
-            // non standard profile, stick to it
-            sink.setProfileConfiguration(configuredProfileName, reason);
+        if (configuredProfile == null) {
+            //should never be the case as Tycho delegates to other profiles, but if we need to stick to the defaults...
+            return;
         }
-        StandardExecutionEnvironment currentProfile = ExecutionEnvironmentUtils.getExecutionEnvironment(
-                "JavaSE-" + Runtime.version().feature(), toolchainManager, mavenSession, logger);
-        if (currentProfile.compareTo(configuredProfile) > 0) {
-            sink.setProfileConfiguration(currentProfile.getProfileName(),
-                    "Currently running profile, newer than configured profile (" + configuredProfileName + ") from ["
-                            + reason + "]");
-        } else {
+        if (sink.isResolveWithEEConstraints()) {
             sink.setProfileConfiguration(configuredProfileName, reason);
+        } else {
+            StandardExecutionEnvironment currentProfile = ExecutionEnvironmentUtils.getExecutionEnvironment(
+                    "JavaSE-" + Runtime.version().feature(), toolchainManager, mavenSession, logger);
+            if (currentProfile != null && currentProfile.compareTo(configuredProfile) > 0) {
+                sink.setProfileConfiguration(currentProfile.getProfileName(),
+                        "Currently running profile, newer than configured profile (" + configuredProfileName
+                                + ") from [" + reason + "]");
+            } else {
+                sink.setProfileConfiguration(configuredProfileName, reason);
+            }
         }
     }
 

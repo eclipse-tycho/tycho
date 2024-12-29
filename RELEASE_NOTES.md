@@ -3,6 +3,43 @@
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
 ## 4.0.11
+
+**Important Notice:** There was a bug in previous versions of Tycho that has lead to the situation that projects are resolved
+with a higher bundle required java version even though this was not explicitly allowed. This could also lead to the case that even though
+tests should run with a lower java version as the build, actually the build jvm defined the minimum runtime.
+
+This is now fixed, but might result in build previously working now fail due to the constraints not properly checked before, to fix those builds you have the following opportunities:
+
+1. Update the required execution environment (BREE) of your bundle to those of the dependencies (**recommended**)
+2. If you still want to target older BREE for example because you support older versions of the dependencies, you can set the BREE in your target configuration or target platform file to express the *latest runtime requirements* you are targeting.
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>target-platform-configuration</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<executionEnvironment>JavaSE-17</executionEnvironment>
+	</configuration>
+</plugin>
+```
+
+3. As an alternative you can disable execution environment checks all together  (**not recommended**)
+
+```
+<plugin>
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>target-platform-configuration</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+		<resolveWithExecutionEnvironmentConstraints>false</resolveWithExecutionEnvironmentConstraints>
+	</configuration>
+</plugin>
+```
+
+**Please note:** This all does not influence the compile-target, that is always derived from the BREE regardless of resolution if not otherwise configured.
+
+
 backports:
 - Support for implicit dependencies in target definitions
 
