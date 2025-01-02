@@ -20,12 +20,9 @@ import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME;
 import static org.osgi.framework.Constants.BUNDLE_VENDOR;
 import static org.osgi.framework.Constants.BUNDLE_VERSION;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -58,6 +55,7 @@ import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -276,9 +274,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         sourceL10nProps.setProperty(I18N_KEY_BUNDLE_NAME, sourceBundleName);
         sourceL10nProps.setProperty(I18N_KEY_BUNDLE_VENDOR, bundleVendor);
         File l10nPropsFile = new File(l10nOutputDir, MANIFEST_BUNDLE_LOCALIZATION_FILENAME);
-        l10nPropsFile.getParentFile().mkdirs();
-        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(l10nPropsFile))) {
-            sourceL10nProps.store(out, "Source Bundle Localization");
+        try {
+            ReproducibleUtils.storeProperties(sourceL10nProps, l10nPropsFile.toPath());
         } catch (IOException e) {
             throw new MojoExecutionException("error while generating source bundle localization file", e);
         }

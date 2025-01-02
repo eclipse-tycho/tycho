@@ -14,12 +14,9 @@ package org.eclipse.tycho.p2.repository.module;
 
 import static org.eclipse.tycho.p2.repository.BundleConstants.BUNDLE_ID;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,6 +26,7 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
@@ -151,7 +149,7 @@ class ModuleArtifactMap {
         }
 
         try {
-            writeProperties(outputProperties, mapFile);
+            ReproducibleUtils.storeProperties(outputProperties, mapFile.toPath());
         } catch (IOException e) {
             String message = "I/O error while writing repository to " + mapFile;
             int code = ProvisionException.REPOSITORY_FAILED_WRITE;
@@ -159,11 +157,5 @@ class ModuleArtifactMap {
             throw new ProvisionException(status);
         }
 
-    }
-
-    private static void writeProperties(Properties properties, File outputFile) throws IOException {
-        try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile))) {
-            properties.store(outputStream, null);
-        }
     }
 }

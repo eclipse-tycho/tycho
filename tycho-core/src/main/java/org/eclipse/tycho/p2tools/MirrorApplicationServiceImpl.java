@@ -17,7 +17,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLConnection;
@@ -72,6 +71,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.DependencySeed;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -523,9 +523,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         properties.setProperty("version", "1");
         properties.setProperty("artifact.repository.factory.order", "artifacts.xml,!");
         properties.setProperty("metadata.repository.factory.order", "content.xml,!");
-        try (OutputStream stream = new BufferedOutputStream(
-                new FileOutputStream(new File(repositoryDestination, P2_INDEX_FILE)))) {
-            properties.store(stream, null);
+        try {
+            ReproducibleUtils.storeProperties(properties, new File(repositoryDestination, P2_INDEX_FILE).toPath());
         } catch (IOException e) {
             throw new FacadeException("writing index file failed", e);
         }
