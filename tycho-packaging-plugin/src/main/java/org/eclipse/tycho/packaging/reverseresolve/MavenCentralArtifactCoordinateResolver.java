@@ -12,13 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging.reverseresolve;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.List;
@@ -36,6 +33,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -160,9 +158,7 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 			properties.setProperty(KEY_ARTIFACT_ID, dependency.getArtifactId());
 			properties.setProperty(KEY_VERSION, dependency.getVersion());
 			properties.setProperty(KEY_TYPE, dependency.getType());
-			try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(cacheFile))) {
-				properties.store(stream, null);
-			}
+			ReproducibleUtils.storeProperties(properties, cacheFile.toPath());
 		} catch (IOException e) {
 			// can't create cache file then...
 		}

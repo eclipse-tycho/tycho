@@ -19,11 +19,8 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -81,6 +78,7 @@ import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.BundleProject;
@@ -967,9 +965,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         Properties p = new Properties();
         p.putAll(propertiesMap);
         try {
-            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
-                p.store(out, null);
-            }
+            ReproducibleUtils.storeProperties(p, file.toPath());
         } catch (IOException e) {
             throw new MojoExecutionException("Can't write test launcher properties file", e);
         }
