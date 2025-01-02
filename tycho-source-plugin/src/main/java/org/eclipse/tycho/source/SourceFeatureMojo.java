@@ -14,12 +14,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,6 +51,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
@@ -249,7 +247,8 @@ public class SourceFeatureMojo extends AbstractMojo {
                 Properties sourceFeatureTemplateProps = readSourceTemplateFeatureProperties();
                 Properties mergedSourceFeatureProps = mergeFeatureProperties(sourceFeatureTemplateProps);
                 File sourceFeatureXml = generateSourceFeatureXml(mergedSourceFeatureProps, sourceFeatureTemplateProps);
-                writeProperties(mergedSourceFeatureProps, getMergedSourceFeaturePropertiesFile());
+                ReproducibleUtils.storeProperties(mergedSourceFeatureProps,
+                        getMergedSourceFeaturePropertiesFile().toPath());
                 MavenArchiver archiver = new MavenArchiver();
                 archiver.setArchiver(jarArchiver);
                 // configure for Reproducible Builds based on outputTimestamp value
@@ -357,13 +356,6 @@ public class SourceFeatureMojo extends AbstractMojo {
             }
         }
         return properties;
-    }
-
-    private static void writeProperties(Properties props, File propertiesFile) throws IOException {
-        propertiesFile.getParentFile().mkdirs();
-        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(propertiesFile))) {
-            props.store(out, "");
-        }
     }
 
     /**

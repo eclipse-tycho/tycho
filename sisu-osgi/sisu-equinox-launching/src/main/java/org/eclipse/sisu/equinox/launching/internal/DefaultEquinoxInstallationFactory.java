@@ -12,12 +12,9 @@
  *******************************************************************************/
 package org.eclipse.sisu.equinox.launching.internal;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,6 +42,7 @@ import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TychoConstants;
 import org.osgi.framework.Constants;
 
@@ -148,12 +146,8 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             }
 
             File configIni = new File(location, TychoConstants.CONFIG_INI_PATH);
+            ReproducibleUtils.storeProperties(p, configIni.toPath());
             File configurationLocation = configIni.getParentFile();
-            configurationLocation.mkdirs();
-            try (OutputStream fos = new BufferedOutputStream(new FileOutputStream(configIni))) {
-                p.store(fos, null);
-            }
-
             return new DefaultEquinoxInstallation(description, location, configurationLocation);
         } catch (IOException e) {
             throw new RuntimeException("Exception creating test eclipse runtime", e);
@@ -210,9 +204,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
         File file = new File(location, "dev.properties");
         Properties properties = new Properties();
         properties.putAll(devEntries);
-        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
-            properties.store(os, null);
-        }
+        ReproducibleUtils.storeProperties(properties, file.toPath());
         return file.toURI().toURL().toExternalForm();
     }
 

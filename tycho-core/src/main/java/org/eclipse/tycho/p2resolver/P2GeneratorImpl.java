@@ -13,12 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -69,6 +66,7 @@ import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -483,13 +481,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             }
         }
 
-        writeProperties(outputProperties, outputFile);
-    }
-
-    private static void writeProperties(Properties properties, File outputFile) throws IOException {
-        try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile))) {
-            properties.store(outputStream, null);
-        }
+        ReproducibleUtils.storeProperties(outputProperties, outputFile.toPath());
     }
 
     /**
