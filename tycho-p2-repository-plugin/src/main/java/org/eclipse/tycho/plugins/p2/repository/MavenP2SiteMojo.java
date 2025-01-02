@@ -72,6 +72,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.PGPService;
 import org.eclipse.tycho.p2maven.tools.TychoFeaturesAndBundlesPublisherApplication;
@@ -484,9 +485,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
             addProvidesAndProperty(properties, TychoConstants.PROP_EXTENSION, artifact.getType(), cnt++);
             addProvidesAndProperty(properties, TychoConstants.PROP_CLASSIFIER, artifact.getClassifier(), cnt++);
             addProvidesAndProperty(properties, "maven-scope", artifact.getScope(), cnt++);
-            try (OutputStream os = new BufferedOutputStream(new FileOutputStream(p2))) {
-                properties.store(os, null);
-            }
+            ReproducibleUtils.storeProperties(properties, p2.toPath());
             return p2;
         } catch (IOException e) {
             throw new MojoExecutionException("failed to generate p2.inf", e);

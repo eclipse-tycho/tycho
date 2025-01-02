@@ -12,10 +12,7 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -49,6 +46,7 @@ import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenArtifactKey;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
@@ -232,9 +230,7 @@ public class BndTestMojo extends AbstractTestMojo {
         properties.setProperty(Constants.RUNFW, runfw);
         properties.setProperty(Constants.RUNPROPERTIES, buildRunProperties());
         try {
-            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(runfile))) {
-                properties.store(out, null);
-            }
+            ReproducibleUtils.storeProperties(properties, runfile.toPath());
             String javaExecutable = getJavaExecutable();
             int returncode = container.execute(runfile, "testing", work, (file, bndrun, run) -> {
                 if (new File(javaExecutable).isFile()) {
