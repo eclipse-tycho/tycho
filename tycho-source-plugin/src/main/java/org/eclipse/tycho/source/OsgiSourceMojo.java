@@ -58,6 +58,7 @@ import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -278,7 +279,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         File l10nPropsFile = new File(l10nOutputDir, MANIFEST_BUNDLE_LOCALIZATION_FILENAME);
         l10nPropsFile.getParentFile().mkdirs();
         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(l10nPropsFile))) {
-            sourceL10nProps.store(out, "Source Bundle Localization");
+            ReproducibleUtils.storeProperties(sourceL10nProps, out, "Source Bundle Localization");
         } catch (IOException e) {
             throw new MojoExecutionException("error while generating source bundle localization file", e);
         }

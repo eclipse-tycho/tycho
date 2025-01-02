@@ -30,6 +30,7 @@ import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.equinox.security.storage.provider.*;
 import org.eclipse.osgi.framework.log.FrameworkLogEntry;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.tycho.ReproduciblePropertiesUtils;
 
 /**
  * Root secure preference node. In addition to usual things it stores location, modified
@@ -196,7 +197,7 @@ public class SecurePreferencesRoot extends SecurePreferences implements IStorage
 		OutputStream stream = null;
 		try {
 			stream = StorageUtils.getOutputStream(location);
-			properties.store(stream, description);
+			ReproduciblePropertiesUtils.store(properties, stream, description);
 			modified = false;
 		} finally {
 			if (stream != null)

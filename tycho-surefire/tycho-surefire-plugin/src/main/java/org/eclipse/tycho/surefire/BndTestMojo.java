@@ -49,6 +49,7 @@ import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenArtifactKey;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
@@ -233,7 +234,7 @@ public class BndTestMojo extends AbstractTestMojo {
         properties.setProperty(Constants.RUNPROPERTIES, buildRunProperties());
         try {
             try (OutputStream out = new BufferedOutputStream(new FileOutputStream(runfile))) {
-                properties.store(out, null);
+                ReproducibleUtils.storeProperties(properties, out, null);
             }
             String javaExecutable = getJavaExecutable();
             int returncode = container.execute(runfile, "testing", work, (file, bndrun, run) -> {

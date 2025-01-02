@@ -40,6 +40,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
+import org.eclipse.tycho.ReproducibleUtils;
 
 @Component(role = HttpCache.class)
 public class SharedHttpCacheStorage implements HttpCache {
@@ -395,7 +396,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 			try (OutputStream out = new BufferedOutputStream(new FileOutputStream(headerFile))) {
 				// we store the header here, this might be a 404 response or (permanent)
 				// redirect we probably need to work with later on
-				header.store(out, null);
+				ReproducibleUtils.storeProperties(header, out, null);
 			}
 		}
 

@@ -29,6 +29,7 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
@@ -163,7 +164,7 @@ class ModuleArtifactMap {
 
     private static void writeProperties(Properties properties, File outputFile) throws IOException {
         try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile))) {
-            properties.store(outputStream, null);
+            ReproducibleUtils.storeProperties(properties, outputStream, null);
         }
     }
 }

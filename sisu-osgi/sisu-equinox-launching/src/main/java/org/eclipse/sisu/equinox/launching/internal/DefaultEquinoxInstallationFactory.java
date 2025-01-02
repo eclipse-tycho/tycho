@@ -45,6 +45,7 @@ import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TychoConstants;
 import org.osgi.framework.Constants;
 
@@ -151,7 +152,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             File configurationLocation = configIni.getParentFile();
             configurationLocation.mkdirs();
             try (OutputStream fos = new BufferedOutputStream(new FileOutputStream(configIni))) {
-                p.store(fos, null);
+                ReproducibleUtils.storeProperties(p, fos, null);
             }
 
             return new DefaultEquinoxInstallation(description, location, configurationLocation);
@@ -211,7 +212,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
         Properties properties = new Properties();
         properties.putAll(devEntries);
         try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
-            properties.store(os, null);
+            ReproducibleUtils.storeProperties(properties, os, null);
         }
         return file.toURI().toURL().toExternalForm();
     }

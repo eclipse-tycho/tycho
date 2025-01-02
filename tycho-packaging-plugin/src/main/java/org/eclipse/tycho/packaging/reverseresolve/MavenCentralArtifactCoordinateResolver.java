@@ -36,6 +36,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -161,7 +162,7 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 			properties.setProperty(KEY_VERSION, dependency.getVersion());
 			properties.setProperty(KEY_TYPE, dependency.getType());
 			try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(cacheFile))) {
-				properties.store(stream, null);
+				ReproducibleUtils.storeProperties(properties, stream, null);
 			}
 		} catch (IOException e) {
 			// can't create cache file then...
