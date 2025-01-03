@@ -223,13 +223,13 @@ public class SharedHttpCacheStorage implements HttpCache {
 
 		public synchronized File fetchFile(URI uri, HttpTransportFactory transportFactory, Logger logger)
 				throws IOException {
-			boolean exits = file.isFile();
-			if (exits && !mustValidate()) {
+			boolean exists = file.isFile();
+			if (exists && !mustValidate()) {
 				return file;
 			}
 			HttpTransport transport = transportFactory.createTransport(uri);
 			Properties lastHeader = getHeader();
-			if (exits) {
+			if (exists) {
 				if (lastHeader.containsKey(Headers.ETAG_HEADER.toLowerCase())) {
 					transport.setHeader("If-None-Match", lastHeader.getProperty(Headers.ETAG_HEADER.toLowerCase()));
 				}
@@ -242,7 +242,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 			return transport.get(response -> {
 				File tempFile;
 				int code = response.statusCode();
-				if (exits && code == HttpURLConnection.HTTP_NOT_MODIFIED) {
+				if (exists && code == HttpURLConnection.HTTP_NOT_MODIFIED) {
 					updateHeader(response, getResponseCode());
 					return file;
 				}
@@ -251,19 +251,37 @@ public class SharedHttpCacheStorage implements HttpCache {
 				}
 				updateHeader(response, code);
 				if (isRedirected(code)) {
-					File cachedFile = SharedHttpCacheStorage.this.getCacheEntry(getRedirect(uri), logger)
-							.getCacheFile(transportFactory);
-					// https://github.com/eclipse-tycho/tycho/issues/2938
-					// Redirect may change extension. P2's SimpleMetadataRepositoryFactory relies on
-					// accurate file extension to be cached.
-					// Copying file to accommodate original request and its file extension.
-					// Once https://github.com/eclipse-equinox/p2/issues/355 is fixed, cachedFile
-					// may be returned directly without copying.
-					response.close(); // early close before doing unrelated file I/O
-					FileUtils.copyFile(cachedFile, file);
-					return file;
+					URI redirect = getRedirect(uri);
+					if (code == HttpURLConnection.HTTP_MOVED_TEMP) {
+						// https://github.com/eclipse-tycho/tycho/issues/4459
+						// Don't save temporary redirects since they might change later, rendering the
+						// cache entry useless. Save them in the original request URI instead.
+						logger.warn(
+								String.format("%s was temporarily redirected to %s but cached in the original location",
+										uri, redirect));
+						HttpTransport redirectTransport = transportFactory.createTransport(redirect);
+						redirectTransport.get(r -> {
+							try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
+								r.transferTo(os);
+							}
+							return null;
+						});
+						return file;
+					} else {
+						File cachedFile = SharedHttpCacheStorage.this.getCacheEntry(redirect, logger)
+								.getCacheFile(transportFactory);
+						// https://github.com/eclipse-tycho/tycho/issues/2938
+						// Redirect may change extension. P2's SimpleMetadataRepositoryFactory relies on
+						// accurate file extension to be cached.
+						// Copying file to accommodate original request and its file extension.
+						// Once https://github.com/eclipse-equinox/p2/issues/355 is fixed, cachedFile
+						// may be returned directly without copying.
+						response.close(); // early close before doing unrelated file I/O
+						FileUtils.copyFile(cachedFile, file);
+						return file;
+					}
 				}
-				if (exits) {
+				if (exists) {
 					FileUtils.forceDelete(file);
 				}
 				response.checkResponseCode();
