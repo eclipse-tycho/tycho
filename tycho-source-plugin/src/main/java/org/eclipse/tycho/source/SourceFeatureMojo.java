@@ -54,6 +54,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
@@ -362,7 +363,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     private static void writeProperties(Properties props, File propertiesFile) throws IOException {
         propertiesFile.getParentFile().mkdirs();
         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(propertiesFile))) {
-            props.store(out, "");
+            ReproducibleUtils.storeProperties(props, out, "");
         }
     }
 

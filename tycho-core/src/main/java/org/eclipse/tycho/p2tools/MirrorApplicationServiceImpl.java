@@ -72,6 +72,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.DependencySeed;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -525,7 +526,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         properties.setProperty("metadata.repository.factory.order", "content.xml,!");
         try (OutputStream stream = new BufferedOutputStream(
                 new FileOutputStream(new File(repositoryDestination, P2_INDEX_FILE)))) {
-            properties.store(stream, null);
+            ReproducibleUtils.storeProperties(properties, stream, null);
         } catch (IOException e) {
             throw new FacadeException("writing index file failed", e);
         }

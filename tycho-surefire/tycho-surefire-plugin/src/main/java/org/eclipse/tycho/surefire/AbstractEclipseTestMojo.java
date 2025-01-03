@@ -81,6 +81,7 @@ import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.PlatformPropertiesUtils;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.BundleProject;
@@ -968,7 +969,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         p.putAll(propertiesMap);
         try {
             try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
-                p.store(out, null);
+                ReproducibleUtils.storeProperties(p, out, null);
             }
         } catch (IOException e) {
             throw new MojoExecutionException("Can't write test launcher properties file", e);
