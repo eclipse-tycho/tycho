@@ -35,7 +35,7 @@ public class DeclarativeServiceConfigurationReader {
     private static final String DS_PLUGIN = "org.eclipse.tycho:tycho-ds-plugin";
 	public static final String DEFAULT_ENABLED = "false";
     public static final String DEFAULT_ADD_TO_CLASSPATH = "true";
-    public static final String DEFAULT_DS_VERSION = "1.3";
+	public static final String DEFAULT_DS_VERSION = "1.4";
     public static final String DEFAULT_PATH = "OSGI-INF";
     private static final String PROPERTY_CLASSPATH = "classpath";
     private static final String PROPERTY_DS_VERSION = "dsVersion";
