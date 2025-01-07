@@ -86,7 +86,7 @@ public class ContentJarTest extends AbstractTychoIntegrationTest {
 		String redirectedUrl = server.addRedirect("repoB", originalPath -> mainRepoUrl + originalPath + "_invalid");
 		configureRepositoryInTargetDefinition(redirectedUrl);
 		Assert.assertThrows(VerificationException.class, () -> verifier.executeGoal("package"));
-		verifier.verifyTextInLog("No repository found at " + redirectedUrl);
+		verifier.verifyTextInLog("Unable to read repository at " + redirectedUrl);
 		assertVisited("/content.jar_invalid");
 	}
 
