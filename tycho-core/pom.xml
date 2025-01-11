@@ -285,12 +285,12 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- See MavenDependenciesResolverTest -->
-		<dependency>
-			<groupId>io.takari.aether</groupId>
-			<artifactId>aether-connector-okhttp</artifactId>
-			<version>0.17.8</version>
-			<scope>test</scope>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>io.takari.aether</groupId>-->
+<!--			<artifactId>aether-connector-okhttp</artifactId>-->
+<!--			<version>0.17.8</version>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>osgi.annotation</artifactId>
