@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URLConnection;
+import java.net.http.HttpTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.NumberFormat;
@@ -45,6 +46,7 @@ import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.transport.ArtifactDownloadProvider;
@@ -123,8 +125,14 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 			}
 			return reportStatus(downloadStatus, target);
 		} catch (AuthenticationFailedException e) {
-			return Status.error("authentication failed for " + source, e);
+			return reportStatus(Status.error("authentication failed for " + source, e), target);
 		} catch (IOException e) {
+			if (e instanceof HttpTimeoutException) {
+				return reportStatus(new Status(IStatus.ERROR,
+						TychoRepositoryTransport.class,
+						ProvisionException.REPOSITORY_FAILED_READ,
+						"download from " + source + " timed out", e), target);
+			}
 			return reportStatus(Status.error("download from " + source + " failed", e), target);
 		} catch (CoreException e) {
 			return reportStatus(e.getStatus(), target);
