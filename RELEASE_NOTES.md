@@ -32,6 +32,38 @@ All of the following variants to specify a version are now possible:
 </target>
 ```
 
+## new `check-dependencies` mojo
+
+When using version ranges there is a certain risk that one actually uses some methods from never release and it goes unnoticed.
+
+There is now a new `tycho-baseline:dependencies mojo` that analyze the compiled class files for used method references and compares them to
+the individual artifacts that match the version range. To find these versions it uses the maven metadata stored in P2 as well as
+the eclipse-repository index to find possible candidates.
+
+If any problems are found, these are written by default to `target/versionProblems.txt` but one can also enable to update the version ranges
+according to the discovered problems, a configuration for this might look like this:
+
+```xml
+   <plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-baseline-plugin</artifactId>
+    <version>${tycho.version}</version>
+    <executions>
+      <execution>
+        <id>checkit</id>
+        <goals>
+          <goal>check-dependencies</goal>
+        </goals>
+        <configuration>
+        	<applySuggestions>true</applySuggestions>
+        </configuration>
+      </execution>
+    </executions>
+  </plugin
+```
+
+Because this can be a time consuming task to fetch all matching versions it is best placed inside a profile that is enabled on demand.
+
 ## new `update-manifest` mojo
 
 It is recommended to use as the lower bound the dependency the code was
