@@ -42,6 +42,7 @@ This is now fixed, but might result in build previously working now fail due to 
 
 backports:
 - Support for implicit dependencies in target definitions
+- Add tycho-baseline:check-dependencies mojo
 
 ## 4.0.10
 
