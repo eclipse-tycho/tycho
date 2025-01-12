@@ -8,14 +8,13 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.oomph.p2.internal.core;
-
-import org.eclipse.emf.common.util.URI;
-
-import org.eclipse.equinox.p2.metadata.Version;
+package org.eclipse.tycho.copyfrom.oomph;
 
 import java.util.Map;
 import java.util.Set;
+
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.equinox.p2.metadata.Version;
 
 /**
  * @author Eike Stepper
@@ -25,8 +24,6 @@ public interface P2Index
   public static final int SIMPLE_REPOSITORY = 0;
 
   public static final int COMPOSED_REPOSITORY = 1;
-
-  public static final P2Index INSTANCE = P2IndexImpl.INSTANCE;
 
   public Repository[] getRepositories();
 

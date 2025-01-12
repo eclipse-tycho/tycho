@@ -78,6 +78,7 @@
 		<deploy-plugin.version>3.1.1</deploy-plugin.version>
 		<clean-plugin.version>3.3.2</clean-plugin.version>
 		<surefire-plugin.version>${surefire-version}</surefire-plugin.version>
+		<sisu-version>0.9.0.M3</sisu-version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -511,6 +512,20 @@
 					<artifactId>maven-invoker-plugin</artifactId>
 					<version>3.9.0</version>
 				</plugin>
+				<plugin>
+		        	<groupId>org.eclipse.sisu</groupId>
+		        	<artifactId>sisu-maven-plugin</artifactId>
+		        	<version>${sisu-version}</version>
+		        	<executions>
+			          <execution>
+			            <id>index-project</id>
+			            <goals>
+			              <goal>main-index</goal>
+			              <goal>test-index</goal>
+			            </goals>
+			          </execution>
+			        </executions>
+	            </plugin>
 			</plugins>
 		</pluginManagement>
 	</build>

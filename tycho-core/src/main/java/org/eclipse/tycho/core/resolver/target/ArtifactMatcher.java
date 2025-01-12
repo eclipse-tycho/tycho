@@ -14,11 +14,13 @@
 package org.eclipse.tycho.core.resolver.target;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -27,6 +29,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
+import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -53,16 +56,31 @@ public class ArtifactMatcher {
             return ius.iterator().next();
         }
         if (PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(type)) {
-            return ius.stream().flatMap(iu -> getPackageVersion(iu, id).map(v -> new SimpleEntry<>(iu, v)).stream())
-                    .max((o1, o2) -> {
-                        return o1.getValue().compareTo(o2.getValue());
-                    }).map(Entry::getKey).orElse(null);
+            return findPackage(id, ius).orElse(null);
         } else {
             return ius.iterator().next();
         }
     }
 
-    private static Optional<Version> getPackageVersion(IInstallableUnit unit, String packageName) {
+    public static Optional<IInstallableUnit> findPackage(String packageName, Collection<IInstallableUnit> ius) {
+        return findPackage(packageName, new CollectionResult<>(ius), null);
+
+    }
+
+    public static Optional<IInstallableUnit> findPackage(String packageName, IQueryResult<IInstallableUnit> query,
+            Version version) {
+        Stream<SimpleEntry<IInstallableUnit, Version>> stream = query.stream()
+                .flatMap(iu -> getPackageVersion(iu, packageName).map(v -> new SimpleEntry<>(iu, v)).stream());
+        if (version == null) {
+            return stream.max((o1, o2) -> {
+                return o1.getValue().compareTo(o2.getValue());
+            }).map(Entry::getKey);
+        } else {
+            return stream.filter(e -> version.equals(e.getValue())).map(Entry::getKey).findFirst();
+        }
+    }
+
+    public static Optional<Version> getPackageVersion(IInstallableUnit unit, String packageName) {
 
         return unit.getProvidedCapabilities().stream()
                 .filter(capability -> PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(capability.getNamespace()))
