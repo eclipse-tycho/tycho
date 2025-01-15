@@ -65,7 +65,6 @@ import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.jdt.internal.compiler.util.CtSym;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
-import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.ClasspathEntry.AccessRule;
@@ -98,13 +97,7 @@ import org.eclipse.tycho.model.classpath.JREClasspathEntry;
 import org.eclipse.tycho.model.classpath.M2ClasspathVariable;
 import org.eclipse.tycho.model.classpath.PluginDependenciesClasspathContainer;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
-import org.osgi.framework.Constants;
-import org.osgi.framework.Filter;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.Version;
-import org.osgi.framework.namespace.ExecutionEnvironmentNamespace;
-import org.osgi.resource.Namespace;
 
 import copied.org.apache.maven.plugin.AbstractCompilerMojo;
 
@@ -348,7 +341,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Component
     private MavenDependenciesResolver dependenciesResolver;
 
-    private StandardExecutionEnvironment[] manifestBREEs;
+    private ExecutionEnvironment[] manifestBREEs;
 
     private File currentOutputDirectory;
 
@@ -458,45 +451,15 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     /**
      * Only public for tests purpose!
      */
-    public StandardExecutionEnvironment[] getBREE() {
+    public ExecutionEnvironment[] getBREE() {
         if (currentRelease != null) {
             //if there is an explicit release set we know the release and there must be a suitable EE provided
             return new StandardExecutionEnvironment[] { ExecutionEnvironmentUtils
                     .getExecutionEnvironment("JavaSE-" + currentRelease, toolchainManager, session, logger) };
         }
         if (manifestBREEs == null) {
-            OsgiManifest manifest = bundleReader.loadManifest(project.getBasedir());
-            manifestBREEs = Arrays.stream(manifest.getExecutionEnvironments())
-                    .map(ee -> ExecutionEnvironmentUtils.getExecutionEnvironment(ee, toolchainManager, session, logger))
-                    .toArray(StandardExecutionEnvironment[]::new);
-            if (manifestBREEs.length == 0) {
-                ManifestElement[] requireCapability = manifest.getManifestElements(Constants.REQUIRE_CAPABILITY);
-                if (requireCapability != null) {
-                    List<Filter> eeFilters = Arrays.stream(requireCapability)
-                            .filter(element -> ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE
-                                    .equals(element.getValue())) //
-                            .map(element -> element.getDirective(Namespace.REQUIREMENT_FILTER_DIRECTIVE)) //
-                            .map(filterDirective -> {
-                                try {
-                                    return FrameworkUtil.createFilter(filterDirective);
-                                } catch (InvalidSyntaxException e) {
-                                    e.printStackTrace();
-                                    return null;
-                                }
-                            }).filter(Objects::nonNull).toList();
-                    manifestBREEs = ExecutionEnvironmentUtils.getProfileNames(toolchainManager, session, logger)
-                            .stream() //
-                            .map(name -> name.split("-")) //
-                            .map(segments -> Map.of(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE,
-                                    segments[0], "version", segments[1]))
-                            .filter(eeCapability -> eeFilters.stream().anyMatch(filter -> filter.matches(eeCapability)))
-                            .map(ee -> ee.get(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE) + '-'
-                                    + ee.get("version"))
-                            .map(ee -> ExecutionEnvironmentUtils.getExecutionEnvironment(ee, toolchainManager, session,
-                                    logger))
-                            .toArray(StandardExecutionEnvironment[]::new);
-                }
-            }
+            manifestBREEs = tychoProjectManager.getExecutionEnvironments(project, session)
+                    .toArray(ExecutionEnvironment[]::new);
         }
         return manifestBREEs;
     }
@@ -828,7 +791,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private void configureJavaHome(CompilerConfiguration compilerConfiguration) throws MojoExecutionException {
         if (useJDK == JDKUsage.BREE) {
-            StandardExecutionEnvironment[] brees = getBREE();
+            ExecutionEnvironment[] brees = getBREE();
             String toolchainId;
             if (brees.length > 0) {
                 toolchainId = brees[0].getProfileName();
@@ -1155,9 +1118,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     }
 
     private void checkTargetLevelCompatibleWithManifestBREEs(String effectiveTargetLevel,
-            StandardExecutionEnvironment[] manifestBREEs) throws MojoExecutionException {
+            ExecutionEnvironment[] manifestBREEs) throws MojoExecutionException {
         List<String> incompatibleBREEs = new ArrayList<>();
-        for (StandardExecutionEnvironment ee : manifestBREEs) {
+        for (ExecutionEnvironment ee : manifestBREEs) {
             if (!ee.isCompatibleCompilerTargetLevel(effectiveTargetLevel)) {
                 incompatibleBREEs.add(ee.getProfileName() + " (assumes " + ee.getCompilerTargetLevelDefault() + ")");
             }
