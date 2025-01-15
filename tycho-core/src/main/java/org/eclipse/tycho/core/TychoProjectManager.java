@@ -15,6 +15,7 @@ package org.eclipse.tycho.core;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
@@ -38,11 +40,13 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
+import org.eclipse.tycho.ExecutionEnvironment;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ResolvedArtifactKey;
@@ -52,6 +56,7 @@ import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -65,6 +70,12 @@ import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.namespace.ExecutionEnvironmentNamespace;
+import org.osgi.resource.Namespace;
 
 import aQute.bnd.osgi.Processor;
 
@@ -334,6 +345,40 @@ public class TychoProjectManager {
     public Optional<TargetPlatform> getTargetPlatform(MavenProject project) {
         return targetPlatformService.getTargetPlatform(DefaultReactorProject.adapt(project));
 
+    }
+
+    public Stream<ExecutionEnvironment> getExecutionEnvironments(MavenProject project, MavenSession session) {
+        OsgiManifest manifest = bundleReader.loadManifest(project.getBasedir());
+        ExecutionEnvironment[] manifestBREEs = Arrays.stream(manifest.getExecutionEnvironments())
+                .map(ee -> ExecutionEnvironmentUtils.getExecutionEnvironment(ee, toolchainManager, session, logger))
+                .toArray(ExecutionEnvironment[]::new);
+        if (manifestBREEs.length == 0) {
+            ManifestElement[] requireCapability = manifest.getManifestElements(Constants.REQUIRE_CAPABILITY);
+            if (requireCapability != null) {
+                List<Filter> eeFilters = Arrays.stream(requireCapability)
+                        .filter(element -> ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE
+                                .equals(element.getValue())) //
+                        .map(element -> element.getDirective(Namespace.REQUIREMENT_FILTER_DIRECTIVE)) //
+                        .map(filterDirective -> {
+                            try {
+                                return FrameworkUtil.createFilter(filterDirective);
+                            } catch (InvalidSyntaxException e) {
+                                e.printStackTrace();
+                                return null;
+                            }
+                        }).filter(Objects::nonNull).toList();
+                return ExecutionEnvironmentUtils.getProfileNames(toolchainManager, session, logger).stream() //
+                        .map(name -> name.split("-")) //
+                        .map(segments -> Map.of(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE,
+                                segments[0], "version", segments[1]))
+                        .filter(eeCapability -> eeFilters.stream().anyMatch(filter -> filter.matches(eeCapability)))
+                        .map(ee -> ee.get(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE) + '-'
+                                + ee.get("version"))
+                        .map(ee -> ExecutionEnvironmentUtils.getExecutionEnvironment(ee, toolchainManager, session,
+                                logger));
+            }
+        }
+        return Arrays.stream(manifestBREEs);
     }
 
 }
