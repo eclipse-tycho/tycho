@@ -89,7 +89,7 @@ public class DependencyCheckMojo extends AbstractMojo {
 	@Parameter(property = "session", readonly = true)
 	private MavenSession session;
 
-	@Parameter(defaultValue = "${project.build.directory}/versionProblems.txt", property = "tycho.dependency.check.report")
+	@Parameter(defaultValue = "${project.build.directory}/versionProblems.md", property = "tycho.dependency.check.report")
 	private File reportFileName;
 
 	@Parameter(defaultValue = "${project.basedir}/META-INF/MANIFEST.MF", property = "tycho.dependency.check.manifest")
@@ -97,6 +97,18 @@ public class DependencyCheckMojo extends AbstractMojo {
 
 	@Parameter(defaultValue = "false", property = "tycho.dependency.check.apply")
 	private boolean applySuggestions;
+
+	/**
+	 * If <code>true</code> skips the check.
+	 */
+	@Parameter(property = "tycho.dependency.check.skip", defaultValue = "false")
+	private boolean skip;
+
+	/**
+	 * If <code>true</code> print additional verbose messages.
+	 */
+	@Parameter(property = "tycho.dependency.check.verbose", defaultValue = "false")
+	private boolean verbose;
 
 	@Component
 	private TychoProjectManager projectManager;
@@ -112,6 +124,9 @@ public class DependencyCheckMojo extends AbstractMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
+		if (skip) {
+			return;
+		}
 		if (!"jar".equals(project.getPackaging())
 				&& !PackagingType.TYPE_ECLIPSE_PLUGIN.equals(project.getPackaging())) {
 			return;
@@ -147,19 +162,14 @@ public class DependencyCheckMojo extends AbstractMojo {
 				if (packageProvidingUnit.isEmpty()) {
 					continue;
 				}
-				if (packageName.contains(".internal.")) {
-					// TODO configurable, but also internal packages should be properly versioned!
-					continue;
-				}
 				IInstallableUnit unit = packageProvidingUnit.get();
 				Optional<org.eclipse.equinox.p2.metadata.Version> matchedPackageVersion = ArtifactMatcher
 						.getPackageVersion(unit, packageName);
-				matchedPackageVersion.filter(v -> v.isOSGiCompatible())
-						.ifPresent(v -> {
-							Version current = new Version(v.toString());
-							allPackageVersion.computeIfAbsent(packageName, nil -> new TreeSet<>()).add(current);
-							lowestPackageVersion.put(packageName, current);
-						});
+				matchedPackageVersion.filter(v -> v.isOSGiCompatible()).ifPresent(v -> {
+					Version current = new Version(v.toString());
+					allPackageVersion.computeIfAbsent(packageName, nil -> new TreeSet<>()).add(current);
+					lowestPackageVersion.put(packageName, current);
+				});
 				VersionRange versionRange = VersionRange.valueOf(packageVersion);
 				List<ArtifactVersion> list = versionProvider.stream()
 						.flatMap(avp -> avp.getPackageVersions(unit, packageName, versionRange, project)).toList();
@@ -228,11 +238,13 @@ public class DependencyCheckMojo extends AbstractMojo {
 								}
 							}
 							dependencyProblems.add(new DependencyVersionProblem(String.format(
-									"Import-Package '%s %s (compiled against %s %s / %s) includes %s (provided by %s) but this version is missing the method %s",
-									packageName, packageVersion, unit.getId(), unit.getVersion(),
+									"Import-Package `%s %s` (compiled against `%s` provided by `%s %s`) includes `%s` (provided by `%s`) but this version is missing the method `%s#%s`",
+									packageName, packageVersion,
 									matchedPackageVersion.orElse(org.eclipse.equinox.p2.metadata.Version.emptyVersion)
 											.toString(),
-									v.getVersion(), v.getProvider(), mthd.id()), references.get(mthd), provided));
+									unit.getId(), unit.getVersion(),
+									v.getVersion(), v.getProvider(), mthd.className(), getMethodRef(mthd)),
+									references.get(mthd), provided));
 							ok = false;
 							packageWithError.add(packageName);
 						}
@@ -261,27 +273,46 @@ public class DependencyCheckMojo extends AbstractMojo {
 			if (references == null || references.isEmpty()) {
 				message = problem.message();
 			} else {
-				message = String.format("%s, referenced by:%s%s", problem.message(), System.lineSeparator(),
-						problem.references().stream().collect(Collectors.joining(System.lineSeparator())));
+				if (verbose) {
+				String delimiter = System.lineSeparator() + "- ";
+				message = String.format("%s referenced by:%s%s ", problem.message(), delimiter,
+						problem.references().stream().collect(Collectors.joining(delimiter)));
+			} else {
+				int size = references.size();
+				if (size == 1) {
+					message = String.format("%s referenced by `%s`.", problem.message(), references.iterator().next());
+				} else {
+					message = String.format("%s referenced by `%s` and %d other.", problem.message(),
+							references.iterator().next(), size - 1);
+				}
+			}
 			}
 			log.error(message);
 			results.add(message);
-			List<MethodSignature> provided = problem.provided();
-			if (provided != null && !provided.isEmpty()) {
-				results.add("Provided Methods in this version are:");
-				for (MethodSignature sig : provided) {
-					results.add("\t" + sig);
+			if (verbose) {
+				List<MethodSignature> provided = problem.provided();
+				if (provided != null && !provided.isEmpty()) {
+					results.add("Provided Methods in this version are:");
+					for (MethodSignature sig : provided) {
+						results.add("\t" + sig.id());
+					}
 				}
 			}
+			results.add("");
 		}
-		for (String pkg : packageWithError) {
-			String suggestion = "Suggested lower version for package " + pkg + " is " + lowestPackageVersion.get(pkg);
-			Set<Version> all = allPackageVersion.get(pkg);
-			if (all != null && !all.isEmpty()) {
-				suggestion += " out of " + all;
+		if (!packageWithError.isEmpty()) {
+			results.add("");
+			for (String pkg : packageWithError) {
+				String suggestion = String.format("Suggested lower version for package `%s` is `%s`", pkg,
+						lowestPackageVersion.get(pkg));
+				Set<Version> all = allPackageVersion.get(pkg);
+				if (all != null && !all.isEmpty()) {
+					suggestion += " out of " + all.stream().map(v -> String.format("`%s`", v))
+							.collect(Collectors.joining(", ", "[", "]"));
+				}
+				log.info(suggestion);
+				results.add(suggestion);
 			}
-			log.info(suggestion);
-			results.add(suggestion);
 		}
 		if (results.isEmpty()) {
 			return;
@@ -295,6 +326,13 @@ public class DependencyCheckMojo extends AbstractMojo {
 		} catch (IOException e) {
 			throw new MojoFailureException(e);
 		}
+	}
+
+	private String getMethodRef(MethodSignature mthd) {
+		if (verbose) {
+			return String.format("%s %s", mthd.methodName(), mthd.signature());
+		}
+		return mthd.methodName();
 	}
 
 	private void applyLowerBounds(Set<String> packageWithError, Map<String, Version> lowestPackageVersion)
