@@ -70,7 +70,7 @@
 		<surefire-version>3.5.2</surefire-version>
 		<equinoxVersion>3.22.0</equinoxVersion>
 		<ecjVersion>3.40.0</ecjVersion>
-		<bouncycastleVersion>1.79</bouncycastleVersion>
+		<bouncycastleVersion>1.80</bouncycastleVersion>
 		<bnd.version>7.1.0</bnd.version>
 		<junit5.version>5.11.4</junit5.version>
 		<junit5.platform.version>1.11.4</junit5.platform.version>
