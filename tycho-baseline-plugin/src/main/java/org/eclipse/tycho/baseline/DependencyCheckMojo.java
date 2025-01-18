@@ -165,6 +165,12 @@ public class DependencyCheckMojo extends AbstractMojo {
 				IInstallableUnit unit = packageProvidingUnit.get();
 				Optional<org.eclipse.equinox.p2.metadata.Version> matchedPackageVersion = ArtifactMatcher
 						.getPackageVersion(unit, packageName);
+				if (matchedPackageVersion.isEmpty()
+						|| matchedPackageVersion.get().equals(org.eclipse.equinox.p2.metadata.Version.emptyVersion)) {
+					log.warn("Package " + packageName
+							+ " has no version exported and can not be checked for compatibility");
+					continue;
+				}
 				matchedPackageVersion.filter(v -> v.isOSGiCompatible()).ifPresent(v -> {
 					Version current = new Version(v.toString());
 					allPackageVersion.computeIfAbsent(packageName, nil -> new TreeSet<>()).add(current);
