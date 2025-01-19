@@ -38,14 +38,14 @@ public class SetTargetPlatform implements Callable<Serializable>, Serializable {
 
 	SetTargetPlatform(Collection<Path> dependencyBundles, boolean debug) {
 		this.debug = debug;
-		this.targetBundles = dependencyBundles.stream().map(EclipseBuild::pathAsString).toList();
+		this.targetBundles = dependencyBundles.stream().map(EclipseProjectBuild::pathAsString).toList();
 	}
 
 	@Override
 	public Serializable call() throws Exception {
 		ILogListener listener = (status, plugin) -> debug(status.toString());
 		Platform.addLogListener(listener);
-		EclipseBuild.disableAutoBuild();
+		EclipseProjectBuild.disableAutoBuild();
 		ITargetPlatformService service = TargetPlatformService.getDefault();
 		ITargetDefinition target = service.newTarget();
 		target.setName("buildpath");

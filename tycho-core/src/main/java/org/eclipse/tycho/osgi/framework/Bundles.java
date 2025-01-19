@@ -19,6 +19,8 @@ public record Bundles(Set<String> bundles) {
     public static final String BUNDLE_API_TOOLS = "org.eclipse.pde.api.tools";
     public static final String BUNDLE_ECLIPSE_HELP_BASE = "org.eclipse.help.base";
     public static final String BUNDLE_PDE_CORE = "org.eclipse.pde.core";
+    public static final String BUNDLE_JDT_CORE = "org.eclipse.jdt.core";
+
     static final String BUNDLE_LAUNCHING_MACOS = "org.eclipse.jdt.launching.macosx";
     static final String BUNDLE_APP = "org.eclipse.equinox.app";
     static final String BUNDLE_SCR = "org.apache.felix.scr";

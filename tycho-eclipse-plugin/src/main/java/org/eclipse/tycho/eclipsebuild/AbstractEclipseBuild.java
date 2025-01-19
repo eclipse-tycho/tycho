@@ -1,15 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
- * This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License 2.0
- * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-2.0/
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Contributors:
- *     Christoph Läubrich - initial API and implementation
- *******************************************************************************/
 package org.eclipse.tycho.eclipsebuild;
 
 import java.io.IOException;
@@ -28,77 +16,41 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 
-public class EclipseBuild implements Callable<EclipseBuildResult>, Serializable {
-
+/**
+ * Abstract class for performing a build and producing a result
+ * 
+ * @param <Result>
+ */
+public abstract class AbstractEclipseBuild<Result extends EclipseBuildResult>
+		implements Callable<Result>, Serializable, IProgressMonitor {
 	private boolean debug;
 	private String baseDir;
 
-	EclipseBuild(Path projectDir, boolean debug) {
+	protected AbstractEclipseBuild(Path projectDir, boolean debug) {
 		this.debug = debug;
 		this.baseDir = pathAsString(projectDir);
 	}
 
 	@Override
-	public EclipseBuildResult call() throws Exception {
-		EclipseBuildResult result = new EclipseBuildResult();
+	public final Result call() throws Exception {
 		Platform.addLogListener((status, plugin) -> debug(status.toString()));
 		disableAutoBuild();
 		deleteAllProjects();
 		IProject project = importProject();
-		IProgressMonitor debugMonitor = new IProgressMonitor() {
-
-			@Override
-			public void worked(int work) {
-
-			}
-
-			@Override
-			public void subTask(String name) {
-				debug("SubTask: " + name);
-			}
-
-			@Override
-			public void setTaskName(String name) {
-				debug("Task: " + name);
-			}
-
-			@Override
-			public void setCanceled(boolean value) {
-
-			}
-
-			@Override
-			public boolean isCanceled() {
-				return false;
-			}
-
-			@Override
-			public void internalWorked(double work) {
-
-			}
-
-			@Override
-			public void done() {
-
-			}
-
-			@Override
-			public void beginTask(String name, int totalWork) {
-				setTaskName(name);
-			}
-		};
-		project.build(IncrementalProjectBuilder.CLEAN_BUILD, debugMonitor);
-		project.build(IncrementalProjectBuilder.FULL_BUILD, debugMonitor);
+		project.build(IncrementalProjectBuilder.CLEAN_BUILD, this);
+		project.build(IncrementalProjectBuilder.FULL_BUILD, this);
+		Result result = createResult(project);
 		for (IMarker marker : project.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)) {
 			result.addMarker(marker);
 			debug(marker.toString());
 		}
-		ResourcesPlugin.getWorkspace().save(true, new NullProgressMonitor());
+		ResourcesPlugin.getWorkspace().save(true, this);
 		return result;
 	}
+
+	protected abstract Result createResult(IProject project) throws Exception;
 
 	static void disableAutoBuild() throws CoreException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -109,7 +61,7 @@ public class EclipseBuild implements Callable<EclipseBuildResult>, Serializable 
 
 	private void deleteAllProjects() throws CoreException {
 		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
-			project.delete(IResource.NEVER_DELETE_PROJECT_CONTENT | IResource.FORCE, new NullProgressMonitor());
+			project.delete(IResource.NEVER_DELETE_PROJECT_CONTENT | IResource.FORCE, this);
 		}
 	}
 
@@ -119,14 +71,13 @@ public class EclipseBuild implements Callable<EclipseBuildResult>, Serializable 
 		IProjectDescription projectDescription = ResourcesPlugin.getWorkspace()
 				.loadProjectDescription(projectDescriptionFile);
 		projectDescription.setLocation(projectPath);
-//        projectDescription.setBuildSpec(new ICommand[0]);
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectDescription.getName());
-		project.create(projectDescription, new NullProgressMonitor());
-		project.open(new NullProgressMonitor());
+		project.create(projectDescription, this);
+		project.open(this);
 		return project;
 	}
 
-	private void debug(String string) {
+	protected void debug(String string) {
 		if (debug) {
 			System.out.println(string);
 		}
@@ -137,6 +88,53 @@ public class EclipseBuild implements Callable<EclipseBuildResult>, Serializable 
 			return path.toAbsolutePath().toString();
 		}
 		return null;
+	}
+
+	@Override
+	public boolean isCanceled() {
+		return Thread.currentThread().isInterrupted();
+	}
+
+	@Override
+	public void beginTask(String name, int totalWork) {
+		if (name != null && !name.isBlank()) {
+			debug("> " + name);
+		}
+	}
+
+	@Override
+	public void subTask(String name) {
+		if (name != null && !name.isBlank()) {
+			debug(">> " + name);
+		}
+	}
+
+	@Override
+	public void setTaskName(String name) {
+		if (name != null && !name.isBlank()) {
+			debug("> " + name);
+		}
+	}
+
+	@Override
+	public void done() {
+		// do nothing
+	}
+
+	@Override
+	public void setCanceled(boolean value) {
+		// do nothing
+	}
+
+	@Override
+	public void internalWorked(double work) {
+		// do nothing
+
+	}
+
+	@Override
+	public void worked(int work) {
+		// do nothing
 	}
 
 }

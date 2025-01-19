@@ -12,14 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.eclipsebuild;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import org.apache.maven.model.Repository;
@@ -34,6 +33,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.TychoProjectManager;
+import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.osgi.framework.Bundles;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
 import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
@@ -91,7 +91,11 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 
 	@Override
 	public final void execute() throws MojoExecutionException, MojoFailureException {
-
+		Optional<EclipseProject> eclipseProjectValue = projectManager.getEclipseProject(project);
+		if (eclipseProjectValue.isEmpty()) {
+			return;
+		}
+		EclipseProject eclipseProject = eclipseProjectValue.get();
 		Collection<Path> projectDependencies;
 		try {
 			projectDependencies = projectManager.getProjectDependencies(project);
@@ -99,7 +103,7 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 			throw new MojoFailureException("Can't resolve project dependencies", e);
 		}
 		EclipseApplication application;
-		Bundles bundles = new Bundles(getBundles());
+		Bundles bundles = new Bundles(getBundles(eclipseProject));
 		Features features = new Features(getFeatures());
 		if (local) {
 			TargetPlatform targetPlatform = projectManager.getTargetPlatform(project).orElseThrow(
@@ -119,7 +123,7 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 				getLog().info("Skip set Target Platform because " + Bundles.BUNDLE_PDE_CORE
 						+ " is not part of the framework...");
 			}
-			Result result = framework.execute(createExecutable());
+			Result result = framework.execute(createExecutable(), getRequireBundles());
 			if (printMarker) {
 				Log log = getLog();
 				result.markers().filter(marker -> marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_INFO)
@@ -143,7 +147,11 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 
 	protected abstract void handleResult(Result result) throws MojoFailureException;
 
-	protected abstract <X extends Callable<R> & Serializable, R extends Serializable> R createExecutable();
+	protected abstract AbstractEclipseBuild<Result> createExecutable();
+
+	protected String[] getRequireBundles() {
+		return new String[0];
+	}
 
 	protected Set<String> getFeatures() {
 		Set<String> set = new HashSet<>();
@@ -153,7 +161,7 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 		return set;
 	}
 
-	protected Set<String> getBundles() {
+	protected Set<String> getBundles(EclipseProject eclipseProject) {
 		Set<String> set = new HashSet<>();
 		set.add("org.eclipse.core.resources");
 		set.add("org.eclipse.core.runtime");
@@ -161,6 +169,18 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 		if (bundles != null) {
 			set.addAll(bundles);
 		}
+		for (String requiredBundle : getRequireBundles()) {
+			set.add(requiredBundle);
+		}
+		if (eclipseProject.hasNature("org.eclipse.pde.PluginNature")) {
+			set.add(Bundles.BUNDLE_PDE_CORE);
+		}
+		if (eclipseProject.hasNature("org.eclipse.jdt.core.javanature")) {
+			set.add(Bundles.BUNDLE_JDT_CORE);
+		}
+		// TODO if project has org.eclipse.pde.api.tools.apiAnalysisNature and we have a
+		// baseline parameter then
+		// set.add(Bundles.BUNDLE_API_TOOLS);
 		return set;
 	}
 
