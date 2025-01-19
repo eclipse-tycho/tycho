@@ -31,12 +31,62 @@ All of the following variants to specify a version are now possible:
     </locations>
 </target>
 ```
+## new `quickfix` and `cleanup` mojo
+
+Keeping code up-todate is a daunting task and Eclipse IDE can be a great help due to its offering for automatic quick-fixes and cleanup actions.
+Still this has usually be applied manually (or automatic on save) and requires some user interaction.
+
+There is now a new `tycho-cleancode:cleanup` and `tycho-cleancode:quickfix` mojo that help with these things to be called via automation or part of the build, 
+both mojos run by default in the process-sources phase so any later compilation can verify the outcome easily. Due to the way they work internally,
+they require an eclipse project to be present and configured currently.
+
+The `tycho-cleancode:cleanup` mojo allows to configure the desired cleanup profile in the pom (maybe inside a profile), the values are those that you will find 
+when exporting a profile from the IDE. If no profile is given the default from the project are used:
+
+```xml
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-cleancode-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+      <execution>
+        <id>cleanup</id>
+        <goals>
+          <goal>cleanup</goal> 
+        </goals>
+        <configuration>
+            <cleanUpProfile>
+                <cleanup.static_inner_class>true</cleanup.static_inner_class>
+            </cleanUpProfile>
+        </configuration>
+      </execution>
+    </executions>
+</plugin>
+```
+
+The `tycho-cleancode:quickfix` mojo simply apply the quick fix with the highest relevance for resolution and can be enabled like this (maybe inside a profile):
+
+```xml
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-cleancode-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+      <execution>
+        <id>quickfix</id>
+        <goals>
+          <goal>quickfix</goal> 
+        </goals>
+      </execution>
+    </executions>
+</plugin>
+```
 
 ## new `check-dependencies` mojo
 
 When using version ranges there is a certain risk that one actually uses some methods from never release and it goes unnoticed.
 
-There is now a new `tycho-baseline:dependencies mojo` that analyze the compiled class files for used method references and compares them to
+There is now a new `tycho-baseline:dependencies` mojo that analyze the compiled class files for used method references and compares them to
 the individual artifacts that match the version range. To find these versions it uses the maven metadata stored in P2 as well as
 the eclipse-repository index to find possible candidates.
 
@@ -47,7 +97,7 @@ according to the discovered problems, a configuration for this might look like t
    <plugin>
     <groupId>org.eclipse.tycho</groupId>
     <artifactId>tycho-baseline-plugin</artifactId>
-    <version>${tycho.version}</version>
+    <version>${tycho-version}</version>
     <executions>
       <execution>
         <id>checkit</id>
