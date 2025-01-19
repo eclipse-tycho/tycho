@@ -24,9 +24,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.helper.PluginConfigurationHelper;
 import org.eclipse.tycho.helper.PluginConfigurationHelper.Configuration;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 
 @Component(role = InstallableUnitProvider.class, hint = "eclipse-build")
@@ -38,18 +38,29 @@ public class EclipseBuildInstallableUnitProvider implements InstallableUnitProvi
 	@Override
 	public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)
 			throws CoreException {
-		Configuration configuration = configurationHelper.getConfiguration(EclipseBuildProjectMojo.class, project, session);
-		Optional<Boolean> local = configuration.getBoolean(EclipseBuildProjectMojo.PARAMETER_LOCAL);
-		if (local.isPresent() && local.get()) {
-			// for local target resolution the bundles become requirements...
-			Optional<List<String>> list = configuration.getStringList("bundles");
-			return InstallableUnitProvider.createIU(list.stream().flatMap(Collection::stream)
-					.map(bundleName -> MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
-							bundleName,
-							VersionRange.emptyRange, null, false, true)),
-					"eclipse-build-bundles");
+		Configuration configuration = extracted(project, session);
+		if (configuration != null) {
+			Optional<Boolean> local = configuration.getBoolean(EclipseBuildProjectMojo.PARAMETER_LOCAL);
+			if (local.isPresent() && local.get()) {
+				// for local target resolution the bundles become requirements...
+				Optional<List<String>> list = configuration.getStringList("bundles");
+				return InstallableUnitProvider.createIU(list.stream().flatMap(Collection::stream)
+						.map(bundleName -> MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
+								bundleName, VersionRange.emptyRange, null, false, true)),
+						"eclipse-build-bundles");
+			}
 		}
 		return List.of();
+	}
+
+	private Configuration extracted(MavenProject project, MavenSession session) {
+		try {
+			return configurationHelper.getConfiguration(EclipseBuildProjectMojo.class, project, session);
+		} catch (Exception e) {
+			// this can happen if some other mojo in a different plugin enhances the
+			// AbstractEclipseBuild
+			return null;
+		}
 	}
 
 }

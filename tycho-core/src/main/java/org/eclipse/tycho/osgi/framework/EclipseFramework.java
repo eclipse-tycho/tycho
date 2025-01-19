@@ -23,6 +23,7 @@ import java.io.StreamCorruptedException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -125,24 +126,32 @@ public class EclipseFramework implements AutoCloseable {
     }
 
     @SuppressWarnings("unchecked")
-    public <X extends Callable<R> & Serializable, R extends Serializable> R execute(X runnable)
-            throws InvocationTargetException {
+    public <X extends Callable<R> & Serializable, R extends Serializable> R execute(X runnable,
+            String... requireBundles) throws InvocationTargetException {
         try {
             start();
             byte[] runnableBytes = getBytes(runnable);
             BundleContext bundleContext = framework.getBundleContext();
-            String newBundleId = connector.newBundle(runnable.getClass());
+            Class<?> clazz = runnable.getClass();
+            String newBundleId = connector.newBundle(clazz, requireBundles);
             Bundle bundle = bundleContext.installBundle(newBundleId);
+            Class<?> superclass = clazz.getSuperclass();
+            if (superclass != null && !Object.class.equals(superclass)) {
+                if (!Objects.equals(EclipseModuleConnector.getLocationFromClass(clazz),
+                        EclipseModuleConnector.getLocationFromClass(superclass))) {
+                    bundleContext.installBundle(connector.newFragment(superclass, bundle));
+                }
+            }
             try {
                 bundle.start();
-                Class<?> foreignClass = bundle.loadClass(runnable.getClass().getName());
+                Class<?> foreignClass = bundle.loadClass(clazz.getName());
                 Object foreignObject = readObject(runnableBytes, foreignClass.getClassLoader());
                 Method method = foreignClass.getMethod("call");
                 byte[] resultBytes = getBytes(method.invoke(foreignObject));
                 if (resultBytes == null) {
                     return null;
                 }
-                return (R) readObject(resultBytes, runnable.getClass().getClassLoader());
+                return (R) readObject(resultBytes, clazz.getClassLoader());
             } finally {
                 bundle.uninstall();
                 connector.release(newBundleId);
