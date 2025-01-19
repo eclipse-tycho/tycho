@@ -1,7 +1,9 @@
 package org.eclipse.tycho.eclipsebuild;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
@@ -80,6 +82,14 @@ public abstract class AbstractEclipseBuild<Result extends EclipseBuildResult>
 	protected void debug(String string) {
 		if (debug) {
 			System.out.println(string);
+		}
+	}
+
+	protected void debug(String string, Throwable t) {
+		if (debug) {
+			StringWriter writer = new StringWriter();
+			t.printStackTrace(new PrintWriter(writer));
+			debug(string + System.lineSeparator() + writer);
 		}
 	}
 
