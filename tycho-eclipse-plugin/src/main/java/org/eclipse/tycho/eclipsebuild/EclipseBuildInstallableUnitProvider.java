@@ -38,8 +38,8 @@ public class EclipseBuildInstallableUnitProvider implements InstallableUnitProvi
 	@Override
 	public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session)
 			throws CoreException {
-		Configuration configuration = configurationHelper.getConfiguration(EclipseBuildMojo.class, project, session);
-		Optional<Boolean> local = configuration.getBoolean(EclipseBuildMojo.PARAMETER_LOCAL);
+		Configuration configuration = configurationHelper.getConfiguration(EclipseBuildProjectMojo.class, project, session);
+		Optional<Boolean> local = configuration.getBoolean(EclipseBuildProjectMojo.PARAMETER_LOCAL);
 		if (local.isPresent() && local.get()) {
 			// for local target resolution the bundles become requirements...
 			Optional<List<String>> list = configuration.getStringList("bundles");
