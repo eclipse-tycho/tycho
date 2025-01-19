@@ -96,6 +96,9 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 			return;
 		}
 		EclipseProject eclipseProject = eclipseProjectValue.get();
+		if (!isValid(eclipseProject)) {
+			return;
+		}
 		Collection<Path> projectDependencies;
 		try {
 			projectDependencies = projectManager.getProjectDependencies(project);
@@ -143,6 +146,10 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 			}
 			throw new MojoExecutionException(cause);
 		}
+	}
+
+	protected boolean isValid(EclipseProject eclipseProject) {
+		return true;
 	}
 
 	protected abstract void handleResult(Result result) throws MojoFailureException;
