@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,8 +29,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.connect.ConnectContent;
@@ -64,7 +67,7 @@ class EclipseModuleConnector implements ModuleConnector {
         return Optional.empty();
     }
 
-    public String newBundle(Class<?> clazz) {
+    public String newBundle(Class<?> clazz, String[] requireBundles) {
         URI location = getLocationFromClass(clazz);
         if (location == null) {
             throw new RuntimeException("can't get location of class " + clazz);
@@ -75,6 +78,24 @@ class EclipseModuleConnector implements ModuleConnector {
         header.put(Constants.BUNDLE_SYMBOLICNAME, id);
         header.put(Constants.BUNDLE_VERSION, "1.0.0");
         header.put(Constants.DYNAMICIMPORT_PACKAGE, "*");
+        if (requireBundles != null && requireBundles.length > 0) {
+            header.put(Constants.REQUIRE_BUNDLE, Arrays.stream(requireBundles).collect(Collectors.joining(",")));
+        }
+        modules.put(id, new TempBundle(new File(location), header));
+        return id;
+    }
+
+    public String newFragment(Class<?> clazz, Bundle bundle) {
+        URI location = getLocationFromClass(clazz);
+        if (location == null) {
+            throw new RuntimeException("can't get location of class " + clazz);
+        }
+        String id = "eclipse-fragment" + UUID.randomUUID().toString();
+        Map<String, String> header = new HashMap<>();
+        header.put(Constants.BUNDLE_NAME, clazz.getName());
+        header.put(Constants.BUNDLE_SYMBOLICNAME, id);
+        header.put(Constants.BUNDLE_VERSION, "1.0.0");
+        header.put(Constants.FRAGMENT_HOST, bundle.getSymbolicName());
         modules.put(id, new TempBundle(new File(location), header));
         return id;
     }
@@ -83,7 +104,7 @@ class EclipseModuleConnector implements ModuleConnector {
         modules.remove(id);
     }
 
-    private static URI getLocationFromClass(Class<?> clazz) {
+    static URI getLocationFromClass(Class<?> clazz) {
         ProtectionDomain domain = clazz.getProtectionDomain();
         if (domain == null) {
             return null;

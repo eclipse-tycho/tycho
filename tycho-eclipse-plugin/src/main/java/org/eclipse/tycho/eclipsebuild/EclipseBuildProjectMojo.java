@@ -38,10 +38,9 @@ public class EclipseBuildProjectMojo extends AbstractEclipseBuildMojo<EclipseBui
 		return "Eclipse Project Build";
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected EclipseBuild createExecutable() {
-		return new EclipseBuild(project.getBasedir().toPath(), debug);
+	protected EclipseProjectBuild createExecutable() {
+		return new EclipseProjectBuild(project.getBasedir().toPath(), debug);
 	}
 
 	@Override
