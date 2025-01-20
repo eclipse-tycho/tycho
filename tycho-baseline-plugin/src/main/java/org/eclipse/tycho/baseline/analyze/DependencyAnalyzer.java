@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
@@ -34,6 +35,11 @@ public class DependencyAnalyzer {
 
 	static final String CLASS_SUFFIX = ".class";
 	static final int ASM_API = Opcodes.ASM9;
+	private BiConsumer<String, Throwable> errorConsumer;
+
+	public DependencyAnalyzer(BiConsumer<String, Throwable> errorConsumer) {
+		this.errorConsumer = errorConsumer;
+	}
 
 	public static String getPackageName(String className) {
 		className = className.replace('/', '.');
@@ -44,7 +50,7 @@ public class DependencyAnalyzer {
 		return className;
 	}
 
-	public static Function<String, Optional<ClassMethods>> createDependencyClassResolver(JrtClasses jrtClassResolver,
+	public Function<String, Optional<ClassMethods>> createDependencyClassResolver(JrtClasses jrtClassResolver,
 			DependencyArtifacts artifacts) throws MojoFailureException {
 		ClassCollection allClassMethods = new ClassCollection();
 		Function<String, Optional<ClassMethods>> function = allClassMethods.chain(jrtClassResolver);
@@ -76,7 +82,12 @@ public class DependencyAnalyzer {
 		}
 	}
 
-	public static ClassCollection analyzeProvides(File file, Function<String, Optional<ClassMethods>> classResolver,
+	public ClassCollection analyzeProvides(File file, Function<String, Optional<ClassMethods>> classResolver)
+			throws MojoFailureException {
+		return analyzeProvides(file, classResolver, null);
+	}
+
+	public ClassCollection analyzeProvides(File file, Function<String, Optional<ClassMethods>> classResolver,
 			Consumer<ClassMethods> consumer) throws MojoFailureException {
 		try {
 			ClassCollection local = new ClassCollection();
@@ -88,7 +99,16 @@ public class DependencyAnalyzer {
 					String name = jarEntry.getName();
 					if (name.endsWith(CLASS_SUFFIX)) {
 						InputStream stream = jar.getInputStream(jarEntry);
-						ClassMethods methods = new ClassMethods(stream.readAllBytes(), resolver);
+						ClassMethods methods;
+						try {
+							methods = new ClassMethods(stream.readAllBytes(), resolver);
+						} catch (RuntimeException e) {
+							// can't analyze this class, example of errors is
+							// java.lang.ArrayIndexOutOfBoundsException: Index 29 out of bounds for length 9
+							errorConsumer.accept("Can't analyze class '" + name + "' because of error while parsing",
+									e);
+							continue;
+						}
 						if (consumer != null) {
 							consumer.accept(methods);
 						}

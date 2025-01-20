@@ -150,7 +150,8 @@ public class DependencyCheckMojo extends AbstractMojo {
 		Map<String, Version> lowestPackageVersion = new HashMap<>();
 		Map<String, Set<Version>> allPackageVersion = new HashMap<>();
 		Set<String> packageWithError = new HashSet<>();
-		Function<String, Optional<ClassMethods>> classResolver = DependencyAnalyzer
+		DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer((m, e) -> getLog().error(m, e));
+		Function<String, Optional<ClassMethods>> classResolver = dependencyAnalyzer
 				.createDependencyClassResolver(jrtClassResolver, artifacts);
 		for (GenericInfo genericInfo : requirements) {
 			if (PackageNamespace.PACKAGE_NAMESPACE.equals(genericInfo.getNamespace())) {
@@ -223,7 +224,7 @@ public class DependencyCheckMojo extends AbstractMojo {
 					}
 					ClassCollection collection = analyzeCache.get(artifact);
 					if (collection == null) {
-						collection = DependencyAnalyzer.analyzeProvides(artifact.toFile(), classResolver, null);
+						collection = dependencyAnalyzer.analyzeProvides(artifact.toFile(), classResolver);
 						analyzeCache.put(artifact, collection);
 					}
 					boolean ok = true;
