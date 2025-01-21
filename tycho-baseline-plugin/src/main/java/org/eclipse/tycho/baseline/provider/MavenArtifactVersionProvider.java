@@ -45,6 +45,7 @@ import org.eclipse.tycho.artifacts.ArtifactVersion;
 import org.eclipse.tycho.artifacts.ArtifactVersionProvider;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
+import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.namespace.PackageNamespace;
@@ -165,10 +166,10 @@ public class MavenArtifactVersionProvider implements ArtifactVersionProvider {
 
 	private ModuleRevisionBuilder readOSGiInfo(Path path) {
 		if (path != null) {
-			OsgiManifest manifest = bundleReader.loadManifest(path.toFile());
 			try {
+				OsgiManifest manifest = bundleReader.loadManifest(path.toFile());
 				return OSGiManifestBuilderFactory.createBuilder(manifest.getHeaders());
-			} catch (BundleException e) {
+			} catch (BundleException | OsgiManifestParserException e) {
 			}
 		}
 		return null;
