@@ -139,6 +139,7 @@ public class DependencyCheckMojo extends AbstractMojo {
 		JrtClasses jrtClassResolver = getJRTClassResolver();
 		List<ClassUsage> usages = DependencyAnalyzer.analyzeUsage(file, jrtClassResolver);
 		if (usages.isEmpty()) {
+			writeReport("No usages detected");
 			return;
 		}
 		Collection<IInstallableUnit> units = artifacts.getInstallableUnits();
@@ -249,9 +250,8 @@ public class DependencyCheckMojo extends AbstractMojo {
 									packageName, packageVersion,
 									matchedPackageVersion.orElse(org.eclipse.equinox.p2.metadata.Version.emptyVersion)
 											.toString(),
-									unit.getId(), unit.getVersion(),
-									v.getVersion(), v.getProvider(), mthd.className(), getMethodRef(mthd)),
-									references.get(mthd), provided));
+									unit.getId(), unit.getVersion(), v.getVersion(), v.getProvider(), mthd.className(),
+									getMethodRef(mthd)), references.get(mthd), provided));
 							ok = false;
 							packageWithError.add(packageName);
 						}
@@ -271,6 +271,7 @@ public class DependencyCheckMojo extends AbstractMojo {
 			}
 		}
 		if (dependencyProblems.isEmpty()) {
+			writeReport("No Version Problems detected!");
 			return;
 		}
 		List<String> results = new ArrayList<>();
@@ -281,18 +282,19 @@ public class DependencyCheckMojo extends AbstractMojo {
 				message = problem.message();
 			} else {
 				if (verbose) {
-				String delimiter = System.lineSeparator() + "- ";
-				message = String.format("%s referenced by:%s%s ", problem.message(), delimiter,
-						problem.references().stream().collect(Collectors.joining(delimiter)));
-			} else {
-				int size = references.size();
-				if (size == 1) {
-					message = String.format("%s referenced by `%s`.", problem.message(), references.iterator().next());
+					String delimiter = System.lineSeparator() + "- ";
+					message = String.format("%s referenced by:%s%s ", problem.message(), delimiter,
+							problem.references().stream().collect(Collectors.joining(delimiter)));
 				} else {
-					message = String.format("%s referenced by `%s` and %d other.", problem.message(),
-							references.iterator().next(), size - 1);
+					int size = references.size();
+					if (size == 1) {
+						message = String.format("%s referenced by `%s`.", problem.message(),
+								references.iterator().next());
+					} else {
+						message = String.format("%s referenced by `%s` and %d other.", problem.message(),
+								references.iterator().next(), size - 1);
+					}
 				}
-			}
 			}
 			log.error(message);
 			results.add(message);
@@ -324,12 +326,15 @@ public class DependencyCheckMojo extends AbstractMojo {
 		if (results.isEmpty()) {
 			return;
 		}
+		writeReport(results.stream().collect(Collectors.joining(System.lineSeparator())));
+		if (applySuggestions) {
+			applyLowerBounds(packageWithError, lowestPackageVersion);
+		}
+	}
+
+	private void writeReport(String report) throws MojoFailureException {
 		try {
-			Files.writeString(reportFileName.toPath(),
-					results.stream().collect(Collectors.joining(System.lineSeparator())));
-			if (applySuggestions) {
-				applyLowerBounds(packageWithError, lowestPackageVersion);
-			}
+			Files.writeString(reportFileName.toPath(), report);
 		} catch (IOException e) {
 			throw new MojoFailureException(e);
 		}
@@ -343,23 +348,28 @@ public class DependencyCheckMojo extends AbstractMojo {
 	}
 
 	private void applyLowerBounds(Set<String> packageWithError, Map<String, Version> lowestPackageVersion)
-			throws IOException {
-		MutableBundleManifest manifest = MutableBundleManifest.read(manifestFile);
-		Map<String, String> exportedPackagesVersion = manifest.getExportedPackagesVersion();
-		Map<String, String> updates = new HashMap<>();
-		for (String packageName : packageWithError) {
-			Version lowestVersion = lowestPackageVersion.getOrDefault(packageName, Version.emptyVersion);
-			String current = exportedPackagesVersion.get(packageName);
-			if (current == null) {
-				updates.put(packageName, String.format("[%s,%d)", lowestVersion, (lowestVersion.getMajor() + 1)));
-			} else {
-				VersionRange range = VersionRange.valueOf(current);
-				Version right = range.getRight();
-				updates.put(packageName, String.format("[%s,%s%c", lowestVersion, right, range.getRightType()));
+			throws MojoFailureException {
+		try {
+			MutableBundleManifest manifest = MutableBundleManifest.read(manifestFile);
+			Map<String, String> exportedPackagesVersion = manifest.getExportedPackagesVersion();
+			Map<String, String> updates = new HashMap<>();
+			for (String packageName : packageWithError) {
+				Version lowestVersion = lowestPackageVersion.getOrDefault(packageName, Version.emptyVersion);
+				String current = exportedPackagesVersion.get(packageName);
+				if (current == null) {
+					updates.put(packageName, String.format("[%s,%d)", lowestVersion, (lowestVersion.getMajor() + 1)));
+				} else {
+					VersionRange range = VersionRange.valueOf(current);
+					Version right = range.getRight();
+					updates.put(packageName, String.format("[%s,%s%c", lowestVersion, right, range.getRightType()));
+				}
 			}
+			manifest.updateImportedPackageVersions(updates);
+
+			MutableBundleManifest.write(manifest, manifestFile);
+		} catch (IOException e) {
+			throw new MojoFailureException(e);
 		}
-		manifest.updateImportedPackageVersions(updates);
-		MutableBundleManifest.write(manifest, manifestFile);
 	}
 
 	private Map<String, String> getVersionInfo(GenericInfo genericInfo, String versionAttribute) {
