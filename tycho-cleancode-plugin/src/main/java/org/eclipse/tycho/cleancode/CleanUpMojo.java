@@ -13,18 +13,14 @@
 package org.eclipse.tycho.cleancode;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.eclipse.tycho.core.MarkdownBuilder;
 import org.eclipse.tycho.eclipsebuild.AbstractEclipseBuildMojo;
 import org.eclipse.tycho.model.project.EclipseProject;
 
@@ -62,17 +58,15 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 	@Override
 	protected void handleResult(CleanupResult result)
 			throws MojoFailureException {
-		List<String> results = new ArrayList<>();
-		results.add("The following cleanups where applied:");
-		result.cleanups().forEach(cleanup -> {
-			results.add("- " + cleanup);
-		});
-		try {
-			Files.writeString(reportFileName.toPath(),
-					results.stream().collect(Collectors.joining(System.lineSeparator())));
-		} catch (IOException e) {
-			throw new MojoFailureException(e);
+		if (result.isEmpty()) {
+			return;
 		}
+		MarkdownBuilder builder = new MarkdownBuilder(reportFileName);
+		builder.add("The following cleanups where applied:");
+		result.cleanups().forEach(cleanup -> {
+			builder.addListItem(cleanup);
+		});
+		builder.write();
 	}
 
 	@Override

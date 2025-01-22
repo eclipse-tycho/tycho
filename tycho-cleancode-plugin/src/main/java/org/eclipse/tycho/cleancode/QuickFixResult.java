@@ -39,4 +39,8 @@ public class QuickFixResult extends EclipseBuildResult {
 		return markers;
 	}
 
+	public boolean isEmpty() {
+		return fixed.isEmpty();
+	}
+
 }
