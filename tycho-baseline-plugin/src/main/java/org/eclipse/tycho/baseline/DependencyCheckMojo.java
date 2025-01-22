@@ -14,7 +14,6 @@ package org.eclipse.tycho.baseline;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,6 +52,7 @@ import org.eclipse.tycho.baseline.analyze.ClassUsage;
 import org.eclipse.tycho.baseline.analyze.DependencyAnalyzer;
 import org.eclipse.tycho.baseline.analyze.JrtClasses;
 import org.eclipse.tycho.baseline.analyze.MethodSignature;
+import org.eclipse.tycho.core.MarkdownBuilder;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.maven.OSGiJavaToolchain;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
@@ -139,7 +139,6 @@ public class DependencyCheckMojo extends AbstractMojo {
 		JrtClasses jrtClassResolver = getJRTClassResolver();
 		List<ClassUsage> usages = DependencyAnalyzer.analyzeUsage(file, jrtClassResolver);
 		if (usages.isEmpty()) {
-			writeReport("No usages detected");
 			return;
 		}
 		Collection<IInstallableUnit> units = artifacts.getInstallableUnits();
@@ -271,10 +270,12 @@ public class DependencyCheckMojo extends AbstractMojo {
 			}
 		}
 		if (dependencyProblems.isEmpty()) {
-			writeReport("No Version Problems detected!");
 			return;
 		}
-		List<String> results = new ArrayList<>();
+		if (applySuggestions) {
+			applyLowerBounds(packageWithError, lowestPackageVersion);
+		}
+		MarkdownBuilder results = new MarkdownBuilder(reportFileName);
 		for (DependencyVersionProblem problem : dependencyProblems) {
 			Collection<String> references = problem.references();
 			String message;
@@ -322,22 +323,9 @@ public class DependencyCheckMojo extends AbstractMojo {
 				log.info(suggestion);
 				results.add(suggestion);
 			}
-		}
-		if (results.isEmpty()) {
-			return;
-		}
-		writeReport(results.stream().collect(Collectors.joining(System.lineSeparator())));
-		if (applySuggestions) {
-			applyLowerBounds(packageWithError, lowestPackageVersion);
-		}
-	}
 
-	private void writeReport(String report) throws MojoFailureException {
-		try {
-			Files.writeString(reportFileName.toPath(), report);
-		} catch (IOException e) {
-			throw new MojoFailureException(e);
 		}
+		results.write();
 	}
 
 	private String getMethodRef(MethodSignature mthd) {
@@ -349,6 +337,9 @@ public class DependencyCheckMojo extends AbstractMojo {
 
 	private void applyLowerBounds(Set<String> packageWithError, Map<String, Version> lowestPackageVersion)
 			throws MojoFailureException {
+		if (packageWithError.isEmpty()) {
+			return;
+		}
 		try {
 			MutableBundleManifest manifest = MutableBundleManifest.read(manifestFile);
 			Map<String, String> exportedPackagesVersion = manifest.getExportedPackagesVersion();
