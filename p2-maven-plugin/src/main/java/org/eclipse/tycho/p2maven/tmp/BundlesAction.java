@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -113,6 +114,9 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	public static final String INSTALL_SOURCE_FILTER = String.format("(%s=true)", FILTER_PROPERTY_INSTALL_SOURCE); //$NON-NLS-1$
 
+	private static final Collection<Class<?>> SUPPORTED_CLASSES = List.of(Version.class, String.class, Long.class,
+			Integer.class, Short.class, Byte.class, Double.class, Float.class, Boolean.class, Character.class);
+
 	/**
 	 * A suffix used to match a bundle IU to its source
 	 */
@@ -155,6 +159,17 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final String DIR = "dir"; //$NON-NLS-1$
 	public static final String JAR = "jar"; //$NON-NLS-1$
 	public static final String BUNDLE_SHAPE = "Eclipse-BundleShape"; //$NON-NLS-1$
+	/**
+	 * Attribute used to store an attribute on an exported package
+	 */
+	public static final String PACKAGE_ATTRIBUTE_PROPERTY_PREFIX = PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE
+			+ ".attribute."; //$NON-NLS-1$
+
+	/**
+	 * Attribute used to store an directive on an exported package
+	 */
+	public static final String PACKAGE_DIRECTIVE_PROPERTY_PREFIX = PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE
+			+ ".directive."; //$NON-NLS-1$
 
 	/**
 	 * Manifest header directive for specifying how optional runtime requirements
@@ -292,9 +307,14 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// Process exported packages
 		for (ExportPackageDescription packageExport : bd.getExportPackages()) {
-			providedCapabilities
-					.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
-							packageExport.getName(), PublisherHelper.fromOSGiVersion(packageExport.getVersion())));
+			Map<String, Object> map = new LinkedHashMap<>();
+			map.put(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageExport.getName());
+			map.put(IProvidedCapability.PROPERTY_VERSION, PublisherHelper.fromOSGiVersion(packageExport.getVersion()));
+			propagateProperties(packageExport.getAttributes(), map, PACKAGE_ATTRIBUTE_PROPERTY_PREFIX);
+			propagateProperties(packageExport.getDirectives(), map, PACKAGE_DIRECTIVE_PROPERTY_PREFIX);
+			IProvidedCapability capability = MetadataFactory
+					.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, map);
+			providedCapabilities.add(capability);
 		}
 
 		// Process generic capabilities
@@ -1173,5 +1193,46 @@ public class BundlesAction extends AbstractPublisherAction {
 	private void addPublishingErrorToFinalStatus(Throwable t, File bundleLocation) {
 		finalStatus.add(new Status(IStatus.ERROR, Activator.ID,
 				NLS.bind(Messages.exception_errorPublishingBundle, bundleLocation, t.getMessage()), t));
+	}
+
+	private void propagateProperties(Map<String, Object> source, Map<String, Object> target, String prefix) {
+		if (source == null) {
+			return;
+		}
+		for (Entry<String, Object> entry : source.entrySet()) {
+			String key = entry.getKey();
+			if (key.startsWith("x-")) { //$NON-NLS-1$
+				// not a standard directive / attribute if we want those we should only allow
+				// special known ones!
+				continue;
+			}
+			String prop = prefix + key;
+			Object value = entry.getValue();
+			if (value instanceof Object[] array) {
+				List<Object> list = List.of(array);
+				if (isValidValueType(list)) {
+					target.put(prop, list);
+				}
+			} else if (isValidValueType(value)) {
+				target.put(prop, value);
+			}
+		}
+	}
+
+	private static boolean isValidScalarType(Object scalar) {
+		Class<?> clazz = scalar.getClass();
+		return SUPPORTED_CLASSES.stream().anyMatch(t -> t.isAssignableFrom(clazz));
+	}
+
+	public static boolean isValidValueType(Object prop) {
+		if (prop instanceof List<?>) {
+			for (Object listItem : (List<?>) prop) {
+				if (!isValidScalarType(listItem)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return isValidScalarType(prop);
 	}
 }
