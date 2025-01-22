@@ -26,6 +26,8 @@ import org.eclipse.tycho.TychoConstants;
 @Component(role = TransportCacheConfig.class)
 public class DefaultTransportCacheConfig implements TransportCacheConfig, Initializable {
 
+	private static final boolean DEBUG_REQUESTS = Boolean.getBoolean("tycho.p2.transport.debug");
+
 	private boolean offline;
 	private boolean update;
 	private boolean interactive;
@@ -84,6 +86,11 @@ public class DefaultTransportCacheConfig implements TransportCacheConfig, Initia
 	@Override
 	public File getCacheLocation() {
 		return cacheLocation;
+	}
+
+	@Override
+	public boolean isDebug() {
+		return DEBUG_REQUESTS;
 	}
 
 }

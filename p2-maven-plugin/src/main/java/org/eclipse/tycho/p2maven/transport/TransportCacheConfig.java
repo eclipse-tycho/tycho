@@ -22,5 +22,7 @@ public interface TransportCacheConfig {
 
 	boolean isInteractive();
 
+	boolean isDebug();
+
 	File getCacheLocation();
 }
