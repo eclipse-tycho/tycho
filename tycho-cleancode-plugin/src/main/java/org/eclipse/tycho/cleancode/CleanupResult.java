@@ -30,4 +30,8 @@ public class CleanupResult extends EclipseBuildResult {
 		return this.cleanups.stream();
 	}
 
+	public boolean isEmpty() {
+		return cleanups.isEmpty();
+	}
+
 }
