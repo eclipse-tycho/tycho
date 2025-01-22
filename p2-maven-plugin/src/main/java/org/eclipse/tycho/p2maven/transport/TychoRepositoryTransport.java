@@ -58,8 +58,6 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 
 	private static final int MAX_DOWNLOAD_THREADS = Integer.getInteger("tycho.p2.transport.max-download-threads", 4);
 
-	private static final boolean DEBUG_REQUESTS = Boolean.getBoolean("tycho.p2.transport.debug");
-
 	private static final Executor DOWNLOAD_EXECUTOR = Executors.newFixedThreadPool(MAX_DOWNLOAD_THREADS,
 			new ThreadFactory() {
 
@@ -125,13 +123,12 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 			}
 			return reportStatus(downloadStatus, target);
 		} catch (AuthenticationFailedException e) {
-			return reportStatus(Status.error("authentication failed for " + source, e), target);
+			return reportStatus(statusWithCode("authentication failed for %s",
+					ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, source, e), target);
 		} catch (IOException e) {
 			if (e instanceof HttpTimeoutException) {
-				return reportStatus(new Status(IStatus.ERROR,
-						TychoRepositoryTransport.class,
-						ProvisionException.REPOSITORY_FAILED_READ,
-						"download from " + source + " timed out", e), target);
+				return reportStatus(statusWithCode("download from %s timed out",
+						ProvisionException.REPOSITORY_FAILED_READ, source, e), target);
 			}
 			return reportStatus(Status.error("download from " + source + " failed", e), target);
 		} catch (CoreException e) {
@@ -142,8 +139,9 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 	@Override
 	public InputStream stream(URI toDownload, IProgressMonitor monitor)
 			throws FileNotFoundException, CoreException, AuthenticationFailedException {
-		if (DEBUG_REQUESTS) {
-			logger.debug("Request stream for " + toDownload);
+		boolean debug = cacheConfig.isDebug();
+		if (debug) {
+			logger.info("Request stream for " + toDownload);
 		}
 		requests.increment();
 		if (toDownload.toASCIIString().endsWith("p2.index")) {
@@ -154,7 +152,7 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 			if (handler != null) {
 				File cachedFile = handler.getFile(toDownload);
 				if (cachedFile != null) {
-					if (DEBUG_REQUESTS) {
+					if (debug) {
 						logger.debug(" --> routed through handler " + handler.getClass().getSimpleName());
 					}
 					return new FileInputStream(cachedFile);
@@ -162,20 +160,27 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 			}
 			return toDownload.toURL().openStream();
 		} catch (FileNotFoundException e) {
-			if (DEBUG_REQUESTS) {
-				logger.debug(" --> not found!");
+			if (debug) {
+				logger.info(" --> not found! (" + toDownload + ")");
 			}
 			throw e;
+		} catch (java.net.http.HttpTimeoutException timeout) {
+			if (debug) {
+				logger.info(" --> timeout while requesting (" + toDownload + "): " + timeout);
+			}
+			throw new CoreException(statusWithCode("download from %s timed out",
+					ProvisionException.REPOSITORY_FAILED_READ, toDownload, timeout));
 		} catch (IOException e) {
 			if (e instanceof AuthenticationFailedException afe) {
 				throw afe;
 			}
-			if (DEBUG_REQUESTS) {
-				logger.debug(" --> generic error: " + e);
+			if (debug) {
+				logger.info(" --> generic error (" + toDownload + "): " + e);
 			}
-			throw new CoreException(Status.error("download from " + toDownload + " failed", e));
+			throw new CoreException(statusWithCode("download from %s failed", ProvisionException.REPOSITORY_FAILED_READ,
+					toDownload, e));
 		} finally {
-			if (DEBUG_REQUESTS) {
+			if (debug) {
 				logger.debug("Total number of requests: " + requests.longValue() + " (" + indexRequests.longValue()
 						+ " for p2.index)");
 			}
@@ -262,6 +267,11 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 			stateful.setStatus(status);
 		}
 		return status;
+	}
+
+	private static Status statusWithCode(String message, int code, URI source, Exception causingException) {
+		return new Status(IStatus.ERROR, TychoRepositoryTransport.class, code, String.format(message, source),
+				causingException);
 	}
 
 }
