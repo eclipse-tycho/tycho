@@ -90,7 +90,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 				throw new FileNotFoundException(normalized.toASCIIString());
 			}
 			if (code == HttpURLConnection.HTTP_MOVED_PERM) {
-				return getCacheEntry(cacheLine.getRedirect(normalized), logger);
+				return getCacheEntry(cacheLine.getRedirect(normalized, logger), logger);
 			}
 		}
 		return new CacheEntry() {
@@ -252,7 +252,10 @@ public class SharedHttpCacheStorage implements HttpCache {
 				}
 				updateHeader(response, code);
 				if (isRedirected(code)) {
-					URI redirect = getRedirect(uri);
+					URI redirect = getRedirect(uri, logger);
+					if (cacheConfig.isDebug()) {
+						logger.info("Redirect (code = " + code + ") from " + uri + " to " + redirect);
+					}
 					if (code == HttpURLConnection.HTTP_MOVED_TEMP) {
 						// https://github.com/eclipse-tycho/tycho/issues/4459
 						// Don't save temporary redirects since they might change later, rendering the
@@ -311,7 +314,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 					throw new FileNotFoundException(uri.toString());
 				}
 				if (isRedirected(code)) {
-					return SharedHttpCacheStorage.this.getCacheEntry(getRedirect(uri), logger)
+					return SharedHttpCacheStorage.this.getCacheEntry(getRedirect(uri, logger), logger)
 							.getCacheFile(transportFactory);
 				}
 				if (file.isFile()) {
@@ -430,12 +433,17 @@ public class SharedHttpCacheStorage implements HttpCache {
 			return Integer.parseInt(getHeader().getProperty(RESPONSE_CODE, "-1"));
 		}
 
-		public URI getRedirect(URI base) throws FileNotFoundException {
+		public URI getRedirect(URI base, Logger logger) throws FileNotFoundException {
 			String location = getHeader().getProperty("location");
 			if (location == null) {
 				throw new FileNotFoundException(base.toASCIIString());
 			}
-			return base.resolve(location);
+			URI uri = base.resolve(location);
+			if (cacheConfig.isDebug()) {
+				logger.info(
+						"location given by header = '" + location + "', with base =" + base + ", resolves = " + uri);
+			}
+			return uri;
 		}
 
 		public Properties getHeader() {
