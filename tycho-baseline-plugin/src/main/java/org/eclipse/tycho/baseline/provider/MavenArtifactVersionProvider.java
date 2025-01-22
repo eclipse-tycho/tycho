@@ -45,8 +45,6 @@ import org.eclipse.tycho.artifacts.ArtifactVersion;
 import org.eclipse.tycho.artifacts.ArtifactVersionProvider;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
-import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.namespace.PackageNamespace;
 
@@ -169,7 +167,10 @@ public class MavenArtifactVersionProvider implements ArtifactVersionProvider {
 			try {
 				OsgiManifest manifest = bundleReader.loadManifest(path.toFile());
 				return OSGiManifestBuilderFactory.createBuilder(manifest.getHeaders());
-			} catch (BundleException | OsgiManifestParserException e) {
+			} catch (Exception e) {
+				// On maven there might be all kind of badly formated manifests ... if we can't
+				// parse it and create even a basic valid OSGi one than the artifacts is
+				// unlikely usable in OSGI context anyways
 			}
 		}
 		return null;
