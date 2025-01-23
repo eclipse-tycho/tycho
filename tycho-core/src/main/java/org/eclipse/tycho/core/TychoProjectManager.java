@@ -379,4 +379,25 @@ public class TychoProjectManager {
         return Arrays.stream(manifestBREEs);
     }
 
+    /**
+     * This method selected the a target environment best suited for the current baseline, if it is
+     * a valid choice the running target is used (e.g. linux on linux host, windows on windows hosts
+     * and so on), if such environment is not available it is using the configured ones form the
+     * project as is.
+     * 
+     * @param project
+     * 
+     * @return the chosen {@link TargetEnvironment}s
+     */
+    public Collection<TargetEnvironment> getBaselineEnvironments(MavenProject project) {
+        Collection<TargetEnvironment> targetEnvironments = getTargetEnvironments(project);
+        TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
+        for (TargetEnvironment targetEnvironment : targetEnvironments) {
+            if (targetEnvironment.equals(runningEnvironment)) {
+                return List.of(targetEnvironment);
+            }
+        }
+        return targetEnvironments;
+    }
+
 }
