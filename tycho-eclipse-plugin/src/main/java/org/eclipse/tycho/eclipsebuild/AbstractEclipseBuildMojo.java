@@ -13,13 +13,16 @@
 package org.eclipse.tycho.eclipsebuild;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
@@ -31,11 +34,17 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.DependencyResolutionException;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
+import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.osgi.framework.Bundles;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
+import org.eclipse.tycho.osgi.framework.EclipseApplicationFactory;
 import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.EclipseFramework;
 import org.eclipse.tycho.osgi.framework.EclipseWorkspaceManager;
@@ -55,11 +64,21 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 	@Parameter()
 	private Repository eclipseRepository;
 
+	/**
+	 * If configured, automatically sets a baseline for this project if api tools
+	 * nature is enabled
+	 */
+	@Parameter(property = "baselines", name = "baselines")
+	private List<Repository> baselines;
+
 	@Parameter(defaultValue = "false", property = "tycho.eclipsebuild.skip")
 	private boolean skip;
 
 	@Parameter(defaultValue = "false", property = "tycho.eclipsebuild.debug")
 	protected boolean debug;
+
+	@Parameter(defaultValue = "false")
+	private boolean failOnResolutionError;
 
 	/**
 	 * Controls if the local target platform of the project should be used to
@@ -85,6 +104,9 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 
 	@Component
 	private EclipseApplicationManager eclipseApplicationManager;
+
+	@Component
+	private EclipseApplicationFactory applicationFactory;
 
 	@Component
 	private TychoProjectManager projectManager;
@@ -120,11 +142,25 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 			if (debug) {
 				framework.printState();
 			}
-			if (framework.hasBundle(Bundles.BUNDLE_PDE_CORE)) {
-				framework.execute(new SetTargetPlatform(projectDependencies, debug));
-			} else {
-				getLog().info("Skip set Target Platform because " + Bundles.BUNDLE_PDE_CORE
-						+ " is not part of the framework...");
+			if (hasPDENature(eclipseProject)) {
+				if (framework.hasBundle(Bundles.BUNDLE_PDE_CORE)) {
+					framework.execute(new SetTargetPlatform(projectDependencies, debug));
+				} else {
+					getLog().info("Skip set Target Platform because " + Bundles.BUNDLE_PDE_CORE
+							+ " is not part of the framework...");
+				}
+			}
+			if (hasAPIToolsNature(eclipseProject)) {
+				if (framework.hasBundle(Bundles.BUNDLE_API_TOOLS)) {
+					if (hasBaselinesSet()) {
+						framework.execute(new SetApiBaseline(project.getId(), getBaselineBundles(), debug));
+					} else {
+						getLog().info("Skip set ApiBasline because no baselines set...");
+					}
+				} else {
+					getLog().info("Skip set ApiBasline because " + Bundles.BUNDLE_API_TOOLS
+							+ " is not part of the framework...");
+				}
 			}
 			Result result = framework.execute(createExecutable(), getRequireBundles());
 			if (printMarker) {
@@ -179,16 +215,55 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 		for (String requiredBundle : getRequireBundles()) {
 			set.add(requiredBundle);
 		}
-		if (eclipseProject.hasNature("org.eclipse.pde.PluginNature")) {
+		if (hasPDENature(eclipseProject)) {
 			set.add(Bundles.BUNDLE_PDE_CORE);
 		}
-		if (eclipseProject.hasNature("org.eclipse.jdt.core.javanature")) {
+		if (hasJDTNature(eclipseProject)) {
 			set.add(Bundles.BUNDLE_JDT_CORE);
 		}
-		// TODO if project has org.eclipse.pde.api.tools.apiAnalysisNature and we have a
-		// baseline parameter then
-		// set.add(Bundles.BUNDLE_API_TOOLS);
+		if (hasAPIToolsNature(eclipseProject)) {
+			set.add(Bundles.BUNDLE_API_TOOLS);
+		}
 		return set;
+	}
+
+	private Collection<Path> getBaselineBundles() throws MojoFailureException {
+		try {
+			Collection<TargetEnvironment> targetEnvironments = projectManager.getBaselineEnvironments(project);
+			Optional<ArtifactKey> artifactKey = projectManager.getArtifactKey(project);
+			getLog().info("Resolve API baseline for " + project.getId() + " with "
+					+ targetEnvironments.stream().map(String::valueOf).collect(Collectors.joining(", ")));
+			return applicationFactory.getApiBaselineBundles(
+					baselines.stream().filter(repo -> repo.getUrl() != null)
+							.map(repo -> new MavenRepositoryLocation(repo.getId(), URI.create(repo.getUrl()))).toList(),
+					artifactKey.get(), targetEnvironments);
+		} catch (IllegalArtifactReferenceException e) {
+			throw new MojoFailureException("Project specify an invalid artifact key", e);
+		} catch (DependencyResolutionException e) {
+			if (failOnResolutionError) {
+				throw new MojoFailureException("Can't resolve API baseline!", e);
+			} else {
+				getLog().warn(
+						"Can't resolve API baseline: " + Objects.requireNonNullElse(e.getMessage(), e.toString()));
+				return List.of();
+			}
+		}
+	}
+
+	private boolean hasJDTNature(EclipseProject eclipseProject) {
+		return eclipseProject.hasNature("org.eclipse.jdt.core.javanature");
+	}
+
+	private boolean hasAPIToolsNature(EclipseProject eclipseProject) {
+		return eclipseProject.hasNature("org.eclipse.pde.api.tools.apiAnalysisNature");
+	}
+
+	private boolean hasPDENature(EclipseProject eclipseProject) {
+		return eclipseProject.hasNature("org.eclipse.pde.PluginNature");
+	}
+
+	private boolean hasBaselinesSet() {
+		return baselines != null && baselines.size() > 0;
 	}
 
 	private static void printMarker(IMarker marker, EclipseBuildResult result, Consumer<CharSequence> consumer) {

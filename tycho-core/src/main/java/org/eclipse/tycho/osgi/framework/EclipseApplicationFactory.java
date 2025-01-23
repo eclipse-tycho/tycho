@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.framework;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -26,11 +28,16 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult;
+import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
@@ -93,6 +100,24 @@ public class EclipseApplicationFactory {
         eeConfiguration.setProfileConfiguration("JavaSE-" + javaVersion, "tycho-eclipse-application-resolver");
         TargetPlatform targetPlatform = platformFactory.createTargetPlatform(tpConfiguration, eeConfiguration, null);
         return targetPlatform;
+    }
+
+    public Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
+            ArtifactKey artifactKey, Collection<TargetEnvironment> environment)
+            throws IllegalArtifactReferenceException {
+        P2Resolver resolver = createResolver(environment);
+        resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, artifactKey.getId(), "0.0.0");
+        List<Path> resolvedBundles = new ArrayList<>();
+        TargetPlatform targetPlatform = createTargetPlatform(baselineRepoLocations);
+        for (P2ResolutionResult result : resolver.resolveTargetDependencies(targetPlatform, null).values()) {
+            for (Entry entry : result.getArtifacts()) {
+                if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())
+                        && !"org.eclipse.osgi".equals(entry.getId())) {
+                    resolvedBundles.add(entry.getLocation(true).toPath());
+                }
+            }
+        }
+        return resolvedBundles;
     }
 
     public P2Resolver createResolver() {
