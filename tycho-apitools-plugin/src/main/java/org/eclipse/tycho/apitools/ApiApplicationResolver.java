@@ -14,9 +14,7 @@ package org.eclipse.tycho.apitools;
 
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,14 +23,9 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.TargetPlatform;
-import org.eclipse.tycho.core.resolver.P2ResolutionResult;
-import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
-import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.osgi.framework.Bundles;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
 import org.eclipse.tycho.osgi.framework.EclipseApplicationFactory;
@@ -62,19 +55,7 @@ public class ApiApplicationResolver {
 	public Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
 			ArtifactKey artifactKey, Collection<TargetEnvironment> environment)
 			throws IllegalArtifactReferenceException {
-		P2Resolver resolver = applicationFactory.createResolver(environment);
-		resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, artifactKey.getId(), "0.0.0");
-		List<Path> resolvedBundles = new ArrayList<>();
-		TargetPlatform targetPlatform = applicationFactory.createTargetPlatform(baselineRepoLocations);
-		for (P2ResolutionResult result : resolver.resolveTargetDependencies(targetPlatform, null).values()) {
-			for (Entry entry : result.getArtifacts()) {
-				if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())
-						&& !"org.eclipse.osgi".equals(entry.getId())) {
-					resolvedBundles.add(entry.getLocation(true).toPath());
-				}
-			}
-		}
-		return resolvedBundles;
+		return applicationFactory.getApiBaselineBundles(baselineRepoLocations, artifactKey, environment);
 	}
 
 	public EclipseApplication getApiApplication(MavenRepositoryLocation apiToolsRepo) {
