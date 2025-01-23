@@ -244,12 +244,13 @@ public class DependencyCheckMojo extends AbstractMojo {
 									}
 								}
 							}
-							dependencyProblems.add(new DependencyVersionProblem(String.format(
+							dependencyProblems.add(new DependencyVersionProblem(packageName + "_" + version, String
+									.format(
 									"Import-Package `%s %s` (compiled against `%s` provided by `%s %s`) includes `%s` (provided by `%s`) but this version is missing the method `%s#%s`",
 									packageName, packageVersion,
 									matchedPackageVersion.orElse(org.eclipse.equinox.p2.metadata.Version.emptyVersion)
 											.toString(),
-									unit.getId(), unit.getVersion(), v.getVersion(), v.getProvider(), mthd.className(),
+									unit.getId(), unit.getVersion(), version, v.getProvider(), mthd.className(),
 									getMethodRef(mthd)), references.get(mthd), provided));
 							ok = false;
 							packageWithError.add(packageName);
@@ -276,7 +277,12 @@ public class DependencyCheckMojo extends AbstractMojo {
 			applyLowerBounds(packageWithError, lowestPackageVersion);
 		}
 		MarkdownBuilder results = new MarkdownBuilder(reportFileName);
+		Set<String> keys = new HashSet<>();
 		for (DependencyVersionProblem problem : dependencyProblems) {
+			if (!verbose && !keys.add(problem.key())) {
+				// we have already reported one problem in this category
+				continue;
+			}
 			Collection<String> references = problem.references();
 			String message;
 			if (references == null || references.isEmpty()) {
@@ -399,7 +405,7 @@ public class DependencyCheckMojo extends AbstractMojo {
 		return new JrtClasses(null);
 	}
 
-	private static record DependencyVersionProblem(String message, Collection<String> references,
+	private static record DependencyVersionProblem(String key, String message, Collection<String> references,
 			List<MethodSignature> provided) {
 
 	}
