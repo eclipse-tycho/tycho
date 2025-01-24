@@ -14,6 +14,8 @@ package org.eclipse.tycho.cleancode;
 
 import java.io.File;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.Stream.Builder;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -29,6 +31,20 @@ public class QuickFixMojo extends AbstractEclipseBuildMojo<QuickFixResult> {
 	@Parameter(defaultValue = "${project.build.directory}/quickfix.md", property = "tycho.quickfix.report")
 	private File reportFileName;
 
+	/**
+	 * Configures the quickfixes to use, as these can be provided by different
+	 * bundles, examples are
+	 * <ul>
+	 * <li><code>org.eclipse.jdt.ui</code> provides resolutions for for java
+	 * problems</li>
+	 * <li><code>org.eclipse.pde.api.tools.ui</code> provides API tools
+	 * resolutions</li>
+	 * <li>...</li>
+	 * </ul>
+	 */
+	@Parameter
+	private List<String> quickfixes;
+
 	@Override
 	protected void handleResult(QuickFixResult result) throws MojoFailureException {
 		if (result.isEmpty()) {
@@ -43,7 +59,12 @@ public class QuickFixMojo extends AbstractEclipseBuildMojo<QuickFixResult> {
 
 	@Override
 	protected String[] getRequireBundles() {
-		return new String[] { "org.eclipse.ui.ide", "org.eclipse.jdt.ui" };
+		Builder<String> builder = Stream.builder();
+		builder.accept("org.eclipse.ui.ide");
+		if (quickfixes != null) {
+			quickfixes.forEach(builder);
+		}
+		return builder.build().toArray(String[]::new);
 	}
 
 	@Override
