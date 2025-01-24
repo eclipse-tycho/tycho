@@ -22,6 +22,7 @@ import java.util.concurrent.Callable;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILogListener;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.pde.core.target.ITargetDefinition;
@@ -29,6 +30,7 @@ import org.eclipse.pde.core.target.ITargetLocation;
 import org.eclipse.pde.core.target.ITargetPlatformService;
 import org.eclipse.pde.core.target.LoadTargetDefinitionJob;
 import org.eclipse.pde.core.target.TargetBundle;
+import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.target.TargetPlatformService;
 
 public class SetTargetPlatform implements Callable<Serializable>, Serializable {
@@ -64,6 +66,7 @@ public class SetTargetPlatform implements Callable<Serializable>, Serializable {
 		Job job = new LoadTargetDefinitionJob(target);
 		job.schedule();
 		job.join();
+		Job.getJobManager().join(PluginModelManager.class, new NullProgressMonitor());
 		return null;
 	}
 

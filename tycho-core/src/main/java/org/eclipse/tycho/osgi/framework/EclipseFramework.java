@@ -37,6 +37,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.launch.Framework;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class EclipseFramework implements AutoCloseable {
 
@@ -82,6 +83,25 @@ public class EclipseFramework implements AutoCloseable {
                 }
             }
         }
+    }
+
+    public boolean waitForApplicationStart(long timeout) {
+        String[] args = configuration.getNonFrameworkArgs();
+        for (String arg : args) {
+            if (EclipseApplication.ARG_APPLICATION.equals(arg)) {
+                ServiceTracker<ApplicationLauncher, Object> tracker = new ServiceTracker<>(framework.getBundleContext(),
+                        ApplicationLauncher.class, null);
+                tracker.open(true);
+                try {
+                    return tracker.waitForService(timeout) != null;
+                } catch (InterruptedException e) {
+                    return false;
+                } finally {
+                    tracker.close();
+                }
+            }
+        }
+        return true;
     }
 
     private int launchApplication(BundleContext systemBundleContext, EquinoxConfiguration configuration)
