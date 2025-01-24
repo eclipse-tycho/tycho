@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.Job;
 
 /**
  * Abstract class for performing a build and producing a result
@@ -42,7 +43,7 @@ public abstract class AbstractEclipseBuild<Result extends EclipseBuildResult>
 		deleteAllProjects();
 		IProject project = importProject();
 		project.build(IncrementalProjectBuilder.CLEAN_BUILD, this);
-		project.build(IncrementalProjectBuilder.FULL_BUILD, this);
+		buildProject(project);
 		Result result = createResult(project);
 		for (IMarker marker : project.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)) {
 			result.addMarker(marker);
@@ -50,6 +51,13 @@ public abstract class AbstractEclipseBuild<Result extends EclipseBuildResult>
 		}
 		ResourcesPlugin.getWorkspace().save(true, this);
 		return result;
+	}
+
+	protected void buildProject(IProject project) throws CoreException {
+		project.build(IncrementalProjectBuilder.FULL_BUILD, this);
+		while (!Job.getJobManager().isIdle()) {
+			Thread.yield();
+		}
 	}
 
 	protected abstract Result createResult(IProject project) throws Exception;
