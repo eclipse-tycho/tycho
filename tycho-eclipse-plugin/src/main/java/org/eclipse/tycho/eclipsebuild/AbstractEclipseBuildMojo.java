@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -80,6 +81,8 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 	@Parameter(defaultValue = "false")
 	private boolean failOnResolutionError;
 
+	@Parameter
+	private String application;
 	/**
 	 * Controls if the local target platform of the project should be used to
 	 * resolve the eclipse application
@@ -137,10 +140,34 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 		} else {
 			application = eclipseApplicationManager.getApplication(eclipseRepository, bundles, features, getName());
 		}
+		List<String> arguments;
+		String applicationName = this.application;
+		boolean useApplication = applicationName != null;
+		if (useApplication) {
+			arguments = List.of(EclipseApplication.ARG_APPLICATION, applicationName);
+		} else {
+			arguments = List.of();
+		}
 		try (EclipseFramework framework = application.startFramework(workspaceManager
-				.getWorkspace(EclipseApplicationManager.getRepository(eclipseRepository).getURL(), this), List.of())) {
+				.getWorkspace(EclipseApplicationManager.getRepository(eclipseRepository).getURL(), this), arguments)) {
 			if (debug) {
 				framework.printState();
+			}
+			if (useApplication) {
+				Thread thread = new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							framework.start();
+						} catch (Exception e) {
+							getLog().error("Running application " + applicationName + " failed", e);
+						}
+					}
+				});
+				thread.setName(getName() + " Application Thread");
+				thread.start();
+				framework.waitForApplicationStart(TimeUnit.SECONDS.toMillis(30));
 			}
 			if (hasPDENature(eclipseProject)) {
 				if (framework.hasBundle(Bundles.BUNDLE_PDE_CORE)) {
