@@ -15,16 +15,23 @@ package org.eclipse.tycho.cleancode;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.LinkedHashSet;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ICoreRunnable;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.tycho.eclipsebuild.AbstractEclipseBuild;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IMarkerResolution2;
 import org.eclipse.ui.IMarkerResolutionRelevance;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.progress.UIJob;
 
 /**
  * Applies the QuickFix with the highest relevance to a warning, because
@@ -40,44 +47,81 @@ public class QuickFix extends AbstractEclipseBuild<QuickFixResult> {
 	@Override
 	protected QuickFixResult createResult(IProject project) throws Exception {
 		QuickFixResult result = new QuickFixResult();
-		IMarker[] markers = project.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
-		result.setNumberOfMarker(markers.length);
-		for (IMarker marker : markers) {
-			debug("Marker: " + marker);
-			try {
-				IMarkerResolution[] resolutions = IDE.getMarkerHelpRegistry().getResolutions(marker);
-				debug("Marker has " + resolutions.length + " resolutions");
-				IMarkerResolution resolution = Arrays.stream(resolutions)
-						.max(Comparator.comparingInt(r -> getRelevance(r))).orElse(null);
-				if (resolution != null) {
-					debug("Apply best resolution to marker: " + getInfo(resolution));
-					// must use an own thread to make sure it is not called as a job
-					AtomicReference<Throwable> error = new AtomicReference<Throwable>();
-					Thread thread = new Thread(new Runnable() {
-
-						@Override
-						public void run() {
-							try {
-								resolution.run(marker);
-							} catch (Throwable t) {
-								error.set(t);
-							}
-						}
-					});
-					thread.start();
-					thread.join();
-					Throwable t = error.get();
-					if (t == null) {
-						result.addFix(buildFixMessage(marker));
-					} else {
-						debug("Marker could not be applied!", t);
-					}
+		while (fixOneMarker(project, result)) {
+			runInUI("Save Editors", m -> {
+				if (PlatformUI.isWorkbenchRunning()) {
+					PlatformUI.getWorkbench().saveAllEditors(false);
 				}
-			} catch (Throwable t) {
-				debug("Marker resolutions could not be computed!", t);
-			}
+			});
+			debug("### Perform build to update markers ###");
+			buildProject(project);
 		}
 		return result;
+	}
+
+	private boolean fixOneMarker(IProject project, QuickFixResult result) throws CoreException {
+
+		debug("### Check for marker with resolutions...");
+		IMarker[] markers = getCurrentMarker(project, true);
+		for (IMarker marker : markers) {
+			if (result.tryFix(marker)) {
+				debug("Check Marker: " + getInfo(marker));
+				try {
+					IMarkerResolution[] resolutions = IDE.getMarkerHelpRegistry().getResolutions(marker);
+					debug("\tMarker has " + resolutions.length + " resolutions");
+					IMarkerResolution resolution = Arrays.stream(resolutions)
+							.max(Comparator.comparingInt(r -> getRelevance(r))).orElse(null);
+					if (resolution != null) {
+						for (IMarkerResolution r : resolutions) {
+							debug(String.format("\t\t- (%d): %s", getRelevance(r), getInfo(r, false)));
+						}
+						LinkedHashSet<Job> jobs = new LinkedHashSet<>();
+						IStatus status = runInUI("fix marker " + getInfo(marker), m -> {
+							AbstractEclipseBuild.recordJobs(jobs, m, nil -> {
+								debug("\tApply best resolution to marker: " + getInfo(resolution, true));
+								resolution.run(marker);
+							});
+						});
+						for (Job job : jobs) {
+							debug("Wait for Job '" + job.getName() + "' scheduled during marker resolution...");
+							job.join();
+						}
+						if (status.isOK()) {
+							String fix = buildFixMessage(marker);
+							debug("\t" + fix);
+							result.addFix(fix);
+							return true;
+						} else {
+							debug("\tMarker could not be applied!", status.getException());
+						}
+					}
+				} catch (Throwable t) {
+					debug("\tMarker resolutions could not be computed!", t);
+				}
+			}
+		}
+		return false;
+	}
+
+	private String getInfo(IMarker marker) {
+		return marker.getAttribute(IMarker.MESSAGE, "") + " @ " + marker.getResource() + ":"
+				+ marker.getAttribute(IMarker.LINE_NUMBER, -1);
+	}
+
+	private IMarker[] getCurrentMarker(IProject project, boolean rebuildOnError) throws CoreException {
+		IMarker[] markers = project.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+		for (IMarker marker : markers) {
+			if (marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR) {
+				if (rebuildOnError) {
+					debug("Found error marker, try rebuild ...");
+					buildProject(project);
+					return getCurrentMarker(project, false);
+				}
+				debug("Found error, can't apply fixes: " + getInfo(marker));
+				return new IMarker[0];
+			}
+		}
+		return markers;
 	}
 
 	private String buildFixMessage(IMarker marker) {
@@ -95,8 +139,8 @@ public class QuickFix extends AbstractEclipseBuild<QuickFixResult> {
 		return sb.toString();
 	}
 
-	private String getInfo(IMarkerResolution resolution) {
-		if (resolution instanceof IMarkerResolution2 res2) {
+	private String getInfo(IMarkerResolution resolution, boolean withDescription) {
+		if (withDescription && resolution instanceof IMarkerResolution2 res2) {
 			return resolution.getClass().getName() + ": " + getLabel(resolution) + " // " + getDescription(res2);
 		} else {
 			return resolution.getClass().getName() + ": " + getLabel(resolution);
@@ -110,7 +154,7 @@ public class QuickFix extends AbstractEclipseBuild<QuickFixResult> {
 			}
 		} catch (RuntimeException e) {
 		}
-		return -1;
+		return 0;
 	}
 
 	private String getDescription(IMarkerResolution2 markerResolution) {
@@ -127,6 +171,22 @@ public class QuickFix extends AbstractEclipseBuild<QuickFixResult> {
 		} catch (RuntimeException e) {
 			return resolution.getClass().getName();
 		}
+	}
+
+	private static IStatus runInUI(String action, ICoreRunnable runnable) throws InterruptedException {
+		UIJob job = UIJob.create(action, m -> {
+			try {
+				runnable.run(m);
+			} catch (CoreException e) {
+				return e.getStatus();
+			} catch (Throwable e) {
+				return Status.error("Run failed", e);
+			}
+			return Status.OK_STATUS;
+		});
+		job.schedule();
+		job.join();
+		return job.getResult();
 	}
 
 }
