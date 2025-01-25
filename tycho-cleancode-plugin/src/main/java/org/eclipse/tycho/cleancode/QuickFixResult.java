@@ -13,13 +13,18 @@
 package org.eclipse.tycho.cleancode;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.tycho.eclipsebuild.EclipseBuildResult;
 
 public class QuickFixResult extends EclipseBuildResult {
 
+	private Set<String> tried = new HashSet<String>();
 	private List<String> fixed = new ArrayList<>();
 	private int markers;
 
@@ -31,16 +36,22 @@ public class QuickFixResult extends EclipseBuildResult {
 		fixed.add(fix);
 	}
 
-	public void setNumberOfMarker(int markers) {
-		this.markers = markers;
-	}
-
-	public int getMarkers() {
-		return markers;
-	}
-
 	public boolean isEmpty() {
 		return fixed.isEmpty();
+	}
+
+	public boolean tryFix(IMarker marker) {
+		String msg = marker.getAttribute(IMarker.MESSAGE, "");
+		String resource = marker.getResource().toString();
+		int line = marker.getAttribute(IMarker.LINE_NUMBER, -1);
+		String type;
+		try {
+			type = marker.getType();
+		} catch (CoreException e) {
+			type = "";
+		}
+		String key = type + " " + resource + ":" + line + " " + msg;
+		return tried.add(key);
 	}
 
 }

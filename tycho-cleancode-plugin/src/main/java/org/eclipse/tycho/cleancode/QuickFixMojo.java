@@ -52,9 +52,15 @@ public class QuickFixMojo extends AbstractEclipseBuildMojo<QuickFixResult> {
 		}
 		MarkdownBuilder builder = new MarkdownBuilder(reportFileName);
 		List<String> fixes = result.fixes().toList();
-		builder.add("The following " + (fixes.size() > 0 ? "warnings" : "warning") + " has been resolved:");
+		builder.h3("The following " + (fixes.size() > 0 ? "warnings" : "warning") + " has been resolved:");
+		builder.newLine();
 		fixes.forEach(fix -> builder.addListItem(fix));
+		builder.newLine();
+		builder.newLine();
 		builder.write();
+		for (String fix : fixes) {
+			getLog().info("Fixed: " + fix);
+		}
 	}
 
 	@Override
