@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -41,10 +42,12 @@ import org.eclipse.tycho.eclipsebuild.AbstractEclipseBuild;
 public class CleanUp extends AbstractEclipseBuild<CleanupResult> {
 
 	private Map<String, String> customProfile;
+	private boolean applyCleanupsIndividually;
 
-	CleanUp(Path projectDir, boolean debug, Map<String, String> customProfile) {
+	CleanUp(Path projectDir, boolean debug, Map<String, String> customProfile, boolean applyCleanupsIndividually) {
 		super(projectDir, debug);
 		this.customProfile = customProfile;
+		this.applyCleanupsIndividually = applyCleanupsIndividually;
 	}
 
 	@Override
@@ -54,25 +57,36 @@ public class CleanUp extends AbstractEclipseBuild<CleanupResult> {
 		ICleanUp[] cleanups = getCleanups(result, options);
 		if (cleanups.length > 0) {
 			List<ICompilationUnit> units = getCompilationUnits(project);
-			final CleanUpRefactoring refactoring = new CleanUpRefactoring(project.getName());
-			for (ICompilationUnit cu : units) {
-				refactoring.addCompilationUnit(cu);
-			}
-			refactoring.setUseOptionsFromProfile(false);
-			for (ICleanUp cleanUp : cleanups) {
-				refactoring.addCleanUp(cleanUp);
-			}
-			final RefactoringStatus status = refactoring.checkAllConditions(this);
-			if (status.isOK()) {
-				Change change = refactoring.createChange(this);
-				change.initializeValidationData(this);
-				PerformChangeOperation performChangeOperation = new PerformChangeOperation(change);
-				performChangeOperation.run(this);
-			} else if (status.hasError()) {
-				throw new RuntimeException("Refactoring failed: " + status);
+			if (applyCleanupsIndividually) {
+				for (ICleanUp cleanUp : cleanups) {
+					applyCleanups(project, new ICleanUp[] { cleanUp }, units);
+				}
+			} else {
+				applyCleanups(project, cleanups, units);
 			}
 		}
 		return result;
+	}
+
+	private void applyCleanups(IProject project, ICleanUp[] cleanups, List<ICompilationUnit> units)
+			throws CoreException {
+		final CleanUpRefactoring refactoring = new CleanUpRefactoring(project.getName());
+		for (ICompilationUnit cu : units) {
+			refactoring.addCompilationUnit(cu);
+		}
+		refactoring.setUseOptionsFromProfile(false);
+		for (ICleanUp cleanUp : cleanups) {
+			refactoring.addCleanUp(cleanUp);
+		}
+		final RefactoringStatus status = refactoring.checkAllConditions(this);
+		if (status.isOK()) {
+			Change change = refactoring.createChange(this);
+			change.initializeValidationData(this);
+			PerformChangeOperation performChangeOperation = new PerformChangeOperation(change);
+			performChangeOperation.run(this);
+		} else if (status.hasError()) {
+			throw new RuntimeException("Refactoring failed: " + status);
+		}
 	}
 
 	private List<ICompilationUnit> getCompilationUnits(IProject project) throws JavaModelException {
