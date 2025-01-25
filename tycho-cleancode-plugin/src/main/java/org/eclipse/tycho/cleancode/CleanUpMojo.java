@@ -40,6 +40,9 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 	@Parameter
 	private Map<String, String> cleanUpProfile;
 
+	@Parameter
+	private boolean applyCleanupsIndividually;
+
 	@Override
 	protected String[] getRequireBundles() {
 		return new String[] { "org.eclipse.jdt.ui" };
@@ -52,7 +55,7 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 
 	@Override
 	protected CleanUp createExecutable() {
-		return new CleanUp(project.getBasedir().toPath(), debug, cleanUpProfile);
+		return new CleanUp(project.getBasedir().toPath(), debug, cleanUpProfile, applyCleanupsIndividually);
 	}
 
 	@Override
@@ -65,6 +68,7 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 		builder.h3("The following cleanups where applied:");
 		result.cleanups().forEach(cleanup -> {
 			builder.addListItem(cleanup);
+			getLog().info("CleanUp: " + cleanup);
 		});
 		builder.newLine();
 		builder.newLine();
