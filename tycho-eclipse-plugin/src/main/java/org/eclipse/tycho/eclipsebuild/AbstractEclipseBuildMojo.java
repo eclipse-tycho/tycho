@@ -81,7 +81,7 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 	@Parameter(defaultValue = "false")
 	private boolean failOnResolutionError;
 
-	@Parameter
+	@Parameter(property = "tycho.eclipsebuild.application")
 	private String application;
 	/**
 	 * Controls if the local target platform of the project should be used to
@@ -142,7 +142,7 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 		}
 		List<String> arguments;
 		String applicationName = this.application;
-		boolean useApplication = applicationName != null;
+		boolean useApplication = applicationName != null && !applicationName.isBlank();
 		if (useApplication) {
 			arguments = List.of(EclipseApplication.ARG_APPLICATION, applicationName);
 		} else {
