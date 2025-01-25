@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.eclipse.core.resources.IMarker;
@@ -16,9 +18,12 @@ import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
 
 /**
@@ -54,10 +59,8 @@ public abstract class AbstractEclipseBuild<Result extends EclipseBuildResult>
 	}
 
 	protected void buildProject(IProject project) throws CoreException {
-		project.build(IncrementalProjectBuilder.FULL_BUILD, this);
-		while (!Job.getJobManager().isIdle()) {
-			Thread.yield();
-		}
+		debug("Building...");
+		executeWithJobs(this, m -> project.build(IncrementalProjectBuilder.FULL_BUILD, m));
 	}
 
 	protected abstract Result createResult(IProject project) throws Exception;
@@ -67,6 +70,63 @@ public abstract class AbstractEclipseBuild<Result extends EclipseBuildResult>
 		IWorkspaceDescription desc = workspace.getDescription();
 		desc.setAutoBuilding(false);
 		workspace.setDescription(desc);
+	}
+
+	public static void executeWithJobs(IProgressMonitor monitor, ICoreRunnable runnable)
+			throws CoreException {
+		Set<Job> scheduledJobs = recordJobs(new LinkedHashSet<>(), monitor, runnable);
+		for (Job job : scheduledJobs) {
+			if (monitor != null) {
+				monitor.subTask("Wait for job " + job.getName() + " to finish");
+			}
+			try {
+				job.join();
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
+			}
+		}
+	}
+
+	public static Set<Job> recordJobs(Set<Job> scheduledJobs, IProgressMonitor monitor, ICoreRunnable runnable)
+			throws CoreException {
+		IJobChangeListener listener = new IJobChangeListener() {
+
+			@Override
+			public void sleeping(IJobChangeEvent event) {
+
+			}
+
+			@Override
+			public void scheduled(IJobChangeEvent event) {
+				scheduledJobs.add(event.getJob());
+			}
+
+			@Override
+			public void running(IJobChangeEvent event) {
+
+			}
+
+			@Override
+			public void done(IJobChangeEvent event) {
+				scheduledJobs.remove(event.getJob());
+			}
+
+			@Override
+			public void awake(IJobChangeEvent event) {
+
+			}
+
+			@Override
+			public void aboutToRun(IJobChangeEvent event) {
+
+			}
+		};
+		Job.getJobManager().addJobChangeListener(listener);
+		IProgressMonitor safe = IProgressMonitor.nullSafe(monitor);
+		runnable.run(safe);
+		Job.getJobManager().removeJobChangeListener(listener);
+		return scheduledJobs;
 	}
 
 	private void deleteAllProjects() throws CoreException {
@@ -94,6 +154,10 @@ public abstract class AbstractEclipseBuild<Result extends EclipseBuildResult>
 	}
 
 	protected void debug(String string, Throwable t) {
+		if (t == null) {
+			debug(string);
+			return;
+		}
 		if (debug) {
 			StringWriter writer = new StringWriter();
 			t.printStackTrace(new PrintWriter(writer));

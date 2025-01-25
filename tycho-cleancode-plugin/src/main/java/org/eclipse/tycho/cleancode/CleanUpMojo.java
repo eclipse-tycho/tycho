@@ -62,10 +62,12 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 			return;
 		}
 		MarkdownBuilder builder = new MarkdownBuilder(reportFileName);
-		builder.add("The following cleanups where applied:");
+		builder.h3("The following cleanups where applied:");
 		result.cleanups().forEach(cleanup -> {
 			builder.addListItem(cleanup);
 		});
+		builder.newLine();
+		builder.newLine();
 		builder.write();
 	}
 

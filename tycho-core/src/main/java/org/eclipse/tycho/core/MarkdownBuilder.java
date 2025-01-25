@@ -57,4 +57,23 @@ public class MarkdownBuilder {
         }
     }
 
+    public void newLine() {
+        lines.add("");
+    }
+
+    public void h1(String string) {
+        lines.add("# " + string);
+        lines.add("");
+    }
+
+    public void h2(String string) {
+        lines.add("## " + string);
+        lines.add("");
+    }
+
+    public void h3(String string) {
+        lines.add("### " + string);
+        lines.add("");
+    }
+
 }

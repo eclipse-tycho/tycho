@@ -30,7 +30,6 @@ import org.eclipse.pde.core.target.ITargetLocation;
 import org.eclipse.pde.core.target.ITargetPlatformService;
 import org.eclipse.pde.core.target.LoadTargetDefinitionJob;
 import org.eclipse.pde.core.target.TargetBundle;
-import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.pde.internal.core.target.TargetPlatformService;
 
 public class SetTargetPlatform implements Callable<Serializable>, Serializable {
@@ -63,10 +62,20 @@ public class SetTargetPlatform implements Callable<Serializable>, Serializable {
 				.toArray(TargetBundle[]::new);
 		target.setTargetLocations(new ITargetLocation[] { new BundleListTargetLocation(bundles) });
 		service.saveTargetDefinition(target);
-		Job job = new LoadTargetDefinitionJob(target);
-		job.schedule();
-		job.join();
-		Job.getJobManager().join(PluginModelManager.class, new NullProgressMonitor());
+		AbstractEclipseBuild.executeWithJobs(new NullProgressMonitor() {
+
+			@Override
+			public void subTask(String name) {
+				debug(name);
+			};
+		}, m -> {
+			Job job = new LoadTargetDefinitionJob(target);
+			job.schedule();
+			try {
+				job.join();
+			} catch (InterruptedException e) {
+			}
+		});
 		return null;
 	}
 
