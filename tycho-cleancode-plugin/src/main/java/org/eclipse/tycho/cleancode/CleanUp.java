@@ -65,6 +65,7 @@ public class CleanUp extends AbstractEclipseBuild<CleanupResult> {
 				applyCleanups(project, cleanups, units);
 			}
 		}
+		buildProject(project);
 		return result;
 	}
 
