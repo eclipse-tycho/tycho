@@ -36,13 +36,17 @@ public class MarkdownBuilder {
     }
 
     public MarkdownBuilder add(String string) {
-        lines.add(string);
+        lines.add(escape(string));
         return this;
     }
 
     public MarkdownBuilder addListItem(String item) {
-        lines.add("- " + item);
+        lines.add("- " + escape(item));
         return this;
+    }
+
+    public static String escape(String item) {
+        return item.replace("@", "<span>@</span>").replace("#", "<span>#</span>");
     }
 
     public void write() throws MojoFailureException {
@@ -62,17 +66,17 @@ public class MarkdownBuilder {
     }
 
     public void h1(String string) {
-        lines.add("# " + string);
+        lines.add("# " + escape(string));
         lines.add("");
     }
 
     public void h2(String string) {
-        lines.add("## " + string);
+        lines.add("## " + escape(string));
         lines.add("");
     }
 
     public void h3(String string) {
-        lines.add("### " + string);
+        lines.add("### " + escape(string));
         lines.add("");
     }
 
