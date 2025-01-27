@@ -13,15 +13,19 @@
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
-import static java.util.stream.Collectors.toList;
-
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -36,17 +40,16 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.p2resolver.TargetDefinitionVariableResolver;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
-import org.eclipse.tycho.targetplatform.TargetDefinition.FollowRepositoryReferences;
-import org.eclipse.tycho.targetplatform.TargetDefinition.IncludeMode;
-import org.eclipse.tycho.targetplatform.TargetDefinition.InstallableUnitLocation;
-import org.eclipse.tycho.targetplatform.TargetDefinition.Unit;
-import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 
 import de.pdark.decentxml.Element;
 
+/**
+ * Updater for installable units
+ */
 @Named
 public class InstallableUnitLocationUpdater {
 
+    private static final String VERSION_PATTERN_PREFIX = "versionPattern";
     @Inject
     private TargetDefinitionVariableResolver varResolver;
     @Inject
@@ -85,37 +88,61 @@ public class InstallableUnitLocationUpdater {
     private IMetadataRepository getMetadataRepository(Element iuLocation, UpdateTargetMojo context, List<IU> units)
             throws URISyntaxException, ProvisionException {
         ResolvedRepository location = getResolvedLocation(iuLocation);
-        URI uri = new URI(location.getLocation());
-        String discovery = context.getUpdateSiteDiscovery();
+        String raw = location.getLocation();
+        context.getLog().debug("Look for updates of location " + raw);
+        URI uri = new URI(raw);
+        List<String> discovery = context.getUpdateSiteDiscovery();
         IMetadataRepositoryManager repositoryManager = agent.getService(IMetadataRepositoryManager.class);
-        if (discovery != null && !discovery.isBlank()) {
-            for (String strategy : discovery.split(",")) {
-                if (strategy.trim().equals("parent")) {
-                    String str = uri.toASCIIString();
-                    if (!str.endsWith("/")) {
-                        str = str + "/";
+        for (String strategy : discovery) {
+            String trim = strategy.trim();
+            if (trim.equals("parent")) {
+                String str = uri.toASCIIString();
+                if (!str.endsWith("/")) {
+                    str = str + "/";
+                }
+                URI parentURI = new URI(str + "../");
+                Collection<URI> children;
+                try {
+                    children = getChildren(repositoryManager.loadRepository(parentURI, null));
+                } catch (ProvisionException e) {
+                    // if we can't load it we can't use it but this is maybe because that no parent exits.
+                    context.getLog()
+                            .debug("No parent repository found for location " + uri + " using " + parentURI + ": " + e);
+                    continue;
+                }
+                IMetadataRepository bestLocation = findBestLocation(context, units, location, repositoryManager,
+                        children);
+                if (bestLocation != null) {
+                    return bestLocation;
+                }
+            } else if (trim.startsWith(VERSION_PATTERN_PREFIX)) {
+                String substring = trim.substring(VERSION_PATTERN_PREFIX.length());
+                Pattern pattern;
+                if (substring.isEmpty()) {
+                    pattern = Pattern.compile("(\\d+)\\.(\\d+)");
+                } else {
+                    pattern = Pattern.compile(substring.substring(1));
+                }
+                context.getLog().debug("Using Pattern " + pattern + " to find version increments...");
+                Collection<URI> fromPattern = findUpdatesitesFromPattern(raw, pattern, repositoryManager,
+                        context.getLog()::debug);
+                if (fromPattern.isEmpty()) {
+                    context.getLog().debug("Nothing found to match the pattern " + pattern + " for location " + raw);
+                } else {
+                    Set<URI> repositories = new HashSet<>();
+                    for (URI repoURI : fromPattern) {
+                        context.getLog().debug("Check location " + repoURI + "...");
+                        try {
+                            repositories.addAll(expandRepository(repoURI, repositoryManager));
+                        } catch (ProvisionException e) {
+                            // if we can't load it we can't use it but this is maybe because that no parent exits.
+                            context.getLog().debug("No repository found for location " + repoURI + ": " + e);
+                        }
                     }
-                    URI parentURI = new URI(str + "../");
-                    try {
-                        IMetadataRepository repository = repositoryManager.loadRepository(parentURI, null);
-                        List<IU> bestUnits = units;
-                        URI bestURI = null;
-                        //we now need to find a repository that has all units and they must have the same or higher version
-                        for (URI child : getChildren(repository)) {
-                            List<IU> find = findBestUnits(bestUnits, repositoryManager, child, context);
-                            if (find != null) {
-                                bestUnits = find;
-                                bestURI = child;
-                            }
-                        }
-                        if (bestURI != null) {
-                            location.element().setAttribute("location", bestURI.toString());
-                            return repositoryManager.loadRepository(bestURI, null);
-                        }
-                    } catch (ProvisionException e) {
-                        // if we can't load it we can't use it but this is maybe because that no parent exits.
-                        context.getLog().debug(
-                                "No parent repository found for location " + uri + " using " + parentURI + ": " + e);
+                    IMetadataRepository bestLocation = findBestLocation(context, units, location, repositoryManager,
+                            repositories);
+                    if (bestLocation != null) {
+                        return bestLocation;
                     }
                 }
             }
@@ -124,8 +151,35 @@ public class InstallableUnitLocationUpdater {
         return repositoryManager.loadRepository(uri, null);
     }
 
+    private IMetadataRepository findBestLocation(UpdateTargetMojo context, List<IU> units, ResolvedRepository location,
+            IMetadataRepositoryManager repositoryManager, Collection<URI> children) throws ProvisionException {
+        List<IU> bestUnits = units;
+        URI bestURI = null;
+        //we now need to find a repository that has all units and they must have the same or higher version
+        for (URI child : children) {
+            List<IU> find = findBestUnits(bestUnits, repositoryManager, child, context);
+            if (find != null) {
+                bestUnits = find;
+                bestURI = child;
+            }
+        }
+        if (bestURI != null) {
+            location.element().setAttribute("location", bestURI.toString());
+            return repositoryManager.loadRepository(bestURI, null);
+        }
+        return null;
+    }
+//TODO this method should better be used (with an <exportedPackage>org.eclipse.equinox.p2.repository</exportedPackage> in extension.xml)
+//  But this currently fails the PGP mojo using org.bouncycastle.openpgp.PGPPublicKey
+//    private static Collection<URI> getChildren(IMetadataRepository repository) {
+//        if (repository instanceof ICompositeRepository<?> composite) {
+//            return composite.getChildren();
+//        }
+//        return List.of();
+//    }
+
     @SuppressWarnings("unchecked")
-    private Collection<URI> getChildren(IMetadataRepository repository) {
+    private static Collection<URI> getChildren(IMetadataRepository repository) {
         try {
             Method method = repository.getClass().getDeclaredMethod("getChildren");
             if (method.invoke(repository) instanceof Collection<?> c) {
@@ -136,7 +190,21 @@ public class InstallableUnitLocationUpdater {
         return List.of();
     }
 
-    private List<IU> findBestUnits(List<IU> units, IMetadataRepositoryManager repositoryManager, URI child,
+    private static Collection<URI> expandRepository(URI uri, IMetadataRepositoryManager repositoryManager)
+            throws ProvisionException {
+        IMetadataRepository repository = repositoryManager.loadRepository(uri, null);
+        Collection<URI> children = getChildren(repository);
+        if (children.isEmpty()) {
+            return List.of(uri);
+        }
+        List<URI> result = new ArrayList<>();
+        for (URI child : children) {
+            result.addAll(expandRepository(child, repositoryManager));
+        }
+        return result;
+    }
+
+    private static List<IU> findBestUnits(List<IU> units, IMetadataRepositoryManager repositoryManager, URI child,
             UpdateTargetMojo context) throws ProvisionException {
         IMetadataRepository childRepository = repositoryManager.loadRepository(child, null);
         List<IU> list = new ArrayList<>();
@@ -180,119 +248,6 @@ public class InstallableUnitLocationUpdater {
         return new ResolvedRepository(element.getAttributeValue("id"), resolved, element);
     }
 
-    private static final class LatestVersionTarget implements TargetDefinition {
-
-        private TargetDefinitionFile delegate;
-        private TargetDefinitionVariableResolver varResolver;
-
-        public LatestVersionTarget(TargetDefinitionFile delegate, TargetDefinitionVariableResolver varResolver) {
-            this.delegate = delegate;
-            this.varResolver = varResolver;
-        }
-
-        @Override
-        public List<? extends Location> getLocations() {
-            return delegate.getLocations().stream().map(location -> {
-                if (location instanceof InstallableUnitLocation iuLocation) {
-                    return new LatestVersionLocation(iuLocation, varResolver);
-                } else {
-                    return location;
-                }
-            }).toList();
-        }
-
-        @Override
-        public boolean hasIncludedBundles() {
-            return delegate.hasIncludedBundles();
-        }
-
-        @Override
-        public String getOrigin() {
-            return delegate.getOrigin();
-        }
-
-        @Override
-        public String getTargetEE() {
-            return delegate.getTargetEE();
-        }
-
-        @Override
-        public Stream<ImplicitDependency> implicitDependencies() {
-            return delegate.implicitDependencies();
-        }
-
-    }
-
-    private static final class LatestVersionLocation implements InstallableUnitLocation {
-
-        private InstallableUnitLocation delegate;
-        private TargetDefinitionVariableResolver varResolver;
-
-        public LatestVersionLocation(InstallableUnitLocation delegate, TargetDefinitionVariableResolver varResolver) {
-            this.delegate = delegate;
-            this.varResolver = varResolver;
-        }
-
-        @Override
-        public List<? extends TargetDefinition.Repository> getRepositories() {
-            return delegate.getRepositories().stream().map(repo -> {
-                URI resolvedLocation = URI.create(varResolver.resolve(repo.getLocation()));
-                return new ResolvedRepository(repo.getId(), resolvedLocation.toString(), null);
-            }).collect(toList());
-        }
-
-        @Override
-        public List<? extends TargetDefinition.Unit> getUnits() {
-            return delegate.getUnits().stream().map(LatestVersionUnit::new).toList();
-        }
-
-        @Override
-        public IncludeMode getIncludeMode() {
-            return delegate.getIncludeMode();
-        }
-
-        @Override
-        public boolean includeAllEnvironments() {
-            return delegate.includeAllEnvironments();
-        }
-
-        @Override
-        public boolean includeSource() {
-            return delegate.includeSource();
-        }
-
-        @Override
-        public boolean includeConfigurePhase() {
-            return delegate.includeConfigurePhase();
-        }
-
-        @Override
-        public FollowRepositoryReferences followRepositoryReferences() {
-            return delegate.followRepositoryReferences();
-        }
-
-    }
-
-    private static final class LatestVersionUnit implements TargetDefinition.Unit {
-
-        private Unit delegate;
-
-        public LatestVersionUnit(TargetDefinition.Unit delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public String getId() {
-            return delegate.getId();
-        }
-
-        @Override
-        public String getVersion() {
-            return "0.0.0";
-        }
-
-    }
-
     private static final record ResolvedRepository(String id, String location, Element element)
             implements TargetDefinition.Repository {
 
@@ -310,6 +265,83 @@ public class InstallableUnitLocationUpdater {
 
     private static record IU(String id, String version, Element element) {
 
+    }
+
+    private static Collection<URI> findUpdatesitesFromPattern(String input, Pattern pattern,
+            IMetadataRepositoryManager repositoryManager, Consumer<String> debug) {
+        Matcher matcher = pattern.matcher(input);
+        if (matcher.find()) {
+            int count = matcher.groupCount();
+            int[] versions = new int[count];
+            String[] prefix = new String[count];
+            int offset = 0;
+            for (int i = 0; i < count; i++) {
+                int g = i + 1;
+                String group = matcher.group(g);
+                int start = matcher.start(g);
+                int end = matcher.end(g);
+                prefix[i] = input.substring(offset, start);
+                offset = end;
+                try {
+                    versions[i] = Integer.parseInt(group);
+                } catch (RuntimeException e) {
+                    versions[i] = -1;
+                }
+            }
+            Set<URI> uris = new LinkedHashSet<>();
+            for (int i = 0; i < versions.length; i++) {
+                if (versions[i] < 0) {
+                    buildVersionString(versions, prefix, repositoryManager, debug).ifPresent(uris::add);
+                    break;
+                }
+            }
+            for (int i = versions.length - 1; i >= 0; i--) {
+                int v = versions[i];
+                if (v > -1) {
+                    int[] copy = versions.clone();
+                    for (int j = i + 1; j < versions.length; j++) {
+                        if (copy[j] > 0) {
+                            copy[j] = 0;
+                        }
+                    }
+                    Optional<URI> versionRepo;
+                    do {
+                        copy[i]++;
+                        versionRepo = buildVersionString(copy, prefix, repositoryManager, debug);
+                    } while (!versionRepo.isEmpty() && uris.add(versionRepo.get()));
+                }
+            }
+            return uris;
+        }
+        return List.of();
+    }
+
+    private static Optional<URI> buildVersionString(int[] versions, String[] prefix,
+            IMetadataRepositoryManager repositoryManager, Consumer<String> debug) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < versions.length; i++) {
+            sb.append(prefix[i]);
+            int v = versions[i];
+            if (v > -1) {
+                sb.append(v);
+            }
+        }
+        String string = sb.toString();
+        try {
+            URI uri = new URI(string);
+            try {
+                //if we can load the repository everything is fine
+                repositoryManager.loadRepository(uri, null);
+                return Optional.of(uri);
+            } catch (ProvisionException e) {
+                debug.accept("Candidate URI '" + uri + "' can not be loaded: " + e.getMessage());
+                return Optional.empty();
+            }
+        } catch (URISyntaxException e) {
+            debug.accept("Resulting candidate string '" + string + "' can not be parsed as a valid location uri: "
+                    + e.getMessage());
+            return Optional.empty();
+        }
     }
 
 }

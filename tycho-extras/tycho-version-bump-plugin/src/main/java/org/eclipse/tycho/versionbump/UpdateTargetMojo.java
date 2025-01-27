@@ -21,6 +21,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -53,14 +54,15 @@ import de.pdark.decentxml.XMLWriter;
  * mvn -f [path to target project] tycho-version-bump:update-target
  * </pre>
  * <p>
- * For updating <b>maven target locations</b> the mojo support
+ * For updating <b>maven target locations</b> the mojo supports
  * <a href="https://www.mojohaus.org/versions/versions-maven-plugin/version-rules.html">Version
  * number comparison rule-sets</a> similar to the
  * <a href="https://www.mojohaus.org/versions/versions-maven-plugin">Versions Maven Plugin</a>
  * please check the documentation there for further information about ruleset files.
  * </p>
  * <p>
- * For updating <b>installable unit locations</b> (also known as update sites)
+ * For updating <b>installable unit locations</b> (also known as update sites) you can configure
+ * different strategies (see {@link #getUpdateSiteDiscovery()}) to discover updates.
  * </p>
  */
 @Mojo(name = "update-target")
@@ -103,12 +105,19 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
      * A comma separated list of update site discovery strategies, the following is currently
      * supported:
      * <ul>
-     * <li>parent - search the parent path for a composite that can be used to find newer
-     * versions</li>
+     * <li><code>parent</code> - search the parent path for a composite that can be used to find
+     * newer versions</li>
+     * <li><code>versionPattern[:pattern]</code> - specifies a pattern to match in the URL (defaults
+     * to (\d+)\.(\d+) where it increments each numeric part beginning at the last group, if no
+     * repository is found using the next group setting the previous to zero. Any non numeric
+     * pattern will be replaced by the empty string</li>
      * </ul>
      */
     @Parameter(property = "discovery")
     private String updateSiteDiscovery;
+
+    @Parameter
+    private List<String> updateSiteDiscoveryStrategies;
 
     /**
      * <p>
@@ -239,8 +248,14 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         return mojoExecution;
     }
 
-    String getUpdateSiteDiscovery() {
-        return updateSiteDiscovery;
+    List<String> getUpdateSiteDiscovery() {
+        if (updateSiteDiscovery == null || updateSiteDiscovery.isBlank()) {
+            if (updateSiteDiscoveryStrategies != null) {
+                return updateSiteDiscoveryStrategies;
+            }
+            return List.of();
+        }
+        return Arrays.stream(updateSiteDiscovery.split(",")).map(String::trim).toList();
     }
 
     Set<String> getMavenIgnoredVersions() {
