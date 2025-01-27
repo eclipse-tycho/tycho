@@ -21,7 +21,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -102,22 +101,20 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     private boolean allowSubIncrementalUpdates;
 
     /**
-     * A comma separated list of update site discovery strategies, the following is currently
-     * supported:
+     * A list of update site discovery strategies, the following is currently supported:
      * <ul>
      * <li><code>parent</code> - search the parent path for a composite that can be used to find
      * newer versions</li>
      * <li><code>versionPattern[:pattern]</code> - specifies a pattern to match in the URL (defaults
-     * to (\d+)\.(\d+) where it increments each numeric part beginning at the last group, if no
-     * repository is found using the next group setting the previous to zero. Any non numeric
-     * pattern will be replaced by the empty string</li>
+     * to <code>(\d+)\.(\d+)</code> where it increments each numeric part beginning at the last
+     * group, if no repository is found using the next group setting the previous to zero. Any non
+     * numeric pattern will be replaced by the empty string</li>
      * </ul>
+     * If used on the CLI, individual values must be separated by a comma see <a href=
+     * "https://maven.apache.org/guides/mini/guide-configuring-plugins.html#Mapping_Collections_and_Arrays">here</a>
      */
     @Parameter(property = "discovery")
-    private String updateSiteDiscovery;
-
-    @Parameter
-    private List<String> updateSiteDiscoveryStrategies;
+    private List<String> updateSiteDiscovery;
 
     /**
      * <p>
@@ -249,13 +246,10 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     }
 
     List<String> getUpdateSiteDiscovery() {
-        if (updateSiteDiscovery == null || updateSiteDiscovery.isBlank()) {
-            if (updateSiteDiscoveryStrategies != null) {
-                return updateSiteDiscoveryStrategies;
-            }
+        if (updateSiteDiscovery == null) {
             return List.of();
         }
-        return Arrays.stream(updateSiteDiscovery.split(",")).map(String::trim).toList();
+        return updateSiteDiscovery.stream().map(String::trim).toList();
     }
 
     Set<String> getMavenIgnoredVersions() {
