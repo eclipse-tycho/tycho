@@ -53,14 +53,15 @@ import de.pdark.decentxml.XMLWriter;
  * mvn -f [path to target project] tycho-version-bump:update-target
  * </pre>
  * <p>
- * For updating <b>maven target locations</b> the mojo support
+ * For updating <b>maven target locations</b> the mojo supports
  * <a href="https://www.mojohaus.org/versions/versions-maven-plugin/version-rules.html">Version
  * number comparison rule-sets</a> similar to the
  * <a href="https://www.mojohaus.org/versions/versions-maven-plugin">Versions Maven Plugin</a>
  * please check the documentation there for further information about ruleset files.
  * </p>
  * <p>
- * For updating <b>installable unit locations</b> (also known as update sites)
+ * For updating <b>installable unit locations</b> (also known as update sites) you can configure
+ * different strategies (see {@link #getUpdateSiteDiscovery()}) to discover updates.
  * </p>
  */
 @Mojo(name = "update-target")
@@ -100,15 +101,20 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     private boolean allowSubIncrementalUpdates;
 
     /**
-     * A comma separated list of update site discovery strategies, the following is currently
-     * supported:
+     * A list of update site discovery strategies, the following is currently supported:
      * <ul>
-     * <li>parent - search the parent path for a composite that can be used to find newer
-     * versions</li>
+     * <li><code>parent</code> - search the parent path for a composite that can be used to find
+     * newer versions</li>
+     * <li><code>versionPattern[:pattern]</code> - specifies a pattern to match in the URL (defaults
+     * to <code>(\d+)\.(\d+)</code> where it increments each numeric part beginning at the last
+     * group, if no repository is found using the next group setting the previous to zero. Any non
+     * numeric pattern will be replaced by the empty string</li>
      * </ul>
+     * If used on the CLI, individual values must be separated by a comma see <a href=
+     * "https://maven.apache.org/guides/mini/guide-configuring-plugins.html#Mapping_Collections_and_Arrays">here</a>
      */
     @Parameter(property = "discovery")
-    private String updateSiteDiscovery;
+    private List<String> updateSiteDiscovery;
 
     /**
      * <p>
@@ -239,8 +245,11 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         return mojoExecution;
     }
 
-    String getUpdateSiteDiscovery() {
-        return updateSiteDiscovery;
+    List<String> getUpdateSiteDiscovery() {
+        if (updateSiteDiscovery == null) {
+            return List.of();
+        }
+        return updateSiteDiscovery.stream().map(String::trim).toList();
     }
 
     Set<String> getMavenIgnoredVersions() {
