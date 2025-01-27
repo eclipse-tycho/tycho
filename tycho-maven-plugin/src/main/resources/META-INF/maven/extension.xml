@@ -18,6 +18,8 @@
     <exportedPackage>org.eclipse.equinox.p2.publisher</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.publisher.eclipse</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.query</exportedPackage>
+<!--     This currently produces problems with the PGP signing mojo failing to load org.bouncycastle.openpgp.PGPPublicKey (we need to probably export this as well) -->
+<!--    <exportedPackage>org.eclipse.equinox.p2.repository</exportedPackage> -->
     <exportedPackage>org.eclipse.equinox.p2.repository.artifact</exportedPackage>
     <exportedPackage>org.eclipse.equinox.p2.repository.metadata</exportedPackage>
     <exportedPackage>org.eclipse.equinox.internal.p2.metadata</exportedPackage>
