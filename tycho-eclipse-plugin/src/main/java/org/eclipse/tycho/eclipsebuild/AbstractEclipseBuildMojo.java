@@ -15,9 +15,11 @@ package org.eclipse.tycho.eclipsebuild;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -25,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -33,6 +36,8 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.toolchain.Toolchain;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.tycho.ArtifactKey;
@@ -103,6 +108,9 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 	protected MavenProject project;
 
 	@Component
+	protected MavenSession mavenSession;
+
+	@Component
 	private EclipseWorkspaceManager workspaceManager;
 
 	@Component
@@ -113,6 +121,11 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 
 	@Component
 	private TychoProjectManager projectManager;
+
+	@Component
+	ToolchainManager toolchainManager;
+
+
 
 	@Override
 	public final void execute() throws MojoExecutionException, MojoFailureException {
@@ -169,6 +182,23 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 				thread.start();
 				framework.waitForApplicationStart(TimeUnit.SECONDS.toMillis(30));
 			}
+			if (hasJDTNature(eclipseProject)) {
+				if (framework.hasBundle(Bundles.BUNDLE_JDT_LAUNCHING)) {
+					List<Path> jvms = new ArrayList<>();
+					for (Toolchain toolchain : toolchainManager.getToolchains(mavenSession, "jdk", Map.of())) {
+						String tool = toolchain.findTool("java");
+						if (tool != null) {
+							jvms.add(Path.of(tool).getParent().getParent());
+						}
+					}
+					framework.execute(new SetJVMs(jvms, debug));
+				} else {
+					getLog().info(
+							"Skip set JVMs because " + Bundles.BUNDLE_JDT_LAUNCHING
+							+ " is not part of the framework...");
+				}
+			}
+
 			if (hasPDENature(eclipseProject)) {
 				if (framework.hasBundle(Bundles.BUNDLE_PDE_CORE)) {
 					framework.execute(new SetTargetPlatform(projectDependencies, debug));
@@ -182,7 +212,7 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 					if (hasBaselinesSet()) {
 						framework.execute(new SetApiBaseline(project.getId(), getBaselineBundles(), debug));
 					} else {
-						getLog().info("Skip set ApiBasline because no baselines set...");
+						getLog().info("Skip set ApiBaseline because no baselines set...");
 					}
 				} else {
 					getLog().info("Skip set ApiBasline because " + Bundles.BUNDLE_API_TOOLS

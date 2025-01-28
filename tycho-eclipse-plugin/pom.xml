@@ -61,6 +61,17 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.jdt</groupId>
+			<artifactId>org.eclipse.jdt.launching</artifactId>
+			<version>3.23.100</version>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>sisu-equinox-launching</artifactId>
 			<version>${project.version}</version>
