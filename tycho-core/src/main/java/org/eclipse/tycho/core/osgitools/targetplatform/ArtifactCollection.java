@@ -47,7 +47,7 @@ public class ArtifactCollection {
 
     protected final Map<ArtifactKey, ArtifactDescriptor> artifacts = new LinkedHashMap<>();
 
-    protected final Map<File, Map<String, ArtifactDescriptor>> artifactsWithKnownLocation = new LinkedHashMap<>();
+    private final Map<File, Map<String, ArtifactDescriptor>> artifactsWithKnownLocation = new LinkedHashMap<>();
 
     public List<ArtifactDescriptor> getArtifacts(String type) {
         return getArtifacts(key -> key.getType().equals(type));
@@ -296,6 +296,15 @@ public class ArtifactCollection {
             // #addArtifact enforces all artifacts at the same location have the same reactor project 
             return classified.values().iterator().next().getMavenProject();
         }
+        for (Entry<ArtifactKey, ArtifactDescriptor> entry : artifacts.entrySet()) {
+            ArtifactDescriptor value = entry.getValue();
+            ReactorProject mavenProject = value.getMavenProject();
+            if (mavenProject != null) {
+                if (Objects.equals(location, mavenProject.getArtifact())) {
+                    return mavenProject;
+                }
+            }
+        }
         return null;
     }
 
@@ -303,11 +312,30 @@ public class ArtifactCollection {
      * This triggers fetch of all dependencies.
      * 
      * @param location
-     * @return
+     * @return a map of classifier to ArtifactDescriptor (while <code>null</code> represents the
+     *         default artifact)
      */
     public Map<String, ArtifactDescriptor> getArtifact(File location) {
         artifacts.values().forEach(artifact -> artifact.getLocation(true));
-        return artifactsWithKnownLocation.get(normalizeLocation(location));
+        File normalized = normalizeLocation(location);
+        Map<String, ArtifactDescriptor> map = artifactsWithKnownLocation.get(normalized);
+        if (map == null) {
+            LinkedHashMap<String, ArtifactDescriptor> hashMap = new LinkedHashMap<>();
+            for (ArtifactDescriptor descriptor : artifacts.values()) {
+                ReactorProject mavenProject = descriptor.getMavenProject();
+                if (mavenProject != null) {
+                    if (Objects.equals(location, mavenProject.getArtifact())) {
+                        hashMap.put(descriptor.getClassifier(), descriptor);
+                    }
+                }
+            }
+            if (hashMap.isEmpty()) {
+                return null;
+            }
+            artifactsWithKnownLocation.put(normalizeLocation(location), hashMap);
+            return hashMap;
+        }
+        return map;
     }
 
     public ArtifactDescriptor getArtifact(ArtifactKey key) {
