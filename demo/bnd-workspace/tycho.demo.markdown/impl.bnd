@@ -1,0 +1,8 @@
+-privatepackage: tycho.demo.utils.markdown.impl
+
+
+
+-includeresource: \
+	${repo;org.commonmark:commonmark;latest}; lib:=true,\
+	${repo;org.commonmark:commonmark-ext-gfm-tables;latest}; lib:=true,\
+	

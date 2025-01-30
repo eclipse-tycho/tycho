@@ -1,0 +1,8 @@
+-sub: *.bnd
+
+-buildpath: \
+	osgi.core;version=latest,\
+	osgi.annotation;version=latest,\
+	org.osgi.service.component.annotations;version=latest,\
+	org.commonmark:commonmark;version=latest,\
+	org.commonmark:commonmark-ext-gfm-tables;version=latest
