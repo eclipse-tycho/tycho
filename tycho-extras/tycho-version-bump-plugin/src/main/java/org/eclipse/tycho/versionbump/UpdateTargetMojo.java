@@ -21,6 +21,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Period;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -109,6 +110,10 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
      * to <code>(\d+)\.(\d+)</code> where it increments each numeric part beginning at the last
      * group, if no repository is found using the next group setting the previous to zero. Any non
      * numeric pattern will be replaced by the empty string</li>
+     * <li><code>datePattern[:pattern:format[:period]]</code> - specifies a pattern and format to
+     * match in the URL (defaults to <code>(\d{4}-\d{2}):yyyy-MM</code>)</li> where the pattern
+     * defines a date that should be incremented by a given {@link Period} (defaults to
+     * <code>P3M7D</code>)</li>
      * </ul>
      * If used on the CLI, individual values must be separated by a comma see <a href=
      * "https://maven.apache.org/guides/mini/guide-configuring-plugins.html#Mapping_Collections_and_Arrays">here</a>
