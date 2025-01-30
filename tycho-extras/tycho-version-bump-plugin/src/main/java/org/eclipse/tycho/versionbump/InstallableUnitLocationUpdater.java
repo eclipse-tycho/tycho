@@ -16,8 +16,14 @@ package org.eclipse.tycho.versionbump;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Period;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -31,6 +37,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -49,7 +56,12 @@ import de.pdark.decentxml.Element;
 @Named
 public class InstallableUnitLocationUpdater {
 
+    private static final Pattern DEFAULT_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)");
+    private static final Pattern DEFAULT_DATE_PATTERN = Pattern.compile("(\\d{4}-\\d{2})");
+    private static final Period DEFAULT_PERIOD = Period.ofMonths(3).plusDays(7);
+    private static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM");
     private static final String VERSION_PATTERN_PREFIX = "versionPattern";
+    private static final String DATE_PATTERN_PREFIX = "datePattern";
     @Inject
     private TargetDefinitionVariableResolver varResolver;
     @Inject
@@ -89,7 +101,8 @@ public class InstallableUnitLocationUpdater {
             throws URISyntaxException, ProvisionException {
         ResolvedRepository location = getResolvedLocation(iuLocation);
         String raw = location.getLocation();
-        context.getLog().debug("Look for updates of location " + raw);
+        Log log = context.getLog();
+        log.debug("Look for updates of location " + raw);
         URI uri = new URI(raw);
         List<String> discovery = context.getUpdateSiteDiscovery();
         IMetadataRepositoryManager repositoryManager = agent.getService(IMetadataRepositoryManager.class);
@@ -106,8 +119,7 @@ public class InstallableUnitLocationUpdater {
                     children = getChildren(repositoryManager.loadRepository(parentURI, null));
                 } catch (ProvisionException e) {
                     // if we can't load it we can't use it but this is maybe because that no parent exits.
-                    context.getLog()
-                            .debug("No parent repository found for location " + uri + " using " + parentURI + ": " + e);
+                    log.debug("No parent repository found for location " + uri + " using " + parentURI + ": " + e);
                     continue;
                 }
                 IMetadataRepository bestLocation = findBestLocation(context, units, location, repositoryManager,
@@ -119,30 +131,77 @@ public class InstallableUnitLocationUpdater {
                 String substring = trim.substring(VERSION_PATTERN_PREFIX.length());
                 Pattern pattern;
                 if (substring.isEmpty()) {
-                    pattern = Pattern.compile("(\\d+)\\.(\\d+)");
+                    pattern = DEFAULT_VERSION_PATTERN;
                 } else {
                     pattern = Pattern.compile(substring.substring(1));
                 }
-                context.getLog().debug("Using Pattern " + pattern + " to find version increments...");
-                Collection<URI> fromPattern = findUpdatesitesFromPattern(raw, pattern, repositoryManager,
-                        context.getLog()::debug);
+                log.debug("Using Pattern " + pattern + " to find version increments...");
+                Collection<URI> fromPattern = findUpdatesitesFromPattern(raw, pattern, repositoryManager, log::debug);
                 if (fromPattern.isEmpty()) {
-                    context.getLog().debug("Nothing found to match the pattern " + pattern + " for location " + raw);
+                    log.debug("Nothing found to match the pattern " + pattern + " for location " + raw);
                 } else {
                     Set<URI> repositories = new HashSet<>();
                     for (URI repoURI : fromPattern) {
-                        context.getLog().debug("Check location " + repoURI + "...");
+                        log.debug("Check location " + repoURI + "...");
                         try {
                             repositories.addAll(expandRepository(repoURI, repositoryManager));
                         } catch (ProvisionException e) {
                             // if we can't load it we can't use it but this is maybe because that no parent exits.
-                            context.getLog().debug("No repository found for location " + repoURI + ": " + e);
+                            log.debug("No repository found for location " + repoURI + ": " + e);
                         }
                     }
                     IMetadataRepository bestLocation = findBestLocation(context, units, location, repositoryManager,
                             repositories);
                     if (bestLocation != null) {
                         return bestLocation;
+                    }
+                }
+            } else if (trim.startsWith(DATE_PATTERN_PREFIX)) {
+                String substring = trim.substring(DATE_PATTERN_PREFIX.length());
+                Pattern pattern;
+                Period period;
+                DateFormat format;
+                if (substring.isEmpty()) {
+                    pattern = DEFAULT_DATE_PATTERN;
+                    period = DEFAULT_PERIOD;
+                    format = DEFAULT_DATE_FORMAT;
+                } else {
+                    String[] parameters = substring.substring(1).split(":");
+                    pattern = Pattern.compile(parameters[0]);
+                    if (parameters.length > 1) {
+                        format = new SimpleDateFormat(parameters[1]);
+                        if (parameters.length > 2) {
+                            period = Period.parse(parameters[2]);
+                        } else {
+                            period = DEFAULT_PERIOD;
+                        }
+                    } else {
+                        period = DEFAULT_PERIOD;
+                        format = DEFAULT_DATE_FORMAT;
+                    }
+                }
+                Matcher matcher = pattern.matcher(raw);
+                if (matcher.find()) {
+                    try {
+                        String currentDateString = matcher.group(1);
+                        Date currentDate = format.parse(currentDateString);
+                        Date nextDate = Date
+                                .from(currentDate.toInstant().atOffset(ZoneOffset.UTC).plus(period).toInstant());
+                        String nextDateString = format.format(nextDate);
+                        String nextURL = matcher.replaceAll(nextDateString);
+                        log.debug("Check location " + nextURL + " for updates with " + currentDateString + " > "
+                                + nextDateString + "...");
+                        try {
+                            IMetadataRepository bestLocation = findBestLocation(context, units, location,
+                                    repositoryManager, List.of(new URI(nextURL)));
+                            if (bestLocation != null) {
+                                return bestLocation;
+                            }
+                        } catch (URISyntaxException e) {
+                            log.warn("Can't parse resulting URL " + nextURL + " as a URI: " + e);
+                        }
+                    } catch (ParseException e) {
+                        log.warn("Can't parse matched pattern " + pattern + " as a date: " + e);
                     }
                 }
             }
@@ -205,8 +264,14 @@ public class InstallableUnitLocationUpdater {
     }
 
     private static List<IU> findBestUnits(List<IU> units, IMetadataRepositoryManager repositoryManager, URI child,
-            UpdateTargetMojo context) throws ProvisionException {
-        IMetadataRepository childRepository = repositoryManager.loadRepository(child, null);
+            UpdateTargetMojo context) {
+        IMetadataRepository childRepository;
+        try {
+            childRepository = repositoryManager.loadRepository(child, null);
+        } catch (ProvisionException e) {
+            context.getLog().debug("Skip child " + child + " because it can not be loaded: " + e);
+            return null;
+        }
         List<IU> list = new ArrayList<>();
         boolean hasLarger = false;
         for (IU iu : units) {
