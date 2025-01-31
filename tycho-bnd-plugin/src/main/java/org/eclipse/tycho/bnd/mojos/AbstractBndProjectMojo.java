@@ -59,7 +59,7 @@ public abstract class AbstractBndProjectMojo extends AbstractMojo {
 
 	}
 
-	private void checkResult(Report report, boolean errorOk) throws MojoFailureException {
+	protected void checkResult(Report report, boolean errorOk) throws MojoFailureException {
 		List<String> warnings = report.getWarnings();
 		for (String warning : warnings) {
 			getLog().warn(warning);
