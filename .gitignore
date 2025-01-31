@@ -3,6 +3,7 @@ bin/
 *.iml
 .idea/
 .tycho-consumer-pom.xml
+.polyglot.*
 ## Eclipse metadata files
 org.eclipse.core.resources.prefs
 org.eclipse.m2e.core.prefs
@@ -21,3 +22,4 @@ pom-model-classic.xml
 project-dependencies.xml
 project-units.xml
 requirements.txt
+.DS_Store

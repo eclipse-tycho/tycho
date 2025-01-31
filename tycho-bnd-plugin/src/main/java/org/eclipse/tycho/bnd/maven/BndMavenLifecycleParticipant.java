@@ -16,13 +16,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
@@ -36,6 +37,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.bnd.BndPluginManager;
 
 import aQute.bnd.build.Project;
+import aQute.bnd.build.SubProject;
 import aQute.bnd.build.Workspace;
 import aQute.bnd.osgi.Constants;
 
@@ -69,31 +71,42 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 	@Override
 	public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
 		Map<MavenProject, Project> bndProjects = getProjects(session);
-		Map<String, MavenProject> manifestFirstProjects = getManifestFirstProjects(session, bndProjects.keySet());
-		Map<String, MavenProject> bndWorkspaceProjects = bndProjects.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getValue().getName(), Entry<MavenProject, Project>::getKey, (a, b) -> {
-					logger.warn(
-							"Your reactor build contains duplicate BND projects from different workspace, build order might be insufficient!");
-					logger.warn("\tProject 1 (selected): " + a.getBasedir());
-					logger.warn("\tProject 2  (ignored): " + b.getBasedir());
-					return a;
-				}));
+		Map<String, BndMavenProject> manifestFirstProjects = getManifestFirstProjects(session, bndProjects.keySet());
+		Map<String, BndMavenProject> bndWorkspaceProjects = new HashMap<>();
 		for (Entry<MavenProject, Project> entry : bndProjects.entrySet()) {
 			MavenProject mavenProject = entry.getKey();
+			Project project = entry.getValue();
+			logger.debug("==" + mavenProject.getId() + "==");
+			List<SubProject> subProjects = project.getSubProjects();
+			logger.debug("Main: " + project.getName());
+			if (subProjects.isEmpty()) {
+				bndWorkspaceProjects.put(project.getName(), new BndMavenProject(mavenProject, project, null));
+			} else {
+				for (SubProject subProject : subProjects) {
+					logger.debug("Sub: " + subProject.getName());
+					bndWorkspaceProjects.put(project.getName() + "." + subProject.getName(),
+							new BndMavenProject(mavenProject, project, subProject.getName()));
+				}
+			}
+		}
+		Map<MavenProject, Set<String>> dependencyMap = new HashMap<>();
+		for (Entry<MavenProject, Project> entry : bndProjects.entrySet()) {
+			MavenProject mavenProject = entry.getKey();
+			Set<String> added = getProjectSet(mavenProject, dependencyMap);
 			Project bndProject = entry.getValue();
 			try {
-
 				for (Entry<String, String> mapping : BND_TO_MAVEN_MAPPING) {
 					Set<String> requirements = bndProject.getMergedParameters(mapping.getKey()).keySet();
 					String mavenScope = mapping.getValue();
 					for (String required : requirements) {
-						MavenProject requiredMavenProject = bndWorkspaceProjects.get(required);
-						if (requiredMavenProject == null) {
-							requiredMavenProject = manifestFirstProjects.get(required);
+						BndMavenProject bndMavenProject = bndWorkspaceProjects.get(required);
+						if (bndMavenProject == null) {
+							bndMavenProject = manifestFirstProjects.get(required);
 						}
-						if (requiredMavenProject == null || requiredMavenProject == mavenProject) {
+						if (bndMavenProject == null || bndMavenProject.mavenProject() == mavenProject) {
 							continue;
 						}
+						MavenProject requiredMavenProject = bndMavenProject.mavenProject();
 						logger.debug(mavenProject.getId() + " depends on reactor project "
 								+ requiredMavenProject.getId() + " ...");
 						Dependency dependency = new Dependency();
@@ -101,14 +114,23 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 						dependency.setArtifactId(requiredMavenProject.getArtifactId());
 						dependency.setVersion(requiredMavenProject.getVersion());
 						dependency.setScope(mavenScope);
-						mavenProject.getDependencies().add(dependency);
+						if (bndMavenProject.classifier() != null) {
+							Dependency clone = dependency.clone();
+							clone.setClassifier(bndMavenProject.classifier());
+							clone.setType("jar");
+							addDependency(mavenProject, clone, added);
+						}
+						dependency.setType(requiredMavenProject.getPackaging());
+						addDependency(mavenProject, dependency, added);
 					}
 				}
 			} catch (Exception e) {
 				logError("Can't get dependents of project " + mavenProject.getId(), e);
 			}
 		}
-		for (MavenProject mavenProject : manifestFirstProjects.values()) {
+		for (BndMavenProject bndMavenProject : manifestFirstProjects.values()) {
+			MavenProject mavenProject = bndMavenProject.mavenProject();
+			Set<String> added = getProjectSet(mavenProject, dependencyMap);
 			try {
 				File file = new File(mavenProject.getBasedir(), "build.properties");
 				if (file.isFile()) {
@@ -121,17 +143,17 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 						continue;
 					}
 					for (String bundle : property.split(",")) {
-						MavenProject requiredMavenProject = bndWorkspaceProjects.get(bundle.trim());
-						if (requiredMavenProject == null || requiredMavenProject == mavenProject) {
+						BndMavenProject requiredMavenProject = bndWorkspaceProjects.get(bundle.trim());
+						if (requiredMavenProject == null || requiredMavenProject.mavenProject() == mavenProject) {
 							continue;
 						}
 						logger.debug(mavenProject.getId() + " depends on reactor project "
-								+ requiredMavenProject.getId() + " ...");
+								+ requiredMavenProject.mavenProject().getId() + " ...");
 						Dependency dependency = new Dependency();
-						dependency.setGroupId(requiredMavenProject.getGroupId());
-						dependency.setArtifactId(requiredMavenProject.getArtifactId());
-						dependency.setVersion(requiredMavenProject.getVersion());
-						mavenProject.getDependencies().add(dependency);
+						dependency.setGroupId(requiredMavenProject.mavenProject().getGroupId());
+						dependency.setArtifactId(requiredMavenProject.mavenProject().getArtifactId());
+						dependency.setVersion(requiredMavenProject.mavenProject().getVersion());
+						addDependency(mavenProject, dependency, added);
 					}
 				}
 			} catch (Exception e) {
@@ -141,8 +163,8 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 		}
 	}
 
-	private Map<String, MavenProject> getManifestFirstProjects(MavenSession session, Set<MavenProject> existing) {
-		Map<String, MavenProject> result = new HashMap<String, MavenProject>();
+	private Map<String, BndMavenProject> getManifestFirstProjects(MavenSession session, Set<MavenProject> existing) {
+		Map<String, BndMavenProject> result = new HashMap<>();
 		for (MavenProject mavenProject : session.getProjects()) {
 			if (existing.contains(mavenProject)) {
 				continue;
@@ -155,7 +177,7 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 					String value = manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
 					if (value != null) {
 						String bsn = value.split(";", 2)[0];
-						result.put(bsn, mavenProject);
+						result.put(bsn, new BndMavenProject(mavenProject, null, null));
 					}
 				} catch (Exception e) {
 					logError("Can't read project " + mavenProject.getId(), e);
@@ -206,6 +228,23 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 		} else {
 			logger.warn(msg + ": " + e);
 		}
+	}
+
+	private static Set<String> getProjectSet(MavenProject mavenProject, Map<MavenProject, Set<String>> dependencyMap) {
+		Set<String> set = dependencyMap.computeIfAbsent(mavenProject, nil -> new HashSet<>());
+		mavenProject.getDependencies().stream().map(d -> getKey(d)).forEach(set::add);
+		return set;
+	}
+
+	private static void addDependency(MavenProject mavenProject, Dependency dependency, Set<String> added) {
+		if (added.add(getKey(dependency))) {
+			mavenProject.getDependencies().add(dependency);
+		}
+	}
+
+	private static String getKey(Dependency dependency) {
+		return dependency.getManagementKey() + ":" + dependency.getVersion() + ":"
+				+ Objects.requireNonNullElse(dependency.getClassifier(), "");
 	}
 
 }
