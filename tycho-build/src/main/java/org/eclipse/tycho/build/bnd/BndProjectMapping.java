@@ -80,6 +80,11 @@ public class BndProjectMapping extends AbstractTychoMapping {
 	protected void initModel(Model model, Reader artifactReader, Path artifactFile) throws IOException {
 		try {
 			Project project = Workspace.getProject(artifactFile.getParent().toFile());
+			if (project.getSubProjects().isEmpty()) {
+				model.setPackaging(getPackaging());
+			} else {
+				model.setPackaging("pom");
+			}
 			String g = project.getProperty(TychoConstants.PROP_GROUP_ID);
 			String a = project.getProperty(TychoConstants.PROP_ARTIFACT_ID);
 			String v = project.getProperty(TychoConstants.PROP_VERSION);
@@ -101,6 +106,10 @@ public class BndProjectMapping extends AbstractTychoMapping {
 			Plugin bndPlugin = getPlugin(model, TYCHO_GROUP_ID, TYCHO_BND_PLUGIN);
 			bndPlugin.setExtensions(true);
 			bndPlugin.setVersion(TychoVersion.getTychoVersion());
+			addPluginExecution(bndPlugin, execution -> {
+				execution.setId("initialize");
+				execution.addGoal("initialize");
+			});
 			addPluginExecution(bndPlugin, execution -> {
 				execution.setId("clean");
 				execution.addGoal("clean");
