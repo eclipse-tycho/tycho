@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,7 +35,13 @@ import org.codehaus.mojo.versions.api.VersionsHelper;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 
 import de.pdark.decentxml.Element;
 
@@ -50,11 +59,12 @@ public class MavenLocationUpdater {
     @Inject
     protected Map<String, Wagon> wagonMap;
 
-    boolean update(Element mavenLocation, UpdateTargetMojo context) throws VersionRangeResolutionException,
-            ArtifactResolutionException, MojoExecutionException, VersionRetrievalException {
+    List<MavenVersionUpdate> update(Element mavenLocation, UpdateTargetMojo context)
+            throws VersionRangeResolutionException, ArtifactResolutionException, MojoExecutionException,
+            VersionRetrievalException {
         VersionsHelper helper = getHelper(context);
-        boolean changed = false;
         Element dependencies = mavenLocation.getChild("dependencies");
+        List<MavenVersionUpdate> updates = new ArrayList<>();
         if (dependencies != null) {
             for (Element dependency : dependencies.getChildren("dependency")) {
                 Dependency mavenDependency = getDependency(dependency);
@@ -69,14 +79,35 @@ public class MavenLocationUpdater {
                     if (newVersion.equals(oldVersion)) {
                         context.getLog().debug(mavenDependency + " is already up-to date");
                     } else {
-                        changed = true;
                         UpdateTargetMojo.setElementValue("version", newVersion, dependency);
                         context.getLog().info("update " + mavenDependency + " to version " + newVersion);
+                        IInstallableUnit current = getIU(helper, dependencyArtifact);
+                        Dependency clone = mavenDependency.clone();
+                        clone.setVersion(newVersion);
+                        IInstallableUnit update = getIU(helper, helper.createDependencyArtifact(clone));
+                        updates.add(new MavenVersionUpdate(dependencyArtifact, newVersion, current, update));
                     }
                 }
             }
         }
-        return changed;
+        return updates;
+    }
+
+    private IInstallableUnit getIU(VersionsHelper helper, Artifact dependencyArtifact) {
+        try {
+            helper.resolveArtifact(dependencyArtifact, false);
+            File file = dependencyArtifact.getFile();
+            BundleDescription bundleDescription = BundlesAction.createBundleDescription(file);
+            if (bundleDescription != null) {
+                IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(),
+                        bundleDescription.getVersion().toString());
+                PublisherInfo publisherInfo = new PublisherInfo();
+                publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
+                return BundlesAction.createBundleIU(bundleDescription, key, publisherInfo);
+            }
+        } catch (Exception e) {
+        }
+        return null;
     }
 
     VersionsHelper getHelper(UpdateTargetMojo context) throws MojoExecutionException {
