@@ -149,4 +149,5 @@ public interface TychoConstants {
 
     String SUFFIX_SNAPSHOT = "-SNAPSHOT";
     String PROP_DOWNLOAD_CHECKSUM_PREFIX = IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".";
+    public String DRIVER_NAME = "tycho-maven-build";
 }
