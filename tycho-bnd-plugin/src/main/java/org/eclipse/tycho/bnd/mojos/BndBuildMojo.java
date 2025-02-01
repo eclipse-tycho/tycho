@@ -49,9 +49,8 @@ public class BndBuildMojo extends AbstractBndProjectMojo {
 				getLog().info(String.format("Building sub bundle '%s'", subProject.getName()));
 				Jar jar = builder.build();
 				checkResult(builder, project.getWorkspace().isFailOk());
-				String jarName = jar.getName();
 				String name = subProject.getName();
-				File file = new File(mavenProject.getBuild().getDirectory(), String.format("%s.jar", jarName));
+				File file = project.getOutputFile(builder.getBsn(), builder.getVersion());
 				file.getParentFile().mkdirs();
 				jar.write(file);
 				helper.attachArtifact(mavenProject, "jar", name, file);
