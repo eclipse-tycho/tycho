@@ -1,0 +1,4 @@
+-buildpath: \
+	org.eclipse.osgi.services,\
+	tycho.demo.api,\
+	org.apache.felix.gogo.runtime
