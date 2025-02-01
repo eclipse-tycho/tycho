@@ -33,8 +33,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import aQute.bnd.build.Workspace;
-
 @Mojo(name = "initialize", defaultPhase = LifecyclePhase.INITIALIZE)
 public class BndInitMojo extends AbstractMojo {
 
@@ -76,7 +74,6 @@ public class BndInitMojo extends AbstractMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		Workspace.setDriver("tycho-maven-build");
 		fixupPolyglot();
 		writeConsumerPom();
 	}
@@ -91,6 +88,7 @@ public class BndInitMojo extends AbstractMojo {
 		} catch (IOException e) {
 			throw new MojoExecutionException("reading the model failed!", e);
 		}
+		projectModel.setBuild(null);
 		projectModel.setVersion(mavenProject.getVersion());
 		projectModel.setGroupId(mavenProject.getGroupId());
 		projectModel.setParent(null);
@@ -131,6 +129,7 @@ public class BndInitMojo extends AbstractMojo {
 			File moved = new File(file.getParentFile(), ".polyglot.xml");
 			if (file.renameTo(moved)) {
 				mavenProject.setFile(moved);
+				moved.deleteOnExit();
 			}
 		}
 	}

@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import org.apache.maven.lifecycle.Lifecycle;
+import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.component.annotations.Component;
@@ -79,6 +80,7 @@ public class BndProjectMapping extends AbstractTychoMapping {
 	@Override
 	protected void initModel(Model model, Reader artifactReader, Path artifactFile) throws IOException {
 		try {
+			Workspace.setDriver(TychoConstants.DRIVER_NAME);
 			Project project = Workspace.getProject(artifactFile.getParent().toFile());
 			if (project.getSubProjects().isEmpty()) {
 				model.setPackaging(getPackaging());
@@ -101,7 +103,14 @@ public class BndProjectMapping extends AbstractTychoMapping {
 			} else {
 				model.setVersion(v);
 			}
-
+			Build build = getBuild(model);
+			build.setDirectory(path(project.getTarget()));
+			build.setOutputDirectory(path(project.getSrcOutput()));
+			build.setTestOutputDirectory(path(project.getTestOutput()));
+			@SuppressWarnings("deprecation")
+			File src = project.getSrc();
+			build.setSourceDirectory(path(src));
+			build.setTestSourceDirectory(path(project.getTestSrc()));
 			model.setVersion(project.getBundleVersion());
 			Plugin bndPlugin = getPlugin(model, TYCHO_GROUP_ID, TYCHO_BND_PLUGIN);
 			bndPlugin.setExtensions(true);
@@ -140,6 +149,13 @@ public class BndProjectMapping extends AbstractTychoMapping {
 			throw new IOException(e);
 		}
 
+	}
+
+	private static String path(File file) throws Exception {
+		if (file != null) {
+			return file.getAbsolutePath();
+		}
+		return null;
 	}
 
 }

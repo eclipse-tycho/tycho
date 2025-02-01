@@ -34,6 +34,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.bnd.BndPluginManager;
 
 import aQute.bnd.build.Project;
@@ -70,6 +71,7 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 
 	@Override
 	public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
+		Workspace.setDriver(TychoConstants.DRIVER_NAME);
 		Map<MavenProject, Project> bndProjects = getProjects(session);
 		Map<String, BndMavenProject> manifestFirstProjects = getManifestFirstProjects(session, bndProjects.keySet());
 		Map<String, BndMavenProject> bndWorkspaceProjects = new HashMap<>();
