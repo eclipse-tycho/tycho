@@ -1,3 +1,8 @@
 Bundle-Version: 1.0.0-SNAPSHOT
 -runfw:         org.eclipse.osgi
--runee:         JavaSE-17
+
+java: java
+javac: javac
+javac.source: 17
+javac.target: 17
+javac.debug:  on
