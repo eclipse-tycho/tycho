@@ -77,7 +77,11 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testTychoBndWorkspaceDemo() throws Exception {
-		runDemo("bnd-workspace");
+		Verifier verifier = runDemo("bnd-workspace");
+		String expectedLocation = "tycho.demo.impl/target/executable/tycho.demo.app.jar";
+		File exportedJar = Path.of(verifier.getBasedir(), expectedLocation)
+		.toFile();
+		assertTrue("Did not find exported executable jar at expected location: " + expectedLocation, exportedJar.exists());
 	}
 
 	@Test

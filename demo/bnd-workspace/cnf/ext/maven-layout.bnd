@@ -1,6 +1,6 @@
 # Configure a layout that is usually used with a traditional maven build
 
-target-dir = target
+target-dir = ${if;${driver;tycho-maven-build};target;generated${if;${driver;eclipse};;/${driver}}}
 main-dir   = src/main
 test-dir   = src/test
 
