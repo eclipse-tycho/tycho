@@ -1,4 +1,6 @@
--buildpath:  osgi.annotation, \
-				tycho.demo.api, \
-				tycho.demo.markdown.api,\
-				org.osgi.service.component.annotations
+-buildpath: \
+	osgi.annotation,\
+	tycho.demo.api,\
+	tycho.demo.markdown.api,\
+	org.osgi.service.component.annotations,\
+	osgi.core

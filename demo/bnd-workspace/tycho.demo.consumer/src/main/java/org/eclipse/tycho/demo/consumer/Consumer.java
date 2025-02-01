@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2025 Christoph Rüger and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -8,23 +8,30 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *     Christoph Läubrich - initial API and implementation
+ *     Christoph Rüger - extend example for .bndrun
  *******************************************************************************/
-package org.eclipse.tycho.demo.impl;
+package org.eclipse.tycho.demo.consumer;
 
+import org.apache.felix.service.command.Descriptor;
 import org.eclipse.tycho.demo.api.HelloWorld;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import tycho.demo.utils.markdown.api.MarkdownRenderer;
 
-@Component
-public class HelloWorldService implements HelloWorld {
-
+@Component(property = { "osgi.command.scope=tychodemo", "osgi.command.function=hello"}, service = Object.class, immediate = true)
+public class Consumer {
+	
 	@Reference
-    private MarkdownRenderer markdown;
-
-	public void sayHello() {
-		System.out.println("Hello to you too! This BND Workspace has been built with Eclipse Tycho!");
-		System.out.println("And now see, how we use a service to render some markdown to HTML: " + markdown.render("## H2 Headline"));
+    private HelloWorld service;
+	
+	public Consumer() {
+		System.out.println("Please type 'hello' into the console and press Enter, and magic will happen.");
 	}
+	
+	
+	@Descriptor("Says hello, via HelloWorld service")
+	public void hello() {
+		service.sayHello();
+	}
+	
+
 }
