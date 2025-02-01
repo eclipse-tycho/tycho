@@ -22,6 +22,8 @@ import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Period;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -37,6 +39,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.mojo.versions.api.Segment;
 import org.codehaus.mojo.versions.model.RuleSet;
+import org.eclipse.tycho.core.MarkdownBuilder;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 
@@ -145,6 +148,19 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     @Parameter(property = "maven.version.rules")
     private String mavenRulesUri;
 
+    @Parameter(defaultValue = "Please review the changes and merge if appropriate, or cherry pick individual updates.", property = "tycho.updatetarget.report.preamble")
+    private String reportPreamble;
+
+    @Parameter(defaultValue = "${project.build.directory}/targetUpdates.md", property = "tycho.updatetarget.report")
+    private File reportFileName;
+
+    /**
+     * If enabled, missing or empty versions are updated to the most recent found in the repository
+     * to guarantee a stable build
+     */
+    @Parameter(defaultValue = "true", property = "tycho.updatetarget.updateEmptyVersion")
+    private boolean updateEmptyVersion;
+
     @Component
     private MavenSession mavenSession;
 
@@ -157,6 +173,8 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     @Inject
     private InstallableUnitLocationUpdater installableUnitLocationUpdater;
 
+    MarkdownBuilder builder;
+
     @Override
     protected void doUpdate(File file) throws Exception {
         getLog().info("Update target file " + file);
@@ -164,12 +182,20 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         XMLParser parser = new XMLParser();
         Document target = parser.parse(new XMLIOSource(file));
         boolean changed = false;
+        builder = new MarkdownBuilder(reportFileName);
+        builder.h2("The content of the target `" + file.getName() + "` was updated");
+        if (reportPreamble != null && !reportPreamble.isBlank()) {
+            builder.add(reportPreamble);
+            builder.newLine();
+        }
+        List<MavenVersionUpdate> mavenUpdates = new ArrayList<>();
         try (FileInputStream input = new FileInputStream(file)) {
             for (Element iuLocation : getLocations("InstallableUnit", target)) {
                 changed |= installableUnitLocationUpdater.update(iuLocation, this);
             }
             for (Element mavenLocation : getLocations("Maven", target)) {
-                changed |= mavenLocationUpdater.update(mavenLocation, this);
+                mavenUpdates.addAll(mavenLocationUpdater.update(mavenLocation, this));
+                changed |= mavenUpdates.size() > 0;
             }
         }
         if (changed) {
@@ -182,7 +208,20 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
                     xw.flush();
                 }
             }
+            if (mavenUpdates.size() > 0) {
+                builder.h3("The following maven artifacts have been updated:");
+                Set<String> updatedMsg = new HashSet<>();
+                for (MavenVersionUpdate update : mavenUpdates) {
+                    if (updatedMsg.add(update.id())) {
+                        update.describeUpdate(builder);
+                    }
+                }
+                builder.newLine();
+            }
+            builder.newLine();
+            builder.write();
         }
+        builder = null;
     }
 
     static void setElementValue(String name, String value, Element root) {
@@ -240,6 +279,10 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
 
     boolean isAllowMajorUpdates() {
         return allowMajorUpdates;
+    }
+
+    boolean isUpdateEmptyVersion() {
+        return updateEmptyVersion;
     }
 
     MavenSession getMavenSession() {
