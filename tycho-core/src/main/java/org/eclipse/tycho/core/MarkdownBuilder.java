@@ -45,6 +45,11 @@ public class MarkdownBuilder {
         return this;
     }
 
+    public MarkdownBuilder addListItem2(String item) {
+        lines.add("  - " + escape(item));
+        return this;
+    }
+
     public static String escape(String item) {
         return item.replace("@", "<span>@</span>").replace("#", "<span>#</span>");
     }
@@ -77,6 +82,11 @@ public class MarkdownBuilder {
 
     public void h3(String string) {
         lines.add("### " + escape(string));
+        lines.add("");
+    }
+
+    public void h4(String string) {
+        lines.add("#### " + escape(string));
         lines.add("");
     }
 

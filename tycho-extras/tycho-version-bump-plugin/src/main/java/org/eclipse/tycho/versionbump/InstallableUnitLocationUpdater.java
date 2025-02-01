@@ -41,10 +41,12 @@ import org.apache.maven.plugin.logging.Log;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.core.MarkdownBuilder;
 import org.eclipse.tycho.p2resolver.TargetDefinitionVariableResolver;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 
@@ -56,6 +58,7 @@ import de.pdark.decentxml.Element;
 @Named
 public class InstallableUnitLocationUpdater {
 
+    private static final String EMPTY_VERSION = "0.0.0";
     private static final Pattern DEFAULT_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)");
     private static final Pattern DEFAULT_DATE_PATTERN = Pattern.compile("(\\d{4}-\\d{2})");
     private static final Period DEFAULT_PERIOD = Period.ofMonths(3).plusDays(7);
@@ -69,43 +72,88 @@ public class InstallableUnitLocationUpdater {
 
     boolean update(Element iuLocation, UpdateTargetMojo context)
             throws MojoFailureException, URISyntaxException, ProvisionException {
+        Log log = context.getLog();
+        ResolvedRepository location = getResolvedLocation(iuLocation);
+        log.info("Check " + location.getLocation() + " for updates...");
         List<IU> units = iuLocation.getChildren("unit").stream()
-                .map(unit -> new IU(unit.getAttributeValue("id"), unit.getAttributeValue("version"), unit)).toList();
-        IMetadataRepository repository = getMetadataRepository(iuLocation, context, units);
-        boolean updated = false;
+                .map(unit -> new IU(unit.getAttributeValue("id"), getUnitVersion(unit), unit)).toList();
+        IMetadataRepositoryManager repositoryManager = agent.getService(IMetadataRepositoryManager.class);
+        URI currentLocation = new URI(location.location());
+        IMetadataRepository currentRepository = null;
+        MetadataRepositoryUpdate updateRepository = getMetadataRepository(location, context, units, repositoryManager);
+        boolean updated = updateRepository.updateLocation(location);
+        List<VersionUpdate> updates = new ArrayList<>();
         for (Element unit : iuLocation.getChildren("unit")) {
             String id = unit.getAttributeValue("id");
-            IInstallableUnit latestUnit = repository
+            IInstallableUnit latestUnit = updateRepository.update()
                     .query(QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id)), null).stream().findFirst()
                     .orElse(null);
             if (latestUnit != null) {
+                String currentVersion = getUnitVersion(unit);
+                if (EMPTY_VERSION.equals(currentVersion) && !context.isUpdateEmptyVersion()) {
+                    continue;
+                }
                 String newVersion = latestUnit.getVersion().toString();
-                String currentVersion = unit.getAttributeValue("version");
                 if (newVersion.equals(currentVersion)) {
-                    context.getLog().debug("unit '" + id + "' is already up-to date");
+                    log.debug("unit '" + id + "' is already up-to date");
                 } else {
-                    updated = true;
-                    context.getLog()
-                            .info("Update version of unit '" + id + "' from " + currentVersion + " > " + newVersion);
-                    unit.setAttribute("version", newVersion);
+                    if (currentRepository == null) {
+                        currentRepository = repositoryManager.loadRepository(currentLocation, null);
+                    }
+                    IInstallableUnit currentIU = currentRepository
+                            .query(QueryUtil.createIUQuery(id, Version.create(currentVersion)), null).stream()
+                            .findFirst().orElse(null);
+                    VersionUpdate update = new VersionUpdate(id, currentVersion, currentIU, latestUnit);
+                    if (update.hasVersionChange() && isCompatibleChange(update, context)) {
+                        log.info("Update version of unit '" + id + "' from " + update.getPreviousVersion() + " > "
+                                + newVersion);
+                        updates.add(update);
+                        updated = true;
+                        unit.setAttribute("version", newVersion);
+                    }
                 }
             } else {
-                context.getLog().warn(
-                        "Resolution result does not contain root installable unit '" + id + "' update is skipped!");
+                log.warn("Resolution result does not contain root installable unit '" + id + "' update is skipped!");
             }
         }
+        MarkdownBuilder builder = context.builder;
+        if (updates.isEmpty()) {
+            if (updateRepository.hasUpdate(currentLocation)) {
+                builder.h3("The location " + location.location() + " was updated:");
+                builder.addListItem("Location changed to " + updateRepository.uri());
+                builder.newLine();
+            }
+            return updated;
+        }
+        if (updateRepository.hasUpdate(currentLocation)) {
+            builder.h3("The location " + location.location() + " was updated:");
+            builder.addListItem("Location changed to " + updateRepository.uri());
+        } else {
+            builder.h3("The content of the location " + location.location() + " was updated:");
+        }
+        for (VersionUpdate versionUpdate : updates) {
+            describeUpdate(versionUpdate, builder);
+        }
+        builder.newLine();
         return updated;
     }
 
-    private IMetadataRepository getMetadataRepository(Element iuLocation, UpdateTargetMojo context, List<IU> units)
+    private String getUnitVersion(Element unit) {
+        String value = unit.getAttributeValue("version");
+        if (value == null || value.isBlank()) {
+            return EMPTY_VERSION;
+        }
+        return value;
+    }
+
+    private MetadataRepositoryUpdate getMetadataRepository(ResolvedRepository location, UpdateTargetMojo context,
+            List<IU> units, IMetadataRepositoryManager repositoryManager)
             throws URISyntaxException, ProvisionException {
-        ResolvedRepository location = getResolvedLocation(iuLocation);
-        String raw = location.getLocation();
         Log log = context.getLog();
-        log.debug("Look for updates of location " + raw);
+        log.debug("Look for updates of location " + location.getLocation());
+        String raw = location.getLocation();
         URI uri = new URI(raw);
         List<String> discovery = context.getUpdateSiteDiscovery();
-        IMetadataRepositoryManager repositoryManager = agent.getService(IMetadataRepositoryManager.class);
         for (String strategy : discovery) {
             String trim = strategy.trim();
             if (trim.equals("parent")) {
@@ -122,7 +170,7 @@ public class InstallableUnitLocationUpdater {
                     log.debug("No parent repository found for location " + uri + " using " + parentURI + ": " + e);
                     continue;
                 }
-                IMetadataRepository bestLocation = findBestLocation(context, units, location, repositoryManager,
+                MetadataRepositoryUpdate bestLocation = findBestLocation(context, units, location, repositoryManager,
                         children);
                 if (bestLocation != null) {
                     return bestLocation;
@@ -150,8 +198,8 @@ public class InstallableUnitLocationUpdater {
                             log.debug("No repository found for location " + repoURI + ": " + e);
                         }
                     }
-                    IMetadataRepository bestLocation = findBestLocation(context, units, location, repositoryManager,
-                            repositories);
+                    MetadataRepositoryUpdate bestLocation = findBestLocation(context, units, location,
+                            repositoryManager, repositories);
                     if (bestLocation != null) {
                         return bestLocation;
                     }
@@ -192,7 +240,7 @@ public class InstallableUnitLocationUpdater {
                         log.debug("Check location " + nextURL + " for updates with " + currentDateString + " > "
                                 + nextDateString + "...");
                         try {
-                            IMetadataRepository bestLocation = findBestLocation(context, units, location,
+                            MetadataRepositoryUpdate bestLocation = findBestLocation(context, units, location,
                                     repositoryManager, List.of(new URI(nextURL)));
                             if (bestLocation != null) {
                                 return bestLocation;
@@ -207,11 +255,12 @@ public class InstallableUnitLocationUpdater {
             }
         }
         //if nothing else is applicable return the original location repository...
-        return repositoryManager.loadRepository(uri, null);
+        return new MetadataRepositoryUpdate(null, repositoryManager.loadRepository(uri, null));
     }
 
-    private IMetadataRepository findBestLocation(UpdateTargetMojo context, List<IU> units, ResolvedRepository location,
-            IMetadataRepositoryManager repositoryManager, Collection<URI> children) throws ProvisionException {
+    private MetadataRepositoryUpdate findBestLocation(UpdateTargetMojo context, List<IU> units,
+            ResolvedRepository location, IMetadataRepositoryManager repositoryManager, Collection<URI> children)
+            throws ProvisionException {
         List<IU> bestUnits = units;
         URI bestURI = null;
         //we now need to find a repository that has all units and they must have the same or higher version
@@ -223,8 +272,7 @@ public class InstallableUnitLocationUpdater {
             }
         }
         if (bestURI != null) {
-            location.element().setAttribute("location", bestURI.toString());
-            return repositoryManager.loadRepository(bestURI, null);
+            return new MetadataRepositoryUpdate(bestURI, repositoryManager.loadRepository(bestURI, null));
         }
         return null;
     }
@@ -247,6 +295,13 @@ public class InstallableUnitLocationUpdater {
         } catch (Exception e) {
         }
         return List.of();
+    }
+
+    private static boolean isCompatibleChange(VersionUpdate update, UpdateTargetMojo context) {
+        if (update.isMajorChange() && !context.isAllowMajorUpdates()) {
+            return false;
+        }
+        return true;
     }
 
     private static Collection<URI> expandRepository(URI uri, IMetadataRepositoryManager repositoryManager)
@@ -324,6 +379,10 @@ public class InstallableUnitLocationUpdater {
         @Override
         public String getId() {
             return id();
+        }
+
+        public void setLocation(URI uri) {
+            element().setAttribute("location", uri.toString());
         }
 
     }
@@ -407,6 +466,95 @@ public class InstallableUnitLocationUpdater {
                     + e.getMessage());
             return Optional.empty();
         }
+    }
+
+    private static void describeUpdate(VersionUpdate versionUpdate, MarkdownBuilder builder) {
+        IInstallableUnit update = versionUpdate.update();
+        builder.addListItem(String.format("Unit %s was updated from %s to %s", versionUpdate.id(),
+                versionUpdate.getPreviousVersion(), update.getVersion()));
+        IInstallableUnit current = versionUpdate.current();
+        if (current != null) {
+            Collection<IRequirement> currentRequirements = current.getRequirements();
+            for (IRequirement requirement : update.getRequirements()) {
+                if (!currentRequirements.contains(requirement) && requirement.getMin() > 0) {
+                    builder.addListItem2(
+                            String.format("additionally requires %s compared to the previous version", requirement));
+                }
+            }
+        }
+    }
+
+    private static record VersionUpdate(String id, String previousVersion, IInstallableUnit current,
+            IInstallableUnit update) {
+
+        public boolean hasVersionChange() {
+            if (EMPTY_VERSION.equals(previousVersion)) {
+                return true;
+            }
+            if (current != null) {
+                return !current.getVersion().equals(update.getVersion());
+            }
+            return !update.getVersion().toString().equals(previousVersion);
+        }
+
+        public boolean isMajorChange() {
+            var currentVersion = getOSGiVersion(current);
+            var updateVersion = getOSGiVersion(update);
+            if (isVersion(currentVersion) && isVersion(updateVersion)) {
+                return updateVersion.getMajor() > currentVersion.getMajor();
+            }
+            return false;
+        }
+
+        private boolean isVersion(org.osgi.framework.Version version) {
+            return version != null && !org.osgi.framework.Version.emptyVersion.equals(version);
+        }
+
+        public String getPreviousVersion() {
+            if (current != null) {
+                if (!current.getVersion().toString().equals(update.getVersion().toString())) {
+                    return current.getVersion().toString();
+                }
+            }
+            return previousVersion;
+        }
+
+    }
+
+    private static org.osgi.framework.Version getOSGiVersion(IInstallableUnit unit) {
+        if (unit != null) {
+            try {
+                return org.osgi.framework.Version.parseVersion(unit.getVersion().toString());
+            } catch (RuntimeException e) {
+                //can't parse
+            }
+        }
+        return null;
+    }
+
+    private static record MetadataRepositoryUpdate(URI uri, IMetadataRepository update) {
+
+        public boolean updateLocation(ResolvedRepository element) {
+            if (uri != null) {
+                try {
+                    if (new URI(element.getLocation()).equals(uri)) {
+                        return false;
+                    }
+                } catch (URISyntaxException e) {
+                }
+                element.setLocation(uri);
+                return true;
+            }
+            return false;
+        }
+
+        public boolean hasUpdate(URI other) {
+            if (uri == null) {
+                return false;
+            }
+            return !uri.equals(other);
+        }
+
     }
 
 }
