@@ -34,7 +34,7 @@ In contrast to a traditional maven build where each module has to contain a `pom
 </extensions>
 ```
 
-- create a file called `maven.config` in the `.mvn` folder with the following content (adjust the version accordingly!):
+- create a file called `maven.config` in the `.mvn` folder with the following content (adjust the Tycho version accordingly to the [latest release](https://github.com/eclipse-tycho/tycho/releases)!):
 ```properties
 -Dtycho-version=4.0.10
 ```
@@ -42,6 +42,14 @@ In contrast to a traditional maven build where each module has to contain a `pom
 - You can now run your build with `mvn clean verify`.
 
 You can check more details in a [demo project](https://github.com/eclipse-tycho/tycho/tree/master/demo/bnd-workspace).
+
+### Configure the pomless build
+
+If you want to further configure the build can be done in these ways:
+
+1. You can specify additional global properties in the `.mvn/maven.config`.
+2. You can define properties per project properties in the `bnd.bnd` file `pom.model.property.<some property>: true`, see [the wiki](https://github.com/eclipse-tycho/tycho/wiki/Tycho-Pomless#overwrite-group-and-artifact-ids) for more details.
+3. You can place a `pom.xml` in your `cnf` folder this will then be used as a parent for the aggregator, here you can add additional mojos, profiles and so on. If you want to enable certain things only for some of the projects you can use properties as described in (2) to skip the execution of mojos not relevant for other projects.
 
 ## Mixed Builds
 
