@@ -13,7 +13,11 @@
 package org.eclipse.tycho.bnd.mojos;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
+import java.util.jar.JarOutputStream;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugins.annotations.Component;
@@ -56,7 +60,24 @@ public class BndBuildMojo extends AbstractBndProjectMojo {
 				helper.attachArtifact(mavenProject, "jar", name, file);
 			}
 		}
+		ensureArtifactIsSet();
+	}
 
+	private void ensureArtifactIsSet() throws IOException, FileNotFoundException {
+		if ("pom".equals(mavenProject.getPackaging())) {
+			// pom packaging is allowed to have no main artifact...
+			return;
+		}
+		Artifact artifact = mavenProject.getArtifact();
+		if (artifact.getFile() == null) {
+			artifact.setFile(new File(mavenProject.getBuild().getDirectory(), mavenProject.getArtifactId() + ".jar"));
+		}
+		if (!artifact.getFile().exists()) {
+			try (JarOutputStream jarOutputStream = new JarOutputStream(
+					new FileOutputStream(artifact.getFile()))) {
+				// create a dummy result as otherwise maven is not happy
+			}
+		}
 	}
 
 }
