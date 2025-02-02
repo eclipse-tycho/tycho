@@ -14,9 +14,12 @@ package org.eclipse.tycho.build.bnd;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.maven.lifecycle.Lifecycle;
 import org.apache.maven.model.Build;
@@ -75,6 +78,15 @@ public class BndProjectMapping extends AbstractTychoMapping {
 	@Override
 	public String getFlavour() {
 		return "bnd";
+	}
+
+	@Override
+	protected Properties getEnhancementProperties(Path file) throws IOException {
+		Properties bnd = new Properties();
+		try (InputStream stream = Files.newInputStream(file)) {
+			bnd.load(stream);
+			return bnd;
+		}
 	}
 
 	@Override

@@ -184,6 +184,10 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         // assumption parent pom must be physically located in parent directory if not given by build.properties
         String parentRef = buildProperties.getProperty(TYCHO_POMLESS_PARENT_PROPERTY, PARENT_POM_DEFAULT_VALUE);
         Path fileOrFolder = projectRoot.resolve(parentRef).toRealPath();
+        return loadParent(projectRoot, fileOrFolder);
+    }
+
+    protected ParentModel loadParent(Path projectRoot, Path fileOrFolder) throws NoParentPomFound, IOException {
         PomReference parentPom;
         if (Files.isRegularFile(fileOrFolder)) {
             parentPom = locatePomReference(fileOrFolder.getParent(), getFileName(fileOrFolder));

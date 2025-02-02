@@ -125,6 +125,15 @@ public class BndWorkspaceMapping extends AbstractTychoMapping {
 	@Override
 	protected ParentModel findParent(Path projectRoot, Map<String, ?> projectOptions) throws IOException {
 		try {
+			Workspace workspace = Workspace.findWorkspace(projectRoot.toFile());
+			File base = workspace.getBase();
+			if (Files.isSameFile(projectRoot, base.toPath())) {
+				File buildDir = workspace.getBuildDir();
+				return loadParent(projectRoot, buildDir.toPath());
+			}
+		} catch (Exception e) {
+		}
+		try {
 			return super.findParent(projectRoot, projectOptions);
 		} catch (NoParentPomFound e) {
 			// this can happen in 100% pomless mode!
