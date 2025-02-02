@@ -12,34 +12,23 @@
  *******************************************************************************/
 package org.eclipse.tycho.bnd.mojos;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 
 import aQute.bnd.build.Project;
 import aQute.bnd.build.Workspace;
-import aQute.service.reporter.Report;
 
-public abstract class AbstractBndProjectMojo extends AbstractMojo {
-
-	@Parameter(property = "project", readonly = true)
-	protected MavenProject mavenProject;
-
-	@Parameter(property = "session", readonly = true)
-	protected MavenSession session;
+public abstract class AbstractBndProjectMojo extends AbstractBndMojo {
 
 	@Override
 	public final void execute() throws MojoExecutionException, MojoFailureException {
 		try {
-			Project bndProject = Workspace.getProject(mavenProject.getBasedir());
-			Workspace workspace = bndProject.getWorkspace();
-			checkResult(workspace, workspace.isFailOk());
+			Workspace wsp = getWorkspace();
+			Project bndProject = wsp.getProject(mavenProject.getBasedir().getName());
+			if (bndProject == null) {
+				getLog().info("Not a bnd workspace project!");
+				return;
+			}
 			synchronized (bndProject) {
 				execute(bndProject);
 				checkResult(bndProject, bndProject.isFailOk());
@@ -57,25 +46,6 @@ public abstract class AbstractBndProjectMojo extends AbstractMojo {
 			throw new MojoExecutionException(e);
 		}
 
-	}
-
-	protected void checkResult(Report report, boolean errorOk) throws MojoFailureException {
-		List<String> warnings = report.getWarnings();
-		for (String warning : warnings) {
-			getLog().warn(warning);
-		}
-		warnings.clear();
-		List<String> errors = report.getErrors();
-		for (String error : errors) {
-			getLog().error(error);
-		}
-		if (errorOk) {
-			errors.clear();
-			return;
-		}
-		if (errors.size() > 0) {
-			throw new MojoFailureException(errors.stream().collect(Collectors.joining(System.lineSeparator())));
-		}
 	}
 
 	protected abstract void execute(Project project) throws Exception;

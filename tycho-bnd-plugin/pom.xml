@@ -48,6 +48,11 @@
 			<artifactId>biz.aQute.bnd.embedded-repo</artifactId>
 			<version>${bnd.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>biz.aQute.bnd</groupId>
+			<artifactId>biz.aQute.resolve</artifactId>
+			<version>${bnd.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

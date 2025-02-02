@@ -20,9 +20,15 @@ import org.apache.maven.execution.ProjectExecutionListener;
 import org.apache.maven.lifecycle.LifecycleExecutionException;
 import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.eclipse.tycho.bnd.MavenReactorRepository;
 
 @Component(role = ProjectExecutionListener.class)
 public class BndProjectExecutionListener implements ProjectExecutionListener {
+
+
+	@Requirement
+	private MavenReactorRepository mavenReactorRepository;
 
 	@Override
 	public void beforeProjectExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {
@@ -74,7 +80,7 @@ public class BndProjectExecutionListener implements ProjectExecutionListener {
 
 	@Override
 	public void afterProjectExecutionSuccess(ProjectExecutionEvent event) throws LifecycleExecutionException {
-
+		mavenReactorRepository.addProject(event.getProject());
 	}
 
 	@Override

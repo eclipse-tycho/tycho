@@ -138,6 +138,7 @@ public class BndProjectMapping extends AbstractTychoMapping {
 			addPluginExecution(bndPlugin, execution -> {
 				execution.setId("build");
 				execution.addGoal("build");
+				execution.addGoal("run");
 			});
 		} catch (Exception e) {
 			if (e instanceof IOException io) {
