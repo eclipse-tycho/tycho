@@ -30,17 +30,26 @@ import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.bnd.BndRunFile;
+import org.eclipse.tycho.bnd.mojos.BndRunMojo;
 import org.eclipse.tycho.core.bnd.BndPluginManager;
 
 import aQute.bnd.build.Project;
 import aQute.bnd.build.SubProject;
 import aQute.bnd.build.Workspace;
 import aQute.bnd.osgi.Constants;
+import biz.aQute.resolve.Bndrun;
 
 /**
  * This component injects information from the BND model into the maven model,
@@ -58,6 +67,7 @@ import aQute.bnd.osgi.Constants;
 public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
 	private static final Set<Entry<String, String>> BND_TO_MAVEN_MAPPING = Map.of(//
+			Constants.RUNBUNDLES, Artifact.SCOPE_RUNTIME, //
 			Constants.DEPENDSON, Artifact.SCOPE_RUNTIME, //
 			Constants.BUILDPATH, Artifact.SCOPE_COMPILE, //
 			Constants.TESTPATH, Artifact.SCOPE_TEST //
@@ -98,7 +108,7 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 			Project bndProject = entry.getValue();
 			try {
 				for (Entry<String, String> mapping : BND_TO_MAVEN_MAPPING) {
-					Set<String> requirements = bndProject.getMergedParameters(mapping.getKey()).keySet();
+					Set<String> requirements = getRequirements(bndProject, mavenProject, session, mapping.getKey());
 					String mavenScope = mapping.getValue();
 					for (String required : requirements) {
 						BndMavenProject bndMavenProject = bndWorkspaceProjects.get(required);
@@ -163,6 +173,62 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 			}
 
 		}
+	}
+
+	private Set<String> getRequirements(Project bndProject, MavenProject mavenProject, MavenSession session,
+			String property) throws MavenExecutionException {
+		if (Constants.RUNBUNDLES.equals(property)) {
+			// run bundles are from bndruns and must be handled different
+			Plugin plugin = mavenProject.getPlugin(Plugin.constructKey("org.eclipse.tycho", "tycho-bnd-plugin"));
+			Set<String> selectedBndRuns = new HashSet<>();
+			if (plugin != null) {
+				for (PluginExecution pluginExecution : plugin.getExecutions()) {
+					if (pluginExecution.getGoals().contains(BndRunMojo.NAME)) {
+						String exportsProperty = session.getUserProperties()
+								.getProperty(BndRunMojo.BNDRUN_EXPORTS_PROPERTY);
+						if (exportsProperty == null) {
+							Object configuration = pluginExecution.getConfiguration();
+							if (configuration instanceof Xpp3Dom dom) {
+								XmlPlexusConfiguration cfg = new XmlPlexusConfiguration(dom);
+								PlexusConfiguration child = cfg.getChild(BndRunMojo.BNDRUN_EXPORTS_NAME, false);
+								if (child != null) {
+									PlexusConfiguration[] children = child.getChildren();
+									for (PlexusConfiguration c : children) {
+										selectedBndRuns.add(c.getValue());
+									}
+								}
+							}
+						} else {
+							for (String run : exportsProperty.split(",")) {
+								selectedBndRuns.add(run);
+							}
+						}
+					}
+				}
+			}
+			if (selectedBndRuns.isEmpty()) {
+				return Set.of();
+			}
+			try {
+				List<BndRunFile> bndRuns = BndRunMojo.getBndRuns(mavenProject.getBasedir().toPath(), selectedBndRuns);
+				if (bndRuns.isEmpty()) {
+					return Set.of();
+				}
+				Set<String> dependencies = new HashSet<>();
+				for (BndRunFile runFile : bndRuns) {
+					try {
+						Bndrun bndrun = Bndrun.createBndrun(bndProject.getWorkspace(), runFile.path().toFile());
+						dependencies.addAll(bndrun.getMergedParameters(property).keySet());
+					} catch (Exception e) {
+						throw new MavenExecutionException("can't read required bnd run " + runFile.path(), e);
+					}
+				}
+				return dependencies;
+			} catch (MojoExecutionException e) {
+				throw new MavenExecutionException("can't read required bnd runs", e.getCause());
+			}
+		}
+		return bndProject.getMergedParameters(property).keySet();
 	}
 
 	private Map<String, BndMavenProject> getManifestFirstProjects(MavenSession session, Set<MavenProject> existing) {
