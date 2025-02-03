@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>tycho-its-project.osgitools.artifactsWithKnownLocation</groupId>
+    <artifactId>parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>dependee</artifactId>
+  <packaging>eclipse-plugin</packaging>
+  <properties>
+    <commons-lang3.version>3.17.0</commons-lang3.version>
+  </properties>
+  <!-- Taken and adapted from https://stackoverflow.com/questions/28542595/how-to-embed-a-library-jar-in-an-osgi-bundle-using-tycho/30872071#30872071 -->
+  <build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>copy-libraries</id>
+                    <phase>validate</phase>
+                    <goals>
+                        <goal>copy</goal>
+                    </goals>
+                    <configuration>
+                        <artifactItems>
+                            <item>
+                                <groupId>org.apache.commons</groupId>
+                                <artifactId>commons-lang3</artifactId>
+                                <version>${commons-lang3.version}</version>
+                            </item>
+                        </artifactItems>
+                        <outputDirectory>lib</outputDirectory>
+                        <stripVersion>true</stripVersion>
+                        <overWriteReleases>true</overWriteReleases>
+                        <overWriteSnapshots>true</overWriteSnapshots>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+  </build>
+</project>
