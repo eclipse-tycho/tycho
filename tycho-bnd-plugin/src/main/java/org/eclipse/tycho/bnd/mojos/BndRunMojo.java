@@ -33,6 +33,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
+import org.eclipse.tycho.bnd.BndRunFile;
 import org.osgi.service.resolver.ResolutionException;
 
 import aQute.bnd.build.Container;
@@ -46,12 +47,18 @@ import aQute.bnd.osgi.Resource;
 import biz.aQute.resolve.Bndrun;
 import biz.aQute.resolve.ResolveProcess;
 
-@Mojo(name = "run", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
+@Mojo(name = BndRunMojo.NAME, defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class BndRunMojo extends AbstractBndMojo {
 
-	private static final String BNDRUN = ".bndrun";
+	public static final String NAME = "run";
 
-	@Parameter(property = "bndrun.exports")
+	public static final String BNDRUN_EXPORTS_NAME = "exports";
+
+	public static final String BNDRUN_EXPORTS_PROPERTY = "bndrun.exports";
+
+	public static final String BNDRUN = ".bndrun";
+
+	@Parameter(name = BNDRUN_EXPORTS_NAME, property = BNDRUN_EXPORTS_PROPERTY)
 	private Set<String> exports;
 
 	@Parameter
@@ -74,7 +81,7 @@ public class BndRunMojo extends AbstractBndMojo {
 		if (exports == null || exports.isEmpty()) {
 			return;
 		}
-		List<BndRunFile> bndRuns = getBndRuns();
+		List<BndRunFile> bndRuns = getBndRuns(mavenProject.getBasedir().toPath(), exports);
 		if (bndRuns.isEmpty()) {
 			return;
 		}
@@ -178,9 +185,8 @@ public class BndRunMojo extends AbstractBndMojo {
 		return bndRun;
 	}
 
-	private List<BndRunFile> getBndRuns() throws MojoExecutionException {
+	public static List<BndRunFile> getBndRuns(Path path, Collection<String> match) throws MojoExecutionException {
 		List<BndRunFile> bndRuns = new ArrayList<>();
-		Path path = mavenProject.getBasedir().toPath();
 		try {
 			Iterator<Path> iterator = Files.list(path).iterator();
 			while (iterator.hasNext()) {
@@ -188,7 +194,7 @@ public class BndRunMojo extends AbstractBndMojo {
 				String fn = child.getFileName().toString();
 				if (fn.endsWith(BNDRUN)) {
 					String key = fn.substring(0, fn.length() - BNDRUN.length());
-					if (exports.contains(key)) {
+					if (match.contains(key)) {
 						bndRuns.add(new BndRunFile(key, child));
 					}
 				}
@@ -197,10 +203,6 @@ public class BndRunMojo extends AbstractBndMojo {
 			throw new MojoExecutionException(e);
 		}
 		return bndRuns;
-	}
-
-	private static record BndRunFile(String name, Path path) {
-
 	}
 
 }
