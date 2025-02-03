@@ -320,13 +320,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         return getBundleClassPath(project).getExtraBootClasspathAccessRules();
     }
 
-    public synchronized BundleClassPath getBundleClassPath(ReactorProject project) {
-        if (project.getContextValue(CTX_CLASSPATH) instanceof BundleClassPath bundleClassPath) {
-            return bundleClassPath;
-        }
-        BundleClassPath cp = resolveClassPath(getMavenSession(project), getMavenProject(project));
-        project.setContextValue(CTX_CLASSPATH, cp);
-        return cp;
+    public BundleClassPath getBundleClassPath(ReactorProject project) {
+        return project.computeContextValue(CTX_CLASSPATH, () -> resolveClassPath(getMavenSession(project), getMavenProject(project)));
     }
 
     /**
