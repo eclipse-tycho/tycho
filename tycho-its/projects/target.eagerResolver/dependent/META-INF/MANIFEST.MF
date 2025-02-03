@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: dependent
+Bundle-SymbolicName: dependent
+Bundle-Version: 0.0.1.qualifier
+Require-Bundle: dependee
+Bundle-ClassPath: .

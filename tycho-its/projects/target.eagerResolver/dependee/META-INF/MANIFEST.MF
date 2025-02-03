@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: dependee
+Bundle-SymbolicName: dependee
+Bundle-Version: 0.0.1.qualifier
+Export-Package: dependee,
+ org.apache.commons.lang3
+Bundle-ClassPath: .,
+ lib/commons-lang3.jar
