@@ -54,6 +54,11 @@
 	<custom>
 		<fluidoSkin>
 			<sourceLineNumbersEnabled>true</sourceLineNumbersEnabled>
+			<gitHub>
+                <projectId>eclipse-tycho/tycho</projectId>
+                <ribbonOrientation>right</ribbonOrientation>
+                <ribbonColor>gray</ribbonColor>
+            </gitHub>
 		</fluidoSkin>
 	</custom>
 </site>
