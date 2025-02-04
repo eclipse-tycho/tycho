@@ -473,7 +473,7 @@ public class InstallableUnitLocationUpdater {
         builder.addListItem(String.format("Unit %s was updated from %s to %s", versionUpdate.id(),
                 versionUpdate.getPreviousVersion(), update.getVersion()));
         IInstallableUnit current = versionUpdate.current();
-        if (current != null) {
+        if (current != null && !current.getId().endsWith(".feature.group")) {
             Collection<IRequirement> currentRequirements = current.getRequirements();
             for (IRequirement requirement : update.getRequirements()) {
                 if (!currentRequirements.contains(requirement) && requirement.getMin() > 0) {
