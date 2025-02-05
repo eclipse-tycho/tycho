@@ -37,7 +37,7 @@ In contrast to a traditional maven build where each module has to contain a `pom
 
 - create a file called `maven.config` in the `.mvn` folder with the following content (adjust the Tycho version accordingly to the [latest release](https://github.com/eclipse-tycho/tycho/releases)!):
 ```properties
--Dtycho-version=4.0.10
+-Dtycho-version=4.0.11
 ```
 
 - You can now run your build with `mvn clean verify`.
@@ -104,3 +104,7 @@ In case you have your bnd workspace in a subfolder named `bundles`, `plugins`, `
 The reason is that those names are kind of 'magic' names reserved for special usecases. 
 `-Dtycho.pomless.aggregator.names=_dummydisabled_` is a workaround to instruct Tycho to ignore those names. You can choose any word like `_dummydisabled_`, but just make sure you do not have a folder with that name.
 
+## Links
+
+- [Building bnd workspaces with Tycho](https://bnd.discourse.group/t/building-bnd-workspaces-with-pomless-maven-via-eclipse-tycho/)
+- [Getting Started with OSGi Declarative Services](https://vogella.com/blog/getting-started-with-osgi-declarative-services-2024/)
