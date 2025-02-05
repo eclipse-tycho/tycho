@@ -41,9 +41,24 @@ This is now fixed, but might result in build previously working now fail due to 
 
 
 backports:
-- Support for implicit dependencies in target definitions
-- Add tycho-baseline:check-dependencies mojo
-- Add tycho-cleancode plugin
+- Create new tycho-cleancode plugin for automated code cleanups
+- Create tycho-baseline:check-dependencies mojo to validate versions
+- Add a version report to target update mojo
+- Add support for exporting bndruns in bndworkspace projects
+- Add support for building sub-bundle with tycho-bnd-extension
+- Add support for date patterns in update target
+- Add support for version patterns in URLs to update IU locations
+- Add support for setting an API baseline in EclipseBuildMojos
+- Add support for reading artifacts from global bundle pools
+- Add support for using maven repositories as P2 mirror
+- Add an option to print the java memory before/after mojo execution
+- Add support for TargetDefinition#implicitDependencies
+- Add reproducible timestamps in archives
+- Write Properties files in a reproducible way
+- Use reproducible version qualifiers when project.build.outputTimestamp property is set
+- Improve performance of classpath calculation in parallel builds
+- Extend bnd demo workspace for .bndrun usecase
+- Update the default DS version to 1.4
 
 
 ## 4.0.10
