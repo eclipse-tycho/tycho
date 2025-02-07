@@ -242,7 +242,6 @@ public final class TargetDefinitionFile implements TargetDefinition {
 			builder.append(getVersion());
 			builder.append(", ArtifactType = ");
 			builder.append(getArtifactType());
-			builder.append(", IncludeDependencyScope = ");
 			return builder.toString();
 		}
 
