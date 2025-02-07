@@ -188,6 +188,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
 
                     String symbolicName;
                     String bundleVersion;
+                    String debugString = asDebugString(mavenArtifact);
                     try {
                         File bundleLocation = mavenArtifact.getLocation();
                         BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleLocation);
@@ -196,12 +197,12 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                         IInstallableUnit unit;
                         if (symbolicName == null) {
                             if (location.getMissingManifestStrategy() == MissingManifestStrategy.IGNORE) {
-                                logger.info("Ignoring " + asDebugString(mavenArtifact)
+                                logger.info("Ignoring " + debugString
                                         + " as it is not a bundle and MissingManifestStrategy is set to ignore for this location");
                                 continue;
                             }
                             if (location.getMissingManifestStrategy() == MissingManifestStrategy.ERROR) {
-                                throw new TargetDefinitionResolutionException("Artifact " + asDebugString(mavenArtifact)
+                                throw new TargetDefinitionResolutionException("Artifact " + debugString
                                         + " is not a bundle and MissingManifestStrategy is set to error for this location");
                             }
                             try {
@@ -222,18 +223,23 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                         .filter(msg -> msg.type() == ProcessingMessage.Type.ERROR).toList();
                                 if (directErrors.isEmpty()) {
                                     wrappedBundle.messages(true).map(ProcessingMessage::message)
-                                            .forEach(msg -> logger.warn(asDebugString(mavenArtifact) + ": " + msg));
+                                            .forEach(msg -> logger.warn(debugString + ": " + msg));
                                 } else {
-                                    throw new RuntimeException(directErrors.stream().map(ProcessingMessage::message)
-                                            .collect(Collectors.joining(System.lineSeparator())));
+                                    String error = directErrors.stream().map(ProcessingMessage::message)
+                                            .collect(Collectors.joining(System.lineSeparator()));
+                                    String hint = String.format(
+                                            "You can exclude it by adding <exclude>%s</exclude> to your location",
+                                            debugString);
+                                    throw new RuntimeException(
+                                            String.format("Dependency %s of %s can not be wrapped: %s%s%s", debugString,
+                                                    mavenDependency, error, System.lineSeparator().repeat(2), hint));
                                 }
                                 File file = wrappedBundle.getFile().get().toFile();
                                 BundleDescription description = BundlesAction.createBundleDescription(file);
                                 WrappedArtifact wrappedArtifact = new WrappedArtifact(file, mavenArtifact,
                                         mavenArtifact.getClassifier(), description.getSymbolicName(),
                                         description.getVersion().toString(), null);
-                                logger.info(asDebugString(mavenArtifact)
-                                        + " is wrapped as a bundle with bundle symbolic name "
+                                logger.info(debugString + " is wrapped as a bundle with bundle symbolic name "
                                         + wrappedArtifact.getWrappedBsn());
                                 logger.info(wrappedArtifact.getReferenceHint());
                                 if (logger.isDebugEnabled()) {
@@ -252,7 +258,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                 symbolicName = wrappedArtifact.getWrappedBsn();
                                 bundleVersion = wrappedArtifact.getWrappedVersion();
                             } catch (Exception e) {
-                                throw new TargetDefinitionResolutionException("Artifact " + asDebugString(mavenArtifact)
+                                throw new TargetDefinitionResolutionException("Artifact " + debugString
                                         + " of location " + location + " could not be wrapped as a bundle", e);
                             }
 
@@ -261,13 +267,12 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                         }
                         bundles.add(unit);
                         if (logger.isDebugEnabled()) {
-                            logger.debug("MavenResolver: artifact " + asDebugString(mavenArtifact) + " at location "
-                                    + bundleLocation + " resolves installable unit "
-                                    + new VersionedId(unit.getId(), unit.getVersion()));
+                            logger.debug("MavenResolver: artifact " + debugString + " at location " + bundleLocation
+                                    + " resolves installable unit " + new VersionedId(unit.getId(), unit.getVersion()));
                         }
                     } catch (BundleException | IOException e) {
-                        throw new TargetDefinitionResolutionException("Artifact " + asDebugString(mavenArtifact)
-                                + " of location " + location + " could not be read", e);
+                        throw new TargetDefinitionResolutionException(
+                                "Artifact " + debugString + " of location " + location + " could not be read", e);
                     }
 
                     if (includeSource) {
@@ -309,7 +314,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                 }
                             }
                         } catch (DependencyResolutionException e) {
-                            logger.warn("MavenResolver: source-artifact " + asDebugString(mavenArtifact)
+                            logger.warn("MavenResolver: source-artifact " + debugString
                                     + ":sources cannot be resolved: " + e);
                         }
                     }
