@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -164,9 +165,7 @@ public class MavenBundleWrapper {
             return wrappedNode;
         }
         Jar jar = new Jar(originalFile);
-        Manifest originalManifest = jar.getManifest();
-        if (originalManifest != null
-                && originalManifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME) != null) {
+        if (isValidOSGi(jar.getManifest())) {
             // already a bundle!
             visited.put(node,
                     wrappedNode = new WrappedBundle(node, List.of(), null, originalFile.toPath(), jar, List.of()));
@@ -244,6 +243,15 @@ public class MavenBundleWrapper {
             }
             return wrappedNode;
         }
+    }
+
+    private static boolean isValidOSGi(Manifest originalManifest) {
+        if (originalManifest == null) {
+            return false;
+        }
+        Attributes attributes = originalManifest.getMainAttributes();
+        String symbolicName = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
+        return symbolicName != null && !symbolicName.isBlank();
     }
 
     private static Jar getCachedJar(Path cacheFile, Path sourceFile) {

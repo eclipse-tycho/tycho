@@ -57,6 +57,22 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
     }
 
     @Test
+    public void testBadSymbolicName() throws Exception {
+        ITargetLocation target = resolveMavenTarget("""
+                <location includeDependencyScope="compile" missingManifest="generate" type="Maven">
+                    <dependencies>
+                        <dependency>
+                            <groupId>javax.xml.ws</groupId>
+                            <artifactId>jaxws-api</artifactId>
+                            <version>2.3.1</version>
+                        </dependency>
+                    </dependencies>
+                </location>
+                """);
+        assertStatusOk(getTargetStatus(target));
+    }
+
+    @Test
     public void testBadDependencyDirect() throws Exception {
         ITargetLocation target = resolveMavenTarget("""
                 <location missingManifest="generate" type="Maven">
