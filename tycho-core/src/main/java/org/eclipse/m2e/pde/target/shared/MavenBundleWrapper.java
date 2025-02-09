@@ -13,6 +13,8 @@
 package org.eclipse.m2e.pde.target.shared;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,10 +29,16 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.jar.Attributes;
+import java.util.jar.Attributes.Name;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.maven.model.Model;
@@ -69,6 +77,9 @@ import aQute.bnd.version.Version;
  * </ul>
  */
 public class MavenBundleWrapper {
+
+    public static final String ECLIPSE_SOURCE_BUNDLE_HEADER = "Eclipse-SourceBundle";
+
     private MavenBundleWrapper() {
     }
 
@@ -312,5 +323,50 @@ public class MavenBundleWrapper {
             return sourceTimeStamp.toMillis() > cacheTimeStamp.toMillis();
         }
         return true;
+    }
+
+    private static boolean isExcludedFromWrapping(String name) {
+        return name.equals(JarFile.MANIFEST_NAME) || name.startsWith("META-INF/SIG-") || name.startsWith("META-INF/")
+                && (name.endsWith(".SF") || name.endsWith(".RSA") || name.endsWith(".DSA"));
+    }
+
+    public static void addSourceBundleMetadata(Manifest manifest, String symbolicName, String version) {
+
+        Attributes attr = manifest.getMainAttributes();
+        if (attr.isEmpty()) {
+            attr.put(Name.MANIFEST_VERSION, "1.0");
+        }
+        attr.putValue(ECLIPSE_SOURCE_BUNDLE_HEADER, symbolicName + ";version=\"" + version + "\";roots:=\".\"");
+        attr.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
+        attr.putValue(Constants.BUNDLE_NAME, "Source Bundle for " + symbolicName + ":" + version);
+        attr.putValue(Constants.BUNDLE_SYMBOLICNAME, getSourceBundleName(symbolicName));
+        attr.putValue(Constants.BUNDLE_VERSION, version);
+    }
+
+    public static String getSourceBundleName(String symbolicName) {
+        return symbolicName + ".source";
+    }
+
+    public static void transferJarEntries(File source, Manifest manifest, File target) throws IOException {
+        Map<String, Attributes> manifestEntries = manifest.getEntries();
+        if (manifestEntries != null) {
+            // need to clear out signature infos
+            manifestEntries.clear();
+        }
+        try (var output = new JarOutputStream(new FileOutputStream(target), manifest);
+                var input = new JarInputStream(new FileInputStream(source));) {
+            for (JarEntry entry; (entry = input.getNextJarEntry()) != null;) {
+                if (MavenBundleWrapper.isExcludedFromWrapping(entry.getName())) {
+                    // Exclude manifest and signatures
+                    continue;
+                }
+                output.putNextEntry(new ZipEntry(entry.getName()));
+                input.transferTo(output);
+            }
+        }
+    }
+
+    public static boolean isValidSourceManifest(Manifest manifest) {
+        return manifest != null && manifest.getMainAttributes().getValue(ECLIPSE_SOURCE_BUNDLE_HEADER) != null;
     }
 }
