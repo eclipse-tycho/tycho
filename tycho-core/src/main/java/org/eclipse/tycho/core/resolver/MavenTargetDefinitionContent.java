@@ -12,14 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,14 +25,9 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.jar.Attributes;
-import java.util.jar.Attributes.Name;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -94,13 +85,11 @@ import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation.Missin
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     private static final String POM_PACKAGING_TYPE = "pom";
-    public static final String ECLIPSE_SOURCE_BUNDLE_HEADER = "Eclipse-SourceBundle";
     private final Map<IArtifactDescriptor, IInstallableUnit> repositoryContent = new HashMap<>();
     private SupplierMetadataRepository metadataRepository;
     private FileArtifactRepository artifactRepository;
@@ -293,7 +282,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                         manifest = Objects.requireNonNullElseGet(jar.getManifest(), Manifest::new);
                                     }
                                     IInstallableUnit unit;
-                                    if (isValidSourceManifest(manifest)) {
+                                    if (MavenBundleWrapper.isValidSourceManifest(manifest)) {
                                         unit = publish(BundlesAction.createBundleDescription(sourceFile), sourceFile,
                                                 sourceArtifact);
                                     } else {
@@ -365,32 +354,8 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
 
         File tempFile = File.createTempFile("tycho_wrapped_source", ".jar");
         tempFile.deleteOnExit();
-        Attributes attr = manifest.getMainAttributes();
-        if (attr.isEmpty()) {
-            attr.put(Name.MANIFEST_VERSION, "1.0");
-        }
-        attr.putValue(ECLIPSE_SOURCE_BUNDLE_HEADER, symbolicName + ";version=\"" + bundleVersion + "\";roots:=\".\"");
-        attr.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
-        attr.putValue(Constants.BUNDLE_NAME, "Source Bundle for " + symbolicName + ":" + bundleVersion);
-        attr.putValue(Constants.BUNDLE_SYMBOLICNAME, symbolicName + ".source");
-        attr.putValue(Constants.BUNDLE_VERSION, bundleVersion);
-        try (JarOutputStream stream = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tempFile)),
-                manifest)) {
-            try (JarFile jar = new JarFile(sourceFile)) {
-                Enumeration<JarEntry> entries = jar.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry jarEntry = entries.nextElement();
-                    if (jarEntry.getName().equals(JarFile.MANIFEST_NAME)) {
-                        continue;
-                    }
-                    try (InputStream is = jar.getInputStream(jarEntry)) {
-                        stream.putNextEntry(new ZipEntry(jarEntry.getName()));
-                        is.transferTo(stream);
-                        stream.closeEntry();
-                    }
-                }
-            }
-        }
+        MavenBundleWrapper.addSourceBundleMetadata(manifest, symbolicName, bundleVersion);
+        MavenBundleWrapper.transferJarEntries(sourceFile, manifest, tempFile);
         return publish(BundlesAction.createBundleDescription(tempFile), tempFile, sourceArtifact);
 
     }
@@ -439,13 +404,6 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         }
         key += ":" + artifact.getVersion();
         return key;
-    }
-
-    private static boolean isValidSourceManifest(Manifest manifest) {
-        if (manifest != null) {
-            return manifest.getMainAttributes().getValue(ECLIPSE_SOURCE_BUNDLE_HEADER) != null;
-        }
-        return false;
     }
 
 }

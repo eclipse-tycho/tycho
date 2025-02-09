@@ -73,6 +73,39 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
     }
 
     @Test
+    public void testSourceWithSignature() throws Exception {
+        ITargetLocation target = resolveMavenTarget(
+                """
+                        <location includeDependencyDepth="none" includeDependencyScopes="compile" label="LemMinX" includeSource="true" missingManifest="error" type="Maven">
+                            <dependencies>
+                                <dependency>
+                                    <groupId>org.eclipse.lemminx</groupId>
+                                    <artifactId>org.eclipse.lemminx</artifactId>
+                                    <version>0.29.0</version>
+                                    <type>jar</type>
+                                </dependency>
+                            </dependencies>
+                            <repositories>
+                                <repository>
+                                    <id>lemminx-releases</id>
+                                    <url>https://repo.eclipse.org/content/repositories/lemminx-releases/</url>
+                                </repository>
+                            </repositories>
+                        </location>
+                        """);
+        assertStatusOk(getTargetStatus(target));
+        TargetBundle[] allBundles = target.getBundles();
+        boolean sourcesFound = false;
+        for (TargetBundle targetBundle : allBundles) {
+            if (targetBundle.isSourceBundle()) {
+                sourcesFound = true;
+                assertValidSignature(targetBundle);
+            }
+        }
+        assertTrue("No source bundle generated!", sourcesFound);
+    }
+
+    @Test
     public void testBadDependencyDirect() throws Exception {
         ITargetLocation target = resolveMavenTarget("""
                 <location missingManifest="generate" type="Maven">
