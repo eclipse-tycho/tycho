@@ -230,7 +230,12 @@ public class MavenBundleWrapper {
                         analyzer.addClasspath(depJar);
                         analyzer.removeClose(depJar);
                     }
-                    analyzerJar.setManifest(analyzer.calcManifest());
+                    Manifest manifest = analyzer.calcManifest();
+                    Map<String, Attributes> entries = manifest.getEntries();
+                    if (entries != null) {
+                        entries.clear();
+                    }
+                    analyzerJar.setManifest(manifest);
                     analyzerJar.write(wrapArtifactFile);
                     for (String err : analyzer.getErrors()) {
                         if (err.contains("Classes found in the wrong directory")) {
