@@ -106,6 +106,28 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
     }
 
     @Test
+    public void testArtifactWithSignature() throws Exception {
+        ITargetLocation target = resolveMavenTarget(
+                """
+                        <location includeDependencyDepth="none" includeDependencyScopes="compile" label="verapdf" includeSource="true" missingManifest="generate" type="Maven">
+                            <dependencies>
+                                <dependency>
+                                    <groupId>org.verapdf</groupId>
+                                    <artifactId>core</artifactId>
+                                    <version>1.26.5</version>
+                                </dependency>
+                            </dependencies>
+                        </location>
+                        """);
+        assertStatusOk(getTargetStatus(target));
+        TargetBundle[] allBundles = target.getBundles();
+        for (TargetBundle targetBundle : allBundles) {
+            assertValidSignature(targetBundle);
+        }
+        assertTrue("No bundle generated!", allBundles.length > 0);
+    }
+
+    @Test
     public void testBadDependencyDirect() throws Exception {
         ITargetLocation target = resolveMavenTarget("""
                 <location missingManifest="generate" type="Maven">
