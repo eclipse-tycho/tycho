@@ -31,7 +31,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-@Mojo(name = "initialize", defaultPhase = LifecyclePhase.INITIALIZE)
+@Mojo(name = "initialize", defaultPhase = LifecyclePhase.INITIALIZE, threadSafe = true)
 public class BndInitMojo extends AbstractBndMojo {
 
 	/**

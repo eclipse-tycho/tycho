@@ -14,6 +14,7 @@ package org.eclipse.tycho.bnd.mojos;
 
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import aQute.bnd.build.Project;
@@ -21,8 +22,18 @@ import aQute.bnd.build.Project;
 @Mojo(name = "test-compile", defaultPhase = LifecyclePhase.TEST_COMPILE, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class BndTestCompileMojo extends AbstractBndProjectMojo {
 
+	/**
+	 * Set this to <code>true</code> to bypass compilation of test sources. Its use
+	 * is <b>NOT RECOMMENDED</b>, but quite convenient on occasion.
+	 */
+	@Parameter(property = "maven.test.skip")
+	private boolean skip;
+
 	@Override
 	protected void execute(Project project) throws Exception {
+		if (skip) {
+			return;
+		}
 		project.compile(true);
 	}
 
