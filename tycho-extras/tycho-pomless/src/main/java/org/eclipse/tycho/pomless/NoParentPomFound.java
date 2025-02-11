@@ -19,7 +19,11 @@ import java.nio.file.Path;
 public class NoParentPomFound extends FileNotFoundException {
 
     public NoParentPomFound(Path path) throws IOException {
-        super("No parent pom file found in " + path.toAbsolutePath().toString());
+        this("No parent pom file found in " + path.toAbsolutePath().toString());
+    }
+
+    public NoParentPomFound(String reason) {
+        super(reason);
     }
 
 }

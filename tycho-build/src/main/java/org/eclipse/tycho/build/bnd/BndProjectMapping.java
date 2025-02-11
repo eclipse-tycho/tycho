@@ -29,6 +29,8 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
+import org.eclipse.tycho.pomless.NoParentPomFound;
+import org.eclipse.tycho.pomless.ParentModel;
 import org.eclipse.tycho.version.TychoVersion;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
@@ -37,7 +39,6 @@ import aQute.bnd.build.Workspace;
 
 @Component(role = Mapping.class, hint = "bnd")
 public class BndProjectMapping extends AbstractTychoMapping {
-	
 
 	private static final String TYCHO_BND_PLUGIN = "tycho-bnd-plugin";
 	@Requirement(role = Lifecycle.class)
@@ -169,6 +170,29 @@ public class BndProjectMapping extends AbstractTychoMapping {
 			return file.getAbsolutePath();
 		}
 		return null;
+	}
+
+	@Override
+	protected ParentModel loadParent(Path projectRoot, Path fileOrFolder) throws NoParentPomFound, IOException {
+
+		if (isCnfDir(projectRoot)) {
+			throw new NoParentPomFound(
+					"The workspace configuration folder '" + projectRoot
+							+ "' can not contain a bnd-project, consider moving it to an own project or place a pom.xml in the config folder to manually configure the maven execution");
+		}
+		return super.loadParent(projectRoot, fileOrFolder);
+	}
+
+	private boolean isCnfDir(Path projectRoot) {
+		try {
+			Workspace workspace = Workspace.findWorkspace(projectRoot.toFile());
+			File buildDir = workspace.getBuildDir();
+			if (Files.isSameFile(projectRoot, buildDir.toPath())) {
+				return true;
+			}
+		} catch (Exception e) {
+		}
+		return false;
 	}
 
 }
