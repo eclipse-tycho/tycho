@@ -158,6 +158,10 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         if (model.getParent() == null) {
             model.setParent(findParent(artifactFile.getParent(), options).parentReference());
         }
+        if (model.getGroupId() == null && model.getParent() == null) {
+            //if nothing has init this yet set at least a value
+            model.setGroupId(artifactFile.getParent().getFileName().toString());
+        }
         if (model.getVersion() == null && model.getParent() != null) {
             //inherit version from parent if not given
             model.setVersion(model.getParent().getVersion());
