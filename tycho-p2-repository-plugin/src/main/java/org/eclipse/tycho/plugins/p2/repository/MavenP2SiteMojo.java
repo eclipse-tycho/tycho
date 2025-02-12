@@ -160,6 +160,9 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(defaultValue = "false")
     private boolean includeTransitiveDependencies;
 
+    @Parameter(defaultValue = "false")
+    private boolean failOnResolveError;
+
     @Parameter(defaultValue = "300")
     private int timeoutInSeconds = 300;
 
@@ -464,6 +467,9 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 logger.debug("    resolved " + resolvedArtifact.getGroupId() + "::" + resolvedArtifact.getArtifactId()
                         + "::" + resolvedArtifact.getVersion() + "::" + resolvedArtifact.getClassifier());
                 File file = resolvedArtifact.getFile();
+                if (file == null) {
+                    continue;
+                }
                 if (filesAdded.add(file.getAbsolutePath())) {
                     bundles.add(file);
                     advices.add(createMavenAdvice(resolvedArtifact));
@@ -516,7 +522,8 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     }
 
-    protected Set<Artifact> resolveArtifact(Artifact artifact, boolean resolveTransitively) {
+    protected Set<Artifact> resolveArtifact(Artifact artifact, boolean resolveTransitively)
+            throws MojoExecutionException {
         ArtifactResolutionRequest request = new ArtifactResolutionRequest();
         request.setArtifact(artifact);
         request.setOffline(session.isOffline());
@@ -524,6 +531,17 @@ public class MavenP2SiteMojo extends AbstractMojo {
         request.setResolveTransitively(resolveTransitively);
         request.setRemoteRepositories(session.getCurrentProject().getRemoteArtifactRepositories());
         ArtifactResolutionResult result = repositorySystem.resolve(request);
+        if (failOnResolveError) {
+            for (Exception exception : result.getExceptions()) {
+                throw new MojoExecutionException(exception);
+            }
+            for (Exception exception : result.getErrorArtifactExceptions()) {
+                throw new MojoExecutionException(exception);
+            }
+            for (Exception exception : result.getMetadataResolutionExceptions()) {
+                throw new MojoExecutionException(exception);
+            }
+        }
         return result.getArtifacts();
     }
 
