@@ -194,7 +194,7 @@ public class PdeInstallableUnitProvider implements InstallableUnitProvider {
             public Clazz getPackageInfo(PackageRef packageRef) {
                 Clazz info = super.getPackageInfo(packageRef);
                 if (info == null) {
-                    return plugin.getPackageInfo(packageRef);
+                    return plugin.getPackageInfoClass(packageRef);
                 }
                 return info;
             }

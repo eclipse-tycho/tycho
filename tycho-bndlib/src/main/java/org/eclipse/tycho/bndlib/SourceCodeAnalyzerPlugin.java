@@ -30,7 +30,9 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MemberValuePair;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
@@ -49,10 +51,11 @@ import aQute.bnd.service.AnalyzerPlugin;
  */
 public class SourceCodeAnalyzerPlugin implements AnalyzerPlugin {
 
+	private static final String JAVA_EXTENSION = ".java";
 	private static final String PACKAGE_INFO = "package-info";
 	private static final String ANNOTATION_VERSION = "org.osgi.annotation.versioning.Version";
 	private static final String ANNOTATION_EXPORT = "org.osgi.annotation.bundle.Export";
-	private static final String PACKAGE_INFO_JAVA = PACKAGE_INFO + ".java";
+	private static final String PACKAGE_INFO_JAVA = PACKAGE_INFO + JAVA_EXTENSION;
 	private static final String PACKAGE_INFO_CLASS = PACKAGE_INFO + ".class";
 	private List<Path> sourcePaths;
 	private Map<PackageRef, Clazz> packageInfoMap = new HashMap<>();
@@ -86,7 +89,7 @@ public class SourceCodeAnalyzerPlugin implements AnalyzerPlugin {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					String fileName = file.getFileName().toString().toLowerCase();
-					if (fileName.endsWith(".java")) {
+					if (fileName.endsWith(JAVA_EXTENSION)) {
 						boolean packageInfo = fileName.equals(PACKAGE_INFO_JAVA);
 						if (packageInfo || analyzedPath.add(file.getParent())) {
 							String source = Files.readString(file);
@@ -95,6 +98,7 @@ public class SourceCodeAnalyzerPlugin implements AnalyzerPlugin {
 							if (ast instanceof CompilationUnit cu) {
 								PackageDeclaration packageDecl = cu.getPackage();
 								if (packageDecl != null) {
+									List<?> imports = cu.imports();
 									String packageFqdn = packageDecl.getName().getFullyQualifiedName();
 									PackageRef packageRef = analyzer.getPackageRef(packageFqdn);
 									if (seenPackages.add(packageFqdn)) {
@@ -111,12 +115,13 @@ public class SourceCodeAnalyzerPlugin implements AnalyzerPlugin {
 										String version = null;
 										for (Object raw : packageDecl.annotations()) {
 											if (raw instanceof Annotation annot) {
-												String annotationFqdn = annot.getTypeName().getFullyQualifiedName();
-												if (ANNOTATION_EXPORT.equals(annotationFqdn)) {
+												Name typeName = annot.getTypeName();
+												String annotationFqdn = typeName.getFullyQualifiedName();
+												if (isType(annotationFqdn, ANNOTATION_EXPORT, imports)) {
 													export = true;
 													clazz.addAnnotation(
 															analyzer.getTypeRef(ANNOTATION_EXPORT.replace('.', '/')));
-												} else if (ANNOTATION_VERSION.equals(annotationFqdn)) {
+												} else if (isType(annotationFqdn, ANNOTATION_VERSION, imports)) {
 													if (annot instanceof NormalAnnotation normal) {
 														for (Object vp : normal.values()) {
 															MemberValuePair pair = (MemberValuePair) vp;
@@ -133,14 +138,12 @@ public class SourceCodeAnalyzerPlugin implements AnalyzerPlugin {
 												}
 											}
 										}
+										if (version != null) {
+											// if the package is exported or not, the version info must be propagated
+											analyzer.getContained().put(packageRef, Attrs.create("version", version));
+										}
 										if (export) {
 											packageInfoMap.put(packageRef, clazz);
-											if (version == null) {
-												analyzer.getContained().put(packageRef);
-											} else {
-												analyzer.getContained().put(packageRef,
-														Attrs.create("version", version));
-											}
 										}
 									}
 								}
@@ -174,8 +177,24 @@ public class SourceCodeAnalyzerPlugin implements AnalyzerPlugin {
 		return List.of();
 	}
 
-	public Clazz getPackageInfo(PackageRef packageRef) {
+	public Clazz getPackageInfoClass(PackageRef packageRef) {
 		return packageInfoMap.get(packageRef);
+	}
+
+	private static boolean isType(String simpleOrFqdn, String type, List<?> imports) {
+		if (type.equals(simpleOrFqdn)) {
+			return true;
+		}
+		if (type.endsWith("." + simpleOrFqdn)) {
+			for (Object object : imports) {
+				if (object instanceof ImportDeclaration importDecl) {
+					if (type.equals(importDecl.getName().getFullyQualifiedName())) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 }
