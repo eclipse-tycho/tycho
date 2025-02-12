@@ -28,6 +28,7 @@ import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.bndlib.JdtProjectBuilder;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.eclipse.tycho.pomless.NoParentPomFound;
 import org.eclipse.tycho.pomless.ParentModel;
@@ -168,7 +169,7 @@ public class BndProjectMapping extends AbstractTychoMapping {
 	}
 
 	private static ProjectBuilder createBuilder(Project project) throws Exception {
-		ProjectBuilder builder = new ProjectBuilder(project);
+		ProjectBuilder builder = new JdtProjectBuilder(project);
 		builder.setBase(project.getBase());
 		builder.use(project);
 		builder.setFailOk(true);
