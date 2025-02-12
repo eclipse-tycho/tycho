@@ -28,6 +28,7 @@ import java.util.stream.StreamSupport;
 
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.bndlib.PathResource;
 
 import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.ManifestResource;
@@ -54,7 +55,7 @@ public class MavenProjectJar extends Jar {
 					String path = StreamSupport.stream(relativePath.spliterator(), false).map(Path::toString)
 							.collect(Collectors.joining("/"));
 					log.debug("Adding " + path + " to project jar...");
-					putResource(path, new MavenProjectResource(file));
+					putResource(path, new PathResource(file));
 				} else {
 					log.debug("Ignore " + relativePath + " because it is filtered");
 				}
@@ -81,7 +82,7 @@ public class MavenProjectJar extends Jar {
 
 	@Override
 	public boolean putResource(String path, Resource resource, boolean overwrite) {
-		if (resource instanceof MavenProjectResource) {
+		if (resource instanceof PathResource) {
 			return super.putResource(path, resource, overwrite);
 		}
 		Path file = outputFolder.resolve(path);
@@ -98,6 +99,6 @@ public class MavenProjectJar extends Jar {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		return super.putResource(path, new MavenProjectResource(file), overwrite);
+		return super.putResource(path, new PathResource(file), overwrite);
 	}
 }
