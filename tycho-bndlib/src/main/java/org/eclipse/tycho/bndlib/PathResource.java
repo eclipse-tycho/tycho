@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.bnd;
+package org.eclipse.tycho.bndlib;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,12 +21,12 @@ import java.nio.file.Path;
 
 import aQute.bnd.osgi.Resource;
 
-class MavenProjectResource implements Resource {
+public class PathResource implements Resource {
 
 	private String extra;
 	private Path path;
 
-	public MavenProjectResource(Path path) {
+	public PathResource(Path path) {
 		this.path = path;
 	}
 

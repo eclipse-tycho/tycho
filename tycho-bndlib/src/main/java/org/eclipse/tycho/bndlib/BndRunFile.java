@@ -10,7 +10,7 @@
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.bnd;
+package org.eclipse.tycho.bndlib;
 
 import java.nio.file.Path;
 
