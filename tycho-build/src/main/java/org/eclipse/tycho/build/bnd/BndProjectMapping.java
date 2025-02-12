@@ -35,6 +35,7 @@ import org.eclipse.tycho.version.TychoVersion;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
 import aQute.bnd.build.Project;
+import aQute.bnd.build.ProjectBuilder;
 import aQute.bnd.build.Workspace;
 
 @Component(role = Mapping.class, hint = "bnd")
@@ -106,16 +107,18 @@ public class BndProjectMapping extends AbstractTychoMapping {
 			if (g != null) {
 				model.setGroupId(g);
 			}
-			if (a == null) {
-				model.setArtifactId(project.getName());
-			} else {
-				model.setArtifactId(a);
+			if (a == null || v == null) {
+				try (ProjectBuilder builder = createBuilder(project)) {
+					if (a == null) {
+						a = builder.getBsn();
+					}
+					if (v == null) {
+						v = builder.getVersion();
+					}
+				}
 			}
-			if (v == null) {
-				model.setVersion(project.getBundleVersion());
-			} else {
-				model.setVersion(v);
-			}
+			model.setArtifactId(a);
+			model.setVersion(v);
 			Build build = getBuild(model);
 			build.setDirectory(path(project.getTarget()));
 			build.setOutputDirectory(path(project.getSrcOutput()));
@@ -124,7 +127,6 @@ public class BndProjectMapping extends AbstractTychoMapping {
 			File src = project.getSrc();
 			build.setSourceDirectory(path(src));
 			build.setTestSourceDirectory(path(project.getTestSrc()));
-			model.setVersion(project.getBundleVersion());
 			Plugin bndPlugin = getPlugin(model, TYCHO_GROUP_ID, TYCHO_BND_PLUGIN);
 			bndPlugin.setExtensions(true);
 			bndPlugin.setVersion(TychoVersion.getTychoVersion());
@@ -163,6 +165,14 @@ public class BndProjectMapping extends AbstractTychoMapping {
 			throw new IOException(e);
 		}
 
+	}
+
+	private static ProjectBuilder createBuilder(Project project) throws Exception {
+		ProjectBuilder builder = new ProjectBuilder(project);
+		builder.setBase(project.getBase());
+		builder.use(project);
+		builder.setFailOk(true);
+		return builder;
 	}
 
 	private static String path(File file) throws Exception {
