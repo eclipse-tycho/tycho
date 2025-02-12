@@ -43,6 +43,7 @@ import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.bndlib.SourceCodeAnalyzerPlugin;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;

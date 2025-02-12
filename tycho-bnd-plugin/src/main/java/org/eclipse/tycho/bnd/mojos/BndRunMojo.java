@@ -33,7 +33,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
-import org.eclipse.tycho.bnd.BndRunFile;
+import org.eclipse.tycho.bndlib.BndRunFile;
 import org.osgi.service.resolver.ResolutionException;
 
 import aQute.bnd.build.Container;

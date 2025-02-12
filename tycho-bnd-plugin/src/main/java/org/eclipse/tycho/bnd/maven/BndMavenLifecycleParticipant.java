@@ -41,8 +41,8 @@ import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.bnd.BndRunFile;
 import org.eclipse.tycho.bnd.mojos.BndRunMojo;
+import org.eclipse.tycho.bndlib.BndRunFile;
 import org.eclipse.tycho.core.bnd.BndPluginManager;
 
 import aQute.bnd.build.Project;
