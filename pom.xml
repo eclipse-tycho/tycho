@@ -596,6 +596,7 @@
 		<module>tycho-eclipse-plugin</module>
 		<module>tycho-wrap-plugin</module>
 		<module>tycho-cleancode-plugin</module>
+		<module>tycho-bndlib</module>
 	</modules>
 	<profiles>
 		<profile>
