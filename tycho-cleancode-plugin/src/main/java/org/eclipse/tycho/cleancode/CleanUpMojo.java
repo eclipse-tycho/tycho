@@ -13,7 +13,9 @@
 package org.eclipse.tycho.cleancode;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -43,6 +45,12 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 	@Parameter
 	private boolean applyCleanupsIndividually;
 
+	/**
+	 * Specifies patterns of files that should be excluded
+	 */
+	@Parameter
+	private List<String> ignores;
+
 	@Override
 	protected String[] getRequireBundles() {
 		return new String[] { "org.eclipse.jdt.ui" };
@@ -55,7 +63,15 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 
 	@Override
 	protected CleanUp createExecutable() {
-		return new CleanUp(project.getBasedir().toPath(), debug, cleanUpProfile, applyCleanupsIndividually);
+		return new CleanUp(project.getBasedir().toPath(), debug, cleanUpProfile, applyCleanupsIndividually,
+				getIgnores());
+	}
+
+	private List<Pattern> getIgnores() {
+		if (ignores == null || ignores.isEmpty()) {
+			return null;
+		}
+		return ignores.stream().map(Pattern::compile).toList();
 	}
 
 	@Override
