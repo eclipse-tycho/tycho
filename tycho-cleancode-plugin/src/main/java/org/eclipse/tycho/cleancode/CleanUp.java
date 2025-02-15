@@ -16,11 +16,13 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -43,11 +45,14 @@ public class CleanUp extends AbstractEclipseBuild<CleanupResult> {
 
 	private Map<String, String> customProfile;
 	private boolean applyCleanupsIndividually;
+	private List<Pattern> ignores;
 
-	CleanUp(Path projectDir, boolean debug, Map<String, String> customProfile, boolean applyCleanupsIndividually) {
+	CleanUp(Path projectDir, boolean debug, Map<String, String> customProfile, boolean applyCleanupsIndividually,
+			List<Pattern> ignores) {
 		super(projectDir, debug);
 		this.customProfile = customProfile;
 		this.applyCleanupsIndividually = applyCleanupsIndividually;
+		this.ignores = ignores;
 	}
 
 	@Override
@@ -101,6 +106,9 @@ public class CleanUp extends AbstractEclipseBuild<CleanupResult> {
 						IPackageFragment pf = (IPackageFragment) javaElement;
 						ICompilationUnit[] compilationUnits = pf.getCompilationUnits();
 						for (ICompilationUnit compilationUnit : compilationUnits) {
+							if (isIgnored(compilationUnit)) {
+								continue;
+							}
 							units.add(compilationUnit);
 						}
 					}
@@ -108,6 +116,22 @@ public class CleanUp extends AbstractEclipseBuild<CleanupResult> {
 			}
 		}
 		return units;
+	}
+
+	private boolean isIgnored(ICompilationUnit compilationUnit) {
+		if (ignores == null || ignores.isEmpty()) {
+			return false;
+		}
+		IProject project = compilationUnit.getJavaProject().getProject();
+		IPath location = project.getFullPath();
+		IPath path = compilationUnit.getPath().makeRelativeTo(location);
+		String pathString = path.toString();
+		for (Pattern ignored : ignores) {
+			if (ignored.matcher(pathString).matches()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private ICleanUp[] getCleanups(CleanupResult result, CleanUpOptions options) {
