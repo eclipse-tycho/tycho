@@ -126,6 +126,13 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
             List<IInstallableUnit> locationSourceBundles = new ArrayList<>();
             for (MavenDependency mavenDependency : location.getRoots()) {
                 DependencyDepth dependencyDepth = location.getIncludeDependencyDepth();
+                if (isClassified(mavenDependency)) {
+                    // a classified artifact can not have any dependencies and will actually include
+                    // the ones from the main artifact.
+                    // if the user really wants this it is possible to include the pom typed
+                    // artifact or the main artifact in the list
+                    dependencyDepth = DependencyDepth.NONE;
+                }
                 if (dependencyDepth == DependencyDepth.NONE
                         && POM_PACKAGING_TYPE.equalsIgnoreCase(mavenDependency.getArtifactType())) {
                     dependencyDepth = DependencyDepth.DIRECT;
@@ -347,6 +354,11 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
             }
             FeaturePublisher.publishFeatures(features, repositoryContent::put, artifactRepository, logger);
         }
+    }
+
+    private boolean isClassified(MavenDependency mavenDependency) {
+        String classifier = mavenDependency.getClassifier();
+        return classifier != null && !classifier.isBlank();
     }
 
     private IInstallableUnit generateSourceBundle(String symbolicName, String bundleVersion, Manifest manifest,
