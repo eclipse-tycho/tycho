@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -103,6 +104,35 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
             }
         }
         assertTrue("No source bundle generated!", sourcesFound);
+    }
+
+    @Test
+    public void testWithClassifierFailsToCollect() throws Exception {
+        String targetXML = """
+                <location includeDependencyDepth="%depth%" includeDependencyScopes="compile,provided,runtime,system" includeSource="false" missingManifest="generate" type="Maven">
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.ehcache</groupId>
+                            <artifactId>ehcache</artifactId>
+                            <version>3.10.0</version>
+                            <type>jar</type>
+                            <classifier>jakarta</classifier>
+                        </dependency>
+                    </dependencies>
+                </location>
+                """;
+        for (String deepth : new String[] { "none", "direct", "infinite" }) {
+            ITargetLocation target = resolveMavenTarget(targetXML.replace("%depth%", deepth));
+            assertStatusOk(getTargetStatus(target));
+            TargetBundle[] bundles = target.getBundles();
+            for (TargetBundle targetBundle : bundles) {
+                URI location = targetBundle.getBundleInfo().getLocation();
+                assertTrue(
+                        "bundle with classifier was not correctly fetched width deepth = " + deepth + " location = "
+                                + location,
+                        location.toString().endsWith("org/ehcache/ehcache/3.10.0/ehcache-3.10.0-jakarta.jar"));
+            }
+        }
     }
 
     @Test
