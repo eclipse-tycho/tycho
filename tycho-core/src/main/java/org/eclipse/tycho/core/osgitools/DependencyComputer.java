@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.osgi.container.ModuleCapability;
@@ -35,18 +36,24 @@ import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.container.ModuleWire;
 import org.eclipse.osgi.container.ModuleWiring;
+import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
 import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.framework.namespace.ExecutionEnvironmentNamespace;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.resource.Capability;
+import org.osgi.resource.Namespace;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Wire;
 
 /**
  * Helper class that computes compile dependencies of a bundle project.
@@ -192,8 +199,44 @@ public class DependencyComputer {
         for (BundleRevision bundle : resolvedImportPackages.values()) {
             addDependencyViaImportPackage(bundle, added, visiblePackages, entries);
         }
+        // Add inter-fragment dependencies
+        if ((module.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
+            BundleRevision anyHost = getFragmentHost(module).orElseThrow();
+            Set<Requirement> wiredRequirements = anyHost.getWiring().getRequiredResourceWires(null).stream()
+                    .map(Wire::getRequirement).collect(Collectors.toSet());
+            List<BundleRequirement> interFragmentsRequirements = module.getDeclaredRequirements(null).stream()
+                    .filter(r -> !isIgnoredFragmentNamespace(r) && !wiredRequirements.contains(r) && !isOptional(r))
+                    .collect(Collectors.toCollection(ArrayList::new));
+            if (!interFragmentsRequirements.isEmpty()) {
+                Collection<BundleRevision> fragments = getFragments(anyHost);
+                for (BundleRevision fragment : fragments) {
+                    if (fragment != module) {
+                        for (BundleCapability capability : fragment.getDeclaredCapabilities(null)) {
+                            if (interFragmentsRequirements.removeIf(r -> r.matches(capability))) {
+                                if (added.add(fragment)) {
+                                    addPlugin(fragment, false, visiblePackages, entries);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //TODO: we have the provides within the same wiring
+        }
 
         return new ArrayList<>(entries);
+    }
+
+    private static boolean isOptional(BundleRequirement r) {
+        return Namespace.RESOLUTION_OPTIONAL.equals(r.getDirectives().get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE));
+    }
+
+    private static final Set<String> IGNORED_FRAGMENT_REQUIREMENT_NAMESPACES = Set.of(
+            ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE,
+            EclipsePlatformNamespace.ECLIPSE_PLATFORM_NAMESPACE);
+
+    private static boolean isIgnoredFragmentNamespace(BundleRequirement r) {
+        return IGNORED_FRAGMENT_REQUIREMENT_NAMESPACES.contains(r.getNamespace());
     }
 
     private List<BundleRevision> getRequiredBundles(BundleRevision module) {
