@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2020 SAP SE and others.
+ * Copyright (c) 2025 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -8,32 +8,26 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *     SAP SE - initial API and implementation
- *     Christoph Läubrich - add toString/equals/hashCode
+ *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
 import java.io.File;
 import java.util.Objects;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
 
-public final class MavenArtifactFacade implements IArtifactFacade {
+public final class AetherArtifactFacade implements IArtifactFacade {
 
-    private final Artifact mavenArtifact;
+    private final Artifact aetherArtifact;
     private String repositoryId;
 
-    public MavenArtifactFacade(Artifact mavenArtifact) {
-        this.mavenArtifact = mavenArtifact;
-        ArtifactRepository repository = mavenArtifact.getRepository();
-        if (repository != null) {
-            repositoryId = repository.getId();
-        } else {
-            repositoryId = MavenPropertiesAdvice.getRepository(mavenArtifact.getFile());
-        }
+    public AetherArtifactFacade(Artifact aetherArtifact) {
+        this.aetherArtifact = aetherArtifact;
+        //TODO is there a better way?
+        repositoryId = MavenPropertiesAdvice.getRepository(aetherArtifact.getFile());
     }
 
     @Override
@@ -43,38 +37,37 @@ public final class MavenArtifactFacade implements IArtifactFacade {
 
     @Override
     public File getLocation() {
-        return mavenArtifact.getFile();
+        return aetherArtifact.getFile();
     }
 
     @Override
     public String getGroupId() {
-        return mavenArtifact.getGroupId();
+        return aetherArtifact.getGroupId();
     }
 
     @Override
     public String getArtifactId() {
-        return mavenArtifact.getArtifactId();
+        return aetherArtifact.getArtifactId();
     }
 
     @Override
     public String getVersion() {
-        // bug 352154: getVersion has expanded/non-expanded SNAPSHOT, depending on if the artifact is cached or available from remote 
-        return mavenArtifact.getBaseVersion();
+        return aetherArtifact.getBaseVersion();
     }
 
     @Override
     public String getPackagingType() {
-        return mavenArtifact.getType();
+        return aetherArtifact.getExtension();
     }
 
     @Override
     public String getClassifier() {
-        return mavenArtifact.getClassifier();
+        return aetherArtifact.getClassifier();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mavenArtifact);
+        return Objects.hash(aetherArtifact);
     }
 
     @Override
@@ -85,13 +78,21 @@ public final class MavenArtifactFacade implements IArtifactFacade {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        MavenArtifactFacade other = (MavenArtifactFacade) obj;
-        return Objects.equals(mavenArtifact, other.mavenArtifact);
+        AetherArtifactFacade other = (AetherArtifactFacade) obj;
+        return Objects.equals(aetherArtifact, other.aetherArtifact);
     }
 
     @Override
     public String toString() {
-        return "MavenArtifactFacade [wrappedArtifact=" + mavenArtifact + "]";
+        return "AetherArtifactFacade [for =" + aetherArtifact + "]";
+    }
+
+    /**
+     * 
+     * @return the artifact this facades
+     */
+    public Artifact getArtifact() {
+        return aetherArtifact;
     }
 
 }
