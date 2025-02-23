@@ -36,8 +36,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.repository.RepositorySystem;
+import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.spi.synccontext.SyncContextFactory;
@@ -53,7 +55,9 @@ import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.m2e.pde.target.shared.DependencyResult;
 import org.eclipse.m2e.pde.target.shared.MavenBundleWrapper;
+import org.eclipse.m2e.pde.target.shared.MavenDependencyCollector;
 import org.eclipse.m2e.pde.target.shared.ProcessingMessage;
 import org.eclipse.m2e.pde.target.shared.WrappedBundle;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -62,6 +66,7 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.DependencyResolutionException;
 import org.eclipse.tycho.core.MavenDependenciesResolver;
 import org.eclipse.tycho.core.MavenModelFacade;
+import org.eclipse.tycho.core.maven.AetherArtifactFacade;
 import org.eclipse.tycho.core.publisher.TychoMavenPropertiesAdvice;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.target.FileArtifactRepository;
@@ -122,6 +127,11 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 instructionsMap.put(reference, properties);
                 logger.info((reference.isEmpty() ? "default instructions" : reference) + " = " + properties);
             }
+            List<RemoteRepository> effectiveRepositories = RepositoryUtils.toRepos(
+                    MavenDependenciesResolverConfigurer.getEffectiveRepositories(mavenSession.getCurrentProject(),
+                            location.getRepositoryReferences(), repositorySystem, mavenSession.getSettings()));
+            MavenDependencyCollector collector = new MavenDependencyCollector(repositorySystem2,
+                    mavenSession.getRepositorySession(), effectiveRepositories, location.getIncludeDependencyScopes());
             List<IInstallableUnit> locationBundles = new ArrayList<>();
             List<IInstallableUnit> locationSourceBundles = new ArrayList<>();
             for (MavenDependency mavenDependency : location.getRoots()) {
@@ -137,24 +147,15 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                         && POM_PACKAGING_TYPE.equalsIgnoreCase(mavenDependency.getArtifactType())) {
                     dependencyDepth = DependencyDepth.DIRECT;
                 }
-                int depth = switch (dependencyDepth) {
-                case INFINITE -> MavenDependenciesResolver.DEEP_INFINITE;
-                case DIRECT -> MavenDependenciesResolver.DEEP_DIRECT_CHILDREN;
-                default -> MavenDependenciesResolver.DEEP_NO_DEPENDENCIES;
-                };
-                Collection<?> resolve;
+                ResolvedMavenArtifacts resolve;
                 try {
-                    resolve = mavenDependenciesResolver.resolve(mavenDependency.getGroupId(),
-                            mavenDependency.getArtifactId(), mavenDependency.getVersion(),
-                            mavenDependency.getArtifactType(), mavenDependency.getClassifier(),
-                            location.getIncludeDependencyScopes(), depth, location.getRepositoryReferences());
-                } catch (DependencyResolutionException e1) {
+                    resolve = resolveRoot(collector, mavenDependency, dependencyDepth);
+                } catch (RepositoryException re) {
                     throw new TargetDefinitionResolutionException("MavenDependency " + mavenDependency + " of location "
-                            + location + " could not be resolved", e1);
+                            + location + " could not be resolved", re);
                 }
-
-                Iterator<IArtifactFacade> resolvedArtifacts = resolve.stream().filter(IArtifactFacade.class::isInstance)
-                        .map(IArtifactFacade.class::cast).iterator();
+                Iterator<IArtifactFacade> resolvedArtifacts = resolve.facades().stream()
+                        .filter(IArtifactFacade.class::isInstance).map(IArtifactFacade.class::cast).iterator();
                 Properties defaultProperties = WrappedArtifact.createPropertiesForPrefix("wrapped");
                 List<IInstallableUnit> bundles = new ArrayList<>();
                 List<IInstallableUnit> sourceBundles = new ArrayList<>();
@@ -205,7 +206,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                 List<RemoteRepository> repositories = RepositoryUtils
                                         .toRepos(MavenDependenciesResolverConfigurer.getEffectiveRepositories(
                                                 mavenSession.getCurrentProject(), location.getRepositoryReferences(),
-                                                repositorySystem));
+                                                repositorySystem, mavenSession.getSettings()));
                                 Function<DependencyNode, Properties> instructionsLookup = node -> instructionsMap
                                         .getOrDefault(getKey(node.getArtifact()),
                                                 instructionsMap.getOrDefault("", defaultProperties));
@@ -316,14 +317,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                     }
                 }
                 if (POM_PACKAGING_TYPE.equalsIgnoreCase(mavenDependency.getArtifactType())) {
-                    Optional<File> pomFacade = resolve.stream().filter(IArtifactFacade.class::isInstance)
-                            .map(IArtifactFacade.class::cast).filter(facade -> facade.getDependencyTrail().size() == 1)
-                            .filter(facade -> facade.getArtifactId().equals(mavenDependency.getArtifactId())
-                                    && facade.getGroupId().equals(mavenDependency.getGroupId())
-                                    && facade.getVersion().equals(mavenDependency.getVersion())
-                                    && facade.getPackagingType().equals(POM_PACKAGING_TYPE))
-                            .map(IArtifactFacade::getLocation).filter(Objects::nonNull).findFirst();
-
+                    Optional<File> pomFacade = Optional.ofNullable(resolve.root().getFile());
                     if (pomFacade.isPresent()) {
                         try {
                             MavenModelFacade model = mavenDependenciesResolver.loadModel(pomFacade.get());
@@ -353,6 +347,28 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 }
             }
             FeaturePublisher.publishFeatures(features, repositoryContent::put, artifactRepository, logger);
+        }
+    }
+
+    private ResolvedMavenArtifacts resolveRoot(MavenDependencyCollector collector, MavenDependency mavenDependency,
+            DependencyDepth dependencyDepth) throws RepositoryException {
+        DefaultArtifact rootArtifact = new DefaultArtifact(mavenDependency.getGroupId(),
+                mavenDependency.getArtifactId(), mavenDependency.getClassifier(), mavenDependency.getArtifactType(),
+                mavenDependency.getVersion());
+        DependencyResult collect = collector.collect(new Dependency(rootArtifact, null), convert(dependencyDepth));
+        List<AetherArtifactFacade> list = collect.artifacts().stream().filter(a -> a.getFile() != null)
+                .map(AetherArtifactFacade::new).toList();
+        return new ResolvedMavenArtifacts(list, collect.root().getArtifact());
+    }
+
+    private org.eclipse.m2e.pde.target.shared.DependencyDepth convert(DependencyDepth dependencyDepth) {
+        switch (dependencyDepth) {
+        case DIRECT:
+            return org.eclipse.m2e.pde.target.shared.DependencyDepth.DIRECT;
+        case INFINITE:
+            return org.eclipse.m2e.pde.target.shared.DependencyDepth.INFINITE;
+        default:
+            return org.eclipse.m2e.pde.target.shared.DependencyDepth.NONE;
         }
     }
 
@@ -416,6 +432,10 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         }
         key += ":" + artifact.getVersion();
         return key;
+    }
+
+    private static record ResolvedMavenArtifacts(Collection<AetherArtifactFacade> facades, Artifact root) {
+
     }
 
 }

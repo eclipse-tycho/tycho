@@ -194,7 +194,7 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
     }
 
     @Test
-    @Ignore("FIXME")
+    @Ignore("FIXME: we do not report the error here")
     public void testNonOSGiArtifact_missingArtifactError() throws Exception {
         ITargetLocation target = resolveMavenTarget("""
                 <location includeDependencyDepth="none" includeSource="true" missingManifest="error" type="Maven">
