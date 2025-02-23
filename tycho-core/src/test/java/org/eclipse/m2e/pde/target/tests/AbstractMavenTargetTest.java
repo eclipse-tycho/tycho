@@ -234,8 +234,9 @@ public abstract class AbstractMavenTargetTest {
     }
 
     static boolean isSourceFeature(TargetFeature f) {
+        NameVersionDescriptor[] plugins = f.getPlugins();
         return f.getId().endsWith(SOURCE_BUNDLE_SUFFIX)
-                && Arrays.stream(f.getPlugins()).allMatch(d -> d.getId().endsWith(SOURCE_BUNDLE_SUFFIX));
+                && Arrays.stream(plugins).allMatch(d -> d.getId().endsWith(SOURCE_BUNDLE_SUFFIX));
     }
 
     static IStatus getTargetStatus(ITargetLocation target) {

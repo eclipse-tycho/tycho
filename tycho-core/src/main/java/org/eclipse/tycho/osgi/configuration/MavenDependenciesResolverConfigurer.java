@@ -28,7 +28,6 @@ import org.apache.maven.artifact.InvalidRepositoryException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
@@ -36,6 +35,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -76,24 +76,18 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
         request.setResolveRoot(true);
         request.setOffline(mavenSession.isOffline());
         request.setCollectionFilter(a -> isValidScope(a, scopes));
-        request.setResolutionFilter(new ArtifactFilter() {
-            @Override
-            public boolean include(Artifact a) {
-                List<String> trail = a.getDependencyTrail();
-                if (logger.isDebugEnabled()) {
-                    logger.debug("[depth=" + trail.size() + ", scope matches =" + isValidScope(a, scopes) + "][" + a
-                            + "][" + trail.stream().collect(Collectors.joining(" >> ")) + "]");
-                }
-                return trail.size() <= depth && isValidScope(a, scopes);
+        request.setResolutionFilter(a -> {
+            List<String> trail = a.getDependencyTrail();
+            if (logger.isDebugEnabled()) {
+                logger.debug("[depth=" + trail.size() + ", scope matches =" + isValidScope(a, scopes) + "][" + a + "]["
+                        + trail.stream().collect(Collectors.joining(" >> ")) + "]");
             }
+            return trail.size() <= depth && isValidScope(a, scopes);
         });
         request.setLocalRepository(mavenSession.getLocalRepository());
         request.setResolveTransitively(depth > 0);
-        request.setRemoteRepositories(
-                getEffectiveRepositories(mavenSession.getCurrentProject(), additionalRepositories, repositorySystem));
-        repositorySystem.injectMirror(request.getRemoteRepositories(), mavenSession.getSettings().getMirrors());
-        repositorySystem.injectProxy(request.getRemoteRepositories(), mavenSession.getSettings().getProxies());
-        repositorySystem.injectAuthentication(request.getRemoteRepositories(), mavenSession.getSettings().getServers());
+        request.setRemoteRepositories(getEffectiveRepositories(mavenSession.getCurrentProject(), additionalRepositories,
+                repositorySystem, mavenSession.getSettings()));
         ArtifactResolutionResult result = repositorySystem.resolve(request);
         if (result.hasExceptions()) {
             throw new DependencyResolutionException("resolving " + artifact + " failed!", result.getExceptions());
@@ -103,7 +97,8 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
 
     @SuppressWarnings("deprecation")
     public static List<ArtifactRepository> getEffectiveRepositories(MavenProject project,
-            Collection<MavenArtifactRepositoryReference> additionalRepositories, RepositorySystem repositorySystem) {
+            Collection<MavenArtifactRepositoryReference> additionalRepositories, RepositorySystem repositorySystem,
+            Settings settings) {
         List<ArtifactRepository> projectRepositories;
         if (project == null) {
             try {
@@ -114,15 +109,17 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
         } else {
             projectRepositories = project.getRemoteArtifactRepositories();
         }
-
         if (additionalRepositories != null && !additionalRepositories.isEmpty()) {
             List<ArtifactRepository> repositories = new ArrayList<>(projectRepositories);
             for (MavenArtifactRepositoryReference reference : additionalRepositories) {
                 repositories.add(repositorySystem.createArtifactRepository(reference.getId(), reference.getUrl(), null,
                         null, null));
             }
-            return repositorySystem.getEffectiveRepositories(repositories);
+            projectRepositories = repositorySystem.getEffectiveRepositories(repositories);
         }
+        repositorySystem.injectMirror(projectRepositories, settings.getMirrors());
+        repositorySystem.injectProxy(projectRepositories, settings.getProxies());
+        repositorySystem.injectAuthentication(projectRepositories, settings.getServers());
         return projectRepositories;
     }
 
