@@ -6,8 +6,14 @@
 			<repository location="http://download.eclipse.org/releases/latest"/>
 			<unit id="org.eclipse.pde.feature.group" version="0.0.0"/>
 		</location>
-		<location includeDependencyScope="compile" includeSource="true" missingManifest="generate" type="Maven">
+		<location includeDependencyDepth="infinite" includeDependencyScopes="compile" missingManifest="generate" type="Maven">
 			<dependencies>
+				<dependency>
+					<groupId>com.fasterxml.woodstox</groupId>
+					<artifactId>woodstox-core</artifactId>
+					<version>6.2.0</version>
+					<type>jar</type>
+				</dependency>
 				<dependency>
 					<groupId>com.sun.xml.ws</groupId>
 					<artifactId>jaxws-ri</artifactId>
@@ -16,7 +22,7 @@
 				</dependency>
 			</dependencies>
 		</location>
-		<location includeSource="true" missingManifest="generate" type="Maven">
+		<location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" missingManifest="generate" type="Maven">
 
 			<feature id="org.apache.commons.io.feature" label="Apache Commons IO" provider-name="Apache" version="1.0.0.qualifier">
 
