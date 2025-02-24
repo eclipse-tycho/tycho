@@ -36,6 +36,7 @@ public class CombinedClassLoader extends ClassLoader {
                 // try next
             }
         }
+        System.out.println("Ultimativly can't load " + name);
         throw new ClassNotFoundException(name);
     }
 

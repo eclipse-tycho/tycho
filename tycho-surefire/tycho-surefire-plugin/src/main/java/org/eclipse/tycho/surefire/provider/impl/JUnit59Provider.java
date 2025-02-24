@@ -55,11 +55,12 @@ public class JUnit59Provider extends AbstractJUnitProvider {
 
     @Override
     protected VersionRange getJUnitVersionRange() {
-        return new VersionRange("[5.9,6.0)");
+        return new VersionRange("[5.9,12.0)");
     }
 
     @Override
-    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
+    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath,
+            Properties surefireProperties) {
         return super.isEnabled(project, testBundleClassPath, surefireProperties)
                 && !new JUnit47Provider().containsJunitInClasspath(testBundleClassPath);
     }

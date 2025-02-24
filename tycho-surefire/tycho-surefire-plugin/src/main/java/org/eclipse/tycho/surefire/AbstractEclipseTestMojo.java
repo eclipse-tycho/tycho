@@ -745,6 +745,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         Collection<IRequirement> testRequiredPackages = new ArrayList<>();
         Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
         for (Artifact artifact : testFrameworkBundles) {
+//            System.out.println("AbstractEclipseTestMojo.createEclipseInstallation() " + artifact);
             generator.getInstallableUnits(artifact).stream().flatMap(iu -> iu.getRequirements().stream())
                     .filter(req -> {
                         if (req instanceof IRequiredCapability reqcap) {
@@ -756,7 +757,10 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
                     }).forEach(testRequiredPackages::add);
         }
         DependencyArtifacts testRuntimeArtifacts = resolveDependencies(testRequiredPackages);
-
+//        System.out.println("AbstractEclipseTestMojo.createEclipseInstallation() ");
+//        for (ArtifactDescriptor artifact : testRuntimeArtifacts.getArtifacts()) {
+//            System.out.println(artifact);
+//        }
         work.mkdirs();
 
         EquinoxInstallationDescription testRuntime = new DefaultEquinoxInstallationDescription();

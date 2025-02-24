@@ -67,6 +67,7 @@ import org.eclipse.osgi.service.resolver.ResolverError;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 
@@ -134,11 +135,17 @@ public class OsgiSurefireBooter {
                 getSurefireConsoleOutputReporter(provider), getSurefireStatelessTestsetInfoReporter(provider));
         ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig,
                 new PrintStreamLogger(System.out));
+        //org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.class;
         // API indicates we should use testClassLoader below but surefire also tries
         // to load surefire classes using this classloader
         String classLoaderOrder = testProps.getProperty("classLoaderOrder");
-        RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin, classLoaderOrder),
-                reporterFactory, providerConfiguration, false, startupConfiguration, true);
+        ClassLoader classLoader = createCombinedClassLoader(testPlugin, classLoaderOrder);
+//        Class<?> class1 = classLoader.loadClass("org.junit.jupiter.engine.descriptor.DisplayNameUtils");
+//        System.out.println("org.junit.jupiter.engine.descriptor.DisplayNameUtils: " + class1);
+//        System.out.println("Loaded from: " + class1.getProtectionDomain().getCodeSource().getLocation());
+        Thread.currentThread().setContextClassLoader(classLoader);
+        RunResult result = ProviderFactory.invokeProvider(null, classLoader, reporterFactory, providerConfiguration,
+                false, startupConfiguration, true);
         String failsafe = testProps.getProperty("failsafe");
         if (failsafe != null && !failsafe.trim().isEmpty()) {
             FailsafeSummaryXmlUtils.writeSummary(result, new File(failsafe), false);
@@ -329,7 +336,8 @@ public class OsgiSurefireBooter {
             }
             throw ex;
         }
-        return new BundleClassLoader(bundle);
+        return new BundleClassLoader(bundle,
+                FrameworkUtil.getBundle(OsgiSurefireBooter.class).getBundleContext().getBundles());
     }
 
     protected static Bundle getBundle(String symbolicName) {
@@ -342,14 +350,34 @@ public class OsgiSurefireBooter {
 
     private static class BundleClassLoader extends ClassLoader {
         private Bundle bundle;
+        private Bundle[] bundles;
 
-        public BundleClassLoader(Bundle target) {
+        public BundleClassLoader(Bundle target, Bundle[] bundles) {
             this.bundle = target;
+            this.bundles = bundles;
         }
 
         @Override
         protected Class<?> findClass(String name) throws ClassNotFoundException {
-            return bundle.loadClass(name);
+            try {
+                return bundle.loadClass(name);
+            } catch (ClassNotFoundException e) {
+                System.out.println("Can't find class " + name
+                        + " in class loader of the bundle itself, delegate to other bundles");
+                for (Bundle bundle : bundles) {
+                    if (bundle == this.bundle) {
+                        continue;
+                    }
+                    try {
+                        Class<?> class1 = bundle.loadClass(name);
+                        System.out.println("Loaded from " + bundle.getSymbolicName());
+                        return class1;
+                    } catch (Exception ex) {
+                        System.out.println("Bundle " + bundle.getSymbolicName() + " can't load the class " + name);
+                    }
+                }
+                throw e;
+            }
         }
 
         @Override
