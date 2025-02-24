@@ -9,6 +9,10 @@
     <unit id='a.jre.customprofile' version='1.6.0' singleton='false'>
       <provides size='200'>
         <provided namespace='org.eclipse.equinox.p2.iu' name='a.jre.customprofile' version='1.6.0'/>
+        <!-- a custom (versioned) package provided by the custom profile we'd like to test here -->
+        <provided namespace='java.package' name='javax.activation' version='1.1.1'/>
+        
+        <!--  java packages usually provided by the JVM extend if required -->
         <provided namespace='java.package' name='java.lang' version='0.0.0'/>
         <provided namespace='java.package' name='java.lang.annotation' version='0.0.0'/>
         <provided namespace='java.package' name='java.lang.invoke' version='0.0.0'/>
@@ -16,10 +20,12 @@
         <provided namespace='java.package' name='java.util' version='0.0.0'/>
         <provided namespace='java.package' name='java.util.concurrent' version='0.0.0'/>
         <provided namespace='java.package' name='java.util.concurrent.atomic' version='0.0.0'/>
+        <provided namespace='java.package' name='java.io' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.function' version='0.0.0'/>
+        <provided namespace='java.package' name='java.util.regex' version='0.0.0'/>
         
         <provided namespace='java.package' name='javax.accessibility' version='0.0.0'/>
         <provided namespace='java.package' name='javax.activation' version='0.0.0'/>
-        <provided namespace='java.package' name='javax.activation' version='1.1.1'/>
         <provided namespace='java.package' name='javax.activity' version='0.0.0'/>
         <provided namespace='java.package' name='javax.annotation' version='0.0.0'/>
         <provided namespace='java.package' name='javax.annotation' version='1.0.0'/>

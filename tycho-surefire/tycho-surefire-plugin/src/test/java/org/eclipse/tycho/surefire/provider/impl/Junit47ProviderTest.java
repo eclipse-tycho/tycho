@@ -32,13 +32,11 @@ public class Junit47ProviderTest extends AbstractJUnitProviderTest {
 
     @Test
     public void testDisabled() throws Exception {
-        assertFalse(junitProvider.isEnabled(null, classPath(), parallelProperties()));
         assertFalse(junitProvider.isEnabled(null, classPath("foo:1.0"), parallelProperties()));
         assertFalse(junitProvider.isEnabled(null, classPath("org.junit:3.8.2"), parallelProperties()));
         assertFalse(junitProvider.isEnabled(null, classPath("org.junit:4.5.0"), parallelProperties()));
         assertFalse(junitProvider.isEnabled(null, classPath("org.junit:5.0"), parallelProperties()));
         assertFalse(junitProvider.isEnabled(null, classPath("org.junit4:5.1"), parallelProperties()));
-        assertFalse(junitProvider.isEnabled(null, classPath("org.junit:4.8.1"), new Properties()));
     }
 
     private Properties parallelProperties() {

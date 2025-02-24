@@ -433,6 +433,11 @@ be created under target folder" but we already removed site-packaging from Tycho
 archive similar a category.xml with eclipse-repository packaging gives much more control and power to the user.
 Alternatively the new `mirror-target-platform` mojo can be used.
 
+### Support for JUnit prior 4.7 removed
+
+Tycho for a long time has shipped with support for older JUnit 3/4 versions.
+As JUnit 3/4 is actually EOL we no longer support version before 4.7 anymore.
+
 ## 4.0.8
 
 backports:

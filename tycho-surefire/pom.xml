@@ -23,8 +23,6 @@
 	<modules>
 		<module>tycho-surefire-plugin</module>
 		<module>org.eclipse.tycho.surefire.osgibooter</module>
-		<module>org.eclipse.tycho.surefire.junit</module>
-		<module>org.eclipse.tycho.surefire.junit4</module>
 		<module>org.eclipse.tycho.surefire.junit47</module>
 		<module>org.eclipse.tycho.surefire.junit5</module>
 		<module>org.eclipse.tycho.surefire.junit54</module>

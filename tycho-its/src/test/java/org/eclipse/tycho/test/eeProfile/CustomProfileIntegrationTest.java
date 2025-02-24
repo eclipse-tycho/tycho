@@ -24,6 +24,13 @@ import org.junit.Test;
 
 public class CustomProfileIntegrationTest extends AbstractTychoIntegrationTest {
 
+	/**
+	 * Test custom profiles, if this test fails, it might be required to extend:
+	 * {code}tycho/tycho-its/projects/eeProfile.custom/repository/content.xml{code}
+	 * with additional java packages
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testBuildWithCustomProfile() throws Exception {
 		// reactor with a test bundle importing javax.activation;version="1.1.0"
