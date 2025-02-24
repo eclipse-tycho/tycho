@@ -12,10 +12,9 @@
  *******************************************************************************/
 package org.eclipse.m2e.pde.target.shared;
 
-import java.util.List;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.repository.ArtifactRepository;
 
-import org.eclipse.aether.graph.DependencyNode;
-
-public record DependencyResult(List<RepositoryArtifact> artifacts, DependencyNode root, List<DependencyNode> nodes) {
+public record RepositoryArtifact(Artifact artifact, ArtifactRepository repository) {
 
 }
