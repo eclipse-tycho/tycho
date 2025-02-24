@@ -134,25 +134,14 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                     MavenDependenciesResolverConfigurer.getEffectiveRepositories(mavenSession.getCurrentProject(),
                             location.getRepositoryReferences(), repositorySystem, mavenSession.getSettings()));
             MavenDependencyCollector collector = new MavenDependencyCollector(repositorySystem2,
-                    mavenSession.getRepositorySession(), effectiveRepositories, location.getIncludeDependencyScopes());
+                    mavenSession.getRepositorySession(), effectiveRepositories,
+                    convert(location.getIncludeDependencyDepth()), location.getIncludeDependencyScopes());
             List<IInstallableUnit> locationBundles = new ArrayList<>();
             List<IInstallableUnit> locationSourceBundles = new ArrayList<>();
             for (MavenDependency mavenDependency : location.getRoots()) {
-                DependencyDepth dependencyDepth = location.getIncludeDependencyDepth();
-                if (isClassified(mavenDependency)) {
-                    // a classified artifact can not have any dependencies and will actually include
-                    // the ones from the main artifact.
-                    // if the user really wants this it is possible to include the pom typed
-                    // artifact or the main artifact in the list
-                    dependencyDepth = DependencyDepth.NONE;
-                }
-                if (dependencyDepth == DependencyDepth.NONE
-                        && POM_PACKAGING_TYPE.equalsIgnoreCase(mavenDependency.getArtifactType())) {
-                    dependencyDepth = DependencyDepth.DIRECT;
-                }
                 ResolvedMavenArtifacts resolve;
                 try {
-                    resolve = resolveRoot(collector, mavenDependency, dependencyDepth);
+                    resolve = resolveRoot(collector, mavenDependency);
                 } catch (RepositoryException re) {
                     throw new TargetDefinitionResolutionException("MavenDependency " + mavenDependency + " of location "
                             + location + " could not be resolved", re);
@@ -353,12 +342,12 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         }
     }
 
-    private ResolvedMavenArtifacts resolveRoot(MavenDependencyCollector collector, MavenDependency mavenDependency,
-            DependencyDepth dependencyDepth) throws RepositoryException {
+    private ResolvedMavenArtifacts resolveRoot(MavenDependencyCollector collector, MavenDependency mavenDependency)
+            throws RepositoryException {
         DefaultArtifact rootArtifact = new DefaultArtifact(mavenDependency.getGroupId(),
                 mavenDependency.getArtifactId(), mavenDependency.getClassifier(), mavenDependency.getArtifactType(),
                 mavenDependency.getVersion());
-        DependencyResult collect = collector.collect(new Dependency(rootArtifact, null), convert(dependencyDepth));
+        DependencyResult collect = collector.collect(new Dependency(rootArtifact, null));
         List<AetherArtifactFacade> list = collect.artifacts().stream().filter(a -> a.artifact().getFile() != null)
                 .map(a -> new AetherArtifactFacade(a.artifact(), a.repository())).toList();
         return new ResolvedMavenArtifacts(list, collect.root().getArtifact());
@@ -373,11 +362,6 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         default:
             return org.eclipse.m2e.pde.target.shared.DependencyDepth.NONE;
         }
-    }
-
-    private boolean isClassified(MavenDependency mavenDependency) {
-        String classifier = mavenDependency.getClassifier();
-        return classifier != null && !classifier.isBlank();
     }
 
     private IInstallableUnit generateSourceBundle(String symbolicName, String bundleVersion, Manifest manifest,
