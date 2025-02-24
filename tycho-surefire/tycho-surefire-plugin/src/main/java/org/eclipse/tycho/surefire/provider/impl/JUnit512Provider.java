@@ -28,14 +28,14 @@ import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 
-@Component(role = TestFrameworkProvider.class, hint = "junit59")
-public class JUnit59Provider extends AbstractJUnitProvider {
+@Component(role = TestFrameworkProvider.class, hint = "JUnit 5.12")
+public class JUnit512Provider extends AbstractJUnitProvider {
 
-    private static final Version VERSION = Version.parseVersion("5.9.0");
+    private static final Version VERSION = Version.parseVersion("5.12.0");
 
     @Override
     protected Set<String> getJUnitBundleNames() {
-        return Set.of("org.junit.jupiter.api" /* legacy Orbit bundle */, "junit-jupiter-api");
+        return Set.of("junit-jupiter-api");
     }
 
     @Override
@@ -50,12 +50,12 @@ public class JUnit59Provider extends AbstractJUnitProvider {
 
     @Override
     public List<Dependency> getRequiredBundles() {
-        return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit59"));
+        return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit512"));
     }
 
     @Override
     protected VersionRange getJUnitVersionRange() {
-        return new VersionRange("[5.9,5.12)");
+        return new VersionRange("[5.12,6)");
     }
 
     @Override

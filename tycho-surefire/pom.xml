@@ -36,6 +36,8 @@
 		<module>org.eclipse.tycho.surefire.junit58withvintage</module>
 		<module>org.eclipse.tycho.surefire.junit59</module>
 		<module>org.eclipse.tycho.surefire.junit59withvintage</module>
+		<module>org.eclipse.tycho.surefire.junit512</module>
+		<module>org.eclipse.tycho.surefire.junit512withvintage</module>
 		<module>org.eclipse.tycho.surefire.testng</module>
 		<module>org.eclipse.tycho.bnd.executionlistener</module>
 	</modules>
