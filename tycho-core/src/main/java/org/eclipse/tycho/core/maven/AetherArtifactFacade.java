@@ -16,18 +16,21 @@ import java.io.File;
 import java.util.Objects;
 
 import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.repository.ArtifactRepository;
 import org.eclipse.tycho.IArtifactFacade;
-import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
 
 public final class AetherArtifactFacade implements IArtifactFacade {
 
     private final Artifact aetherArtifact;
-    private String repositoryId;
+    private final String repositoryId;
 
-    public AetherArtifactFacade(Artifact aetherArtifact) {
+    public AetherArtifactFacade(Artifact aetherArtifact, ArtifactRepository artifactRepository) {
         this.aetherArtifact = aetherArtifact;
-        //TODO is there a better way?
-        repositoryId = MavenPropertiesAdvice.getRepository(aetherArtifact.getFile());
+        if (artifactRepository != null && "default".equals(artifactRepository.getContentType())) {
+            repositoryId = artifactRepository.getId();
+        } else {
+            repositoryId = null;
+        }
     }
 
     @Override

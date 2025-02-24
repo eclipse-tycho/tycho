@@ -58,7 +58,7 @@ public class MavenDependencyCollector {
             throw new RepositoryException(
                     "Invalid root dependency: " + root + " allowed extensions are " + VALID_EXTENSIONS);
         }
-        List<Artifact> artifacts = new ArrayList<>();
+        List<RepositoryArtifact> artifacts = new ArrayList<>();
         List<DependencyNode> nodes = new ArrayList<>();
         ArtifactDescriptor rootDescriptor = readArtifactDescriptor(root, null, artifacts, nodes);
         if (depth == DependencyDepth.NONE) {
@@ -108,7 +108,7 @@ public class MavenDependencyCollector {
      * @throws RepositoryException
      */
     private ArtifactDescriptor readArtifactDescriptor(Dependency dependency, DependencyNode parent,
-            Collection<Artifact> artifacts, List<DependencyNode> nodes) throws RepositoryException {
+            Collection<RepositoryArtifact> artifacts, List<DependencyNode> nodes) throws RepositoryException {
         if (isValidScope(dependency) && isValidDependency(dependency)) {
             ArtifactDescriptorRequest descriptorRequest = new ArtifactDescriptorRequest();
             descriptorRequest.setArtifact(dependency.getArtifact());
@@ -119,7 +119,7 @@ public class MavenDependencyCollector {
             artifactRequest.setRepositories(repositories);
             ArtifactResult artifactResult = repoSystem.resolveArtifact(repositorySession, artifactRequest);
             Artifact resolved = artifactResult.getArtifact();
-            artifacts.add(resolved);
+            artifacts.add(new RepositoryArtifact(resolved, artifactResult.getRepository()));
             DefaultDependencyNode dependencyNode = new DefaultDependencyNode(
                     new Dependency(resolved, dependency.getScope()));
             nodes.add(dependencyNode);
