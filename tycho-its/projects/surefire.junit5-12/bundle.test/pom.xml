@@ -2,7 +2,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.tycho.tycho-its.surefire-junit5</groupId>
-  <artifactId>bundle.test.junit59_2</artifactId>
+  <artifactId>bundle.test.junit512</artifactId>
   <packaging>eclipse-test-plugin</packaging>
   <version>1.0.0</version>
   
