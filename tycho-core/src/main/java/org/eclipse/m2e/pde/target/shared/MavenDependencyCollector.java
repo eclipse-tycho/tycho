@@ -38,26 +38,32 @@ import org.eclipse.aether.resolution.ArtifactResult;
  */
 public class MavenDependencyCollector {
 
-    private static final Set<String> VALID_EXTENSIONS = Set.of("jar", "pom");
+    private static final String EXTENSION_POM = "pom";
+
+    private static final Set<String> VALID_EXTENSIONS = Set.of("jar", EXTENSION_POM);
 
     private final RepositorySystem repoSystem;
     private final RepositorySystemSession repositorySession;
     private final List<RemoteRepository> repositories;
     private final Collection<String> dependencyScopes;
 
+    private DependencyDepth dependencyDepth;
+
     public MavenDependencyCollector(RepositorySystem repoSystem, RepositorySystemSession repositorySession,
-            List<RemoteRepository> repositories, Collection<String> dependencyScopes) {
+            List<RemoteRepository> repositories, DependencyDepth depth, Collection<String> dependencyScopes) {
         this.repoSystem = repoSystem;
         this.repositorySession = repositorySession;
         this.repositories = repositories;
+        this.dependencyDepth = depth;
         this.dependencyScopes = dependencyScopes;
     }
 
-    public DependencyResult collect(Dependency root, DependencyDepth depth) throws RepositoryException {
+    public DependencyResult collect(Dependency root) throws RepositoryException {
         if (!isValidDependency(root)) {
             throw new RepositoryException(
                     "Invalid root dependency: " + root + " allowed extensions are " + VALID_EXTENSIONS);
         }
+        DependencyDepth depth = getEffectiveDepth(root, dependencyDepth);
         List<RepositoryArtifact> artifacts = new ArrayList<>();
         List<DependencyNode> nodes = new ArrayList<>();
         ArtifactDescriptor rootDescriptor = readArtifactDescriptor(root, null, artifacts, nodes);
@@ -88,13 +94,6 @@ public class MavenDependencyCollector {
             }
         }
         return new DependencyResult(artifacts, rootDescriptor.node(), nodes);
-    }
-
-    private String getId(Dependency dependency) {
-        Artifact artifact = dependency.getArtifact();
-        // This does not include the version so we always ever only collect one version
-        // of an (transitive) artifact
-        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getClassifier();
     }
 
     /**
@@ -147,6 +146,35 @@ public class MavenDependencyCollector {
 
         }
         return dependencyScopes.contains(scope);
+    }
+
+    public static DependencyDepth getEffectiveDepth(Dependency root, DependencyDepth dependencyDepth) {
+        DependencyDepth depth;
+        if (isClassified(root)) {
+            // a classified artifact can not have any dependencies and will actually include
+            // the ones from the main artifact.
+            // if the user really wants this it is possible to include the pom typed
+            // artifact or the main artifact in the list
+            depth = DependencyDepth.NONE;
+        } else if (dependencyDepth == DependencyDepth.NONE
+                && EXTENSION_POM.equalsIgnoreCase(root.getArtifact().getExtension())) {
+            depth = DependencyDepth.DIRECT;
+        } else {
+            depth = dependencyDepth;
+        }
+        return depth;
+    }
+
+    private static String getId(Dependency dependency) {
+        Artifact artifact = dependency.getArtifact();
+        // This does not include the version so we always ever only collect one version
+        // of an (transitive) artifact
+        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getClassifier();
+    }
+
+    private static boolean isClassified(Dependency root) {
+        String classifier = root.getArtifact().getClassifier();
+        return !classifier.isBlank();
     }
 
 }
