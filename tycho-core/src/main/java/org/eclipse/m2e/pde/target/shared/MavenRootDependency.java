@@ -12,11 +12,13 @@
  *******************************************************************************/
 package org.eclipse.m2e.pde.target.shared;
 
-import java.util.List;
+public record MavenRootDependency(String groupId, String artifactId, String version, String classifier, String type) {
 
-import org.eclipse.aether.graph.DependencyNode;
-
-public record DependencyResult(DependencyDepth depth, List<RepositoryArtifact> artifacts, DependencyNode root,
-        List<DependencyNode> nodes) {
+    public String getType() {
+        if (type == null || type.isBlank()) {
+            return "jar";
+        }
+        return type;
+    }
 
 }
