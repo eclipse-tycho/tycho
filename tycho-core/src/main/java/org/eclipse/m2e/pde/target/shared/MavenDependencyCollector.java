@@ -19,15 +19,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.DefaultDependencyNode;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
 import org.eclipse.aether.resolution.ArtifactDescriptorResult;
 import org.eclipse.aether.resolution.ArtifactRequest;
@@ -38,9 +41,9 @@ import org.eclipse.aether.resolution.ArtifactResult;
  */
 public class MavenDependencyCollector {
 
-    private static final String EXTENSION_POM = "pom";
+    private static final String TYPE_POM = "pom";
 
-    private static final Set<String> VALID_EXTENSIONS = Set.of("jar", EXTENSION_POM);
+    private static final Set<String> VALID_EXTENSIONS = Set.of("jar", TYPE_POM);
 
     private final RepositorySystem repoSystem;
     private final RepositorySystemSession repositorySession;
@@ -50,31 +53,51 @@ public class MavenDependencyCollector {
     private DependencyDepth dependencyDepth;
 
     public MavenDependencyCollector(RepositorySystem repoSystem, RepositorySystemSession repositorySession,
-            List<RemoteRepository> repositories, DependencyDepth depth, Collection<String> dependencyScopes) {
+            List<RemoteRepository> defaultRepositories, Collection<AdditionalRepository> additionalRepositories,
+            DependencyDepth depth, Collection<String> dependencyScopes) {
         this.repoSystem = repoSystem;
         this.repositorySession = repositorySession;
-        this.repositories = repositories;
+        if (additionalRepositories == null || additionalRepositories.isEmpty()) {
+            this.repositories = repoSystem.newResolutionRepositories(repositorySession, defaultRepositories);
+        } else {
+            List<RemoteRepository> combined = Stream
+                    .concat(defaultRepositories.stream(), additionalRepositories.stream().map(additional -> {
+                        return new RemoteRepository.Builder(additional.id(), "default", additional.url())
+                                .setReleasePolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_ALWAYS,
+                                        RepositoryPolicy.CHECKSUM_POLICY_WARN))
+                                .setSnapshotPolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_ALWAYS,
+                                        RepositoryPolicy.CHECKSUM_POLICY_WARN))
+                                .build();
+                    })).distinct().toList();
+            this.repositories = repoSystem.newResolutionRepositories(repositorySession, combined);
+        }
         this.dependencyDepth = depth;
         this.dependencyScopes = dependencyScopes;
     }
 
-    public DependencyResult collect(Dependency root) throws RepositoryException {
-        if (!isValidDependency(root)) {
+    public List<RemoteRepository> getEffectiveRepositories() {
+        return repositories;
+    }
+
+    public DependencyResult collect(MavenRootDependency root) throws RepositoryException {
+        if (!VALID_EXTENSIONS.contains(root.getType())) {
             throw new RepositoryException(
-                    "Invalid root dependency: " + root + " allowed extensions are " + VALID_EXTENSIONS);
+                    "Invalid root dependency: " + root + " allowed types are " + VALID_EXTENSIONS);
         }
         DependencyDepth depth = getEffectiveDepth(root, dependencyDepth);
         List<RepositoryArtifact> artifacts = new ArrayList<>();
         List<DependencyNode> nodes = new ArrayList<>();
-        ArtifactDescriptor rootDescriptor = readArtifactDescriptor(root, null, artifacts, nodes);
+        ArtifactDescriptor rootDescriptor = readArtifactDescriptor(new Dependency(
+                new DefaultArtifact(root.groupId(), root.artifactId(), root.classifier(), root.type(), root.version()),
+                null), null, artifacts, nodes);
         if (depth == DependencyDepth.NONE) {
-            return new DependencyResult(artifacts, rootDescriptor.node(), nodes);
+            return new DependencyResult(depth, artifacts, rootDescriptor.node(), nodes);
         }
         if (depth == DependencyDepth.DIRECT) {
             for (Dependency dependency : rootDescriptor.dependencies()) {
                 readArtifactDescriptor(dependency, rootDescriptor.node(), artifacts, nodes);
             }
-            return new DependencyResult(artifacts, rootDescriptor.node(), nodes);
+            return new DependencyResult(depth, artifacts, rootDescriptor.node(), nodes);
         }
         // Add all dependencies with BFS method
         Set<String> collected = new HashSet<>();
@@ -93,7 +116,7 @@ public class MavenDependencyCollector {
                 }
             }
         }
-        return new DependencyResult(artifacts, rootDescriptor.node(), nodes);
+        return new DependencyResult(depth, artifacts, rootDescriptor.node(), nodes);
     }
 
     /**
@@ -148,7 +171,7 @@ public class MavenDependencyCollector {
         return dependencyScopes.contains(scope);
     }
 
-    public static DependencyDepth getEffectiveDepth(Dependency root, DependencyDepth dependencyDepth) {
+    public static DependencyDepth getEffectiveDepth(MavenRootDependency root, DependencyDepth dependencyDepth) {
         DependencyDepth depth;
         if (isClassified(root)) {
             // a classified artifact can not have any dependencies and will actually include
@@ -156,8 +179,7 @@ public class MavenDependencyCollector {
             // if the user really wants this it is possible to include the pom typed
             // artifact or the main artifact in the list
             depth = DependencyDepth.NONE;
-        } else if (dependencyDepth == DependencyDepth.NONE
-                && EXTENSION_POM.equalsIgnoreCase(root.getArtifact().getExtension())) {
+        } else if (dependencyDepth == DependencyDepth.NONE && TYPE_POM.equalsIgnoreCase(root.type())) {
             depth = DependencyDepth.DIRECT;
         } else {
             depth = dependencyDepth;
@@ -172,9 +194,9 @@ public class MavenDependencyCollector {
         return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getClassifier();
     }
 
-    private static boolean isClassified(Dependency root) {
-        String classifier = root.getArtifact().getClassifier();
-        return !classifier.isBlank();
+    private static boolean isClassified(MavenRootDependency root) {
+        String classifier = root.classifier();
+        return classifier != null && !classifier.isBlank();
     }
 
 }
