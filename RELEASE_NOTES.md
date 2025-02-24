@@ -2,6 +2,12 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 4.0.12
+
+### Support for JUnit 5.12
+
+As there are some breaking changes in JUnit 5.12 Tycho now adds a new `junit512` provider.
+
 ## 4.0.11
 
 **Important Notice:** There was a bug in previous versions of Tycho that has lead to the situation that projects are resolved
