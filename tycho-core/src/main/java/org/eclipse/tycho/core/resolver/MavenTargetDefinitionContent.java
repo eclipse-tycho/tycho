@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2023 Christoph Läubrich and others.
+ * Copyright (c) 2020, 2025 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -93,6 +93,9 @@ import org.osgi.framework.BundleException;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+/**
+ * This implements the "maven" target location type
+ */
 public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     private static final String POM_PACKAGING_TYPE = "pom";
     private final Map<IArtifactDescriptor, IInstallableUnit> repositoryContent = new HashMap<>();
@@ -100,7 +103,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     private FileArtifactRepository artifactRepository;
     private MavenContext mavenContext;
 
-    public MavenTargetDefinitionContent(MavenGAVLocation location, MavenDependenciesResolver mavenDependenciesResolver,
+    MavenTargetDefinitionContent(MavenGAVLocation location, MavenDependenciesResolver mavenDependenciesResolver,
             IncludeSourceMode sourceMode, IProvisioningAgent agent, MavenContext mavenContext,
             SyncContextFactory syncContextFactory, RepositorySystem repositorySystem, MavenSession mavenSession,
             org.eclipse.aether.RepositorySystem repositorySystem2) {
@@ -356,8 +359,8 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                 mavenDependency.getArtifactId(), mavenDependency.getClassifier(), mavenDependency.getArtifactType(),
                 mavenDependency.getVersion());
         DependencyResult collect = collector.collect(new Dependency(rootArtifact, null), convert(dependencyDepth));
-        List<AetherArtifactFacade> list = collect.artifacts().stream().filter(a -> a.getFile() != null)
-                .map(AetherArtifactFacade::new).toList();
+        List<AetherArtifactFacade> list = collect.artifacts().stream().filter(a -> a.artifact().getFile() != null)
+                .map(a -> new AetherArtifactFacade(a.artifact(), a.repository())).toList();
         return new ResolvedMavenArtifacts(list, collect.root().getArtifact());
     }
 
