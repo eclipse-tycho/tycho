@@ -95,6 +95,13 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testJUnit512Runner() throws Exception {
+		final Verifier verifier = getVerifier("/surefire.junit59/bundle.test2");
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
 	public void testJUnit59Suite() throws Exception {
 		final Verifier verifier = getVerifier("/surefire.junit59suite/bundle.test");
 		verifier.executeGoal("verify");
