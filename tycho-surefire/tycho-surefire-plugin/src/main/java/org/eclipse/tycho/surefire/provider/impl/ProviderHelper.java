@@ -41,7 +41,8 @@ public class ProviderHelper {
     @Requirement
     private BundleReader bundleReader;
 
-    private static final Comparator<TestFrameworkProvider> VERSION_COMPARATOR = (p1, p2) -> p1.getVersion().compareTo(p2.getVersion());
+    private static final Comparator<TestFrameworkProvider> VERSION_COMPARATOR = (p1, p2) -> p1.getVersion()
+            .compareTo(p2.getVersion());
 
     public TestFrameworkProvider selectProvider(MavenProject project, List<ClasspathEntry> classpath,
             Properties providerProperties, String providerHint) throws MojoExecutionException {
@@ -62,18 +63,7 @@ public class ProviderHelper {
         }
         validateCandidates(candidates);
         TestFrameworkProvider highestVersionProvider = Collections.max(candidates, VERSION_COMPARATOR);
-        validate(highestVersionProvider, providerProperties);
         return highestVersionProvider;
-    }
-
-    private void validate(TestFrameworkProvider provider, Properties providerProperties) throws MojoExecutionException {
-        if ("junit".equals(provider.getType()) && providerProperties.getProperty("parallel") != null) {
-            if (!JUnit47Provider.class.equals(provider.getClass())) {
-                throw new MojoExecutionException("Provider " + provider.getClass().getName()
-                        + " does not support parallel mode. " + JUnit47Provider.class.getName()
-                        + " (i.e. JUnit >= 4.7) is required for this.");
-            }
-        }
     }
 
     public Set<Artifact> filterTestFrameworkBundles(TestFrameworkProvider provider, List<Artifact> pluginArtifacts)
@@ -87,8 +77,8 @@ public class ProviderHelper {
             for (Artifact artifact : pluginArtifacts) {
                 if (dependency.getGroupId().equals(artifact.getGroupId())
                         && dependency.getArtifactId().equals(artifact.getArtifactId())
-                        && (dependency.getVersion() == null || dependency.getVersion().isEmpty() || dependency
-                                .getVersion().equals(artifact.getVersion()))) {
+                        && (dependency.getVersion() == null || dependency.getVersion().isEmpty()
+                                || dependency.getVersion().equals(artifact.getVersion()))) {
                     found = true;
                     result.add(artifact);
                     break;
@@ -116,8 +106,8 @@ public class ProviderHelper {
 
     private void validateCandidates(List<TestFrameworkProvider> candidates) throws MojoExecutionException {
         if (candidates.isEmpty()) {
-            throw new MojoExecutionException("Could not determine test framework provider. Available providers: "
-                    + providers.keySet());
+            throw new MojoExecutionException(
+                    "Could not determine test framework provider. Available providers: " + providers.keySet());
         } else if (candidates.size() == 1) {
             return;
         }

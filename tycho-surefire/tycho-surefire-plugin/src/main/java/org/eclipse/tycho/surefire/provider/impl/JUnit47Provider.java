@@ -19,14 +19,10 @@ import static org.eclipse.tycho.surefire.provider.impl.ProviderHelper.newDepende
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.model.Dependency;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.surefire.api.booter.ProviderParameterNames;
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
@@ -35,26 +31,6 @@ import org.osgi.framework.VersionRange;
 public class JUnit47Provider extends AbstractJUnitProvider {
 
     private static final Version VERSION = Version.parseVersion("4.7.0");
-
-    @Override
-    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
-        if (hasGroups(surefireProperties)) {
-            return true;
-        }
-        if (!isParallelEnabled(surefireProperties)) {
-            return false;
-        }
-        return super.isEnabled(project, testBundleClassPath, surefireProperties);
-    }
-
-    private boolean hasGroups(Properties providerProperties) {
-        return providerProperties.getProperty(ProviderParameterNames.TESTNG_GROUPS_PROP) != null
-                || providerProperties.getProperty(ProviderParameterNames.TESTNG_EXCLUDEDGROUPS_PROP) != null;
-    }
-
-    private boolean isParallelEnabled(Properties providerProperties) {
-        return providerProperties.getProperty("parallel") != null;
-    }
 
     @Override
     public String getSurefireProviderClassName() {
