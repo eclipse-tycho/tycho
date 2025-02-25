@@ -8,6 +8,19 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 As there are some breaking changes in JUnit 5.12 Tycho now adds a new `junit512` provider.
 
+backports:
+- Remove signatures from wrapped source bundles
+- Improve error handling for maven-target locations
+- Fix collection of maven target locations
+- Improve bnd integration
+- Align bnd mojos with maven-surefire / maven-compiler plugin
+- Add support to filter files to perform cleanup
+- Do not collect dependencies for classified artifacts
+
+**Important Notice:** There was a bug in previous versions of Tycho regarding the handling of maven target locations, it might be that
+you now get some more content or even some less (most noticeable optional artifacts are ignored now) or slightly different versions when using
+dependency inclusion.
+
 ## 4.0.11
 
 **Important Notice:** There was a bug in previous versions of Tycho that has lead to the situation that projects are resolved
