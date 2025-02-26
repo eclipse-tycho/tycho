@@ -16,11 +16,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.file.Files;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -39,8 +45,9 @@ public abstract class AbstractTychoIntegrationTest {
     public TestName name = new TestName();
 
     protected File getBasedir(String test) throws IOException {
-        File src = new File("projects", test).getAbsoluteFile();
-        File dst = new File("target/projects",
+        File baseDir = getTychoIntegrationTestsFolder();
+        File src = new File(new File(baseDir, "projects"), test).getAbsoluteFile();
+        File dst = new File(new File(baseDir, "target/projects"),
                 getClass().getSimpleName() + "/" + name.getMethodName() + "/" + test.replace("../", "./"))
                         .getAbsoluteFile();
 
@@ -55,6 +62,45 @@ public abstract class AbstractTychoIntegrationTest {
         FileUtils.copyDirectoryStructure(src, dst);
 
         return dst;
+    }
+
+    private static File getTychoIntegrationTestsFolder() {
+        String property = EnvironmentUtil.getProperty("base-dir");
+        File file;
+        if (property != null) {
+            file = new File(property);
+        } else {
+            file = new File(".");
+            try {
+                file = file.getCanonicalFile();
+            } catch (IOException e) {
+            }
+        }
+        if (file.isDirectory() && file.getName().equals("tycho-its")) {
+            return file;
+        }
+        ProtectionDomain domain = AbstractTychoIntegrationTest.class.getProtectionDomain();
+        if (domain != null) {
+            CodeSource codeSource = domain.getCodeSource();
+            if (codeSource != null) {
+                URL location = codeSource.getLocation();
+                if (location != null && location.getProtocol().startsWith("file")) {
+                    try {
+                        File loc = new File(location.toURI());
+                        if (loc.getName().equals("classes")) {
+                            File targetRelative = new File(loc, "../../../tycho-its");
+                            if (targetRelative.isDirectory()) {
+                                return targetRelative.getCanonicalFile();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        throw new AssertionError(
+                "Can't determine project directory: " + file.getAbsolutePath() + " (property=" + property + ")");
     }
 
     protected Verifier getVerifier(String test, boolean setTargetPlatform) throws Exception {
@@ -110,9 +156,7 @@ public abstract class AbstractTychoIntegrationTest {
         }
         verifier.addCliOption("-Dmaven.home=" + getMavenHome());
         verifier.addCliOption("-Dtycho-version=" + getTychoVersion());
-        // bug 447397: use temp dir in target/ folder to make sure we don't leave garbage behind
-        // when using maven < 3.1 
-        File tmpDir = new File("target/tmp");
+        File tmpDir = new File(getTychoIntegrationTestsFolder(), "target/tmp");
         tmpDir.mkdirs();
         verifier.addCliOption("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
         if (setTargetPlatform) {
@@ -123,8 +167,11 @@ public abstract class AbstractTychoIntegrationTest {
         }
         verifier.addCliOption("-X");
         verifier.addCliOption("-s " + userSettings.getAbsolutePath());
-        verifier.getVerifierProperties().put("use.mavenRepoLocal", "true");
-        verifier.setLocalRepo(EnvironmentUtil.getLocalRepo());
+        String property = EnvironmentUtil.getProperty("local-repo");
+        if (property != null) {
+            verifier.getVerifierProperties().put("use.mavenRepoLocal", "true");
+            verifier.setLocalRepo(property);
+        }
 
         String customOptions = System.getProperty("it.cliOptions");
         if (customOptions != null && !customOptions.trim().isEmpty()) {
@@ -170,20 +217,61 @@ public abstract class AbstractTychoIntegrationTest {
         }
 
         // default: settings.xml in the root of the integration test project (e.g. tycho-its/settings.xml)
-        return new File("settings.xml");
+        return new File(getTychoIntegrationTestsFolder(), "settings.xml");
     }
 
-    protected String getMavenHome() {
-        String mavenHome = EnvironmentUtil.getMavenHome();
-        if (mavenHome == null) {
-            throw new IllegalStateException(
-                    "Generated test data for the integration tests is missing. Run the launch configuration 'tycho-its - prepare test resources' first.");
+    private static String getMavenHome() {
+        String systemValue = System.getProperty("tychodev-maven.home");
+        if (systemValue != null) {
+            return systemValue;
         }
-        return mavenHome;
+        File targetFolder = new File(getTychoIntegrationTestsFolder(), "target");
+        if (targetFolder.exists()) {
+            File[] files = targetFolder.listFiles();
+            if (files != null) {
+                for (File subfolder : files) {
+                    if (subfolder.getName().startsWith("apache-maven-")) {
+                        return subfolder.getAbsolutePath();
+                    }
+                }
+            }
+        }
+        String property = EnvironmentUtil.getProperty("maven-dir");
+        if (property == null) {
+            ProcessBuilder pb = new ProcessBuilder("mvn", "-V");
+            pb.redirectErrorStream(true);
+            try {
+                Process process = pb.start();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.startsWith(EnvironmentUtil.MAVEN_HOME_INFO)) {
+                        property = line.substring(EnvironmentUtil.MAVEN_HOME_INFO.length()).trim();
+                    }
+                }
+            } catch (IOException e) {
+            }
+        }
+        return property;
     }
 
-    protected String getTychoVersion() {
-        return EnvironmentUtil.getTychoVersion();
+    protected static String getTychoVersion() {
+        String property = EnvironmentUtil.getProperty("tycho-version");
+        if (property == null) {
+            try {
+                List<String> lines = Files.readAllLines(new File(getTychoIntegrationTestsFolder(), "pom.xml").toPath());
+                Pattern pattern = Pattern.compile("<version>(.*)</version>");
+                for (String line : lines) {
+                    Matcher matcher = pattern.matcher(line);
+                    if (matcher.find()) {
+                        return matcher.group(1);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return property;
     }
 
     /**

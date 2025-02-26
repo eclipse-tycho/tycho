@@ -62,7 +62,7 @@ and the minimal reproducer project to Tycho's [issue tracker](https://github.com
 
 ### Prerequisites
 
-Java 17 and Maven 3.9.0, or newer.
+Java 17 and Maven 3.9.9, or newer.
 
 If your Internet connection uses a proxy, make sure that you have the proxy configured in your [Maven settings.xml](https://maven.apache.org/settings.html).
 
@@ -114,7 +114,18 @@ $ mvn clean verify -f tycho-its/pom.xml -Dtest=MyTestClass
 ``` 
 from the command line, replacing `MyTestClass` with the test class to run (without `.java`).
 
-_Background information on the Tycho integration tests_
+#### Running tests from the IDE
+
+Tycho integration tests should also work from within the IDE, but we make some assumptions, e.g. that the standard maven is suitable.
+
+If not you can specify a location to a compatible maven or found from a previous CLI run, if that do not work you can specify
+
+```
+-Dtycho.testSettings=<if you need special settings file>
+-Dtychodev-maven.home=<path to a compatible maven>
+```
+
+#### Background information on the Tycho integration tests
 
 The integration tests trigger sample builds that use Tycho. These builds expect that Tycho has been installed in the local Maven repository. This is why you need to build Tycho through a `mvn install` before you can run the integration tests.
 
