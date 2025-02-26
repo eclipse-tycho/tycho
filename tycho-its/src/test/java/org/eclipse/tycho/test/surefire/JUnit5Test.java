@@ -79,7 +79,7 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testJUnit59Runner() throws Exception {
-		final Verifier verifier = getVerifier("/surefire.junit59/bundle.test");
+		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/junit_5.9/runner");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		final String projectBasedir = verifier.getBasedir();
@@ -96,7 +96,7 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testJUnit59Suite() throws Exception {
-		final Verifier verifier = getVerifier("/surefire.junit59suite/bundle.test");
+		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/junit_5.9/suite");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		final String projectBasedir = verifier.getBasedir();
@@ -104,6 +104,13 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 				"started from test suite");
 		// make sure tests from suite were executed
 		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit59Test", 1);
+	}
+
+	@Test
+	public void testJUnit512() throws Exception {
+		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/junit_5.12");
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
 	}
 
 }

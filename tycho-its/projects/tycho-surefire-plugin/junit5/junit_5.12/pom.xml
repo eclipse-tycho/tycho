@@ -2,15 +2,21 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.tycho.tycho-its.surefire-junit5</groupId>
-  <artifactId>bundle.test.junit59suite</artifactId>
+  <artifactId>bundle.test.junit512</artifactId>
   <packaging>eclipse-test-plugin</packaging>
   <version>1.0.0</version>
   
   <repositories>
     <repository>
-      <id>eclipse</id>
+      <id>eclipse202003</id>
       <layout>p2</layout>
       <url>${target-platform}</url>
+    </repository>
+    <!-- fixme must be replaced with 2025-06 ? that contains actually junit 5.12 only-->
+    <repository>
+      <id>newOrbit</id>
+      <layout>p2</layout>
+      <url>https://download.eclipse.org/tools/orbit/simrel/orbit-aggregation/2025-03</url>
     </repository>
   </repositories>
   
@@ -27,9 +33,7 @@
         <artifactId>tycho-surefire-plugin</artifactId>
         <version>${tycho-version}</version>
         <configuration>
-          <includes>
-            <include>**/SuiteWithAllTests.java</include>
-          </includes>
+          <excludedGroups>slow</excludedGroups>
         </configuration>
       </plugin>
     </plugins>
