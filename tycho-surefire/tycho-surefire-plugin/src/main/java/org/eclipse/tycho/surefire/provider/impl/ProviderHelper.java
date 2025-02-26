@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
@@ -41,10 +42,10 @@ public class ProviderHelper {
     @Requirement
     private BundleReader bundleReader;
 
-    private static final Comparator<TestFrameworkProvider> VERSION_COMPARATOR = (p1, p2) -> p1.getVersion()
-            .compareTo(p2.getVersion());
+    private static final Comparator<ProviderSelection> VERSION_COMPARATOR = Comparator
+            .comparing(ProviderSelection::provider, Comparator.comparing(TestFrameworkProvider::getVersion));
 
-    public TestFrameworkProvider selectProvider(MavenProject project, List<ClasspathEntry> classpath,
+    public ProviderSelection selectProvider(MavenProject project, List<ClasspathEntry> classpath,
             Properties providerProperties, String providerHint) throws MojoExecutionException {
         if (providerHint != null) {
             TestFrameworkProvider provider = providers.get(providerHint);
@@ -52,18 +53,20 @@ public class ProviderHelper {
                 throw new MojoExecutionException("Could not find test framework provider with role hint '"
                         + providerHint + "'. Available providers: " + providers.keySet());
             } else {
-                return provider;
+                return new ProviderSelection(provider, providerHint);
             }
         }
-        List<TestFrameworkProvider> candidates = new ArrayList<>();
-        for (TestFrameworkProvider provider : providers.values()) {
-            if (provider.isEnabled(project, classpath, providerProperties)) {
-                candidates.add(provider);
+        List<ProviderSelection> candidates = new ArrayList<>();
+        for (Entry<String, TestFrameworkProvider> provider : providers.entrySet()) {
+            if (provider.getValue().isEnabled(project, classpath, providerProperties)) {
+                candidates.add(new ProviderSelection(provider.getValue(), provider.getKey()));
             }
         }
         validateCandidates(candidates);
-        TestFrameworkProvider highestVersionProvider = Collections.max(candidates, VERSION_COMPARATOR);
-        return highestVersionProvider;
+        if (candidates.size() == 1) {
+            return candidates.get(0);
+        }
+        return Collections.max(candidates, VERSION_COMPARATOR);
     }
 
     public Set<Artifact> filterTestFrameworkBundles(TestFrameworkProvider provider, List<Artifact> pluginArtifacts)
@@ -71,7 +74,7 @@ public class ProviderHelper {
         Set<Artifact> result = new LinkedHashSet<>();
         List<Dependency> requiredArtifacts = new ArrayList<>();
         requiredArtifacts.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.osgibooter"));
-        requiredArtifacts.addAll(provider.getRequiredBundles());
+        requiredArtifacts.addAll(provider.getRequiredArtifacts());
         for (Dependency dependency : requiredArtifacts) {
             boolean found = false;
             for (Artifact artifact : pluginArtifacts) {
@@ -104,7 +107,11 @@ public class ProviderHelper {
         return dependency;
     }
 
-    private void validateCandidates(List<TestFrameworkProvider> candidates) throws MojoExecutionException {
+    static Dependency newDependency(String artifactId) {
+        return newDependency("org.eclipse.tycho", artifactId);
+    }
+
+    private void validateCandidates(List<ProviderSelection> candidates) throws MojoExecutionException {
         if (candidates.isEmpty()) {
             throw new MojoExecutionException(
                     "Could not determine test framework provider. Available providers: " + providers.keySet());
@@ -112,12 +119,12 @@ public class ProviderHelper {
             return;
         }
         // candidates.size() > 1
-        final String firstType = candidates.get(0).getType();
+        final String firstType = candidates.get(0).provider().getType();
         for (int i = 1; i < candidates.size(); i++) {
-            if (!firstType.equals(candidates.get(i).getType())) {
+            if (!firstType.equals(candidates.get(i).provider().getType())) {
                 throw new MojoExecutionException(
                         "Could not determine test framework provider. Providers with different types (" + firstType
-                                + "," + candidates.get(i).getType()
+                                + "," + candidates.get(i).provider().getType()
                                 + ") are enabled. Try specifying a providerHint; available provider hints: "
                                 + providers.keySet());
             }

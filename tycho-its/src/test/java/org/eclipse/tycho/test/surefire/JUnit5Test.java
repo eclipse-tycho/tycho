@@ -15,15 +15,32 @@ package org.eclipse.tycho.test.surefire;
 import static org.eclipse.tycho.test.util.SurefireUtil.assertNumberOfSuccessfulTests;
 import static org.eclipse.tycho.test.util.SurefireUtil.assertTestMethodWasSuccessfullyExecuted;
 
+import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.Stream.Builder;
+
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class JUnit5Test extends AbstractTychoIntegrationTest {
 
+	/**
+	 * Defines all JUnit versions we support (and test)
+	 */
+	private static final List<String> JUNIT_VERSIONS = List.of("5.9", "5.10", "5.11", "5.12");
+
+	/**
+	 * This tests basic JUnit operations (using latest version)
+	 * 
+	 * @throws Exception
+	 */
 	@Test
-	public void testJUnit5Runner() throws Exception {
-		final Verifier verifier = getVerifier("/surefire.junit5/bundle.test");
+	public void testJUnit5() throws Exception {
+		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/basic");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		final String projectBasedir = verifier.getBasedir();
@@ -43,67 +60,69 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 6);
 	}
 
-	@Test
-	public void testJUnit4and54Runner() throws Exception {
-		final Verifier verifier = getVerifier("/surefire.junit4and54/bundle.test");
+	/**
+	 * Verifies basic compatibility with previous JUnit version, as JUnit 5 slightly
+	 * varies in its metadata we need to test with a real eclipse release containing
+	 * the JUnit version to make sure Tycho can still be used to test with older
+	 * releases.
+	 * 
+	 * @param version the junit version to test
+	 * @param type    the type to test
+	 * @throws Exception
+	 */
+	@ParameterizedTest(name = "JUnit {0} ({1})")
+	@MethodSource("junitVersions")
+	public void testJUnitCompatibility(String version, String type) throws Exception {
+		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/compatibility/" + version);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
-		final String projectBasedir = verifier.getBasedir();
+		final String projectBasedir = verifier.getBasedir() + "/" + type;
+		if ("runner".equals(type)) {
+			verifyRunner(projectBasedir);
+		}
+		if ("suite".equals(type)) {
+			verifySuite(projectBasedir);
+		}
+		if ("vintage".equals(type)) {
+			verifyVintage(projectBasedir);
+		}
+	}
+
+	private static Stream<Arguments> junitVersions() {
+		Builder<Arguments> builder = Stream.builder();
+		String[] variants = { "runner", "suite", "vintage" };
+		for (String version : JUNIT_VERSIONS) {
+			for (String variant : variants) {
+				builder.accept(Arguments.of(version, variant));
+			}
+		}
+		return builder.build();
+	}
+
+	private void verifyVintage(final String projectBasedir) throws Exception {
 		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit4Test", "testWithJUnit4");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit54Test", "My 1st JUnit 5.4 test!");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "My 1st JUnit 5 test!");
 		// make sure test tagged as 'slow' was skipped
-		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit54Test", 1);
+		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 1);
 	}
 
-	@Test
-	public void testJUnit54Runner() throws Exception {
-		final Verifier verifier = getVerifier("/surefire.junit54/bundle.test");
-		verifier.executeGoal("verify");
-		verifier.verifyErrorFreeLog();
-		final String projectBasedir = verifier.getBasedir();
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit54Test", "My 1st JUnit 5.4 test!");
+	private void verifyRunner(final String projectBasedir) throws Exception {
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "My 1st JUnit 5 test!");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
+				"parameterizedJUnit5TestWithMethodSource(int, int, int)[1] 0, 5, 5");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
+				"parameterizedJUnit5TestWithMethodSource(int, int, int)[2] 10, 10, 20");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test",
+				"parameterizedJUnit5TestWithMethodSource(int, int, int)[3] 12, 30, 42");
 		// make sure test tagged as 'slow' was skipped
-		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit54Test", 1);
+		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 4);
 	}
 
-	@Test
-	public void testJUnit56Runner() throws Exception {
-		final Verifier verifier = getVerifier("/surefire.junit56/bundle.test");
-		verifier.executeGoal("verify");
-		verifier.verifyErrorFreeLog();
-		final String projectBasedir = verifier.getBasedir();
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit56Test", "My 1st JUnit 5.6 test!");
-		// make sure test tagged as 'slow' was skipped
-		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit56Test", 1);
-	}
-
-	@Test
-	public void testJUnit59Runner() throws Exception {
-		final Verifier verifier = getVerifier("/surefire.junit59/bundle.test");
-		verifier.executeGoal("verify");
-		verifier.verifyErrorFreeLog();
-		final String projectBasedir = verifier.getBasedir();
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test", "My 1st JUnit 5.9 test!");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test",
-				"parameterizedJUnit59TestWithMethodSource(int, int, int)[1] 0, 5, 5");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test",
-				"parameterizedJUnit59TestWithMethodSource(int, int, int)[2] 10, 10, 20");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit59Test",
-				"parameterizedJUnit59TestWithMethodSource(int, int, int)[3] 12, 30, 42");
-		// make sure test tagged as 'slow' was skipped
-		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit59Test", 4);
-	}
-
-	@Test
-	public void testJUnit59Suite() throws Exception {
-		final Verifier verifier = getVerifier("/surefire.junit59suite/bundle.test");
-		verifier.executeGoal("verify");
-		verifier.verifyErrorFreeLog();
-		final String projectBasedir = verifier.getBasedir();
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "SuiteWithAllTests", "bundle.test.JUnit59Test",
+	private void verifySuite(final String projectBasedir) throws Exception {
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "SuiteWithAllTests", "bundle.test.JUnit5Test",
 				"started from test suite");
 		// make sure tests from suite were executed
-		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit59Test", 1);
+		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 1);
 	}
 
 }

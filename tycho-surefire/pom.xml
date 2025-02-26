@@ -25,11 +25,13 @@
 		<module>org.eclipse.tycho.surefire.osgibooter</module>
 		<module>org.eclipse.tycho.surefire.junit4</module>
 		<module>org.eclipse.tycho.surefire.junit5</module>
-		<module>org.eclipse.tycho.surefire.junit5withvintage</module>
+		<module>org.eclipse.tycho.surefire.junit5.vintage</module>
+		<module>org.eclipse.tycho.surefire.junit5.vintage.internal</module>
 		<module>org.eclipse.tycho.surefire.testng</module>
 		<module>org.eclipse.tycho.bnd.executionlistener</module>
 		<module>org.eclipse.tycho.surefire.testng.fixup</module>
 	</modules>
+
 	<build>
 		<resources>
 			<resource>

@@ -121,7 +121,19 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.surefire.junit5withvintage</artifactId>
+			<artifactId>org.eclipse.tycho.surefire.junit5.vintage</artifactId>
+			<version>${project.version}</version>
+			<scope>runtime</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.tycho.surefire.junit5.vintage.internal</artifactId>
 			<version>${project.version}</version>
 			<scope>runtime</scope>
 			<exclusions>
