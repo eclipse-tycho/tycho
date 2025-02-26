@@ -21,6 +21,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ClasspathEntry;
 import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 
 /**
  * Surefire provider adapter for tycho. Any plexus {@link Component} in the classpath of
@@ -41,6 +42,11 @@ public interface TestFrameworkProvider {
     public Version getVersion();
 
     /**
+     * @return the supported range of versions this provider supports for the given type
+     */
+    public VersionRange getVersionRange();
+
+    /**
      * Fully qualified class name of the surefire provider (must implement contract
      * https://maven.apache.org/plugins/maven-surefire-plugin/api.html ).
      */
@@ -49,20 +55,23 @@ public interface TestFrameworkProvider {
     /**
      * Whether this provider should be enabled for the given test bundle classpath and surefire
      * properties.
-     * @param project TODO
+     * 
+     * @param project
+     *            TODO
      * @param testBundleClassPath
      *            classpath of the test bundle
      * @param providerProperties
      *            surefire provider properties
      */
-    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath, Properties providerProperties);
+    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath,
+            Properties providerProperties);
 
     /**
      * The list of OSGi bundles required by the test framework provider as maven artifacts. The
      * groupId, artifactId and optionally version (if != <code>null</code>) will be matched against
      * the plugin dependencies of tycho-surefire-plugin.
      */
-    public List<Dependency> getRequiredBundles();
+    public List<Dependency> getRequiredArtifacts();
 
     /**
      * Provider specific properties that are added to the generic test properties. Implementations

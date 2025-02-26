@@ -92,6 +92,7 @@ import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 import org.eclipse.tycho.surefire.provider.impl.ProviderHelper;
+import org.eclipse.tycho.surefire.provider.impl.ProviderSelection;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.eclipse.tycho.surefire.provisioning.ProvisionedInstallationBuilder;
 import org.eclipse.tycho.surefire.provisioning.ProvisionedInstallationBuilderFactory;
@@ -649,9 +650,10 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             //... if not we notify the caller that nothing has to be done here.
             return null;
         }
-        TestFrameworkProvider provider = providerHelper.selectProvider(project,
-                getProjectType().getClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
-                providerHint);
+        TestFrameworkProvider provider = providerHelper
+                .selectProvider(project, getProjectType().getClasspath(DefaultReactorProject.adapt(project)),
+                        getMergedProviderProperties(), providerHint)
+                .provider();
         try {
             PropertiesWrapper wrapper = createSurefireProperties(provider, scanResult);
             storeProperties(wrapper.getProperties(), surefireProperties);
@@ -739,9 +741,12 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             //... if not we notify the caller that nothing has to be done here.
             return null;
         }
-        TestFrameworkProvider provider = providerHelper.selectProvider(project,
+        ProviderSelection selection = providerHelper.selectProvider(project,
                 getProjectType().getTestClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
                 providerHint);
+        TestFrameworkProvider provider = selection.provider();
+        getLog().info(String.format("Selected test framework %s (%s) with provider %s %s", provider.getType(),
+                provider.getVersion(), selection.hint(), provider.getVersionRange()));
         Collection<IRequirement> testRequiredPackages = new ArrayList<>();
         Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
         for (Artifact artifact : testFrameworkBundles) {

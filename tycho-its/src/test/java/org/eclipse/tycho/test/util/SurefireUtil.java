@@ -100,7 +100,7 @@ public class SurefireUtil {
 	}
 
 	private static Document readDocument(File sureFireTestReport) throws Exception {
-		assertTrue(sureFireTestReport.isFile());
+		assertTrue("report file not found!" + sureFireTestReport, sureFireTestReport.isFile());
 		return XMLTool.parseXMLDocument(sureFireTestReport);
 	}
 
