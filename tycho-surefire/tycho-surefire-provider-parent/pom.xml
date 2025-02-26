@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho-surefire</artifactId>
+		<version>5.0.0-SNAPSHOT</version>
+	</parent>
+	<packaging>pom</packaging>
+	<artifactId>tycho-surefire-provider-parent</artifactId>
+	<description>
+		This parent has the purspose to manage the versions used inside the
+		providers so the can be discovered by dependabot or similar tools in
+		contrast to version that are used in the Tycho build itself.
+	</description>
+
+	<properties>
+		<!-- Defined as property here so we can reference in filtered resources
+		to display junit version in build-->
+		<junit5-provider-version>5.12.0</junit5-provider-version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.junit</groupId>
+				<artifactId>junit-bom</artifactId>
+				<version>${junit5-provider-version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apiguardian</groupId>
+				<artifactId>apiguardian-api</artifactId>
+				<version>1.1.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opentest4j</groupId>
+				<artifactId>opentest4j</artifactId>
+				<version>1.2.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+</project>

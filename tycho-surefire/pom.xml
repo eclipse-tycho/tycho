@@ -28,7 +28,9 @@
 		<module>org.eclipse.tycho.surefire.junit5withvintage</module>
 		<module>org.eclipse.tycho.surefire.testng</module>
 		<module>org.eclipse.tycho.bnd.executionlistener</module>
+		<module>tycho-surefire-provider-parent</module>
 	</modules>
+
 	<build>
 		<resources>
 			<resource>
@@ -36,6 +38,7 @@
 				<filtering>true</filtering>
 				<includes>
 					<include>about.html</include>
+					<include>**/version.properties</include>
 				</includes>
 			</resource>
 			<resource>
@@ -43,6 +46,7 @@
 				<filtering>false</filtering>
 				<excludes>
 					<exclude>about.html</exclude>
+					<exclude>**/version.properties</exclude>
 				</excludes>
 			</resource>
 		</resources>

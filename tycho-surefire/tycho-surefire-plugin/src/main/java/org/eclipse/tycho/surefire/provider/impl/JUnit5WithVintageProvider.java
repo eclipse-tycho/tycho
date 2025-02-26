@@ -18,9 +18,6 @@ import static org.eclipse.tycho.surefire.provider.impl.ProviderHelper.newDepende
 
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
@@ -32,10 +29,7 @@ import org.osgi.framework.Version;
 @Component(role = TestFrameworkProvider.class, hint = "junit5withvintage")
 public class JUnit5WithVintageProvider extends AbstractJUnitProvider {
 
-    private static final Set<String> VINTAGE_BUNDLES = Stream
-            .concat(JUnit5Provider.JUNIT5_BUNDLES.stream(), JUnit4Provider.JUNIT4_BUNDLES.stream())
-            .collect(Collectors.toSet());
-    private static final Version VERSION = Version.parseVersion("5.9.0");
+    private static final Version VERSION = Version.parseVersion("5.0.0");
 
     @Override
     public String getSurefireProviderClassName() {
@@ -44,7 +38,7 @@ public class JUnit5WithVintageProvider extends AbstractJUnitProvider {
 
     @Override
     public Version getVersion() {
-        return VERSION;
+        return loadVersionFromClasspath(VERSION);
     }
 
     @Override

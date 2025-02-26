@@ -62,6 +62,9 @@ public class ProviderHelper {
             }
         }
         validateCandidates(candidates);
+        if (candidates.size() == 1) {
+            return candidates.get(0);
+        }
         TestFrameworkProvider highestVersionProvider = Collections.max(candidates, VERSION_COMPARATOR);
         return highestVersionProvider;
     }

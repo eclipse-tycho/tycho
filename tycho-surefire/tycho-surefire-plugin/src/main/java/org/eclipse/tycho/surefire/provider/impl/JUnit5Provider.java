@@ -32,7 +32,7 @@ import org.osgi.framework.VersionRange;
 public class JUnit5Provider extends AbstractJUnitProvider {
 
     private static final VersionRange JUNIT5_VERSION_RANGE = new VersionRange("[5,6)");
-    private static final Version VERSION = Version.parseVersion("5.9.0");
+    private static final Version VERSION = Version.parseVersion("5.0.0");
     static final Set<String> JUNIT5_BUNDLES = Set.of("junit-jupiter-api");
 
     @Override
@@ -42,7 +42,7 @@ public class JUnit5Provider extends AbstractJUnitProvider {
 
     @Override
     public Version getVersion() {
-        return VERSION;
+        return loadVersionFromClasspath(VERSION);
     }
 
     @Override

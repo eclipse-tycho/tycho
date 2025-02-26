@@ -13,7 +13,10 @@
 
 package org.eclipse.tycho.surefire.provider.impl;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -27,12 +30,37 @@ import org.osgi.framework.VersionRange;
 
 public abstract class AbstractJUnitProvider implements TestFrameworkProvider {
 
+    private Version version;
+
     public AbstractJUnitProvider() {
     }
 
     @Override
     public String getType() {
         return "junit";
+    }
+
+    protected Version loadVersionFromClasspath(Version defaultVersion) {
+        if (version == null) {
+            try {
+                String name = "META-INF/org/eclipse/tycho/surefire/provider/" + getClass().getSimpleName()
+                        + "/version.properties";
+                URL versionFile = getClass().getClassLoader().getResource(name);
+                if (versionFile == null) {
+                    version = defaultVersion;
+                } else {
+                    try (InputStream openStream = versionFile.openStream()) {
+                        Properties properties = new Properties();
+                        properties.load(openStream);
+                        version = Version.parseVersion(properties.getProperty("junitVersion"));
+                    }
+                }
+            } catch (Exception e) {
+                version = defaultVersion;
+            }
+        }
+        return Objects.requireNonNullElse(version, defaultVersion);
+
     }
 
     public abstract boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath,
