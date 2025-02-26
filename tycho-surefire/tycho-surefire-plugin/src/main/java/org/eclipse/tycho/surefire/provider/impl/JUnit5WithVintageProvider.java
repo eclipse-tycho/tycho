@@ -19,6 +19,8 @@ import static org.eclipse.tycho.surefire.provider.impl.ProviderHelper.newDepende
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
@@ -26,14 +28,14 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
-import org.osgi.framework.VersionRange;
 
-@Component(role = TestFrameworkProvider.class, hint = "junit5")
-public class JUnit5Provider extends AbstractJUnitProvider {
+@Component(role = TestFrameworkProvider.class, hint = "junit5withvintage")
+public class JUnit5WithVintageProvider extends AbstractJUnitProvider {
 
-    private static final VersionRange JUNIT5_VERSION_RANGE = new VersionRange("[5,6)");
+    private static final Set<String> VINTAGE_BUNDLES = Stream
+            .concat(JUnit5Provider.JUNIT5_BUNDLES.stream(), JUnit4Provider.JUNIT4_BUNDLES.stream())
+            .collect(Collectors.toSet());
     private static final Version VERSION = Version.parseVersion("5.9.0");
-    static final Set<String> JUNIT5_BUNDLES = Set.of("junit-jupiter-api");
 
     @Override
     public String getSurefireProviderClassName() {
@@ -47,16 +49,13 @@ public class JUnit5Provider extends AbstractJUnitProvider {
 
     @Override
     public List<Dependency> getRequiredBundles() {
-        return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit5"));
+        return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit5withvintage"));
     }
 
     @Override
     public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath,
             Properties surefireProperties) {
-        return isJUnit5(project, testBundleClassPath) && !JUnit4Provider.isJUnit4(project, testBundleClassPath);
-    }
-
-    static boolean isJUnit5(MavenProject project, List<ClasspathEntry> testBundleClassPath) {
-        return isEnabled(project, testBundleClassPath, JUNIT5_BUNDLES, JUNIT5_VERSION_RANGE);
+        return JUnit5Provider.isJUnit5(project, testBundleClassPath)
+                && JUnit4Provider.isJUnit4(project, testBundleClassPath);
     }
 }

@@ -55,14 +55,7 @@ public class ProviderHelperTest extends TychoPlexusTestCase {
         providerProperties.setProperty("parallel", "classes");
         TestFrameworkProvider provider = providerHelper.selectProvider(null,
                 classPath("org.junit:3.8.2", "org.junit4:4.8.1"), providerProperties, null);
-        assertEquals(JUnit47Provider.class, provider.getClass());
-    }
-
-    @Test
-    public void testSelectJunit5WithJUnitFromOrbit() throws Exception {
-        TestFrameworkProvider provider = providerHelper.selectProvider(null, classPath("org.junit.jupiter.api:5.0.0"),
-                new Properties(), null);
-        assertEquals(JUnit5Provider.class, provider.getClass());
+        assertEquals(JUnit4Provider.class, provider.getClass());
     }
 
     @Test
@@ -75,8 +68,8 @@ public class ProviderHelperTest extends TychoPlexusTestCase {
     @Test
     public void testSelectJunit5WithJUnit4Present() throws Exception {
         TestFrameworkProvider provider = providerHelper.selectProvider(null,
-                classPath("org.junit:4.12", "org.junit.jupiter.api:5.0.0"), new Properties(), null);
-        assertEquals(JUnit5Provider.class, provider.getClass());
+                classPath("org.junit:4.12", "junit-jupiter-api:5.0.0"), new Properties(), null);
+        assertEquals(JUnit5WithVintageProvider.class, provider.getClass());
     }
 
     @Test
@@ -96,14 +89,6 @@ public class ProviderHelperTest extends TychoPlexusTestCase {
     public void testNoProviderFound() {
         assertThrows(MojoExecutionException.class,
                 () -> providerHelper.selectProvider(null, classPath("foo:1.0", "test:2.0"), new Properties(), null));
-    }
-
-    @Test
-    public void testParallelModeNotSupported() {
-        Properties providerProperties = new Properties();
-        providerProperties.setProperty("parallel", "methods");
-        assertThrows(MojoExecutionException.class,
-                () -> providerHelper.selectProvider(null, classPath("org.junit:4.6"), providerProperties, null));
     }
 
     @Test
