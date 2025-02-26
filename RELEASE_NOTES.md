@@ -453,6 +453,10 @@ like we already do for other dependencies like Eclipse Platform.
 For users that are previously have used a specific provider in their configuration (like `junit59`) this means they need
 to change that to use only `junit5` from now on.
 
+### Support for JUnit 5 prior 5.5 removed
+
+JUnit 5.5. is the lowest version we support (introduced in Eclipse 2019-12). 
+
 ## 4.0.8
 
 backports:

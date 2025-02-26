@@ -22,8 +22,8 @@ import org.junit.Test;
 public class JUnit5Test extends AbstractTychoIntegrationTest {
 
 	@Test
-	public void testJUnit5Runner() throws Exception {
-		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/junit_5.0");
+	public void testJUnit5() throws Exception {
+		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/basic");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		final String projectBasedir = verifier.getBasedir();
@@ -56,8 +56,8 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	public void testJUnit54Runner() throws Exception {
-		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/junit_5.4");
+	public void testJUnit55Runner() throws Exception {
+		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/junit_5.5");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		final String projectBasedir = verifier.getBasedir();
