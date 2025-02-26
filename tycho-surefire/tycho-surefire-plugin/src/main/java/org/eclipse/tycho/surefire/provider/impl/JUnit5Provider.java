@@ -33,7 +33,7 @@ public class JUnit5Provider extends AbstractJUnitProvider {
 
     private static final VersionRange JUNIT5_VERSION_RANGE = new VersionRange("[5,6)");
     private static final Version VERSION = Version.parseVersion("5.0.0");
-    static final Set<String> JUNIT5_BUNDLES = Set.of("junit-jupiter-api");
+    static final Set<String> JUNIT5_BUNDLES = Set.of("org.junit.jupiter.api", "junit-jupiter-api");
 
     @Override
     public String getSurefireProviderClassName() {
