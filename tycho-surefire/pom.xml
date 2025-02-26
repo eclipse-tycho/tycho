@@ -23,17 +23,9 @@
 	<modules>
 		<module>tycho-surefire-plugin</module>
 		<module>org.eclipse.tycho.surefire.osgibooter</module>
-		<module>org.eclipse.tycho.surefire.junit47</module>
+		<module>org.eclipse.tycho.surefire.junit4</module>
 		<module>org.eclipse.tycho.surefire.junit5</module>
-		<module>org.eclipse.tycho.surefire.junit54</module>
-		<module>org.eclipse.tycho.surefire.junit55</module>
-		<module>org.eclipse.tycho.surefire.junit56</module>
-		<module>org.eclipse.tycho.surefire.junit57</module>
-		<module>org.eclipse.tycho.surefire.junit57withvintage</module>
-		<module>org.eclipse.tycho.surefire.junit58</module>
-		<module>org.eclipse.tycho.surefire.junit58withvintage</module>
-		<module>org.eclipse.tycho.surefire.junit59</module>
-		<module>org.eclipse.tycho.surefire.junit59withvintage</module>
+		<module>org.eclipse.tycho.surefire.junit5withvintage</module>
 		<module>org.eclipse.tycho.surefire.testng</module>
 		<module>org.eclipse.tycho.bnd.executionlistener</module>
 	</modules>

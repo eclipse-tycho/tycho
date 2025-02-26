@@ -35,19 +35,22 @@ public abstract class AbstractJUnitProvider implements TestFrameworkProvider {
         return "junit";
     }
 
-    @Override
-    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath,
-            Properties surefireProperties) {
-        boolean classpath = containsJunitInClasspath(testBundleClassPath);
-        if (!classpath && project != null) {
-            return containsJunitInDependencies(project);
+    public abstract boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath,
+            Properties surefireProperties);
+
+    protected static boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath,
+            Set<String> junitBundleNames, VersionRange range) {
+        if (containsJunitInClasspath(testBundleClassPath, junitBundleNames, range)) {
+            return true;
         }
-        return classpath;
+        if (project != null) {
+            return containsJunitInDependencies(project, junitBundleNames, range);
+        }
+        return false;
     }
 
-    protected boolean containsJunitInDependencies(MavenProject project) {
-        Set<String> junitBundleNames = getJUnitBundleNames();
-        VersionRange range = getJUnitVersionRange();
+    protected static boolean containsJunitInDependencies(MavenProject project, Set<String> junitBundleNames,
+            VersionRange range) {
         for (Artifact artifact : project.getArtifacts()) {
             if (Artifact.SCOPE_TEST.equals(artifact.getScope())
                     && junitBundleNames.contains(artifact.getArtifactId())) {
@@ -64,9 +67,8 @@ public abstract class AbstractJUnitProvider implements TestFrameworkProvider {
         return false;
     }
 
-    protected boolean containsJunitInClasspath(List<ClasspathEntry> testBundleClassPath) {
-        Set<String> junitBundleNames = getJUnitBundleNames();
-        VersionRange range = getJUnitVersionRange();
+    protected static boolean containsJunitInClasspath(List<ClasspathEntry> testBundleClassPath,
+            Set<String> junitBundleNames, VersionRange range) {
         for (ClasspathEntry classpathEntry : testBundleClassPath) {
             ArtifactKey artifactKey = classpathEntry.getArtifactKey();
             if (junitBundleNames.contains(artifactKey.getId())) {
@@ -83,9 +85,5 @@ public abstract class AbstractJUnitProvider implements TestFrameworkProvider {
     public Properties getProviderSpecificProperties() {
         return new Properties();
     }
-
-    protected abstract VersionRange getJUnitVersionRange();
-
-    protected abstract Set<String> getJUnitBundleNames();
 
 }
