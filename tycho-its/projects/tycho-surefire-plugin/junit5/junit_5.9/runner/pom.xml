@@ -3,8 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.tycho.tycho-its.surefire-junit5</groupId>
   <artifactId>bundle.test.junit59</artifactId>
-  <packaging>eclipse-test-plugin</packaging>
+  <packaging>eclipse-test-plugin</packaging> 
   <version>1.0.0</version>
+  
+  <properties>
+  	<tycho-version>5.0.0-SNAPSHOT</tycho-version>
+  </properties>
   
   <repositories>
     <repository>
@@ -29,6 +33,8 @@
         <version>${tycho-version}</version>
         <configuration>
           <excludedGroups>slow</excludedGroups>
+          <printBundles>true</printBundles>
+          <showEclipseLog>true</showEclipseLog>
         </configuration>
       </plugin>
     </plugins>
