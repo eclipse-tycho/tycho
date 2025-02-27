@@ -1,9 +1,10 @@
+# We only import some of the junit packages here to create a requirement on them and to allow to load them if the test bin: undle itself does not import them already. 
 Import-Package: \
-	org.junit.jupiter.api.*;version='[5,6)',\
-	org.junit.platform.suite.api;resolution:=optional;version='[1,2)',\
-	org.opentest4j;version='[1.2,2)',\
+	!org.junit.*,\
 	!org.apache.maven.surefire.*,\
 	!org.apache.maven.plugin.surefire.*,\
+	org.junit.platform.launcher, \
+	org.junit.jupiter.api, \
 	*
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
 # The JUnit Runner is still compatible with Java 1.8, as all included upstream dependencies are.
