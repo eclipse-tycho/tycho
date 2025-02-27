@@ -6,11 +6,12 @@
   <packaging>eclipse-test-plugin</packaging>
   <version>1.0.0</version>
   
-  <repositories>
+   <repositories>
     <repository>
-      <id>eclipse201903</id>
+      <id>eclipse</id>
       <layout>p2</layout>
-      <url>${target-platform}</url>
+      <!-- We need this explicitly here as it contains Junit 5.4 -->
+      <url>https://download.eclipse.org/releases/2019-06/</url>
     </repository>
   </repositories>
   

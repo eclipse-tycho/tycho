@@ -10,7 +10,8 @@
     <repository>
       <id>eclipse</id>
       <layout>p2</layout>
-      <url>${target-platform}</url>
+      <!-- We need this explicit release as it contains JUnit 5.9 release -->
+      <url>https://download.eclipse.org/releases/2023-03/</url>
     </repository>
   </repositories>
   
