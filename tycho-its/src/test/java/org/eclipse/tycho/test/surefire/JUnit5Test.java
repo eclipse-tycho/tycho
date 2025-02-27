@@ -56,25 +56,14 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	public void testJUnit55Runner() throws Exception {
-		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/junit_5.5");
+	public void testJUnit58Runner() throws Exception {
+		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/junit_5.8");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		final String projectBasedir = verifier.getBasedir();
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit54Test", "My 1st JUnit 5.4 test!");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit58Test", "My 1st JUnit 5.8 test!");
 		// make sure test tagged as 'slow' was skipped
-		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit54Test", 1);
-	}
-
-	@Test
-	public void testJUnit56Runner() throws Exception {
-		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/junit_5.6");
-		verifier.executeGoal("verify");
-		verifier.verifyErrorFreeLog();
-		final String projectBasedir = verifier.getBasedir();
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit56Test", "My 1st JUnit 5.6 test!");
-		// make sure test tagged as 'slow' was skipped
-		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit56Test", 1);
+		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit58Test", 1);
 	}
 
 	@Test

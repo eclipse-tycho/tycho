@@ -96,9 +96,9 @@ public class OsgiSurefireBooter {
         //As it is not the case for our OSGi framework build an own bootstrap loader that includes everything from surefire-maven
         //on a flat classpath and then loads the junit from the osgi path through delegation.
         //For this to work we need then to call tha ctual method reflectivly from the class loaded in the bootstrap loader.
-
+        boolean printWires = Boolean.parseBoolean(testProps.getProperty("printWires"));
         String testPlugin = testProps.getProperty("testpluginname");
-        ClassLoader loader = createCombinedClassLoader(testPlugin);
+        ClassLoader loader = createCombinedClassLoader(testPlugin, printWires);
         List<URL> urls = new ArrayList<>();
         Bundle bundle = FrameworkUtil.getBundle(OsgiSurefireBooter.class);
         urls.add(getURL(bundle));
@@ -132,7 +132,6 @@ public class OsgiSurefireBooter {
         if (adapt == null) {
             String location = bundle.getLocation();
             String prefix = "initial@reference:file:";
-            System.out.println(location);
             if (location.startsWith(prefix)) {
                 File file = new File(location.substring(prefix.length()));
                 try {
@@ -213,11 +212,7 @@ public class OsgiSurefireBooter {
                 getSurefireConsoleOutputReporter(provider), getSurefireStatelessTestsetInfoReporter(provider));
         ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig,
                 new PrintStreamLogger(System.out));
-        // API indicates we should use testClassLoader below but surefire also tries
-        // to load surefire classes using this classloader
-        String classLoaderOrder = testProps.getProperty("classLoaderOrder");
-        ClassLoader loader = OsgiSurefireBooter.class.getClassLoader();// createCombinedClassLoader(testPlugin, classLoaderOrder);
-        Thread.currentThread().setContextClassLoader(loader);
+        ClassLoader loader = OsgiSurefireBooter.class.getClassLoader();
         RunResult result = ProviderFactory.invokeProvider(null, loader, reporterFactory, providerConfiguration, false,
                 startupConfiguration, true);
         String failsafe = testProps.getProperty("failsafe");
@@ -296,10 +291,10 @@ public class OsgiSurefireBooter {
         }
     }
 
-    private static ClassLoader createCombinedClassLoader(String testPlugin) throws BundleException {
+    private static ClassLoader createCombinedClassLoader(String testPlugin, boolean debug) throws BundleException {
         Bundle testClassLoader = getBundleClassLoader(testPlugin);
         Bundle surefireClassLoader = FrameworkUtil.getBundle(ForkedBooter.class);
-        return new BundleClassLoader(Arrays.asList(testClassLoader, surefireClassLoader), true);
+        return new BundleClassLoader(Arrays.asList(testClassLoader, surefireClassLoader), debug);
     }
 
     /*

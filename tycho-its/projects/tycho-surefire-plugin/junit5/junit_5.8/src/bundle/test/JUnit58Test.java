@@ -19,13 +19,13 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
-class JUnit54Test {
+class JUnit58Test {
 
     @Test
-    @DisplayName("My 1st JUnit 5.4 test!")
-    void myFirstJUnit54Test(TestInfo testInfo) {
+    @DisplayName("My 1st JUnit 5.8 test!")
+    void myFirstJUnit56Test(TestInfo testInfo) {
         assertEquals(2, 1+1, "1 + 1 should equal 2");
-        assertEquals("My 1st JUnit 5.4 test!", testInfo.getDisplayName(), () -> "TestInfo is injected correctly");
+        assertEquals("My 1st JUnit 5.8 test!", testInfo.getDisplayName(), () -> "TestInfo is injected correctly");
     }
 
     @Test
