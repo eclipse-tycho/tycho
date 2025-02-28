@@ -7,7 +7,7 @@ Import-Package: \
  org.junit.jupiter.api, \
  org.junit.jupiter.engine, \
  org.junit.platform.suite.api, \
- org.junit.platform.suite.engine;status=INTERNAL,
+ org.junit.platform.suite.engine;status=INTERNAL, \
  java.*
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
 # The JUnit Runner is still compatible with Java 1.8, as all included upstream dependencies are.

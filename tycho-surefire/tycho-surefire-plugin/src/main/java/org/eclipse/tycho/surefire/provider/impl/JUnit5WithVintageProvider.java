@@ -26,7 +26,7 @@ import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 
-@Component(role = TestFrameworkProvider.class, hint = "junit5withvintage")
+@Component(role = TestFrameworkProvider.class, hint = "junit5vintage")
 public class JUnit5WithVintageProvider extends AbstractJUnitProvider {
 
     private static final Version VERSION = Version.parseVersion("5.0.0");

@@ -38,51 +38,6 @@
 							<artifactId>surefire-junit-platform</artifactId>
 							<version>${surefire-version}</version>
 						</artifactItem>
-						<artifactItem>
-							<groupId>org.apache.maven.surefire</groupId>
-							<artifactId>common-java5</artifactId>
-							<version>${surefire-version}</version>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.junit.platform</groupId>
-							<artifactId>junit-platform-launcher</artifactId>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.junit.platform</groupId>
-							<artifactId>junit-platform-engine</artifactId>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.junit.platform</groupId>
-							<artifactId>junit-platform-commons</artifactId>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.junit.jupiter</groupId>
-							<artifactId>junit-jupiter-engine</artifactId>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.junit.vintage</groupId>
-							<artifactId>junit-vintage-engine</artifactId>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.junit.platform</groupId>
-							<artifactId>junit-platform-suite-api</artifactId>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.junit.platform</groupId>
-							<artifactId>junit-platform-suite-commons</artifactId>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.junit.platform</groupId>
-							<artifactId>junit-platform-suite-engine</artifactId>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.opentest4j</groupId>
-							<artifactId>opentest4j</artifactId>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.apiguardian</groupId>
-							<artifactId>apiguardian-api</artifactId>
-						</artifactItem>
 					</artifactItems>
 				</configuration>
 			</plugin>
