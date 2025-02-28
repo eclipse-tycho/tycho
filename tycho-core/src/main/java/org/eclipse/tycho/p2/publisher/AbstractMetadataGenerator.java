@@ -38,10 +38,10 @@ import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
-import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 
 public abstract class AbstractMetadataGenerator {
@@ -110,7 +110,7 @@ public abstract class AbstractMetadataGenerator {
         Matcher m = TychoConstants.PLATFORM_URL_PATTERN.matcher(url);
         if (m.matches())
             result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, m.group(2),
-                    VersionRange.emptyRange, null, false, false));
+                    VersionRange.emptyRange, null, true, false));
     }
 
     private DependencyMetadata publish(IPublisherInfo publisherInfo, List<IPublisherAction> actions) {
