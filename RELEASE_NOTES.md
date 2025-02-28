@@ -441,6 +441,11 @@ As JUnit 3/4 is actually EOL we no longer support version before 4.7 anymore.
 For users that are previously have used a specific provider in their configuration (like `junit47`) this means they need
 to change that to use only `junit4` from now on.
 
+### Support for JUnit 5 prior 5.8 removed
+
+JUnit 5.8 (included in Eclipse 2021-12) is the lowest version we support as there was the new suite support introduced that
+is not included in previous Eclipse releases
+
 ### Only one JUnit 5 provider
 
 Historically Tycho has multiple providers for JUnit 5 to support different version. As Tycho is loading providers from

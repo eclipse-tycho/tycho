@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.eclipse.tycho.tycho-its.surefire-junit5</groupId>
+	<artifactId>parent</artifactId>
+	<version>1.0.0</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<tycho-version>5.0.0-SNAPSHOT</tycho-version>
+	</properties>
+
+
+	<repositories>
+		<!-- fixme must be replaced with 2025-06 ? that contains actually junit
+		5.12 only-->
+		<repository>
+			<id>eclipse</id>
+			<layout>p2</layout>
+			<url>https://download.eclipse.org/releases/2025-03/</url>
+		</repository>
+		<repository>
+			<id>newOrbit</id>
+			<layout>p2</layout>
+			<url>
+				https://download.eclipse.org/tools/orbit/simrel/orbit-aggregation/2025-03</url>
+		</repository>
+	</repositories>
+	
+	<modules>
+		<module>runner</module>
+		<module>suite</module>
+		<module>vintage</module>
+	</modules>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<printBundles>true</printBundles>
+						<showEclipseLog>true</showEclipseLog>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

@@ -1,0 +1,9 @@
+# We only import import the vintage package here as the rest is provided by the base junit5 already
+# This is the version of the junit without the internal package attribute since 5.12
+Import-Package: org.junit.vintage.engine;version="[5.12,6)"
+Fragment-Host: org.eclipse.tycho.surefire.osgibooter
+# The JUnit Runner is still compatible with Java 1.8, as all included upstream dependencies are.
+# (This is checked in the tycho-surefire-plugin's pom.xml. See execution 'enforce-runtime-jdk-compatibility'.)
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+-removeheaders: Tool, Bnd-*, Created-By, Private-Package
+-fixupmessages "Classes found in the wrong directory"; is:=warning
