@@ -13,7 +13,10 @@ package org.eclipse.tycho.test.pgp;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -26,6 +29,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -43,11 +47,18 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
+import org.eclipse.osgi.launch.EquinoxFactory;
+import org.eclipse.osgi.signedcontent.SignedContent;
+import org.eclipse.osgi.signedcontent.SignedContentFactory;
 import org.eclipse.tycho.gpg.BouncyCastleSigner;
 import org.eclipse.tycho.gpg.KeyStore;
 import org.eclipse.tycho.gpg.SignatureStore;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.launch.Framework;
+import org.osgi.util.tracker.ServiceTracker;
 import org.tukaani.xz.XZInputStream;
 
 public class TestPGPSigning extends AbstractTychoIntegrationTest {
@@ -138,17 +149,18 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		verifier.setSystemProperty("test.signer", "gpg");
 		verify(verifier);
 
-		var data = verifySignatures(verifier);
+		try (var data = verifySignatures(verifier)) {
+			assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
 
-		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
+			assertEquals(
+					"[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source]",
+					data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
-		assertEquals(
-				"[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
-				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
-
-		Set<String> signedIUs = data.signedIUs.keySet();
-		assertEquals("[bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
-				signedIUs.toString(), "Unexpected signed IUs.");
+			Set<String> signedIUs = data.signedIUs.keySet();
+			assertEquals(
+					"[bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+					signedIUs.toString(), "Unexpected signed IUs.");
+		}
 	}
 
 	@Test
@@ -157,17 +169,18 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		verifier.setSystemProperty("test.signer", "bc");
 		verify(verifier);
 
-		var data = verifySignatures(verifier);
+		try (var data = verifySignatures(verifier)) {
+			assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
 
-		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
+			assertEquals(
+					"[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source]",
+					data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
-		assertEquals(
-				"[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
-				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
-
-		Set<String> signedIUs = data.signedIUs.keySet();
-		assertEquals("[bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
-				signedIUs.toString(), "Unexpected signed IUs.");
+			Set<String> signedIUs = data.signedIUs.keySet();
+			assertEquals(
+					"[bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+					signedIUs.toString(), "Unexpected signed IUs.");
+		}
 	}
 
 	@Test
@@ -179,18 +192,19 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		verifier.setSystemProperty("tycho.pgp.signer.bc.secretKeys", PGP_SECRET_KEYS.toString());
 		verify(verifier);
 
-		var data = verifySignatures(verifier);
+		try (var data = verifySignatures(verifier)) {
+			assertEquals(Set.of(PRIMARY_KEY_FINGERPRINT).toString(), data.repositoryKeys.toString(),
+					"Exactly this one key is expected");
 
-		assertEquals(Set.of(PRIMARY_KEY_FINGERPRINT).toString(), data.repositoryKeys.toString(),
-				"Exactly this one key is expected");
+			assertEquals(
+					"[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source]",
+					data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
-		assertEquals(
-				"[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
-				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
-
-		Set<String> signedIUs = data.signedIUs.keySet();
-		assertEquals("[bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
-				signedIUs.toString(), "Unexpected signed IUs.");
+			Set<String> signedIUs = data.signedIUs.keySet();
+			assertEquals(
+					"[bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+					signedIUs.toString(), "Unexpected signed IUs.");
+		}
 	}
 
 	@Test
@@ -203,18 +217,19 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		verifier.setSystemProperty("tycho.pgp.signer.bc.secretKeys", PGP_SECRET_KEYS.toString());
 		verify(verifier);
 
-		var data = verifySignatures(verifier);
+		try (var data = verifySignatures(verifier)) {
+			assertEquals(Set.of(SECONDARY_KEY_FINGERPRINT).toString(), data.repositoryKeys.toString(),
+					"Exactly this one key is expected");
 
-		assertEquals(Set.of(SECONDARY_KEY_FINGERPRINT).toString(), data.repositoryKeys.toString(),
-				"Exactly this one key is expected");
+			assertEquals(
+					"[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source]",
+					data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
-		assertEquals(
-				"[bcpg, bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
-				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
-
-		Set<String> signedIUs = data.signedIUs.keySet();
-		assertEquals("[bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
-				signedIUs.toString(), "Unexpected signed IUs.");
+			Set<String> signedIUs = data.signedIUs.keySet();
+			assertEquals(
+					"[bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+					signedIUs.toString(), "Unexpected signed IUs.");
+		}
 	}
 
 	@Test
@@ -222,19 +237,37 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		var verifier = createVerifier();
 		verifier.setSystemProperty("test.skipIfJarsigned", "false");
 		verify(verifier);
+		try (Data data = verifySignatures(verifier)) {
+			assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
 
-		var data = verifySignatures(verifier);
+			String fullLog = getLog(verifier);
+			assertAllArtifactsJarSigned(data, data.unsignedIUs, true,
+					"artifact %s is not jar signed and anchored but was not pgp signed", fullLog);
+			assertAllArtifactsNotJarSigned(data, data.signedIUs.keySet(), true,
+					"artifact %s is jar signed and anchored but was pgp signed", fullLog);
+			Set<String> skipped = data.getSkipped();
+			assertEquals(1, skipped.size(), skipped.toString() + fullLog);
+		}
+	}
 
-		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
+	public void assertAllArtifactsJarSigned(Data data, Set<String> artifacts, boolean anchored, String msg, String log)
+			throws Exception {
+		assertFalse(artifacts.isEmpty(),
+				"There should be some items to be checked" + Objects.requireNonNullElse(log, ""));
+		for (String artifact : artifacts) {
+			assertTrue(data.isJarSigned(artifact, anchored),
+					String.format(msg, artifact) + Objects.requireNonNullElse(log, ""));
+		}
+	}
 
-		assertEquals(
-				"[org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
-				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
-
-		Set<String> signedIUs = data.signedIUs.keySet();
-		assertEquals(
-				"[bcpg, bcpg.source, bcprov, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
-				signedIUs.toString(), "Unexpected signed IUs.");
+	public void assertAllArtifactsNotJarSigned(Data data, Set<String> artifacts, boolean anchored, String msg,
+			String log) throws Exception {
+		assertFalse(artifacts.isEmpty(),
+				"There should be some items to be checked" + Objects.requireNonNullElse(log, ""));
+		for (String artifact : artifacts) {
+			assertFalse(data.isJarSigned(artifact, anchored),
+					String.format(msg, artifact) + Objects.requireNonNullElse(log, ""));
+		}
 	}
 
 	@Test
@@ -244,18 +277,18 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		verifier.setSystemProperty("test.skipBinaries", "false");
 		verify(verifier);
 
-		var data = verifySignatures(verifier);
+		try (var data = verifySignatures(verifier, true)) {
+			assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
 
-		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
+			assertEquals(
+					"[org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source]",
+					data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
-		assertEquals(
-				"[org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source]",
-				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
-
-		Set<String> signedIUs = data.signedIUs.keySet();
-		assertEquals(
-				"[bcpg, bcpg.source, bcprov, bcprov.source, org.eclipse.platform_root, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
-				signedIUs.toString(), "Unexpected signed IUs.");
+			Set<String> signedIUs = data.signedIUs.keySet();
+			assertEquals(
+					"[bcpg, bcpg.source, bcprov, bcprov.source, org.eclipse.platform_root, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+					signedIUs.toString(), "Unexpected signed IUs.");
+		}
 	}
 
 	@Test
@@ -265,18 +298,18 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		verifier.setSystemProperty("test.forceSignature", "bcpg");
 		verify(verifier);
 
-		var data = verifySignatures(verifier);
+		try (var data = verifySignatures(verifier)) {
+			assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
 
-		assertEquals(1, data.repositoryKeys.size(), "Exactly one key is expected");
+			assertEquals(
+					"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source]",
+					data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
-		assertEquals(
-				"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
-				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
-
-		Set<String> signedIUs = data.signedIUs.keySet();
-		assertEquals(
-				"[bcpg, bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
-				signedIUs.toString(), "Unexpected signed IUs.");
+			Set<String> signedIUs = data.signedIUs.keySet();
+			assertEquals(
+					"[bcpg, bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+					signedIUs.toString(), "Unexpected signed IUs.");
+		}
 	}
 
 	@Test
@@ -294,23 +327,24 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		verifier.setSystemProperty("gpg-keyname-2", SECONDARY_KEY_NAME);
 		verify(verifier);
 
-		var data = verifySignatures(verifier);
+		try (var data = verifySignatures(verifier)) {
+			var expectedFingerprints = KEY_FINGERPRINTS.toString();
+			assertEquals(expectedFingerprints, data.repositoryKeys.toString(), "Exactly these two keys are expected");
 
-		var expectedFingerprints = KEY_FINGERPRINTS.toString();
-		assertEquals(expectedFingerprints, data.repositoryKeys.toString(), "Exactly these two keys are expected");
+			assertEquals(
+					"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source]",
+					data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
-		assertEquals(
-				"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
-				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
+			var signedIUs = data.signedIUs.keySet();
+			for (var fingerprints : data.signedIUs.values()) {
+				assertEquals(expectedFingerprints, fingerprints.toString(),
+						"Expecting two merged signature fingerprints.");
+			}
 
-		var signedIUs = data.signedIUs.keySet();
-		for (var fingerprints : data.signedIUs.values()) {
-			assertEquals(expectedFingerprints, fingerprints.toString(), "Expecting two merged signature fingerprints.");
+			assertEquals(
+					"[bcpg, bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+					signedIUs.toString(), "Unexpected signed IUs.");
 		}
-
-		assertEquals(
-				"[bcpg, bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
-				signedIUs.toString(), "Unexpected signed IUs.");
 	}
 
 	@Test
@@ -328,23 +362,24 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		verifier.setSystemProperty("gpg-keyname-2", PRIMARY_KEY_NAME);
 		verify(verifier);
 
-		var data = verifySignatures(verifier);
+		try (var data = verifySignatures(verifier)) {
+			var expectedFingerprints = Set.of(PRIMARY_KEY_FINGERPRINT).toString();
+			assertEquals(expectedFingerprints, data.repositoryKeys.toString(), "Exactly these two keys are expected");
 
-		var expectedFingerprints = Set.of(PRIMARY_KEY_FINGERPRINT).toString();
-		assertEquals(expectedFingerprints, data.repositoryKeys.toString(), "Exactly these two keys are expected");
+			assertEquals(
+					"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source]",
+					data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
-		assertEquals(
-				"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
-				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
+			var signedIUs = data.signedIUs.keySet();
+			for (var fingerprints : data.signedIUs.values()) {
+				assertEquals(expectedFingerprints, fingerprints.toString(),
+						"Expecting two merged signature fingerprints.");
+			}
 
-		var signedIUs = data.signedIUs.keySet();
-		for (var fingerprints : data.signedIUs.values()) {
-			assertEquals(expectedFingerprints, fingerprints.toString(), "Expecting two merged signature fingerprints.");
+			assertEquals(
+					"[bcpg, bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+					signedIUs.toString(), "Unexpected signed IUs.");
 		}
-
-		assertEquals(
-				"[bcpg, bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
-				signedIUs.toString(), "Unexpected signed IUs.");
 	}
 
 	@Test
@@ -362,24 +397,25 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		verifier.setSystemProperty("gpg-keyname-2", SECONDARY_KEY_NAME);
 		verify(verifier);
 
-		var data = verifySignatures(verifier);
+		try (var data = verifySignatures(verifier)) {
+			var expectedFingerprints = Set.of(SECONDARY_KEY_FINGERPRINT).toString();
+			assertEquals(expectedFingerprints, data.repositoryKeys.toString(),
+					"Exactly the one replacement key is expected");
 
-		var expectedFingerprints = Set.of(SECONDARY_KEY_FINGERPRINT).toString();
-		assertEquals(expectedFingerprints, data.repositoryKeys.toString(),
-				"Exactly the one replacement key is expected");
+			assertEquals(
+					"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source]",
+					data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
-		assertEquals(
-				"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
-				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
+			var signedIUs = data.signedIUs.keySet();
+			for (var fingerprints : data.signedIUs.values()) {
+				assertEquals(expectedFingerprints, fingerprints.toString(),
+						"Expecting replaced signature fingerprint.");
+			}
 
-		var signedIUs = data.signedIUs.keySet();
-		for (var fingerprints : data.signedIUs.values()) {
-			assertEquals(expectedFingerprints, fingerprints.toString(), "Expecting replaced signature fingerprint.");
+			assertEquals(
+					"[bcpg, bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+					signedIUs.toString(), "Unexpected signed IUs.");
 		}
-
-		assertEquals(
-				"[bcpg, bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
-				signedIUs.toString(), "Unexpected signed IUs.");
 	}
 
 	@Test
@@ -397,42 +433,117 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 		verifier.setSystemProperty("gpg-keyname-2", SECONDARY_KEY_NAME);
 		verify(verifier);
 
-		var data = verifySignatures(verifier);
+		try (var data = verifySignatures(verifier)) {
+			var expectedFingerprints = Set.of(PRIMARY_KEY_FINGERPRINT).toString();
+			assertEquals(expectedFingerprints, data.repositoryKeys.toString(),
+					"Exactly the one orginal key is expected");
 
-		var expectedFingerprints = Set.of(PRIMARY_KEY_FINGERPRINT).toString();
-		assertEquals(expectedFingerprints, data.repositoryKeys.toString(), "Exactly the one orginal key is expected");
+			assertEquals(
+					"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source]",
+					data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
 
-		assertEquals(
-				"[bcprov, org.eclipse.equinox.common, org.eclipse.equinox.common.source, org.eclipse.osgi, org.eclipse.osgi.source, org.eclipse.platform_root]",
-				data.unsignedIUs.toString(), "Unexpected unsigned IUs.");
+			var signedIUs = data.signedIUs.keySet();
+			for (var fingerprints : data.signedIUs.values()) {
+				assertEquals(expectedFingerprints, fingerprints.toString(),
+						"Expecting the first signature fingerprints.");
+			}
 
-		var signedIUs = data.signedIUs.keySet();
-		for (var fingerprints : data.signedIUs.values()) {
-			assertEquals(expectedFingerprints, fingerprints.toString(), "Expecting the first signature fingerprints.");
+			assertEquals(
+					"[bcpg, bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
+					signedIUs.toString(), "Unexpected signed IUs.");
 		}
-
-		assertEquals(
-				"[bcpg, bcpg.source, bcprov.source, org.eclipse.tycho.maven.all, org.eclipse.tycho.maven.all.source]",
-				signedIUs.toString(), "Unexpected signed IUs.");
 	}
 
-	private static class Data {
+	private static class Data implements AutoCloseable {
 		public final Set<String> repositoryKeys = new TreeSet<>();
 		public final Set<String> allIUs = new TreeSet<>();
 		public final Map<String, Set<String>> signedIUs = new TreeMap<>();
 		public final Set<String> unsignedIUs = new TreeSet<>();
+		private Path repository;
+		private Framework framework;
+		private SignedContentFactory service;
+
+		public Data(Path repository) {
+			this.repository = repository;
+		}
+
+		public Set<String> getSkipped() {
+			TreeSet<String> set = new TreeSet<>(allIUs);
+			set.removeAll(unsignedIUs);
+			set.removeAll(signedIUs.keySet());
+			return set;
+		}
+
+		public Path getArtifact(String name) {
+			File[] files = assertFileExists(repository.toFile(), "**/" + name + "_*");
+			return files[0].toPath();
+		}
 
 		@Override
 		public String toString() {
 			return "Data [repositoryKeys=" + repositoryKeys + ", allIUs=" + allIUs + ", signedIUs=" + signedIUs
 					+ ", unsignedIUs=" + unsignedIUs + "]";
 		}
+
+		public SignedContentFactory getSignedContentFactory() {
+			try {
+				if (framework == null) {
+					framework = new EquinoxFactory()
+							.newFramework(Map.of("osgi.instance.area", repository + File.separator + "instance"));
+					framework.init();
+					framework.start();
+				}
+				if (service == null) {
+					BundleContext bundleContext = framework.getBundleContext();
+					ServiceTracker<SignedContentFactory, SignedContentFactory> tracker = new ServiceTracker<>(
+							bundleContext, SignedContentFactory.class, null);
+					tracker.open();
+					service = tracker.getService();
+				}
+				return service;
+			} catch (Exception e) {
+				throw new AssertionError("Loading OSGi Framework failed", e);
+			}
+		}
+
+		public boolean isJarSigned(String artifact, boolean anchored) throws Exception {
+			Path path = getArtifact(artifact);
+			SignedContent signedContent = getSignedContentFactory().getSignedContent(path.toFile());
+			if (signedContent.isSigned()) {
+				if (anchored) {
+					for (var signerInfo : signedContent.getSignerInfos()) {
+						if (signerInfo.getTrustAnchor() != null) {
+							return true;
+						}
+					}
+				} else {
+					return true;
+				}
+
+			}
+			return false;
+		}
+
+		@Override
+		public void close() {
+			if (framework != null) {
+				try {
+					framework.stop();
+				} catch (BundleException e) {
+				}
+			}
+		}
+
 	}
 
 	private Data verifySignatures(Verifier verifier) throws Exception {
-		var data = new Data();
+		return verifySignatures(verifier, true);
+	}
+
+	private Data verifySignatures(Verifier verifier, boolean skipBinaries) throws Exception {
 		var basedir = verifier.getBasedir();
 		var repository = Path.of(basedir, "site/target/repository");
+		var data = new Data(repository);
 		Xpp3Dom xzDOM;
 		try (var stream = new XZInputStream(Files.newInputStream(repository.resolve("artifacts.xml.xz")))) {
 			xzDOM = Xpp3DomBuilder.build(stream, StandardCharsets.UTF_8.displayName());
@@ -459,9 +570,10 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 				var id = artifact.getAttribute("id");
 				var version = artifact.getAttribute("version");
 				var classifier = artifact.getAttribute("classifier");
-
 				data.allIUs.add(id);
-
+				if ("binary".equals(classifier) && skipBinaries) {
+					continue;
+				}
 				var properties = getProperties(artifact);
 				var key = properties.get("pgp.publicKeys");
 				var signature = properties.get("pgp.signatures");
