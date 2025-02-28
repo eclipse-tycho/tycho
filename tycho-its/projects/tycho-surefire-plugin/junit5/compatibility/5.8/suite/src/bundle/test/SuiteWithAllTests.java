@@ -16,7 +16,7 @@ import org.junit.platform.suite.api.Suite;
 import org.junit.platform.suite.api.SelectClasses;
 
 @Suite
-@SelectClasses({ JUnit59Test.class })
+@SelectClasses({ JUnit5Test.class })
 public class SuiteWithAllTests {
 
 }

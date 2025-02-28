@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class JUnit59Test {
+class JUnit5Test {
 
     @Test
     @DisplayName("started from test suite")

@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.eclipse.tycho.tycho-its.surefire-junit5</groupId>
-  <artifactId>bundle.test.junit58</artifactId>
+  <parent>
+		<groupId>org.eclipse.tycho.tycho-its.surefire-junit5</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+  <artifactId>bundle.test.junit59suite</artifactId>
   <packaging>eclipse-test-plugin</packaging>
-  <version>1.0.0</version>
-  
-  <repositories>
-    <repository>
-      <id>eclipse</id>
-      <layout>p2</layout>
-      <!-- We need this specific URL as it contains JUnit 5.8 -->
-      <url>https://download.eclipse.org/releases/2021-12/</url>
-    </repository>
-  </repositories>
   
   <build>
     <plugins>
@@ -26,9 +20,10 @@
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
-        <version>${tycho-version}</version>
         <configuration>
-          <excludedGroups>slow</excludedGroups>
+          <includes>
+            <include>**/SuiteWithAllTests.java</include>
+          </includes>
         </configuration>
       </plugin>
     </plugins>

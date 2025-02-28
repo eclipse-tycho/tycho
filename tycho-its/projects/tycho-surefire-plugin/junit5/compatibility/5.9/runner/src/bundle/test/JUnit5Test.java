@@ -24,13 +24,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class JUnit59Test {
+class JUnit5Test {
 
     @Test
-    @DisplayName("My 1st JUnit 5.9 test!")
+    @DisplayName("My 1st JUnit 5 test!")
     void myFirstJUnit59Test(TestInfo testInfo) {
         assertEquals(2, 1+1, "1 + 1 should equal 2");
-        assertEquals("My 1st JUnit 5.9 test!", testInfo.getDisplayName(), () -> "TestInfo is injected correctly");
+        assertEquals("My 1st JUnit 5 test!", testInfo.getDisplayName(), () -> "TestInfo is injected correctly");
     }
 
     @Test

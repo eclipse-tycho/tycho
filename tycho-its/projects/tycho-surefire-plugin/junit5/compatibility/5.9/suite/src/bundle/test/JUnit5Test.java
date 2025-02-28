@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 Bachmann electronic GmbH and others.
+ * Copyright (c) 2023 Vector Informatik GmbH and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -8,30 +8,21 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *    Bachmann electronic GmbH - initial API and implementation
+ *    Vector Informatik GmbH - initial API and implementation
  *******************************************************************************/
 package bundle.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 
-class JUnit58Test {
-
-    @Test
-    @DisplayName("My 1st JUnit 5.8 test!")
-    void myFirstJUnit56Test(TestInfo testInfo) {
-        assertEquals(2, 1+1, "1 + 1 should equal 2");
-        assertEquals("My 1st JUnit 5.8 test!", testInfo.getDisplayName(), () -> "TestInfo is injected correctly");
-    }
+class JUnit5Test {
 
     @Test
-    @Tag("slow")
-    void slowJUnit5Test() {
-        assertEquals(2, 1+1, "1 + 1 should equal 2");
+    @DisplayName("started from test suite")
+    void startedFromSuite() {
+        assertEquals(2, 1 + 1);
     }
 
 }
