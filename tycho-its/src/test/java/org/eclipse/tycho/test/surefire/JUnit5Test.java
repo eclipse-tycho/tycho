@@ -44,15 +44,15 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	public void testJUnit4and54Runner() throws Exception {
-		final Verifier verifier = getVerifier("/surefire.junit4and54/bundle.test");
+	public void testJUnit4and5Runner() throws Exception {
+		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/junit_5.9/vintage");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		final String projectBasedir = verifier.getBasedir();
 		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit4Test", "testWithJUnit4");
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit54Test", "My 1st JUnit 5.4 test!");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "My 1st JUnit 5 test!");
 		// make sure test tagged as 'slow' was skipped
-		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit54Test", 1);
+		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 1);
 	}
 
 	@Test

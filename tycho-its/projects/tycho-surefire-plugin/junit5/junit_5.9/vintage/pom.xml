@@ -2,15 +2,21 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.tycho.tycho-its.surefire-junit5</groupId>
-  <artifactId>bundle.test.junit4and54</artifactId>
+  <artifactId>bundle.test.junit4and5</artifactId>
   <packaging>eclipse-test-plugin</packaging>
   <version>1.0.0</version>
   
+   <properties>
+  	<tycho-version>5.0.0-SNAPSHOT</tycho-version>
+  </properties>
+  
+  
   <repositories>
     <repository>
-      <id>eclipse201903</id>
+      <id>eclipse</id>
       <layout>p2</layout>
-      <url>${target-platform}</url>
+      <!-- We need this explicit release as it contains JUnit 5.9 release -->
+      <url>https://download.eclipse.org/releases/2023-03/</url>
     </repository>
   </repositories>
   
@@ -28,6 +34,8 @@
         <version>${tycho-version}</version>
         <configuration>
           <excludedGroups>slow</excludedGroups>
+          <printBundles>true</printBundles>
+          <showEclipseLog>true</showEclipseLog>
         </configuration>
       </plugin>
     </plugins>

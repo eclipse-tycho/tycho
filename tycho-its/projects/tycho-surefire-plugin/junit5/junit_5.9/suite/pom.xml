@@ -31,6 +31,8 @@
           <includes>
             <include>**/SuiteWithAllTests.java</include>
           </includes>
+           <printBundles>true</printBundles>
+          <showEclipseLog>true</showEclipseLog>
         </configuration>
       </plugin>
     </plugins>
