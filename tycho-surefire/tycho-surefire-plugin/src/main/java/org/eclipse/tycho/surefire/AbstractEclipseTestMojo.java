@@ -745,8 +745,8 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
                 getProjectType().getTestClasspath(DefaultReactorProject.adapt(project)), getMergedProviderProperties(),
                 providerHint);
         TestFrameworkProvider provider = selection.provider();
-        getLog().info("Selected framework " + provider.getType() + " with provider " + selection.hint() + " ("
-                + provider.getVersion() + ")");
+        getLog().info(String.format("Selected test framework %s (%s) with provider %s %s", provider.getType(),
+                provider.getVersion(), selection.hint(), provider.getVersionRange()));
         Collection<IRequirement> testRequiredPackages = new ArrayList<>();
         Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
         for (Artifact artifact : testFrameworkBundles) {

@@ -13,7 +13,6 @@
 
 package org.eclipse.tycho.surefire.provider.impl;
 
-import static java.util.Collections.singletonList;
 import static org.eclipse.tycho.surefire.provider.impl.ProviderHelper.newDependency;
 
 import java.util.List;
@@ -24,32 +23,28 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
-import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 
-@Component(role = TestFrameworkProvider.class, hint = "junit5vintage")
-public class JUnit5WithVintageProvider extends AbstractJUnitProvider {
+@Component(role = TestFrameworkProvider.class, hint = "junit5vintageinternal")
+public class JUnit5VintageInternalProvider extends AbstractJUnit5Provider {
 
-    private static final Version VERSION = Version.parseVersion("5.0.0");
-
-    @Override
-    public String getSurefireProviderClassName() {
-        return "org.apache.maven.surefire.junitplatform.JUnitPlatformProvider";
-    }
-
-    @Override
-    public Version getVersion() {
-        return loadVersionFromClasspath(VERSION);
-    }
+    private static final VersionRange JUNIT_VINTAGE_INTERNAL_VERSION_RANGE = new VersionRange("[5,5.12)");
 
     @Override
     public List<Dependency> getRequiredBundles() {
-        return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit5withvintage"));
+        return List.of(newDependency("org.eclipse.tycho.surefire.junit5"),
+                newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit5.vintage.internal"));
     }
 
     @Override
     public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath,
             Properties surefireProperties) {
-        return JUnit5Provider.isJUnit5(project, testBundleClassPath)
+        return isJUnit5(project, testBundleClassPath, JUNIT_VINTAGE_INTERNAL_VERSION_RANGE)
                 && JUnit4Provider.isJUnit4(project, testBundleClassPath);
+    }
+
+    @Override
+    public VersionRange getVersionRange() {
+        return JUNIT_VINTAGE_INTERNAL_VERSION_RANGE;
     }
 }

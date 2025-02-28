@@ -34,6 +34,7 @@ import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 
 public class ProviderHelperTest extends TychoPlexusTestCase {
 
@@ -71,7 +72,7 @@ public class ProviderHelperTest extends TychoPlexusTestCase {
         TestFrameworkProvider provider = providerHelper
                 .selectProvider(null, classPath("org.junit:4.12", "junit-jupiter-api:5.0.0"), new Properties(), null)
                 .provider();
-        assertEquals(JUnit5WithVintageProvider.class, provider.getClass());
+        assertEquals(JUnit5VintageInternalProvider.class, provider.getClass());
     }
 
     @Test
@@ -126,6 +127,11 @@ public class ProviderHelperTest extends TychoPlexusTestCase {
             @Override
             public Properties getProviderSpecificProperties() {
                 return new Properties();
+            }
+
+            @Override
+            public VersionRange getVersionRange() {
+                return VersionRange.valueOf("1.0");
             }
         };
         PlexusContainer container = getContainer();

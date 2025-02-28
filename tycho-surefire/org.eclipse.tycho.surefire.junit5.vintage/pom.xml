@@ -18,7 +18,7 @@
 		<version>5.0.0-SNAPSHOT</version>
 		<relativePath>../tycho-surefire-provider-parent/pom.xml</relativePath>
 	</parent>
-	<artifactId>org.eclipse.tycho.surefire.junit5withvintage</artifactId>
+	<artifactId>org.eclipse.tycho.surefire.junit5.vintage</artifactId>
 	<packaging>jar</packaging>
 	<name>Tycho Surefire OSGi JUnit 5.x Runner with JUnit Vintage to execute JUnit 4.x tests as well</name>
 	<build>
@@ -26,20 +26,6 @@
 			<plugin>
 				<groupId>biz.aQute.bnd</groupId>
 				<artifactId>bnd-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<configuration>
-					<excludes>META-INF/**</excludes>
-					<artifactItems>
-						<artifactItem>
-							<groupId>org.apache.maven.surefire</groupId>
-							<artifactId>surefire-junit-platform</artifactId>
-							<version>${surefire-version}</version>
-						</artifactItem>
-					</artifactItems>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

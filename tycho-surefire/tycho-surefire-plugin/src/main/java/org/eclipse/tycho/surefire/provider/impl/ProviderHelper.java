@@ -107,6 +107,10 @@ public class ProviderHelper {
         return dependency;
     }
 
+    static Dependency newDependency(String artifactId) {
+        return newDependency("org.eclipse.tycho", artifactId);
+    }
+
     private void validateCandidates(List<ProviderSelection> candidates) throws MojoExecutionException {
         if (candidates.isEmpty()) {
             throw new MojoExecutionException(
