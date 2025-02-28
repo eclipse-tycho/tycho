@@ -11,21 +11,14 @@
 	</properties>
 
 
-	<repositories>
-		<!-- fixme must be replaced with 2025-06 ? that contains actually junit
-		5.12 only-->
-		<repository>
-			<id>eclipse</id>
-			<layout>p2</layout>
-			<url>https://download.eclipse.org/releases/2025-03/</url>
-		</repository>
-		<repository>
-			<id>newOrbit</id>
-			<layout>p2</layout>
-			<url>
-				https://download.eclipse.org/tools/orbit/simrel/orbit-aggregation/2025-03</url>
-		</repository>
-	</repositories>
+  <repositories>
+    <repository>
+      <id>eclipse</id>
+      <layout>p2</layout>
+      <!-- We need this explicit release as it contains JUnit 5.9 release -->
+      <url>https://download.eclipse.org/releases/2023-03/</url>
+    </repository>
+  </repositories>
 	
 	<modules>
 		<module>runner</module>

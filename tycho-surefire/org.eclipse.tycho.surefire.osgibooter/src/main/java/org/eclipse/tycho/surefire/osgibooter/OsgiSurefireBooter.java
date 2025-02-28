@@ -146,21 +146,6 @@ public class OsgiSurefireBooter {
         return adapt.toURI().toURL();
     }
 
-    public static Bundle[] getFragments(Bundle bundle) {
-        BundleWiring wiring = bundle.adapt(BundleWiring.class);
-        if (wiring == null) {
-            return null;
-        }
-        List<BundleWire> hostWires = wiring.getProvidedWires(HostNamespace.HOST_NAMESPACE);
-        if (hostWires == null) {
-            // we don't hold locks while checking the graph, just return if no longer valid
-            return null;
-        }
-        Bundle[] result = hostWires.stream().map(wire -> wire.getRequirer().getBundle()).filter(Objects::nonNull)
-                .toArray(Bundle[]::new);
-        return result.length > 0 ? result : null;
-    }
-
     public static int invokeSureFire(String[] args, Properties testProps) throws Exception {
         boolean redirectTestOutputToFile = Boolean
                 .parseBoolean(testProps.getProperty("redirectTestOutputToFile", "false"));
@@ -414,6 +399,19 @@ public class OsgiSurefireBooter {
 
     public static Properties loadProperties(String[] args) throws IOException, CoreException {
         return loadProperties(getTestProperties(args));
+    }
+
+    private static Bundle[] getFragments(Bundle bundle) {
+        BundleWiring wiring = bundle.adapt(BundleWiring.class);
+        if (wiring == null) {
+            return new Bundle[0];
+        }
+        List<BundleWire> hostWires = wiring.getProvidedWires(HostNamespace.HOST_NAMESPACE);
+        if (hostWires == null) {
+            return new Bundle[0];
+        }
+        return hostWires.stream().map(wire -> wire.getRequirer().getBundle()).filter(Objects::nonNull)
+                .toArray(Bundle[]::new);
     }
 
 }
