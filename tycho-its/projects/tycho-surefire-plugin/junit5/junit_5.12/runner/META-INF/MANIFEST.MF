@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: JUnit59 Test Plug-in
-Bundle-SymbolicName: bundle.test.junit512
+Bundle-Name: JUnit5 Runner Test Plug-in
+Bundle-SymbolicName: bundle.test.junit5runner
 Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: org.junit.jupiter.api;version="[5.12.0,5.13.0)",
