@@ -53,29 +53,31 @@ public class ProviderHelperTest extends TychoPlexusTestCase {
     public void testSelectJunit47() throws Exception {
         Properties providerProperties = new Properties();
         providerProperties.setProperty("parallel", "classes");
-        TestFrameworkProvider provider = providerHelper.selectProvider(null,
-                classPath("org.junit:3.8.2", "org.junit4:4.8.1"), providerProperties, null);
+        TestFrameworkProvider provider = providerHelper
+                .selectProvider(null, classPath("org.junit:3.8.2", "org.junit4:4.8.1"), providerProperties, null)
+                .provider();
         assertEquals(JUnit4Provider.class, provider.getClass());
     }
 
     @Test
     public void testSelectJunit5() throws Exception {
-        TestFrameworkProvider provider = providerHelper.selectProvider(null, classPath("junit-jupiter-api:5.0.0"),
-                new Properties(), null);
+        TestFrameworkProvider provider = providerHelper
+                .selectProvider(null, classPath("junit-jupiter-api:5.0.0"), new Properties(), null).provider();
         assertEquals(JUnit5Provider.class, provider.getClass());
     }
 
     @Test
     public void testSelectJunit5WithJUnit4Present() throws Exception {
-        TestFrameworkProvider provider = providerHelper.selectProvider(null,
-                classPath("org.junit:4.12", "junit-jupiter-api:5.0.0"), new Properties(), null);
+        TestFrameworkProvider provider = providerHelper
+                .selectProvider(null, classPath("org.junit:4.12", "junit-jupiter-api:5.0.0"), new Properties(), null)
+                .provider();
         assertEquals(JUnit5WithVintageProvider.class, provider.getClass());
     }
 
     @Test
     public void testSelectTestNG() throws Exception {
-        TestFrameworkProvider provider = providerHelper.selectProvider(null, classPath("org.testng:6.9.12"),
-                new Properties(), null);
+        TestFrameworkProvider provider = providerHelper
+                .selectProvider(null, classPath("org.testng:6.9.12"), new Properties(), null).provider();
         assertEquals(TestNGProvider.class, provider.getClass());
     }
 
@@ -87,8 +89,8 @@ public class ProviderHelperTest extends TychoPlexusTestCase {
 
     @Test
     public void testNoProviderFound() {
-        assertThrows(MojoExecutionException.class,
-                () -> providerHelper.selectProvider(null, classPath("foo:1.0", "test:2.0"), new Properties(), null));
+        assertThrows(MojoExecutionException.class, () -> providerHelper
+                .selectProvider(null, classPath("foo:1.0", "test:2.0"), new Properties(), null).provider());
     }
 
     @Test
@@ -130,8 +132,8 @@ public class ProviderHelperTest extends TychoPlexusTestCase {
         container.addComponent(anotherProvider, TestFrameworkProvider.class, "another_test_fwk");
         ProviderHelper providerSelector = container.lookup(ProviderHelper.class);
         try {
-            assertThrows(MojoExecutionException.class,
-                    () -> providerSelector.selectProvider(null, classPath("org.junit:4.8.1"), new Properties(), null));
+            assertThrows(MojoExecutionException.class, () -> providerSelector
+                    .selectProvider(null, classPath("org.junit:4.8.1"), new Properties(), null).provider());
         } finally {
             container.release(anotherProvider);
         }
