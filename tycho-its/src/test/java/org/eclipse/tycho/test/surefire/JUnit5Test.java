@@ -60,7 +60,7 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 	 * @throws Exception
 	 */
 	@ParameterizedTest(name = "JUnit {1}")
-	@ValueSource(strings = { "5.8", "5.9", "5.12" })
+	@ValueSource(strings = { "5.8", "5.9", "5.10", "5.12" })
 	public void testJUnitCompatibility(String version) throws Exception {
 		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit5/compatibility/" + version);
 		verifier.executeGoal("verify");
