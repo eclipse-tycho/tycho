@@ -20,8 +20,8 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 public class AbstractTychoExtrasIntegrationTest extends AbstractTychoIntegrationTest {
 
     @Override
-    protected File getBasedir(String root, String test) throws IOException {
-        return new File("target/test-classes", root).getAbsoluteFile();
+    protected File getBasedir(String test) throws IOException {
+        return new File("target/test-classes", test).getAbsoluteFile();
     }
 
 }

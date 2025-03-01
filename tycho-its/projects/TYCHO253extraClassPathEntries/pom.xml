@@ -9,6 +9,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
+		<module>org.eclipse.tycho.testExtraClasspathTest1</module>
 		<module>org.eclipse.tycho.testExtraClasspathTest2</module>
 		<module>org.eclipse.tycho.testExtraClasspathTest3</module>
 	</modules>
