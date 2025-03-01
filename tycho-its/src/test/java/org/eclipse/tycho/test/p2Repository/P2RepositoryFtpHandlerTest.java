@@ -1,5 +1,14 @@
 package org.eclipse.tycho.test.p2Repository;
 
+import static org.mockftpserver.core.command.ReplyCodes.STAT_FILE_OK;
+import static org.mockftpserver.core.command.ReplyCodes.STAT_SYSTEM_OK;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Objects;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -12,16 +21,11 @@ import org.mockftpserver.core.session.Session;
 import org.mockftpserver.fake.FakeFtpServer;
 import org.mockftpserver.fake.UserAccount;
 import org.mockftpserver.fake.command.AbstractFakeCommandHandler;
-import org.mockftpserver.fake.filesystem.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Objects;
-
-import static org.mockftpserver.core.command.ReplyCodes.STAT_FILE_OK;
-import static org.mockftpserver.core.command.ReplyCodes.STAT_SYSTEM_OK;
+import org.mockftpserver.fake.filesystem.DirectoryEntry;
+import org.mockftpserver.fake.filesystem.FileEntry;
+import org.mockftpserver.fake.filesystem.FileSystem;
+import org.mockftpserver.fake.filesystem.FileSystemEntry;
+import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 
 /**
  * @author Edoardo Luppi
@@ -35,7 +39,7 @@ public class P2RepositoryFtpHandlerTest extends AbstractTychoIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        repoDir = new File(getBasedir(TEST_BASEDIR), "repository");
+        repoDir = new File(getBasedir(TEST_BASEDIR, null), "repository");
         startFtpServer();
     }
 

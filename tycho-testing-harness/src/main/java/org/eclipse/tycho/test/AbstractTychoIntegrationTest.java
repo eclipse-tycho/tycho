@@ -38,10 +38,10 @@ public abstract class AbstractTychoIntegrationTest {
     @Rule
     public TestName name = new TestName();
 
-    protected File getBasedir(String test) throws IOException {
-        File src = new File("projects", test).getAbsoluteFile();
+    protected File getBasedir(String root, String test) throws IOException {
+        File src = new File("projects", root).getAbsoluteFile();
         File dst = new File("target/projects",
-                getClass().getSimpleName() + "/" + name.getMethodName() + "/" + test.replace("../", "./"))
+                getClass().getSimpleName() + "/" + name.getMethodName() + "/" + root.replace("../", "./"))
                         .getAbsoluteFile();
 
         if (dst.isDirectory()) {
@@ -54,23 +54,37 @@ public abstract class AbstractTychoIntegrationTest {
 
         FileUtils.copyDirectoryStructure(src, dst);
 
-        return dst;
+        return test != null ? new File(dst, test) : dst;
     }
 
     protected Verifier getVerifier(String test, boolean setTargetPlatform) throws Exception {
-        return getVerifier(test, setTargetPlatform, getSettings());
+        return getVerifier(test, null, setTargetPlatform);
+    }
+
+    protected Verifier getVerifier(String root, String test, boolean setTargetPlatform) throws Exception {
+        return getVerifier(root, test, setTargetPlatform, getSettings());
     }
 
     protected Verifier getVerifier(String test, boolean setTargetPlatform, boolean ignoreLocalArtifacts)
             throws Exception {
-        return getVerifier(test, setTargetPlatform, getSettings(), ignoreLocalArtifacts);
+        return getVerifier(test, null, setTargetPlatform, ignoreLocalArtifacts);
+    }
+
+    protected Verifier getVerifier(String root, String test, boolean setTargetPlatform, boolean ignoreLocalArtifacts)
+            throws Exception {
+        return getVerifier(root, test, setTargetPlatform, getSettings(), ignoreLocalArtifacts);
     }
 
     protected Verifier getVerifier(String test, boolean setTargetPlatform, File userSettings) throws Exception {
-        return getVerifier(test, setTargetPlatform, userSettings, true);
+        return getVerifier(test, null, setTargetPlatform, userSettings);
     }
 
-    protected Verifier getVerifier(String test, boolean setTargetPlatform, File userSettings,
+    protected Verifier getVerifier(String root, String test, boolean setTargetPlatform, File userSettings)
+            throws Exception {
+        return getVerifier(root, test, setTargetPlatform, userSettings, true);
+    }
+
+    protected Verifier getVerifier(String root, String test, boolean setTargetPlatform, File userSettings,
             boolean ignoreLocalArtifacts) throws Exception {
         //Test JVM can be started in debug mode by passing the following property to the maven run:
         //-Dtycho.mvnDebug -> will start with port 8000
@@ -80,7 +94,7 @@ public abstract class AbstractTychoIntegrationTest {
         // oddly enough, Verifier uses this system property to locate maven install
         System.setProperty("maven.home", getMavenHome());
 
-        File testDir = getBasedir(test);
+        File testDir = getBasedir(root, test);
 
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
         verifier.setForkJvm(isForked());
@@ -148,7 +162,11 @@ public abstract class AbstractTychoIntegrationTest {
     }
 
     protected Verifier getVerifier(String test) throws Exception {
-        return getVerifier(test, true);
+        return getVerifier(test, null);
+    }
+
+    protected Verifier getVerifier(String root, String test) throws Exception {
+        return getVerifier(root, test, true);
     }
 
     protected String getTargetPlatform() {
