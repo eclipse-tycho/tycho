@@ -206,6 +206,11 @@ public abstract class AbstractTychoIntegrationTest {
 		return getVerifier(test, true);
 	}
 
+	protected static Verifier executeOnlyProject(Verifier verifier, String projectFolder) {
+		verifier.addCliOption("-pl " + projectFolder);
+		return verifier;
+	}
+
 	protected String getTargetPlatform() {
 		return EnvironmentUtil.getTargetPlatform();
 	}
