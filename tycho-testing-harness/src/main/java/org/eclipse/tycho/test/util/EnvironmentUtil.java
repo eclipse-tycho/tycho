@@ -12,17 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.tycho.TychoConstants;
 
@@ -34,7 +28,7 @@ import org.eclipse.tycho.TychoConstants;
  */
 public class EnvironmentUtil {
 
-    private static final String MAVEN_HOME_INFO = "Maven home:";
+    public static final String MAVEN_HOME_INFO = "Maven home:";
 
     private static final Properties props;
 
@@ -50,8 +44,8 @@ public class EnvironmentUtil {
         }
     }
 
-    static synchronized String getProperty(String key) {
-        return props.getProperty(key);
+    public static synchronized String getProperty(String key) {
+        return props.getProperty(key, System.getProperty(key));
     }
 
     private static final String WINDOWS_OS = "windows";
@@ -91,50 +85,6 @@ public class EnvironmentUtil {
         if (value == null || value.contains("$"))
             return null;
         return value;
-    }
-
-    public static String getMavenHome() {
-        String systemValue = System.getProperty("tychodev-maven.home");
-        if (systemValue != null) {
-            return systemValue;
-        }
-        String property = getProperty("maven-dir");
-        if (property == null) {
-            ProcessBuilder pb = new ProcessBuilder("mvn", "-V");
-            pb.redirectErrorStream(true);
-            try {
-                Process process = pb.start();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.startsWith(MAVEN_HOME_INFO)) {
-                        property = line.substring(MAVEN_HOME_INFO.length()).trim();
-                    }
-                }
-            } catch (IOException e) {
-            }
-        }
-        return property;
-    }
-
-    public static String getTychoVersion() {
-        String property = getProperty("tycho-version");
-        if (property == null) {
-            try {
-                List<String> lines = Files.readAllLines(Path.of("pom.xml"));
-                Pattern pattern = Pattern.compile("<version>(.*)</version>");
-                for (String line : lines) {
-                    Matcher matcher = pattern.matcher(line);
-                    if (matcher.find()) {
-                        return matcher.group(1);
-                    }
-                }
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        return property;
     }
 
     public static int getHttpServerPort() {
