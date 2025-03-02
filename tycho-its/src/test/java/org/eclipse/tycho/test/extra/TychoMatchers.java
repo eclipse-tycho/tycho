@@ -10,7 +10,7 @@
  * Contributors:
  *     SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.extras.its;
+package org.eclipse.tycho.test.extra;
 
 import java.io.File;
 
@@ -20,19 +20,19 @@ import org.hamcrest.TypeSafeMatcher;
 
 public class TychoMatchers {
 
-    public static Matcher<File> isFile() {
-        return new TypeSafeMatcher<File>() {
+	public static Matcher<File> isFile() {
+		return new TypeSafeMatcher<>() {
 
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("an existing file");
-            }
+			@Override
+			public void describeTo(Description description) {
+				description.appendText("an existing file");
+			}
 
-            @Override
-            public boolean matchesSafely(File item) {
-                return item.isFile();
-            }
-        };
-    }
+			@Override
+			public boolean matchesSafely(File item) {
+				return item.isFile();
+			}
+		};
+	}
 
 }

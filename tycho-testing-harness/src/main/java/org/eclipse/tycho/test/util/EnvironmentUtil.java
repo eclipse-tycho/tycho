@@ -25,7 +25,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 
 /**
  * Provides system properties and certain properties from the test code build ("outer build"), like
@@ -41,7 +40,7 @@ public class EnvironmentUtil {
 
     static {
         props = new Properties();
-        ClassLoader cl = AbstractTychoIntegrationTest.class.getClassLoader();
+        ClassLoader cl = EnvironmentUtil.class.getClassLoader();
         try (InputStream is = cl.getResourceAsStream("baseTest.properties")) {
             if (is != null) {
                 props.load(is);
