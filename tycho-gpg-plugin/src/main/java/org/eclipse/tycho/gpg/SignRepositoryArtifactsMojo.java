@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -246,11 +247,13 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
 
     private void handle(IArtifactDescriptor artifactDescriptor, File artifact, ProxySignerWithPublicKeyAccess signer,
             KeyStore allKeys) {
+        Log log = getLog();
         if (artifact != null) {
             var existingKeys = artifactDescriptor.getProperty(PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME);
             var existingSignatures = artifactDescriptor.getProperty(PGPSignatureVerifier.PGP_SIGNATURES_PROPERTY_NAME);
 
             if (existingSignatures != null && pgpKeyBehavior == PGPKeyBehavior.skip) {
+                log.debug(artifact + " is already pgp signed and these should be skipped!");
                 return;
             }
 
@@ -260,6 +263,7 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
                 var classifier = artifactKey.getClassifier();
                 var isBinary = "binary".equals(classifier);
                 if (skipBinaries && isBinary) {
+                    log.debug(artifact + " is a binary and these should be skipped!");
                     return;
                 }
 
@@ -275,11 +279,14 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
                             }
 
                             if (skipIfJarsigned) {
+                                log.debug(artifact + " is already signed and signed jars should be skipped!");
                                 return;
                             }
                             if (skipIfJarsignedAndAnchored) {
                                 for (var signerInfo : signedContent.getSignerInfos()) {
                                     if (signerInfo.getTrustAnchor() != null) {
+                                        log.debug(artifact
+                                                + " is already signed and signed jars should be skipped if anchored!");
                                         return;
                                     }
                                 }
@@ -287,6 +294,7 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
                         }
                     } catch (Exception e) {
                         //$FALL-THROUGH$ Treat as unsigned.
+                        log.error("Can't check signature " + artifact + " :: " + e, e);
                     }
                 }
             }
@@ -316,6 +324,8 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
             } catch (MojoExecutionException | IOException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
+        } else {
+            log.error("No artifact file for " + artifactDescriptor);
         }
     }
 }
