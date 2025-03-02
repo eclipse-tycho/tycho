@@ -1,6 +1,7 @@
 Import-Package: \
-	!org.apache.maven.surefire.*,\
-	*
+	org.testng, \
+	org.testng.xml, \
+	java.*
 Export-Package: org.apache.maven.surefire.testng.utils
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
 -removeheaders: Tool, Bnd-*, Created-By, Private-Package

@@ -12,7 +12,6 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire.provider.impl;
 
-import static java.util.Collections.singletonList;
 import static org.eclipse.tycho.surefire.provider.impl.ProviderHelper.newDependency;
 
 import java.util.List;
@@ -48,7 +47,8 @@ public class TestNGProvider implements TestFrameworkProvider {
     }
 
     @Override
-    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
+    public boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath,
+            Properties surefireProperties) {
         for (ClasspathEntry classpathEntry : testBundleClassPath) {
             ArtifactKey artifactKey = classpathEntry.getArtifactKey();
             if (TESTNG_BSN.equals(artifactKey.getId())) {
@@ -60,7 +60,8 @@ public class TestNGProvider implements TestFrameworkProvider {
 
     @Override
     public List<Dependency> getRequiredBundles() {
-        return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.testng"));
+        return List.of(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.testng"),
+                newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.testng.fixup"));
     }
 
     @Override

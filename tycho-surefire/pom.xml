@@ -28,6 +28,7 @@
 		<module>org.eclipse.tycho.surefire.junit5withvintage</module>
 		<module>org.eclipse.tycho.surefire.testng</module>
 		<module>org.eclipse.tycho.bnd.executionlistener</module>
+		<module>org.eclipse.tycho.surefire.testng.fixup</module>
 	</modules>
 	<build>
 		<resources>
