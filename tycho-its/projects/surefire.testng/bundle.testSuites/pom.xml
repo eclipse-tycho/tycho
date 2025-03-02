@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.eclipse.tycho.tycho-its.surefire.testng</groupId>
 	<artifactId>bundle.testSuites</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
-	<version>1.0.0</version>
 	<parent>
 		<groupId>org.eclipse.tycho.tycho-its.surefire.testng</groupId>
 		<artifactId>parent</artifactId>
@@ -17,10 +15,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
-				<version>${tycho-version}</version>
 				<configuration>
-					<providerHint>testng</providerHint>
-					<argLine>-ea</argLine>
 					<suiteXmlFiles>
 						<suiteXmlFile>testng.xml</suiteXmlFile>
 					</suiteXmlFiles>

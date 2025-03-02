@@ -32,7 +32,7 @@ import org.osgi.framework.VersionRange;
 public class JUnit4Provider extends AbstractJUnitProvider {
 
     private static final VersionRange JUNIT4_VERSION_RANGE = new VersionRange("[4,5)");
-    private static final Version VERSION = Version.parseVersion("4.7.0");
+    private static final Version VERSION = Version.parseVersion("4");
     static final Set<String> JUNIT4_BUNDLES = Set.of("org.junit", "org.junit4");
 
     @Override
@@ -46,7 +46,7 @@ public class JUnit4Provider extends AbstractJUnitProvider {
     }
 
     @Override
-    public List<Dependency> getRequiredBundles() {
+    public List<Dependency> getRequiredArtifacts() {
         return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit4"));
     }
 
@@ -58,6 +58,11 @@ public class JUnit4Provider extends AbstractJUnitProvider {
 
     static boolean isJUnit4(MavenProject project, List<ClasspathEntry> testBundleClassPath) {
         return isEnabled(project, testBundleClassPath, JUNIT4_BUNDLES, JUNIT4_VERSION_RANGE);
+    }
+
+    @Override
+    public VersionRange getVersionRange() {
+        return JUNIT4_VERSION_RANGE;
     }
 
 }

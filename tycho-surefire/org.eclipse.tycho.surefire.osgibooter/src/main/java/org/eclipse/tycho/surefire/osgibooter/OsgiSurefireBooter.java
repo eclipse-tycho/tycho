@@ -21,14 +21,19 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -67,6 +72,8 @@ import org.eclipse.osgi.service.resolver.ResolverError;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 
@@ -84,6 +91,50 @@ public class OsgiSurefireBooter {
     private static final String JUNIT_PLATFORM_PROVIDER = "org.apache.maven.surefire.junitplatform.JUnitPlatformProvider";
 
     public static int run(String[] args, Properties testProps) throws Exception {
+
+        //Due to how surefire works it assumes the junit provider to be on its own flat classpath.
+        //As it is not the case for our OSGi framework build an own bootstrap loader that includes everything from surefire-maven
+        //on a flat classpath and then loads the junit from the osgi path through delegation.
+        //For this to work we need then to call tha ctual method reflectivly from the class loaded in the bootstrap loader.
+        boolean printWires = Boolean.parseBoolean(testProps.getProperty("printWires"));
+        Bundle testClassLoader = getBundleClassLoader(testProps.getProperty("testpluginname"));
+        Bundle surefireClassLoader = FrameworkUtil.getBundle(ForkedBooter.class);
+        BundleClassLoader delegate = new BundleClassLoader(Arrays.asList(testClassLoader, surefireClassLoader),
+                printWires);
+        List<URL> urls = new ArrayList<>();
+        Bundle bundle = FrameworkUtil.getBundle(OsgiSurefireBooter.class);
+        urls.add(getURL(bundle));
+        Bundle[] fragments = getFragments(bundle);
+        for (Bundle frag : fragments) {
+            urls.add(getURL(frag));
+        }
+        try (URLClassLoader classLoader = new SurefireLoader(urls, delegate)) {
+            Class<?> bootLoaded = classLoader.loadClass(OsgiSurefireBooter.class.getName());
+            Method method = bootLoaded.getMethod("invokeSureFire", String[].class, Properties.class);
+            return (Integer) method.invoke(null, args, testProps);
+        }
+    }
+
+    private static URL getURL(Bundle bundle) throws MalformedURLException {
+        File adapt = bundle.adapt(File.class);
+        if (adapt == null) {
+            String location = bundle.getLocation();
+            String prefix = "initial@reference:file:";
+            if (location.startsWith(prefix)) {
+                File file = new File(location.substring(prefix.length()));
+                try {
+                    URL url = file.getCanonicalFile().toURI().toURL();
+                    return url;
+                } catch (IOException e) {
+                    return file.toURI().toURL();
+                }
+            }
+            throw new IllegalStateException("Can't adapt bundle to file: " + bundle);
+        }
+        return adapt.toURI().toURL();
+    }
+
+    public static int invokeSureFire(String[] args, Properties testProps) throws Exception {
         boolean redirectTestOutputToFile = Boolean
                 .parseBoolean(testProps.getProperty("redirectTestOutputToFile", "false"));
         String testPlugin = testProps.getProperty("testpluginname");
@@ -134,17 +185,22 @@ public class OsgiSurefireBooter {
                 getSurefireConsoleOutputReporter(provider), getSurefireStatelessTestsetInfoReporter(provider));
         ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig,
                 new PrintStreamLogger(System.out));
-        // API indicates we should use testClassLoader below but surefire also tries
-        // to load surefire classes using this classloader
-        String classLoaderOrder = testProps.getProperty("classLoaderOrder");
-        RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin, classLoaderOrder),
-                reporterFactory, providerConfiguration, false, startupConfiguration, true);
-        String failsafe = testProps.getProperty("failsafe");
-        if (failsafe != null && !failsafe.trim().isEmpty()) {
-            FailsafeSummaryXmlUtils.writeSummary(result, new File(failsafe), false);
+        ClassLoader loader = OsgiSurefireBooter.class.getClassLoader();
+        Thread thread = Thread.currentThread();
+        ClassLoader ccl = thread.getContextClassLoader();
+        try {
+            thread.setContextClassLoader(loader);
+            RunResult result = ProviderFactory.invokeProvider(null, loader, reporterFactory, providerConfiguration,
+                    false, startupConfiguration, true);
+            String failsafe = testProps.getProperty("failsafe");
+            if (failsafe != null && !failsafe.trim().isEmpty()) {
+                FailsafeSummaryXmlUtils.writeSummary(result, new File(failsafe), false);
+            }
+            // counter-intuitive, but null indicates OK here
+            return result.getFailsafeCode() == null ? 0 : result.getFailsafeCode();
+        } finally {
+            Thread.currentThread().setContextClassLoader(ccl);
         }
-        // counter-intuitive, but null indicates OK here
-        return result.getFailsafeCode() == null ? 0 : result.getFailsafeCode();
     }
 
     protected static void printBundleInfos(Properties testProps) {
@@ -156,13 +212,25 @@ public class OsgiSurefireBooter {
             Bundle[] bundles = fwbundle.getBundleContext().getBundles();
             for (Bundle bundle : bundles) {
                 System.out.println("[" + bundle.getBundleId() + "][" + getBundleState(bundle) + "] "
-                        + bundle.getSymbolicName() + " (" + bundle.getVersion() + ")");
+                        + bundle.getSymbolicName() + " (" + bundle.getVersion() + ") " + getLocation(bundle));
                 if (printWires) {
                     printImports(bundle);
                 }
             }
             System.out.println("=================================");
         }
+    }
+
+    private static String getLocation(Bundle bundle) {
+        File file = bundle.adapt(File.class);
+        if (file != null) {
+            try {
+                return file.getCanonicalPath();
+            } catch (IOException e) {
+                return file.getAbsolutePath();
+            }
+        }
+        return bundle.getLocation();
     }
 
     private static String getBundleState(Bundle bundle) {
@@ -199,30 +267,8 @@ public class OsgiSurefireBooter {
             String pack = (String) wire.getCapability().getAttributes().get(PACKAGE_NAMESPACE);
             Bundle bundle = wire.getProviderWiring().getBundle();
             System.out.println("   " + pack + " <--> " + bundle.getSymbolicName() + " (" + bundle.getVersion() + ") @ "
-                    + bundle.getLocation());
+                    + getLocation(bundle));
         }
-    }
-
-    private static ClassLoader createCombinedClassLoader(String testPlugin, String classLoaderOrder)
-            throws BundleException {
-        ClassLoader testClassLoader = getBundleClassLoader(testPlugin);
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        ClassLoader surefireClassLoader = ForkedBooter.class.getClassLoader();
-        // Not used tccl directly because it's a ContextFinder
-        // which not work with tycho sufire osgibooster bundle
-        ClassLoader contextClassLoader = new ContextFinderWithoutTychoBundle(tccl.getParent());
-        ClassLoader[] loaders;
-        switch (classLoaderOrder) {
-        case "booterFirst":
-            loaders = new ClassLoader[] { surefireClassLoader, testClassLoader, contextClassLoader };
-            break;
-        case "testProbeFirst":
-            loaders = new ClassLoader[] { testClassLoader, surefireClassLoader, contextClassLoader };
-            break;
-        default:
-            throw new IllegalArgumentException("ClassLoaderOrder: " + classLoaderOrder + " is not supported");
-        }
-        return new CombinedClassLoader(loaders);
     }
 
     /*
@@ -310,7 +356,7 @@ public class OsgiSurefireBooter {
         return p;
     }
 
-    private static ClassLoader getBundleClassLoader(String symbolicName) throws BundleException {
+    private static Bundle getBundleClassLoader(String symbolicName) throws BundleException {
         Bundle bundle = getBundle(symbolicName);
         try {
             bundle.start();
@@ -329,7 +375,7 @@ public class OsgiSurefireBooter {
             }
             throw ex;
         }
-        return new BundleClassLoader(bundle);
+        return bundle;
     }
 
     protected static Bundle getBundle(String symbolicName) {
@@ -340,36 +386,21 @@ public class OsgiSurefireBooter {
         return bundle;
     }
 
-    private static class BundleClassLoader extends ClassLoader {
-        private Bundle bundle;
-
-        public BundleClassLoader(Bundle target) {
-            this.bundle = target;
-        }
-
-        @Override
-        protected Class<?> findClass(String name) throws ClassNotFoundException {
-            return bundle.loadClass(name);
-        }
-
-        @Override
-        protected URL findResource(String name) {
-            return bundle.getResource(name);
-        }
-
-        @Override
-        protected Enumeration<URL> findResources(String name) throws IOException {
-            return bundle.getResources(name);
-        }
-
-        @Override
-        public String toString() {
-            return bundle.getSymbolicName() + " [" + bundle.getVersion() + "]";
-        }
-    }
-
     public static Properties loadProperties(String[] args) throws IOException, CoreException {
         return loadProperties(getTestProperties(args));
+    }
+
+    private static Bundle[] getFragments(Bundle bundle) {
+        BundleWiring wiring = bundle.adapt(BundleWiring.class);
+        if (wiring == null) {
+            return new Bundle[0];
+        }
+        List<BundleWire> hostWires = wiring.getProvidedWires(HostNamespace.HOST_NAMESPACE);
+        if (hostWires == null) {
+            return new Bundle[0];
+        }
+        return hostWires.stream().map(wire -> wire.getRequirer().getBundle()).filter(Objects::nonNull)
+                .toArray(Bundle[]::new);
     }
 
 }
