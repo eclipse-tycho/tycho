@@ -606,7 +606,6 @@
 			<id>its</id>
 			<modules>
 				<module>tycho-its</module>
-				<module>tycho-extras/tycho-extras-its</module>
 			</modules>
 		</profile>
 		<profile>
