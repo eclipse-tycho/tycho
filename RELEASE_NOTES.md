@@ -6,6 +6,21 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+## TestNG support improved / TestNG deprecated
+
+The previous Tycho TestNG support was rather flawed it worked but required some hacks, this is now improved so one can consume
+directly official TestNG artifacts.
+
+This also revealed that TestNG itself has some major flaws and only works in an old `6.9.10` version:
+
+- [TestNG should have a DynamicImport-Package](https://github.com/testng-team/testng/issues/3210)
+- [TestNG is no longer working in OSGi environments](https://github.com/testng-team/testng/issues/1678)
+- [META-INF/MANIFEST.MF not correctly generated](https://github.com/testng-team/testng/issues/1190)
+- [Support to setup a method selector instance directly](https://github.com/testng-team/testng/issues/3211)
+
+**Because of this TestNG is deprecated** and will be removed in a future version unless someone express interest in TestNG and helps improving
+it so we can upgrade to later versions.
+
 ## Support for implicit dependencies in target definitions
 
 In target definitions Tycho now supports to use the `<implicitDependencies>`, 

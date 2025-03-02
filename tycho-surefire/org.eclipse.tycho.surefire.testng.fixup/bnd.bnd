@@ -1,0 +1,5 @@
+Import-Package: \
+	 com.beust.jcommander;version="[1.7,2)"
+Fragment-Host: org.testng;bundle-version="[6,7)"
+DynamicImport-Package: org.apache.maven.surefire.testng.utils
+-removeheaders: Tool, Bnd-*, Created-By, Private-Package

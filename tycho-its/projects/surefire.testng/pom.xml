@@ -5,6 +5,10 @@
 	<artifactId>parent</artifactId>
 	<packaging>pom</packaging>
 	<version>1.0.0</version>
+	<properties>
+		<tycho-version>5.0.0-SNAPSHOT</tycho-version>
+	</properties>
+	
 	<repositories>
 		<repository>
 			<id>platform</id>
@@ -13,6 +17,21 @@
 		</repository>
 	</repositories>
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<providerHint>testng</providerHint>
+						<argLine>-ea</argLine>
+						<printBundles>true</printBundles>
+						<showEclipseLog>true</showEclipseLog>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -20,10 +39,19 @@
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<target>
+						<file>../test.target</file>
+					</target>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<modules>
-		<module>testng.bundle</module>
 		<module>bundle.test</module>
 		<module>bundle.testSuites</module>
 		<module>bundle.testGroups</module>
