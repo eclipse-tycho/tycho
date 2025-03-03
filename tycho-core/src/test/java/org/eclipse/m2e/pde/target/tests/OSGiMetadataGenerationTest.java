@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.function.Function;
 import java.util.jar.Attributes;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.pde.core.target.ITargetLocation;
 import org.eclipse.pde.core.target.TargetBundle;
@@ -37,6 +39,8 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
+
+import aQute.bnd.osgi.Jar;
 
 public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
 
@@ -89,6 +93,44 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
                 </location>
                 """);
         assertStatusOk(getTargetStatus(target));
+    }
+
+    @Test
+    public void testConditionalPackage() throws Exception {
+        ITargetLocation target = resolveMavenTarget(
+                """
+                        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="false" label="Maven-archetype" missingManifest="generate" type="Maven">
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.apache.maven.archetype</groupId>
+                                <artifactId>archetype-common</artifactId>
+                                <version>3.3.1</version>
+                                <type>jar</type>
+                            </dependency>
+                            </dependencies>
+                            <instructions><![CDATA[
+                                Bundle-Name:           Bundle in Test from artifact ${mvnGroupId}:${mvnArtifactId}:${mvnVersion}:${mvnClassifier}
+                                version:               ${version_cleanup;${mvnVersion}}
+                                Bundle-SymbolicName:   m2e.custom.test.wrapped.${mvnArtifactId}
+                                Bundle-Version:        ${version}
+                                Import-Package:        *
+                                Export-Package:        org.apache.maven.archetype;version="${version}";-noimport:=true
+                                -conditionalpackage:   org.apache.commons.*
+                            ]]></instructions>
+                        </location>
+                        """);
+        assertStatusOk(getTargetStatus(target));
+        TargetBundle[] bundles = target.getBundles();
+        for (TargetBundle bundle : bundles) {
+            BundleInfo bundleInfo = bundle.getBundleInfo();
+            File file = new File(bundleInfo.getLocation());
+            try (Jar jar = new Jar(file)) {
+                Set<String> resources = jar.getResources().keySet();
+                assertTrue("Conditional package org.apache.commons.* not included.",
+                        resources.stream().anyMatch(s -> s.startsWith("org/apache/commons/")));
+            }
+            ;
+        }
     }
 
     @Test
