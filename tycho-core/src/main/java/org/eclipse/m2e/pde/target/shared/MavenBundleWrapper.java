@@ -59,8 +59,9 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.m2e.pde.target.shared.ProcessingMessage.Type;
 import org.osgi.framework.Constants;
 
-import aQute.bnd.osgi.Analyzer;
+import aQute.bnd.osgi.Builder;
 import aQute.bnd.osgi.Jar;
+import aQute.bnd.osgi.Processor;
 import aQute.bnd.version.Version;
 
 /**
@@ -78,7 +79,7 @@ import aQute.bnd.version.Version;
  */
 public class MavenBundleWrapper {
 
-    public static final String ECLIPSE_SOURCE_BUNDLE_HEADER = "Eclipse-SourceBundle";
+    private static final String ECLIPSE_SOURCE_BUNDLE_HEADER = "Eclipse-SourceBundle";
 
     private MavenBundleWrapper() {
     }
@@ -203,7 +204,8 @@ public class MavenBundleWrapper {
                 List<ProcessingMessage> messages = new ArrayList<>();
                 wrapArtifactFile.getParentFile().mkdirs();
                 boolean hasErrors = false;
-                try (Analyzer analyzer = new Analyzer(analyzerJar);) {
+                try (Builder analyzer = new Builder(new Processor());) {
+                    analyzer.setJar(analyzerJar);
                     analyzer.setProperty("mvnGroupId", artifact.getGroupId());
                     analyzer.setProperty("mvnArtifactId", artifact.getArtifactId());
                     analyzer.setProperty("mvnVersion", artifact.getBaseVersion());

@@ -22,14 +22,20 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -103,20 +109,20 @@ public abstract class AbstractTychoIntegrationTest {
 				"Can't determine project directory: " + file.getAbsolutePath() + " (property=" + property + ")");
 	}
 
-	protected Verifier getVerifier(String test, boolean setTargetPlatform) throws Exception {
+	protected TychoVerifier getVerifier(String test, boolean setTargetPlatform) throws Exception {
 		return getVerifier(test, setTargetPlatform, getSettings());
 	}
 
-	protected Verifier getVerifier(String test, boolean setTargetPlatform, boolean ignoreLocalArtifacts)
+	protected TychoVerifier getVerifier(String test, boolean setTargetPlatform, boolean ignoreLocalArtifacts)
 			throws Exception {
 		return getVerifier(test, setTargetPlatform, getSettings(), ignoreLocalArtifacts);
 	}
 
-	protected Verifier getVerifier(String test, boolean setTargetPlatform, File userSettings) throws Exception {
+	protected TychoVerifier getVerifier(String test, boolean setTargetPlatform, File userSettings) throws Exception {
 		return getVerifier(test, setTargetPlatform, userSettings, true);
 	}
 
-	protected Verifier getVerifier(String test, boolean setTargetPlatform, File userSettings,
+	protected TychoVerifier getVerifier(String test, boolean setTargetPlatform, File userSettings,
 			boolean ignoreLocalArtifacts) throws Exception {
 		// Test JVM can be started in debug mode by passing the following property to
 		// the maven run:
@@ -129,7 +135,7 @@ public abstract class AbstractTychoIntegrationTest {
 
 		File testDir = getBasedir(test);
 
-		Verifier verifier = new Verifier(testDir.getAbsolutePath());
+		TychoVerifier verifier = new TychoVerifier(testDir.getAbsolutePath());
 		verifier.setForkJvm(isForked());
 		if (isDisableMirrors()) {
 			verifier.setSystemProperty("eclipse.p2.mirrors", "false");
@@ -379,6 +385,42 @@ public abstract class AbstractTychoIntegrationTest {
 			}
 		}
 		fail("No VM installed in the product!");
+	}
+
+	/**
+	 * An extension to the original verifier with some optimizations and new methods
+	 */
+	public static final class TychoVerifier extends Verifier {
+
+		private TychoVerifier(String basedir) throws VerificationException {
+			super(basedir);
+		}
+
+		@Override
+		public void verifyErrorFreeLog() throws VerificationException {
+
+			// this is a more efficient implementation that do not need to load the while
+			// while into memory, in addition it includes stack traces and consecutive error
+			// lines.
+			Path logfile = Path.of(getBasedir()).resolve(getLogFileName());
+			Pattern pattern = Pattern.compile("\\[\\w+\\]");
+			try (Stream<String> stream = Files.lines(logfile)) {
+				Iterator<String> iterator = stream.iterator();
+				while (iterator.hasNext()) {
+					String line = iterator.next();
+					if (stripAnsi(line).contains("[ERROR]")) {
+						String collect = StreamSupport
+								.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)
+								.takeWhile(l -> l.contains("[ERROR]") || !pattern.matcher(l).find())
+								.collect(Collectors.joining(System.lineSeparator()));
+						throw new VerificationException("Error in execution: " + collect);
+					}
+				}
+			} catch (IOException e) {
+				throw new VerificationException("Reading logfile failed!");
+			}
+		}
+
 	}
 
 }
