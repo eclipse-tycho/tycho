@@ -19,11 +19,17 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -90,7 +96,7 @@ public abstract class AbstractTychoIntegrationTest {
 
         File testDir = getBasedir(test);
 
-        Verifier verifier = new Verifier(testDir.getAbsolutePath());
+        Verifier verifier = new TychoVerifier(testDir.getAbsolutePath());
         verifier.setForkJvm(isForked());
         if (isDisableMirrors()) {
             verifier.setSystemProperty("eclipse.p2.mirrors", "false");
@@ -150,7 +156,7 @@ public abstract class AbstractTychoIntegrationTest {
         return verifier;
 
     }
-    
+
     /**
      * can be overridden by subclass to explicitly enable mirrors, by default they are disabled.
      * 
@@ -306,6 +312,42 @@ public abstract class AbstractTychoIntegrationTest {
             }
         }
         fail("No VM installed in the product!");
+    }
+
+    /**
+     * An extension to the original verifier with some optimizations and new methods
+     */
+    public static final class TychoVerifier extends Verifier {
+
+        private TychoVerifier(String basedir) throws VerificationException {
+            super(basedir);
+        }
+
+        @Override
+        public void verifyErrorFreeLog() throws VerificationException {
+
+            // this is a more efficient implementation that do not need to load the while
+            // while into memory, in addition it includes stack traces and consecutive error
+            // lines.
+            Path logfile = Path.of(getBasedir()).resolve(getLogFileName());
+            Pattern pattern = Pattern.compile("\\[\\w+\\]");
+            try (Stream<String> stream = Files.lines(logfile)) {
+                Iterator<String> iterator = stream.iterator();
+                while (iterator.hasNext()) {
+                    String line = iterator.next();
+                    if (stripAnsi(line).contains("[ERROR]")) {
+                        String collect = StreamSupport
+                                .stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)
+                                .takeWhile(l -> l.contains("[ERROR]") || !pattern.matcher(l).find())
+                                .collect(Collectors.joining(System.lineSeparator()));
+                        throw new VerificationException("Error in execution: " + collect);
+                    }
+                }
+            } catch (IOException e) {
+                throw new VerificationException("Reading logfile failed!");
+            }
+        }
+
     }
 
 }
