@@ -189,8 +189,7 @@ public class TargetDefinitionResolverService {
         public String toString() {
             return "target definition " + definition.getOrigin() + " for environments=" + environments
                     + ", include source mode=" + includeSourceMode + ", referenced repository mode ="
-                    + referencedRepositoryMode + ", execution environment=" + jreIUs + ", remote p2 repository options="
-                    + agent;
+                    + referencedRepositoryMode + ", execution environment=" + jreIUs + " with " + agent;
         }
 
     }

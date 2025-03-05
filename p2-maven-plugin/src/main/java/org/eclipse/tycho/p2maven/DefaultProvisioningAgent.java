@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import org.codehaus.plexus.PlexusContainer;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -125,6 +126,15 @@ public class DefaultProvisioningAgent implements IProvisioningAgent {
 	@Override
 	public String getProperty(String key) {
 		return propertyHelper.getGlobalProperty(key);
+	}
+
+	@Override
+	public String toString() {
+		ClassLoader cl = getClass().getClassLoader();
+		if (cl instanceof ClassRealm realm) {
+			return "Tycho Provisioning Agent (" + realm.getId() + ")";
+		}
+		return "Tycho Provisioning Agent (" + System.identityHashCode(this) + ")";
 	}
 
 	private static final class LazyAgentServiceFactory implements Supplier<Object> {
