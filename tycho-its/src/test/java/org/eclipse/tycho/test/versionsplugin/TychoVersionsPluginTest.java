@@ -38,7 +38,6 @@ import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.version.TychoVersion;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
@@ -68,7 +67,6 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	 * </p>
 	 */
 	@Test
-	@Ignore
 	public void invokeVersionsPluginOnTycho0120Project() throws Exception {
 		String expectedNewVersion = "1.2.3";
 
@@ -85,7 +83,6 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	@Ignore
 	public void updateTargetVersionTest() throws Exception {
 		String expectedNewVersion = "1.2.3";
 
@@ -102,7 +99,6 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	@Ignore
 	public void updateProjectVersionBndTest() throws Exception {
 		String expectedNewVersion = "1.2.3";
 
@@ -120,7 +116,6 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	@Ignore
 	public void updateProjectVersionWithNestedPom() throws Exception {
 		String expectedNewVersion = "1.1.0";
 
@@ -152,7 +147,6 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	@Ignore
 	public void updateProjectVersionOnlyChangesVersionOfNestedProjectsIfSameVersionAsRoot() throws Exception {
 		Verifier verifier = getVerifier("tycho-version-plugin/set-version/only_same_version", false);
 
@@ -192,7 +186,6 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	@Ignore
 	public void updateVersionRanges() throws Exception {
 		String expectedNewMavenVersion = "1.1.0-SNAPSHOT";
 		String expectedNewOSGiVersion = "1.1.0.qualifier";
@@ -281,7 +274,6 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	@Ignore
 	public void updateProjectMetadataVersionBndTest() throws Exception {
 		String expectedNewVersion = "2.0.0.qualifier";
 
@@ -306,7 +298,6 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	 * <a href="https://github.com/eclipse-tycho/tycho/issues/309">issue 309</a>.
 	 */
 	@Test
-	@Ignore
 	public void testUpdatePomWithImplicitPomName() throws Exception {
 		String POM_NAME = "pom.xml";
 		String MANIFEST_VERSION = "2.0.0";
@@ -329,7 +320,6 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	 * <a href="https://github.com/eclipse-tycho/tycho/issues/309">issue 309</a>.
 	 */
 	@Test
-	@Ignore
 	public void testUpdatePomOfPomThatIsNamedPomXml() throws Exception {
 		String POM_NAME = "pom.xml";
 		String MANIFEST_VERSION = "2.0.0";
@@ -354,7 +344,6 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	 * <a href="https://github.com/eclipse-tycho/tycho/issues/309">issue 309</a>.
 	 */
 	@Test
-	@Ignore
 	public void testUpdatePomOfPomThatIsNotNamedPomXml() throws Exception {
 		String POM_NAME = "foo.bar.pom.xml";
 		String MANIFEST_VERSION = "2.0.0";
@@ -380,7 +369,6 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	 * <a href="https://github.com/eclipse-tycho/tycho/issues/309">issue 309</a>.
 	 */
 	@Test
-	@Ignore
 	public void testUpdatePomsOfModularPom() throws Exception {
 		String POM_NAME = "aggregate";
 		String MANIFEST_VERSION = "2.0.0";
@@ -407,7 +395,6 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	@Ignore
 	public void testCiFriendlyVersion() throws Exception {
 		String expectedNewVersion = "2.0.0-SNAPSHOT";
 		String expectedNewOSGiVersion = "2.0.0.qualifier";
