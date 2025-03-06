@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.versionsplugin;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -233,6 +234,35 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 					consumerNarrow.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
 			assertVersionRange(consumerNarrow, expectedMicroVersionRange, Constants.IMPORT_PACKAGE);
 			assertVersionRange(consumerNarrow, expectedMicroVersionRange, Constants.REQUIRE_BUNDLE);
+		}
+	}
+
+	@Test
+	public void updateVersionRangesMajorVersionChanges() throws Exception {
+		String expectedNewMavenVersion = "11.0.0-SNAPSHOT";
+		String expectedNewOSGiVersion = "11.0.0.qualifier";
+		String expectedUpperBoundVersion = "[11,12)";
+
+		Verifier verifier = getVerifier("tycho-version-plugin/set-version/version_ranges_major_version", true);
+		verifier.addCliOption("-DnewVersion=" + expectedNewMavenVersion);
+		verifier.addCliOption("-DupdateVersionRangeMatchingBounds");
+		verifier.executeGoals(asList("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version"));
+		{// check the pom.xml is updated
+			MavenXpp3Reader pomReader = new MavenXpp3Reader();
+			Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), "pom.xml")));
+			assertEquals("<version> in pom.xml has not been changed!", expectedNewMavenVersion, pomModel.getVersion());
+		}
+		{// check require-Bundle is updated
+			Manifest consumerBundle = getManifest(verifier, "consumer.bundle");
+			assertEquals("version in manifest was not updated for consumer.bundle!", expectedNewOSGiVersion,
+					consumerBundle.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertVersionRange(consumerBundle, expectedUpperBoundVersion, Constants.REQUIRE_BUNDLE);
+		}
+		{// check Import-Package is updated
+			Manifest consumerPackage = getManifest(verifier, "consumer.package");
+			assertEquals("version in manifest was not updated for consumer.package!", expectedNewOSGiVersion,
+					consumerPackage.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertVersionRange(consumerPackage, expectedUpperBoundVersion, Constants.IMPORT_PACKAGE);
 		}
 	}
 
