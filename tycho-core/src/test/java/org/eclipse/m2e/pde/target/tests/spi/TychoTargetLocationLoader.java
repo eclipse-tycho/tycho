@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -40,6 +41,7 @@ import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.apache.maven.session.scope.internal.SessionScope;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -266,19 +268,22 @@ public class TychoTargetLocationLoader implements TargetLocationLoader {
                     }
                 };
                 DefaultMavenExecutionRequest request = new DefaultMavenExecutionRequest();
-                request.setUserProperties(System.getProperties());
+                Properties properties = System.getProperties();
+                request.setUserProperties(properties);
+                request.setSystemProperties(properties);
                 request.setLocalRepository(localRepository);
                 request.setGoals(List.of());
                 request.setBaseDirectory(new File(tempDir, "build"));
                 request.setStartTime(new Date());
 
+                DefaultRepositorySystemSession defaultSession = MavenRepositorySystemUtils.newSession();
+                for (String key : properties.stringPropertyNames()) {
+                    defaultSession.setSystemProperty(key, properties.getProperty(key));
+                }
                 RepositorySystemSession repositorySystemSession = LegacyLocalRepositoryManager.overlay(localRepository,
-                        MavenRepositorySystemUtils.newSession(), null);
+                        defaultSession, null);
                 MavenSession mavenSession = new MavenSession(container, repositorySystemSession, request,
                         new DefaultMavenExecutionResult());
-//                MavenSession mavenSession = new MavenSession(container, settings, localRepository, null, null,
-//                        List.of(), new File(tempDir, "build").getAbsolutePath(), System.getProperties(),
-//                        System.getProperties(), new Date());
                 SessionScope sessionScope = container.lookup(SessionScope.class);
                 mavenSession.setProjects(Collections.emptyList());
                 sessionScope.enter();
