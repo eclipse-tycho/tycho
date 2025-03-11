@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>org.eclipse.jdt.core.manipulation</artifactId>
-			<version>1.21.300</version>
+			<version>1.22.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
