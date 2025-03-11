@@ -62,7 +62,7 @@
        <dependency>
 		    <groupId>org.eclipse.platform</groupId>
 		    <artifactId>org.eclipse.equinox.common</artifactId>
-		    <version>3.19.200</version>
+		    <version>3.20.0</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.eclipse.jdt</groupId>
