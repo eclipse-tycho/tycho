@@ -18,8 +18,8 @@ pipeline {
 		label agentLabel
 	}
 	tools {
-		maven 'apache-maven-3.9.1'
-		jdk 'temurin-jdk17-latest'
+		maven 'apache-maven-3.9.9'
+		jdk 'temurin-jdk21-latest'
 	}
 	stages {
 		stage('Build') {
