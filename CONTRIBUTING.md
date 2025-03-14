@@ -100,19 +100,38 @@ The result should be an Eclipse workspace without build errors. M2eclipse may ta
 
 Tycho has two types of tests: unit tests (locally in each module) and a global integration test suite in module tycho-its.
 
-Unit tests are preferred if possible because they are in general much faster and better targeted at the functionality under test. Integration tests generally invoke a forked Maven build on a sample project (stored under projects/) and then do some assertions on the build results.
+Unit tests are in general much faster and better targeted at the functionality under test but Integration tests are preferred if possible because they invoke a forked Maven build on a sample project (stored under projects/) and then do some assertions on the build results and therefore much better cover actual use-cases.
 
 ### Tycho Integration Tests
 
-The Tycho integration tests are located in the project `tycho-its`. To run all Tycho integration tests, execute
+The Tycho integration tests are located in the project `tycho-its`.
+To run all Tycho integration tests, it is required to first build and install the current Tycho version into your local repository with
+
 ```
-$ mvn clean install -f tycho-its/pom.xml`
+$ mvn clean install -T1C -DskipTests
 ``` 
-To run a single integration test, select the test class in Eclipse and run it as "JUnit Test", or run
+
+after that you can runn the integration tests with this command
+
+```
+$ mvn clean install -f tycho-its/pom.xml
+``` 
+
+This will take quite some time depending on your system (usually about ~40 minutes), because of that it is usually better to run a single integration test of interest,
+with the follwoing command:
+
 ```
 $ mvn clean verify -f tycho-its/pom.xml -Dtest=MyTestClass
-``` 
+```
+
 from the command line, replacing `MyTestClass` with the test class to run (without `.java`).
+
+You can also run a specific test method with
+
+
+```
+$ mvn clean verify -f tycho-its/pom.xml -Dtest=MyTestClass#myTest
+```
 
 #### Running tests from the IDE
 
@@ -129,7 +148,7 @@ If not you can specify a location to a compatible maven or found from a previous
 
 The integration tests trigger sample builds that use Tycho. These builds expect that Tycho has been installed in the local Maven repository. This is why you need to build Tycho through a `mvn install` before you can run the integration tests.
 
-Alternatively, e.g. if you are only interested in modifying an integration test and do not want to patch Tycho itself, you can configure the integration tests to download the current Tycho snapshot produced by the [Tycho CI builds](https://hudson.eclipse.org/tycho/view/CI). To do this, you need to edit the Maven settings stored in `tycho-its/settings.xml` and add the tycho-snapshots repository as described in [[Getting Tycho]]. (Advanced note: The integration tests can also be pointed to a different settings.xml with the system property `tycho.testSettings`.)
+Alternatively, e.g. if you are only interested in modifying an integration test and do not want to patch Tycho itself, you can configure the integration tests to download the current Tycho snapshot produced by the [Tycho CI builds](https://ci.eclipse.org/tycho/). To do this, you need to edit the Maven settings stored in `tycho-its/settings.xml` and add the tycho-snapshots repository as described in [Getting Tycho SNAPSHOTS](https://github.com/eclipse-tycho/tycho/wiki#getting-tycho-snapshots). (Advanced note: The integration tests can also be pointed to a different settings.xml with the system property `tycho.testSettings`.)
 
 ### Writing Tycho Integration Tests
 
