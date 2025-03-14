@@ -47,7 +47,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.engine</artifactId>
-			<version>2.10.300</version>
+			<version>2.10.400</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
