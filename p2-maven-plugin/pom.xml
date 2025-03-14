@@ -96,7 +96,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.metadata.repository</artifactId>
-			<version>1.5.400</version>
+			<version>1.5.500</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
