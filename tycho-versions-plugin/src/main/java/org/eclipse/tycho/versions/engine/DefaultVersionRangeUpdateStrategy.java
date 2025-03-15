@@ -58,6 +58,9 @@ public class DefaultVersionRangeUpdateStrategy implements VersionRangeUpdateStra
                 return new VersionRange(VersionRange.LEFT_CLOSED, newReferencedVersion,
                         new Version(newReferencedVersion.getMajor(), newReferencedVersion.getMinor() + 1, 0),
                         VersionRange.RIGHT_OPEN);
+            } else if (isConsumerRange(versionRange)) {
+                return new VersionRange(VersionRange.LEFT_CLOSED, newReferencedVersion,
+                        new Version(newReferencedVersion.getMajor() + 1, 0, 0), VersionRange.RIGHT_OPEN);
             }
             newVersionRange = handleMatchingBounds(versionRange, originalReferencedVersion, newReferencedVersion);
         } else {
@@ -87,6 +90,18 @@ public class DefaultVersionRangeUpdateStrategy implements VersionRangeUpdateStra
             if (right != null) {
                 Version left = versionRange.getLeft();
                 return left.getMajor() == right.getMajor() && left.getMinor() + 1 == right.getMinor();
+            }
+        }
+        return false;
+    }
+
+    private boolean isConsumerRange(VersionRange versionRange) {
+        if (versionRange.getLeftType() == VersionRange.LEFT_CLOSED
+                && versionRange.getRightType() == VersionRange.RIGHT_OPEN) {
+            Version right = versionRange.getRight();
+            if (right != null) {
+                Version left = versionRange.getLeft();
+                return left.getMajor() + 1 == right.getMajor();
             }
         }
         return false;
