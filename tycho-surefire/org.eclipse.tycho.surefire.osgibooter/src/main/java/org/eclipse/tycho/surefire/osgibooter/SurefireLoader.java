@@ -12,9 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.surefire.osgibooter;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleReference;
@@ -53,6 +56,38 @@ class SurefireLoader extends URLClassLoader implements BundleReference {
                 throw e;
             }
         }
-    };
+    }
 
+    @Override
+    public URL findResource(String name) {
+        URL resource = super.findResource(name);
+        if (resource == null) {
+            return delegate.getResource(name);
+        }
+        return resource;
+    }
+
+    @Override
+    public Enumeration<URL> findResources(String name) throws IOException {
+        Enumeration<URL> resources = super.findResources(name);
+        Enumeration<URL> resources2 = delegate.getResources(name);
+        return new Enumeration<URL>() {
+
+            @Override
+            public URL nextElement() {
+                if (resources.hasMoreElements()) {
+                    return resources.nextElement();
+                }
+                if (resources2.hasMoreElements()) {
+                    return resources2.nextElement();
+                }
+                throw new NoSuchElementException();
+            }
+
+            @Override
+            public boolean hasMoreElements() {
+                return resources.hasMoreElements() || resources2.hasMoreElements();
+            }
+        };
+    }
 }
