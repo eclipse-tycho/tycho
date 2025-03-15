@@ -6,6 +6,14 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+## Support for JVMs < 1.8 dropped
+
+Previously Tycho could detect JVMs down to Java 1.1 what requires running some java code to run on these platforms.
+As it becomes harder over time to actually compile code for such old targets while compilers are dropping support,
+Tycho from now on by default only supports to detect JVMs with version 1.8 or higher.
+
+Users who absolutely need this can configure a previous version of the `tycho-lib-detector` with the system property `tycho.libdetector.version`
+
 ## TestNG support improved / TestNG deprecated
 
 The previous Tycho TestNG support was rather flawed it worked but required some hacks, this is now improved so one can consume

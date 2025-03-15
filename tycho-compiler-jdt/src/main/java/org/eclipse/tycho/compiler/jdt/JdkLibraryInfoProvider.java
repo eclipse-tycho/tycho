@@ -48,6 +48,9 @@ import org.eclipse.tycho.version.TychoVersion;
 @Component(role = JdkLibraryInfoProvider.class)
 public class JdkLibraryInfoProvider {
 
+    private static final String TYCHO_LIB_DETECTOR_VERSION = System.getProperty("tycho.libdetector.version",
+            TychoVersion.getTychoVersion());
+
     @Requirement
     private LegacySupport legacySupport;
 
@@ -200,7 +203,7 @@ public class JdkLibraryInfoProvider {
         Dependency dependency = new Dependency();
         dependency.setGroupId("org.eclipse.tycho");
         dependency.setArtifactId("tycho-lib-detector");
-        dependency.setVersion(TychoVersion.getTychoVersion());
+        dependency.setVersion(TYCHO_LIB_DETECTOR_VERSION);
         Artifact artifact = dependenciesResolver.resolveArtifact(mavenSession.getCurrentProject(), mavenSession,
                 dependency);
         return libDetectorJar = artifact.getFile();
