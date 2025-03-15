@@ -10,7 +10,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package bundle.test;
+package contextclassloader.test;
 
 import java.net.URISyntaxException;
 import java.net.URL;
