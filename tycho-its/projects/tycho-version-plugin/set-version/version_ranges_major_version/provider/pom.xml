@@ -10,42 +10,5 @@
 		<version>1.1.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>provider</artifactId>
-	<packaging>jar</packaging>
-	
-	<build>
-		<plugins>
-			<plugin>
-			  <artifactId>maven-jar-plugin</artifactId>
-			  <version>3.4.2</version>
-			  <configuration>
-			    <archive>
-			      <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-			    </archive>
-			  </configuration>
-			</plugin>		
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>5.1.2</version>
-				<extensions>true</extensions>
-				<executions>
-				    <execution>
-				      <id>bundle-manifest</id>
-				      <phase>process-classes</phase>
-				      <goals>
-				        <goal>manifest</goal>
-				      </goals>
-				    </execution>
-				</executions>				
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
-						<Export-Package>felix.bundle.exported.*</Export-Package>
-					</instructions>
-					<supportIncrementalBuild>true</supportIncrementalBuild>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-	
+	<packaging>eclipse-plugin</packaging>
 </project>
