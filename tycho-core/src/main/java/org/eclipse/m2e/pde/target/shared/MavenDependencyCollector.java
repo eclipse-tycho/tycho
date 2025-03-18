@@ -14,6 +14,7 @@ package org.eclipse.m2e.pde.target.shared;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +36,10 @@ import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
 import org.eclipse.aether.resolution.ArtifactDescriptorResult;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.resolution.VersionRangeRequest;
+import org.eclipse.aether.resolution.VersionRangeResolutionException;
+import org.eclipse.aether.resolution.VersionRangeResult;
+import org.eclipse.aether.version.Version;
 
 /**
  * Collector to collect (and filter) all transitive dependencies of a maven target location
@@ -107,16 +112,51 @@ public class MavenDependencyCollector {
         while (!queue.isEmpty()) {
             ArtifactDescriptor current = queue.poll();
             for (Dependency dependency : current.dependencies()) {
-                if (isValidDependency(dependency) && collected.add(getId(dependency))) {
-                    ArtifactDescriptor dependencyDescriptor = readArtifactDescriptor(dependency, current.node(),
-                            artifacts, nodes);
-                    if (dependencyDescriptor != null) {
-                        queue.add(dependencyDescriptor);
+                if (isValidDependency(dependency)) {
+                    if (isVersionRanged(dependency)) {
+                        ArtifactDescriptor dependencyDescriptor = resolveHighestVersion(dependency, current.node(),
+                                artifacts, nodes);
+                        if (dependencyDescriptor != null
+                                && collected.add(getId(dependencyDescriptor.node().getDependency()))) {
+                            queue.add(dependencyDescriptor);
+                        }
+                    }
+                    if (collected.add(getId(dependency))) {
+                        ArtifactDescriptor dependencyDescriptor = readArtifactDescriptor(dependency, current.node(),
+                                artifacts, nodes);
+                        if (dependencyDescriptor != null) {
+                            queue.add(dependencyDescriptor);
+                        }
                     }
                 }
             }
         }
         return new DependencyResult(depth, artifacts, rootDescriptor.node(), nodes);
+
+    }
+
+    private ArtifactDescriptor resolveHighestVersion(Dependency dependency, DependencyNode parent,
+            Collection<RepositoryArtifact> artifacts, List<DependencyNode> nodes)
+            throws VersionRangeResolutionException {
+        Artifact artifact = dependency.getArtifact();
+        VersionRangeRequest request = new VersionRangeRequest(artifact, repositories, "");
+        VersionRangeResult result = repoSystem.resolveVersionRange(repositorySession, request);
+        List<Version> list = result.getVersions().stream().sorted(Comparator.reverseOrder()).toList();
+        for (Version version : list) {
+            Artifact setVersion = artifact.setVersion(version.toString());
+            dependency = dependency.setArtifact(setVersion);
+            try {
+                return readArtifactDescriptor(dependency, parent, artifacts, nodes);
+            } catch (RepositoryException e) {
+                //we need to try the next version then!
+            }
+        }
+        return null;
+    }
+
+    private boolean isVersionRanged(Dependency dependency) {
+        String version = dependency.getArtifact().getVersion();
+        return version != null && version.startsWith("(") || version.startsWith("[");
     }
 
     /**

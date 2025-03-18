@@ -41,6 +41,24 @@ import org.osgi.framework.VersionRange;
 public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
 
     @Test
+    public void testVersionRanges() throws Exception {
+        ITargetLocation target = resolveMavenTarget(
+                """
+                        <location includeDependencyDepth="infinite" includeDependencyScopes="compile,provided,runtime" includeSource="true" label="cucumber" missingManifest="generate" type="Maven">
+                            <dependencies>
+                                <dependency>
+                                    <groupId>io.cucumber</groupId>
+                                    <artifactId>cucumber-java</artifactId>
+                                    <version>7.21.1</version>
+                                    <type>jar</type>
+                                </dependency>
+                            </dependencies>
+                        </location>
+                                """);
+        assertStatusOk(getTargetStatus(target));
+    }
+
+    @Test
     public void testBadDependencyInChain() throws Exception {
         ITargetLocation target = resolveMavenTarget("""
                 <location includeDependencyScope="compile" missingManifest="generate" type="Maven">
