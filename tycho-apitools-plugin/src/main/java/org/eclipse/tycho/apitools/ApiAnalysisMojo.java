@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2025 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *    Christoph Läubrich - initial API and implementation
+ *    SAP SE - add option to write an XML report
  *******************************************************************************/
 package org.eclipse.tycho.apitools;
 
@@ -27,6 +28,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Repository;
@@ -40,6 +44,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.pde.api.tools.internal.IApiCoreConstants;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblem;
@@ -61,6 +66,7 @@ import org.eclipse.tycho.osgi.framework.EclipseWorkspace;
 import org.eclipse.tycho.osgi.framework.EclipseWorkspaceManager;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
+import org.w3c.dom.DOMException;
 
 /**
  * Performs a PDE-API Tools analysis of this project.
@@ -140,6 +146,24 @@ public class ApiAnalysisMojo extends AbstractMojo {
 
 	@Parameter(defaultValue = "false", property = "tycho.apitools.enhanceLogs")
 	private boolean enhanceLogs;
+
+	/**
+	 * The mojo by default also creates an XML report of the API problems. The
+	 * format is understood by the <a href=
+	 * "https://github.com/jenkinsci/warnings-ng-plugin/blob/main/doc/Documentation.md#export-your-issues-into-a-supported-format">warnings-ng
+	 * Jenkins plugin</a> using the native format.
+	 * <p>
+	 * If you make use of this, consider setting
+	 * {@code <failOnError>false</failOnError>} in order to not fail the Maven build
+	 * on the first bundle with API problems, so that all the reports of all the
+	 * bundles can be analyzed subsequently by external means.
+	 * <p>
+	 * This may be set to an empty string to skip creation of the XML report.
+	 *
+	 * @since 4.0.13
+	 */
+	@Parameter(defaultValue = "${project.build.directory}/apianalysis/report.xml", property = "tycho.apitools.report")
+	private File report;
 
 	/**
 	 * Configures if the API Analysis should run as a workspace job, this ensure
@@ -235,6 +259,16 @@ public class ApiAnalysisMojo extends AbstractMojo {
 					}
 				} catch (IOException e) {
 					log.warn("Can't enhance logs in directory " + logDirectory);
+				}
+			}
+			if (report != null && !report.getPath().isEmpty()) {
+				try {
+					new ApiAnalysisXmlGenerator(
+							projectManager.getTychoProject(project).get()
+									.getArtifactKey(DefaultReactorProject.adapt(project)).getId(),
+							analysisResult, project.getBasedir().toPath(), report.toPath()).writeReport();
+				} catch (DOMException | IOException | ParserConfigurationException | TransformerException e) {
+					throw new MojoExecutionException(e);
 				}
 			}
 			if (printSummary) {
