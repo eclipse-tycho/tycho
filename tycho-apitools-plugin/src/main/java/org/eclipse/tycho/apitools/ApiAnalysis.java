@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2025 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -45,6 +45,7 @@ import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -128,10 +129,10 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 
 	@Override
 	public ApiAnalysisResult call() throws Exception {
-
-		Platform.addLogListener((status, plugin) -> debug(status.toString()));
+		ILogListener logListener = (status, plugin) -> debug(status.toString());
+		Platform.addLogListener(logListener);
 		IJobManager jobManager = Job.getJobManager();
-		jobManager.addJobChangeListener(new IJobChangeListener() {
+		IJobChangeListener jobListener = new IJobChangeListener() {
 
 			@Override
 			public void sleeping(IJobChangeEvent event) {
@@ -162,7 +163,8 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 			public void aboutToRun(IJobChangeEvent event) {
 				debug("Job " + event.getJob() + " aboutToRun...");
 			}
-		});
+		};
+		jobManager.addJobChangeListener(jobListener);
 		printVersion();
 		disableAutoBuild();
 		disableJVMDiscovery();
@@ -174,20 +176,25 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 		jobManager.join(org.eclipse.pde.internal.core.PluginModelManager.class, null);
 		RuntimeException exception = new RuntimeException("Can't get API result due to API application error(s)");
 		String version = getVersion();
-		for (int i = 0; i < 5; i++) {
-			ApiAnalysisResult result = new ApiAnalysisResult(version);
-			IStatus status = runAnalysis(projectPath, project, result);
-			if (!status.isOK() && status.getException() instanceof Exception error) {
-				if (isRecoverable(error)) {
-					exception.addSuppressed(error);
-					TimeUnit.SECONDS.sleep(10);
-					continue;
+		try {
+			for (int i = 0; i < 5; i++) {
+				ApiAnalysisResult result = new ApiAnalysisResult(version);
+				IStatus status = runAnalysis(projectPath, project, result);
+				if (!status.isOK() && status.getException() instanceof Exception error) {
+					if (isRecoverable(error)) {
+						exception.addSuppressed(error);
+						TimeUnit.SECONDS.sleep(10);
+						continue;
+					}
+					throw error;
 				}
-				throw error;
+				return result;
 			}
-			return result;
+			throw exception;
+		} finally {
+			jobManager.removeJobChangeListener(jobListener);
+			Platform.removeLogListener(logListener);
 		}
-		throw exception;
 	}
 
 	private boolean isRecoverable(Throwable throwable) {
@@ -251,6 +258,7 @@ public class ApiAnalysis implements Serializable, Callable<ApiAnalysisResult> {
 					debug(String.valueOf(problem));
 				}
 			} finally {
+				baseline.dispose();
 				analyzer.dispose();
 				ResourcesPlugin.getWorkspace().save(true, new NullProgressMonitor());
 			}
