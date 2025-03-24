@@ -20,7 +20,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -44,7 +43,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.pde.api.tools.internal.IApiCoreConstants;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblem;
@@ -54,8 +52,6 @@ import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.EcJLogFileEnhancer;
-import org.eclipse.tycho.core.EcJLogFileEnhancer.Source;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.exceptions.VersionBumpRequiredException;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -116,13 +112,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${project.basedir}/.settings/org.eclipse.pde.api.tools.prefs")
 	private File apiPreferences;
 
-	/**
-	 * If given a folder, enhances the ECJ compiler logs with API errors so it can
-	 * be analyzed by tools understanding that format
-	 */
-	@Parameter(defaultValue = "${project.build.directory}/compile-logs")
-	private File logDirectory;
-
 	@Parameter(defaultValue = "true", property = "tycho.apitools.printProblems")
 	private boolean printProblems;
 
@@ -143,9 +132,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 
 	@Parameter(defaultValue = "false")
 	private boolean parallel;
-
-	@Parameter(defaultValue = "false", property = "tycho.apitools.enhanceLogs")
-	private boolean enhanceLogs;
 
 	/**
 	 * The mojo by default also creates an XML report of the API problems. The
@@ -247,20 +233,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 					printProblem(problem, "API WARNING", log::warn);
 				}
 			}
-			if (enhanceLogs && logDirectory != null && logDirectory.isDirectory()) {
-				try {
-					Map<String, List<IApiProblem>> problemsMap = analysisResult.problems().collect(
-							Collectors.groupingBy(problem -> Objects.requireNonNullElse(problem.getResourcePath(),
-									"no-path-" + System.identityHashCode(problem))));
-					if (!problemsMap.isEmpty()) {
-						try (EcJLogFileEnhancer enhancer = EcJLogFileEnhancer.create(logDirectory)) {
-							enhanceLog(enhancer, problemsMap);
-						}
-					}
-				} catch (IOException e) {
-					log.warn("Can't enhance logs in directory " + logDirectory);
-				}
-			}
 			if (report != null && !report.getPath().isEmpty()) {
 				try {
 					new ApiAnalysisXmlGenerator(
@@ -335,55 +307,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			getLog().warn("Can't determine suggested version!");
 		}
 		return null;
-	}
-
-	private void enhanceLog(EcJLogFileEnhancer enhancer, Map<String, List<IApiProblem>> problemsMap) {
-		Log log = getLog();
-		int notMapped = 0;
-		for (Entry<String, List<IApiProblem>> problemEntry : problemsMap.entrySet()) {
-			String path = problemEntry.getKey();
-			List<IApiProblem> problemsList = problemEntry.getValue();
-			List<Source> list = enhancer.sources().filter(source -> {
-				String pathAttribute = source.getPath();
-				return pathAttribute != null && !pathAttribute.isEmpty() && pathAttribute.endsWith(path);
-			}).toList();
-			if (list.isEmpty()) {
-				for (IApiProblem notfound : problemsList) {
-					notMapped++;
-					if (printProblems) {
-						// it was already printed before...
-						continue;
-					}
-					if (ApiPlugin.SEVERITY_ERROR == notfound.getSeverity()) {
-						printProblem(notfound, "API ERROR", log::error);
-					} else if (ApiPlugin.SEVERITY_WARNING == notfound.getSeverity()) {
-						printProblem(notfound, "API WARNING", log::warn);
-					}
-				}
-			} else {
-				Map<Integer, List<IApiProblem>> problemsBySeverity = problemsList.stream()
-						.collect(Collectors.groupingBy(IApiProblem::getSeverity));
-				List<IApiProblem> errors = problemsBySeverity.getOrDefault(ApiPlugin.SEVERITY_ERROR, List.of());
-				List<IApiProblem> warnings = problemsBySeverity.getOrDefault(ApiPlugin.SEVERITY_WARNING, List.of());
-				for (Source sourceEntry : list) {
-					for (IApiProblem problem : warnings) {
-						sourceEntry.addProblem(EcJLogFileEnhancer.SEVERITY_WARNING, problem.getLineNumber(),
-								problem.getCharStart(), problem.getCharEnd(), problem.getCategory(), problem.getId(),
-								problem.getMessage());
-					}
-					for (IApiProblem problem : errors) {
-						sourceEntry.addProblem(EcJLogFileEnhancer.SEVERITY_ERROR, problem.getLineNumber(),
-								problem.getCharStart(), problem.getCharEnd(), problem.getCategory(), problem.getId(),
-								problem.getMessage());
-					}
-				}
-
-			}
-		}
-		if (notMapped > 0) {
-			log.warn(notMapped + " API problems can't be mapped to the compiler log!");
-		}
-
 	}
 
 	private ApiAnalysisResult performAnalysis(Collection<Path> baselineBundles, Collection<Path> dependencyBundles,
