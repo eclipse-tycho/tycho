@@ -380,6 +380,26 @@ The `eclipse-build` mojo can be used like this
 </plugin>
 ```
 
+### Generation of XML report in tycho-apitools-plugin
+
+`tycho-apitools-plugin:verify` now creates an XML report of API Tools warnings compatible with
+Jenkins *warnings-ng* native format. The default location `target/apianalysis/report.xml` can
+be overridden using `<report>` or the `tycho.apitools.report` property.
+
+The logs can then be parsed on Jenkins using
+
+```groovy
+post {
+    always {
+        recordIssues enabledForFailure: true, tools: [issues(id: 'apichecks', name: 'API', pattern: '**/target/apianalysis/report.xml')]
+    }
+}
+```
+
+The previous way of enhancing ECJ compiler logs with the API Tools warnings via `<enhanceLogs>`
+/ `<logDirectory>` has been removed.
+
+
 ### Support for PDE API Tools annotations
 
 Tycho now supports PDE API Tools annotations to be added to the project automatically.
