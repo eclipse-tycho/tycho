@@ -122,10 +122,19 @@ public class ApiAnalysisXmlGenerator {
 			case ApiPlugin.SEVERITY_IGNORE -> SEVERITY_WARNING_LOW;
 			default -> null;
 		});
-		addTextElement(document, issue, TAG_LINE_START, String.valueOf(problem.getLineNumber()));
-		addTextElement(document, issue, TAG_LINE_END, String.valueOf(problem.getLineNumber()));
-		addTextElement(document, issue, TAG_COLUMN_START, String.valueOf(problem.getCharStart()));
-		addTextElement(document, issue, TAG_COLUMN_END, String.valueOf(problem.getCharEnd()));
+		int lineNumber = problem.getLineNumber();
+		if (lineNumber >= 0) {
+			addTextElement(document, issue, TAG_LINE_START, String.valueOf(lineNumber));
+			addTextElement(document, issue, TAG_LINE_END, String.valueOf(lineNumber));
+		}
+		int charStart = problem.getCharStart();
+		if (charStart >= 0) {
+			addTextElement(document, issue, TAG_COLUMN_START, String.valueOf(charStart));
+		}
+		int charEnd = problem.getCharEnd();
+		if (charEnd >= 0) {
+			addTextElement(document, issue, TAG_COLUMN_END, String.valueOf(charEnd));
+		}
 		String path = String.valueOf(problem.getResourcePath());
 		if (path != null) {
 			addTextElement(document, issue, TAG_FILE_NAME, baseDir.resolve(Path.of(path)).toString());
