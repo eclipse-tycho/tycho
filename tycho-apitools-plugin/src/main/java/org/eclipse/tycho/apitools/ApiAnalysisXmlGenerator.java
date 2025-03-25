@@ -68,13 +68,11 @@ public class ApiAnalysisXmlGenerator {
 
 	private final String componentID;
 	private final ApiAnalysisResult result;
-	private final Path baseDir;
 	private final Path outFile;
 
-	public ApiAnalysisXmlGenerator(String componentID, ApiAnalysisResult result, Path baseDir, Path outFile) {
+	public ApiAnalysisXmlGenerator(String componentID, ApiAnalysisResult result, Path outFile) {
 		this.componentID = componentID;
 		this.result = result;
-		this.baseDir = baseDir;
 		this.outFile = outFile;
 	}
 
@@ -109,7 +107,7 @@ public class ApiAnalysisXmlGenerator {
 		}
 	}
 
-	private void addIssueElement(Document document, Element parent, IApiProblem problem) {
+	private void addIssueElement(Document document, Element parent, ApiProblemDTO problem) {
 		Element issue = document.createElement(TAG_ISSUE);
 
 		addTextElement(document, issue, TAG_MODULE_NAME, componentID);
@@ -135,9 +133,12 @@ public class ApiAnalysisXmlGenerator {
 		if (charEnd >= 0) {
 			addTextElement(document, issue, TAG_COLUMN_END, String.valueOf(charEnd));
 		}
-		String path = String.valueOf(problem.getResourcePath());
+		String path = problem.getAbsolutePath();
+		if (path == null) {
+			path = problem.getResourcePath(); // use relative path (better than nothing)
+		}
 		if (path != null) {
-			addTextElement(document, issue, TAG_FILE_NAME, baseDir.resolve(Path.of(path)).toString());
+			addTextElement(document, issue, TAG_FILE_NAME, path);
 		}
 		String typeName = problem.getTypeName();
 		if (typeName != null) {

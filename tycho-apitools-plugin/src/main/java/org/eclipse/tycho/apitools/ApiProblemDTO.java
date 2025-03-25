@@ -15,6 +15,8 @@ package org.eclipse.tycho.apitools;
 import java.io.Serializable;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.pde.api.tools.internal.problems.ApiProblemFactory;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
 import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblem;
@@ -25,6 +27,7 @@ public class ApiProblemDTO implements IApiProblem, Serializable {
 	private final int elementKind;
 	private final int messageid;
 	private final String resourcePath;
+	private final String absolutePath;
 	private final String typeName;
 	private final String[] messageArguments;
 	private final int charStart;
@@ -42,6 +45,14 @@ public class ApiProblemDTO implements IApiProblem, Serializable {
 		elementKind = problem.getElementKind();
 		messageid = problem.getMessageid();
 		resourcePath = problem.getResourcePath();
+		String absoluteOsPath = null;
+		if (resourcePath != null) {
+			IPath absoluteResourcePath = project.getFile(new Path(problem.getResourcePath())).getLocation();
+			if (absoluteResourcePath != null) {
+				absoluteOsPath = absoluteResourcePath.toOSString();
+			}
+		}
+		absolutePath = absoluteOsPath;
 		typeName = problem.getTypeName();
 		messageArguments = problem.getMessageArguments();
 		charStart = problem.getCharStart();
@@ -73,6 +84,13 @@ public class ApiProblemDTO implements IApiProblem, Serializable {
 	@Override
 	public String getResourcePath() {
 		return resourcePath;
+	}
+
+	/**
+	 * Returns the absolute path to the resource using the path separator of the OS.
+	 */
+	public String getAbsolutePath() {
+		return absolutePath;
 	}
 
 	@Override
