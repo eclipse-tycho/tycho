@@ -1,5 +1,7 @@
 package org.eclipse.tycho.model.project;
 
-public record ProjectVariable(String name, String value) {
+import java.net.URI;
+
+public record ProjectVariable(String name, URI value) {
 
 }
