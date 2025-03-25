@@ -273,7 +273,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 					new ApiAnalysisXmlGenerator(
 							projectManager.getTychoProject(project).get()
 									.getArtifactKey(DefaultReactorProject.adapt(project)).getId(),
-							analysisResult, project.getBasedir().toPath(), report.toPath()).writeReport();
+							analysisResult, report.toPath()).writeReport();
 				} catch (DOMException | IOException | ParserConfigurationException | TransformerException e) {
 					throw new MojoExecutionException(e);
 				}
