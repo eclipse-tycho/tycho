@@ -23,7 +23,7 @@ import org.eclipse.pde.api.tools.internal.provisional.problems.IApiProblem;
 
 public class ApiAnalysisResult implements Serializable {
 
-	private List<IApiProblem> problems = new ArrayList<>();
+	private List<ApiProblemDTO> problems = new ArrayList<>();
 	private List<ResolverError> resolveError = new ArrayList<>();
 	private String version;
 
@@ -31,7 +31,7 @@ public class ApiAnalysisResult implements Serializable {
 		this.version = version;
 	}
 
-	public Stream<IApiProblem> problems() {
+	public Stream<ApiProblemDTO> problems() {
 		return problems.stream();
 	}
 
