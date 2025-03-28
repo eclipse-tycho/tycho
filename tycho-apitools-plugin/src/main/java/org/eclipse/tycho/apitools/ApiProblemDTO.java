@@ -46,7 +46,7 @@ public class ApiProblemDTO implements IApiProblem, Serializable {
 		messageid = problem.getMessageid();
 		resourcePath = problem.getResourcePath();
 		String absoluteOsPath = null;
-		if (resourcePath != null) {
+		if (resourcePath != null && !resourcePath.isEmpty()) {
 			IPath absoluteResourcePath = project.getFile(new Path(problem.getResourcePath())).getLocation();
 			if (absoluteResourcePath != null) {
 				absoluteOsPath = absoluteResourcePath.toOSString();
