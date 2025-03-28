@@ -137,7 +137,7 @@ public class ApiAnalysisXmlGenerator {
 		if (path == null) {
 			path = problem.getResourcePath(); // use relative path (better than nothing)
 		}
-		if (path != null) {
+		if (path != null && !path.isEmpty()) {
 			addTextElement(document, issue, TAG_FILE_NAME, path);
 		}
 		String typeName = problem.getTypeName();
