@@ -51,6 +51,7 @@ import org.apache.maven.plugin.surefire.report.DefaultReporterFactory;
 import org.apache.maven.surefire.api.booter.Shutdown;
 import org.apache.maven.surefire.api.report.ReporterConfiguration;
 import org.apache.maven.surefire.api.report.ReporterFactory;
+import org.apache.maven.surefire.api.report.ReporterFactoryOptions;
 import org.apache.maven.surefire.api.suite.RunResult;
 import org.apache.maven.surefire.api.testset.DirectoryScannerParameters;
 import org.apache.maven.surefire.api.testset.RunOrderParameters;
@@ -182,7 +183,8 @@ public class OsgiSurefireBooter {
                 ConsoleReporter.PLAIN, redirectTestOutputToFile, reportsDir, trimStackTrace, null,
                 new File(reportsDir, "TESTHASH"), false, rerunFailingTestsCount, XSD, StandardCharsets.UTF_8.toString(),
                 false, true, true, getSurefireStatelessReporter(provider, disableXmlReport, null),
-                getSurefireConsoleOutputReporter(provider), getSurefireStatelessTestsetInfoReporter(provider));
+                getSurefireConsoleOutputReporter(provider), getSurefireStatelessTestsetInfoReporter(provider),
+                new ReporterFactoryOptions());
         ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig,
                 new PrintStreamLogger(System.out));
         ClassLoader loader = OsgiSurefireBooter.class.getClassLoader();
