@@ -85,11 +85,15 @@ public class InstallableUnitLocationUpdater {
         List<VersionUpdate> updates = new ArrayList<>();
         for (Element unit : iuLocation.getChildren("unit")) {
             String id = unit.getAttributeValue("id");
+            String currentVersion = getUnitVersion(unit);
+            if (isVersionRange(currentVersion)) {
+                //we can't update version ranges (yet)
+                continue;
+            }
             IInstallableUnit latestUnit = updateRepository.update()
                     .query(QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id)), null).stream().findFirst()
                     .orElse(null);
             if (latestUnit != null) {
-                String currentVersion = getUnitVersion(unit);
                 if (EMPTY_VERSION.equals(currentVersion) && !context.isUpdateEmptyVersion()) {
                     continue;
                 }
@@ -100,9 +104,15 @@ public class InstallableUnitLocationUpdater {
                     if (currentRepository == null) {
                         currentRepository = repositoryManager.loadRepository(currentLocation, null);
                     }
-                    IInstallableUnit currentIU = currentRepository
-                            .query(QueryUtil.createIUQuery(id, Version.create(currentVersion)), null).stream()
-                            .findFirst().orElse(null);
+                    Version version;
+                    try {
+                        version = Version.create(currentVersion);
+                    } catch (IllegalArgumentException iae) {
+                        log.error("Can't parse current version '" + currentVersion + "' for IU '" + id + "'");
+                        continue;
+                    }
+                    IInstallableUnit currentIU = currentRepository.query(QueryUtil.createIUQuery(id, version), null)
+                            .stream().findFirst().orElse(null);
                     VersionUpdate update = new VersionUpdate(id, currentVersion, currentIU, latestUnit);
                     if (update.hasVersionChange() && isCompatibleChange(update, context)) {
                         log.info("Update version of unit '" + id + "' from " + update.getPreviousVersion() + " > "
@@ -136,6 +146,10 @@ public class InstallableUnitLocationUpdater {
         }
         builder.newLine();
         return updated;
+    }
+
+    private boolean isVersionRange(String version) {
+        return version != null && (version.startsWith("[") || version.startsWith("("));
     }
 
     private String getUnitVersion(Element unit) {
