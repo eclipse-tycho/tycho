@@ -19,8 +19,8 @@ import org.eclipse.aether.artifact.Artifact;
  */
 public record ProcessingMessage(Artifact artifact, Type type, String message) {
 
-	public enum Type {
-		ERROR, WARN 
-	}
+    public enum Type {
+        ERROR, WARN, INFO
+    }
 
 }

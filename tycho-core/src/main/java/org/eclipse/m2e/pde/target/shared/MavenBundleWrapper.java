@@ -163,6 +163,11 @@ public class MavenBundleWrapper {
             return wrappedNode;
         }
         Artifact artifact = node.getArtifact();
+        if (!"jar".equals(artifact.getExtension())) {
+            visited.put(node, wrappedNode = new WrappedBundle(node, List.of(), null, null, null, List.of(
+                    new ProcessingMessage(artifact, Type.INFO, "Skip " + node.getArtifact() + " it is not a jar"))));
+            return wrappedNode;
+        }
         File originalFile = artifact.getFile();
         if (originalFile == null) {
             if (node.getDependency().isOptional()) {
@@ -176,7 +181,16 @@ public class MavenBundleWrapper {
             }
             return wrappedNode;
         }
-        Jar jar = new Jar(originalFile);
+        Jar jar;
+        try {
+            jar = new Jar(originalFile);
+        } catch (IOException e) {
+            visited.put(node,
+                    wrappedNode = new WrappedBundle(node, List.of(), null, null, null,
+                            List.of(new ProcessingMessage(artifact, Type.ERROR,
+                                    "Artifact " + node.getArtifact() + " can not be read as a jar file"))));
+            return wrappedNode;
+        }
         if (isValidOSGi(jar.getManifest())) {
             // already a bundle!
             visited.put(node,
