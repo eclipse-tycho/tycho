@@ -45,6 +45,24 @@ import aQute.bnd.osgi.Jar;
 public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
 
     @Test
+    public void testNonJarArtifactInDependencies() throws Exception {
+        ITargetLocation target = resolveMavenTarget(
+                """
+                            <location includeDependencyDepth="infinite" includeDependencyScopes="compile,provided,runtime" includeSource="true" label="Azure OpenAI" missingManifest="generate" type="Maven">
+                                <dependencies>
+                                    <dependency>
+                                        <groupId>com.azure</groupId>
+                                        <artifactId>azure-ai-openai</artifactId>
+                                        <version>1.0.0-beta.13</version>
+                                        <type>jar</type>
+                                    </dependency>
+                                </dependencies>
+                            </location>
+                        """);
+        assertStatusOk(getTargetStatus(target));
+    }
+
+    @Test
     public void testVersionRanges() throws Exception {
         ITargetLocation target = resolveMavenTarget(
                 """
