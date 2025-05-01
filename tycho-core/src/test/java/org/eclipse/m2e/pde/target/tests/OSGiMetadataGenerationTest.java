@@ -134,6 +134,7 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
     }
 
     @Test
+    @Ignore("due to https://gitlab.eclipse.org/eclipsefdn/helpdesk/-/issues/5987")
     public void testSourceWithSignature() throws Exception {
         ITargetLocation target = resolveMavenTarget(
                 """
