@@ -1,3 +1,6 @@
 Bundle-Version: 1.2.0-SNAPSHOT
 -buildpath: org.osgi.annotation.bundle, \
 	org.osgi.annotation.versioning
+
+javac.source = 17
+javac.target  = 17
