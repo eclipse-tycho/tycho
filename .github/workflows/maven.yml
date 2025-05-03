@@ -28,8 +28,8 @@ jobs:
       uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
       with:
         java-version: |
-            21
             17
+            21
         distribution: 'temurin'
     - name: Cache local Maven repository
       uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
@@ -44,7 +44,7 @@ jobs:
         maven-version: 3.9.9
     - name: Build Tycho
       env:
-       JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+       JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
       run: | 
         cp .github/toolchains.xml ~/.m2/toolchains.xml
         mvn -U -V -e -B -ntp clean install --file pom.xml -DtrimStackTrace=false -Pits -fae
