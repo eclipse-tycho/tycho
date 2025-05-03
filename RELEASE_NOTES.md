@@ -6,6 +6,10 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0 (under development)
 
+## Java 21 required to run Tycho build
+
+Tycho now requires to run with Java 21. As before it can still compile / test for older java releases.
+
 ## Support for JVMs < 1.8 dropped
 
 Previously Tycho could detect JVMs down to Java 1.1 what requires running some java code to run on these platforms.
