@@ -112,7 +112,7 @@ public class MavenDependencyCollector {
         while (!queue.isEmpty()) {
             ArtifactDescriptor current = queue.poll();
             for (Dependency dependency : current.dependencies()) {
-                if (isValidDependency(dependency)) {
+                if (isValidDependency(dependency) && isValidScope(dependency)) {
                     if (isVersionRanged(dependency)) {
                         ArtifactDescriptor dependencyDescriptor = resolveHighestVersion(dependency, current.node(),
                                 artifacts, nodes);
@@ -120,8 +120,7 @@ public class MavenDependencyCollector {
                                 && collected.add(getId(dependencyDescriptor.node().getDependency()))) {
                             queue.add(dependencyDescriptor);
                         }
-                    }
-                    if (collected.add(getId(dependency))) {
+                    } else if (collected.add(getId(dependency))) {
                         ArtifactDescriptor dependencyDescriptor = readArtifactDescriptor(dependency, current.node(),
                                 artifacts, nodes);
                         if (dependencyDescriptor != null) {
