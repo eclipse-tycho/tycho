@@ -126,6 +126,9 @@ public abstract class AbstractMavenTargetTest {
         if (key == null) {
             return false;
         }
+        if (key.groupId().equals("-")) {
+            return true;
+        }
         URI location = getLocation.apply(unit);
         String expectedPathSuffix = "/" + String.join("/", ".m2", "repository", key.groupId().replace('.', '/'),
                 key.artifactId(), key.version(), key.artifactId() + "-" + key.version() + ".jar");
@@ -146,6 +149,10 @@ public abstract class AbstractMavenTargetTest {
     static ExpectedBundle generatedBundle(String bsn, String version, String groupArtifact) {
         return new ExpectedBundle(bsn, version, false, false,
                 ArtifactKey.fromPortableString(groupArtifact + ":" + version + "::"));
+    }
+
+    static ExpectedBundle bundle(String bsn, String version) {
+        return new ExpectedBundle(bsn, version, false, true, new ArtifactKey("-", bsn, version, ""));
     }
 
     static List<ExpectedBundle> withSourceBundles(List<ExpectedBundle> mainBundles) {
