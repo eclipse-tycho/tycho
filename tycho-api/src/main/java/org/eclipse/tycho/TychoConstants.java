@@ -25,7 +25,7 @@ public interface TychoConstants {
     File USER_MAVEN_CONFIGURATION_HOME = new File(USER_HOME, ".m2");
     File DEFAULT_USER_LOCALREPOSITORY = new File(USER_MAVEN_CONFIGURATION_HOME, "repository");
 
-    public static final String ECLIPSE_LATEST = "https://download.eclipse.org/releases/2024-12/";
+    public static final String ECLIPSE_LATEST = "https://download.eclipse.org/releases/2025-03/";
 
     public static final String TYCHO_NOT_CONFIGURED = "Tycho build extension not configured for ";
 
