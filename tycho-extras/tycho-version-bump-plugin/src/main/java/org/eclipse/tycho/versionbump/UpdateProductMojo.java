@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 Sonatype Inc. and others.
+ * Copyright (c) 2010, 2025 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -49,7 +49,7 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
     @Parameter(defaultValue = "${project.artifactId}.product")
     private File productFile;
 
-    @Parameter(defaultValue = "JavaSE-17")
+    @Parameter(defaultValue = "JavaSE-21")
     private String executionEnvironment;
 
     @Component
