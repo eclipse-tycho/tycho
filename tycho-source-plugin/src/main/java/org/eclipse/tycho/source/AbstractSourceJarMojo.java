@@ -203,6 +203,10 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.outputTimestamp}")
     private String outputTimestamp;
 
+    /** A flag used to disable the creation of sources. */
+    @Parameter(property = "tycho.source.skip", defaultValue = "false")
+    protected boolean skipSource;
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
@@ -210,6 +214,10 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /** {@inheritDoc} */
     @Override
     public void execute() throws MojoExecutionException {
+        if (skipSource) {
+            getLog().info("Execution was skipped");
+            return;
+        }
         synchronized (LOCK) {
             packageSources(project);
         }
