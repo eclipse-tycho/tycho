@@ -20,6 +20,7 @@ import java.util.StringTokenizer;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -32,6 +33,7 @@ import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
+import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -134,6 +136,11 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
     @Override
     protected String getId() {
         return feature.getId() + FEATURE_GROUP_IU_SUFFIX;
+    }
+
+    @Override
+    protected IArtifactKey[] getArtifacts() {
+        return new IArtifactKey[] { FeaturesAction.createFeatureArtifactKey(feature.getId(), getVersion().toString()) };
     }
 
     @Override

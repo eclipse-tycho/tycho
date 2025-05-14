@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -77,6 +78,7 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
         InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
         iud.setId(getId());
         iud.setVersion(getVersion());
+        iud.setArtifacts(getArtifacts());
 
         Set<IProvidedCapability> provided = new LinkedHashSet<>();
         addProvidedCapabilities(provided);
@@ -106,6 +108,10 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
         }
 
         return Status.OK_STATUS;
+    }
+
+    protected IArtifactKey[] getArtifacts() {
+        return new IArtifactKey[0];
     }
 
     protected void addPublisherAdvice(IPublisherInfo publisherInfo) {
