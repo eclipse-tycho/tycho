@@ -6,5 +6,5 @@ Bundle-Version: 1.0.0
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jgit;bundle-version="7.1.0",
  com.jcraft.jsch;bundle-version="0.1.55"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
