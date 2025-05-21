@@ -316,10 +316,10 @@ public class ArtifactCollection {
      *         default artifact)
      */
     public Map<String, ArtifactDescriptor> getArtifact(File location) {
-        artifacts.values().forEach(artifact -> artifact.getLocation(true));
         File normalized = normalizeLocation(location);
         Map<String, ArtifactDescriptor> map = artifactsWithKnownLocation.get(normalized);
         if (map == null) {
+            artifacts.values().forEach(artifact -> artifact.getLocation(true));
             LinkedHashMap<String, ArtifactDescriptor> hashMap = new LinkedHashMap<>();
             for (ArtifactDescriptor descriptor : artifacts.values()) {
                 ReactorProject mavenProject = descriptor.getMavenProject();
