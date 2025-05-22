@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,13 +110,13 @@ public class EquinoxResolver implements DependenciesResolver {
     private DependencyComputer dependencyComputer;
 
     public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
-            DependencyArtifacts artifacts) throws BundleException {
+            DependencyArtifacts artifacts, Map<Module, ArtifactDescriptor> descriptorLookup) throws BundleException {
         Objects.requireNonNull(artifacts, "DependencyArtifacts can't be null!");
         ScheduledExecutorService executorService = Executors
                 .newScheduledThreadPool(EquinoxResolverConfiguration.THREAD_COUNT);
         try {
             return newResolvedState(project, mavenSession, ee, artifacts, executorService,
-                    new EquinoxResolverConfiguration());
+                    new EquinoxResolverConfiguration(), descriptorLookup);
         } finally {
             executorService.shutdownNow();
         }
@@ -123,9 +124,11 @@ public class EquinoxResolver implements DependenciesResolver {
 
     private ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,
             DependencyArtifacts artifacts, ScheduledExecutorService executorService,
-            EquinoxResolverConfiguration config) throws BundleException {
-        Properties properties = getPlatformProperties(project, mavenSession, artifacts, ee);
-        ModuleContainer container = newState(artifacts, properties, mavenSession, executorService, config);
+            EquinoxResolverConfiguration config, Map<Module, ArtifactDescriptor> descriptorLookup)
+            throws BundleException {
+        Properties properties = getPlatformProperties(project, mavenSession, ee);
+        ModuleContainer container = newState(artifacts, properties, mavenSession, executorService, config,
+                descriptorLookup);
         ResolutionReport report = container.resolve(null, false);
         Module module = container.getModule(getNormalizedPath(project.getBasedir()));
         if (module == null) {
@@ -201,14 +204,14 @@ public class EquinoxResolver implements DependenciesResolver {
         if (!config.keepUses) {
             logger.info(FORCE_KEEP_USES);
             return newResolvedState(project, mavenSession, ee, artifacts, executorService,
-                    new EquinoxResolverConfiguration(config, true));
+                    new EquinoxResolverConfiguration(config, true), descriptorLookup);
         }
         throw new BundleException("Bundle " + moduleRevision.getSymbolicName() + " cannot be resolved:"
                 + report.getResolutionReportMessage(moduleRevision));
     }
 
     protected Properties getPlatformProperties(ReactorProject project, MavenSession mavenSession,
-            DependencyArtifacts artifacts, ExecutionEnvironment ee) {
+            ExecutionEnvironment ee) {
 
         TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         //FIXME formally we should resolve the configuration for ALL declared environments!
@@ -253,7 +256,8 @@ public class EquinoxResolver implements DependenciesResolver {
     }
 
     protected ModuleContainer newState(DependencyArtifacts artifacts, Properties properties, MavenSession mavenSession,
-            ScheduledExecutorService executorService, EquinoxResolverConfiguration config) throws BundleException {
+            ScheduledExecutorService executorService, EquinoxResolverConfiguration config,
+            Map<Module, ArtifactDescriptor> descriptorLookup) throws BundleException {
         ModuleContainer[] moduleContainerAccessor = new ModuleContainer[1];
         ModuleContainerAdaptor moduleContainerAdaptor = new ModuleContainerAdaptor() {
 
@@ -354,11 +358,14 @@ public class EquinoxResolver implements DependenciesResolver {
         Map<File, OsgiManifest> systemBundles = new LinkedHashMap<>();
         Map<File, OsgiManifest> externalBundles = new LinkedHashMap<>();
         Map<File, OsgiManifest> projects = new LinkedHashMap<>();
+        Map<File, ArtifactDescriptor> descriptors = new LinkedHashMap<>();
 
         List<ArtifactDescriptor> list = artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
+
         for (ArtifactDescriptor artifact : list) {
             File location = artifact.getLocation(true);
             OsgiManifest mf = loadManifest(location, artifact);
+            descriptors.put(location, artifact);
             if (isFrameworkImplementation(mf)) {
                 systemBundles.put(location, mf);
             } else {
@@ -385,7 +392,7 @@ public class EquinoxResolver implements DependenciesResolver {
         String systemExtraCapabilities = getSystemExtraCapabilities(properties);
 
         Map<String, String> systemBundleManifest;
-        Object systemBundleInfo;
+        File systemBundleInfo;
         if (!systemBundles.isEmpty()) {
             Map.Entry<File, OsgiManifest> systemBundle = systemBundles.entrySet().iterator().next();
             systemBundleManifest = systemBundle.getValue().getHeaders();
@@ -399,25 +406,27 @@ public class EquinoxResolver implements DependenciesResolver {
                 systemBundleManifest, Constants.SYSTEM_BUNDLE_SYMBOLICNAME,
                 properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES), systemExtraCapabilities);
         install(moduleContainer, null, Constants.SYSTEM_BUNDLE_LOCATION, systemBundleRevisionBuilder, systemBundleInfo,
-                config);
+                config, descriptorLookup, descriptors);
 
         for (Map.Entry<File, OsgiManifest> external : externalBundles.entrySet()) {
             install(moduleContainer, null, external.getKey().getAbsolutePath(),
                     OSGiManifestBuilderFactory.createBuilder(external.getValue().getHeaders()), external.getKey(),
-                    config);
+                    config, descriptorLookup, descriptors);
         }
         for (Map.Entry<File, OsgiManifest> entry : projects.entrySet()) {
             // make sure reactor projects override anything from the target platform
             // that has the same bundle symbolic name
             Map<String, String> headers = entry.getValue().getHeaders();
             ModuleRevisionBuilder builder = OSGiManifestBuilderFactory.createBuilder(headers);
-            install(moduleContainer, null, entry.getKey().getAbsolutePath(), builder, entry.getKey(), config);
+            install(moduleContainer, null, entry.getKey().getAbsolutePath(), builder, entry.getKey(), config,
+                    descriptorLookup, descriptors);
         }
         return moduleContainer;
     }
 
     private static Module install(ModuleContainer moduleContainer, Module origin, String location,
-            ModuleRevisionBuilder builder, Object revisionInfo, EquinoxResolverConfiguration configuration)
+            ModuleRevisionBuilder builder, File revisionInfo, EquinoxResolverConfiguration configuration,
+            Map<Module, ArtifactDescriptor> descriptorLookup, Map<File, ArtifactDescriptor> descriptors)
             throws BundleException {
         if (!configuration.keepUses) {
             List<GenericInfo> capabilities = builder.getCapabilities();
@@ -425,7 +434,12 @@ public class EquinoxResolver implements DependenciesResolver {
                 genericInfo.getDirectives().remove("uses");
             }
         }
-        return moduleContainer.install(origin, location, builder, revisionInfo);
+        Module module = moduleContainer.install(origin, location, builder, revisionInfo);
+        ArtifactDescriptor descriptor = descriptors.get(revisionInfo);
+        if (descriptor != null) {
+            descriptorLookup.put(module, descriptor);
+        }
+        return module;
     }
 
     private boolean isFrameworkImplementation(OsgiManifest mf) {
@@ -530,13 +544,13 @@ public class EquinoxResolver implements DependenciesResolver {
     }
 
     private ModuleContainer getResolverState(ReactorProject project, MavenProject mavenProject,
-            DependencyArtifacts artifacts, MavenSession session) {
+            DependencyArtifacts artifacts, MavenSession session, Map<Module, ArtifactDescriptor> descriptorLookup) {
         try {
             ExecutionEnvironmentConfiguration eeConfiguration = projectManager
                     .getExecutionEnvironmentConfiguration(mavenProject);
             ExecutionEnvironment executionEnvironment = eeConfiguration.getFullSpecification();
             return newResolvedState(project, session,
-                    eeConfiguration.isIgnoredByResolver() ? null : executionEnvironment, artifacts);
+                    eeConfiguration.isIgnoredByResolver() ? null : executionEnvironment, artifacts, descriptorLookup);
         } catch (BundleException e) {
             throw new RuntimeException(e);
         }
@@ -545,7 +559,9 @@ public class EquinoxResolver implements DependenciesResolver {
     @Override
     public DependenciesInfo computeDependencies(MavenProject project, DependencyArtifacts artifacts,
             MavenSession session) {
-        ModuleContainer state = getResolverState(DefaultReactorProject.adapt(project), project, artifacts, session);
+        Map<Module, ArtifactDescriptor> descriptorLookup = new HashMap<>();
+        ModuleContainer state = getResolverState(DefaultReactorProject.adapt(project), project, artifacts, session,
+                descriptorLookup);
         Module module = state.getModule(project.getBasedir().getAbsolutePath());
         if (module == null) {
             Module systemModule = state.getModule(Constants.SYSTEM_BUNDLE_LOCATION);
@@ -556,7 +572,18 @@ public class EquinoxResolver implements DependenciesResolver {
         ModuleRevision bundleDescription = module.getCurrentRevision();
 
         // dependencies
-        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundleDescription);
+        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(bundleDescription, revision -> {
+            if (revision instanceof ModuleRevision mr) {
+                Module key = mr.getRevisions().getModule();
+                ArtifactDescriptor descriptor = descriptorLookup.get(key);
+                if (descriptor == null) {
+                    return new ModuleArtifactDescriptor(key);
+                }
+                return descriptor;
+            } else {
+                throw new IllegalArgumentException("Not a valid bundle revision: " + revision);
+            }
+        });
         return new DependenciesInfo() {
 
             @Override
