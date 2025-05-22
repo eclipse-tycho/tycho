@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.osgi.container.ModuleCapability;
@@ -35,6 +36,7 @@ import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
 import org.eclipse.osgi.container.ModuleWire;
 import org.eclipse.osgi.container.ModuleWiring;
+import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.osgi.framework.Bundle;
@@ -63,9 +65,11 @@ public class DependencyComputer {
     public static class DependencyEntry {
         public final BundleRevision module;
         public final Collection<AccessRule> rules;
+        private ArtifactDescriptor descriptor;
 
-        public DependencyEntry(BundleRevision module, Collection<AccessRule> rules) {
-            this.module = module;
+        public DependencyEntry(BundleRevision module, ArtifactDescriptor descriptor, Collection<AccessRule> rules) {
+            this.module = Objects.requireNonNull(module);
+            this.descriptor = Objects.requireNonNull(descriptor);
             this.rules = rules;
         }
 
@@ -124,6 +128,10 @@ public class DependencyComputer {
         public String toString() {
             return "DependencyEntry [module=" + module + ", rules=" + rules + "]";
         }
+
+        public ArtifactDescriptor getArtifactDescriptor() {
+            return descriptor;
+        }
     }
 
     private static final class VisiblePackages {
@@ -168,7 +176,8 @@ public class DependencyComputer {
      * @return the list of dependencies of the module
      * @see #DependencyComputer(ModuleContainer)
      */
-    public List<DependencyEntry> computeDependencies(ModuleRevision module) {
+    public List<DependencyEntry> computeDependencies(ModuleRevision module,
+            Function<BundleRevision, ArtifactDescriptor> descriptorLookup) {
         if (module == null || module.getWiring() == null) {
             return Collections.emptyList();
         }
@@ -180,8 +189,10 @@ public class DependencyComputer {
         added.add(module);
 
         Set<DependencyEntry> entries = new LinkedHashSet<>();
-        getFragmentHost(module).ifPresent(host -> addHostPlugin(host, added, visiblePackages, entries));
-        getRequiredBundles(module).forEach(required -> addDependency(required, added, visiblePackages, entries));
+        getFragmentHost(module)
+                .ifPresent(host -> addHostPlugin(host, added, visiblePackages, entries, descriptorLookup));
+        getRequiredBundles(module)
+                .forEach(required -> addDependency(required, added, visiblePackages, entries, descriptorLookup));
 
         // add Import-Package
         // sort by symbolicName_version to get a consistent order
@@ -190,7 +201,7 @@ public class DependencyComputer {
             resolvedImportPackages.put(bundle.getSymbolicName() + "_" + bundle.getVersion(), bundle);
         }
         for (BundleRevision bundle : resolvedImportPackages.values()) {
-            addDependencyViaImportPackage(bundle, added, visiblePackages, entries);
+            addDependencyViaImportPackage(bundle, added, visiblePackages, entries, descriptorLookup);
         }
 
         return new ArrayList<>(entries);
@@ -351,15 +362,16 @@ public class DependencyComputer {
     }
 
     private void addDependencyViaImportPackage(BundleRevision module, Collection<BundleRevision> added,
-            VisiblePackages visiblePackages, Set<DependencyEntry> entries) {
+            VisiblePackages visiblePackages, Set<DependencyEntry> entries,
+            Function<BundleRevision, ArtifactDescriptor> descriptorLookup) {
         if (module == null || !added.add(module)) {
             return;
         }
 
-        addPlugin(module, true, visiblePackages, entries);
+        addPlugin(module, true, visiblePackages, entries, descriptorLookup);
 
         for (BundleRevision fragment : getFragments(module)) {
-            addDependencyViaImportPackage(fragment, added, visiblePackages, entries);
+            addDependencyViaImportPackage(fragment, added, visiblePackages, entries, descriptorLookup);
         }
     }
 
@@ -372,49 +384,51 @@ public class DependencyComputer {
     }
 
     private void addDependency(BundleRevision desc, Collection<BundleRevision> added, VisiblePackages visiblePackages,
-            Set<DependencyEntry> entries) {
-        addDependency(desc, added, visiblePackages, entries, true);
+            Set<DependencyEntry> entries, Function<BundleRevision, ArtifactDescriptor> descriptorLookup) {
+        addDependency(desc, added, visiblePackages, entries, true, descriptorLookup);
     }
 
     private void addDependency(BundleRevision desc, Collection<BundleRevision> added, VisiblePackages visiblePackages,
-            Set<DependencyEntry> entries, boolean useInclusion) {
+            Set<DependencyEntry> entries, boolean useInclusion,
+            Function<BundleRevision, ArtifactDescriptor> descriptorLookup) {
         if (desc == null || !added.add(desc))
             return;
 
-        addPlugin(desc, useInclusion, visiblePackages, entries);
+        addPlugin(desc, useInclusion, visiblePackages, entries, descriptorLookup);
 
         // add fragments that are not patches after the host
         for (BundleRevision fragment : getFragments(desc)) {
-            addDependency(fragment, added, visiblePackages, entries, useInclusion);
+            addDependency(fragment, added, visiblePackages, entries, useInclusion, descriptorLookup);
         }
 
         for (BundleRevision required : getRequiredBundles(desc)) {
-            addDependency(required, added, visiblePackages, entries, useInclusion);
+            addDependency(required, added, visiblePackages, entries, useInclusion, descriptorLookup);
         }
     }
 
     private void addPlugin(BundleRevision module, boolean useInclusions, VisiblePackages visiblePackages,
-            Set<DependencyEntry> entries) {
+            Set<DependencyEntry> entries, Function<BundleRevision, ArtifactDescriptor> descriptorLookup) {
         Collection<AccessRule> rules = useInclusions ? visiblePackages.getInclusions(module) : null;
-        DependencyEntry entry = new DependencyEntry(module, rules);
+        DependencyEntry entry = new DependencyEntry(module, descriptorLookup.apply(module), rules);
         entries.add(entry);
     }
 
     private void addHostPlugin(BundleRevision host, Set<BundleRevision> added, VisiblePackages visiblePackages,
-            Set<DependencyEntry> entries) {
+            Set<DependencyEntry> entries, Function<BundleRevision, ArtifactDescriptor> descriptorLookup) {
         if (host == null) {
             return;
         }
         // add host plug-in
         if (added.add(host)) {
-            addPlugin(host, false, visiblePackages, entries);
+            addPlugin(host, false, visiblePackages, entries, descriptorLookup);
             for (BundleRevision required : getRequiredBundles(host)) {
-                addDependency(required, added, visiblePackages, entries);
+                addDependency(required, added, visiblePackages, entries, descriptorLookup);
             }
 
             // add Import-Package
             host.getWiring().getRequiredWires(PackageNamespace.PACKAGE_NAMESPACE).stream().map(BundleWire::getProvider)
-                    .forEach(provider -> addDependencyViaImportPackage(provider, added, visiblePackages, entries));
+                    .forEach(provider -> addDependencyViaImportPackage(provider, added, visiblePackages, entries,
+                            descriptorLookup));
         }
     }
 

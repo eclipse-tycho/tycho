@@ -12,16 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.test;
 
-import static org.junit.Assert.assertNotNull;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.maven.project.MavenProject;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -29,10 +24,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.junit.Assert;
@@ -92,20 +84,6 @@ public class DefaultDependencyArtifactsTest {
     private void addArtifact(DefaultDependencyArtifacts tp, String type, String id, String version) {
         ArtifactKey key = new DefaultArtifactKey(type, id, version);
         tp.addArtifactFile(key, new File(version), null);
-    }
-
-    @Test
-    public void testRelativePath() throws IOException {
-        DefaultDependencyArtifacts tp = new DefaultDependencyArtifacts();
-
-        File relative = new File("relative.xml");
-        File canonical = new File("canonical.xml");
-
-        tp.addArtifactFile(new DefaultArtifactKey("foo", "relative", "1"), relative, null);
-        tp.addArtifactFile(new DefaultArtifactKey("foo", "canonical", "1"), canonical.getAbsoluteFile(), null);
-
-        Assert.assertNotNull(tp.getArtifact(relative.getAbsoluteFile()));
-        Assert.assertNotNull(getArtifactMapForLocation(canonical, tp));
     }
 
     @Test
@@ -175,33 +153,4 @@ public class DefaultDependencyArtifactsTest {
         Assert.assertEquals(Set.of(unit("a"), unit("b")), tp.getInstallableUnits());
     }
 
-    @Test
-    public void testDoNotCacheArtifactsThatRepresentReactorProjects() {
-        // IInstallableUnit #hashCode and #equals methods only use (version,id) tuple to determine IU equality
-        // Reactor projects are expected to produce different IUs potentially with the same (version,id) during the build
-        // This test verifies that different DefaultTargetPlatform can have the same reactor project with different IUs
-        // even when IUs (version,id) are the same
-
-        ReactorProject project = new DefaultReactorProject(new MavenProject());
-        ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
-        File location = new File("location");
-
-        DefaultDependencyArtifacts tp1 = new DefaultDependencyArtifacts();
-        tp1.addArtifact(new DefaultArtifactDescriptor(key, location, project, null, Set.of(unit("a"))));
-
-        DefaultDependencyArtifacts tp2 = new DefaultDependencyArtifacts();
-        tp2.addArtifact(new DefaultArtifactDescriptor(key, location, project, null, Set.of(unit("b"))));
-
-        Assert.assertEquals(unit("a"), //
-                getArtifactMapForLocation(location, tp1).get(null).getInstallableUnits().iterator().next());
-        Assert.assertEquals(unit("b"), //
-                getArtifactMapForLocation(location, tp2).get(null).getInstallableUnits().iterator().next());
-    }
-
-    private Map<String, ArtifactDescriptor> getArtifactMapForLocation(File location,
-            DefaultDependencyArtifacts dependencyArtifacts) {
-        Map<String, ArtifactDescriptor> map = dependencyArtifacts.getArtifact(location);
-        assertNotNull("No artifacts found for location " + location.getAbsolutePath(), map);
-        return map;
-    }
 }

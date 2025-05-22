@@ -46,8 +46,6 @@ public abstract class ArtifactCollection implements DependencyArtifacts {
 
     protected final Map<ArtifactKey, ArtifactDescriptor> artifacts = new LinkedHashMap<>();
 
-    private final Map<File, Map<String, ArtifactDescriptor>> artifactsWithKnownLocation = new LinkedHashMap<>();
-
     @Override
     public List<ArtifactDescriptor> getArtifacts(String type) {
         return getArtifacts(key -> key.getType().equals(type));
@@ -109,7 +107,6 @@ public abstract class ArtifactCollection implements DependencyArtifacts {
                         File newLocation = artifact.getLocation(false);
                         if (newLocation != null) {
                             def.resolve(newLocation);
-                            registerArtifactLocation(newLocation, original);
                         }
                     }
                 }
@@ -148,14 +145,10 @@ public abstract class ArtifactCollection implements DependencyArtifacts {
                         artifact.getClassifier(), units)
                 : new DefaultArtifactDescriptor(normalizedKey, thisArtifact -> {
                     File resolvedLocation = artifact.getLocation(true);
-                    registerArtifactLocation(resolvedLocation, thisArtifact);
                     return resolvedLocation;
                 }, artifact.getMavenProject(), artifact.getClassifier(), units);
 
         artifacts.put(normalizedKey, normalizedArtifact);
-        if (location != null) {
-            registerArtifactLocation(location, normalizedArtifact);
-        }
     }
 
     private boolean unitSetCompare(Collection<IInstallableUnit> unitsA, Collection<IInstallableUnit> unitsB) {
@@ -173,23 +166,6 @@ public abstract class ArtifactCollection implements DependencyArtifacts {
         }
         //if more then we create sets and compare them ...
         return Set.copyOf(unitsB).equals(Set.copyOf(unitsA));
-    }
-
-    private void registerArtifactLocation(File location, ArtifactDescriptor normalizedArtifact) {
-        Map<String, ArtifactDescriptor> classified = artifactsWithKnownLocation.computeIfAbsent(location,
-                loc -> new LinkedHashMap<>());
-        // TODO sanity check, no duplicate artifact classifiers at the same location
-        //if (classified.containsKey(artifact.getClassifier())) {
-        //    throw new IllegalStateException("Duplicate artifact classifier at location " + location);
-        //}
-        // sanity check, all artifacts at the same location have the same reactor project
-        for (ArtifactDescriptor other : classified.values()) {
-            if (!Objects.equals(normalizedArtifact.getMavenProject(), other.getMavenProject())) {
-                throw new IllegalStateException("Inconsistent reactor project at location " + location + ". "
-                        + normalizedArtifact.getMavenProject() + " is not the same as " + other.getMavenProject());
-            }
-        }
-        classified.put(normalizedArtifact.getClassifier(), normalizedArtifact);
     }
 
     // ideally this would return a specialized type -> the type checker would then ensure that this is called wherever needed
@@ -289,37 +265,6 @@ public abstract class ArtifactCollection implements DependencyArtifacts {
         DefaultArtifactDescriptor artifact = new DefaultArtifactDescriptor(key, project.getBasedir(), project,
                 classifier, installableUnits);
         addArtifact(artifact);
-    }
-
-    /**
-     * This triggers fetch of all dependencies.
-     * 
-     * @param location
-     * @return a map of classifier to ArtifactDescriptor (while <code>null</code> represents the
-     *         default artifact)
-     */
-    @Override
-    public Map<String, ArtifactDescriptor> getArtifact(File location) {
-        artifacts.values().forEach(artifact -> artifact.getLocation(true));
-        File normalized = normalizeLocation(location);
-        Map<String, ArtifactDescriptor> map = artifactsWithKnownLocation.get(normalized);
-        if (map == null) {
-            LinkedHashMap<String, ArtifactDescriptor> hashMap = new LinkedHashMap<>();
-            for (ArtifactDescriptor descriptor : artifacts.values()) {
-                ReactorProject mavenProject = descriptor.getMavenProject();
-                if (mavenProject != null) {
-                    if (Objects.equals(location, mavenProject.getArtifact())) {
-                        hashMap.put(descriptor.getClassifier(), descriptor);
-                    }
-                }
-            }
-            if (hashMap.isEmpty()) {
-                return null;
-            }
-            artifactsWithKnownLocation.put(normalizeLocation(location), hashMap);
-            return hashMap;
-        }
-        return map;
     }
 
     @Override

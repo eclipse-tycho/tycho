@@ -153,9 +153,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<ClasspathEntry> classpath = new ArrayList<>();
         File bndFile = new File(project.getBasedir(), TychoConstants.PDE_BND);
         List<AccessRule> bootClasspathExtraAccessRules;
+        ArtifactKey artifactKey = projectManager.getArtifactKey(project).get();
         if (bndFile.exists()) {
             bootClasspathExtraAccessRules = List.of();
-            ArtifactKey artifactKey = projectManager.getArtifactKey(project).get();
             classpath.add(new DefaultClasspathEntry(reactorProject, artifactKey,
                     List.of(new File(project.getBuild().getOutputDirectory())), null));
             List<ArtifactDescriptor> bundles = artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
@@ -175,7 +175,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 }
                 File location = entry.getLocation();
                 if (location != null && location.exists()) {
-                    ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.getSymbolicName());
+                    ArtifactDescriptor otherArtifact = entry.getArtifactDescriptor();
                     if (otherArtifact != null) {
                         ReactorProject otherProject = otherArtifact.getMavenProject();
                         List<File> locations;
@@ -205,11 +205,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             // build.properties/jars.extra.classpath
             addExtraClasspathEntries(classpath, reactorProject, artifacts);
 
-            // project itself
-            ArtifactDescriptor artifact = getArtifact(artifacts, project.getBasedir(),
-                    dependenciesInfo.getRevision().getSymbolicName());
-            List<File> projectClasspath = getThisProjectClasspath(artifact, reactorProject);
-            classpath.add(new DefaultClasspathEntry(reactorProject, artifact.getKey(), projectClasspath, null));
+            // project itself 
+            List<File> projectClasspath = getThisProjectClasspath(reactorProject, project);
+            classpath.add(new DefaultClasspathEntry(reactorProject, artifactKey, projectClasspath, null));
 
             bootClasspathExtraAccessRules = dependenciesInfo.getBootClasspathExtraAccessRules();
         }
@@ -237,18 +235,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             }
         }
         return list;
-    }
-
-    protected ArtifactDescriptor getArtifact(DependencyArtifacts artifacts, File location, String id) {
-        Map<String, ArtifactDescriptor> classified = artifacts.getArtifact(location);
-        if (classified != null) {
-            for (ArtifactDescriptor artifact : classified.values()) {
-                if (id.equals(artifact.getKey().getId())) {
-                    return artifact;
-                }
-            }
-        }
-        return null;
     }
 
     private void addPDESourceRoots(MavenProject project) {
@@ -321,13 +307,14 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     public BundleClassPath getBundleClassPath(ReactorProject project) {
-        return project.computeContextValue(CTX_CLASSPATH, () -> resolveClassPath(getMavenSession(project), getMavenProject(project)));
+        return project.computeContextValue(CTX_CLASSPATH,
+                () -> resolveClassPath(getMavenSession(project), getMavenProject(project)));
     }
 
     /**
      * Returns project compile classpath entries.
      */
-    private List<File> getThisProjectClasspath(ArtifactDescriptor bundle, ReactorProject project) {
+    private List<File> getThisProjectClasspath(ReactorProject project, MavenProject mavenProject) {
         LinkedHashSet<File> classpath = new LinkedHashSet<>();
 
         EclipsePluginProject pdeProject = getEclipsePluginProject(project);
@@ -341,12 +328,12 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
         // Bundle-ClassPath entries that do not have associated output folders
         // => assume it's checked into SCM or will be copied here later during build
-        for (String cp : parseBundleClasspath(bundle)) {
+        OsgiManifest mf = bundleReader.loadManifest(mavenProject);
+        for (String cp : mf.getBundleClasspath()) {
             if (!outputJars.containsKey(cp)) {
                 classpath.add(new File(project.getBasedir(), cp));
             }
         }
-
         return new ArrayList<>(classpath);
     }
 
