@@ -71,8 +71,6 @@ public interface DependencyArtifacts {
      */
     public ArtifactDescriptor getArtifact(String type, String id, String version);
 
-    public ReactorProject getMavenProject(File location);
-
     /**
      * Returns map of artifact descriptors at the given location. The map is keyed by maven artifact
      * classifiers. For dependency artifacts and the main reactor project artifact, the classifier

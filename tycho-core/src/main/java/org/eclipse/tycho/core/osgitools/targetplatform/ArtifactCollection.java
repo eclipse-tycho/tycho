@@ -17,7 +17,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,13 +41,14 @@ import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 
-public class ArtifactCollection {
+public abstract class ArtifactCollection implements DependencyArtifacts {
     private static final Version VERSION_0_0_0 = new Version("0.0.0");
 
     protected final Map<ArtifactKey, ArtifactDescriptor> artifacts = new LinkedHashMap<>();
 
     private final Map<File, Map<String, ArtifactDescriptor>> artifactsWithKnownLocation = new LinkedHashMap<>();
 
+    @Override
     public List<ArtifactDescriptor> getArtifacts(String type) {
         return getArtifacts(key -> key.getType().equals(type));
     }
@@ -57,6 +57,7 @@ public class ArtifactCollection {
         return artifacts.entrySet().stream().filter(entry -> filter.test(entry.getKey())).map(Entry::getValue).toList();
     }
 
+    @Override
     public List<ArtifactDescriptor> getArtifacts() {
         return new ArrayList<>(artifacts.values());
     }
@@ -227,6 +228,7 @@ public class ArtifactCollection {
         return artifacts.isEmpty();
     }
 
+    @Override
     public ArtifactDescriptor getArtifact(String type, String id, String version) {
         if (type == null || id == null) {
             // TODO should we throw something instead?
@@ -289,25 +291,6 @@ public class ArtifactCollection {
         addArtifact(artifact);
     }
 
-    public ReactorProject getMavenProject(File location) {
-        // only check artifactsWithKnownLocation as we're expected a local reactor project, location is already set
-        Map<String, ArtifactDescriptor> classified = artifactsWithKnownLocation.get(normalizeLocation(location));
-        if (classified != null) {
-            // #addArtifact enforces all artifacts at the same location have the same reactor project 
-            return classified.values().iterator().next().getMavenProject();
-        }
-        for (Entry<ArtifactKey, ArtifactDescriptor> entry : artifacts.entrySet()) {
-            ArtifactDescriptor value = entry.getValue();
-            ReactorProject mavenProject = value.getMavenProject();
-            if (mavenProject != null) {
-                if (Objects.equals(location, mavenProject.getArtifact())) {
-                    return mavenProject;
-                }
-            }
-        }
-        return null;
-    }
-
     /**
      * This triggers fetch of all dependencies.
      * 
@@ -315,6 +298,7 @@ public class ArtifactCollection {
      * @return a map of classifier to ArtifactDescriptor (while <code>null</code> represents the
      *         default artifact)
      */
+    @Override
     public Map<String, ArtifactDescriptor> getArtifact(File location) {
         artifacts.values().forEach(artifact -> artifact.getLocation(true));
         File normalized = normalizeLocation(location);
@@ -338,25 +322,12 @@ public class ArtifactCollection {
         return map;
     }
 
+    @Override
     public ArtifactDescriptor getArtifact(ArtifactKey key) {
         return artifacts.get(normalizeKey(key));
     }
 
-    public void removeAll(String type, String id) {
-        Iterator<Entry<ArtifactKey, ArtifactDescriptor>> iter = artifacts.entrySet().iterator();
-        while (iter.hasNext()) {
-            Entry<ArtifactKey, ArtifactDescriptor> entry = iter.next();
-            ArtifactKey key = entry.getKey();
-            if (key.getType().equals(type) && key.getId().equals(id)) {
-                File location = entry.getValue().getLocation().orElse(null);
-                if (location != null) {
-                    artifactsWithKnownLocation.remove(location);
-                }
-                iter.remove();
-            }
-        }
-    }
-
+    @Override
     public void toDebugString(StringBuilder sb, String linePrefix) {
         for (ArtifactDescriptor artifact : artifacts.values()) {
             sb.append(linePrefix);
