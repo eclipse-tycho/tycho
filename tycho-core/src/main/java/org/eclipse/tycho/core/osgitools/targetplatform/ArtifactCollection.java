@@ -316,10 +316,17 @@ public class ArtifactCollection {
      *         default artifact)
      */
     public Map<String, ArtifactDescriptor> getArtifact(File location) {
-        artifacts.values().forEach(artifact -> artifact.getLocation(true));
         File normalized = normalizeLocation(location);
         Map<String, ArtifactDescriptor> map = artifactsWithKnownLocation.get(normalized);
         if (map == null) {
+            //Force init of the map indirectly
+            artifacts.values().forEach(artifact -> artifact.getLocation(true));
+            //check if something is there?
+            map = artifactsWithKnownLocation.get(normalized);
+            if (map != null) {
+                return map;
+            }
+            //Still null? Use a fallback with only reactor projects because it might be that a reactor project location is queried...
             LinkedHashMap<String, ArtifactDescriptor> hashMap = new LinkedHashMap<>();
             for (ArtifactDescriptor descriptor : artifacts.values()) {
                 ReactorProject mavenProject = descriptor.getMavenProject();
