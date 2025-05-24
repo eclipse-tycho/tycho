@@ -49,13 +49,13 @@
 	</developers>
 	<groupId>org.eclipse.tycho</groupId>
 	<artifactId>tycho</artifactId>
-	<version>5.0.0-SNAPSHOT</version>
+	<version>6.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Tycho</name>
 	<description>Tycho integrates Maven with Eclipse and OSGi</description>
 	<properties>
 		<!-- Enable reproducible build (cf. https://maven.apache.org/guides/mini/guide-reproducible-builds.html) -->
-		<project.build.outputTimestamp>2025-01-01T00:00:00Z</project.build.outputTimestamp>
+		<project.build.outputTimestamp>2025-05-24T05:25:58Z</project.build.outputTimestamp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<min.jdk.version>21</min.jdk.version>
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
