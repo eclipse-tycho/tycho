@@ -1,4 +1,4 @@
-def deployBranch = 'main'
+def deployBranch = 'tycho-5.0.x'
 def agentLabel
 if(env.BRANCH_NAME == deployBranch) {
 	//branches that are deployable must run on eclipse infra
