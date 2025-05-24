@@ -2,6 +2,29 @@
 
 This page describes the noteworthy improvements provided by each release of Eclipse Tycho.
 
+## 4.0.13
+
+**Important Notice:** With this release Tycho 4 becomes end-of-life and we do not plan to
+perform regular releases anymore due to the usage of Java 21 in dependencies we can no longer
+easily upgrade.
+
+Instead we encourage people to migrate to Tycho 5 as the new main line for the next release.
+Tycho 5 should be a drop in replacement in most cases, but everyone could help by testing the
+current [tycho snapshot](https://github.com/eclipse/tycho/wiki#getting-tycho-snapshots) build
+to identify possible regression before the release.
+
+backports:
+- Resolve jars and library extra.classpath entries optionally
+- Copy non java sources to the output in bnd-builds
+- Handle version range in dependencies for target locations
+- tycho-apitools-plugin:verify: Add option to write XML report
+- Add support for using conditional packages directive.
+- Support custom variables in linked resources
+- Fix case where a non jar dependency is in the chain for wrapping
+- Fix dependency is ignored when previously found with other scope
+- Add flag to skip execution of tycho-source-plugin
+- Improve performance by only ask for locations once
+
 ## 4.0.12
 
 ### Support for JUnit 5.12
