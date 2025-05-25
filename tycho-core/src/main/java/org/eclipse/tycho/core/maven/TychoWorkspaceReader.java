@@ -16,6 +16,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.ModelWriter;
@@ -38,21 +42,19 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
-@Component(role = WorkspaceReader.class, hint = "TychoWorkspaceReader")
+@Named("TychoWorkspaceReader")
+@Singleton
 public class TychoWorkspaceReader implements MavenWorkspaceReader {
     private final WorkspaceRepository repository;
 
-    @Requirement
+    @Inject
     private LegacySupport legacySupport;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement
+    @Inject
     private ModelWriter modelWriter;
-
-    @Requirement
-    private TychoProjectManager projectManager;
 
     public TychoWorkspaceReader() {
         repository = new WorkspaceRepository("tycho", null);
