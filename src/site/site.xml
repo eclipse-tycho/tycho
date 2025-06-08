@@ -42,6 +42,7 @@
 			<item name="PDE API Tools Plugin" href="tycho-apitools-plugin/plugin-info.html" />
 			<item name="Source Plugin" href="tycho-source-plugin/plugin-info.html" />
 			<item name="Versions Plugin" href="tycho-versions-plugin/plugin-info.html" />
+			<item name="CleanCode Plugin" href="tycho-cleancode-plugin/plugin-info.html" />
 		</menu>
 		<!-- always include all reports -->
 		<menu ref="reports" inherit="bottom"/>
