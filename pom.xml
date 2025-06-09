@@ -75,7 +75,7 @@
 		<bouncycastleVersion>1.80</bouncycastleVersion>
 		<bnd.version>7.1.0</bnd.version>
 		<junit5.version>5.12.2</junit5.version>
-		<junit5.platform.version>1.12.2</junit5.platform.version>
+		<junit5.platform.version>1.13.1</junit5.platform.version>
 	    <!-- these are referenced from src/main/resources/META-INF/plexus/components.xml -->
 		<resources-plugin.version>3.3.1</resources-plugin.version>
 		<install-plugin.version>3.1.1</install-plugin.version>
