@@ -58,13 +58,13 @@ All of the following variants to specify a version are now possible:
     </locations>
 </target>
 ```
-## new `quickfix` and `cleanup` mojo
+## new `quickfix`, `cleanup` and `manifest` mojo
 
 Keeping code up-todate is a daunting task and Eclipse IDE can be a great help due to its offering for automatic quick-fixes and cleanup actions.
 Still this has usually be applied manually (or automatic on save) and requires some user interaction.
 
-There is now a new `tycho-cleancode:cleanup` and `tycho-cleancode:quickfix` mojo that help with these things to be called via automation or part of the build, 
-both mojos run by default in the process-sources phase so any later compilation can verify the outcome easily. Due to the way they work internally,
+There is now a new `tycho-cleancode:cleanup`, `tycho-cleancode:quickfix` and `tycho-cleancode:manifest` mojo that help with these things to be called via automation or part of the build, 
+the mojos run by default in the process-sources phase so any later compilation can verify the outcome easily. Due to the way they work internally,
 they require an eclipse project to be present and configured currently.
 
 The `tycho-cleancode:cleanup` mojo allows to configure the desired cleanup profile in the pom (maybe inside a profile), the values are those that you will find 
@@ -104,6 +104,28 @@ The `tycho-cleancode:quickfix` mojo simply apply the quick fix with the highest 
         <goals>
           <goal>quickfix</goal> 
         </goals>
+      </execution>
+    </executions>
+</plugin>
+```
+
+The `tycho-cleancode:manifest` mojo apply the 'Organize Manifest' action from PDE that allows to automatically cleanup manifest headers, 
+that are usually hard to maintain manually and can be enabled like this (maybe inside a profile):
+
+```xml
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-cleancode-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+      <execution>
+        <id>manifest</id>
+        <goals>
+          <goal>manifest</goal> 
+        </goals>
+        <configuration>
+            <calculateUses>true</calculateUses>
+        </configuration>
       </execution>
     </executions>
 </plugin>
