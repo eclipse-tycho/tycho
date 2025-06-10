@@ -287,7 +287,7 @@
 			<dependency>
 				<groupId>org.eclipse.platform</groupId>
 				<artifactId>org.eclipse.core.runtime</artifactId>
-				<version>3.33.0</version>
+				<version>3.33.100</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.platform</groupId>
