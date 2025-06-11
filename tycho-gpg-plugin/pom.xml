@@ -53,7 +53,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.artifact.repository</artifactId>
-			<version>1.5.600</version>
+			<version>1.5.700</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
