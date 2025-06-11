@@ -78,7 +78,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.ui.ide</artifactId>
-			<version>3.22.500</version>
+			<version>3.22.600</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
