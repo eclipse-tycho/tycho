@@ -38,12 +38,30 @@ public class OrganizeManifestMojo extends AbstractEclipseBuildMojo<OrganizeManif
 	@Parameter(property = "organizeManifest.calculateUses")
 	private boolean calculateUses;
 
+	/**
+	 * remove unused dependencies
+	 */
+	@Parameter(property = "organizeManifest.removeUnusedDependencies")
+	private boolean removeUnusedDependencies;
+
+	/**
+	 * remove unused <code><bundle-localization>.properties</code> keys
+	 */
+	@Parameter(property = "organizeManifest.removeUnusedKeys")
+	private boolean removeUnusedKeys;
+
 	@Override
 	protected void handleResult(OrganizeManifestResult result) throws MojoFailureException {
 		MarkdownBuilder builder = new MarkdownBuilder(reportFileName);
 		builder.h3("The following Manifest cleanups where applied:");
 		if (calculateUses) {
 			builder.addListItem("Calculate 'uses' directive for public packages");
+		}
+		if (removeUnusedDependencies) {
+			builder.addListItem("Remove unused dependencies");
+		}
+		if (removeUnusedKeys) {
+			builder.addListItem("Remove unused <bundle-localization>.properties keys");
 		}
 		builder.newLine();
 		builder.newLine();
@@ -56,7 +74,15 @@ public class OrganizeManifestMojo extends AbstractEclipseBuildMojo<OrganizeManif
 		if (calculateUses) {
 			getLog().info("Organize Manifest: Calculate 'uses' directive for public packages");
 		}
+		if (removeUnusedDependencies) {
+			getLog().info("Organize Manifest: Remove unused dependencies");
+		}
+		if (removeUnusedKeys) {
+			getLog().info("Organize Manifest: Remove unused <bundle-localization>.properties keys");
+		}
 		manifest.setCalculateUses(calculateUses);
+		manifest.setUnusedDependencies(removeUnusedDependencies);
+		manifest.setUnusedKeys(removeUnusedKeys);
 		return manifest;
 	}
 
