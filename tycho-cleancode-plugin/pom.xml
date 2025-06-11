@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>org.eclipse.jdt.ui</artifactId>
-			<version>3.33.200</version>
+			<version>3.35.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
