@@ -64,11 +64,11 @@ public class ExecutionEnvironmentUtils {
      * Get the execution environment for the specified OSGi profile name.
      * 
      * @param profileName
-     *                        profile name value as specified for key
-     *                        "Bundle-RequiredExecutionEnvironment" in MANIFEST.MF
+     *            profile name value as specified for key "Bundle-RequiredExecutionEnvironment" in
+     *            MANIFEST.MF
      * @return the corresponding {@link ExecutionEnvironment}.
      * @throws UnknownEnvironmentException
-     *                                         if profileName is unknown.
+     *             if profileName is unknown.
      */
     public static StandardExecutionEnvironment getExecutionEnvironment(String profileName, ToolchainManager manager,
             MavenSession session, Logger logger) throws UnknownEnvironmentException {
@@ -168,9 +168,12 @@ public class ExecutionEnvironmentUtils {
             }
             //Try find by version
             int version = getVersion(profileName);
-            if (version > 8) {
-                for (Toolchain toolchain : manager.getToolchains(session, "jdk",
-                        Map.of("version", String.valueOf(version)))) {
+            for (Toolchain toolchain : manager.getToolchains(session, "jdk",
+                    Map.of("version", String.valueOf(version)))) {
+                return toolchain;
+            }
+            if (version < 9) {
+                for (Toolchain toolchain : manager.getToolchains(session, "jdk", Map.of("version", "1." + version))) {
                     return toolchain;
                 }
             }
