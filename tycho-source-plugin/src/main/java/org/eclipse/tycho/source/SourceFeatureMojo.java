@@ -90,9 +90,17 @@ import de.pdark.decentxml.Element;
  * feature jar. Especially, if file <code>sourceTemplateFeature/feature.properties</code> is found,
  * values in this file override values of respective keys in
  * <code>&lt;originalFeature&gt;/feature.properties</code>.
+ * 
+ * @deprecated Source features are used for a long time to include sources in development
+ *             environments but they where always brittle to use and badly integrated. As nowadays
+ *             Tycho/P2 offers better ways to archive similar, the automatic generation of such
+ *             features is deprecated and will be removed on the next release. In cases where this
+ *             is still required, one should replace it with an explicitly maintained source feature
+ *             in a dedicated module.
  *
  */
 @Mojo(name = SourceFeatureMojo.GOAL, defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
+@Deprecated(forRemoval = true)
 public class SourceFeatureMojo extends AbstractMojo {
 
     static final String GOAL = "feature-source";
@@ -242,6 +250,9 @@ public class SourceFeatureMojo extends AbstractMojo {
         if (!PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging()) || skip) {
             return;
         }
+        getLog().warn(
+                "The tycho-source-plugin:feature-source is deprecated and will be removed in the next major release of Tycho!");
+        getLog().warn("For more details visit: https://github.com/eclipse-tycho/tycho/blob/tycho-5.0.x/REMOVAL.MD");
         synchronized (LOCK) {
             try {
                 Properties sourceFeatureTemplateProps = readSourceTemplateFeatureProperties();
