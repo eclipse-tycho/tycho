@@ -34,19 +34,6 @@
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-source-plugin</artifactId>
           <version>${tycho-version}</version>
-          <executions>
-               <execution>
-                  <id>feature-source</id>
-                  <goals>
-                      <goal>feature-source</goal>
-                  </goals>
-		            <configuration>
-		              <plugins>
-		                <plugin id="extra.sourcefeature.bundle" versionRange="0.0.0" />
-		              </plugins>
-		            </configuration>
-              </execution>
-          </executions>
       </plugin>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
