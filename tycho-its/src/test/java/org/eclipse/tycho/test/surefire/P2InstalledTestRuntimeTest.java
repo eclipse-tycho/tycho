@@ -13,7 +13,6 @@
 package org.eclipse.tycho.test.surefire;
 
 import java.util.List;
-
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -58,6 +57,14 @@ public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
 				"-Dother.p2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString().replace("/", "//"));
 		verifier.addCliOption("-PuseProvisionedProduct");
 		verifier.addCliOption("-DproductClassifier=" + getProductClassifier());
+		verifier.executeGoals(List.of("clean", "integration-test"));
+		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
+	public void testNoProduct() throws Exception {
+		Verifier verifier = getVerifier("surefire.p2InstalledRuntime");
+		verifier.addCliOption("-PnoProduct");
 		verifier.executeGoals(List.of("clean", "integration-test"));
 		verifier.verifyErrorFreeLog();
 	}
