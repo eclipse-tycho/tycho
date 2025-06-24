@@ -95,8 +95,8 @@ public class PomUnits {
                             new MavenChecksumAdvice(facade.getLocation()));
                     publisher.applyAdvices(dependency.installableUnit(), result.getValue(), advices);
                     if (dependencyArtifacts instanceof ArtifactCollection collection) {
-                        collection.addArtifactFile(result.getKey(), dependency.location(),
-                                dependency.installableUnit());
+                        collection.addArtifactFile(result.getKey(), dependency.artifactFacade().getClassifier(),
+                                dependency.location(), dependency.installableUnit());
                     }
                 }
             });

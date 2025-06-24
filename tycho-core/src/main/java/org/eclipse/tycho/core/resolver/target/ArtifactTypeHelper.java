@@ -16,6 +16,8 @@ import static org.eclipse.tycho.ArtifactType.TYPE_BUNDLE_FRAGMENT;
 import static org.eclipse.tycho.ArtifactType.TYPE_ECLIPSE_FEATURE;
 import static org.eclipse.tycho.ArtifactType.TYPE_ECLIPSE_PLUGIN;
 
+import java.util.Collection;
+
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -24,7 +26,6 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -34,6 +35,8 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 
 public class ArtifactTypeHelper {
 
@@ -141,6 +144,17 @@ public class ArtifactTypeHelper {
             // other artifacts don't have files that can be referenced by their Eclipse coordinates
             return null;
         }
+    }
+
+    public static String toMavenClassifier(IInstallableUnit iu) {
+        Collection<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
+        for (IProvidedCapability capability : providedCapabilities) {
+            if ("org.eclipse.equinox.p2.eclipse.type".equals(capability.getNamespace())
+                    && "source".equals(capability.getProperties().get("org.eclipse.equinox.p2.eclipse.type"))) {
+                return TychoConstants.CLASSIFIER_SOURCES;
+            }
+        }
+        return null;
     }
 
     public static ArtifactKey toTychoArtifactKey(IInstallableUnit iu, IArtifactKey p2ArtifactKey) {
