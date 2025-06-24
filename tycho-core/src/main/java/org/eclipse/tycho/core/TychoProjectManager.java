@@ -298,6 +298,9 @@ public class TychoProjectManager {
         List<ArtifactDescriptor> dependencies = tychoProject
                 .getDependencyArtifacts(DefaultReactorProject.adapt(project)).getArtifacts();
         for (ArtifactDescriptor descriptor : dependencies) {
+            if (TychoConstants.CLASSIFIER_SOURCES.equals(descriptor.getClassifier())) {
+                continue;
+            }
             File location = descriptor.fetchArtifact().get();
             if (location.equals(project.getBasedir())) {
                 continue;
