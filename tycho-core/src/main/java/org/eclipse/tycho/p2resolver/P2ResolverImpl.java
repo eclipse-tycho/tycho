@@ -41,7 +41,6 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -74,6 +73,7 @@ import org.eclipse.tycho.p2.publisher.AuthoredIUAction;
 import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.p2tools.copiedfromp2.QueryableArray;
 import org.eclipse.tycho.p2tools.copiedfromp2.Slicer;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
@@ -450,9 +450,15 @@ public class P2ResolverImpl implements P2Resolver {
 
     private static void addArtifactFile(DefaultP2ResolutionResult result, IInstallableUnit iu,
             IArtifactKey p2ArtifactKey, P2TargetPlatform context) {
-        String mavenClassifier = null;
-
+        String mavenClassifier = iu.getProperty("maven-classifier");
+        if (mavenClassifier != null && mavenClassifier.isBlank()) {
+            mavenClassifier = null;
+        }
+        if (mavenClassifier == null) {
+            mavenClassifier = ArtifactTypeHelper.toMavenClassifier(iu);
+        }
         ArtifactKey artifactKey = ArtifactTypeHelper.toTychoArtifactKey(iu, p2ArtifactKey);
+        System.out.println(artifactKey + " : " + mavenClassifier);
         if (artifactKey != null) {
             result.addArtifact(artifactKey, mavenClassifier, iu, p2ArtifactKey);
         }
