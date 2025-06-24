@@ -17,7 +17,9 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.eclipse.core.runtime.CoreException;
@@ -34,10 +36,12 @@ import org.eclipse.pde.internal.core.target.TargetPlatformService;
 
 public class SetTargetPlatform implements Callable<Serializable>, Serializable {
 
-	private boolean debug;
-	private List<String> targetBundles;
+	private final boolean debug;
+	private final List<String> targetBundles;
+	private final Map<String, String> targetProperties;
 
-	SetTargetPlatform(Collection<Path> dependencyBundles, boolean debug) {
+	SetTargetPlatform(Collection<Path> dependencyBundles, Map<String, String> targetProperties, boolean debug) {
+		this.targetProperties = targetProperties;
 		this.debug = debug;
 		this.targetBundles = dependencyBundles.stream().map(EclipseProjectBuild::pathAsString).toList();
 	}
@@ -60,6 +64,10 @@ public class SetTargetPlatform implements Callable<Serializable>, Serializable {
 			}
 		}).filter(Objects::nonNull)//
 				.toArray(TargetBundle[]::new);
+		debug("Target Properties: " + targetProperties);
+		getTargetProperty("osgi.os").ifPresent(target::setOS);
+		getTargetProperty("osgi.ws").ifPresent(target::setWS);
+		getTargetProperty("osgi.arch").ifPresent(target::setArch);
 		target.setTargetLocations(new ITargetLocation[] { new BundleListTargetLocation(bundles) });
 		service.saveTargetDefinition(target);
 		AbstractEclipseBuild.executeWithJobs(new NullProgressMonitor() {
@@ -77,6 +85,10 @@ public class SetTargetPlatform implements Callable<Serializable>, Serializable {
 			}
 		});
 		return null;
+	}
+
+	private Optional<String> getTargetProperty(String key) {
+		return Optional.ofNullable(targetProperties.get(key));
 	}
 
 	private void debug(String string) {
