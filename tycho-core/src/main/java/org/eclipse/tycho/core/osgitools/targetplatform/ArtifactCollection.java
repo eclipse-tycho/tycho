@@ -64,9 +64,14 @@ public abstract class ArtifactCollection implements DependencyArtifacts {
         addArtifact(new DefaultArtifactDescriptor(key, location, null, null, installableUnits));
     }
 
-    public void addArtifactFile(ArtifactKey key, Supplier<File> location,
+    public void addArtifactFile(ArtifactKey key, String classifier, File location,
             Collection<IInstallableUnit> installableUnits) {
-        addArtifact(new DefaultArtifactDescriptor(key, whatever -> location.get(), null, null, installableUnits));
+        addArtifact(new DefaultArtifactDescriptor(key, location, null, classifier, installableUnits));
+    }
+
+    public void addArtifactFile(ArtifactKey key, String classifier, Supplier<File> location,
+            Collection<IInstallableUnit> installableUnits) {
+        addArtifact(new DefaultArtifactDescriptor(key, whatever -> location.get(), null, classifier, installableUnits));
     }
 
     public void addArtifact(ArtifactDescriptor artifact) {
@@ -86,9 +91,12 @@ public abstract class ArtifactCollection implements DependencyArtifacts {
         Collection<IInstallableUnit> artifactIUs = artifact.getInstallableUnits();
         if (original != null) {
             // can't use DefaultArtifactDescriptor.equals because artifact.location is not normalized
-            if (!Objects.equals(original.getClassifier(), artifact.getClassifier())) {
+            String currentClassifier = unifyClassifier(original.getClassifier());
+            String updatedClassifier = unifyClassifier(artifact.getClassifier());
+            if (!Objects.equals(currentClassifier, updatedClassifier)) {
                 throw new IllegalStateException(
-                        "Inconsistent artifact with key " + artifact.getKey() + " classifier is different");
+                        "Inconsistent artifact with key " + artifact.getKey() + " classifier is different (current = "
+                                + currentClassifier + ", updated = " + updatedClassifier + ")");
             }
             if (!Objects.equals(original.getMavenProject(), artifact.getMavenProject())) {
                 throw new IllegalStateException(
@@ -149,6 +157,13 @@ public abstract class ArtifactCollection implements DependencyArtifacts {
                 }, artifact.getMavenProject(), artifact.getClassifier(), units);
 
         artifacts.put(normalizedKey, normalizedArtifact);
+    }
+
+    private static String unifyClassifier(String classifier) {
+        if (classifier != null && classifier.isBlank()) {
+            return null;
+        }
+        return classifier;
     }
 
     private boolean unitSetCompare(Collection<IInstallableUnit> unitsA, Collection<IInstallableUnit> unitsB) {

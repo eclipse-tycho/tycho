@@ -72,8 +72,9 @@ public class TargetPlatformProject extends AbstractTychoProject {
                 for (IInstallableUnit iu : installableUnits) {
                     for (IArtifactKey key : iu.getArtifacts()) {
                         ArtifactKey artifactKey = ArtifactTypeHelper.toTychoArtifactKey(iu, key);
-                        artifacts.addArtifactFile(artifactKey, () -> targetPlatform.getArtifactLocation(artifactKey),
-                                List.of(iu));
+                        String classifier = ArtifactTypeHelper.toMavenClassifier(iu);
+                        artifacts.addArtifactFile(artifactKey, classifier,
+                                () -> targetPlatform.getArtifactLocation(artifactKey), List.of(iu));
                     }
                 }
             }
