@@ -201,7 +201,10 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 
 			if (hasPDENature(eclipseProject)) {
 				if (framework.hasBundle(Bundles.BUNDLE_PDE_CORE)) {
-					framework.execute(new SetTargetPlatform(projectDependencies, debug));
+					Collection<TargetEnvironment> targetEnvironments = projectManager.getBaselineEnvironments(project);
+					Map<String, String> targetEnvironment = targetEnvironments.stream().findFirst()
+							.map(te -> te.toFilterProperties()).orElse(Map.of());
+					framework.execute(new SetTargetPlatform(projectDependencies, targetEnvironment, debug));
 				} else {
 					getLog().info("Skip set Target Platform because " + Bundles.BUNDLE_PDE_CORE
 							+ " is not part of the framework...");
