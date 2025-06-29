@@ -64,9 +64,9 @@ public abstract class ArtifactCollection implements DependencyArtifacts {
         addArtifact(new DefaultArtifactDescriptor(key, location, null, null, installableUnits));
     }
 
-    public void addArtifactFile(ArtifactKey key, Supplier<File> location,
+    public void addArtifactFile(ArtifactKey key, String classifier, Supplier<File> location,
             Collection<IInstallableUnit> installableUnits) {
-        addArtifact(new DefaultArtifactDescriptor(key, whatever -> location.get(), null, null, installableUnits));
+        addArtifact(new DefaultArtifactDescriptor(key, whatever -> location.get(), null, classifier, installableUnits));
     }
 
     public void addArtifact(ArtifactDescriptor artifact) {

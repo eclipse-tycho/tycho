@@ -407,7 +407,8 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
             if (otherProject != null) {
                 platform.addReactorArtifact(key, otherProject, entry.getClassifier(), entry.getInstallableUnits());
             } else {
-                platform.addArtifactFile(key, () -> entry.getLocation(true), entry.getInstallableUnits());
+                platform.addArtifactFile(key, entry.getClassifier(), () -> entry.getLocation(true),
+                        entry.getInstallableUnits());
             }
         }
         for (P2ResolutionResult.Entry entry : result.getDependencyFragments()) {
