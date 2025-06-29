@@ -8,8 +8,10 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.p2tools.copiedfromp2.Repo2Runnable;
 import org.eclipse.tycho.p2tools.copiedfromp2.RepositoryDescriptor;
 
@@ -22,6 +24,8 @@ public class Repo2RunnableMojo extends AbstractMojo {
 
     @Component
     private IProvisioningAgent agent;
+    @Component
+    private Logger logger;
     @Parameter
     private boolean createFragments;
     @Parameter
@@ -50,6 +54,14 @@ public class Repo2RunnableMojo extends AbstractMojo {
             throw new MojoExecutionException("Invalid destination: " + this.destination, e);
         }
         repo2Runnable.addDestination(destination);
+
+        logger.info("Create runnable repository at " + destination.getRepoLocation());
+        logger.info("  from " + source.getRepoLocation());
+        try {
+            repo2Runnable.run(null);
+        } catch (ProvisionException e) {
+            throw new MojoFailureException(e);
+        }
     }
 
 }
