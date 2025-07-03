@@ -45,6 +45,24 @@ import aQute.bnd.osgi.Jar;
 public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
 
     @Test
+    public void testWithEmptyMetaInfServices() throws Exception {
+        ITargetLocation target = resolveMavenTarget(
+                """
+                        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" missingManifest="generate" type="Maven">
+                            <dependencies>
+                                <dependency>
+                                    <groupId>org.apache.qpid</groupId>
+                                    <artifactId>qpid-jms-discovery</artifactId>
+                                    <version>2.7.0</version>
+                                    <type>jar</type>
+                                </dependency>
+                            </dependencies>
+                        </location>
+                        """);
+        assertStatusOk(getTargetStatus(target));
+    }
+
+    @Test
     public void testNonJarArtifactInDependencies() throws Exception {
         ITargetLocation target = resolveMavenTarget(
                 """
