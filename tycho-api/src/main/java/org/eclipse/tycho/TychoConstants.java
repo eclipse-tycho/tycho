@@ -108,6 +108,8 @@ public interface TychoConstants {
 
     String CLASSIFIER_P2_METADATA = "p2metadata";
 
+    String CLASSIFIER_SOURCES = "sources";
+
     String EXTENSION_P2_METADATA = "xml";
 
     /**
