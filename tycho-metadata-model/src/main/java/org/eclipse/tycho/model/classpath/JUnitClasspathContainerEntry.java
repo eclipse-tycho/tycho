@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.model.classpath;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface JUnitClasspathContainerEntry extends ClasspathContainerEntry {
 
@@ -68,6 +68,37 @@ public interface JUnitClasspathContainerEntry extends ClasspathContainerEntry {
     static final JUnitBundle JUNIT_APIGUARDIAN_PLUGIN = JUnitBundle.of("org.apiguardian.api", "[1.0.0,2.0.0)",
             "org.apiguardian", "apiguardian-api");
 
+    static final JUnitBundle OSGI_TEST_COMMON_BUNDLE = JUnitBundle.of("org.osgi.test.common", "[1.3.0,2.0.0)",
+            "org.osgi");
+
+    static final JUnitBundle ASSERTJ_CORE_BUNDLE = JUnitBundle.of("assertj-core", "[3,4)", "org.assertj",
+            "assertj-core");
+
+    static final JUnitBundle BYTE_BUDDY_BUNDLE = JUnitBundle.of("net.bytebuddy.byte-buddy", "[1.12,2)", "net.bytebuddy",
+            "byte-buddy");
+
+    static final JUnitBundle OSGI_TEST_ASSERTJ_FRAMEWORK_BUNDLE = JUnitBundle.of("org.osgi.test.assertj.framework",
+            "[1.3.0,2.0.0)", "org.osgi");
+
+    static final JUnitBundle OSGI_TEST_ASSERTJ_LOG_BUNDLE = JUnitBundle.of("org.osgi.test.assertj.log", "[1.3.0,2.0.0)",
+            "org.osgi");
+
+    static final JUnitBundle OSGI_PROMISE_BUNDLE = JUnitBundle.of("org.osgi.util.promise", "[1.3.0,2.0.0)", "org.osgi");
+
+    static final JUnitBundle OSGI_TEST_ASSERTJ_PROMISE_BUNDLE = JUnitBundle.of("org.osgi.test.assertj.promise",
+            "[1.3.0,2.0.0)", "org.osgi");
+
+    static final JUnitBundle OSGI_TEST_JUNIT5_BUNDLE = JUnitBundle.of("org.osgi.test.junit5", "[1.3.0,2.0.0)",
+            "org.osgi");
+
+    static final JUnitBundle OSGI_CM_BUNDLE = JUnitBundle.of("org.osgi.service.cm", "[1.6.0,2.0.0)", "org.osgi");
+
+    static final JUnitBundle OSGI_TEST_JUNIT5_CM_BUNDLE = JUnitBundle.of("org.osgi.test.junit5.cm", "[1.3.0,2.0.0)",
+            "org.osgi");
+
+    static final JUnitBundle OSGI_TEST_JUNIT4_BUNDLE = JUnitBundle.of("org.osgi.test.junit4", "[1.3.0,2.0.0)",
+            "org.osgi");
+
     static final List<JUnitBundle> JUNIT3_PLUGINS = List.of(JUNIT3_PLUGIN);
     static final List<JUnitBundle> JUNIT4_PLUGINS = List.of(JUNIT4_PLUGIN, HAMCREST_CORE_PLUGIN);
     static final List<JUnitBundle> JUNIT5_PLUGINS = List.of(JUNIT_JUPITER_API_PLUGIN, JUNIT_JUPITER_ENGINE_PLUGIN,
@@ -82,6 +113,15 @@ public interface JUnitClasspathContainerEntry extends ClasspathContainerEntry {
             JUNIT_PLATFORM_RUNNER_PLUGIN, JUNIT_PLATFORM_SUITE_API_PLUGIN, JUNIT_OPENTEST4J_PLUGIN,
             JUNIT_APIGUARDIAN_PLUGIN, HAMCREST_CORE_PLUGIN);
 
+    static final List<JUnitBundle> OSGI_TEST_BUNDLES = List.of(OSGI_TEST_COMMON_BUNDLE, ASSERTJ_CORE_BUNDLE,
+            BYTE_BUDDY_BUNDLE, OSGI_TEST_ASSERTJ_FRAMEWORK_BUNDLE, OSGI_TEST_ASSERTJ_LOG_BUNDLE,
+            OSGI_TEST_ASSERTJ_PROMISE_BUNDLE, OSGI_PROMISE_BUNDLE);
+
+    static final List<JUnitBundle> OSGI_TEST_JUNIT5_BUNDLES = List.of(OSGI_TEST_JUNIT5_BUNDLE, OSGI_CM_BUNDLE,
+            OSGI_TEST_JUNIT5_CM_BUNDLE);
+
+    static final List<JUnitBundle> OSGI_TEST_JUNIT4_BUNDLES = List.of(OSGI_TEST_JUNIT4_BUNDLE);
+
     /**
      * 
      * @return the JUnit part of the path
@@ -92,7 +132,7 @@ public interface JUnitClasspathContainerEntry extends ClasspathContainerEntry {
      * 
      * @return the list of artifacts that are part of this container
      */
-    Collection<JUnitBundle> getArtifacts();
+    Stream<JUnitBundle> getArtifacts();
 
     @Override
     default boolean isTest() {
