@@ -802,7 +802,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             }
         }
 
-        setupTestBundles(testFrameworkBundles, testRuntime);
+        setupTestBundles(testFrameworkBundles, testRuntime, provider);
 
         getReportsDirectory().mkdirs();
         return installationFactory.createInstallation(testRuntime, work);
@@ -850,8 +850,8 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         return testRuntimeArtifacts;
     }
 
-    protected void setupTestBundles(Set<Artifact> testFrameworkBundles, EquinoxInstallationDescription testRuntime)
-            throws MojoExecutionException {
+    protected void setupTestBundles(Set<Artifact> testFrameworkBundles, EquinoxInstallationDescription testRuntime,
+            TestFrameworkProvider provider) throws MojoExecutionException {
         for (Artifact artifact : testFrameworkBundles) {
             File bundleLocation = artifact.getFile();
             ArtifactKey bundleArtifactKey = getBundleArtifactKey(bundleLocation);
