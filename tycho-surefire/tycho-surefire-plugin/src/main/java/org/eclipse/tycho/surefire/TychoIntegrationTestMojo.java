@@ -39,6 +39,7 @@ import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.surefire.provider.impl.AbstractJUnitProvider;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 
 /**
@@ -50,8 +51,8 @@ import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
  * harness bundles. The bundles are resolved from the target platform of the project. Note that the
  * test runtime does typically <em>not</em> contain the entire target platform. If there are
  * implicitly required bundles (e.g. <code>org.apache.felix.scr</code> to make declarative services
- * work), they need to be added manually through an <code>extraRequirements</code> configuration on the
- * <code>target-platform-configuration</code> plugin.
+ * work), they need to be added manually through an <code>extraRequirements</code> configuration on
+ * the <code>target-platform-configuration</code> plugin.
  * </p>
  * <p>
  * This goal adopts the maven-failsafe paradigm, that works in the following way:
@@ -80,6 +81,15 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
 
     @Parameter(property = "tycho.plugin-test.skip")
     private boolean skipITs;
+
+    /**
+     * A fragment with additional packages to import is generated to add those to the test-probe to
+     * account for the requirements of the test-cases. If this property is set to <code>true</code>
+     * they are only imported as optional packages, this can be useful if some of the dependencies
+     * on the test-classpath are not OSGi bundles and are only used internally.
+     */
+    @Parameter(property = "tycho.plugin-test.extraPackagesOptional")
+    private boolean importAdditionalPackagesOptional;
 
     @Parameter(defaultValue = "${project.build.directory}/failsafe-reports/failsafe-summary.xml", required = true)
     private File summaryFile;
@@ -146,13 +156,14 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
 
     @Override
     protected void setupTestBundles(Set<Artifact> testFrameworkBundles,
-            final EquinoxInstallationDescription testRuntime) throws MojoExecutionException {
+            final EquinoxInstallationDescription testRuntime, TestFrameworkProvider provider)
+            throws MojoExecutionException {
         final var dependencies = pluginDescriptor.getPlugin().getDependencies();
 
         if (dependencies.isEmpty()) {
-            super.setupTestBundles(testFrameworkBundles, testRuntime);
+            super.setupTestBundles(testFrameworkBundles, testRuntime, provider);
         } else {
-            super.setupTestBundles(Collections.emptySet(), testRuntime);
+            super.setupTestBundles(Collections.emptySet(), testRuntime, provider);
 
             for (final var dependency : dependencies) {
                 final var resolveArtifact = resolveDependency(dependency);
@@ -169,7 +180,13 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
 
         final var reactorProject = DefaultReactorProject.adapt(project);
         try {
-            createTestPluginJar(reactorProject, IMPORT_PACKAGES_OPTIONAL, null).ifPresent(testPlugin -> {
+            String packageImport = importAdditionalPackagesOptional ? IMPORT_PACKAGES_OPTIONAL
+                    : IMPORT_REQUIRED_PACKAGES;
+            if (provider instanceof AbstractJUnitProvider junit && junit.getVersion().getMajor() == 5) {
+                //JUnit 5 requires some more imports here so we get a consistent class space, but the test-probe itself does not need them at all
+                packageImport += ",org.junit.platform.engine;resolution:=optional,org.junit.platform.engine.reporting;resolution:=optional,org.junit.platform.engine.support.store;resolution:=optional";
+            }
+            createTestPluginJar(reactorProject, packageImport, null).ifPresent(testPlugin -> {
                 testRuntime.addBundle(testPlugin.getId(), testPlugin.getVersion(), testPlugin.getLocation());
                 String bsn = testPlugin.getId();
                 final var testClasspath = osgiBundle.getTestClasspath(reactorProject, false);

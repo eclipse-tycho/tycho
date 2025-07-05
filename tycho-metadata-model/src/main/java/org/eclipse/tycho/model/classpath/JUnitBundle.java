@@ -22,6 +22,10 @@ public interface JUnitBundle {
 
     String getMavenArtifactId();
 
+    static JUnitBundle of(String bundleName, String versionRange, String mavenGroupId) {
+        return of(bundleName, versionRange, mavenGroupId, bundleName);
+    }
+
     static JUnitBundle of(String bundleName, String versionRange, String mavenGroupId, String mavenArtifactId) {
         return new JUnitBundle() {
 
