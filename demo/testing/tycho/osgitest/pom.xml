@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.eclipse.tycho.demo</groupId>
+		<artifactId>tycho-testing-parent</artifactId>
+		<version>1.0.0</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>osgitest</artifactId>
+	<packaging>eclipse-plugin</packaging>
+	<properties>
+		<target-platform>https://download.eclipse.org/eclipse/updates/4.37-I-builds/I20250703-1800</target-platform>
+		<tycho-version>6.0.0-SNAPSHOT</tycho-version>
+	</properties>
+	<repositories>
+		<repository>
+			<id>platform</id>
+			<url>${target-platform}</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+	<build>
+		<plugins>
+			<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<configuration>
+						<failIfNoTests>true</failIfNoTests>
+						<printBundles>true</printBundles>
+						<showEclipseLog>true</showEclipseLog> 
+					</configuration>
+					<executions>
+						<execution>
+							<id>execute-integration-tests</id>
+							<goals>
+								<goal>plugin-test</goal>
+								<goal>verify</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+		</plugins>
+	</build>
+</project>

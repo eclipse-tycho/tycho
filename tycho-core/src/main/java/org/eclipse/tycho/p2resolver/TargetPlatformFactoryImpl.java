@@ -350,7 +350,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                         for (ProjectClasspathEntry entry : entries) {
                             if (entry instanceof JUnitClasspathContainerEntry junit) {
                                 IQueryable<IInstallableUnit> queriable = new QueryableArray(externalUIs, false);
-                                Collection<JUnitBundle> artifacts = junit.getArtifacts();
+                                Collection<JUnitBundle> artifacts = junit.getArtifacts().toList();
                                 for (JUnitBundle bundle : artifacts) {
                                     MavenArtifactKey maven = ClasspathReader.toMaven(bundle);
                                     VersionRange range = new VersionRange(maven.getVersion());

@@ -223,7 +223,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             if (cpe instanceof JUnitClasspathContainerEntry junit) {
                 logger.info("Resolving JUnit " + junit.getJUnitSegment() + " classpath container");
 
-                for (JUnitBundle junitBundle : junit.getArtifacts()) {
+                for (JUnitBundle junitBundle : junit.getArtifacts().toList()) {
                     Optional<ResolvedArtifactKey> mavenBundle = mavenBundleResolver.resolveMavenBundle(
                             reactorProject.adapt(MavenProject.class), reactorProject.adapt(MavenSession.class),
                             ClasspathReader.toMaven(junitBundle));
@@ -630,7 +630,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         Collection<ProjectClasspathEntry> entries = getEclipsePluginProject(project).getClasspathEntries();
         for (ProjectClasspathEntry cpe : entries) {
             if (cpe instanceof JUnitClasspathContainerEntry junitEntry) {
-                list.addAll(ClasspathReader.asMaven(junitEntry.getArtifacts()));
+                list.addAll(ClasspathReader.asMaven(junitEntry.getArtifacts().toList()));
             }
         }
         return list;
