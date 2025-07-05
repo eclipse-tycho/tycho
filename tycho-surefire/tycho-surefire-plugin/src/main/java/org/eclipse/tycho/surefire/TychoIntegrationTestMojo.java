@@ -50,8 +50,8 @@ import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
  * harness bundles. The bundles are resolved from the target platform of the project. Note that the
  * test runtime does typically <em>not</em> contain the entire target platform. If there are
  * implicitly required bundles (e.g. <code>org.apache.felix.scr</code> to make declarative services
- * work), they need to be added manually through an <code>extraRequirements</code> configuration on the
- * <code>target-platform-configuration</code> plugin.
+ * work), they need to be added manually through an <code>extraRequirements</code> configuration on
+ * the <code>target-platform-configuration</code> plugin.
  * </p>
  * <p>
  * This goal adopts the maven-failsafe paradigm, that works in the following way:
@@ -169,7 +169,9 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
 
         final var reactorProject = DefaultReactorProject.adapt(project);
         try {
-            createTestPluginJar(reactorProject, IMPORT_PACKAGES_OPTIONAL, null).ifPresent(testPlugin -> {
+            String packageImport = "org.junit.platform.engine;resolution:=optional,org.junit.platform.engine.reporting;resolution:=optional,org.junit.platform.engine.support.store;resolution:=optional,"
+                    + IMPORT_PACKAGES_OPTIONAL;
+            createTestPluginJar(reactorProject, packageImport, null).ifPresent(testPlugin -> {
                 testRuntime.addBundle(testPlugin.getId(), testPlugin.getVersion(), testPlugin.getLocation());
                 String bsn = testPlugin.getId();
                 final var testClasspath = osgiBundle.getTestClasspath(reactorProject, false);

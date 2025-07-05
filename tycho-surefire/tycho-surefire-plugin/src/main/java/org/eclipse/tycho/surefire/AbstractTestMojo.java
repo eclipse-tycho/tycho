@@ -19,6 +19,7 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -316,8 +317,6 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      * <ol>
      * <li>any 'additional bundle', even though this is not really meant to be used that way, is
      * added as an optional dependency</li>
-     * <li>a <code>DynamicImport-Package: *</code> is added to allow dynamic classloading from the
-     * bundle classpath</li>
      * <li>computes package imports based on the generated test classes and add them as optional
      * imports, so that any class is consumed from the OSGi runtime before the inner classes are
      * searched</li>
@@ -386,6 +385,13 @@ public abstract class AbstractTestMojo extends AbstractMojo {
 
             analyzer.addClasspath(mainArtifact);
             Manifest manifest = analyzer.calcManifest();
+            if (printBundles) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                manifest.write(out);
+                System.out.println("---------- Test Bundle Fragment Manifest ---------");
+                System.out.println(new String(out.toByteArray()));
+                System.out.println("--------------------------------------------------");
+            }
             jar.setManifest(manifest);
             jar.write(fragmentFile);
             result = ResolvedArtifactKey.of(ArtifactType.TYPE_ECLIPSE_PLUGIN, fragmentId, hostVersion, fragmentFile);

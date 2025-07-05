@@ -214,19 +214,22 @@ public class ClasspathParser {
         }
 
         @Override
-        public Collection<JUnitBundle> getArtifacts() {
+        public Stream<JUnitBundle> getArtifacts() {
             if (JUNIT3.equals(junit)) {
-                return JUNIT3_PLUGINS;
+                return JUNIT3_PLUGINS.stream();
             } else if (JUNIT4.equals(junit)) {
-                return JUNIT4_PLUGINS;
+                return Stream.concat(JUNIT4_PLUGINS.stream(),
+                        Stream.concat(OSGI_TEST_BUNDLES.stream(), OSGI_TEST_JUNIT4_BUNDLES.stream()));
             } else if (JUNIT5.equals(junit)) {
                 if (isVintage()) {
-                    return JUNIT5_PLUGINS;
+                    return Stream.concat(JUNIT5_PLUGINS.stream(),
+                            Stream.concat(OSGI_TEST_BUNDLES.stream(), OSGI_TEST_JUNIT5_BUNDLES.stream()));
                 } else {
-                    return JUNIT5_WITHOUT_VINTAGE_PLUGINS;
+                    return Stream.concat(JUNIT5_WITHOUT_VINTAGE_PLUGINS.stream(),
+                            Stream.concat(OSGI_TEST_BUNDLES.stream(), OSGI_TEST_JUNIT5_BUNDLES.stream()));
                 }
             }
-            return Collections.emptyList();
+            return Stream.empty();
         }
 
         @Override
