@@ -33,6 +33,13 @@ This also revealed that TestNG itself has some major flaws and only works in an 
 **Because of this TestNG is deprecated** and will be removed in a future version unless someone express interest in TestNG and helps improving
 it so we can upgrade to later versions.
 
+## Support for PDE OSGi Testframework integration
+
+PDE recently added [support for OSGi Testframework](https://eclipse.dev/eclipse/markdown/?f=news/4.37/pde.md#osgi-test-framework-support),
+Tycho can now build such projects as well using the [tycho-surefire:plugin-test](https://tycho.eclipseprojects.io/doc/latest/tycho-surefire-plugin/plugin-test-mojo.html) goal.
+
+A demo can be found [here](https://github.com/eclipse-tycho/tycho/tree/main/demo/testing/tycho/osgitest).
+
 ## Support for implicit dependencies in target definitions
 
 In target definitions Tycho now supports to use the `<implicitDependencies>`, 
