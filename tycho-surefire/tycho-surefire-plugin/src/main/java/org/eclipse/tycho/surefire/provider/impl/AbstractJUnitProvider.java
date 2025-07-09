@@ -27,8 +27,6 @@ import org.osgi.framework.VersionRange;
 
 public abstract class AbstractJUnitProvider implements TestFrameworkProvider {
 
-    private Version version;
-
     public AbstractJUnitProvider() {
     }
 

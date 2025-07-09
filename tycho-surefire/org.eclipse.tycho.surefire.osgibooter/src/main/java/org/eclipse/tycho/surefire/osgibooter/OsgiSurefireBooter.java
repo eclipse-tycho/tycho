@@ -138,7 +138,6 @@ public class OsgiSurefireBooter {
     public static int invokeSureFire(String[] args, Properties testProps) throws Exception {
         boolean redirectTestOutputToFile = Boolean
                 .parseBoolean(testProps.getProperty("redirectTestOutputToFile", "false"));
-        String testPlugin = testProps.getProperty("testpluginname");
         File testClassesDir = new File(testProps.getProperty("testclassesdirectory"));
         File reportsDir = new File(testProps.getProperty("reportsdirectory"));
         String provider = testProps.getProperty("testprovider");

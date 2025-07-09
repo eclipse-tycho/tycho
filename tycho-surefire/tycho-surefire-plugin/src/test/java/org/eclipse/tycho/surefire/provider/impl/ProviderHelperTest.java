@@ -38,11 +38,6 @@ import org.osgi.framework.VersionRange;
 
 public class ProviderHelperTest extends TychoPlexusTestCase {
 
-    private static final String TYCHO_GROUPID = "org.eclipse.tycho";
-    private static final String JUNIT3_FRAGMENT = "org.eclipse.tycho.surefire.junit";
-    private static final String JUNIT4_FRAGMENT = "org.eclipse.tycho.surefire.junit4";
-    private static final String BOOTER_ARTIFACTID = "org.eclipse.tycho.surefire.osgibooter";
-
     private ProviderHelper providerHelper;
 
     @Before
@@ -151,22 +146,6 @@ public class ProviderHelperTest extends TychoPlexusTestCase {
                 createMockArtifact("foo", "bar", new File("src/test/resources/org.junit_3.8.2.v20090203-1005"))));
         assertEquals(1, symbolicNames.size());
         assertEquals("org.junit", symbolicNames.get(0));
-    }
-
-    private org.apache.maven.artifact.Artifact junit3Artifact() {
-        return createMockArtifact(TYCHO_GROUPID, JUNIT3_FRAGMENT);
-    }
-
-    private org.apache.maven.artifact.Artifact junit4Artifact() {
-        return createMockArtifact(TYCHO_GROUPID, JUNIT4_FRAGMENT);
-    }
-
-    private org.apache.maven.artifact.Artifact booterArtifact() {
-        return createMockArtifact(TYCHO_GROUPID, BOOTER_ARTIFACTID);
-    }
-
-    private org.apache.maven.artifact.Artifact createMockArtifact(String groupId, String artifactId) {
-        return createMockArtifact(groupId, artifactId, null);
     }
 
     private org.apache.maven.artifact.Artifact createMockArtifact(String groupId, String artifactId, File file) {
