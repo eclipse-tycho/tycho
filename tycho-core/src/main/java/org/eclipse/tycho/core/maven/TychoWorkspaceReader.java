@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 Christoph Läubrich and others.
+ * Copyright (c) 2022, 2025 Christoph Läubrich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,20 +26,16 @@ import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.internal.MavenWorkspaceReader;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.LocalRepository;
-import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
 @Named("TychoWorkspaceReader")
@@ -164,9 +160,8 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
     private boolean isArtifactMatch(final ArtifactKey artifactKey, final Artifact artifact) {
         final String groupId = artifact.getGroupId();
         final String type = groupId.substring(TychoConstants.P2_GROUPID_PREFIX.length()).replace('.', '-');
-        return artifactKey.getType().equals(type) &&
-                artifactKey.getId().equals(artifact.getArtifactId()) &&
-                artifactKey.getVersion().equals(artifact.getVersion());
+        return artifactKey.getType().equals(type) && artifactKey.getId().equals(artifact.getArtifactId())
+                && artifactKey.getVersion().equals(artifact.getVersion());
     }
 
     private File findMavenArtifact(@SuppressWarnings("unused") final Artifact artifact) {
@@ -183,16 +178,8 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
         final RepositorySystemSession repositorySession = legacySupport.getRepositorySession();
         final LocalRepository localRepository = repositorySession.getLocalRepository();
         final File basedir = localRepository.getBasedir();
-        final String repositoryPath = "p2/osgi/bundle/" +
-                artifact.getArtifactId() +
-                "/" +
-                artifact.getVersion() +
-                "/" +
-                artifact.getArtifactId() +
-                "-" +
-                artifact.getVersion() +
-                "." +
-                artifact.getExtension();
+        final String repositoryPath = "p2/osgi/bundle/" + artifact.getArtifactId() + "/" + artifact.getVersion() + "/"
+                + artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getExtension();
 
         return new File(basedir, repositoryPath);
     }
