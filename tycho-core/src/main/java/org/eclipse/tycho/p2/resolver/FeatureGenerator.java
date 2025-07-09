@@ -61,7 +61,6 @@ public class FeatureGenerator {
     private static final String ELEMENT_FEATURE = "feature";
     private static final String ELEMENT_PLUGIN = "plugin";
     private static final String ATTR_UNPACK = "unpack";
-    private static final String ATTR_FRAGMENT = "fragment";
     private static final String ATTR_VERSION = "version";
     private static final String ATTR_URL = "url";
     private static final String ATTR_ID = "id";
