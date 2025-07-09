@@ -1552,18 +1552,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
         return timestampToRevertTo;
     }
 
-    /**
-     * Sets a system property, using the EnvironmentInfo service if possible.
-     */
-    private void setSystemProperty(String key, String value) {
-        EnvironmentInfo env = ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class);
-        if (env != null) {
-            env.setProperty(key, value);
-        } else {
-            System.getProperties().put(key, value);
-        }
-    }
-
     IQueryResult<IInstallableUnit> getInstallableUnits(URI location, IQuery<IInstallableUnit> query,
             IProgressMonitor monitor) {
         IQueryable<IInstallableUnit> queryable = null;
