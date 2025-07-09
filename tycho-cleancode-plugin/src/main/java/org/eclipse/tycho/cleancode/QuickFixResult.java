@@ -26,7 +26,6 @@ public class QuickFixResult extends EclipseBuildResult {
 
 	private Set<String> tried = new HashSet<String>();
 	private List<String> fixed = new ArrayList<>();
-	private int markers;
 
 	public Stream<String> fixes() {
 		return fixed.stream();
