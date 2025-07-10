@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -33,7 +32,6 @@ public class ClassMethods {
 	private List<ClassDef> classDefs = new ArrayList<>();
 	private List<ClassMethodSignature> signatures = new ArrayList<>();
 	private Function<String, Optional<ClassMethods>> supplier;
-	private Set<MethodSignature> collect;
 
 	public ClassMethods(byte[] classbytes, Function<String, Optional<ClassMethods>> supplier) {
 		this.supplier = supplier;

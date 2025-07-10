@@ -69,14 +69,6 @@ public class PluginConfigurationHelper {
         return new PluginParameterExpressionEvaluator(mavenSession, execution);
     }
 
-    private MavenProject getProject() {
-        MavenSession session = legacySupport.getSession();
-        if (session != null) {
-            return session.getCurrentProject();
-        }
-        return null;
-    }
-
     public Configuration getConfiguration(Xpp3Dom configuration) {
         return new Configuration(configuration, getEvaluator(legacySupport.getSession(), null));
     }
