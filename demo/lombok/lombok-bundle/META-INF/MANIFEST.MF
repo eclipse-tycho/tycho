@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Lombok-bundle
+Bundle-SymbolicName: lombok-bundle
+Bundle-Version: 1.0.0.qualifier
+Import-Package: jakarta.validation;version="[3.1.0,4.0.0)",
+ jakarta.validation.constraints;version="[3.1.0,4.0.0)",
+ jakarta.xml.bind;version="[4.0.0,5.0.0)",
+ jakarta.xml.bind.annotation;version="[4.0.0,5.0.0)",
+ org.slf4j;version="2.0.16"
+Automatic-Module-Name: lombok.bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-21

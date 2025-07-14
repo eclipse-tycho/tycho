@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="lombok">
+	<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<unit id="org.eclipse.equinox.executable.feature.group"/>
+			<unit id="org.eclipse.sdk.feature.group"/>
+			<repository location="https://download.eclipse.org/releases/2025-03"/>
+		</location>
+		<location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Project Lombok" missingManifest="generate" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok</artifactId>
+					<version>1.18.38</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+			<instructions><![CDATA[
+				Bundle-Name:		   Project Lombok API
+				Bundle-SymbolicName:   lombok-api
+				Bundle-Version:		${version_cleanup;${mvnVersion}}
+				Import-Package:     !*
+				Export-Package:		lombok
+			]]></instructions>
+		</location>
+		<location includeDependencyDepth="none" includeSource="true" missingManifest="error" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>jakarta.xml.bind</groupId>
+					<artifactId>jakarta.xml.bind-api</artifactId>
+					<version>4.0.2</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</location>
+		<location includeDependencyDepth="none" includeSource="true" missingManifest="error" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>jakarta.validation</groupId>
+					<artifactId>jakarta.validation-api</artifactId>
+					<version>3.1.1</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</location>
+	</locations>
+	<!-- TODO this dies currently fails in the IDE!
+	    See https://github.com/eclipse-pde/eclipse.pde/pull/1869
+		<implicitDependencies>
+			<plugin id="lombok-api"/>
+		</implicitDependencies>
+	 -->
+</target>

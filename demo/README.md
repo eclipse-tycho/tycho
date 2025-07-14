@@ -8,6 +8,7 @@ Sample projects demonstrating how to use Tycho.
 * `itp04-rcp/`: [Trivial cross-platform RCP product application with root files which can be updated by means of p2](https://wiki.eclipse.org/Tycho/Demo_Projects/RCP_Application)  
 * `testing`: Demonstrate different ways to test Bundles/Plugins with Tycho see https://tycho.eclipseprojects.io/doc/master/TestingBundles.html for more details.
 * `pde-automatic-manifest`: Demonstrate the combination of classical PDE project layouts with project layouts that use automatic MANIFEST generation to build an Eclipse based product.
+* `lombok`: Demonstrate how to use [Project Lombok](https://projectlombok.org/) with Tycho.
 
 Each demo project (except itp02) can be built by executing:
 
