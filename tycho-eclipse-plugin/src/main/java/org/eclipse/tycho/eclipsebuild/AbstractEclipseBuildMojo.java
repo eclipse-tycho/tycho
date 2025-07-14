@@ -129,12 +129,18 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 
 	@Override
 	public final void execute() throws MojoExecutionException, MojoFailureException {
+		if (projectManager.getTychoProject(project).isEmpty()) {
+			getLog().info("Skipping, not a Tycho project!");
+			return;
+		}
 		Optional<EclipseProject> eclipseProjectValue = projectManager.getEclipseProject(project);
 		if (eclipseProjectValue.isEmpty()) {
+			getLog().info("Skipping, not an Eclipse project!");
 			return;
 		}
 		EclipseProject eclipseProject = eclipseProjectValue.get();
 		if (!isValid(eclipseProject)) {
+			getLog().info("Skipping, not a valid project type for this mojo!");
 			return;
 		}
 		Collection<Path> projectDependencies;
