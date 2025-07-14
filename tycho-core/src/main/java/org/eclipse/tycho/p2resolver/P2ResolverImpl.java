@@ -458,7 +458,6 @@ public class P2ResolverImpl implements P2Resolver {
             mavenClassifier = ArtifactTypeHelper.toMavenClassifier(iu);
         }
         ArtifactKey artifactKey = ArtifactTypeHelper.toTychoArtifactKey(iu, p2ArtifactKey);
-        System.out.println(artifactKey + " : " + mavenClassifier);
         if (artifactKey != null) {
             result.addArtifact(artifactKey, mavenClassifier, iu, p2ArtifactKey);
         }
