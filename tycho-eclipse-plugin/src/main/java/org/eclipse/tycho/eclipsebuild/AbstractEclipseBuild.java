@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
@@ -48,14 +49,41 @@ public abstract class AbstractEclipseBuild<Result extends EclipseBuildResult>
 		deleteAllProjects();
 		IProject project = importProject();
 		project.build(IncrementalProjectBuilder.CLEAN_BUILD, this);
-		buildProject(project);
-		Result result = createResult(project);
-		for (IMarker marker : project.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)) {
-			result.addMarker(marker);
-			debug(marker.toString());
+		try {
+			buildProject(project);
+			Result result = createResult(project);
+			for (IMarker marker : project.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)) {
+				result.addMarker(marker);
+				debug(marker.toString());
+			}
+			return result;
+		} catch (CoreException e) {
+			printStatus(e.getStatus());
+			throw e;
+		} finally {
+			ResourcesPlugin.getWorkspace().save(true, this);
 		}
-		ResourcesPlugin.getWorkspace().save(true, this);
-		return result;
+	}
+
+	protected void printStatus(IStatus status) {
+		printStatus(status, 0);
+	}
+
+	private void printStatus(IStatus status, int indent) {
+		if (debug) {
+			String prefix = " ".repeat(indent);
+			debug(prefix + status.getPlugin() + ": " + status.getMessage());
+			Throwable exception = status.getException();
+			if (exception != null) {
+				StringWriter stringWriter = new StringWriter();
+				exception.printStackTrace(new PrintWriter(stringWriter));
+				stringWriter.toString().lines().forEach(v -> debug(prefix + v));
+			}
+			for (IStatus child : status.getChildren()) {
+				printStatus(child, indent + 1);
+			}
+		}
+
 	}
 
 	protected void buildProject(IProject project) throws CoreException {
