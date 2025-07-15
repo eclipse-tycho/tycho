@@ -217,25 +217,30 @@ public class EclipseApplication {
             String location = bundleFile.toUri().toString();
             Bundle bundle = systemBundleContext.getBundle(location);
             if (bundle == null) {
-                //not installed yet...
-                if (Files.isDirectory(bundleFile)) {
-                    bundle = systemBundleContext.installBundle(location);
-                } else if (isDirectoryBundly(bundleFile)) {
-                    Path explodePath = workspace.getWorkDir().resolve("exploded").resolve(bundleFile.getFileName());
-                    try {
-                        Files.createDirectories(explodePath);
-                        ZipUnArchiver unArchiver = new ZipUnArchiver(bundleFile.toFile());
-                        unArchiver.setDestDirectory(explodePath.toFile());
-                        unArchiver.extract();
-                    } catch (IOException e) {
-                        throw new BundleException("can't explode bundle " + bundleFile, e);
-                    }
-                    bundle = systemBundleContext.installBundle(explodePath.toUri().toASCIIString());
+                String swt = connector.loadSWT(bundleFile);
+                if (swt != null) {
+                    bundle = systemBundleContext.installBundle(swt);
                 } else {
-                    try (InputStream stream = Files.newInputStream(bundleFile)) {
-                        bundle = systemBundleContext.installBundle(location, stream);
-                    } catch (IOException e) {
-                        throw new BundleException("can't read bundle " + bundleFile, e);
+                    //not installed yet...
+                    if (Files.isDirectory(bundleFile)) {
+                        bundle = systemBundleContext.installBundle(location);
+                    } else if (isDirectoryBundle(bundleFile)) {
+                        Path explodePath = workspace.getWorkDir().resolve("exploded").resolve(bundleFile.getFileName());
+                        try {
+                            Files.createDirectories(explodePath);
+                            ZipUnArchiver unArchiver = new ZipUnArchiver(bundleFile.toFile());
+                            unArchiver.setDestDirectory(explodePath.toFile());
+                            unArchiver.extract();
+                        } catch (IOException e) {
+                            throw new BundleException("can't explode bundle " + bundleFile, e);
+                        }
+                        bundle = systemBundleContext.installBundle(explodePath.toUri().toASCIIString());
+                    } else {
+                        try (InputStream stream = Files.newInputStream(bundleFile)) {
+                            bundle = systemBundleContext.installBundle(location, stream);
+                        } catch (IOException e) {
+                            throw new BundleException("can't read bundle " + bundleFile, e);
+                        }
                     }
                 }
             }
@@ -248,7 +253,7 @@ public class EclipseApplication {
         return new EclipseFramework(framework, configuration, this, connector);
     }
 
-    private boolean isDirectoryBundly(Path bundleFile) {
+    private boolean isDirectoryBundle(Path bundleFile) {
         try (JarFile jarFile = new JarFile(bundleFile.toFile())) {
             return "dir".equals(jarFile.getManifest().getMainAttributes().getValue("Eclipse-BundleShape"));
         } catch (IOException e1) {
@@ -257,31 +262,26 @@ public class EclipseApplication {
     }
 
     private void setupLogging(BundleContext bundleContext) {
-        LogListener logListener = new LogListener() {
-
-            @Override
-            public void logged(LogEntry entry) {
-                if (!loggingFilter.test(entry) && !logger.isDebugEnabled()) {
-                    return;
-                }
-                switch (entry.getLogLevel()) {
-                case AUDIT:
-                case ERROR:
-                    logger.error(entry.getMessage(), entry.getException());
-                    break;
-                case WARN:
-                    logger.warn(entry.getMessage(), entry.getException());
-                    break;
-                case INFO:
-                    logger.info(entry.getMessage(), entry.getException());
-                    break;
-                case TRACE:
-                case DEBUG:
-                    logger.debug(entry.getMessage(), entry.getException());
-                    break;
-                }
+        LogListener logListener = entry -> {
+            if (!loggingFilter.test(entry) && !logger.isDebugEnabled()) {
+                return;
             }
-
+            switch (entry.getLogLevel()) {
+            case AUDIT:
+            case ERROR:
+                logger.error(entry.getMessage(), entry.getException());
+                break;
+            case WARN:
+                logger.warn(entry.getMessage(), entry.getException());
+                break;
+            case INFO:
+                logger.info(entry.getMessage(), entry.getException());
+                break;
+            case TRACE:
+            case DEBUG:
+                logger.debug(entry.getMessage(), entry.getException());
+                break;
+            }
         };
         ServiceTracker<LogReaderService, LogReaderService> serviceTracker = new ServiceTracker<>(bundleContext,
                 LogReaderService.class, new ServiceTrackerCustomizer<>() {

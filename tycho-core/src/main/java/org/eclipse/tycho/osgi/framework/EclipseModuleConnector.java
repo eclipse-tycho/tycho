@@ -15,18 +15,24 @@ package org.eclipse.tycho.osgi.framework;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -46,6 +52,8 @@ import aQute.bnd.osgi.Constants;
  * This module connector currently do nothing else as replicate a default OSGi-Framework behavior
  */
 class EclipseModuleConnector implements ModuleConnector {
+
+    private static final SwtClassLoader SWT_CLASS_LOADER = new SwtClassLoader();
 
     private Map<String, ConnectModule> modules = new ConcurrentHashMap<>();
 
@@ -104,6 +112,42 @@ class EclipseModuleConnector implements ModuleConnector {
         modules.remove(id);
     }
 
+    public String loadSWT(Path bundleFile) {
+        if (bundleFile.getFileName().toString().contains("org.eclipse.swt")) {
+            return loadGlobalSWT(bundleFile);
+        }
+        return null;
+    }
+
+    private String loadGlobalSWT(Path bundleFile) {
+        try (JarFile jarFile = new JarFile(bundleFile.toFile())) {
+            Attributes attributes = jarFile.getManifest().getMainAttributes();
+            String bsn = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME).split(";")[0];
+            if ("org.eclipse.swt".equals(bsn)) {
+                return createSingleSwtBundleLoader(bundleFile, bsn);
+            } else {
+                String value = attributes.getValue(Constants.FRAGMENT_HOST);
+                if (value != null) {
+                    String host = value.split(";")[0];
+                    if ("org.eclipse.swt".equals(host)) {
+                        return createSingleSwtBundleLoader(bundleFile, bsn);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    private String createSingleSwtBundleLoader(Path bundleFile, String bsn) {
+        //TODO actually we would need one bundle per SWT version that has an own binary... but for this we would need the fragment names now...
+        //even better we would simply replace them by a headless fragment see
+        // https://github.com/eclipse-platform/eclipse.platform.swt/issues/1750
+        modules.put(bsn, new SwtBundle(bundleFile));
+        return bsn;
+    }
+
     static URI getLocationFromClass(Class<?> clazz) {
         ProtectionDomain domain = clazz.getProtectionDomain();
         if (domain == null) {
@@ -124,20 +168,52 @@ class EclipseModuleConnector implements ModuleConnector {
         }
     }
 
-    private static final class TempBundle implements ConnectModule, ConnectContent {
+    private static final class SwtBundle extends ZipBundle {
 
-        private JarFile jarFile;
-        private final File location;
-        private Map<String, String> header;
-
-        public TempBundle(File location, Map<String, String> header) {
-            this.location = location;
-            this.header = header;
+        public SwtBundle(Path location) {
+            super(location.toFile());
+            SWT_CLASS_LOADER.addURL(location);
         }
 
         @Override
-        public ConnectContent getContent() throws IOException {
-            return this;
+        public Optional<Map<String, String>> getHeaders() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<ClassLoader> getClassLoader() {
+            return Optional.of(SWT_CLASS_LOADER);
+        }
+
+    }
+
+    private static final class SwtClassLoader extends URLClassLoader {
+
+        private Set<String> added = new HashSet<>();
+
+        public SwtClassLoader() {
+            super(new URL[] {}, null);
+        }
+
+        public synchronized void addURL(Path path) {
+            if (added.add(path.toAbsolutePath().toString())) {
+                try {
+                    super.addURL(path.toFile().toURI().toURL());
+                } catch (MalformedURLException e) {
+                    System.err.println("Can't add path " + path + ": " + e);
+                }
+            }
+        }
+
+    }
+
+    private static final class TempBundle extends ZipBundle {
+
+        private Map<String, String> header;
+
+        public TempBundle(File location, Map<String, String> header) {
+            super(location);
+            this.header = header;
         }
 
         @Override
@@ -148,6 +224,22 @@ class EclipseModuleConnector implements ModuleConnector {
         @Override
         public Optional<ClassLoader> getClassLoader() {
             return Optional.empty();
+        }
+
+    }
+
+    private static abstract class ZipBundle implements ConnectModule, ConnectContent {
+
+        private JarFile jarFile;
+        private final File location;
+
+        public ZipBundle(File location) {
+            this.location = location;
+        }
+
+        @Override
+        public ConnectContent getContent() throws IOException {
+            return this;
         }
 
         @Override
