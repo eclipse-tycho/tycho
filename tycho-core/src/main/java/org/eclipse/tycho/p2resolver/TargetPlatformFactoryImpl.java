@@ -64,6 +64,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.IArtifactFacade;
@@ -332,12 +333,16 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         if (projectManager == null) {
             return DEFAULT_P2_ADVICE_VERSION;
         }
+        Optional<String> version = Optional.empty();
         try {
-            return projectManager.getArtifactKey(reactorProject).map(key -> Version.parseVersion(key.getVersion()))
-                    .orElseGet(() -> DEFAULT_P2_ADVICE_VERSION);
-        } catch (IllegalArgumentException ex) {
-            return DEFAULT_P2_ADVICE_VERSION;
+            version = Optional.of(reactorProject.getExpandedVersion());
+        } catch (Exception e) {
+            try {
+                version = projectManager.getArtifactKey(reactorProject).map(ArtifactKey::getVersion);
+            } catch (IllegalArgumentException ex) {
+            }
         }
+        return version.map(Version::parseVersion).orElse(DEFAULT_P2_ADVICE_VERSION);
     }
 
     private List<MavenArtifactKey> getMissingJunitBundles(ReactorProject project, Set<IInstallableUnit> externalUIs) {
