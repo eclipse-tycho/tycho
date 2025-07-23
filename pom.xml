@@ -74,7 +74,7 @@
 		<ecjVersion>3.42.0</ecjVersion>
 		<bouncycastleVersion>1.81</bouncycastleVersion>
 		<bnd.version>7.1.0</bnd.version>
-		<junit5.minor>13.3</junit5.minor>
+		<junit5.minor>13.4</junit5.minor>
 		<junit5.version>5.${junit5.minor}</junit5.version>
 		<junit5.platform.version>1.${junit5.minor}</junit5.platform.version>
 	    <!-- these are referenced from src/main/resources/META-INF/plexus/components.xml -->
