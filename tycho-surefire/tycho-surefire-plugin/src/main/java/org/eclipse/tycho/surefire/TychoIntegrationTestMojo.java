@@ -28,6 +28,7 @@ import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -108,6 +109,9 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
 
     @Parameter(defaultValue = "${localRepository}", required = true, readonly = true)
     private ArtifactRepository localRepository;
+
+    @Component
+    protected org.apache.maven.repository.RepositorySystem oldRepositorySystem;
 
     /**
      * Configures the packaging type where this mojos applies
@@ -218,7 +222,7 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
     }
 
     private ArtifactResolutionResult resolveDependency(final Dependency dependency) {
-        final var artifact = repositorySystem.createDependencyArtifact(dependency);
+        final var artifact = oldRepositorySystem.createDependencyArtifact(dependency);
         final var remoteRepositories = new ArrayList<ArtifactRepository>(32);
         remoteRepositories.addAll(pluginRemoteRepositories);
         remoteRepositories.addAll(projectRemoteRepositories);
@@ -230,7 +234,7 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
                 .setResolveTransitively(true)//
                 .setCollectionFilter(new ProviderDependencyArtifactFilter())//
                 .setRemoteRepositories(remoteRepositories);
-        return repositorySystem.resolve(request);
+        return oldRepositorySystem.resolve(request);
     }
 
     private static final class ProviderDependencyArtifactFilter implements ArtifactFilter {
