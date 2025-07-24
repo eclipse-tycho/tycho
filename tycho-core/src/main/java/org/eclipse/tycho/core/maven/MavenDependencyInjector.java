@@ -117,6 +117,10 @@ public final class MavenDependencyInjector {
         MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, descriptorMapping,
                 logger);
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
+            if (TychoConstants.CLASSIFIER_SOURCES.equals(artifact.getClassifier())) {
+                //there is no need to struggle with source when we inject dependencies
+                continue;
+            }
             generator.addDependency(artifact, Artifact.SCOPE_COMPILE);
         }
         if (testDependencies != null) {
