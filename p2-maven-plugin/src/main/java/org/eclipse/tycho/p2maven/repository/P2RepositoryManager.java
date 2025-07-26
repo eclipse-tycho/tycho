@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022, 2024 Christoph Läubrich and others.
+ * Copyright (c) 2022, 2025 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,27 +17,38 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.model.Repository;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.helper.MavenPropertyHelper;
+import org.eclipse.tycho.helper.StatusTool;
 import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
 import org.eclipse.tycho.p2maven.ListQueryable;
 import org.eclipse.tycho.p2maven.LoggerProgressMonitor;
@@ -84,8 +95,7 @@ public class P2RepositoryManager {
 	 * @return the {@link IArtifactRepository} for the given {@link Repository}
 	 * @throws ProvisionException if loading the repository failed
 	 */
-	public IArtifactRepository getArtifactRepository(MavenRepositoryLocation repository)
-			throws ProvisionException {
+	public IArtifactRepository getArtifactRepository(MavenRepositoryLocation repository) throws ProvisionException {
 		return getArtifactRepository(repository.getURL(), repository.getId());
 	}
 
@@ -99,6 +109,39 @@ public class P2RepositoryManager {
 			childs.add(getArtifactRepository(repository));
 		}
 		return new ListCompositeArtifactRepository(childs, agent);
+	}
+
+	public IArtifactRepository createLocalArtifactRepository(Path location, String name, Map<String, String> properties)
+			throws ProvisionException {
+		ArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
+		factory.setAgent(agent);
+		return factory.create(location.toUri(), name, null, properties);
+	}
+
+	/**
+	 * Creates a local mirror only of the <b>data</b> of the given
+	 * {@link IMetadataRepository}, i.e. its {@code artifacts.xml/jar/xml.xz} files.
+	 */
+	public IArtifactRepository mirrorArtifactRepositoryData(IArtifactRepository repository, Path targetLocation) {
+		try {
+			IArtifactRepository mirror = createLocalArtifactRepository(targetLocation, repository.getName(),
+					repository.getProperties());
+			IStatus result = mirror.executeBatch(m -> {
+				// Copy artifacts to modifiable output repository
+				repository.query(ArtifactKeyQuery.ALL_KEYS, null).stream()
+						.map(a -> repository.getArtifactDescriptors(a)).forEach(a -> mirror.addDescriptors(a, null));
+				// Copy (potentially customized) mapping rules
+				if (repository instanceof SimpleArtifactRepository simpleSource
+						&& mirror instanceof SimpleArtifactRepository simpleTarget) {
+					simpleTarget.setRules(simpleSource.getRules()); // Copy artifact mapping rules
+				}
+			}, null);
+			StatusTool.assertNoProblemOf(IStatus.ERROR, result,
+					() -> "Failed to create output repository at: " + targetLocation);
+			return mirror;
+		} catch (ProvisionException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**
@@ -136,9 +179,32 @@ public class P2RepositoryManager {
 	 * @return the {@link IMetadataRepository} for the given {@link Repository}
 	 * @throws ProvisionException if loading the repository failed
 	 */
-	public IMetadataRepository getMetadataRepository(MavenRepositoryLocation repository)
-			throws ProvisionException {
+	public IMetadataRepository getMetadataRepository(MavenRepositoryLocation repository) throws ProvisionException {
 		return getMetadataRepositor(repository.getURL(), repository.getId());
+	}
+
+	public IMetadataRepository createLocalMetadataRepository(Path location, String name, Map<String, String> properties)
+			throws ProvisionException {
+		MetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
+		factory.setAgent(agent);
+		return factory.create(location.toUri(), name, null, properties);
+	}
+
+	/** Creates a local mirror of the given {@link IMetadataRepository}. */
+	public IMetadataRepository mirrorMetadataRepository(IMetadataRepository repository, Path targetLocation) {
+		try {
+			IMetadataRepository mirror = createLocalMetadataRepository(targetLocation, repository.getName(),
+					repository.getProperties());
+			IStatus result = mirror.executeBatch(m -> {
+				// Copy units to modifiable output repository
+				repository.query(QueryUtil.ALL_UNITS, null).stream().map(List::of).forEach(mirror::addInstallableUnits);
+			}, null);
+			StatusTool.assertNoProblemOf(IStatus.ERROR, result,
+					() -> "Failed to create output repository at: " + targetLocation);
+			return mirror;
+		} catch (ProvisionException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	private IArtifactRepository getArtifactRepository(URI location, String id) throws ProvisionException {
@@ -153,11 +219,11 @@ public class P2RepositoryManager {
 		return metadataManager.loadRepository(location, new LoggerProgressMonitor(logger));
 	}
 
-	public void downloadArtifact(IInstallableUnit iu, IArtifactRepository artifactRepository,
-			OutputStream outputStream) throws IOException {
+	public void downloadArtifact(IInstallableUnit iu, IArtifactRepository artifactRepository, OutputStream outputStream)
+			throws IOException {
 		Collection<IArtifactKey> artifacts = iu.getArtifacts();
 		int maxDownloadAttempts = getMaxDownloadAttempts();
-		
+
 		for (IArtifactKey key : artifacts) {
 			IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key);
 			for (IArtifactDescriptor descriptor : descriptors) {
