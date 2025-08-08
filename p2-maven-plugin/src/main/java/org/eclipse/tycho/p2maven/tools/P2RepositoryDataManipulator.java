@@ -126,11 +126,11 @@ public class P2RepositoryDataManipulator {
 		Path outputLocation = repository.outputLocation();
 
 		if (repository.isArtifact()) {
-			modifyOutputRepository(manager.getArtifactRepository(location), outputLocation,
+			modifyOutputRepository(manager.getArtifactRepository(location.getURL(), location.getId()), outputLocation,
 					manager::mirrorArtifactRepositoryData, r -> r.executeBatch(m -> modification.accept(r), null));
 		}
 		if (repository.isMetadata()) {
-			modifyOutputRepository(manager.getMetadataRepository(location), outputLocation,
+			modifyOutputRepository(manager.getMetadataRepository(location.getURL(), location.getId()), outputLocation,
 					manager::mirrorMetadataRepository, r -> r.executeBatch(m -> modification.accept(r), null));
 		}
 		xzCompress(repository, outputLocation);
@@ -192,7 +192,8 @@ public class P2RepositoryDataManipulator {
 
 		if (repository.isArtifact()) {
 			modifyOutputCompositeRepository(repository,
-					(m, r) -> ((CompositeArtifactRepository) m.getArtifactRepository(r)).toState(), state -> {
+					(m, r) -> ((CompositeArtifactRepository) m.getArtifactRepository(r.getURL(), r.getId())).toState(),
+					state -> {
 						state.setType(CompositeArtifactRepository.REPOSITORY_TYPE);
 						state.setVersion("1");
 						state.getProperties().put(CompositeArtifactRepository.PROP_ATOMIC_LOADING, "true");
@@ -201,7 +202,8 @@ public class P2RepositoryDataManipulator {
 		}
 		if (repository.isMetadata()) {
 			modifyOutputCompositeRepository(repository,
-					(m, r) -> ((CompositeMetadataRepository) m.getMetadataRepository(r)).toState(), state -> {
+					(m, r) -> ((CompositeMetadataRepository) m.getMetadataRepository(r.getURL(), r.getId())).toState(),
+					state -> {
 						state.setType(CompositeMetadataRepository.REPOSITORY_TYPE);
 						state.setVersion("1");
 						state.getProperties().put(CompositeMetadataRepository.PROP_ATOMIC_LOADING, "true");
