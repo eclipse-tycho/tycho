@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2025 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,6 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.DependencyArtifacts;
-import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
@@ -110,8 +109,8 @@ public class GenerateTargetMojo extends AbstractMojo {
         for (String repository : repoList) {
             log.info("\tScanning " + repository + "...");
             try {
-                IMetadataRepository metadataRepository = repositoryManager
-                        .getMetadataRepository(new MavenRepositoryLocation(null, URI.create(repository)));
+                IMetadataRepository metadataRepository = repositoryManager.getMetadataRepository(URI.create(repository),
+                        null);
                 Set<IInstallableUnit> units = new HashSet<>();
                 for (IInstallableUnit unit : reactorDependencies) {
                     if (metadataRepository.contains(unit)) {
