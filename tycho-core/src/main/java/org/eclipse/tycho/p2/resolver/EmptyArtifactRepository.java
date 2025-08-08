@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.CollectionResult;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -31,7 +32,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
-import org.eclipse.tycho.p2maven.ListQueryable;
 
 public class EmptyArtifactRepository extends AbstractArtifactRepository {
 
@@ -46,7 +46,7 @@ public class EmptyArtifactRepository extends AbstractArtifactRepository {
 
     @Override
     public IQueryable<IArtifactDescriptor> descriptorQueryable() {
-        return new ListQueryable<>();
+        return Collector.emptyCollector();
     }
 
     @Override

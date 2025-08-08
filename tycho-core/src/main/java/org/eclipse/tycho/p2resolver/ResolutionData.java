@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +22,9 @@ import java.util.function.Predicate;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.query.CollectionResult;
+import org.eclipse.equinox.p2.query.CompoundQueryable;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
-import org.eclipse.tycho.p2maven.ListQueryable;
 
 public interface ResolutionData {
 
@@ -46,12 +47,12 @@ public interface ResolutionData {
     IQueryable<IInstallableUnit> getAdditionalUnitStore();
 
     default IQueryable<IInstallableUnit> units() {
-        ListQueryable<IInstallableUnit> listQueryable = new ListQueryable<>();
+        List<IQueryable<IInstallableUnit>> listQueryable = new ArrayList<>();
         listQueryable.add(new CollectionResult<>(getAvailableIUs()));
         IQueryable<IInstallableUnit> unitStore = getAdditionalUnitStore();
         if (unitStore != null) {
             listQueryable.add(unitStore);
         }
-        return listQueryable;
+        return new CompoundQueryable<>(listQueryable);
     }
 }
