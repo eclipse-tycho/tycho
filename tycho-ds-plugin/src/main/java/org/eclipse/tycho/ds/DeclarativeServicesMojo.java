@@ -117,7 +117,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 	@Parameter(property = "tycho.ds.header", defaultValue = "auto")
 	private HeaderConfiguration header = HeaderConfiguration.auto;
 
-	@Parameter(property = "project", readonly = true)
+	@Inject
 	protected MavenProject project;
 
 	private final TychoProjectManager manager;
@@ -126,7 +126,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 
 	private final PluginRealmHelper pluginRealmHelper;
 
-	@Parameter(property = "session", readonly = true)
+	@Inject
 	private MavenSession session;
 
 	@Inject

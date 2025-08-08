@@ -89,7 +89,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     @Parameter(property = "tycho.surefire.deleteWorkDir")
     private boolean deleteWorkDirAfterTest;
 
-    @Parameter(property = "project", readonly = true)
+    @Inject
     protected MavenProject project;
 
     /**
@@ -199,7 +199,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     @Parameter(property = "tycho.printBundles", defaultValue = "false")
     protected boolean printBundles;
 
-    @Parameter(property = "session", readonly = true, required = true)
+    @Inject
     protected MavenSession session;
 
     @Inject

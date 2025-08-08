@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -48,7 +50,7 @@ import org.eclipse.tycho.helper.PluginRealmHelper;
 @Mojo(name = "list-dependencies", defaultPhase = LifecyclePhase.GENERATE_TEST_RESOURCES, requiresProject = true, threadSafe = true, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class ListDependenciesMojo extends AbstractMojo {
 
-    @Parameter(property = "project")
+    @Inject
     private MavenProject project;
 
     @Parameter(property = "skip")
@@ -57,13 +59,13 @@ public class ListDependenciesMojo extends AbstractMojo {
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
-    @Component
+    @Inject
     private PluginRealmHelper pluginRealmHelper;
 
-    @Parameter(property = "session", readonly = true)
+    @Inject
     private MavenSession session;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

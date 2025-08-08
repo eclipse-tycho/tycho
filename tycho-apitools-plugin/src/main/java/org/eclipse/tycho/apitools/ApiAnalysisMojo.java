@@ -32,7 +32,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -80,7 +79,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	@Parameter(property = "plugin.artifacts")
 	protected List<Artifact> pluginArtifacts;
 
-	@Parameter(property = "project", readonly = true)
+	@Inject
 	private MavenProject project;
 
 	@Parameter(defaultValue = "eclipse-plugin")
@@ -112,9 +111,6 @@ public class ApiAnalysisMojo extends AbstractMojo {
 
 	@Parameter()
 	private Repository apiToolsRepository;
-
-	@Parameter(property = "session", readonly = true, required = true)
-	private MavenSession session;
 
 	@Parameter
 	private Map<String, String> properties;
