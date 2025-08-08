@@ -27,13 +27,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
@@ -104,25 +105,25 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 	@Parameter
 	private List<String> features;
 
-	@Parameter(property = "project", readonly = true)
+	@Inject
 	protected MavenProject project;
 
-	@Component
+	@Inject
 	protected MavenSession mavenSession;
 
-	@Component
+	@Inject
 	private EclipseWorkspaceManager workspaceManager;
 
-	@Component
+	@Inject
 	private EclipseApplicationManager eclipseApplicationManager;
 
-	@Component
+	@Inject
 	private EclipseApplicationFactory applicationFactory;
 
-	@Component
+	@Inject
 	private TychoProjectManager projectManager;
 
-	@Component
+	@Inject
 	ToolchainManager toolchainManager;
 
 

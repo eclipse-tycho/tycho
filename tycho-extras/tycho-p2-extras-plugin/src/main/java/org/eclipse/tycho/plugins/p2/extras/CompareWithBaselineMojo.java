@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -28,7 +30,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
@@ -72,10 +73,10 @@ public class CompareWithBaselineMojo extends AbstractMojo {
         fail, warn
     }
 
-    @Parameter(property = "project", readonly = true)
+    @Inject
     private MavenProject project;
 
-    @Parameter(property = "mojoExecution", readonly = true)
+    @Inject
     protected MojoExecution execution;
 
     /**
@@ -106,16 +107,13 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Parameter(property = "onIllegalVersion", defaultValue = "fail", alias = "tycho.p2.baseline.onIllegalVersion")
     private ReportBehavior onIllegalVersion;
 
-    @Component()
+    @Inject
     P2ResolverFactory resolverFactory;
 
-    @Component
-    private Logger plexusLogger;
-
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Component
+    @Inject
     private TargetPlatformFactory platformFactory;
 
     /**

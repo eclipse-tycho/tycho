@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -97,7 +99,7 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
     @Parameter(defaultValue = "${project.build.directory}/failsafe-reports", required = true)
     private File reportDirectory;
 
-    @Parameter(defaultValue = "${plugin}", readonly = true, required = true)
+    @Inject
     private PluginDescriptor pluginDescriptor;
 
     @Parameter(defaultValue = "${project.pluginArtifactRepositories}", readonly = true, required = true)

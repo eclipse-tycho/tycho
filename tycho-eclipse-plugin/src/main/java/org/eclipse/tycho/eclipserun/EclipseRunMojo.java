@@ -24,13 +24,14 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.inject.Inject;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -105,7 +106,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Parameter(defaultValue = "true")
 	private boolean clearWorkspaceBeforeLaunch;
 
-	@Parameter(property = "project")
+	@Inject
 	private MavenProject project;
 
 	/**
@@ -153,7 +154,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Parameter
 	private List<Repository> repositories;
 
-	@Parameter(property = "session", readonly = true, required = true)
+	@Inject
 	private MavenSession session;
 
 	/**
@@ -259,25 +260,25 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Parameter
 	private BundleStartLevel defaultStartLevel;
 
-	@Component
+	@Inject
 	private EquinoxInstallationFactory installationFactory;
 
-	@Component
+	@Inject
 	private EquinoxLauncher launcher;
 
-	@Component
+	@Inject
 	private ToolchainProvider toolchainProvider;
 
-	@Component()
+	@Inject()
 	P2ResolverFactory resolverFactory;
 
-	@Component
+	@Inject
 	private Logger logger;
 
-	@Component
+	@Inject
 	private ToolchainManager toolchainManager;
 
-	@Component
+	@Inject
 	private TargetPlatformFactory platformFactory;
 
 	public EclipseRunMojo() {

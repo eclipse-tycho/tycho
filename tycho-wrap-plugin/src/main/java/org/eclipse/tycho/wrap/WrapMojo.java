@@ -19,12 +19,13 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -46,16 +47,16 @@ public class WrapMojo extends AbstractMojo {
 
 	private static final String[] HEADERS = { Constants.BUNDLE_SYMBOLICNAME, Constants.BUNDLE_VERSION };
 
-	@Component
+	@Inject
 	private MavenProject project;
 
-	@Parameter(defaultValue = "${settings}", readonly = true)
+	@Inject
 	Settings settings;
 
-	@Component
+	@Inject
 	private MojoExecution mojoExecution;
 
-	@Component
+	@Inject
 	private MavenProjectHelper helper;
 
 	/**

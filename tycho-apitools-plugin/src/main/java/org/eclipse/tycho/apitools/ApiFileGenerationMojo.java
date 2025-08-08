@@ -21,6 +21,8 @@ import java.util.Optional;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -41,7 +43,7 @@ import org.eclipse.tycho.model.project.EclipseProject;
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.PROCESS_CLASSES, threadSafe = true)
 public class ApiFileGenerationMojo extends AbstractMojo {
 
-	@Parameter(property = "project", readonly = true)
+	@Inject
 	protected MavenProject project;
 
 	@Parameter(defaultValue = "${project.build.directory}")

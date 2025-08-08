@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.execution.MavenSession;
@@ -114,7 +116,7 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     private static final String GEN_DIR = "sources-feature";
 
-    @Parameter(property = "project", readonly = true)
+    @Inject
     private MavenProject project;
 
     /**
@@ -188,7 +190,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     protected boolean useDefaultExcludes;
 
-    @Parameter(property = "session", readonly = true)
+    @Inject
     private MavenSession session;
 
     /**
@@ -209,7 +211,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
-    @Component
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
     /**
@@ -222,19 +224,19 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Component(role = Archiver.class, hint = "jar")
     private JarArchiver jarArchiver;
 
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
-    @Component
+    @Inject
     private LicenseFeatureHelper licenseFeatureHelper;
 
-    @Component()
+    @Inject()
     P2ResolverFactory factory;
 
-    @Component
+    @Inject
     private Logger logger;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override
