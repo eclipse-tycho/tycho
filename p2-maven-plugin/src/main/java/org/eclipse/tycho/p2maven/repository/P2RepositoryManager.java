@@ -36,6 +36,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.CompoundQueryable;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -52,7 +53,6 @@ import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.helper.MavenPropertyHelper;
 import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
-import org.eclipse.tycho.p2maven.ListQueryable;
 import org.eclipse.tycho.p2maven.LoggerProgressMonitor;
 
 /**
@@ -165,11 +165,11 @@ public class P2RepositoryManager {
 		if (repositories.size() == 1) {
 			return getMetadataRepository(repositories.iterator().next());
 		}
-		ListQueryable<IInstallableUnit> queryable = new ListQueryable<>();
+		List<IQueryable<IInstallableUnit>> queryable = new ArrayList<>();
 		for (Repository repository : repositories) {
 			queryable.add(getMetadataRepository(repository));
 		}
-		return queryable;
+		return new CompoundQueryable<>(queryable);
 	}
 
 	public IMetadataRepository createLocalMetadataRepository(Path location, String name, Map<String, String> properties)
