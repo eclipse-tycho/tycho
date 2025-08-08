@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2025 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -29,15 +29,17 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
@@ -50,7 +52,8 @@ import org.eclipse.tycho.zipcomparator.internal.ClassfileComparator.ClassfileArt
 import org.eclipse.tycho.zipcomparator.internal.CompoundArtifactDelta;
 import org.eclipse.tycho.zipcomparator.internal.SimpleArtifactDelta;
 
-@Component(role = BaselineValidator.class)
+@Named
+@Singleton
 public class BaselineValidator {
 
     private static class MissingArtifactDelta implements ArtifactDelta {
@@ -70,13 +73,14 @@ public class BaselineValidator {
         }
     }
 
-    @Requirement
+    @Inject
     private Logger log;
 
-    @Requirement(hint = "zip")
+    @Inject
+    @Named("zip")
     private ArtifactComparator zipComparator;
 
-    @Requirement
+    @Inject
     BaselineService baselineService;
 
     public Map<String, IP2Artifact> validateAndReplace(MavenProject project, ComparisonData data,
@@ -86,16 +90,9 @@ public class BaselineValidator {
         Map<String, IP2Artifact> result = reactorMetadata;
 
         if (baselineMode != disable && baselineRepositories != null && !baselineRepositories.isEmpty()) {
-            List<MavenRepositoryLocation> repositories = new ArrayList<>();
-            for (Repository repository : baselineRepositories) {
-                if (repository.getUrl() != null) {
-                    repositories.add(new MavenRepositoryLocation(repository.getId(), repository.getUrl()));
-                }
-            }
-
             File baselineBasedir = new File(project.getBuild().getDirectory(), "baseline");
 
-            Map<String, IP2Artifact> baselineMetadata = baselineService.getProjectBaseline(repositories,
+            Map<String, IP2Artifact> baselineMetadata = baselineService.getProjectBaseline(baselineRepositories,
                     reactorMetadata, baselineBasedir);
 
             if (baselineMetadata != null) {

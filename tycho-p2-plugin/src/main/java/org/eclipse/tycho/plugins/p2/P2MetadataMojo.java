@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2025 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -20,11 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -51,10 +53,10 @@ public class P2MetadataMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     protected boolean attachP2Metadata;
 
-    @Component
+    @Inject
     protected MavenProjectHelper projectHelper;
 
-    @Component
+    @Inject
     P2Generator p2generator;
 
     /**
@@ -135,13 +137,13 @@ public class P2MetadataMojo extends AbstractMojo {
     @Parameter(property = "tycho.generateDownloadStatsProperty", defaultValue = "false")
     private boolean generateDownloadStatsProperty;
 
-    @Component
+    @Inject
     private BaselineValidator baselineValidator;
 
     @Parameter(property = "tycho.generateChecksums", defaultValue = "true")
     private boolean generateChecksums;
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
     @Parameter(defaultValue = "false")

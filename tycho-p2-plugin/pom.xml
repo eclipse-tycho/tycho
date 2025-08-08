@@ -72,7 +72,11 @@
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-component-metadata</artifactId>
             </plugin>
-            <plugin>
+			<plugin>
+				<groupId>org.eclipse.sisu</groupId>
+				<artifactId>sisu-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-plugin-plugin</artifactId>
 				<!-- workaround for https://issues.apache.org/jira/browse/MPLUGIN-504 -->

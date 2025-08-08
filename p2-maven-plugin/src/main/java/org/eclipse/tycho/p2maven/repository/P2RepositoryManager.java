@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022, 2024 Christoph Läubrich and others.
+ * Copyright (c) 2022, 2025 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,53 +19,58 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.maven.model.Repository;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.CompoundQueryable;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.IRepositoryIdManager;
-import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.helper.MavenPropertyHelper;
 import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
-import org.eclipse.tycho.p2maven.ListQueryable;
 import org.eclipse.tycho.p2maven.LoggerProgressMonitor;
 
 /**
  * Allows unique access to P2 repositories from maven
  */
-@Component(role = P2RepositoryManager.class)
+@Named
+@Singleton
 public class P2RepositoryManager {
 	private static final String PROPERTY_KEY = "eclipse.p2.maxDownloadAttempts";
 
-	@Requirement
+	@Inject
 	MavenPropertyHelper propertyHelper;
 
-	@Requirement
+	@Inject
 	IRepositoryIdManager repositoryIdManager;
 
-	@Requirement
+	@Inject
 	IProvisioningAgent agent;
 
-	@Requirement
+	@Inject
 	Logger logger;
 
 	/**
 	 * Loads the {@link IArtifactRepository} from the given {@link Repository}, this
 	 * method does NOT check the type of the repository!
 	 * 
-	 * @param repository
 	 * @return the {@link IArtifactRepository} for the given {@link Repository}
 	 * @throws URISyntaxException if {@link Repository#getUrl()} can not be
 	 *                            converted into an {@link URI}
@@ -76,25 +81,12 @@ public class P2RepositoryManager {
 		return getArtifactRepository(new URI(repository.getUrl()), repository.getId());
 	}
 
-	/**
-	 * Loads the {@link IArtifactRepository} from the given {@link Repository}, this
-	 * method does NOT check the type of the repository!
-	 * 
-	 * @param repository
-	 * @return the {@link IArtifactRepository} for the given {@link Repository}
-	 * @throws ProvisionException if loading the repository failed
-	 */
-	public IArtifactRepository getArtifactRepository(MavenRepositoryLocation repository)
-			throws ProvisionException {
-		return getArtifactRepository(repository.getURL(), repository.getId());
-	}
-
 	public IArtifactRepository getCompositeArtifactRepository(Collection<Repository> repositories)
 			throws ProvisionException, URISyntaxException {
 		if (repositories.size() == 1) {
 			return getArtifactRepository(repositories.iterator().next());
 		}
-		ArrayList<IArtifactRepository> childs = new ArrayList<>();
+		List<IArtifactRepository> childs = new ArrayList<>();
 		for (Repository repository : repositories) {
 			childs.add(getArtifactRepository(repository));
 		}
@@ -105,7 +97,6 @@ public class P2RepositoryManager {
 	 * Loads the {@link IMetadataRepository} from the given {@link Repository}, this
 	 * method does NOT check the type of the repository!
 	 * 
-	 * @param repository
 	 * @return the {@link IMetadataRepository} for the given {@link Repository}
 	 * @throws URISyntaxException if {@link Repository#getUrl()} can not be
 	 *                            converted into an {@link URI}
@@ -113,7 +104,7 @@ public class P2RepositoryManager {
 	 */
 	public IMetadataRepository getMetadataRepository(Repository repository)
 			throws URISyntaxException, ProvisionException {
-		return getMetadataRepositor(new URI(repository.getUrl()), repository.getId());
+		return getMetadataRepository(new URI(repository.getUrl()), repository.getId());
 	}
 
 	public IQueryable<IInstallableUnit> getCompositeMetadataRepository(Collection<Repository> repositories)
@@ -121,43 +112,59 @@ public class P2RepositoryManager {
 		if (repositories.size() == 1) {
 			return getMetadataRepository(repositories.iterator().next());
 		}
-		ListQueryable<IInstallableUnit> queryable = new ListQueryable<>();
+		List<IQueryable<IInstallableUnit>> queryable = new ArrayList<>();
 		for (Repository repository : repositories) {
 			queryable.add(getMetadataRepository(repository));
 		}
-		return queryable;
+		return new CompoundQueryable<>(queryable);
 	}
 
 	/**
-	 * Loads the {@link IMetadataRepository} from the given {@link Repository}, this
-	 * method does NOT check the type of the repository!
+	 * Loads the {@link IArtifactRepository} at the given location, this method does
+	 * NOT check the type of the repository!
 	 * 
-	 * @param repository
-	 * @return the {@link IMetadataRepository} for the given {@link Repository}
+	 * @param location the location of the repository to load
+	 * @param id       the optional id of the repository (e.g. used for
+	 *                 authentication), may be {@code null}
+	 * @return the {@link IArtifactRepository} for the given {@link Repository}
+	 * @throws URISyntaxException if {@link Repository#getUrl()} can not be
+	 *                            converted into an {@link URI}
 	 * @throws ProvisionException if loading the repository failed
 	 */
-	public IMetadataRepository getMetadataRepository(MavenRepositoryLocation repository)
-			throws ProvisionException {
-		return getMetadataRepositor(repository.getURL(), repository.getId());
+	public IArtifactRepository getArtifactRepository(URI location, String id) throws ProvisionException {
+		return getRepository(location, id, IArtifactRepositoryManager.class);
 	}
 
-	private IArtifactRepository getArtifactRepository(URI location, String id) throws ProvisionException {
+	/**
+	 * Loads the {@link IMetadataRepository} at the given location, this method does
+	 * NOT check the type of the repository!
+	 * 
+	 * @param location the location of the repository to load
+	 * @param id       the optional id of the repository (e.g. used for
+	 *                 authentication), may be {@code null}
+	 * @return the {@link IMetadataRepository} for the given {@link Repository}
+	 * @throws URISyntaxException if {@link Repository#getUrl()} can not be
+	 *                            converted into an {@link URI}
+	 * @throws ProvisionException if loading the repository failed
+	 */
+	public IMetadataRepository getMetadataRepository(URI location, String id) throws ProvisionException {
+		return getRepository(location, id, IMetadataRepositoryManager.class);
+	}
+
+	private <K, R extends IRepository<K>, M extends IRepositoryManager<K>> R getRepository(URI location, String id,
+			Class<M> managerType) throws ProvisionException {
 		repositoryIdManager.addMapping(id, location);
-		IArtifactRepositoryManager repositoryManager = agent.getService(IArtifactRepositoryManager.class);
-		return repositoryManager.loadRepository(location, new LoggerProgressMonitor(logger));
+		M manager = agent.getService(managerType);
+		@SuppressWarnings("unchecked")
+		R repositoy = (R) manager.loadRepository(location, new LoggerProgressMonitor(logger));
+		return repositoy;
 	}
 
-	private IMetadataRepository getMetadataRepositor(URI location, String id) throws ProvisionException {
-		repositoryIdManager.addMapping(id, location);
-		IMetadataRepositoryManager metadataManager = agent.getService(IMetadataRepositoryManager.class);
-		return metadataManager.loadRepository(location, new LoggerProgressMonitor(logger));
-	}
-
-	public void downloadArtifact(IInstallableUnit iu, IArtifactRepository artifactRepository,
-			OutputStream outputStream) throws IOException {
+	public void downloadArtifact(IInstallableUnit iu, IArtifactRepository artifactRepository, OutputStream outputStream)
+			throws IOException {
 		Collection<IArtifactKey> artifacts = iu.getArtifacts();
 		int maxDownloadAttempts = getMaxDownloadAttempts();
-		
+
 		for (IArtifactKey key : artifacts) {
 			IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key);
 			for (IArtifactDescriptor descriptor : descriptors) {
@@ -195,5 +202,26 @@ public class P2RepositoryManager {
 					PROPERTY_KEY));
 			return 1;
 		}
+	}
+
+	/**
+	 * Returns a deep copy of the given collection of {@link Repository} whoose
+	 * location {@code URLs} are normalized and repositories with invalid URLs are
+	 * filtered out.
+	 */
+	public Collection<Repository> normalizeRepositoryLocations(Collection<Repository> baselineRepositories) {
+		return baselineRepositories.stream().<Repository>mapMulti((repo, downstream) -> {
+			String url = repo.getUrl();
+			if (url != null) {
+				try {
+					URI uri = RepositoryHelper.localRepoURIHelper(new URI(url));
+					Repository clone = repo.clone();
+					clone.setUrl(uri.toASCIIString());
+					downstream.accept(clone);
+				} catch (URISyntaxException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
+		}).toList();
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2025 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -24,13 +24,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -44,7 +45,6 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.DependencyArtifacts;
-import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
@@ -55,19 +55,19 @@ import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
  */
 @Mojo(name = "generate-target", defaultPhase = LifecyclePhase.NONE, requiresProject = true, threadSafe = true, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, aggregator = true)
 public class GenerateTargetMojo extends AbstractMojo {
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Component
+    @Inject
     private MavenSession mavenSession;
 
-    @Component
+    @Inject
     private MavenProject mavenProject;
 
-    @Component
+    @Inject
     private LegacySupport legacySupport;
 
-    @Component
+    @Inject
     private P2RepositoryManager repositoryManager;
 
     @Parameter(property = "generateTargetFile", defaultValue = "${project.build.directory}/generate.target", required = true)
@@ -110,8 +110,8 @@ public class GenerateTargetMojo extends AbstractMojo {
         for (String repository : repoList) {
             log.info("\tScanning " + repository + "...");
             try {
-                IMetadataRepository metadataRepository = repositoryManager
-                        .getMetadataRepository(new MavenRepositoryLocation(null, URI.create(repository)));
+                IMetadataRepository metadataRepository = repositoryManager.getMetadataRepository(URI.create(repository),
+                        null);
                 Set<IInstallableUnit> units = new HashSet<>();
                 for (IInstallableUnit unit : reactorDependencies) {
                     if (metadataRepository.contains(unit)) {
