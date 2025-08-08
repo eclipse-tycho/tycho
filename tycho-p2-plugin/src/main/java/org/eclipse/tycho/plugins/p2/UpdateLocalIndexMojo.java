@@ -14,12 +14,12 @@ package org.eclipse.tycho.plugins.p2;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
@@ -27,10 +27,10 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 @Mojo(name = "update-local-index", threadSafe = true)
 public class UpdateLocalIndexMojo extends AbstractMojo {
 
-    @Parameter(property = "project", readonly = true, required = true)
+    @Inject
     private MavenProject project;
 
-    @Component
+    @Inject
     private LocalRepositoryP2Indices p2index;
 
     @Override
