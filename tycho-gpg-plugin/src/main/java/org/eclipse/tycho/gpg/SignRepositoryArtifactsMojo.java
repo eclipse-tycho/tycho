@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 Red Hat Inc. and others.
+ * Copyright (c) 2021, 2025 Red Hat Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -40,7 +40,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.signedcontent.SignedContentFactory;
-import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 
 /**
@@ -184,7 +183,7 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
 
         try {
             var artifactRepository = (IFileArtifactRepository) repositoryManager
-                    .getArtifactRepository(new MavenRepositoryLocation("", repository.toURI()));
+                    .getArtifactRepository(repository.toURI(), null);
 
             var compressed = "true".equals(artifactRepository.getProperty(IRepository.PROP_COMPRESSED));
 

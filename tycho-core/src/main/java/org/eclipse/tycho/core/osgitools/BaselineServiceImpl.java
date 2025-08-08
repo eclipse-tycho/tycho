@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2025 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.model.Repository;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -43,7 +45,6 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.helper.StatusTool;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.publisher.P2Artifact;
@@ -62,7 +63,7 @@ public class BaselineServiceImpl implements BaselineService {
     private Logger logger;
 
     @Override
-    public Map<String, IP2Artifact> getProjectBaseline(Collection<MavenRepositoryLocation> baselineLocations,
+    public Map<String, IP2Artifact> getProjectBaseline(Collection<Repository> baselineRepositories,
             Map<String, IP2Artifact> reactor, File target) {
 
         // baseline repository may contain artifacts with the same id/version but different contents
@@ -70,14 +71,16 @@ public class BaselineServiceImpl implements BaselineService {
         // current local repository layout does not track per-repository artifacts and does not allow
         // multiple different artifacts with same id/version.
 
+        baselineRepositories = repositoryManager.normalizeRepositoryLocations(baselineRepositories);
+
         ListQueryable<IInstallableUnit> baselineUnits = new ListQueryable<>();
         List<IArtifactRepository> baselineArtifacts = new ArrayList<>();
 
-        for (MavenRepositoryLocation location : baselineLocations) {
+        for (Repository location : baselineRepositories) {
             try {
                 baselineUnits.add(repositoryManager.getMetadataRepository(location));
                 baselineArtifacts.add(repositoryManager.getArtifactRepository(location));
-            } catch (ProvisionException e) {
+            } catch (ProvisionException | URISyntaxException e) {
                 // baseline repository may not exist yet
                 logger.warn(e.getMessage(), e);
             }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2025 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,12 +16,12 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Map;
 
-import org.eclipse.tycho.MavenRepositoryLocation;
+import org.apache.maven.model.Repository;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 
 public interface BaselineService {
 
-    public Map<String, IP2Artifact> getProjectBaseline(Collection<MavenRepositoryLocation> baselineLocations,
+    public Map<String, IP2Artifact> getProjectBaseline(Collection<Repository> baselineRepositories,
             Map<String, IP2Artifact> reactor, File target);
 
     public boolean isMetadataEqual(IP2Artifact ip2Artifact, IP2Artifact ip2Artifact2);
