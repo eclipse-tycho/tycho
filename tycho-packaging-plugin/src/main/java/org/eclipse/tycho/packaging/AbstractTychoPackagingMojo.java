@@ -48,10 +48,10 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
 	@Parameter(property = "project.build.directory", required = true)
 	protected File buildDirectory;
 
-    @Parameter(property = "session", readonly = true)
+    @Inject
     protected MavenSession session;
 
-    @Parameter(property = "project", readonly = true)
+    @Inject
     protected MavenProject project;
 
     @Parameter(defaultValue = "true")

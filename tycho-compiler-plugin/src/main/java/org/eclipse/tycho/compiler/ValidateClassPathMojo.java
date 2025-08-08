@@ -14,13 +14,14 @@ package org.eclipse.tycho.compiler;
 
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ReactorProject;
@@ -36,7 +37,7 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 @Mojo(name = "validate-classpath", defaultPhase = LifecyclePhase.VALIDATE, requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class ValidateClassPathMojo extends AbstractMojo {
 
-    @Parameter(property = "project", readonly = true)
+    @Inject
     private MavenProject project;
 
     @Component(role = TychoProject.class)

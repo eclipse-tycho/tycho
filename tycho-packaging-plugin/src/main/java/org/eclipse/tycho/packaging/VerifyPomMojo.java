@@ -63,10 +63,10 @@ import org.osgi.framework.BundleException;
 public class VerifyPomMojo extends AbstractMojo {
 	static final String NAME = "verify-osgi-pom";
 
-	@Parameter(defaultValue = "${session}", readonly = true, required = true)
+	@Inject
 	private MavenSession session;
 
-	@Parameter(defaultValue = "${project}", readonly = true, required = true)
+	@Inject
 	private MavenProject project;
 
 	@Parameter(property = "tycho.verify.pom")

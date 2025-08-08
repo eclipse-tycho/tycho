@@ -29,7 +29,7 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 
 public abstract class AbstractVersionMojo extends AbstractMojo {
 
-    @Parameter(property = "project", required = true, readonly = true)
+	@Inject
     protected MavenProject project;
 
     @Parameter(property = "project.packaging", required = true, readonly = true)
