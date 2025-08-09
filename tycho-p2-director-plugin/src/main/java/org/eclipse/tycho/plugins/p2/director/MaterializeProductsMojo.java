@@ -44,7 +44,7 @@ import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.impl.StandardEEResolutionHints;
-import org.eclipse.tycho.core.shared.StatusTool;
+import org.eclipse.tycho.helper.StatusTool;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;

@@ -10,7 +10,10 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.shared;
+package org.eclipse.tycho.helper;
+
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -139,6 +142,13 @@ public class StatusTool {
             return findExceptionInChildren(status.getChildren());
         }
         return null;
+    }
+
+    public static void assertNoProblemOf(int severity, IStatus status, Supplier<String> message) {
+        if (!status.isOK() && status.matches(severity)) {
+            String msg = Optional.ofNullable(message).map(Supplier::get).map(m -> m + "\n").orElse("");
+            throw new IllegalStateException(msg + StatusTool.toLogMessage(status), StatusTool.findException(status));
+        }
     }
 
     private static Throwable findExceptionInChildren(IStatus[] children) {
