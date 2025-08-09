@@ -72,7 +72,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.DependencySeed;
 import org.eclipse.tycho.ReproducibleUtils;
-import org.eclipse.tycho.core.shared.StatusTool;
+import org.eclipse.tycho.helper.StatusTool;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.tools.BuildContext;
