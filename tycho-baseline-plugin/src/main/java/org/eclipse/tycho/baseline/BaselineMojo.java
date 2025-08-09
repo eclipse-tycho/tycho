@@ -19,8 +19,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -59,13 +60,10 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Parameter(property = "baselines", name = "baselines")
 	private List<Repository> baselines;
 
-	@Component
+	@Inject
 	private P2RepositoryManager repositoryManager;
 
-	@Parameter(property = "session", readonly = true)
-	private MavenSession session;
-
-	@Parameter(property = "project", readonly = true)
+	@Inject
 	protected MavenProject project;
 
 	/**
