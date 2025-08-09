@@ -35,7 +35,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.core.shared.StatusTool;
+import org.eclipse.tycho.helper.StatusTool;
 import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2tools.copiedfromp2.Projector;
 import org.eclipse.tycho.p2tools.copiedfromp2.QueryableArray;

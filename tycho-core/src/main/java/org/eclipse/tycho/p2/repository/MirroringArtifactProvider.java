@@ -52,9 +52,9 @@ import org.eclipse.tycho.core.shared.DuplicateFilteringLoggingProgressMonitor;
 import org.eclipse.tycho.core.shared.LoggingProgressMonitor;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenContext.ChecksumPolicy;
+import org.eclipse.tycho.helper.StatusTool;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
-import org.eclipse.tycho.core.shared.StatusTool;
 
 /**
  * {@link IRawArtifactFileProvider} which caches all accessed artifacts in the local Maven
