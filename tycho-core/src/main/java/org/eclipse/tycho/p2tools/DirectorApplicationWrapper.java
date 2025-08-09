@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
-import org.eclipse.tycho.core.shared.StatusTool;
+import org.eclipse.tycho.helper.StatusTool;
 import org.eclipse.tycho.p2.tools.director.shared.AbstractDirectorApplicationCommand;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;

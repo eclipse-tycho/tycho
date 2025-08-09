@@ -14,7 +14,7 @@ package org.eclipse.tycho.p2tools;
 
 import org.apache.maven.plugin.logging.Log;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.tycho.core.shared.StatusTool;
+import org.eclipse.tycho.helper.StatusTool;
 import org.eclipse.tycho.p2tools.copiedfromp2.ILog;
 
 public class MavenDirectorLog implements ILog {
