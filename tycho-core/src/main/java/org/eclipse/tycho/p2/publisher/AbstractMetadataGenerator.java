@@ -38,10 +38,10 @@ import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
+import org.eclipse.tycho.helper.StatusTool;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
-import org.eclipse.tycho.core.shared.StatusTool;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 
 public abstract class AbstractMetadataGenerator {
