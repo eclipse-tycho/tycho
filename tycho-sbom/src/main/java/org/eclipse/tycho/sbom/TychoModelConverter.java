@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 Patrick Ziegler and others.
+ * Copyright (c) 2024, 2025 Patrick Ziegler and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -21,21 +21,20 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.cyclonedx.maven.DefaultModelConverter;
-import org.cyclonedx.maven.ModelConverter;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProjectManager;
@@ -74,7 +73,8 @@ import org.slf4j.LoggerFactory;
  * &lt;/plugin&gt;
  * </pre>
  */
-@Component(role = ModelConverter.class)
+@Named
+@Singleton
 public class TychoModelConverter extends DefaultModelConverter {
 	private static final String KEY_CONTEXT = TychoSBOMConfiguration.class.toString();
 	private static final Logger LOG = LoggerFactory.getLogger(TychoModelConverter.class);
@@ -240,9 +240,8 @@ public class TychoModelConverter extends DefaultModelConverter {
 		for (Repository repository : getTargetRepositories(currentProject)) {
 			String id = repository.getId();
 			URI location = URI.create(repository.getLocation());
-			MavenRepositoryLocation mavenRepository = new MavenRepositoryLocation(id, location);
 			try {
-				IArtifactRepository artifactRepository = repositoryManager.getArtifactRepository(mavenRepository);
+				IArtifactRepository artifactRepository = repositoryManager.getArtifactRepository(location, id);
 				if (artifactRepository.contains(p2artifactKey)) {
 					return repository.getLocation();
 				}

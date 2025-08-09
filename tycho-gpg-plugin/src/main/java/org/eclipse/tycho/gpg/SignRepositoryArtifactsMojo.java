@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 Red Hat Inc. and others.
+ * Copyright (c) 2021, 2025 Red Hat Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,10 +15,12 @@ import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -26,8 +28,6 @@ import org.apache.maven.plugins.gpg.AbstractGpgMojoExtension;
 import org.apache.maven.plugins.gpg.ProxySignerWithPublicKeyAccess;
 import org.apache.maven.project.MavenProject;
 import org.bouncycastle.openpgp.PGPSignature;
-import org.codehaus.plexus.archiver.Archiver;
-import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.xz.XZArchiver;
 import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
@@ -40,7 +40,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.signedcontent.SignedContentFactory;
-import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 
 /**
@@ -148,16 +147,18 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
     @Parameter(defaultValue = "${project.build.outputTimestamp}")
     private String outputTimestamp;
 
-    @Component(role = UnArchiver.class, hint = "zip")
+    @Inject
+    @Named("zip")
     private ZipUnArchiver zipUnArchiver;
 
-    @Component(role = Archiver.class, hint = "xz")
+    @Inject
+    @Named("xz")
     private XZArchiver xzArchiver;
 
-    @Component
+    @Inject
     private SignedContentFactory signedContentFactory;
 
-    @Component
+    @Inject
     private P2RepositoryManager repositoryManager;
 
     @Override
@@ -184,7 +185,7 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
 
         try {
             var artifactRepository = (IFileArtifactRepository) repositoryManager
-                    .getArtifactRepository(new MavenRepositoryLocation("", repository.toURI()));
+                    .getArtifactRepository(repository.toURI(), null);
 
             var compressed = "true".equals(artifactRepository.getProperty(IRepository.PROP_COMPRESSED));
 
