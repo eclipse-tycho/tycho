@@ -24,6 +24,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -37,7 +39,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -62,10 +63,10 @@ import org.osgi.framework.BundleException;
 public class VerifyPomMojo extends AbstractMojo {
 	static final String NAME = "verify-osgi-pom";
 
-	@Parameter(defaultValue = "${session}", readonly = true, required = true)
+	@Inject
 	private MavenSession session;
 
-	@Parameter(defaultValue = "${project}", readonly = true, required = true)
+	@Inject
 	private MavenProject project;
 
 	@Parameter(property = "tycho.verify.pom")
@@ -74,10 +75,10 @@ public class VerifyPomMojo extends AbstractMojo {
 	@Parameter(property = "tycho.verify.failOnError")
 	private boolean failOnError;
 
-	@Component
+	@Inject
 	private RepositorySystem repositorySystem;
 
-	@Component
+	@Inject
 	private ModelReader modelReader;
 
 	@Override

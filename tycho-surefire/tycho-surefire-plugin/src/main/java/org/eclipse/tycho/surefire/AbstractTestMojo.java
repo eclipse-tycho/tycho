@@ -31,6 +31,8 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.inject.Inject;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
@@ -87,7 +89,7 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     @Parameter(property = "tycho.surefire.deleteWorkDir")
     private boolean deleteWorkDirAfterTest;
 
-    @Parameter(property = "project", readonly = true)
+    @Inject
     protected MavenProject project;
 
     /**
@@ -197,16 +199,16 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     @Parameter(property = "tycho.printBundles", defaultValue = "false")
     protected boolean printBundles;
 
-    @Parameter(property = "session", readonly = true, required = true)
+    @Inject
     protected MavenSession session;
 
-    @Component
+    @Inject
     protected TychoProjectManager projectManager;
 
-    @Component
+    @Inject
     protected ToolchainProvider toolchainProvider;
 
-    @Component
+    @Inject
     protected BuildPropertiesParser buildPropertiesParser;
 
     @Component(role = TychoProject.class, hint = "eclipse-plugin")
