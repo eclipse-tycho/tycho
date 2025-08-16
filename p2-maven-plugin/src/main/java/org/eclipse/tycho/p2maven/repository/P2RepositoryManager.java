@@ -118,6 +118,24 @@ public class P2RepositoryManager {
 	}
 
 	/**
+	 * Counts the number of artifacts contained in the {@link IArtifactRepository}
+	 * at the given location. This method does NOT check the type of the repository!
+	 * <br>
+	 * This can be useful to obtain overview information and as existence check for
+	 * a repository.
+	 * 
+	 * @param location the location of the repository to load
+	 * @param id       the optional id of the repository (e.g. used for
+	 *                 authentication), may be {@code null}
+	 * @return the number of contained artifacts
+	 * @throws ProvisionException if loading the repository failed
+	 */
+	public long countArtifacts(URI location, String id) throws ProvisionException {
+		IArtifactRepository repository = getArtifactRepository(location, id);
+		return repository.query(ArtifactKeyQuery.ALL_KEYS, null).stream().count();
+	}
+
+	/**
 	 * Creates a local mirror only of the <b>data</b> of the given
 	 * {@link IMetadataRepository}, i.e. its {@code artifacts.xml/jar/xml.xz} files.
 	 */
@@ -183,6 +201,24 @@ public class P2RepositoryManager {
 		MetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
 		factory.setAgent(agent);
 		return factory.create(location.toUri(), name, null, properties);
+	}
+
+	/**
+	 * Counts the number of units contained in the {@link IMetadataRepository} at
+	 * the given location. This method does NOT check the type of the repository!
+	 * <br>
+	 * This can be useful to obtain overview information and as existence check for
+	 * a repository.
+	 * 
+	 * @param location the location of the repository to load
+	 * @param id       the optional id of the repository (e.g. used for
+	 *                 authentication), may be {@code null}
+	 * @return the number of contained units
+	 * @throws ProvisionException if loading the repository failed
+	 */
+	public long countMetadataUnits(URI location, String id) throws ProvisionException {
+		IMetadataRepository repository = getMetadataRepositor(location, id);
+		return repository.query(QueryUtil.ALL_UNITS, null).stream().count();
 	}
 
 	/** Creates a local mirror of the given {@link IMetadataRepository}. */
