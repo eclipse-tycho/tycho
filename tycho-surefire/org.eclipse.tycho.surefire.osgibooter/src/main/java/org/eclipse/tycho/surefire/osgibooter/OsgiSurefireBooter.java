@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -401,7 +402,7 @@ public class OsgiSurefireBooter {
             return new Bundle[0];
         }
         return hostWires.stream().map(wire -> wire.getRequirer().getBundle()).filter(Objects::nonNull)
-                .toArray(Bundle[]::new);
+                .sorted(Comparator.comparing(Bundle::getSymbolicName)).toArray(Bundle[]::new);
     }
 
 }
