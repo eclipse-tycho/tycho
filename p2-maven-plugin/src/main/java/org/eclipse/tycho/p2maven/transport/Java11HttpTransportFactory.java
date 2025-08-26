@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
@@ -52,6 +54,7 @@ import org.eclipse.tycho.p2maven.transport.Response.ResponseConsumer;
 public class Java11HttpTransportFactory implements HttpTransportFactory, Initializable {
 	private static final int MAX_DISCARD = 1024 * 10;
 	private static final byte[] DUMMY_BUFFER = new byte[MAX_DISCARD];
+	private final CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
 
 	// see https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3
 	// per RFC there are three different formats:
@@ -271,9 +274,11 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 		};
 		client = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(TIMEOUT_SECONDS))
 				.followRedirects(Redirect.NEVER)
+				.cookieHandler(cookieManager)
 				.proxy(proxySelector).build();
 		clientHttp1 = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(TIMEOUT_SECONDS))
 				.version(Version.HTTP_1_1).followRedirects(Redirect.NEVER)
+				.cookieHandler(cookieManager)
 				.proxy(proxySelector).build();
 
 	}
