@@ -52,8 +52,10 @@ class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryM
 	private static void stripMirrorsURLProperty(AbstractRepository<?> repository, Logger logger) {
         try {
             Map<?, ?> properties = getRepositoryProperties(repository);
-            Object removedConfiguration = properties.remove(IRepository.PROP_MIRRORS_URL);
-
+            Object removedConfiguration;
+            synchronized (repository) {
+                removedConfiguration = properties.remove(IRepository.PROP_MIRRORS_URL);
+            }
             if (removedConfiguration != null && logger.isDebugEnabled()) {
                 logger.debug("Removed 'p2.mirrorsURL' property in repository " + repository.getLocation());
             }
