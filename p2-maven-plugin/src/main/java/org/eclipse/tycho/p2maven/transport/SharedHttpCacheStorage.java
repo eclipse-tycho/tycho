@@ -260,16 +260,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 						// https://github.com/eclipse-tycho/tycho/issues/4459
 						// Don't save temporary redirects since they might change later, rendering the
 						// cache entry useless. Save them in the original request URI instead.
-						logger.warn(
-								String.format("%s was temporarily redirected to %s but cached in the original location",
-										uri, redirect));
-						HttpTransport redirectTransport = transportFactory.createTransport(redirect);
-						redirectTransport.get(r -> {
-							try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
-								r.transferTo(os);
-							}
-							return null;
-						});
+						transferTemporaryRedirect(transportFactory, uri, redirect, logger);
 						return file;
 					} else {
 						File cachedFile = SharedHttpCacheStorage.this.getCacheEntry(redirect, logger)
@@ -301,6 +292,30 @@ public class SharedHttpCacheStorage implements HttpCache {
 				return file;
 			});
 
+		}
+
+		private void transferTemporaryRedirect(HttpTransportFactory transportFactory, URI uri, URI redirect,
+				Logger logger)
+				throws IOException {
+			if (cacheConfig.isDebug()) {
+				logger.info(String.format("%s was temporarily redirected to %s but cached in the original location %s",
+						uri, redirect, file));
+			}
+			HttpTransport redirectTransport = transportFactory.createTransport(redirect);
+			URI next = redirectTransport.get(response -> {
+				int code = response.statusCode();
+				if (isRedirected(code)) {
+					return getRedirect(redirect, response.headers().get("location").getFirst(), logger);
+				}
+				try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
+					response.transferTo(os);
+				}
+				return null;
+			});
+			if (next != null) {
+				// another redirect...
+				transferTemporaryRedirect(transportFactory, redirect, next, logger);
+			}
 		}
 
 		public synchronized File getFile(URI uri, HttpTransportFactory transportFactory,
@@ -435,6 +450,10 @@ public class SharedHttpCacheStorage implements HttpCache {
 
 		public URI getRedirect(URI base, Logger logger) throws FileNotFoundException {
 			String location = getHeader().getProperty("location");
+			return getRedirect(base, location, logger);
+		}
+
+		private URI getRedirect(URI base, String location, Logger logger) throws FileNotFoundException {
 			if (location == null) {
 				throw new FileNotFoundException(base.toASCIIString());
 			}
