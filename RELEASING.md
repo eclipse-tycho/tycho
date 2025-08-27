@@ -7,20 +7,19 @@ This describes the steps to perform a release of Tycho:
 - [ ] Make sure you have everything setup (GPG installed!) for deploying to the Nexus OSS repository, see https://central.sonatype.org/pages/ossrh-guide.html guide
 - [ ] Make sure you have a pgp key and it is published to the key-servers eg. https://keys.openpgp.org/
 - [ ] Make sure you have a sonartype account and are allowed to publish for tycho organization
-- [ ] Add your credentials for server `sonatype-nexus-staging` in `~/.m2/settings.xml`
+- [ ] Add your credentials for server `sonatype-central-portal` in `~/.m2/settings.xml` (see [here](https://maveniverse.eu/docs/njord/using-it/#setting-it-up) for details)
 ```xml
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
-   <!-- ... -->
-   <servers>
-    <server>
-      <id>sonatype-nexus-staging</id>
-      <username>mickael.istria</username>
-      <password>securePassword</password> <!-- use `mvn --encrypt-password` to not store plain text -->
-    </server>
-    <!-- ... -->
-   </servers>
-</settings>
-</source>
+<servers>
+  <server>
+    <id>sonatype-central-portal</id>
+    <username>$TOKEN1</username>
+    <password>$TOKEN2</password>
+    <configuration>
+      <njord.publisher>sonatype-cp</njord.publisher>
+      <njord.releaseUrl>njord:template:release-sca</njord.releaseUrl>
+    </configuration>
+  </server>
+</servers>
 ```
 
 
@@ -28,46 +27,39 @@ This describes the steps to perform a release of Tycho:
 
 - [ ] Make sure all fixed issues and merged PRs have the correct milestone for this release, to finding PRs without milestone you can use the following filter `is:pr is:merged no:milestone base:main` issues without milestone can be found with `is:issue no:milestone is:closed`
 - [ ] Review the [release notes](https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md) which should provide a quick overview of new features and bug fixes
-- [ ] Create branch `tycho-N.M.x` (e.g. `tycho-2.4.x`) for upcoming release and push it to remote; this branch should remain frozen until the release, only major fixes for regressions could be merged in before release. Work can still happen regularly for the following version on the `master` branch.
+- [ ] Create branch `tycho-N.M.x` (e.g. `tycho-7.0.x`) for upcoming release and push it to remote; this branch should remain frozen until the release, only major fixes for regressions could be merged in before release. Work can still happen regularly for the following version on the `master` branch.
 - [ ] Update the version on the master with `mvn versions:set -DnewVersion=<next tycho version>-SNAPSHOT` and mention the new release in the [release notes](https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md), then publish the changes.
 - [ ] Create release record on https://projects.eclipse.org/projects/technology.tycho projects.eclipse.org, link the N&N to https://github.com/eclipse-tycho/tycho/blob/[branch-name]/RELEASE_NOTES.md release notes]
 - [ ] Update the Jenkinsfile on the `tycho-N.M.x` and adjust the `deployBranch` to reference the new created branch
 - [ ] Announce the intent to release and request feedback about snapshots on the [GitHub discussions](https://github.com/eclipse-tycho/tycho/discussions):
 ```
-Subject: Tycho <VERSION> release
+We plan to release Tycho <VERSION>.
 
-We plan to release Tycho <VERSION> next week. For details of new features and bugfixes, see [release notes](https://github.com/eclipse-tycho/tycho/blob/tycho-x.y.z/RELEASE_NOTES.md).
-Please help by testing the SNAPSHOTS build. To use it, change your tycho version to <VERSION>-SNAPSHOT and add the following snippet to your pom.
+For details of new features and bugfixes, see [release notes](https://github.com/eclipse-tycho/tycho/blob/tycho-<VERSION>/RELEASE_NOTES.md).
 
-<pluginRepositories>
-    <pluginRepository>
-      <id>tycho-snapshots</id>
-      <url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
-    </pluginRepository>
-</pluginRepositories>
+Please help by testing by try out the current [tycho snapshot](https://github.com/eclipse/tycho/wiki#getting-tycho-snapshots) build.
 
-
-We plan to promote this release in one week unless major regressions are found.
+We [plan](https://github.com/eclipse-tycho/tycho/milestone/<ID OF MILESTONE>) to publish this release <DATE> unless major regressions are found.
 
 Regards,
 Tycho team
 ```
 
-... Wait until review date (usually a week later)...
+... Wait until release date (usually a week later)...
 
 - [ ] make sure all tags are fetched with `git fetch -t`
 - [ ] `git fetch eclipse tycho-N.M.x` to get the branch to be released
 - [ ] Update version to remove `-SNAPSHOT` with `mvn versions:set -DnewVersion=<VERSION>`
 - [ ] Update versions in tycho-demo folder
 - [ ] `git add * && git commit` version change
-- [ ] Deploy to nexus staging repository (check that the correct pgp key is used and published to the key-servers eg. https://keys.openpgp.org/): 
+- [ ] Deploy to local staging repository (check that the correct pgp key is used and published to the key-servers eg. https://keys.openpgp.org/): 
 ```
 mvn clean deploy -Prelease -DskipTests \
-     -DforgeReleaseId=sonatype-nexus-staging \
-     -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ \
+     -DaltDeploymentRepository=id::njord: \
      -Dgpg.keyname=<your e-mail of pgpg key> \
      -Dmaven.repo.local=/tmp/tycho-release
 ```
+- [ ] review the local staging repo (see [here](https://maveniverse.eu/docs/njord/using-it/#using-it) for details) `mvn njord:list` / `mvn njord:list-content -Dstore=release-xxx`
 - [ ] [Publish the staged release](#publish-the-staged-release)
 - [ ] `git tag tycho-<VERSION>`
 - [ ] [Publish the sitedoc](#publish-the-sitedoc) for the release
@@ -75,7 +67,7 @@ mvn clean deploy -Prelease -DskipTests \
 - [ ] review, add and commit the changes e.g. with message `Prepare for next version`
 - [ ] push the branch
 - [ ] push the tag `git push origin tycho-<TYCHO_VERSION>`
-- [ ] [Prepare the announcment text](#prepare-the-announcment-text)
+- [ ] [Prepare the announcement text](#prepare-the-announcment-text)
 - [ ] [Create a Github release](https://github.com/eclipse-tycho/tycho/releases/new) using the created tag and prepared text
 - [ ] Also post this in the release discussion
 - [ ] Forward the above text to tycho-dev@eclipse.org
@@ -83,10 +75,10 @@ mvn clean deploy -Prelease -DskipTests \
 
 ## Create a Bugfix Release for an older version stream
 
-Sometimes it is neccesary or desired to release a bugfix for an older version stream, e.g. if a new major version is started but not yet released it is usually good to still release critical bugfixes or user provided back-ports.
+Sometimes it is necessary or desired to release a bugfix for an older version stream, e.g. if a new major version is started but not yet released it is usually good to still release critical bugfixes or user provided back-ports.
 
 ### Prepare the bugfix release
-For a bugfix release there are sligly different steps to perform in the prepare phase
+For a bugfix release there are slightly different steps to perform in the prepare phase
 
 - [ ] Create a release record https://projects.eclipse.org/projects/technology.tycho
 - [ ] Find the discussion of the release (e.g. https://github.com/eclipse-tycho/tycho/discussions/1401 ) and edit the title to include the new bugfix release, announce your intend there 
