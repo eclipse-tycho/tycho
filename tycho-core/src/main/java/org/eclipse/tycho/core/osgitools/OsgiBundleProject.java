@@ -22,13 +22,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -251,20 +250,19 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         EclipsePluginProject eclipsePluginProject = getEclipsePluginProject(DefaultReactorProject.adapt(project));
         for (BuildOutputJar outputJar : eclipsePluginProject.getOutputJars()) {
             for (File sourceFolder : outputJar.getSourceFolders()) {
-                removeDuplicateTestCompileRoot(sourceFolder, project.getTestCompileSourceRoots());
+                removeDuplicateTestCompileRoot(sourceFolder, project);
                 project.addCompileSourceRoot(sourceFolder.getAbsolutePath());
             }
         }
     }
 
-    private void removeDuplicateTestCompileRoot(File sourceFolder, List<String> testCompileSourceRoots) {
-        for (Iterator<String> iterator = testCompileSourceRoots.iterator(); iterator.hasNext();) {
-            String testCompileRoot = iterator.next();
+    private void removeDuplicateTestCompileRoot(File sourceFolder, MavenProject project) {
+        for (String testCompileRoot : project.getTestCompileSourceRoots()) {
             if (sourceFolder.equals(new File(testCompileRoot))) {
                 // avoid duplicate source folders (bug 368445)
-                iterator.remove();
                 getLogger()
                         .debug("Removed duplicate test compile root " + testCompileRoot + " from maven project model");
+                project.removeTestCompileSourceRoot(testCompileRoot);
                 return;
             }
         }
