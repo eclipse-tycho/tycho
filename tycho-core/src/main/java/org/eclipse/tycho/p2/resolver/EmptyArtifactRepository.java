@@ -35,7 +35,7 @@ import org.eclipse.tycho.p2maven.ListQueryable;
 
 public class EmptyArtifactRepository extends AbstractArtifactRepository {
 
-    protected EmptyArtifactRepository(IProvisioningAgent agent, URI location) {
+    public EmptyArtifactRepository(IProvisioningAgent agent, URI location) {
         super(agent, "Empty", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null, location, null, null, Map.of());
     }
 

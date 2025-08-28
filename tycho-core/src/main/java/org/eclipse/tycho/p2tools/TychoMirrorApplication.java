@@ -388,7 +388,7 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
             if (repo instanceof IMetadataRepository meta) {
                 Collection<IRepositoryReference> references = meta.getReferences();
                 for (IRepositoryReference reference : references) {
-                    if (reference.getType() == IRepository.TYPE_METADATA && isEnabled(reference)) {
+                    if (reference.getType() == IRepository.TYPE_METADATA && reference.isEnabled()) {
                         try {
                             URI referenceLocation = reference.getLocation();
                             IMetadataRepository referenceRepository = manager.loadRepository(referenceLocation, null);
@@ -403,10 +403,6 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
             return stream;
         }
         return Stream.empty();
-    }
-
-    private boolean isEnabled(IRepositoryReference reference) {
-        return (reference.getOptions() & IRepository.ENABLED) != 0;
     }
 
     public void setIncludeSources(boolean includeAllSource, TargetPlatform targetPlatform) {

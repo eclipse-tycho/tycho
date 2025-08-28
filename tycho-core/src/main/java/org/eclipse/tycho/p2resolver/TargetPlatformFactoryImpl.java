@@ -109,6 +109,7 @@ import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
 import org.eclipse.tycho.p2.resolver.BundlePublisher;
+import org.eclipse.tycho.p2.resolver.EmptyArtifactRepository;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
@@ -226,7 +227,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         registerRepositoryIDs(completeRepositories);
 
         // collect & process metadata
-        Set<URI> artifactRepositories = new LinkedHashSet<>();
+        Map<URI, Boolean> artifactRepositories = new LinkedHashMap<>();
         boolean includeLocalMavenRepo = !tpConfiguration.getIgnoreLocalArtifacts();
         Set<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories, targetFileContent,
                 includeLocalMavenRepo, artifactRepositories,
@@ -414,7 +415,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      */
     private LinkedHashSet<IInstallableUnit> gatherExternalInstallableUnits(
             Set<MavenRepositoryLocation> completeRepositories, List<TargetDefinitionContent> targetDefinitionsContent,
-            boolean includeLocalMavenRepo, Set<URI> artifactRepositories, boolean includeReferences) {
+            boolean includeLocalMavenRepo, Map<URI, Boolean> artifactRepositories, boolean includeReferences) {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>();
 
         for (TargetDefinitionContent targetDefinitionContent : targetDefinitionsContent) {
@@ -425,7 +426,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         List<IMetadataRepository> metadataRepositories = new ArrayList<>();
         Set<URI> loaded = new HashSet<>();
         for (MavenRepositoryLocation location : completeRepositories) {
-            artifactRepositories.add(location.getURL());
+            artifactRepositories.put(location.getURL(), false);
             try {
                 loadMetadataRepository(location, metadataRepositories, loaded, artifactRepositories, includeReferences);
             } catch (ProvisionException e) {
@@ -454,25 +455,27 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     }
 
     private void loadMetadataRepository(MavenRepositoryLocation location,
-            List<IMetadataRepository> metadataRepositories, Set<URI> loaded, Set<URI> artifactRepositories,
+            List<IMetadataRepository> metadataRepositories, Set<URI> loaded, Map<URI, Boolean> artifactRepositories,
             boolean includeReferences) throws ProvisionException {
         if (loaded.add(location.getURL().normalize())) {
             IMetadataRepository repository = remoteMetadataRepositoryManager.loadRepository(location.getURL(), monitor);
             metadataRepositories.add(repository);
             if (includeReferences) {
                 for (IRepositoryReference reference : repository.getReferences()) {
-                    if ((reference.getOptions() | IRepository.ENABLED) != 0) {
+                    if (reference.isEnabled()) {
+                        URI uri = reference.getLocation();
                         if (reference.getType() == IRepository.TYPE_METADATA) {
                             try {
-                                loadMetadataRepository(
-                                        new MavenRepositoryLocation(reference.getNickname(), reference.getLocation()),
+                                loadMetadataRepository(new MavenRepositoryLocation(reference.getNickname(), uri),
                                         metadataRepositories, loaded, artifactRepositories, includeReferences);
                             } catch (ProvisionException e) {
                                 logger.warn("Loading referenced repository failed: " + e.getMessage(),
                                         logger.isDebugEnabled() ? e : null);
                             }
                         } else if (reference.getType() == IRepository.TYPE_ARTIFACT) {
-                            artifactRepositories.add(reference.getLocation());
+                            if (!artifactRepositories.containsKey(uri)) {
+                                artifactRepositories.put(uri, true);
+                            }
                         }
                     }
                 }
@@ -523,11 +526,11 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     /**
      * Provider for all target platform artifacts from outside the reactor.
      */
-    private IRawArtifactFileProvider createExternalArtifactProvider(Set<URI> completeRepositories,
+    private IRawArtifactFileProvider createExternalArtifactProvider(Map<URI, Boolean> artifactRepositories,
             List<TargetDefinitionContent> targetDefinitionsContent, IRawArtifactFileProvider extraMavenBundles) {
         SortedRepositories repos = SortedRepositories
                 .sort(targetDefinitionsContent.stream().map(TargetDefinitionContent::getArtifactRepository).toList());
-        RepositoryArtifactProvider remoteArtifactProvider = createRemoteArtifactProvider(completeRepositories,
+        RepositoryArtifactProvider remoteArtifactProvider = createRemoteArtifactProvider(artifactRepositories,
                 repos.remoteRepositories);
         MirroringArtifactProvider remoteArtifactProviderWithCache = MirroringArtifactProvider
                 .createInstance(localArtifactRepository, remoteArtifactProvider, mavenContext);
@@ -541,14 +544,30 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     /**
      * Provider for the target platform artifacts not yet available in the local Maven repository.
      */
-    private RepositoryArtifactProvider createRemoteArtifactProvider(Set<URI> mavenRepositories,
+    private RepositoryArtifactProvider createRemoteArtifactProvider(Map<URI, Boolean> mavenRepositories,
             List<IArtifactRepository> repos) {
         List<IArtifactRepository> artifactRepositories = new ArrayList<>();
 
-        for (URI location : mavenRepositories) {
-            if (!offline || URIUtil.isFileURI(location)) {
-                artifactRepositories.add(
-                        new LazyArtifactRepository(remoteAgent, location, RepositoryArtifactProvider::loadRepository));
+        for (Entry<URI, Boolean> location : mavenRepositories.entrySet()) {
+            URI uri = location.getKey();
+            if (!offline || URIUtil.isFileURI(uri)) {
+                boolean referenced = location.getValue();
+                if (referenced) {
+                    artifactRepositories.add(new LazyArtifactRepository(remoteAgent, uri, (u, a) -> {
+                        IArtifactRepositoryManager repositoryManager = a.getService(IArtifactRepositoryManager.class);
+                        if (repositoryManager != null) {
+                            try {
+                                return repositoryManager.loadRepository(u, null);
+                            } catch (ProvisionException e) {
+                                logger.warn("Skip referenced repository: " + u + ": " + e);
+                            }
+                        }
+                        return new EmptyArtifactRepository(a, u);
+                    }));
+                } else {
+                    artifactRepositories.add(
+                            new LazyArtifactRepository(remoteAgent, uri, RepositoryArtifactProvider::loadRepository));
+                }
             }
         }
 
