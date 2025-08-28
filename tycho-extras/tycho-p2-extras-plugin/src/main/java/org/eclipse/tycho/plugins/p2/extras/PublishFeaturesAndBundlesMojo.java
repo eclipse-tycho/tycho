@@ -17,13 +17,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -32,7 +32,9 @@ import org.eclipse.tycho.p2tools.copiedfromp2.FeaturesAndBundlesPublisherApplica
 /**
  * This goal invokes the feature and bundle publisher on a folder.
  *
- * @see <a href="https://wiki.eclipse.org/Equinox/p2/Publisher#Features_And_Bundles_Publisher_Application">Eclipse Wiki</a>
+ * @see <a href=
+ *      "https://wiki.eclipse.org/Equinox/p2/Publisher#Features_And_Bundles_Publisher_Application">Eclipse
+ *      Wiki</a>
  */
 @Mojo(name = "publish-features-and-bundles", threadSafe = true)
 public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
@@ -85,10 +87,7 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
     @Parameter(defaultValue = "")
     private String additionalArgs;
 
-    @Parameter(property = "project")
-    private MavenProject project;
-
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
     @Override
