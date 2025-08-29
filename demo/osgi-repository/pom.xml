@@ -9,7 +9,7 @@
 		<module>my-bundle</module>
 	</modules>
 	<properties>
-		<tycho-version>5.0.0-SNAPSHOT</tycho-version>
+		<tycho-version>5.0.0</tycho-version>
 	</properties>
 	
 </project>

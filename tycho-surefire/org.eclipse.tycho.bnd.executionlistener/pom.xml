@@ -3,9 +3,10 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho-surefire</artifactId>
-		<version>5.0.0-SNAPSHOT</version>
+		<version>5.0.0</version>
 	</parent>
 	<artifactId>org.eclipse.tycho.bnd.executionlistener</artifactId>
+	<name>bnd test junit execution listener plugin</name>
 	<properties>
 		<min.jdk.version>8</min.jdk.version>
 	</properties>

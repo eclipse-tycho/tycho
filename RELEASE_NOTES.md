@@ -197,7 +197,7 @@ In the simplest form it can be used like this:
 <plugin>
     <groupId>org.eclipse.tycho</groupId>
     <artifactId>tycho-wrap-plugin</artifactId>
-    <version>5.0.0-SNAPSHOT</version>
+    <version>5.0.0</version>
     <executions>
         <execution>
             <id>make-bundle</id>

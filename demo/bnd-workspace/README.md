@@ -9,7 +9,7 @@ This example shows how one can build a BND Workspace with Maven without any poms
 
 To build with the current snapshot build (e.g. during local development) use:
 
-- `mvn clean install -Dtycho-version=5.0.0-SNAPSHOT`
+- `mvn clean install -Dtycho-version=5.0.0`
 
 ## Running the demo application
 

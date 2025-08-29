@@ -86,7 +86,7 @@ You can even combine a BND Workspace and PDE bundles in a build, see [demo](http
 
 Note: All properties in `.mvn/maven.config` can also be supplied via command line, for example to use a different tycho version use the following command line argument:
 
-`mvn clean install -Dtycho-version=5.0.0-SNAPSHOT`
+`mvn clean install -Dtycho-version=5.0.0`
 
 This uses the snapshot build which is useful if you build tycho yourself on your local machine and want to test that build.
 

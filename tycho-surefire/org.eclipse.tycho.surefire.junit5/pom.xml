@@ -15,7 +15,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho-surefire</artifactId>
-		<version>5.0.0-SNAPSHOT</version>
+		<version>5.0.0</version>
 	</parent>
 	<artifactId>org.eclipse.tycho.surefire.junit5</artifactId>
 	<packaging>jar</packaging>
@@ -40,6 +40,21 @@
 					</artifactItems>
 				</configuration>
 			</plugin>
+			<plugin>
+	            <artifactId>maven-jar-plugin</artifactId>
+	            <executions>
+	                <execution>
+	                    <id>javadoc-jar</id>
+	                    <phase>package</phase>
+	                    <goals>
+	                        <goal>jar</goal>
+	                    </goals>
+	                    <configuration>
+	                        <classifier>javadoc</classifier>
+	                    </configuration>
+	                </execution>
+	            </executions>
+	        </plugin>
 		</plugins>
 	</build>
 </project>

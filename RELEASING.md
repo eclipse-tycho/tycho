@@ -116,8 +116,9 @@ mvn clean deploy -Prelease -DskipTests -Dsource=8 -DjdetectJavaApiLink=false \
 
 ## Publish the staged release
 
-- [ ] Inspect the staged content if it looks sane
-- [ ] close the staging repository on https://oss.sonatype.org/#stagingRepositories 
+- [ ] Inspect the staged content if it looks sane, it is located under `<userdir>/.njord/tycho-<running number>`
+- [ ] `mvn njord:publish -Dstore=tycho-<running number> -Dpublisher=sonatype-cp`
+- [ ] publish the staging repository on https://central.sonatype.com/publishing/deployments
 
 ![image](https://user-images.githubusercontent.com/1331477/226089500-03236680-7219-4755-8e62-bfe38e5754a3.png)
 
