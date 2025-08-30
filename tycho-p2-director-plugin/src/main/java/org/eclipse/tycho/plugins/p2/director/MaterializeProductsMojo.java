@@ -313,7 +313,7 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
         return switch (directorRuntime) {
         case internal -> director;
         case standalone -> standaloneDirectorFactory.createStandaloneDirector(getBuildDirectory().getChild("director"),
-                getSession().getLocalRepository(), getForkedProcessTimeoutInSeconds());
+                getForkedProcessTimeoutInSeconds());
         default -> throw new MojoFailureException(
                 "Unsupported value for attribute 'directorRuntime': \"" + directorRuntime + "\"");
         };

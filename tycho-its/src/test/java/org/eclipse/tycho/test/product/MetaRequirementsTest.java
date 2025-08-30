@@ -12,10 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.startsWithIgnoringCase;
-import static org.junit.Assume.assumeThat;
-
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
@@ -24,9 +20,6 @@ public class MetaRequirementsTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testProductInstallationWithCustomTouchpoint() throws Exception {
-		// TODO: fix this test for windows
-		assumeThat(System.getProperty("os.name"), not(startsWithIgnoringCase("windows")));
-
 		/*
 		 * Project building a product distribution which includes a bundle that uses a
 		 * custom touchpoint. The implementation of the touchpoint is installed into the
