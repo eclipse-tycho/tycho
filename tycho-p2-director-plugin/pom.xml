@@ -52,13 +52,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-bundles-external</artifactId>
-			<!-- use a fixed version here for now, this is only used when working with a standalone director -->
-			<version>2.7.5</version>
-			<type>zip</type>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
 			<exclusions>

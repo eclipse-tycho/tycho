@@ -16,7 +16,6 @@ import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.repository.RepositorySystem;
@@ -25,6 +24,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
@@ -54,23 +54,18 @@ public class StandaloneDirectorRuntimeFactory {
             throws MojoExecutionException {
         try {
             // ... install from a zipped p2 repository obtained via Maven ...
-            URI directorRuntimeRepo = URI
-                    .create("jar:" + getDirectorRepositoryZip(localMavenRepository).toURI() + "!/");
             DirectorRuntime.Command command = bootstrapDirector.newInstallCommand("standalone");
-            command.addMetadataSources(Arrays.asList(directorRuntimeRepo));
-            command.addArtifactSources(Arrays.asList(directorRuntimeRepo));
+            URI latest = URI.create(TychoConstants.ECLIPSE_LATEST);
+            command.addMetadataSources(Arrays.asList(latest));
+            command.addArtifactSources(Arrays.asList(latest));
 
             // ... a product that includes the p2 director application ...
-            command.addUnitToInstall("tycho-bundles-external");
+            command.addUnitToInstall("org.eclipse.equinox.p2.director.app");
             command.setProfileName("director");
 
             // ... to a location in the target folder
             command.setDestination(installLocation);
-
-            // there is only this environment in the p2 repository zip
-            // TODO use a "no environment-specific units" setting
-            command.setEnvironment(new TargetEnvironment("linux", "gtk", "x86_64"));
-
+            command.setEnvironment(TargetEnvironment.getRunningEnvironment());
             logger.info("Installing a standalone p2 Director");
             command.execute();
         } catch (DirectorCommandException e) {
@@ -78,10 +73,4 @@ public class StandaloneDirectorRuntimeFactory {
         }
     }
 
-    private File getDirectorRepositoryZip(ArtifactRepository localMavenRepository) {
-        // this artifact is a dependency of the Mojo, so we expect it in the local Maven repo
-        Artifact artifact = repositorySystem.createArtifact("org.eclipse.tycho", "tycho-bundles-external", "2.7.5",
-                "eclipse-repository");
-        return new File(localMavenRepository.getBasedir(), localMavenRepository.pathOf(artifact));
-    }
 }
