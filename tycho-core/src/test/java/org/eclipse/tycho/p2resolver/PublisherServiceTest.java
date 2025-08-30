@@ -75,7 +75,7 @@ public class PublisherServiceTest extends TychoPlexusTestCase {
         outputRepository = new PublishingRepositoryImpl(lookup(IProvisioningAgent.class),
                 new ReactorProjectIdentitiesStub(projectDirectory));
         PublisherActionRunner publisherRunner = new PublisherActionRunner(context, DEFAULT_ENVIRONMENTS,
-                logVerifier.getMavenLogger());
+                logVerifier.getLogger());
         subject = new PublisherServiceImpl(publisherRunner, DEFAULT_QUALIFIER, outputRepository);
     }
 

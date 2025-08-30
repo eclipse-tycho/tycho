@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
@@ -41,6 +42,9 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
     @Requirement
     private TargetPlatformService targetPlatformService;
+
+    @Requirement
+    private Logger logger;
 
     @Override
     public PublisherService createPublisher(ReactorProject project, List<TargetEnvironment> environments) {
@@ -68,8 +72,7 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
     private PublisherActionRunner getPublisherRunnerForProject(P2TargetPlatform targetPlatform,
             List<TargetEnvironment> environments) {
-        return new PublisherActionRunner(targetPlatform.getMetadataRepository(), environments,
-                mavenContext.getLogger());
+        return new PublisherActionRunner(targetPlatform.getMetadataRepository(), environments, logger);
     }
 
 }

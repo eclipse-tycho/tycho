@@ -99,7 +99,7 @@ public class PublishProductToolTest extends TychoPlexusTestCase {
                 Set.of());
 
         PublisherActionRunner publisherRunner = new PublisherActionRunner(targetPlatform.getMetadataRepository(),
-                ENVIRONMENTS, logVerifier.getMavenLogger());
+                ENVIRONMENTS, logVerifier.getLogger());
         return new PublishProductToolImpl(publisherRunner, outputRepository, targetPlatform, QUALIFIER,
                 interpolatorMock, logVerifier.getMavenLogger());
     }
