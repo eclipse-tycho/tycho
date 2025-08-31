@@ -36,7 +36,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Settings;
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.artifact.Artifact;
@@ -101,8 +100,8 @@ import org.xml.sax.SAXException;
  */
 public class MavenTargetDefinitionContent implements TargetDefinitionContent {
 
-    private static final RemoteRepository CENTRAL = new RemoteRepository.Builder(
-            RepositorySystem.DEFAULT_REMOTE_REPO_ID, "default", RepositorySystem.DEFAULT_REMOTE_REPO_URL)
+    private static final RemoteRepository CENTRAL = new RemoteRepository.Builder(TychoConstants.DEFAULT_REMOTE_REPO_ID,
+            "default", TychoConstants.DEFAULT_REMOTE_REPO_URL)
                     .setReleasePolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_NEVER,
                             RepositoryPolicy.CHECKSUM_POLICY_WARN))
                     .setSnapshotPolicy(new RepositoryPolicy(false, RepositoryPolicy.UPDATE_POLICY_NEVER,
@@ -117,8 +116,8 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
 
     MavenTargetDefinitionContent(MavenGAVLocation location, MavenDependenciesResolver mavenDependenciesResolver,
             IncludeSourceMode sourceMode, IProvisioningAgent agent, MavenContext mavenContext,
-            SyncContextFactory syncContextFactory, RepositorySystem repositorySystem, MavenSession mavenSession,
-            org.eclipse.aether.RepositorySystem repositorySystem2) {
+            SyncContextFactory syncContextFactory, MavenSession mavenSession,
+            org.eclipse.aether.RepositorySystem repositorySystem) {
         this.mavenContext = mavenContext;
         MavenLogger logger = mavenContext.getLogger();
         File repositoryRoot = mavenDependenciesResolver.getRepositoryRoot();
@@ -143,7 +142,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         }
         List<AdditionalRepository> references = location.getRepositoryReferences().stream()
                 .map(rr -> new AdditionalRepository(rr.getId(), rr.getUrl())).toList();
-        MavenDependencyCollector collector = new MavenDependencyCollector(repositorySystem2,
+        MavenDependencyCollector collector = new MavenDependencyCollector(repositorySystem,
                 mavenSession.getRepositorySession(), getRepos(mavenSession), references,
                 convert(location.getIncludeDependencyDepth()), location.getIncludeDependencyScopes());
         List<IInstallableUnit> locationBundles = new ArrayList<>();
@@ -213,7 +212,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                     new DefaultArtifact(mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(),
                                             mavenArtifact.getClassifier(), mavenArtifact.getPackagingType(),
                                             mavenArtifact.getVersion()),
-                                    instructionsLookup, collector.getEffectiveRepositories(), repositorySystem2,
+                                    instructionsLookup, collector.getEffectiveRepositories(), repositorySystem,
                                     mavenSession.getRepositorySession(), syncContextFactory);
                             List<ProcessingMessage> directErrors = wrappedBundle.messages(false)
                                     .filter(msg -> msg.type() == ProcessingMessage.Type.ERROR).toList();
