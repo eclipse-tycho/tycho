@@ -151,7 +151,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         return read(input, file, options);
     }
 
-    @Override
+//    @Override
     public Model read(Path input, Map<String, ?> options) throws IOException, ModelParseException {
         return read(input.toFile(), options);
     }
