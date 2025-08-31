@@ -21,6 +21,10 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public interface TychoConstants {
 
+    String DEFAULT_REMOTE_REPO_ID = "central";
+
+    String DEFAULT_REMOTE_REPO_URL = "https://repo.maven.apache.org/maven2";
+
     String USER_HOME = System.getProperty("user.home");
     File USER_MAVEN_CONFIGURATION_HOME = new File(USER_HOME, ".m2");
     File DEFAULT_USER_LOCALREPOSITORY = new File(USER_MAVEN_CONFIGURATION_HOME, "repository");
