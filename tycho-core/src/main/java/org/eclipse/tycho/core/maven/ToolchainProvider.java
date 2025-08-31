@@ -68,10 +68,6 @@ public class ToolchainProvider {
         this.mavenSession = mavenSession;
     }
 
-    public Optional<OSGiJavaToolchain> getToolchain(String profileName) {
-        return getToolchain(JDKUsage.BREE, profileName).or(() -> getSystemToolchain());
-    }
-
     public Optional<OSGiJavaToolchain> getToolchain(JDKUsage usage, String profileName) {
         if (usage == JDKUsage.SYSTEM) {
             return getSystemToolchain();

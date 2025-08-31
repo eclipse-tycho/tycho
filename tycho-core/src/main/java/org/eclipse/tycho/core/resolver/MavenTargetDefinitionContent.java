@@ -36,9 +36,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Settings;
 import org.eclipse.aether.RepositoryException;
+import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.DependencyNode;
@@ -101,8 +101,12 @@ import org.xml.sax.SAXException;
  */
 public class MavenTargetDefinitionContent implements TargetDefinitionContent {
 
-    private static final RemoteRepository CENTRAL = new RemoteRepository.Builder(
-            RepositorySystem.DEFAULT_REMOTE_REPO_ID, "default", RepositorySystem.DEFAULT_REMOTE_REPO_URL)
+    private static final String DEFAULT_REMOTE_REPO_ID = "central";
+
+    private static final String DEFAULT_REMOTE_REPO_URL = "https://repo.maven.apache.org/maven2";
+
+    private static final RemoteRepository CENTRAL = new RemoteRepository.Builder(DEFAULT_REMOTE_REPO_ID, "default",
+            DEFAULT_REMOTE_REPO_URL)
                     .setReleasePolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_NEVER,
                             RepositoryPolicy.CHECKSUM_POLICY_WARN))
                     .setSnapshotPolicy(new RepositoryPolicy(false, RepositoryPolicy.UPDATE_POLICY_NEVER,

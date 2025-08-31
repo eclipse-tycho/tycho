@@ -30,6 +30,13 @@
 			<artifactId>tycho-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		
+		<!-- legacy replace -->
+		<dependency>
+		    <groupId>org.codehaus.plexus</groupId>
+		    <artifactId>plexus-component-annotations</artifactId>
+		    <version>2.2.0</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
