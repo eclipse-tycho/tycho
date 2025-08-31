@@ -88,6 +88,8 @@ public interface TychoConstants {
 
     String PROP_REPOSITORY = "maven-repository";
 
+    String PROP_SCOPE = "maven-scope";
+
     String PROP_WRAPPED_GROUP_ID = "maven-wrapped-groupId";
 
     String PROP_WRAPPED_ARTIFACT_ID = "maven-wrapped-artifactId";

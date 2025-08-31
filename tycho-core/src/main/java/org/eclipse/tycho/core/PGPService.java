@@ -139,12 +139,11 @@ public class PGPService {
      * @throws ArtifactResolutionException
      *             if no signature can be resolved
      */
-    public File getSignatureFile(org.apache.maven.artifact.Artifact artifact, RepositorySystemSession session,
+    public File getSignatureFile(Artifact artifact, RepositorySystemSession session,
             List<RemoteRepository> repositories) throws ArtifactResolutionException {
 
         Artifact signatureArtifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(),
-                artifact.getClassifier(), artifact.getArtifactHandler().getExtension() + SIGNATURE_EXTENSION,
-                artifact.getVersion());
+                artifact.getClassifier(), artifact.getExtension() + SIGNATURE_EXTENSION, artifact.getVersion());
         ArtifactRequest artifactRequest = new ArtifactRequest(signatureArtifact, repositories, null);
         ArtifactResult dependencyResult = repositorySystem.resolveArtifact(session, artifactRequest);
         Artifact a = dependencyResult.getArtifact();
