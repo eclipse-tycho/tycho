@@ -35,11 +35,9 @@ import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.RepositoryUtils;
 import org.apache.maven.archiver.MavenArchiver;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
@@ -53,7 +51,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.apache.maven.repository.RepositorySystem;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPObjectFactory;
@@ -67,7 +64,16 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactDescriptorException;
+import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
+import org.eclipse.aether.resolution.ArtifactDescriptorResult;
+import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -159,6 +165,15 @@ public class MavenP2SiteMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "false")
     private boolean includeTransitiveDependencies;
+
+    /**
+     * List what scopes should be considered when including transitive dependencies, defaults to
+     * <code>compile</code>. In contrast to what maven does, scopes are not inclusive, that means
+     * for example that <code>test</code> does not include <compile>! If you want that specify both
+     * scopes here.
+     */
+    @Parameter(defaultValue = "compile")
+    private Set<String> includeTransitiveDependenciesScopes;
 
     @Parameter(defaultValue = "false")
     private boolean failOnResolveError;
@@ -269,7 +284,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
                 if (skipProject(mavenProject)) {
                     continue;
                 }
-                Artifact artifact = mavenProject.getArtifact();
+                var artifact = mavenProject.getArtifact();
                 File file = artifact.getFile();
                 File attachedSignatureFile = null;
                 if (includePGPSignature) {
@@ -427,7 +442,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
         }
         if (PackagingType.TYPE_P2_SITE.equals(project.getPackaging())
                 && execution.getExecutionId().startsWith("default-")) {
-            Artifact artifact = project.getArtifact();
+            var artifact = project.getArtifact();
             artifact.setFile(destFile);
             artifact.setArtifactHandler(new DefaultArtifactHandler("zip"));
         } else {
@@ -456,30 +471,51 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     protected void resolve(List<Dependency> dependencies, List<File> bundles, List<File> advices, List<File> signatures,
             Set<String> filesAdded) throws MojoExecutionException {
+        Set<ArtifactWithScope> artifacts = new HashSet<>();
+        Set<String> gaCache = new HashSet<>();
         for (Dependency dependency : dependencies) {
             logger.debug("resolving " + dependency.getGroupId() + "::" + dependency.getArtifactId() + "::"
                     + dependency.getVersion() + "::" + dependency.getClassifier());
-            Artifact artifact = repositorySystem.createArtifactWithClassifier(dependency.getGroupId(),
-                    dependency.getArtifactId(), dependency.getVersion(), dependency.getType(),
-                    dependency.getClassifier());
-            Set<Artifact> artifacts = resolveArtifact(artifact, includeTransitiveDependencies);
-            for (Artifact resolvedArtifact : artifacts) {
-                logger.debug("    resolved " + resolvedArtifact.getGroupId() + "::" + resolvedArtifact.getArtifactId()
-                        + "::" + resolvedArtifact.getVersion() + "::" + resolvedArtifact.getClassifier());
-                File file = resolvedArtifact.getFile();
-                if (file == null) {
-                    continue;
-                }
-                if (filesAdded.add(file.getAbsolutePath())) {
-                    bundles.add(file);
-                    advices.add(createMavenAdvice(resolvedArtifact));
-                    signatures.add(getSignatureFile(artifact));
-                }
+            DefaultArtifact artifact = new DefaultArtifact(dependency.getGroupId(), dependency.getArtifactId(),
+                    dependency.getClassifier(), dependency.getType(), dependency.getVersion());
+            resolveArtifact(artifact, dependency.getScope(), includeTransitiveDependencies, artifacts, gaCache);
+        }
+        for (ArtifactWithScope artifact : artifacts) {
+            Artifact resolvedArtifact = artifact.artifact();
+            logger.debug("    resolved " + resolvedArtifact.getGroupId() + "::" + resolvedArtifact.getArtifactId()
+                    + "::" + resolvedArtifact.getVersion() + "::" + resolvedArtifact.getClassifier());
+            File file = resolvedArtifact.getFile();
+            if (file == null) {
+                continue;
+            }
+            if (filesAdded.add(file.getAbsolutePath())) {
+                bundles.add(file);
+                advices.add(createMavenAdvice(resolvedArtifact, artifact.scope()));
+                signatures.add(getSignatureFile(resolvedArtifact));
             }
         }
     }
 
-    protected File createMavenAdvice(Artifact artifact) throws MojoExecutionException {
+    protected File createMavenAdvice(Artifact artifact, String scope) throws MojoExecutionException {
+        try {
+            int cnt = 0;
+            File p2 = File.createTempFile("p2properties", ".inf");
+            p2.deleteOnExit();
+            Properties properties = new Properties();
+            addProvidesAndProperty(properties, TychoConstants.PROP_GROUP_ID, artifact.getGroupId(), cnt++);
+            addProvidesAndProperty(properties, TychoConstants.PROP_ARTIFACT_ID, artifact.getArtifactId(), cnt++);
+            addProvidesAndProperty(properties, TychoConstants.PROP_VERSION, artifact.getVersion(), cnt++);
+            addProvidesAndProperty(properties, TychoConstants.PROP_EXTENSION, artifact.getExtension(), cnt++);
+            addProvidesAndProperty(properties, TychoConstants.PROP_CLASSIFIER, artifact.getClassifier(), cnt++);
+            addProvidesAndProperty(properties, TychoConstants.PROP_SCOPE, scope, cnt++);
+            ReproducibleUtils.storeProperties(properties, p2.toPath());
+            return p2;
+        } catch (IOException e) {
+            throw new MojoExecutionException("failed to generate p2.inf", e);
+        }
+    }
+
+    protected File createMavenAdvice(org.apache.maven.artifact.Artifact artifact) throws MojoExecutionException {
         try {
             int cnt = 0;
             File p2 = File.createTempFile("p2properties", ".inf");
@@ -490,7 +526,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
             addProvidesAndProperty(properties, TychoConstants.PROP_VERSION, artifact.getVersion(), cnt++);
             addProvidesAndProperty(properties, TychoConstants.PROP_EXTENSION, artifact.getType(), cnt++);
             addProvidesAndProperty(properties, TychoConstants.PROP_CLASSIFIER, artifact.getClassifier(), cnt++);
-            addProvidesAndProperty(properties, "maven-scope", artifact.getScope(), cnt++);
+            addProvidesAndProperty(properties, TychoConstants.PROP_SCOPE, artifact.getScope(), cnt++);
             ReproducibleUtils.storeProperties(properties, p2.toPath());
             return p2;
         } catch (IOException e) {
@@ -522,27 +558,50 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     }
 
-    protected Set<Artifact> resolveArtifact(Artifact artifact, boolean resolveTransitively)
-            throws MojoExecutionException {
-        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
+    protected void resolveArtifact(Artifact artifact, String scope, boolean resolveTransitively,
+            Set<ArtifactWithScope> artifacts, Set<String> gaCache) throws MojoExecutionException {
+        ArtifactRequest request = new ArtifactRequest();
         request.setArtifact(artifact);
-        request.setOffline(session.isOffline());
-        request.setLocalRepository(session.getLocalRepository());
-        request.setResolveTransitively(resolveTransitively);
-        request.setRemoteRepositories(session.getCurrentProject().getRemoteArtifactRepositories());
-        ArtifactResolutionResult result = repositorySystem.resolve(request);
-        if (failOnResolveError) {
-            for (Exception exception : result.getExceptions()) {
-                throw new MojoExecutionException(exception);
+        List<RemoteRepository> repos = new ArrayList<>(
+                RepositoryUtils.toRepos(session.getCurrentProject().getRemoteArtifactRepositories()));
+        repos.add(RepositoryUtils.toRepo(session.getLocalRepository()));
+        request.setRepositories(repos);
+        try {
+            ArtifactResult artifactResult = repositorySystem.resolveArtifact(session.getRepositorySession(), request);
+            Artifact result = artifactResult.getArtifact();
+            if (result != null && artifacts.add(new ArtifactWithScope(result, scope)) && resolveTransitively
+                    && gaCache.add(getId(result))) {
+                ArtifactDescriptorRequest descriptorRequest = new ArtifactDescriptorRequest();
+                descriptorRequest.setArtifact(result);
+                descriptorRequest.setRepositories(repos);
+                try {
+                    ArtifactDescriptorResult descriptorResult = repositorySystem
+                            .readArtifactDescriptor(session.getRepositorySession(), descriptorRequest);
+                    List<org.eclipse.aether.graph.Dependency> dependencies = descriptorResult.getDependencies();
+                    for (org.eclipse.aether.graph.Dependency dependency : dependencies) {
+                        String dependencyScope = dependency.getScope();
+                        Artifact dependencyArtifact = dependency.getArtifact();
+                        if (includeTransitiveDependenciesScopes.contains(dependencyScope)
+                                && !gaCache.contains(getId(dependencyArtifact))) {
+                            resolveArtifact(dependencyArtifact, dependencyScope, resolveTransitively, artifacts,
+                                    gaCache);
+                        }
+                    }
+                } catch (ArtifactDescriptorException e) {
+                    if (failOnResolveError) {
+                        throw new MojoExecutionException(e);
+                    }
+                }
             }
-            for (Exception exception : result.getErrorArtifactExceptions()) {
-                throw new MojoExecutionException(exception);
-            }
-            for (Exception exception : result.getMetadataResolutionExceptions()) {
-                throw new MojoExecutionException(exception);
+        } catch (ArtifactResolutionException e) {
+            if (failOnResolveError) {
+                throw new MojoExecutionException(e);
             }
         }
-        return result.getArtifacts();
+    }
+
+    private String getId(Artifact artifact) {
+        return artifact.getGroupId() + ":" + artifact.getArtifactId();
     }
 
     private File getSignatureFile(Artifact artifact) {
@@ -566,7 +625,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
         if (packaging.equalsIgnoreCase("pom")) {
             return true;
         }
-        Artifact artifact = mavenProject.getArtifact();
+        var artifact = mavenProject.getArtifact();
         if (artifact == null) {
             return true;
         }
@@ -654,6 +713,10 @@ public class MavenP2SiteMojo extends AbstractMojo {
         }
 
         return plugin;
+    }
+
+    private static final record ArtifactWithScope(Artifact artifact, String scope) {
+
     }
 
 }
