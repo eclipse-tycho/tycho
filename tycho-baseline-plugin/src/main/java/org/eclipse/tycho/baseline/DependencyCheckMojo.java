@@ -54,7 +54,6 @@ import org.eclipse.tycho.baseline.analyze.JrtClasses;
 import org.eclipse.tycho.baseline.analyze.MethodSignature;
 import org.eclipse.tycho.core.MarkdownBuilder;
 import org.eclipse.tycho.core.TychoProjectManager;
-import org.eclipse.tycho.core.maven.OSGiJavaToolchain;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
@@ -396,10 +395,11 @@ public class DependencyCheckMojo extends AbstractMojo {
 		String profileName = projectManager.getExecutionEnvironments(project, session).findFirst()
 				.map(ee -> ee.getProfileName()).orElse(null);
 		if (profileName != null) {
-			OSGiJavaToolchain osgiToolchain = toolchainProvider.getToolchain(profileName).orElse(null);
-			if (osgiToolchain != null) {
-				return new JrtClasses(osgiToolchain.getJavaHome());
-			}
+			//TODO
+//			OSGiJavaToolchain osgiToolchain = toolchainProvider.getToolchain(profileName).orElse(null);
+//			if (osgiToolchain != null) {
+//				return new JrtClasses(osgiToolchain.getJavaHome());
+//			}
 		}
 		// use running jvm
 		return new JrtClasses(null);

@@ -38,8 +38,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
@@ -53,7 +51,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.apache.maven.repository.RepositorySystem;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPObjectFactory;
@@ -67,6 +64,7 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -456,27 +454,27 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     protected void resolve(List<Dependency> dependencies, List<File> bundles, List<File> advices, List<File> signatures,
             Set<String> filesAdded) throws MojoExecutionException {
-        for (Dependency dependency : dependencies) {
-            logger.debug("resolving " + dependency.getGroupId() + "::" + dependency.getArtifactId() + "::"
-                    + dependency.getVersion() + "::" + dependency.getClassifier());
-            Artifact artifact = repositorySystem.createArtifactWithClassifier(dependency.getGroupId(),
-                    dependency.getArtifactId(), dependency.getVersion(), dependency.getType(),
-                    dependency.getClassifier());
-            Set<Artifact> artifacts = resolveArtifact(artifact, includeTransitiveDependencies);
-            for (Artifact resolvedArtifact : artifacts) {
-                logger.debug("    resolved " + resolvedArtifact.getGroupId() + "::" + resolvedArtifact.getArtifactId()
-                        + "::" + resolvedArtifact.getVersion() + "::" + resolvedArtifact.getClassifier());
-                File file = resolvedArtifact.getFile();
-                if (file == null) {
-                    continue;
-                }
-                if (filesAdded.add(file.getAbsolutePath())) {
-                    bundles.add(file);
-                    advices.add(createMavenAdvice(resolvedArtifact));
-                    signatures.add(getSignatureFile(artifact));
-                }
-            }
-        }
+//        for (Dependency dependency : dependencies) {
+//            logger.debug("resolving " + dependency.getGroupId() + "::" + dependency.getArtifactId() + "::"
+//                    + dependency.getVersion() + "::" + dependency.getClassifier());
+//            Artifact artifact = repositorySystem.createArtifactWithClassifier(dependency.getGroupId(),
+//                    dependency.getArtifactId(), dependency.getVersion(), dependency.getType(),
+//                    dependency.getClassifier());
+//            Set<Artifact> artifacts = resolveArtifact(artifact, includeTransitiveDependencies);
+//            for (Artifact resolvedArtifact : artifacts) {
+//                logger.debug("    resolved " + resolvedArtifact.getGroupId() + "::" + resolvedArtifact.getArtifactId()
+//                        + "::" + resolvedArtifact.getVersion() + "::" + resolvedArtifact.getClassifier());
+//                File file = resolvedArtifact.getFile();
+//                if (file == null) {
+//                    continue;
+//                }
+//                if (filesAdded.add(file.getAbsolutePath())) {
+//                    bundles.add(file);
+//                    advices.add(createMavenAdvice(resolvedArtifact));
+//                    signatures.add(getSignatureFile(artifact));
+//                }
+//            }
+//        }
     }
 
     protected File createMavenAdvice(Artifact artifact) throws MojoExecutionException {
@@ -524,25 +522,26 @@ public class MavenP2SiteMojo extends AbstractMojo {
 
     protected Set<Artifact> resolveArtifact(Artifact artifact, boolean resolveTransitively)
             throws MojoExecutionException {
-        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-        request.setArtifact(artifact);
-        request.setOffline(session.isOffline());
-        request.setLocalRepository(session.getLocalRepository());
-        request.setResolveTransitively(resolveTransitively);
-        request.setRemoteRepositories(session.getCurrentProject().getRemoteArtifactRepositories());
-        ArtifactResolutionResult result = repositorySystem.resolve(request);
-        if (failOnResolveError) {
-            for (Exception exception : result.getExceptions()) {
-                throw new MojoExecutionException(exception);
-            }
-            for (Exception exception : result.getErrorArtifactExceptions()) {
-                throw new MojoExecutionException(exception);
-            }
-            for (Exception exception : result.getMetadataResolutionExceptions()) {
-                throw new MojoExecutionException(exception);
-            }
-        }
-        return result.getArtifacts();
+//        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
+//        request.setArtifact(artifact);
+//        request.setOffline(session.isOffline());
+//        request.setLocalRepository(session.getLocalRepository());
+//        request.setResolveTransitively(resolveTransitively);
+//        request.setRemoteRepositories(session.getCurrentProject().getRemoteArtifactRepositories());
+//        ArtifactResolutionResult result = repositorySystem.resolve(request);
+//        if (failOnResolveError) {
+//            for (Exception exception : result.getExceptions()) {
+//                throw new MojoExecutionException(exception);
+//            }
+//            for (Exception exception : result.getErrorArtifactExceptions()) {
+//                throw new MojoExecutionException(exception);
+//            }
+//            for (Exception exception : result.getMetadataResolutionExceptions()) {
+//                throw new MojoExecutionException(exception);
+//            }
+//        }
+//        return result.getArtifacts();
+        return Set.of();
     }
 
     private File getSignatureFile(Artifact artifact) {
