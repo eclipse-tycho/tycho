@@ -10,23 +10,11 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jetty-version>10.0.26</jetty-version>
+    <tycho-version>6.0.0-SNAPSHOT</tycho-version>
   </properties>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>eclipse-maven-releases</id>
-      <url>https://repo.eclipse.org/content/repositories/releases</url>
-    </pluginRepository>
-
-    <pluginRepository>
-      <id>eclipse-cbi-releases</id>
-      <url>https://repo.eclipse.org/content/repositories/cbi-releases</url>
-    </pluginRepository>
-  </pluginRepositories>
 
   <build>
     <plugins>
-
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-p2-publisher-plugin</artifactId>
