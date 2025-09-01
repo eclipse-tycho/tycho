@@ -27,6 +27,8 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.apache.maven.RepositoryUtils;
+import org.apache.maven.artifact.handler.ArtifactHandler;
+import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
@@ -65,6 +67,9 @@ public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerServic
 
 	private MavenSession mavenSession;
 
+	@Inject
+	private ArtifactHandlerManager artifactHandlerManager;
+
 	@Override
 	public void afterFrameworkStarted(EmbeddedEquinox framework) {
 		this.mavenSession = context.getSession();
@@ -80,7 +85,7 @@ public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerServic
 					"Called connect() outside maven thread, using global session, project specific repositories or configuration might be ignored!");
 			session = mavenSession;
 		}
-		return new MavenURLConnection(url, session, repositorySystem, logger);
+		return new MavenURLConnection(url, session, repositorySystem, artifactHandlerManager, logger);
 	}
 
 	private static final class MavenURLConnection extends URLConnection {
@@ -95,11 +100,14 @@ public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerServic
 
 		private RepositorySystem repositorySystem;
 
+		private ArtifactHandlerManager artifactHandlerManager;
+
 		protected MavenURLConnection(URL url, MavenSession mavenSession, RepositorySystem repositorySystem,
-				Logger logger) {
+				ArtifactHandlerManager artifactHandlerManager, Logger logger) {
 			super(url);
 			this.mavenSession = mavenSession;
 			this.repositorySystem = repositorySystem;
+			this.artifactHandlerManager = artifactHandlerManager;
 			this.logger = logger;
 		}
 
@@ -124,20 +132,19 @@ public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerServic
 				if (coordinates.length < 3) {
 					throw new IOException("required format is groupId:artifactId:version[:packaging[:classifier]]");
 				}
-				String type = coordinates.length > 3 ? coordinates[3] : "jar";
+				String extension = getExtension(coordinates);
 				String classifier = coordinates.length > 4 ? coordinates[4] : null;
 				String groupId = coordinates[0];
 				String artifactId = coordinates[1];
 				String version = coordinates[2];
 				if (classifier != null && !classifier.isEmpty()) {
-					artifact = new DefaultArtifact(groupId, artifactId, classifier, type, version);
+					artifact = new DefaultArtifact(groupId, artifactId, classifier, extension, version);
 				} else {
-					artifact = new DefaultArtifact(groupId, artifactId, "", type, version);
+					artifact = new DefaultArtifact(groupId, artifactId, "", extension, version);
 				}
 				logger.debug("Resolving " + artifact);
 				ArtifactRequest artifactRequest = new ArtifactRequest();
 				artifactRequest.setArtifact(artifact);
-				artifactRequest.addRepository(RepositoryUtils.toRepo(mavenSession.getLocalRepository()));
 				for (ArtifactRepository repo : mavenSession.getCurrentProject().getRemoteArtifactRepositories()) {
 					artifactRequest.addRepository(RepositoryUtils.toRepo(repo));
 				}
@@ -170,6 +177,12 @@ public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerServic
 				throw new IOException("internal error connecting to maven url " + url, e);
 
 			}
+		}
+
+		private String getExtension(String[] coordinates) {
+			String type = coordinates.length > 3 ? coordinates[3] : "jar";
+			ArtifactHandler handler = artifactHandlerManager.getArtifactHandler(type);
+			return handler.getExtension();
 		}
 
 		@Override
