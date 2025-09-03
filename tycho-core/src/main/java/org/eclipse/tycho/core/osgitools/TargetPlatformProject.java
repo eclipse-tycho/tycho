@@ -57,7 +57,9 @@ public class TargetPlatformProject extends AbstractTychoProject {
 
     @Override
     public ArtifactKey getArtifactKey(ReactorProject project) {
-        return new DefaultArtifactKey("target", project.getArtifactId(), project.getVersion());
+        String version = project.getVersion();
+        version = version.replace(TychoConstants.SUFFIX_SNAPSHOT, TychoConstants.SUFFIX_QUALIFIER);
+        return new DefaultArtifactKey("target", project.getArtifactId(), version);
     }
 
     @Override
