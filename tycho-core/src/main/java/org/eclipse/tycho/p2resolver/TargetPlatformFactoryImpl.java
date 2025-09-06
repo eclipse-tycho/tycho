@@ -343,7 +343,11 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             } catch (IllegalArgumentException ex) {
             }
         }
-        return version.map(Version::parseVersion).orElse(DEFAULT_P2_ADVICE_VERSION);
+        try {
+            return version.map(Version::parseVersion).orElse(DEFAULT_P2_ADVICE_VERSION);
+        } catch (IllegalArgumentException ex) {
+            return DEFAULT_P2_ADVICE_VERSION;
+        }
     }
 
     private List<MavenArtifactKey> getMissingJunitBundles(ReactorProject project, Set<IInstallableUnit> externalUIs) {
