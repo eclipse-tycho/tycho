@@ -90,7 +90,7 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
-				<targetPath>${project.build.directory}/filtered</targetPath>
+				<targetPath>target/filtered</targetPath>
 			</resource>
 		</resources>
 	</build>
