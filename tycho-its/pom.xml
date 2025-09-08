@@ -209,7 +209,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.jface</artifactId>
-			<version>3.37.0</version>
+			<version>3.38.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
