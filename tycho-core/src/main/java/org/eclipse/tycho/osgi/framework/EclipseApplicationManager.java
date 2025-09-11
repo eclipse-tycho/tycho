@@ -32,8 +32,12 @@ public class EclipseApplicationManager {
     private static final String FILTER_MACOS = "(osgi.os=macosx)";
 
     public static MavenRepositoryLocation getRepository(Repository location) {
+        return getRepository(location, URI.create(TychoConstants.ECLIPSE_LATEST));
+    }
+
+    public static MavenRepositoryLocation getRepository(Repository location, URI defaultLocation) {
         if (location == null) {
-            return new MavenRepositoryLocation(null, URI.create(TychoConstants.ECLIPSE_LATEST));
+            return new MavenRepositoryLocation(null, defaultLocation);
         }
         return new MavenRepositoryLocation(location.getId(), URI.create(location.getUrl()));
     }
