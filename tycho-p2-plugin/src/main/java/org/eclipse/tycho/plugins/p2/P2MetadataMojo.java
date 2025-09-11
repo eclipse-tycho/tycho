@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -45,16 +47,16 @@ import org.eclipse.tycho.p2.metadata.P2Generator.FileInfo;
 public class P2MetadataMojo extends AbstractMojo {
     private static final Object LOCK = new Object();
 
-    @Parameter(property = "project")
+    @Inject
     protected MavenProject project;
 
     @Parameter(defaultValue = "true")
     protected boolean attachP2Metadata;
 
-    @Component
+    @Inject
     protected MavenProjectHelper projectHelper;
 
-    @Component
+    @Inject
     P2Generator p2generator;
 
     /**
