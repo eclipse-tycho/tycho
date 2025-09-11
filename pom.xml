@@ -601,6 +601,7 @@
 		<module>tycho-wrap-plugin</module>
 		<module>tycho-cleancode-plugin</module>
 		<module>tycho-bndlib</module>
+		<module>tycho-sbom-plugin</module>
 	</modules>
 	<profiles>
 		<profile>
