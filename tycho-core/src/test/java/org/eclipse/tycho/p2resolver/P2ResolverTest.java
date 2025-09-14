@@ -24,6 +24,7 @@ import static org.eclipse.tycho.test.util.ExecutionEnvironmentTestUtils.standard
 import static org.eclipse.tycho.test.util.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.matchesRegex;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
@@ -198,18 +199,33 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void testEclipseTestPluginAutomaticallyDependsOnTestHarnesses() throws Exception {
-        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
-        addContextProject(resourceFile("resolver/bundle.uitestharness"), TYPE_ECLIPSE_PLUGIN);
+    public void testEclipseTestPluginTestHarnessesCanBeResolvedEvenIfHarnessIsPartOfReactorItself() throws Exception {
+        // https://github.com/eclipse-tycho/tycho/issues/5349
+
+        // Add a an external target platform that contains the test harness bundle 'org.eclipse.ui.ide.application' (stub)
+        tpConfig.addP2Repository(resourceFile("repositories/testHarnessExternalStub").toURI());
+
+        // Make the test harness itself part of the reactor as well by adding a project stub for 'org.eclipse.ui.ide.application'
+        this.reactorProjects.add(createReactorProject(resourceFile("resolver/bundle.uitestharness"),
+                TYPE_ECLIPSE_PLUGIN, "org.eclipse.ui.ide.application"));
 
         projectToResolve = createReactorProject(resourceFile("resolver/bundle.nodeps"), TYPE_ECLIPSE_TEST_PLUGIN,
                 "bundle.nodeps");
 
+        // Simulate surefire's adding of the additional test harness 'org.eclipse.ui.ide.application' dependency
+        impl.addAdditionalBundleDependency("org.eclipse.ui.ide.application");
+
         result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(), projectToResolve));
 
         assertEquals(2, result.getArtifacts().size());
-        assertThat(result.getArtifacts(), hasItem(withId("bundle.nodeps")));
-        assertThat(result.getArtifacts(), hasItem(withId("org.eclipse.ui.ide.application")));
+        assertThat(result.getArtifacts(), hasItem(withIdAndVersion("bundle.nodeps", "1.0.0.qualifier")));
+
+        // The test harness is satisfied from the shadowed bundle of the external target platform
+        assertThat(result.getArtifacts(), hasItem(
+                withIdAndVersion("org.eclipse.ui.ide.application", "1.0.0.bundleStubFromExternalTargetPlatform")));
+        // Since the bundle is also part of the reactor, we expect a warning message
+        logVerifier.expectWarning(matchesRegex(
+                "(?s).*org\\.eclipse\\.ui\\.ide\\.application 1\\.0\\.0\\.bundleStubFromExternalTargetPlatform.*shadowed.*"));
     }
 
     @Test
@@ -516,17 +532,17 @@ public class P2ResolverTest extends P2ResolverTestBase {
         return selectedEntry;
     }
 
-    static Matcher<Entry> withId(final String id) {
+    static Matcher<Entry> withIdAndVersion(final String id, final String version) {
         return new TypeSafeMatcher<>() {
 
             @Override
             protected boolean matchesSafely(Entry entry) {
-                return id.equals(entry.getId());
+                return id.equals(entry.getId()) && version.equals(entry.getVersion());
             }
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("an artifact with ID " + id);
+                description.appendText("an artifact with ID " + id + " and version " + version);
             }
         };
     }
