@@ -5,6 +5,13 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
+  groups:
+    jdt:
+      patterns:
+        - "org.eclipse.jdt:*"
+    p2:
+      patterns:
+        - "org.eclipse.platform:org.eclipse.equinox.p2.*"
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
@@ -18,3 +25,10 @@ updates:
   labels:
     - "backport"
     - "dependencies"
+  groups:
+    jdt:
+      patterns:
+        - "org.eclipse.jdt:*"
+    p2:
+      patterns:
+        - "org.eclipse.platform:org.eclipse.equinox.p2.*"
