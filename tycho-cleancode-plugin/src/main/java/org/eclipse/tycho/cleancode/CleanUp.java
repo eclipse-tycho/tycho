@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -155,7 +156,8 @@ public class CleanUp extends AbstractEclipseBuild<CleanupResult> {
 	private CleanUpOptions getOptions(IProject project) {
 		Map<String, String> options;
 		if (customProfile == null || customProfile.isEmpty()) {
-			options = CleanUpPreferenceUtil.loadOptions(new ProjectScope(project));
+			IScopeContext scope = new ProjectScope(project);
+			options = CleanUpPreferenceUtil.loadOptions(scope);
 		} else {
 			options = customProfile;
 		}
