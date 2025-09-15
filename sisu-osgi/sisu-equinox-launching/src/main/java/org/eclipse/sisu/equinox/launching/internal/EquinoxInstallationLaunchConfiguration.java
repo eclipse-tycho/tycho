@@ -35,9 +35,12 @@ public class EquinoxInstallationLaunchConfiguration implements LaunchConfigurati
     private final File equinoxDirectory;
     private final String[] programArguments;
     private File launcherJar;
+    private File logfileLocation;
 
-    public EquinoxInstallationLaunchConfiguration(File equinoxDirectory, List<String> programArguments) {
+    public EquinoxInstallationLaunchConfiguration(File equinoxDirectory, File logfileLocation,
+            List<String> programArguments) {
         this.equinoxDirectory = equinoxDirectory;
+        this.logfileLocation = logfileLocation;
         this.programArguments = programArguments.toArray(new String[0]);
     }
 
@@ -112,6 +115,9 @@ public class EquinoxInstallationLaunchConfiguration implements LaunchConfigurati
 
     @Override
     public String[] getVMArguments() {
+        if (logfileLocation != null) {
+            return new String[] { "-Dosgi.logfile=" + logfileLocation.getAbsolutePath() };
+        }
         return new String[0];
     }
 
