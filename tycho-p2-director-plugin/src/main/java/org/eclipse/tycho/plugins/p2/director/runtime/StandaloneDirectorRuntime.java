@@ -13,8 +13,11 @@
 package org.eclipse.tycho.plugins.p2.director.runtime;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
@@ -55,13 +58,26 @@ public class StandaloneDirectorRuntime implements DirectorRuntime {
                 programArguments.add("-application");
                 programArguments.add("org.eclipse.equinox.p2.director");
                 programArguments.addAll(getDirectorApplicationArguments());
-
-                LaunchConfiguration launch = new EquinoxInstallationLaunchConfiguration(runtimeLocation,
+                File logFile = new File(runtimeLocation, "director-" + UUID.randomUUID() + ".log");
+                LaunchConfiguration launch = new EquinoxInstallationLaunchConfiguration(runtimeLocation, logFile,
                         programArguments);
 
                 logger.info("Using the standalone p2 Director to install the product");
                 int exitCode = launchHelper.execute(launch, forkedProcessTimeoutInSeconds);
-                if (exitCode != 0) {
+                boolean executionFailed = exitCode != 0;
+                if ((logger.isDebugEnabled() || executionFailed) && logFile.exists()) {
+                    try {
+                        String log = Files.readString(logFile.toPath());
+                        if (executionFailed) {
+                            logger.error(log);
+                        } else {
+                            logger.info(log);
+                        }
+                    } catch (IOException e) {
+                        //can't print it then!
+                    }
+                }
+                if (executionFailed) {
                     throw new DirectorCommandException("Call to p2 director application failed with exit code "
                             + exitCode + ". Program arguments were: " + programArguments + ".");
                 }

@@ -17,12 +17,21 @@ import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 public class CustomTouchpointAction extends ProvisioningAction {
 
     @Override
     public IStatus execute(Map<String, Object> parameters) {
         System.out.println("The custom touchpoint action has been executed");
+		BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
+		Bundle[] bundles = bundleContext.getBundles();
+		for (Bundle bundle : bundles) {
+			System.out
+					.println(bundle.getSymbolicName() + " " + bundle.getVersion() + " [" + bundle.getLocation() + "]");
+		}
         return Status.OK_STATUS;
     }
 
