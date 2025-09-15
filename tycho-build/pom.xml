@@ -62,19 +62,19 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.publisher</artifactId>
-			<version>1.9.500</version>
+			<version>1.9.600</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.director</artifactId>
-			<version>2.6.700</version>
+			<version>2.6.800</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.engine</artifactId>
-			<version>2.10.500</version>
+			<version>2.10.600</version>
 		</dependency>
 
 
