@@ -134,7 +134,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	/**
 	 * Execution environment profile name used to resolve dependencies.
 	 */
-	@Parameter(defaultValue = "JavaSE-21")
+	@Parameter()
 	private String executionEnvironment;
 
 	/**
@@ -363,7 +363,8 @@ public class EclipseRunMojo extends AbstractMojo {
 		}
 		ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger, false,
 				toolchainManager, session);
-		eeConfiguration.setProfileConfiguration(executionEnvironment, "tycho-eclipserun-plugin <executionEnvironment>");
+		eeConfiguration.setProfileConfiguration(getExecutionEnvironment(),
+				"tycho-eclipserun-plugin <executionEnvironment>");
 		TargetPlatform targetPlatform = platformFactory.createTargetPlatform(tpConfiguration, eeConfiguration, null);
 		P2Resolver resolver = resolverFactory
 				.createResolver(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
@@ -439,11 +440,14 @@ public class EclipseRunMojo extends AbstractMojo {
 			if (executable == null) {
 				getLog().error("No 'java' executable was found in toolchain. Current Java runtime will be used");
 			}
-		} else if (Objects.equals(executionEnvironment, "JavaSE-" + Runtime.version().feature())) {
-			getLog().debug("Using current Java runtime as it matches configured executionEnvironment");
 		} else {
-			getLog().warn("No toolchain was found in tycho-eclipserun-plugin for: " + executionEnvironment
-					+ ". Current Java runtime will be used");
+			String ee = getExecutionEnvironment();
+			if (Objects.equals(ee, getDefaultExecutionEnvironment())) {
+				getLog().debug("Using current Java runtime as it matches configured executionEnvironment");
+			} else {
+				getLog().warn("No toolchain was found in tycho-eclipserun-plugin for: " + ee
+						+ ". Current Java runtime will be used");
+			}
 		}
 		cli.setJvmExecutable(executable);
 		cli.setWorkingDirectory(project.getBasedir());
@@ -492,7 +496,18 @@ public class EclipseRunMojo extends AbstractMojo {
 	}
 
 	private Toolchain getToolchain() throws MojoExecutionException {
-		return toolchainProvider.findMatchingJavaToolChain(session, executionEnvironment);
+		return toolchainProvider.findMatchingJavaToolChain(session, getExecutionEnvironment());
+	}
+
+	protected String getExecutionEnvironment() {
+		if (executionEnvironment == null || executionEnvironment.isBlank()) {
+			return getDefaultExecutionEnvironment();
+		}
+		return executionEnvironment;
+	}
+
+	protected String getDefaultExecutionEnvironment() {
+		return "JavaSE-" + Runtime.version().feature();
 	}
 
 }
