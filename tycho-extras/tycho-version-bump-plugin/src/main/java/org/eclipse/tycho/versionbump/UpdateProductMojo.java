@@ -49,14 +49,21 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
     @Parameter(defaultValue = "${project.artifactId}.product")
     private File productFile;
 
-    @Parameter(defaultValue = "JavaSE-21")
+    @Parameter()
     private String executionEnvironment;
 
     @Component
     private P2ResolverFactory factory;
 
     String getExecutionEnvironment() {
+        if (executionEnvironment == null || executionEnvironment.isBlank()) {
+            return getDefaultExecutionEnvironment();
+        }
         return executionEnvironment;
+    }
+
+    String getDefaultExecutionEnvironment() {
+        return "JavaSE-" + Runtime.version().feature();
     }
 
     P2Resolver createResolver() {
