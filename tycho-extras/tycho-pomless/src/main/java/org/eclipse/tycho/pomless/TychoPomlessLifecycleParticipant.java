@@ -14,23 +14,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
-import org.apache.maven.cli.internal.extension.model.CoreExtension;
-import org.apache.maven.cli.internal.extension.model.io.xpp3.CoreExtensionsXpp3Reader;
 import org.apache.maven.execution.MavenSession;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 @Named("TychoPomlessLifecycleParticipant")
 @Singleton
@@ -41,30 +32,30 @@ public class TychoPomlessLifecycleParticipant extends AbstractMavenLifecyclePart
 
     @Override
     public void afterSessionStart(MavenSession session) throws MavenExecutionException {
-        File moduleProjectDirectory = session.getRequest().getMultiModuleProjectDirectory();
-        if (moduleProjectDirectory != null) {
-            File extensionsFile = new File(moduleProjectDirectory, ".mvn/extensions.xml");
-            try (InputStream is = new FileInputStream(extensionsFile)) {
-                List<CoreExtension> extensions = new CoreExtensionsXpp3Reader().read(is).getExtensions();
-                for (CoreExtension coreExtension : extensions) {
-                    if ("org.eclipse.tycho.extras".equals(coreExtension.getGroupId())
-                            && "tycho-pomless".equals(coreExtension.getArtifactId())) {
-                        logger.warn(
-                                "org.eclipse.tycho.extras:tycho-pomless build extension will be replaced in a future version of Tycho by the new org.eclipse.tycho:tycho-build extension.");
-                        logger.warn(
-                                "You can simply change your .mvn/extensions.xml to reference the new extension right now:");
-                        logger.warn("<extension>");
-                        logger.warn("   <groupId>org.eclipse.tycho</groupId>");
-                        logger.warn("   <artifactId>tycho-build</artifactId>");
-                        logger.warn("   <version>" + coreExtension.getVersion() + "</version>");
-                        logger.warn("</extension>");
-                        break;
-                    }
-                }
-
-            } catch (IOException | XmlPullParserException e) {
-                // //don't care, we just wan't to inform the user...
-            }
-        }
+//        File moduleProjectDirectory = session.getRequest().getMultiModuleProjectDirectory();
+//        if (moduleProjectDirectory != null) {
+//            File extensionsFile = new File(moduleProjectDirectory, ".mvn/extensions.xml");
+//            try (InputStream is = new FileInputStream(extensionsFile)) {
+//                List<CoreExtension> extensions = new CoreExtensionsXpp3Reader().read(is).getExtensions();
+//                for (CoreExtension coreExtension : extensions) {
+//                    if ("org.eclipse.tycho.extras".equals(coreExtension.getGroupId())
+//                            && "tycho-pomless".equals(coreExtension.getArtifactId())) {
+//                        logger.warn(
+//                                "org.eclipse.tycho.extras:tycho-pomless build extension will be replaced in a future version of Tycho by the new org.eclipse.tycho:tycho-build extension.");
+//                        logger.warn(
+//                                "You can simply change your .mvn/extensions.xml to reference the new extension right now:");
+//                        logger.warn("<extension>");
+//                        logger.warn("   <groupId>org.eclipse.tycho</groupId>");
+//                        logger.warn("   <artifactId>tycho-build</artifactId>");
+//                        logger.warn("   <version>" + coreExtension.getVersion() + "</version>");
+//                        logger.warn("</extension>");
+//                        break;
+//                    }
+//                }
+//
+//            } catch (IOException | XmlPullParserException e) {
+//                // //don't care, we just wan't to inform the user...
+//            }
+//        }
     }
 }
