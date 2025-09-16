@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.app</artifactId>
-			<version>1.7.400</version>
+			<version>1.7.500</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
