@@ -71,16 +71,22 @@ public class GeneratorMojo extends AbstractMojo {
 	@Parameter(property = "cache")
 	private File cache;
 
-	@Parameter(property = "installations", required = true)
+	@Parameter(property = "installations")
 	private File installations;
+
+	@Parameter(property = "installation")
+	private File installation;
+
+	@Parameter(name = "central-search", property = "central-search")
+	private boolean centralsearch;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		getLog().info("Generate SBOM for project " + project.getName());
 		MavenRepositoryLocation repository = EclipseApplicationManager.getRepository(generatorRepository,
 				URI.create("https://download.eclipse.org/cbi/updates/p2-sbom/products/nightly/"));
-		EclipseApplication application = applicationManager.getApplication(repository,
-				Bundles.of(), Features.of(), "SBOM Generator");
+		EclipseApplication application = applicationManager.getApplication(repository, Bundles.of(), Features.of(),
+				"SBOM Generator");
 		application.addProduct("org.eclipse.cbi.p2repo.sbom.cli.product");
 		EclipseWorkspace<?> workspace = workspaceManager.getWorkspace(repository.getURL(), this);
 		List<String> arguments = new ArrayList<String>();
@@ -111,8 +117,17 @@ public class GeneratorMojo extends AbstractMojo {
 		}
 		getLog().info("Using cache directory " + cachePath);
 		arguments.add(cachePath.getAbsolutePath());
-		arguments.add("-installations");
-		arguments.add(installations.getAbsolutePath());
+		if (installations != null) {
+			arguments.add("-installations");
+			arguments.add(installations.getAbsolutePath());
+		}
+		if (installation != null) {
+			arguments.add("-installation");
+			arguments.add(installation.getAbsolutePath());
+		}
+		if (centralsearch) {
+			arguments.add("-central-search");
+		}
 		getLog().info("Calling application with arguments: " + arguments);
 		try (EclipseFramework framework = application.startFramework(workspace, arguments)) {
 			framework.start();
