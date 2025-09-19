@@ -23,13 +23,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.search.api.Record;
+import org.apache.maven.search.api.SearchRequest;
+import org.apache.maven.search.api.request.Field.StringField;
+import org.apache.maven.search.api.request.Paging;
+import org.apache.maven.search.api.request.Query;
+import org.apache.maven.search.backend.smo.SmoSearchBackend;
+import org.apache.maven.search.backend.smo.SmoSearchBackendFactory;
+import org.apache.maven.search.backend.smo.SmoSearchResponse;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -38,10 +45,6 @@ import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
-import kong.unirest.GetRequest;
-import kong.unirest.Unirest;
-import kong.unirest.json.JSONObject;
-
 /**
  *
  * Use the maven rest API to find an artifact based on its sha1 sum.
@@ -49,12 +52,10 @@ import kong.unirest.json.JSONObject;
 @Component(role = ArtifactCoordinateResolver.class, hint = "central")
 public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinateResolver {
 
-	private static final int TIMEOUT = Integer.getInteger("tycho.search.central.timeout", 10);
-
-	private static final String KEY_GROUP_ID = "g";
-	private static final String KEY_ARTIFACT_ID = "a";
-	private static final String KEY_VERSION = "v";
-	private static final String KEY_TYPE = "p";
+	private static final StringField KEY_GROUP_ID = new StringField("g");
+	private static final StringField KEY_ARTIFACT_ID = new StringField("a");
+	private static final StringField KEY_VERSION = new StringField("v");
+	private static final StringField KEY_TYPE = new StringField("p");
 
 	@Requirement
 	private Logger log;
@@ -100,23 +101,18 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 						}
 					}
 					String sha1Hash = toHexString(digest.digest());
-					GetRequest request = Unirest.get("https://search.maven.org/solrsearch/select")
-							.queryString("q", "1:" + sha1Hash).queryString("wt", "json");
-					request.connectTimeout((int) TimeUnit.SECONDS.toMillis(TIMEOUT));
-					request.socketTimeout((int) TimeUnit.SECONDS.toMillis(TIMEOUT));
-					JSONObject node = request.asJson().getBody().getObject();
-					if (node.has("response")) {
-						JSONObject response = node.getJSONObject("response");
-						if (response.has("numFound") && response.getInt("numFound") == 1) {
-							JSONObject coordinates = response.getJSONArray("docs").getJSONObject(0);
-							Dependency dependency = new Dependency();
-							dependency.setGroupId(coordinates.getString(KEY_GROUP_ID));
-							dependency.setArtifactId(coordinates.getString(KEY_ARTIFACT_ID));
-							dependency.setVersion(coordinates.getString(KEY_VERSION));
-							dependency.setType(coordinates.getString(KEY_TYPE));
-							cacheResult(cacheFile, dependency);
-							return dependency;
-						}
+					
+					SmoSearchBackend searchBackend = SmoSearchBackendFactory.createCsc();
+					SmoSearchResponse searchResponse = searchBackend.search(new SearchRequest(new Paging(2), Query.query("1:" + sha1Hash)));
+					if (searchResponse.getTotalHits() == 1) {
+						Record result = searchResponse.getPage().get(0);
+						Dependency dependency = new Dependency();
+						dependency.setGroupId(result.getValue(KEY_GROUP_ID));
+						dependency.setArtifactId(result.getValue(KEY_ARTIFACT_ID));
+						dependency.setVersion(result.getValue(KEY_VERSION));
+						dependency.setType(result.getValue(KEY_TYPE));
+						cacheResult(cacheFile, dependency);
+						return dependency;
 					}
 					cacheResult(cacheFile, null);
 				} catch (Exception e) {
@@ -135,10 +131,10 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 				properties.load(stream);
 			}
 			Dependency dependency = new Dependency();
-			dependency.setGroupId(properties.getProperty(KEY_GROUP_ID));
-			dependency.setArtifactId(properties.getProperty(KEY_ARTIFACT_ID));
-			dependency.setVersion(properties.getProperty(KEY_VERSION));
-			dependency.setType(properties.getProperty(KEY_TYPE));
+			dependency.setGroupId(properties.getProperty(KEY_GROUP_ID.getFieldName()));
+			dependency.setArtifactId(properties.getProperty(KEY_ARTIFACT_ID.getFieldName()));
+			dependency.setVersion(properties.getProperty(KEY_VERSION.getFieldName()));
+			dependency.setType(properties.getProperty(KEY_TYPE.getFieldName()));
 			return Optional.of(dependency);
 		} catch (IOException e) {
 			// can't read cache file then... try to reload next time.
@@ -154,10 +150,10 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 				return;
 			}
 			Properties properties = new Properties();
-			properties.setProperty(KEY_GROUP_ID, dependency.getGroupId());
-			properties.setProperty(KEY_ARTIFACT_ID, dependency.getArtifactId());
-			properties.setProperty(KEY_VERSION, dependency.getVersion());
-			properties.setProperty(KEY_TYPE, dependency.getType());
+			properties.setProperty(KEY_GROUP_ID.getFieldName(), dependency.getGroupId());
+			properties.setProperty(KEY_ARTIFACT_ID.getFieldName(), dependency.getArtifactId());
+			properties.setProperty(KEY_VERSION.getFieldName(), dependency.getVersion());
+			properties.setProperty(KEY_TYPE.getFieldName(), dependency.getType());
 			ReproducibleUtils.storeProperties(properties, cacheFile.toPath());
 		} catch (IOException e) {
 			// can't create cache file then...

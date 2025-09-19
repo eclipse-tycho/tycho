@@ -80,9 +80,9 @@
 			<artifactId>plexus-archiver</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.konghq</groupId>
-			<artifactId>unirest-java</artifactId>
-			<version>3.14.5</version>
+			<groupId>org.apache.maven.indexer</groupId>
+			<artifactId>search-backend-smo</artifactId>
+			<version>7.1.6</version>
 		</dependency>
 		<!-- Plexus Build API for IDE integration-->
 		<dependency>
