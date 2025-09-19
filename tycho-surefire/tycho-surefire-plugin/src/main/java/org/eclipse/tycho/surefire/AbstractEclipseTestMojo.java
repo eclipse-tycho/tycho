@@ -890,7 +890,9 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private List<ArtifactKey> getTestDependencies() {
         ArrayList<ArtifactKey> result = new ArrayList<>();
 
-        // see also P2ResolverImpl.addDependenciesForTests()
+        // The test harness dependencies must be satisfiable from the external target platform
+        // See also https://github.com/eclipse-tycho/tycho/issues/5349 for a special situation
+        // where the harness bundles are part of the same reactor (e.g. when building eclipse.platform.ui)
         result.add(newBundleDependency("org.eclipse.osgi"));
         result.add(newBundleDependency(DefaultEquinoxInstallationDescription.EQUINOX_LAUNCHER));
         if (useUIHarness) {
