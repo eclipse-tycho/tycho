@@ -27,6 +27,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.ArtifactHandler;
@@ -41,7 +43,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -67,22 +68,22 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 
 	private static final String POLYGLOT_POM_TYCHO = ".polyglot.pom.tycho";
 
-	@Parameter(property = "project", readonly = true, required = true)
+	@Inject
 	protected MavenProject project;
 
-	@Parameter(defaultValue = "${session}", readonly = true, required = true)
+	@Inject
 	private MavenSession session;
 
-	@Component(role = ModelWriter.class)
+	@Inject
 	protected ModelWriter modelWriter;
 
-	@Component(role = ModelReader.class)
+	@Inject
 	protected ModelReader modelReader;
 
-	@Component
+	@Inject
 	private Map<String, ArtifactCoordinateResolver> artifactCoordinateResolvers;
 
-	@Component
+	@Inject
 	ArtifactHandlerManager artifactHandlerManager;
 
 	/**
