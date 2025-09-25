@@ -53,9 +53,15 @@ public class GeneratorMojo extends AbstractMojo {
 	@Component
 	private TransportCacheConfig transportCacheConfig;
 
+	/**
+	 * The repository where the generator should be soured from
+	 */
 	@Parameter()
 	private Repository generatorRepository;
 
+	/**
+	 * If enabled verbose logging output is printed by the generator
+	 */
 	@Parameter(property = "sbom.verbose")
 	private boolean verbose;
 
@@ -68,21 +74,45 @@ public class GeneratorMojo extends AbstractMojo {
 	@Parameter(property = "index", defaultValue = "${project.build.directory}/index.html")
 	private File index;
 
+	/**
+	 * Specify a cache location, if no value is be given Tycho uses its own global
+	 * cache location in the m2 local repository
+	 */
 	@Parameter(property = "cache")
 	private File cache;
 
+	/**
+	 * Specify a folder where some packaged products are located to be analyzed
+	 */
 	@Parameter(property = "installations")
 	private File installations;
 
+	/**
+	 * Specify a single installation directory or update-site
+	 */
 	@Parameter(property = "installation")
 	private File installation;
 
+	/**
+	 * If enabled, artifacts are tried to be mapped to maven central using the
+	 * hashcode of the file, if there is a unique match this one is assumed to be
+	 * the real source even if P2 has not recorded any GAVs
+	 */
 	@Parameter(name = "central-search", property = "central-search")
 	private boolean centralsearch;
 
+	/**
+	 * A list of URIs that should be used to match against P2 units, this can be
+	 * usually the repositories used during building the product
+	 */
+	@Parameter
+	private List<String> p2sources;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		getLog().info("Generate SBOM for project " + project.getName());
+		if (installations == null && installation == null) {
+			throw new MojoFailureException("One of 'installations' or 'installation' must be specified");
+		}
 		MavenRepositoryLocation repository = EclipseApplicationManager.getRepository(generatorRepository,
 				URI.create("https://download.eclipse.org/cbi/updates/p2-sbom/products/nightly/"));
 		EclipseApplication application = applicationManager.getApplication(repository, Bundles.of(), Features.of(),
@@ -127,6 +157,16 @@ public class GeneratorMojo extends AbstractMojo {
 		}
 		if (centralsearch) {
 			arguments.add("-central-search");
+		}
+		if (p2sources != null && !p2sources.isEmpty()) {
+			arguments.add("-p2sources");
+			for (String s : p2sources) {
+				String trim = s.trim();
+				if (trim.isEmpty()) {
+					continue;
+				}
+				arguments.add(trim);
+			}
 		}
 		getLog().info("Calling application with arguments: " + arguments);
 		try (EclipseFramework framework = application.startFramework(workspace, arguments)) {
