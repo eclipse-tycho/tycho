@@ -136,3 +136,71 @@ to automatically inject services:
 ## combining different approaches
 
 ## setup test source folders in eclipse
+
+When working with Eclipse and PDE (Plugin Development Environment), you can mark source folders as containing test sources. This is important for Tycho to correctly identify and compile test classes separately from production code.
+
+### Marking a Source Folder as Test Source
+
+To configure a source folder to contain test sources in Eclipse:
+
+1. **Right-click on your Eclipse plugin project** in the Package Explorer or Project Explorer
+2. **Select "Properties"** from the context menu
+3. **Navigate to "Java Build Path"** in the left panel
+4. **Select the "Source" tab**
+5. **Locate the source folder** you want to mark as a test source folder (e.g., `src_test`)
+6. **Expand the source folder entry** by clicking on the arrow/triangle next to it
+7. **Double-click on "Contains test sources"** or select it and click "Edit"
+8. **Set the value to "Yes"**
+9. **Click "Apply and Close"**
+
+### What This Does
+
+When you mark a source folder as containing test sources, Eclipse modifies the `.classpath` file in your project to include a test attribute. For example:
+
+```xml
+<classpathentry kind="src" output="bin_test" path="src_test">
+    <attributes>
+        <attribute name="test" value="true"/>
+    </attributes>
+</classpathentry>
+```
+
+### How Tycho Uses This Information
+
+Tycho reads the `.classpath` file to determine which source folders contain test code:
+
+- **Source folders without the test attribute** (or with `test="false"`) are treated as production code and compiled during the `compile` phase
+- **Source folders with `test="true"`** are treated as test code and compiled during the `test-compile` phase with test dependencies available
+
+This allows you to:
+- Keep test and production code in the same project
+- Use different output directories for test and production classes
+- Have test-specific dependencies that don't leak into your production bundle
+
+### Recommended Directory Structure
+
+For projects that include both production and test code, a common structure is:
+
+```
+your-plugin-project/
+├── src/              (production code)
+├── src_test/         (test code, marked with test="true")
+├── META-INF/
+│   └── MANIFEST.MF
+├── build.properties
+└── pom.xml
+```
+
+### Important Notes
+
+- The test attribute is supported in Eclipse since version 4.8 (2018-09)
+- When using pomless builds, Tycho automatically detects test source folders marked in the `.classpath` file
+- Test source folders should be included in the `build.properties` file if you want them to be part of the build
+- Make sure your `pom.xml` includes the necessary test plugin configurations (either `maven-surefire-plugin` or `tycho-surefire-plugin` with appropriate executions)
+
+### Example Projects
+
+See these demo projects for working examples:
+- [Surefire with source folder](https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/surefire/with-source-folder) - Shows `src_test` marked as test source
+- [Tycho standalone test](https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/tycho/standalone/test) - Shows a project with only test sources
+- [Tycho OSGi test](https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/tycho/osgitest) - Shows mixed production and test sources
