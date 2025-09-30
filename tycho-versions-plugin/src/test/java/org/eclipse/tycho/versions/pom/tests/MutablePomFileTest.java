@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.junit.Test;
 
-import de.pdark.decentxml.XMLParseException;
+import eu.maveniverse.domtrip.DomTripException;
 
 public class MutablePomFileTest {
 

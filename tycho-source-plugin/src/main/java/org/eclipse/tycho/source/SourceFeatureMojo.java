@@ -66,8 +66,8 @@ import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.packaging.LicenseFeatureHelper;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 /**
  * Generates a source feature for projects of packaging type <code>eclipse-feature</code>. By
@@ -366,7 +366,7 @@ public class SourceFeatureMojo extends AbstractMojo {
             Properties sourceTemplateProperties) throws IOException, MojoExecutionException {
         Document document = new Document();
         document.setEncoding("UTF-8");
-        document.setRootNode(new Element("feature"));
+        document.setRootNode(Element.of("feature"));
         Feature sourceFeature = new Feature(document);
         sourceFeature.setId(feature.getId() + ".source");
         sourceFeature.setVersion(feature.getVersion());
@@ -416,7 +416,7 @@ public class SourceFeatureMojo extends AbstractMojo {
         }
 
         if (includeBinaryFeature) {
-            FeatureRef binaryRef = new FeatureRef(new Element("includes"));
+            FeatureRef binaryRef = new FeatureRef(Element.of("includes"));
             binaryRef.setId(feature.getId());
             binaryRef.setVersion(feature.getVersion());
             if (feature.getOS() != null) {
@@ -485,7 +485,7 @@ public class SourceFeatureMojo extends AbstractMojo {
             if (result.getArtifacts().size() == 1) {
                 Entry entry = result.getArtifacts().iterator().next();
 
-                FeatureRef sourceRef = new FeatureRef(new Element("includes"));
+                FeatureRef sourceRef = new FeatureRef(Element.of("includes"));
                 sourceRef.setId(sourceId);
                 sourceRef.setVersion(entry.getVersion());
                 sourceFeature.addFeatureRef(sourceRef);
@@ -592,14 +592,14 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     // this is called by maven to inject value of <excludes> configuration element
     public void setExcludes(PlexusConfiguration excludes) {
-        for (PlexusConfiguration plugin : excludes.getChildren("plugin")) {
+        for (PlexusConfiguration plugin : excludes.children("plugin")) {
             String id = getAttribute(plugin, "id");
             if (id != null) {
                 excludedPlugins.add(id);
             }
             // TODO warn about elements with null id
         }
-        for (PlexusConfiguration plugin : excludes.getChildren("feature")) {
+        for (PlexusConfiguration plugin : excludes.children("feature")) {
             String id = getAttribute(plugin, "id");
             if (id != null) {
                 excludedFeatures.add(id);
@@ -610,7 +610,7 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     // this is called by maven to inject value of <excludes> configuration element
     public void setPlugins(PlexusConfiguration bundles) {
-        for (PlexusConfiguration plugin : bundles.getChildren("plugin")) {
+        for (PlexusConfiguration plugin : bundles.children("plugin")) {
             String id = getAttribute(plugin, "id");
             if (id != null) {
                 String version = getAttribute(plugin, "version");
@@ -628,7 +628,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     }
 
     private String getAttribute(PlexusConfiguration dom, String attrName) {
-        String attr = dom.getAttribute(attrName);
+        String attr = dom.attributeObject(attrName);
         if (attr == null) {
             return null;
         }

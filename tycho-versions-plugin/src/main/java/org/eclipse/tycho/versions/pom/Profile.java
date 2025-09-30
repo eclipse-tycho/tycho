@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class Profile {
 
@@ -28,8 +28,8 @@ public class Profile {
 
     public List<String> getModules() {
         LinkedHashSet<String> result = new LinkedHashSet<>();
-        for (Element modules : dom.getChildren("modules")) {
-            for (Element module : modules.getChildren("module")) {
+        for (Element modules : dom.children("modules").toList()) {
+            for (Element module : modules.children("module").toList()) {
                 result.add(module.getTrimmedText());
             }
         }

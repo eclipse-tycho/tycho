@@ -29,10 +29,8 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
@@ -96,9 +94,9 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		File[] listFiles = dir.listFiles();
 
 		for (File file : listFiles) {
-			if (file.getName().startsWith(prefix)) {
-				if (file.getName().endsWith(".qualifier.jar")) {
-					Assert.fail("replacement of build qualifier missing in file " + file + ", name: " + file.getName());
+			if (file.name().startsWith(prefix)) {
+				if (file.name().endsWith(".qualifier.jar")) {
+					Assert.fail("replacement of build qualifier missing in file " + file + ", name: " + file.name());
 				}
 				return;
 			}
@@ -293,7 +291,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		try (ZipFile zip = new ZipFile(zipFile)) {
 			ZipEntry contentXmlEntry = zip.getEntry(xmlFile);
 			InputStream entryStream = zip.getInputStream(contentXmlEntry);
-			return parser.parse(new XMLIOSource(entryStream));
+			return Document.of(entryStream);
 		}
 	}
 
@@ -309,9 +307,9 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 	private static Set<Element> findIU(Document contentXML, String iuId) {
 		Set<Element> foundIUs = new HashSet<>();
 
-		Element repository = contentXML.getRootElement();
-		for (Element unit : repository.getChild("units").getChildren("unit")) {
-			if (iuId.equals(unit.getAttributeValue("id"))) {
+		Element repository = contentXML.root();
+		for (Element unit : repository.getChild("units").children("unit")) {
+			if (iuId.equals(unit.attribute("id"))) {
 				foundIUs.add(unit);
 			}
 		}
@@ -322,9 +320,9 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		boolean foundIU = false;
 
 		if (propName != null) {
-			for (Element property : unit.getChild("properties").getChildren("property")) {
-				if (propName.equals(property.getAttributeValue("name"))
-						&& propValue.equals((property.getAttributeValue("value")))) {
+			for (Element property : unit.getChild("properties").children("property")) {
+				if (propName.equals(property.attribute("name"))
+						&& propValue.equals((property.attribute("value")))) {
 					foundIU = true;
 					break;
 				}
@@ -339,8 +337,8 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		boolean hasAllRequirements = true;
 		for (String requiredIu : requiredIus) {
 			boolean foundIU = false;
-			for (Element property : unit.getChild("requires").getChildren("required")) {
-				if (requiredIu.equals(property.getAttributeValue("name"))) {
+			for (Element property : unit.getChild("requires").children("required")) {
+				if (requiredIu.equals(property.attribute("name"))) {
 					foundIU = true;
 					break;
 				}
@@ -357,8 +355,8 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		Element touchpointDataElem = unit.getChild("touchpointData");
 
 		if (touchpointDataElem != null) {
-			for (Element instructions : touchpointDataElem.getChildren("instructions")) {
-				for (Element instruction : instructions.getChildren("instruction")) {
+			for (Element instructions : touchpointDataElem.children("instructions").toList()) {
+				for (Element instruction : instructions.children("instruction").toList()) {
 					if (instructionTrimmedText.equals(instruction.getTrimmedText())) {
 						return true;
 					}

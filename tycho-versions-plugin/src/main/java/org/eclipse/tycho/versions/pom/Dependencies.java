@@ -15,14 +15,14 @@ package org.eclipse.tycho.versions.pom;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class Dependencies {
     public static List<GAV> getDependencies(Element dom) {
         ArrayList<GAV> result = new ArrayList<>();
         Element dependencies = dom.getChild("dependencies");
         if (dependencies != null) {
-            for (Element dependency : dependencies.getChildren("dependency"))
+            for (Element dependency : dependencies.children("dependency").toList())
                 result.add(new GAV(dependency));
         }
         return result;

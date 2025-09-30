@@ -43,11 +43,10 @@ import org.eclipse.tycho.core.MarkdownBuilder;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
+
+import eu.maveniverse.domtrip.Serializer;
 
 /**
  * This allows to update a target file to use newer version of specified items, e.g. IUs from
@@ -180,10 +179,10 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         getLog().info("Update target file " + file);
         //we use the descent xml parser here because we need to retain the formating of the original file
         XMLParser parser = new XMLParser();
-        Document target = parser.parse(new XMLIOSource(file));
+        Document target = Document.of(file);
         boolean changed = false;
         builder = new MarkdownBuilder(reportFileName);
-        builder.h2("The content of the target `" + file.getName() + "` was updated");
+        builder.h2("The content of the target `" + file.name() + "` was updated");
         if (reportPreamble != null && !reportPreamble.isBlank()) {
             builder.add(reportPreamble);
             builder.newLine();
@@ -199,7 +198,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
             }
         }
         if (changed) {
-            String enc = target.getEncoding() != null ? target.getEncoding() : "UTF-8";
+            String enc = target.encoding() != null ? target.encoding() : "UTF-8";
             try (Writer w = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file)), enc);
                     XMLWriter xw = new XMLWriter(w)) {
                 try {
@@ -227,14 +226,14 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     static void setElementValue(String name, String value, Element root) {
         Element child = root.getChild(name);
         if (child != null) {
-            child.setText(value);
+            child.textContent(value);
         }
     }
 
     static String getElementValue(String name, Element root) {
         Element child = root.getChild(name);
         if (child != null) {
-            String text = child.getText().trim();
+            String text = child.textContent().trim();
             if (text.isBlank()) {
                 return null;
             }
@@ -244,9 +243,9 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     }
 
     private List<Element> getLocations(String type, Document target) {
-        Element locations = target.getRootElement().getChild("locations");
+        Element locations = target.root().getChild("locations");
         if (locations != null) {
-            return locations.getChildren().stream().filter(elem -> type.equals(elem.getAttributeValue("type")))
+            return locations.children().stream().filter(elem -> type.equals(elem.attribute("type")))
                     .toList();
         }
         return List.of();

@@ -29,10 +29,8 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class DownloadStatsTest extends AbstractTychoIntegrationTest {
 
@@ -75,11 +73,11 @@ public class DownloadStatsTest extends AbstractTychoIntegrationTest {
 			elementFilter = o -> true;
 		}
 		List<String> downloadStats = new ArrayList<>();
-		for (Element element : document.getChild("repository").getChild("artifacts").getChildren("artifact")) {
+		for (Element element : document.getChild("repository").getChild("artifacts").children("artifact")) {
 			if (elementFilter.test(element)) {
-				for (Element property : element.getChild("properties").getChildren("property")) {
-					if (property.getAttributeValue("name").equals("download.stats")) {
-						downloadStats.add(property.getAttributeValue("value"));
+				for (Element property : element.getChild("properties").children("property")) {
+					if (property.attribute("name").equals("download.stats")) {
+						downloadStats.add(property.attribute("value"));
 					}
 				}
 			}

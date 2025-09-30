@@ -25,11 +25,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
+
+import eu.maveniverse.domtrip.Serializer;
 
 /**
  * This allows to enhance the ECJ logfile with additional warnings/problem if needed
@@ -56,8 +55,8 @@ public class EcJLogFileEnhancer implements AutoCloseable {
             Document document = documentEntry.getValue();
             Element statsElement = getStatsElement(document);
             File file = documentEntry.getKey();
-            return document.getRootElement().getChildren("sources").stream()
-                    .flatMap(sources -> sources.getChildren("source").stream())
+            return document.root().children("sources").stream()
+                    .flatMap(sources -> sources.children("source").stream())
                     .map(source -> new Source(source, statsElement, () -> needsUpdate.add(file)));
         });
     }
@@ -73,8 +72,8 @@ public class EcJLogFileEnhancer implements AutoCloseable {
     }
 
     private static Element getStatsElement(Document document) {
-        for (Element stats : document.getRootElement().getChildren("stats")) {
-            for (Element problem_summary : stats.getChildren("problem_summary")) {
+        for (Element stats : document.root().children("stats")) {
+            for (Element problem_summary : stats.children("problem_summary").toList()) {
                 return problem_summary;
             }
         }
@@ -83,8 +82,8 @@ public class EcJLogFileEnhancer implements AutoCloseable {
 
     private static void incrementAttribute(Element element, String attribute, int increment) {
         if (increment > 0) {
-            int current = Integer.parseInt(element.getAttributeValue(attribute));
-            element.setAttribute(attribute, Integer.toString(current + increment));
+            int current = Integer.parseInt(element.attribute(attribute));
+            element.attribute(attribute, Integer.toString(current + increment));
         }
     }
 
@@ -103,8 +102,8 @@ public class EcJLogFileEnhancer implements AutoCloseable {
         XMLParser parser = new XMLParser();
         Map<File, Document> documents = new HashMap<>();
         for (File child : logDirectory.listFiles()) {
-            if (child.getName().toLowerCase().endsWith(".xml")) {
-                documents.put(child, parser.parse(new XMLIOSource(child)));
+            if (child.name().toLowerCase().endsWith(".xml")) {
+                documents.put(child, Document.of(child));
             }
         }
         return documents;
@@ -113,11 +112,11 @@ public class EcJLogFileEnhancer implements AutoCloseable {
     private static Element getProblemsElement(Element source) {
         Element element = source.getChild(ELEMENT_PROBLEMS);
         if (element == null) {
-            element = new Element(ELEMENT_PROBLEMS);
-            element.setAttribute(ATTRIBUTES_ERRORS, "0");
-            element.setAttribute(ATTRIBUTES_INFOS, "0");
-            element.setAttribute(ATTRIBUTES_PROBLEMS, "0");
-            element.setAttribute(ATTRIBUTES_WARNINGS, "0");
+            element = Element.of(ELEMENT_PROBLEMS);
+            element.attribute(ATTRIBUTES_ERRORS, "0");
+            element.attribute(ATTRIBUTES_INFOS, "0");
+            element.attribute(ATTRIBUTES_PROBLEMS, "0");
+            element.attribute(ATTRIBUTES_WARNINGS, "0");
             source.addNode(0, element);
         }
         return element;
@@ -136,30 +135,30 @@ public class EcJLogFileEnhancer implements AutoCloseable {
         }
 
         public String getPath() {
-            return source.getAttributeValue("path");
+            return source.attribute("path");
         }
 
         public String getOutputDirectory() {
-            return source.getAttributeValue("output");
+            return source.attribute("output");
         }
 
         public String getPackage() {
-            return source.getAttributeValue("package");
+            return source.attribute("package");
         }
 
         public void addProblem(String severity, int lineNumber, int charStart, int charEnd, int categoryId,
                 int problemId, String message) {
             Element problemsElement = getProblemsElement(source);
-            Element element = new Element("problem");
-            element.setAttribute("line", Integer.toString(lineNumber));
-            element.setAttribute("severity", severity);
-            element.setAttribute("id", Integer.toString(problemId));
-            element.setAttribute("charStart", Integer.toString(charStart));
-            element.setAttribute("charEnd", Integer.toString(charEnd));
-            element.setAttribute("categoryID", Integer.toString(categoryId));
-            element.setAttribute("problemID", Integer.toString(problemId));
-            Element messageElement = new Element("message");
-            messageElement.setAttribute("value", message);
+            Element element = Element.of("problem");
+            element.attribute("line", Integer.toString(lineNumber));
+            element.attribute("severity", severity);
+            element.attribute("id", Integer.toString(problemId));
+            element.attribute("charStart", Integer.toString(charStart));
+            element.attribute("charEnd", Integer.toString(charEnd));
+            element.attribute("categoryID", Integer.toString(categoryId));
+            element.attribute("problemID", Integer.toString(problemId));
+            Element messageElement = Element.of("message");
+            messageElement.attribute("value", message);
             element.addNode(messageElement);
             incrementAttribute(problemsElement, ATTRIBUTES_PROBLEMS, 1);
             if (SEVERITY_ERROR.equals(severity)) {
@@ -182,7 +181,7 @@ public class EcJLogFileEnhancer implements AutoCloseable {
         }
 
         public boolean hasClass(String classFile) {
-            return source.getChildren("classfile").stream().map(elem -> elem.getAttributeValue("path"))
+            return source.children("classfile").stream().map(elem -> elem.attribute("path"))
                     .filter(Objects::nonNull).anyMatch(path -> path.endsWith(classFile));
         }
 

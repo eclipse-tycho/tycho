@@ -50,7 +50,7 @@ import org.eclipse.tycho.core.MarkdownBuilder;
 import org.eclipse.tycho.p2resolver.TargetDefinitionVariableResolver;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 /**
  * Updater for installable units
@@ -75,16 +75,16 @@ public class InstallableUnitLocationUpdater {
         Log log = context.getLog();
         ResolvedRepository location = getResolvedLocation(iuLocation);
         log.info("Check " + location.getLocation() + " for updates...");
-        List<IU> units = iuLocation.getChildren("unit").stream()
-                .map(unit -> new IU(unit.getAttributeValue("id"), getUnitVersion(unit), unit)).toList();
+        List<IU> units = iuLocation.children("unit").stream()
+                .map(unit -> new IU(unit.attribute("id"), getUnitVersion(unit), unit)).toList();
         IMetadataRepositoryManager repositoryManager = agent.getService(IMetadataRepositoryManager.class);
         URI currentLocation = new URI(location.location());
         IMetadataRepository currentRepository = null;
         MetadataRepositoryUpdate updateRepository = getMetadataRepository(location, context, units, repositoryManager);
         boolean updated = updateRepository.updateLocation(location);
         List<VersionUpdate> updates = new ArrayList<>();
-        for (Element unit : iuLocation.getChildren("unit")) {
-            String id = unit.getAttributeValue("id");
+        for (Element unit : iuLocation.children("unit").toList()) {
+            String id = unit.attribute("id");
             String currentVersion = getUnitVersion(unit);
             if (isVersionRange(currentVersion)) {
                 //we can't update version ranges (yet)
@@ -119,7 +119,7 @@ public class InstallableUnitLocationUpdater {
                                 + newVersion);
                         updates.add(update);
                         updated = true;
-                        unit.setAttribute("version", newVersion);
+                        unit.attribute("version", newVersion);
                     }
                 }
             } else {
@@ -153,7 +153,7 @@ public class InstallableUnitLocationUpdater {
     }
 
     private String getUnitVersion(Element unit) {
-        String value = unit.getAttributeValue("version");
+        String value = unit.attribute("version");
         if (value == null || value.isBlank()) {
             return EMPTY_VERSION;
         }
@@ -294,7 +294,7 @@ public class InstallableUnitLocationUpdater {
 //  But this currently fails the PGP mojo using org.bouncycastle.openpgp.PGPPublicKey
 //    private static Collection<URI> getChildren(IMetadataRepository repository) {
 //        if (repository instanceof ICompositeRepository<?> composite) {
-//            return composite.getChildren();
+//            return composite.children();
 //        }
 //        return List.of();
 //    }
@@ -377,9 +377,9 @@ public class InstallableUnitLocationUpdater {
 
     private ResolvedRepository getResolvedLocation(Element iuLocation) {
         Element element = iuLocation.getChild("repository");
-        String attribute = element.getAttributeValue("location");
+        String attribute = element.attribute("location");
         String resolved = varResolver.resolve(attribute);
-        return new ResolvedRepository(element.getAttributeValue("id"), resolved, element);
+        return new ResolvedRepository(element.attribute("id"), resolved, element);
     }
 
     private static final record ResolvedRepository(String id, String location, Element element)
@@ -396,7 +396,7 @@ public class InstallableUnitLocationUpdater {
         }
 
         public void setLocation(URI uri) {
-            element().setAttribute("location", uri.toString());
+            element().attribute("location", uri.toString());
         }
 
     }

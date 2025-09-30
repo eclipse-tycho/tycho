@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.pom;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class GAV {
     private final Element dom;
@@ -34,7 +34,7 @@ public class GAV {
     }
 
     public void setVersion(String version) {
-        dom.getChild("version").setText(version);
+        dom.getChild("version").textContent(version);
     }
 
     public String getRelativePath() {

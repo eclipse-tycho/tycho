@@ -21,10 +21,8 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class RepositoryCategoriesTest extends AbstractTychoIntegrationTest {
 
@@ -46,13 +44,13 @@ public class RepositoryCategoriesTest extends AbstractTychoIntegrationTest {
 		Document document = null;
 		try (ZipFile contentJar = new ZipFile(content)) {
 			ZipEntry contentXmlEntry = contentJar.getEntry("content.xml");
-			document = parser.parse(new XMLIOSource(contentJar.getInputStream(contentXmlEntry)));
+			document = Document.of(contentJar.getInputStream(contentXmlEntry));
 		}
-		Element repository = document.getRootElement();
-		all_units: for (Element unit : repository.getChild("units").getChildren("unit")) {
-			for (Element property : unit.getChild("properties").getChildren("property")) {
-				if ("org.eclipse.equinox.p2.type.category".equals(property.getAttributeValue("name"))
-						&& Boolean.parseBoolean(property.getAttributeValue("value"))) {
+		Element repository = document.root();
+		all_units: for (Element unit : repository.getChild("units").children("unit")) {
+			for (Element property : unit.getChild("properties").children("property")) {
+				if ("org.eclipse.equinox.p2.type.category".equals(property.attribute("name"))
+						&& Boolean.parseBoolean(property.attribute("value"))) {
 					found = true;
 					break all_units;
 				}

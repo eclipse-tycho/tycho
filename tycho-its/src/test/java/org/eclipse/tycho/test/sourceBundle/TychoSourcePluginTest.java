@@ -33,9 +33,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
 
 public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 
@@ -72,9 +70,9 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 		// Test Bug 374349
 		Document sourceFeatureXml = parseFeatureXml(sourceFeature);
 		assertEquals("Wrong label - bug 374349", "%label",
-				sourceFeatureXml.getChild("feature").getAttributeValue("label"));
+				sourceFeatureXml.getChild("feature").attribute("label"));
 		// Test bug 407706
-		assertNull(sourceFeatureXml.getChild("feature").getAttribute("plugin"));
+		assertNull(sourceFeatureXml.getChild("feature").attributeObject("plugin"));
 
 		File indirectFeature = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/features/sourcefeature.feature.indirect.source_1.0.0.123abc.jar");
@@ -82,7 +80,7 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 
 		Document indirectFeatureXml = parseFeatureXml(indirectFeature);
 //		// Test bug 407706
-		assertEquals("sourcefeature.bundle", indirectFeatureXml.getChild("feature").getAttributeValue("plugin"));
+		assertEquals("sourcefeature.bundle", indirectFeatureXml.getChild("feature").attribute("plugin"));
 		File bundle = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/plugins/sourcefeature.bundle.source_1.0.0.123abc.jar");
 		assertTrue("Missing expected file " + bundle, bundle.canRead());
@@ -98,7 +96,7 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 	private static Optional<ZipEntry> findEntry(ZipFile zip, String name) {
 		Stream<ZipEntry> stream = StreamSupport
 				.stream(Spliterators.spliteratorUnknownSize(zip.entries().asIterator(), Spliterator.ORDERED), false);
-		return stream.filter(e -> e.getName().equals(name)).findAny();
+		return stream.filter(e -> e.name().equals(name)).findAny();
 
 	}
 
@@ -146,10 +144,10 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/plugins/org.junit.source_3.8.2.v3_8_2_v20100427-1100.jar");
-		assertTrue("Missing expected file " + file.getName(), file.canRead());
+		assertTrue("Missing expected file " + file.name(), file.canRead());
 		file = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/plugins/org.junit.source_4.8.1.v4_8_1_v20100427-1100.jar");
-		assertTrue("Missing expected file " + file.getName(), file.canRead());
+		assertTrue("Missing expected file " + file.name(), file.canRead());
 
 	}
 }
