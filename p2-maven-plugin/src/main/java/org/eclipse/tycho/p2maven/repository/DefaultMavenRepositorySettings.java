@@ -45,6 +45,7 @@ import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.p2maven.helper.SettingsDecrypterHelper;
 
+@Named
 @Singleton
 public class DefaultMavenRepositorySettings implements MavenRepositorySettings, Initializable {
 

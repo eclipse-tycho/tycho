@@ -25,7 +25,7 @@ import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
-@Named(P)
+@Named(PropertiesComparator.TYPE)
 @Singleton
 public class PropertiesComparator implements ContentsComparator {
     public static final String TYPE = "properties";

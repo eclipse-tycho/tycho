@@ -21,7 +21,7 @@ import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout2;
-@Named(P2A)
+@Named(P2ArtifactRepositoryLayout.ID)
 @Singleton
 public class P2ArtifactRepositoryLayout implements ArtifactRepositoryLayout, ArtifactRepositoryLayout2 {
     public static final String ID = "p2";

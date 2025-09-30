@@ -42,7 +42,7 @@ import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
-@Named(Z)
+@Named(ZipComparatorImpl.TYPE)
 @Singleton
 public class ZipComparatorImpl implements ArtifactComparator {
 

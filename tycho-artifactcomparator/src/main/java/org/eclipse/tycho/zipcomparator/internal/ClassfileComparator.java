@@ -31,7 +31,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-@Named(C)
+@Named(ClassfileComparator.TYPE)
 @Singleton
 public class ClassfileComparator implements ContentsComparator {
     public static final String TYPE = "class";

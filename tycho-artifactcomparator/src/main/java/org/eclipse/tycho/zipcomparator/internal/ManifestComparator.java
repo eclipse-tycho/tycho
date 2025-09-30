@@ -36,7 +36,7 @@ import aQute.bnd.header.OSGiHeader;
 import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.resource.CapReqBuilder;
 
-@Named(M)
+@Named(ManifestComparator.TYPE)
 @Singleton
 public class ManifestComparator implements ContentsComparator {
 

@@ -25,13 +25,13 @@ import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
-@Named(N)
+@Named(NestedZipComparator.TYPE)
 @Singleton
 public class NestedZipComparator implements ContentsComparator {
     public static final String TYPE = "zip";
 
     @Inject
-    @Named(Z)
+    @Named(ZipComparatorImpl.TYPE)
     private ArtifactComparator zipComparator;
 
     @Override

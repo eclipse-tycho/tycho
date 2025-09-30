@@ -21,7 +21,7 @@ import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
-@Named(D)
+@Named(DefaultContentsComparator.TYPE)
 @Singleton
 public class DefaultContentsComparator implements ContentsComparator {
 

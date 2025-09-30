@@ -29,6 +29,7 @@ import org.eclipse.osgi.signedcontent.SignedContentFactory;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.osgi.framework.Bundle;
 
+@Named
 @Singleton
 public class DefaultSignedContentFactory implements SignedContentFactory {
 

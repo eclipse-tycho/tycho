@@ -32,7 +32,7 @@ import com.github.difflib.patch.Patch;
 /**
  * Compares text-like files by ignoring there line ending styles
  */
-@Named(T)
+@Named(TextComparator.HINT)
 @Singleton
 public class TextComparator implements ContentsComparator {
 

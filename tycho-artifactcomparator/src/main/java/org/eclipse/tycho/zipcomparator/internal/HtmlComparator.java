@@ -31,7 +31,7 @@ import ch.digitalfondue.jfiveparse.Node;
 /**
  * Compares html files for some special cases and fall back to simple textcompare otherwise
  */
-@Named(H)
+@Named(HtmlComparator.HINT)
 @Singleton
 public class HtmlComparator implements ContentsComparator {
 

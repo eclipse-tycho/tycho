@@ -25,7 +25,7 @@ import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
 
-@Named(X)
+@Named(XmlComparator.HINT)
 @Singleton
 public class XmlComparator implements ContentsComparator {
 
