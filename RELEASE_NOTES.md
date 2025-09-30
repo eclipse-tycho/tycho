@@ -6,6 +6,52 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 6.0.0 (under development)
 
+### new `tycho-wrap:verify` to test a maven-project with a generated manifest can resolve
+
+A common way to ensure compatibility and integration of java libraries is to enable the generation of an OSGi manifest automatically.
+As one can not expect such project to be OSGi experts there is often a problem that these do not feel comfortable with adding such without any mean to validate the outcome.
+Also it is often not obvious when using a new dependency if this would hinder integration with OSGi or to ensure the actual result is usable without complex and hard to maintain full
+blown integration-test scenarios that project hardly can handle over a long time.
+
+This now introduces a new `tycho-wrap:verify` mojo that tries to fill the gap here between full integration testing and a basic validation with the intention to give clear hint how to handle issues.
+
+```xml
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-wrap-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>verify</goal>
+            </goals>
+            <phase>verify</phase>
+        </execution>
+    </executions>
+</plugin>
+```
+
+A very important part here is that it is possible to ignore problems (either temporary or permanent) so it never completely blocks further development:
+
+```xml
+<execution>
+    <goals>
+        <goal>verify</goal>
+    </goals>
+    <phase>verify</phase>
+    <configuration>
+    <ignored>
+        <!-- This is currently not an OSGi bundle, we would need help from other to resolve the problem, so please feel free to suggest ways to fix this -->
+        <ignore>Import-Package: x.y.z</ignore>
+        <!-- We are working on this, will be fixed in next release cycle -->
+        <ignore>Import-Package: work.in.progress</ignore>
+    </ignored>
+    </configuration>
+</execution>
+```
+
+This has likely to improve over time when we find new issues, or get feedback from users!
+
 ### new `tycho-sbom:generator mojo` to create SBOM from existing products
 
 While creating SBOMs for individual reactor projects is [already possible](https://github.com/eclipse-tycho/tycho/blob/tycho-5.0.x/RELEASE_NOTES.md#support-for-cyclonedx-maven-plugin)
