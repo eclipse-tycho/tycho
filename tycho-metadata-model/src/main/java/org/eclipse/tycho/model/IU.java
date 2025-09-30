@@ -75,10 +75,10 @@ public class IU {
     }
 
     public List<Element> getProvidedCapabilites() {
-        List<Element> provides = iuDom.children(PROVIDES);
+        List<Element> provides = iuDom.children(PROVIDES).toList();
         if (provides == null || provides.isEmpty())
             return null;
-        return provides.get(0).children(PROVIDED);
+        return provides.get(0).children(PROVIDED).toList();
     }
 
     public List<Element> getSelfCapabilities() {
@@ -95,38 +95,38 @@ public class IU {
     }
 
     public void addSelfCapability() {
-        Element provides = iuDom.getChild(PROVIDES);
+        Element provides = iuDom.child(PROVIDES).orElse(null);
         if (provides == null) {
             provides = Element.of(PROVIDES);
             iuDom.addNode(provides);
         }
         Element newCapability = Element.of(PROVIDED);
-        newCapability.addAttribute(NAMESPACE, P2_IU_NAMESPACE);
-        newCapability.addAttribute(NAME, getId());
-        newCapability.addAttribute(VERSION, getVersion());
+        newCapability.attribute(NAMESPACE, P2_IU_NAMESPACE);
+        newCapability.attribute(NAME, getId());
+        newCapability.attribute(VERSION, getVersion());
 
         provides.addNode(newCapability);
     }
 
     public List<Element> getRequiredCapabilites() {
-        List<Element> requires = iuDom.children(REQUIRES);
+        List<Element> requires = iuDom.children(REQUIRES).toList();
         if (requires == null || requires.isEmpty())
             return null;
-        return requires.get(0).children(REQUIRED);
+        return requires.get(0).children(REQUIRED).toList();
     }
 
     public List<Element> getProperties() {
-        List<Element> properties = iuDom.children(PROPERTIES);
+        List<Element> properties = iuDom.children(PROPERTIES).toList();
         if (properties == null || properties.isEmpty())
             return null;
-        return properties.get(0).children(PROPERTY);
+        return properties.get(0).children(PROPERTY).toList();
     }
 
     public void addProperty(String name, String value) {
-        Element properties = iuDom.getChild(PROPERTIES);
+        Element properties = iuDom.child(PROPERTIES).orElse(null);
         if (properties == null) {
             iuDom.addNode(Element.of(PROPERTIES));
-            properties = iuDom.getChild(PROPERTIES);
+            properties = iuDom.child(PROPERTIES).orElse(null);
         }
         Element elt = Element.of(PROPERTY);
         elt.attribute(NAME, name);
@@ -135,22 +135,22 @@ public class IU {
     }
 
     public List<Element> getArtifacts() {
-        Element artifacts = iuDom.getChild(ARTIFACTS);
+        Element artifacts = iuDom.child(ARTIFACTS).orElse(null);
         if (artifacts == null)
             return null;
-        return artifacts.children(ARTIFACT);
+        return artifacts.children(ARTIFACT).toList();
     }
 
     public void addArtifact(String classifier, String id, String version) {
-        Element artifacts = iuDom.getChild(ARTIFACTS);
+        Element artifacts = iuDom.child(ARTIFACTS).orElse(null);
         if (artifacts == null) {
             artifacts = Element.of(ARTIFACTS);
             iuDom.addNode(artifacts);
         }
         Element newArtifact = Element.of(ARTIFACT);
-        newArtifact.addAttribute(CLASSIFIER, classifier);
-        newArtifact.addAttribute(ID, id);
-        newArtifact.addAttribute(VERSION, version);
+        newArtifact.attribute(CLASSIFIER, classifier);
+        newArtifact.attribute(ID, id);
+        newArtifact.attribute(VERSION, version);
 
         artifacts.addNode(newArtifact);
     }
@@ -170,7 +170,7 @@ public class IU {
     public static IU read(File file) throws IOException {
         try (FileInputStream is = new FileInputStream(file)) {
             Document iuDocument = Document.of(is);
-            Element root = iuDocument.getChild(UNIT);
+            Element root = iuDocument.root();
             if (root == null)
                 throw new RuntimeException("No iu found.");
 

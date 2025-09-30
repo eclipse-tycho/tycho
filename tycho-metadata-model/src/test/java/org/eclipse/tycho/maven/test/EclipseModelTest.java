@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -123,8 +124,8 @@ class EclipseModelTest {
         Feature feature = Feature.read(new File("src/test/resources/modelio/feature-default-encoding.xml"));
         Feature.write(feature, new File("target/feature-default-encoding.xml"));
 
-        Document document = XMLParser.parse(new File("target/feature-default-encoding.xml"));
-        Element child = document.getChild("/feature/license");
+        Document document = Document.of(new FileInputStream(new File("target/feature-default-encoding.xml")));
+        Element child = document.root().child("license").orElseThrow();
 
         assertEquals("\u201cI AGREE\u201d", child.textContent().trim());
     }

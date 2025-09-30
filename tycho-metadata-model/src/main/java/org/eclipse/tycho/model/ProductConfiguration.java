@@ -104,12 +104,12 @@ public class ProductConfiguration {
         Element featuresDom = dom.child("features").orElse(null);
         if (featuresDom != null) {
 
-            for (int childIx = featuresDom.getNodes().size() - 1; childIx > 0; --childIx) {
+            for (int childIx = featuresDom.nodes().toList().size() - 1; childIx > 0; --childIx) {
                 Node nodeDom = featuresDom.getNode(childIx);
 
                 if (nodeDom instanceof Element elementDom) {
                     if (parseFeature(elementDom).getInstallMode() == FeatureRef.InstallMode.root) {
-                        featuresDom.removeNode(childIx);
+                        featuresDom.removeNode(nodeDom);
                     }
                 }
             }
@@ -252,7 +252,7 @@ public class ProductConfiguration {
             return null;
         }
 
-        List<Element> propertyDoms = configurationsDom.children("property");
+        List<Element> propertyDoms = configurationsDom.children("property").toList();
         if (propertyDoms == null) {
             return null;
         }
@@ -331,7 +331,7 @@ public class ProductConfiguration {
         private String getOsSpecificConfigIni(Element configIniElement, String os) {
             Element osElement = configIniElement.child(os).orElse(null);
             if (osElement != null) {
-                String trimmedValue = osElement.getTrimmedText();
+                String trimmedValue = osElement.textContent().trim();
                 if (!trimmedValue.isEmpty()) {
                     return trimmedValue;
                 }

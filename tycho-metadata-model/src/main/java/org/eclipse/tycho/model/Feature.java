@@ -84,7 +84,14 @@ public class Feature {
 
     /** copy constructor */
     public Feature(Feature other) {
-        this(other.document.clone());
+        this(cloneDocument(other.document));
+    }
+
+    private static Document cloneDocument(Document doc) {
+        // Work around for clone() visibility - serialize and re-parse
+        Serializer serializer = new Serializer();
+        String xml = serializer.serialize(doc);
+        return Document.of(xml);
     }
 
     public List<PluginRef> getPlugins() {
@@ -361,7 +368,7 @@ public class Feature {
 
     // description + url
     public String getDescription() {
-        Element descElement = dom.getChild("description");
+        Element descElement = dom.child("description").orElse(null);
         if (descElement != null) {
             return descElement.textContent();
         }
@@ -369,7 +376,7 @@ public class Feature {
     }
 
     public void setDescription(String description) {
-        Element descElement = dom.getChild("description");
+        Element descElement = dom.child("description").orElse(null);
         if (descElement == null) {
             descElement = Element.of("description");
             dom.addNode(descElement);
@@ -378,7 +385,7 @@ public class Feature {
     }
 
     public String getDescriptionURL() {
-        Element descElement = dom.getChild("description");
+        Element descElement = dom.child("description").orElse(null);
         if (descElement != null) {
             return descElement.attribute("url");
         }
@@ -386,7 +393,7 @@ public class Feature {
     }
 
     public void setDescriptionURL(String descriptionURL) {
-        Element descElement = dom.getChild("description");
+        Element descElement = dom.child("description").orElse(null);
         if (descElement == null) {
             descElement = Element.of("description");
             dom.addNode(descElement);
@@ -396,7 +403,7 @@ public class Feature {
 
     // copyright + url
     public String getCopyright() {
-        Element copyrightElement = dom.getChild("copyright");
+        Element copyrightElement = dom.child("copyright").orElse(null);
         if (copyrightElement != null) {
             return copyrightElement.textContent();
         }
@@ -404,7 +411,7 @@ public class Feature {
     }
 
     public void setCopyright(String description) {
-        Element copyrightElement = dom.getChild("copyright");
+        Element copyrightElement = dom.child("copyright").orElse(null);
         if (copyrightElement == null) {
             copyrightElement = Element.of("copyright");
             dom.addNode(copyrightElement);
@@ -413,7 +420,7 @@ public class Feature {
     }
 
     public String getCopyrightURL() {
-        Element copyrightElement = dom.getChild("copyright");
+        Element copyrightElement = dom.child("copyright").orElse(null);
         if (copyrightElement != null) {
             return copyrightElement.attribute("url");
         }
@@ -421,7 +428,7 @@ public class Feature {
     }
 
     public void setCopyrightURL(String copyrightURL) {
-        Element copyrightElement = dom.getChild("copyright");
+        Element copyrightElement = dom.child("copyright").orElse(null);
         if (copyrightElement == null) {
             copyrightElement = Element.of("copyright");
             dom.addNode(copyrightElement);
@@ -431,7 +438,7 @@ public class Feature {
 
     // license + url
     public String getLicense() {
-        Element licenseElement = dom.getChild("license");
+        Element licenseElement = dom.child("license").orElse(null);
         if (licenseElement != null) {
             return licenseElement.textContent();
         }
@@ -439,7 +446,7 @@ public class Feature {
     }
 
     public void setLicense(String license) {
-        Element licenseElement = dom.getChild("license");
+        Element licenseElement = dom.child("license").orElse(null);
         if (licenseElement == null) {
             licenseElement = Element.of("license");
             dom.addNode(licenseElement);
@@ -448,7 +455,7 @@ public class Feature {
     }
 
     public String getLicenseURL() {
-        Element licenseElement = dom.getChild("license");
+        Element licenseElement = dom.child("license").orElse(null);
         if (licenseElement != null) {
             return licenseElement.attribute("url");
         }
@@ -456,7 +463,7 @@ public class Feature {
     }
 
     public void setLicenseURL(String licenseURL) {
-        Element licenseElement = dom.getChild("license");
+        Element licenseElement = dom.child("license").orElse(null);
         if (licenseElement == null) {
             licenseElement = Element.of("license");
             dom.addNode(licenseElement);
