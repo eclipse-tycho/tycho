@@ -13,12 +13,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.Feature.ImportRef;
 import org.eclipse.tycho.model.Feature.RequiresRef;
@@ -32,7 +33,8 @@ import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.VersionRangeUpdateStrategy;
 import org.eclipse.tycho.versions.engine.Versions;
 
-@Component(role = MetadataManipulator.class, hint = "eclipse-feature")
+@Named("eclipse-feature")
+@Singleton
 public class FeatureXmlManipulator extends AbstractMetadataManipulator {
 
     @Override

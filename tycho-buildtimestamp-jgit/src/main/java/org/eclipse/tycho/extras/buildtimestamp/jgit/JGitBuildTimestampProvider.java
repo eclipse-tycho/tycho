@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.buildtimestamp.jgit;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,8 +29,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
@@ -91,16 +92,17 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
  * ...
  * </pre>
  */
-@Component(role = BuildTimestampProvider.class, hint = "jgit")
+@Named("jgit")
+@Singleton
 public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 	private static final String PARAMETER_JGIT_IGNORE = "jgit.ignore";
 
 	private static final String PARAMETER_JGIT_DIRTY_WORKING_TREE = "jgit.dirtyWorkingTree";
 
-	@Requirement(hint = "default")
+	@Inject(hint = "default")
 	private BuildTimestampProvider defaultTimestampProvider;
 
-	@Requirement
+	@Inject
 	private Logger logger;
 
 	private boolean quiet;

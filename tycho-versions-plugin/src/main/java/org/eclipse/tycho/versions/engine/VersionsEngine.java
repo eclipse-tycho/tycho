@@ -14,6 +14,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,8 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.versions.manipulation.PomManipulator;
 import org.eclipse.tycho.versions.pom.PomFile;
@@ -33,7 +34,8 @@ import org.eclipse.tycho.versions.pom.PomFile;
  * @TODO find more specific name that reflects what this class actually does.
  * 
  */
-@Component(role = VersionsEngine.class, instantiationStrategy = "per-lookup")
+// Note: per-lookup strategy - consider using @Component with explicit scoping
+@Singleton
 public class VersionsEngine {
 
     private static class PropertyChange {
@@ -50,13 +52,14 @@ public class VersionsEngine {
         }
     }
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement(role = MetadataManipulator.class)
+    @Inject
     private List<MetadataManipulator> manipulators;
 
-    @Requirement(hint = PomManipulator.HINT)
+    @Inject
+    @Named(PomManipulator.HINT)
     private MetadataManipulator pomManipulator;
 
     private Collection<ProjectMetadata> projects;
