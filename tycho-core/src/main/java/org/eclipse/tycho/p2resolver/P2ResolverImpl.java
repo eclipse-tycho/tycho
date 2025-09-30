@@ -77,6 +77,7 @@ import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.p2tools.copiedfromp2.QueryableArray;
 import org.eclipse.tycho.p2tools.copiedfromp2.Slicer;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
+import org.eclipse.tycho.version.TychoVersion;
 
 public class P2ResolverImpl implements P2Resolver {
 
@@ -234,7 +235,10 @@ public class P2ResolverImpl implements P2Resolver {
             logger.error("Cannot resolve project dependencies:");
             new MultiLineLogger(logger).error(e.getDetails(), "  ");
             logger.error("");
-            logger.error("See https://wiki.eclipse.org/Tycho/Dependency_Resolution_Troubleshooting for help.");
+            String version = TychoVersion.getTychoVersion();
+            // Use 'main' for SNAPSHOT versions, otherwise use the actual version
+            String docVersion = version.contains("-SNAPSHOT") ? "main" : version;
+            logger.error("See https://tycho.eclipseprojects.io/doc/" + docVersion + "/Troubleshooting.html for help.");
             throw new DependencyResolutionException("Cannot resolve dependencies of " + project, e);
         }
 
