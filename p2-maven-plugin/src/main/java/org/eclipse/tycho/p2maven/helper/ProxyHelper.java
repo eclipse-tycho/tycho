@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2maven.helper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.net.Authenticator.RequestorType;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
@@ -32,6 +33,7 @@ import org.eclipse.aether.repository.AuthenticationContext;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
+@Named
 @Singleton
 public class ProxyHelper implements Initializable {
 

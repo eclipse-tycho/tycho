@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2maven;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
@@ -52,6 +53,7 @@ import org.eclipse.tycho.p2maven.tmp.BundlesAction;
  * THis component computes dependencies between projects
  *
  */
+@Named
 @Singleton
 public class MavenProjectDependencyProcessor {
 

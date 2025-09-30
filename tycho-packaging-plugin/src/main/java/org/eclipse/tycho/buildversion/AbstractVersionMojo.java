@@ -13,6 +13,7 @@
 package org.eclipse.tycho.buildversion;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public abstract class AbstractVersionMojo extends AbstractMojo {
     @Parameter(property = "project.packaging", required = true, readonly = true)
     protected String packaging;
 
-    @Singleton
+    @Inject
     protected Map<String, TychoProject> projectTypes;
 
 	@Inject

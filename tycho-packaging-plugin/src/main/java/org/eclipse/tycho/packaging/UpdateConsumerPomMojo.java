@@ -14,6 +14,7 @@ package org.eclipse.tycho.packaging;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -75,10 +76,10 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${session}", readonly = true, required = true)
 	private MavenSession session;
 
-	@Singleton
+	@Inject
 	protected ModelWriter modelWriter;
 
-	@Singleton
+	@Inject
 	protected ModelReader modelReader;
 
 	@Inject

@@ -14,6 +14,7 @@ package org.eclipse.tycho.bnd.maven;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
@@ -63,6 +64,7 @@ import biz.aQute.resolve.Bndrun;
  * <code>test<code> maven dependency</li>
  * </ul>
  */
+@Named
 @Singleton
 public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 

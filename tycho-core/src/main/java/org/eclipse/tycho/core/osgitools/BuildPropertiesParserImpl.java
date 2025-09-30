@@ -16,6 +16,7 @@ package org.eclipse.tycho.core.osgitools;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.BuildPropertiesImpl;
 import org.eclipse.tycho.core.maven.TychoInterpolator;
 
+@Named
 @Singleton
 public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposable {
 

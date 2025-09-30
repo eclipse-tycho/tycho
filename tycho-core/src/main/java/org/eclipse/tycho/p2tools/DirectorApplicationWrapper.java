@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2tools;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.List;
 
 import org.codehaus.plexus.logging.Logger;
@@ -28,6 +29,7 @@ import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 import org.eclipse.tycho.p2tools.copiedfromp2.DirectorApplication;
 import org.eclipse.tycho.p2tools.copiedfromp2.ILog;
 
+@Named
 @Singleton
 public final class DirectorApplicationWrapper implements DirectorRuntime {
     /**

@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

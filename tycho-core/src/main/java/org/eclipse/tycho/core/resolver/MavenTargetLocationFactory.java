@@ -14,6 +14,7 @@ package org.eclipse.tycho.core.resolver;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import org.apache.maven.plugin.LegacySupport;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.spi.synccontext.SyncContextFactory;
@@ -24,6 +25,7 @@ import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 
+@Named
 @Singleton
 public class MavenTargetLocationFactory {
 

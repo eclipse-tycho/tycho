@@ -15,6 +15,7 @@ package org.eclipse.tycho.core;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Collection;
@@ -40,6 +41,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 
+@Named
 @Singleton
 public class VerifierServiceImpl implements VerifierService {
 

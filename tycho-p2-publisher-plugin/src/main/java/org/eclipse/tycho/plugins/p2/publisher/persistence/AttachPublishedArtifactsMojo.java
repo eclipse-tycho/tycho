@@ -14,6 +14,7 @@ package org.eclipse.tycho.plugins.p2.publisher.persistence;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.util.Collections;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
     @Inject
     private MavenProjectHelper projectHelper;
 
-    @Singleton
+    @Inject
     ReactorRepositoryManager reactorRepoManager;
 
     @Inject

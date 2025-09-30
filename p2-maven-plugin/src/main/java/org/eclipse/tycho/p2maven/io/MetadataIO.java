@@ -14,6 +14,7 @@
 package org.eclipse.tycho.p2maven.io;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,6 +45,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+@Named
 @Singleton
 public class MetadataIO {
     private static class Writer extends MetadataWriter {

@@ -14,6 +14,7 @@ package org.eclipse.tycho.osgi.configuration;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -46,6 +47,7 @@ import org.eclipse.tycho.core.MavenDependenciesResolver;
 import org.eclipse.tycho.core.MavenModelFacade;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
 
+@Named
 @Singleton
 public class MavenDependenciesResolverConfigurer implements MavenDependenciesResolver {
 

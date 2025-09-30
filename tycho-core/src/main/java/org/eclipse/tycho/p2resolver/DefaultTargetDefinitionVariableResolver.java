@@ -13,6 +13,7 @@
 package org.eclipse.tycho.p2resolver;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -28,6 +29,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 
+@Named
 @Singleton
 @SessionScoped
 public class DefaultTargetDefinitionVariableResolver implements TargetDefinitionVariableResolver {

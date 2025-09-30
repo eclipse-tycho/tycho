@@ -14,9 +14,11 @@ package org.eclipse.tycho.surefire.provisioning;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
+@Named
 @Singleton
 public class ProvisionedInstallationBuilderFactory {
 

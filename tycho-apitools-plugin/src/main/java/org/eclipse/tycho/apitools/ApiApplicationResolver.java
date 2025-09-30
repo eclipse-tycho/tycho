@@ -14,6 +14,7 @@ package org.eclipse.tycho.apitools;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Set;
@@ -34,6 +35,7 @@ import org.osgi.service.log.LogEntry;
  * Component that resolves the bundles that make up the ApiApplication from a
  * given URI
  */
+@Named
 @Singleton
 public class ApiApplicationResolver {
 

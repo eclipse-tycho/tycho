@@ -12,13 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
-import javax.inject.Singleton;
+import javax.inject.Named;
 import org.eclipse.tycho.versions.pom.PomFile;
 
 /**
  * Updates Eclipse/OSGi metadata to match pom version.
  */
-@Singleton
+@Named
 public class EclipseVersionUpdater extends VersionUpdater {
 
     @Override

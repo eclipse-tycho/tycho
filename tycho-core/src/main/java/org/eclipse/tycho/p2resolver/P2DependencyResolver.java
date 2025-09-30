@@ -101,7 +101,7 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 
-@Singleton
+@Named(P2DependencyResolver.ROLE_HINT)
 public class P2DependencyResolver implements DependencyResolver, Initializable {
 
     public static final String ROLE_HINT = "p2";

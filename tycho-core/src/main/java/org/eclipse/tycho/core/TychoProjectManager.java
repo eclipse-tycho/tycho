@@ -13,6 +13,7 @@
 package org.eclipse.tycho.core;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -78,6 +79,7 @@ import org.osgi.resource.Namespace;
 
 import aQute.bnd.osgi.Processor;
 
+@Named
 @Singleton
 @SessionScoped
 public class TychoProjectManager {

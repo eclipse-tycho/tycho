@@ -14,6 +14,7 @@ package org.eclipse.tycho.core.osgitools;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
@@ -25,6 +26,7 @@ import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.TychoProject;
 
+@Named
 @Singleton
 public class P2SiteProject extends AbstractArtifactBasedProject {
     @Override

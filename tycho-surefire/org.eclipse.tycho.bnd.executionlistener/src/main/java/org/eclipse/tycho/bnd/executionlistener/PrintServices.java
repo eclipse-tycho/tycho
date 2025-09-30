@@ -13,6 +13,7 @@
 package org.eclipse.tycho.bnd.executionlistener;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -22,6 +23,7 @@ import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
+@Named
 @Singleton
 public class PrintServices {
 

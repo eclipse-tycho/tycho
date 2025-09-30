@@ -14,6 +14,7 @@ package org.eclipse.tycho.core.osgitools;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.util.Optional;
 
@@ -45,6 +46,7 @@ import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
  * artifact if it is not present in the target.
  *
  */
+@Named
 @Singleton
 public class MavenBundleResolver {
 

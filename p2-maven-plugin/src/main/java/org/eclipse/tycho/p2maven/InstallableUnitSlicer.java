@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2maven;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -36,6 +37,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 /**
  * A strategy that computes a slice from a set of all units.
  */
+@Named
 @Singleton
 public class InstallableUnitSlicer {
 

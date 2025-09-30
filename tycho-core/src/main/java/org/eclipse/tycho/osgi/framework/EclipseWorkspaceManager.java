@@ -14,6 +14,7 @@ package org.eclipse.tycho.osgi.framework;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -32,6 +33,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
  * The {@link EclipseWorkspaceManager} manages dedicated workspaces on a per thread basis using a
  * key object
  */
+@Named
 @Singleton
 public class EclipseWorkspaceManager implements Disposable {
 

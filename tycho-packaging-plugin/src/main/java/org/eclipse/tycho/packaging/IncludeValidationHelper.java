@@ -16,6 +16,7 @@ package org.eclipse.tycho.packaging;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.eclipse.tycho.BuildProperties;
 
+@Named
 @Singleton
 public class IncludeValidationHelper {
 

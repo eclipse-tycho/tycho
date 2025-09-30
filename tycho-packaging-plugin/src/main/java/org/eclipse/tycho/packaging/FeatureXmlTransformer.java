@@ -15,6 +15,7 @@ package org.eclipse.tycho.packaging;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,6 +36,7 @@ import org.eclipse.tycho.model.Feature.ImportRef;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 
+@Named
 @Singleton
 public class FeatureXmlTransformer {
 	/**

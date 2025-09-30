@@ -13,6 +13,7 @@
 package org.eclipse.tycho.p2maven.helper;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.building.SettingsProblem;
@@ -22,6 +23,7 @@ import org.apache.maven.settings.crypto.SettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.logging.Logger;
 
+@Named
 @Singleton
 public class SettingsDecrypterHelper {
 

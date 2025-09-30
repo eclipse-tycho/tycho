@@ -15,6 +15,7 @@ package org.eclipse.tycho.core.osgitools;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.TychoConstants;
 
+@Named
 @Singleton
 public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {
 

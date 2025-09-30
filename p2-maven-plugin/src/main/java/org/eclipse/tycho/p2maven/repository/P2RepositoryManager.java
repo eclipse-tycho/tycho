@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2maven.repository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -56,6 +57,7 @@ import org.eclipse.tycho.p2maven.LoggerProgressMonitor;
 /**
  * Allows unique access to P2 repositories from maven
  */
+@Named
 @Singleton
 public class P2RepositoryManager {
 	private static final String PROPERTY_KEY = "eclipse.p2.maxDownloadAttempts";

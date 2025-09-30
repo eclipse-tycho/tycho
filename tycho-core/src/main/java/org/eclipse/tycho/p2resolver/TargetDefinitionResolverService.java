@@ -18,6 +18,7 @@ package org.eclipse.tycho.p2resolver;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +42,7 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
  * redundant computations in the common case where all modules have the same target definition file
  * configured.
  */
+@Named
 @Singleton
 public class TargetDefinitionResolverService {
 

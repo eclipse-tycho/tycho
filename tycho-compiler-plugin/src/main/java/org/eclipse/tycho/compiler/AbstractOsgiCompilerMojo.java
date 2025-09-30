@@ -18,6 +18,7 @@ package org.eclipse.tycho.compiler;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -263,7 +264,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Parameter(defaultValue = "consider")
     private PomDependencies pomOnlyDependencies = PomDependencies.consider;
 
-    @Singleton
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
     @Inject

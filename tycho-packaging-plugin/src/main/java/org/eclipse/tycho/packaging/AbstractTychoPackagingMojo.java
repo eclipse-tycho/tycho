@@ -15,6 +15,7 @@ package org.eclipse.tycho.packaging;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -105,7 +106,7 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
     @Inject
     protected MavenProjectHelper projectHelper;
 
-    @Singleton
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
     @Inject

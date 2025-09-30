@@ -13,6 +13,7 @@
 package org.eclipse.tycho.bnd.executionlistener;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Collection;
 import java.util.Comparator;
 
@@ -23,6 +24,7 @@ import org.osgi.service.component.runtime.dto.ComponentConfigurationDTO;
 import org.osgi.service.component.runtime.dto.ComponentDescriptionDTO;
 import org.osgi.service.component.runtime.dto.UnsatisfiedReferenceDTO;
 
+@Named
 @Singleton
 public class PrintServicesDs {
 

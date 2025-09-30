@@ -14,6 +14,7 @@ package org.eclipse.tycho.core.maven;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -52,6 +53,7 @@ import org.eclipse.aether.resolution.VersionRangeResult;
 import org.eclipse.aether.version.Version;
 import org.eclipse.tycho.TychoConstants;
 
+@Named
 @Singleton
 public class MavenDependenciesResolver {
 

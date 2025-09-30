@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2maven.transport;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,6 +43,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.tycho.ReproducibleUtils;
 
+@Named
 @Singleton
 public class SharedHttpCacheStorage implements HttpCache {
 

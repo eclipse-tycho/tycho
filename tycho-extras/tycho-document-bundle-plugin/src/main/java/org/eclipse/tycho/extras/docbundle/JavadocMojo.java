@@ -15,6 +15,7 @@ package org.eclipse.tycho.extras.docbundle;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -211,7 +212,7 @@ public class JavadocMojo extends AbstractMojo {
 	@Inject
 	private DocletArtifactsResolver docletArtifactsResolver;
 
-	@Singleton
+	@Inject
 	private Map<String, TychoProject> projectTypes;
 
 	/**

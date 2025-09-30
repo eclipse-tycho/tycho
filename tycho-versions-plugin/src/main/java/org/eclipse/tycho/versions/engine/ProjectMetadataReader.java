@@ -15,7 +15,7 @@
 package org.eclipse.tycho.versions.engine;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -33,7 +33,7 @@ import org.eclipse.tycho.versions.pom.GAV;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.pom.Profile;
 
-@Singleton
+@Named
 public class ProjectMetadataReader {
     private static final String PACKAGING_POM = "pom";
 

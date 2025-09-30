@@ -14,6 +14,7 @@ package org.eclipse.tycho.build;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 
+@Named
 @Singleton
 public class BuildListeners {
     @Inject

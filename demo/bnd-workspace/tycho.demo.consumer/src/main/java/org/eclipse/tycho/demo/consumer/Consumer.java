@@ -13,11 +13,13 @@
 package org.eclipse.tycho.demo.consumer;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import org.apache.felix.service.command.Descriptor;
 import org.eclipse.tycho.demo.api.HelloWorld;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+@Named
 @Singleton
 public class Consumer {
 	

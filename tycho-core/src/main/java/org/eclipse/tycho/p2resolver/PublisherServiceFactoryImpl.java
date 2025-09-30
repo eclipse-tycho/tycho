@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2resolver;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.List;
 
 import org.codehaus.plexus.logging.Logger;
@@ -32,6 +33,7 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
+@Named
 @Singleton
 public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 

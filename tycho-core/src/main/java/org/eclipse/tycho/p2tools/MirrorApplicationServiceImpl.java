@@ -15,6 +15,7 @@ package org.eclipse.tycho.p2tools;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -85,6 +86,7 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
 import org.eclipse.tycho.p2tools.copiedfromp2.RecreateRepositoryApplication;
 import org.eclipse.tycho.p2tools.copiedfromp2.RepositoryDescriptor;
 
+@Named
 @Singleton
 public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 

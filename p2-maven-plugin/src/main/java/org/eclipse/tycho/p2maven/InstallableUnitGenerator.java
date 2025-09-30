@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2maven;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -75,6 +76,7 @@ import org.xml.sax.SAXException;
  * Component used to generate {@link IInstallableUnit}s from other artifacts
  *
  */
+@Named
 @Singleton
 public class InstallableUnitGenerator {
 

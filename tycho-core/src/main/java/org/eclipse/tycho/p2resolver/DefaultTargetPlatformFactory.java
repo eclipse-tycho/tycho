@@ -18,6 +18,7 @@ package org.eclipse.tycho.p2resolver;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.util.List;
 
@@ -39,6 +40,7 @@ import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 
+@Named
 @Singleton
 public class DefaultTargetPlatformFactory implements TargetPlatformFactory {
 

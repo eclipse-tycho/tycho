@@ -13,6 +13,7 @@
 package org.eclipse.tycho.bnd;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import aQute.bnd.service.RepositoryPlugin;
 import aQute.bnd.service.resource.SupportingResource;
 import aQute.bnd.version.Version;
 
+@Named
 @Singleton
 public class MavenReactorRepository extends ResourcesRepository implements RepositoryPlugin {
 

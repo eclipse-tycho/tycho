@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2resolver;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
@@ -41,6 +42,7 @@ import org.eclipse.tycho.p2maven.InstallableUnitPublisher;
 import org.eclipse.tycho.p2maven.advices.MavenChecksumAdvice;
 import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
 
+@Named
 @Singleton
 public class PomUnits {
 

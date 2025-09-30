@@ -14,6 +14,7 @@ package org.eclipse.tycho.core;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,6 +46,7 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.tycho.p2maven.transport.TransportCacheConfig;
 
+@Named
 @Singleton
 public class PGPService {
 

@@ -13,6 +13,7 @@
 package org.eclipse.tycho.sbom;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -74,6 +75,7 @@ import org.slf4j.LoggerFactory;
  * &lt;/plugin&gt;
  * </pre>
  */
+@Named
 @Singleton
 public class TychoModelConverter extends DefaultModelConverter {
 	private static final String KEY_CONTEXT = TychoSBOMConfiguration.class.toString();

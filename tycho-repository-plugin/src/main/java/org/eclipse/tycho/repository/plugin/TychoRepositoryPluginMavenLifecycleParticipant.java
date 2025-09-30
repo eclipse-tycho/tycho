@@ -14,6 +14,7 @@ package org.eclipse.tycho.repository.plugin;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.eclipse.tycho.helper.PluginConfigurationHelper;
 import org.eclipse.tycho.helper.ProjectHelper;
 import org.eclipse.tycho.packaging.RepositoryGenerator;
 
+@Named
 @Singleton
 public class TychoRepositoryPluginMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 

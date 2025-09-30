@@ -15,6 +15,7 @@ package org.eclipse.tycho.helper;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import javax.inject.Named;
 
 import java.util.HashSet;
 import java.util.List;
@@ -71,6 +72,7 @@ import org.codehaus.plexus.logging.Logger;
  * </pre>
  * 
  */
+@Named
 @Singleton
 public class PluginRealmHelper {
     public static interface PluginFilter {

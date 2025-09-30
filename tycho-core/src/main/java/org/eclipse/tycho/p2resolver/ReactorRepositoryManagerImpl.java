@@ -15,6 +15,7 @@ package org.eclipse.tycho.p2resolver;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 
 import org.apache.maven.project.MavenProject;
@@ -28,6 +29,7 @@ import org.eclipse.tycho.p2.repository.module.ModuleMetadataRepository;
 import org.eclipse.tycho.p2.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
+@Named
 @Singleton
 public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
 

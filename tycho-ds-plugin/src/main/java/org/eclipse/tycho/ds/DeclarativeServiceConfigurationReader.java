@@ -14,6 +14,7 @@ package org.eclipse.tycho.ds;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -29,6 +30,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.osgi.framework.Version;
 
+@Named
 @Singleton
 public class DeclarativeServiceConfigurationReader {
 

@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2maven.transport;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 
 import org.apache.maven.execution.MavenSession;
@@ -23,6 +24,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.eclipse.aether.transfer.TransferListener;
 import org.eclipse.tycho.TychoConstants;
 
+@Named
 @Singleton
 public class DefaultTransportCacheConfig implements TransportCacheConfig, Initializable {
 

@@ -14,6 +14,7 @@
 package org.eclipse.tycho.p2.tools;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,6 +53,7 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
  * This class is intended to be use as a Plexus component, so that all required fields are
  * automatically initialized using DI.
  */
+@Named
 @Singleton
 public final class P2DependencyTreeGenerator {
     private final TychoProjectManager projectManager;

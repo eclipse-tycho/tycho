@@ -13,6 +13,7 @@
 package org.eclipse.tycho.p2maven;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,6 +38,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 /**
  * Component that helps publishing units using publisher actions
  */
+@Named
 @Singleton
 public class InstallableUnitPublisher {
 

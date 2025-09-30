@@ -14,6 +14,7 @@ package org.eclipse.tycho.plugins.p2.publisher;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Collection;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -30,7 +31,7 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
     @Inject
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Singleton
+    @Inject
     PublisherServiceFactory publisherServiceFactory;
 
     @Override

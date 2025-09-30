@@ -17,6 +17,7 @@ package org.eclipse.tycho.core.resolver;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -56,6 +57,7 @@ import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 import org.osgi.framework.Filter;
 
+@Named
 @Singleton
 public class DefaultTargetPlatformConfigurationReader {
     public static final String TARGET_DEFINITION_INCLUDE_SOURCE = "targetDefinitionIncludeSource";

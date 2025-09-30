@@ -14,6 +14,7 @@ package org.eclipse.tycho.core.osgitools;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -33,6 +34,7 @@ import org.eclipse.tycho.model.classpath.JUnitBundle;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.eclipse.tycho.model.project.EclipseProject;
 
+@Named
 @Singleton
 public class ClasspathReader implements Disposable {
 

@@ -13,6 +13,7 @@
 package org.eclipse.tycho.core.maven;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -34,6 +35,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 
+@Named
 @Singleton
 @SessionScoped
 public class ToolchainProvider {

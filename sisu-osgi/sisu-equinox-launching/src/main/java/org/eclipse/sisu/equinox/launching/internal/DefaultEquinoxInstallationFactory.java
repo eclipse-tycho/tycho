@@ -14,6 +14,7 @@ package org.eclipse.sisu.equinox.launching.internal;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -46,6 +47,7 @@ import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TychoConstants;
 import org.osgi.framework.Constants;
 
+@Named
 @Singleton
 public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFactory {
     @Inject

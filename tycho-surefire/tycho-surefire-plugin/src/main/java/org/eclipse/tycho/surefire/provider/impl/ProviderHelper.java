@@ -15,6 +15,7 @@ package org.eclipse.tycho.surefire.provider.impl;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,6 +34,7 @@ import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 
+@Named
 @Singleton
 public class ProviderHelper {
 

@@ -15,6 +15,7 @@ package org.eclipse.tycho.eclipserun;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -270,7 +271,7 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Inject
 	private ToolchainProvider toolchainProvider;
 
-	@Singleton
+	@Inject
 	P2ResolverFactory resolverFactory;
 
 	@Inject

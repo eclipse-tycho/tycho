@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2tools;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -30,6 +31,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 
+@Named
 @Singleton
 public class MetadataSerializableImpl implements MetadataSerializable {
     @Inject

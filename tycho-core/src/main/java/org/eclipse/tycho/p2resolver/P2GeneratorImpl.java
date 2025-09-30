@@ -15,6 +15,7 @@ package org.eclipse.tycho.p2resolver;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -94,6 +95,7 @@ import org.eclipse.tycho.p2maven.actions.ProductFile2;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.osgi.framework.BundleException;
 
+@Named
 @Singleton
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {
     private static final String[] SUPPORTED_TYPES = { PackagingType.TYPE_ECLIPSE_PLUGIN,

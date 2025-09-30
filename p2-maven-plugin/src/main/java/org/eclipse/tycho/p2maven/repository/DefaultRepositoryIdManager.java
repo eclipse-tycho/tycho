@@ -15,6 +15,7 @@ package org.eclipse.tycho.p2maven.repository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -30,6 +31,7 @@ import org.eclipse.tycho.MavenRepositorySettings;
  * Helper class for the Remote*RepositoryManagers taking care of mapping repository URLs to the
  * settings.xml-configured mirrors and setting passwords.
  */
+@Named
 @Singleton
 public class DefaultRepositoryIdManager implements IRepositoryIdManager {
 

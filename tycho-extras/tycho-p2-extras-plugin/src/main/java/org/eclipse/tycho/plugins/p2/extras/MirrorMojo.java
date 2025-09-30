@@ -15,6 +15,7 @@ package org.eclipse.tycho.plugins.p2.extras;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,7 +64,7 @@ public class MirrorMojo extends AbstractMojo {
     @Inject
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Singleton
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
     /**

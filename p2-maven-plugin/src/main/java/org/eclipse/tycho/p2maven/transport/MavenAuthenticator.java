@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2maven.transport;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
@@ -48,6 +49,7 @@ import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
+@Named
 @Singleton
 public class MavenAuthenticator extends Authenticator implements Initializable {
 

@@ -14,6 +14,7 @@ package org.eclipse.tycho.bnd.maven;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import org.apache.maven.lifecycle.LifecycleExecutionException;
 import org.apache.maven.plugin.MojoExecution;
 import org.eclipse.tycho.bnd.MavenReactorRepository;
 
+@Named
 @Singleton
 public class BndProjectExecutionListener implements ProjectExecutionListener {
 

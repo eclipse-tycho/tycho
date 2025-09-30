@@ -14,6 +14,7 @@
 package org.eclipse.tycho.core.osgitools;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +60,7 @@ import org.osgi.resource.Capability;
  * Note that some functionality, namely SecondaryDependencies, ExtraClasspathEntries and
  * isPatchFragment, has been removed due to time constraints.
  */
+@Named
 @Singleton
 public class DependencyComputer {
 

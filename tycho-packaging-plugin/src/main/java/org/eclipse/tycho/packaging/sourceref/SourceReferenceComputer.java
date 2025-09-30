@@ -15,6 +15,7 @@ package org.eclipse.tycho.packaging.sourceref;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Map;
 import java.util.jar.Manifest;
 
@@ -22,6 +23,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.packaging.SourceReferences;
 
+@Named
 @Singleton
 public class SourceReferenceComputer {
 

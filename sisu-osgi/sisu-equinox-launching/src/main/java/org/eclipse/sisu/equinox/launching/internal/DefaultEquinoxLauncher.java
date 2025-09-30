@@ -14,6 +14,7 @@ package org.eclipse.sisu.equinox.launching.internal;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -33,6 +34,7 @@ import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.EquinoxLaunchingException;
 import org.eclipse.sisu.equinox.launching.LaunchConfiguration;
 
+@Named
 @Singleton
 public class DefaultEquinoxLauncher implements EquinoxLauncher {
     @Inject

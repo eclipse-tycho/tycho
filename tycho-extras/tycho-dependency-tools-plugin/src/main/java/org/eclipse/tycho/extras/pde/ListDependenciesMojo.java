@@ -11,6 +11,7 @@ package org.eclipse.tycho.extras.pde;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class ListDependenciesMojo extends AbstractMojo {
     @Parameter(property = "skip")
     private boolean skip;
 
-    @Singleton
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
     @Inject

@@ -14,6 +14,7 @@ package org.eclipse.tycho.plugins.p2.director.runtime;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +43,7 @@ import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 import org.eclipse.tycho.p2.tools.publisher.PublisherActionRunner;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 
+@Named
 @Singleton
 public class StandaloneDirectorRuntimeFactory {
 

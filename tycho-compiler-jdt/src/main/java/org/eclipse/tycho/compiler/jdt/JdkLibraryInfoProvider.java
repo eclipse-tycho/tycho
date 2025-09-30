@@ -14,6 +14,7 @@ package org.eclipse.tycho.compiler.jdt;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -45,6 +46,7 @@ import org.eclipse.tycho.version.TychoVersion;
  * Determine and cache system library info (Java version, bootclasspath, extension and endorsed
  * directories) for given javaHome directories.
  */
+@Named
 @Singleton
 public class JdkLibraryInfoProvider {
 

@@ -13,6 +13,7 @@
 package org.eclipse.tycho.osgi.framework;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,6 +48,7 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
  * Component that resolves all the bundles that make up an Eclipse Application to run from a given
  * URI
  */
+@Named
 @Singleton
 @SessionScoped
 public class EclipseApplicationFactory {

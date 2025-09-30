@@ -14,6 +14,7 @@ package org.eclipse.tycho.helper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
+@Named
 @Singleton
 public class ProjectHelper {
 

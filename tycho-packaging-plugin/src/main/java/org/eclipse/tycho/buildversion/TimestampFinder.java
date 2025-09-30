@@ -14,6 +14,7 @@ package org.eclipse.tycho.buildversion;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,6 +33,7 @@ import org.osgi.framework.Version;
 /**
  * A helper for discovering common timestamps in strings
  */
+@Named
 @Singleton
 public class TimestampFinder {
 

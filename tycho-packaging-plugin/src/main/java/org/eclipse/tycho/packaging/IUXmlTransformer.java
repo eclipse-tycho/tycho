@@ -15,6 +15,7 @@ package org.eclipse.tycho.packaging;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoFailureException;
@@ -29,6 +30,7 @@ import org.eclipse.tycho.model.IU;
 
 import de.pdark.decentxml.Element;
 
+@Named
 @Singleton
 public class IUXmlTransformer {
     private static final String MAVEN_ARTIFACT_ID = "maven-artifactId";

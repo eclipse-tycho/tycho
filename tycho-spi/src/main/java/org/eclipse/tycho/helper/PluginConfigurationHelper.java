@@ -14,6 +14,7 @@ package org.eclipse.tycho.helper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -41,6 +42,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 /**
  * A helper that can be used to access the configuration of the currently executing mojo
  */
+@Named
 @Singleton
 public class PluginConfigurationHelper {
 

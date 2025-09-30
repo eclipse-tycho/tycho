@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.artifacts.configuration;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.eclipse.tycho.targetplatform.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityType;
 
+@Named
 @Singleton
 public class TargetPlatformFilterConfigurationReader {
 

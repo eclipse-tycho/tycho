@@ -13,10 +13,12 @@
 package org.eclipse.tycho.jarcomparator.testdata;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+@Named
 @Singleton
 public class JavaClass {
     public Set<String> getStrings() throws IOException {

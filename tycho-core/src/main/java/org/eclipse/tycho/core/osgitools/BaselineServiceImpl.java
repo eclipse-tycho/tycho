@@ -14,6 +14,7 @@ package org.eclipse.tycho.core.osgitools;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,6 +51,7 @@ import org.eclipse.tycho.p2.publisher.P2Artifact;
 import org.eclipse.tycho.p2maven.ListQueryable;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 
+@Named
 @Singleton
 public class BaselineServiceImpl implements BaselineService {
 

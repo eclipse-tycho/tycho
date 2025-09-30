@@ -15,6 +15,7 @@ package org.eclipse.tycho.buildversion;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import static org.eclipse.tycho.TychoProperties.BUILD_QUALIFIER;
 import static org.eclipse.tycho.TychoProperties.QUALIFIED_VERSION;
 import static org.eclipse.tycho.TychoProperties.UNQUALIFIED_VERSION;
@@ -125,7 +126,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     @Parameter(property = "mojoExecution", readonly = true)
     protected MojoExecution execution;
 
-	@Singleton
+	@Inject
 	protected Map<String, BuildTimestampProvider> timestampProviders;
 
 	@Inject

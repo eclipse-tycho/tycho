@@ -14,6 +14,7 @@
 package org.eclipse.tycho.core.locking;
 
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.LockTimeoutException;
 
+@Named
 @Singleton
 public class FileLockServiceImpl implements FileLockService {
     record FileLocks(FileLockerImpl fileLocker, Lock vmLock) {

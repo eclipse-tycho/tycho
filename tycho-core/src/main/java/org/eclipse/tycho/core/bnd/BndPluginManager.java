@@ -14,6 +14,7 @@ package org.eclipse.tycho.core.bnd;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Map;
 
 import aQute.bnd.build.Workspace;
@@ -22,6 +23,7 @@ import aQute.bnd.service.RepositoryPlugin;
 /**
  * Manager that collects BndPlugins in the plexus domain and installs them into a workspace
  */
+@Named
 @Singleton
 public class BndPluginManager {
     @Inject

@@ -14,6 +14,7 @@ package org.eclipse.tycho.osgi.framework;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.inject.Named;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 
+@Named
 @Singleton
 public class EclipseApplicationManager {
 
