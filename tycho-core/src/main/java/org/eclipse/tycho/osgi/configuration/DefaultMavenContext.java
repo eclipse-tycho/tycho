@@ -40,6 +40,7 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.osgi.configuration.FilteringMavenLogger;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
 @Singleton
@@ -51,7 +52,7 @@ public class DefaultMavenContext implements MavenContext {
     LegacySupport legacySupport;
 
     @Inject
-    @Named(FrameworkFinder.HINT)
+    @Named(FilteringMavenLogger.HINT)
     MavenLogger mavenLogger;
 
     private Properties globalProps;

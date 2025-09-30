@@ -39,7 +39,7 @@ import aQute.bnd.osgi.Instruction;
 import aQute.bnd.service.RepositoryPlugin;
 import aQute.bnd.version.Version;
 
-@Named(TychoConstants.PDE_BND)
+@Named(TargetPlatformRepository.HINT)
 @Singleton
 public class TargetPlatformRepository implements RepositoryPlugin {
 
