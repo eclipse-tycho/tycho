@@ -12,14 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.demo.impl;
 
-import javax.inject.Singleton;
-import javax.inject.Named;
 import org.eclipse.tycho.demo.api.HelloWorld;
 import org.osgi.service.component.annotations.Component;
 import org.eclipse.tycho.demo.plugin.HelloWorldUtil;
 
-@Named
-@Singleton
+@Component
 public class HelloWorldService implements HelloWorld {
 	public void sayHello() {
 		HelloWorldUtil.printString(this, "Hello BND Workspace!");

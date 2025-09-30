@@ -12,13 +12,10 @@
  *******************************************************************************/
 package org.eclipse.demo.tycho.internal;
 
-import javax.inject.Singleton;
-import javax.inject.Named;
 import org.eclipse.demo.tycho.CalculatorService;
 import org.osgi.service.component.annotations.Component;
 
-@Named
-@Singleton
+@Component
 public class Calculator implements CalculatorService {
 
 	@Override
