@@ -26,9 +26,8 @@ import org.eclipse.tycho.model.UpdateSite;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 class EclipseModelTest {
 
@@ -127,6 +126,6 @@ class EclipseModelTest {
         Document document = XMLParser.parse(new File("target/feature-default-encoding.xml"));
         Element child = document.getChild("/feature/license");
 
-        assertEquals("\u201cI AGREE\u201d", child.getText().trim());
+        assertEquals("\u201cI AGREE\u201d", child.textContent().trim());
     }
 }

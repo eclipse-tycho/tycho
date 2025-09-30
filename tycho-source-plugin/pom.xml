@@ -66,8 +66,8 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>de.pdark</groupId>
-			<artifactId>decentxml</artifactId>
+			<groupId>eu.maveniverse.maven.domtrip</groupId>
+			<artifactId>domtrip-maven</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>

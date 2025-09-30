@@ -20,19 +20,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
+import eu.maveniverse.domtrip.Serializer;
 
 /**
  * https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/misc/update_sitemap
@@ -41,7 +37,7 @@ import de.pdark.decentxml.XMLWriter;
 public class UpdateSite {
     public static final String SITE_XML = "site.xml";
 
-    private static XMLParser parser = new XMLParser();
+    private static Serializer serializer = new Serializer();
 
     private final Element dom;
 
@@ -51,16 +47,16 @@ public class UpdateSite {
 
     public UpdateSite(Document document) {
         this.document = document;
-        this.dom = document.getRootElement();
+        this.dom = document.root();
 
-        if (dom.getAttribute("associateSitesURL") != null) {
-            associateSitesUrl = dom.getAttributeValue("associateSitesURL");
+        if (dom.attribute("associateSitesURL") != null) {
+            associateSitesUrl = dom.attribute("associateSitesURL");
         }
     }
 
     public List<SiteFeatureRef> getFeatures() {
         ArrayList<SiteFeatureRef> features = new ArrayList<>();
-        for (Element featureDom : dom.getChildren("feature")) {
+        for (Element featureDom : dom.children("feature").toList()) {
             features.add(new SiteFeatureRef(featureDom));
         }
         return Collections.unmodifiableList(features);
@@ -68,16 +64,16 @@ public class UpdateSite {
 
     public Map<String, String> getArchives() {
         Map<String, String> archives = new HashMap<>();
-        for (Element archiveDom : dom.getChildren("archive")) {
-            String path = archiveDom.getAttributeValue("path");
-            String url = archiveDom.getAttributeValue("url");
+        for (Element archiveDom : dom.children("archive").toList()) {
+            String path = archiveDom.attribute("path");
+            String url = archiveDom.attribute("url");
             archives.put(path, url);
         }
         return Collections.unmodifiableMap(archives);
     }
 
     public void removeArchives() {
-        for (Element archive : dom.getChildren("archive")) {
+        for (Element archive : dom.children("archive").toList()) {
             dom.removeNode(archive);
         }
     }
@@ -89,11 +85,11 @@ public class UpdateSite {
         }
 
         public void setUrl(String url) {
-            dom.setAttribute("url", url);
+            dom.attribute("url", url);
         }
 
         public String getUrl() {
-            return dom.getAttributeValue("url");
+            return dom.attribute("url");
         }
 
     }
@@ -104,21 +100,15 @@ public class UpdateSite {
 
     public static UpdateSite read(InputStream is) throws IOException {
         try (is) {
-            return new UpdateSite(parser.parse(new XMLIOSource(is)));
+            return new UpdateSite(Document.of(is));
         }
     }
 
     public static void write(UpdateSite site, File file) throws IOException {
         Document document = site.document;
         try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
-            String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
-            Writer w = new OutputStreamWriter(os, enc);
-            XMLWriter xw = new XMLWriter(w);
-            try {
-                document.toXML(xw);
-            } finally {
-                xw.flush();
-            }
+            String enc = document.encoding() != null ? document.encoding() : "UTF-8";
+            serializer.serialize(document, os, enc);
         }
     }
 

@@ -20,8 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,11 +32,9 @@ import org.osgi.framework.Version;
 import org.osgi.resource.Resource;
 
 import aQute.bnd.version.VersionRange;
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
+import eu.maveniverse.domtrip.Serializer;
 
 /**
  * https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/misc/
@@ -69,7 +65,7 @@ public class Feature {
 
     public static final String FEATURE_XML = "feature.xml";
 
-    private static XMLParser parser = new XMLParser();
+    private static Serializer serializer = new Serializer();
 
     private final Document document;
 
@@ -83,18 +79,18 @@ public class Feature {
 
     public Feature(Document document) {
         this.document = document;
-        this.dom = document.getRootElement();
+        this.dom = document.root();
     }
 
     /** copy constructor */
     public Feature(Feature other) {
-        this(other.document.copy());
+        this(other.document.clone());
     }
 
     public List<PluginRef> getPlugins() {
         if (plugins == null) {
             plugins = new ArrayList<>();
-            for (Element pluginDom : dom.getChildren("plugin")) {
+            for (Element pluginDom : dom.children("plugin").toList()) {
                 plugins.add(new PluginRef(pluginDom));
             }
         }
@@ -102,13 +98,13 @@ public class Feature {
     }
 
     public void setVersion(String version) {
-        dom.setAttribute("version", version);
+        dom.attribute("version", version);
     }
 
     public List<FeatureRef> getIncludedFeatures() {
         if (features == null) {
             features = new ArrayList<>();
-            for (Element featureDom : dom.getChildren("includes")) {
+            for (Element featureDom : dom.children("includes").toList()) {
                 features.add(new FeatureRef(featureDom));
             }
         }
@@ -117,7 +113,7 @@ public class Feature {
 
     public List<RequiresRef> getRequires() {
         ArrayList<RequiresRef> requires = new ArrayList<>();
-        for (Element requiresDom : dom.getChildren("requires")) {
+        for (Element requiresDom : dom.children("requires").toList()) {
             requires.add(new RequiresRef(requiresDom));
         }
         return Collections.unmodifiableList(requires);
@@ -133,7 +129,7 @@ public class Feature {
 
         public List<ImportRef> getImports() {
             ArrayList<ImportRef> imports = new ArrayList<>();
-            for (Element importsDom : dom.getChildren("import")) {
+            for (Element importsDom : dom.children("import").toList()) {
                 imports.add(new ImportRef(importsDom));
             }
             return Collections.unmodifiableList(imports);
@@ -150,23 +146,23 @@ public class Feature {
         }
 
         public String getPlugin() {
-            return dom.getAttributeValue("plugin");
+            return dom.attribute("plugin");
         }
 
         public String getFeature() {
-            return dom.getAttributeValue("feature");
+            return dom.attribute("feature");
         }
 
         public String getVersion() {
-            return dom.getAttributeValue("version");
+            return dom.attribute("version");
         }
 
         public void setVersion(String version) {
-            dom.setAttribute("version", version);
+            dom.attribute("version", version);
         }
 
         public String getMatch() {
-            String match = dom.getAttributeValue("match");
+            String match = dom.attribute("match");
             if (match == null || match.isBlank()) {
                 return "compatible";
             } else {
@@ -175,11 +171,11 @@ public class Feature {
         }
 
         public void setMatch(String match) {
-            dom.setAttribute("match", match);
+            dom.attribute("match", match);
         }
 
         public String getPatch() {
-            String patch = dom.getAttributeValue("patch");
+            String patch = dom.attribute("patch");
             if (patch == null) {
                 return "false";
             } else {
@@ -226,44 +222,44 @@ public class Feature {
     }
 
     public String getVersion() {
-        return dom.getAttributeValue("version");
+        return dom.attribute("version");
     }
 
     public String getId() {
-        return dom.getAttributeValue("id");
+        return dom.attribute("id");
     }
 
     public void setId(String id) {
-        dom.setAttribute("id", id);
+        dom.attribute("id", id);
     }
 
     public String getBrandingPluginId() {
-        return dom.getAttributeValue("plugin");
+        return dom.attribute("plugin");
     }
 
     public void setBrandingPluginId(String id) {
-        dom.setAttribute("plugin", id);
+        dom.attribute("plugin", id);
     }
 
     public String getLicenseFeature() {
-        return dom.getAttributeValue("license-feature");
+        return dom.attribute("license-feature");
     }
 
     public void setLicenseFeature(String featureId) {
         if (featureId != null) {
-            dom.setAttribute("license-feature", featureId);
+            dom.attribute("license-feature", featureId);
         } else {
             dom.removeAttribute("license-feature");
         }
     }
 
     public String getLicenseFeatureVersion() {
-        return dom.getAttributeValue("license-feature-version");
+        return dom.attribute("license-feature-version");
     }
 
     public void setLicenseFeatureVersion(String version) {
         if (version != null) {
-            dom.setAttribute("license-feature-version", version);
+            dom.attribute("license-feature-version", version);
         } else {
             dom.removeAttribute("license-feature-version");
         }
@@ -276,7 +272,7 @@ public class Feature {
 
     public static Feature read(InputStream input) throws IOException {
         try (input) {
-            return new Feature(parser.parse(new XMLIOSource(input)));
+            return new Feature(Document.of(input));
         }
     }
 
@@ -287,15 +283,13 @@ public class Feature {
     public static void write(Feature feature, File file, String indent) throws IOException {
         Document document = feature.document;
         try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
-            String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
-            Writer w = new OutputStreamWriter(os, enc);
-            XMLWriter xw = new XMLWriter(w);
-            xw.setIndent(indent);
-            try {
-                document.toXML(xw);
-            } finally {
-                xw.flush();
+            String enc = document.encoding() != null ? document.encoding() : "UTF-8";
+            Serializer serializer = new Serializer();
+            if (indent != null) {
+                serializer.setIndentString(indent);
+                serializer.setPrettyPrint(true);
             }
+            serializer.serialize(document, os, enc);
         }
     }
 
@@ -349,27 +343,27 @@ public class Feature {
 
     // label
     public String getLabel() {
-        return dom.getAttributeValue("label");
+        return dom.attribute("label");
     }
 
     public void setLabel(String label) {
-        dom.setAttribute("label", label);
+        dom.attribute("label", label);
     }
 
     // provider
     public String getProvider() {
-        return dom.getAttributeValue("provider-name");
+        return dom.attribute("provider-name");
     }
 
     public void setProvider(String provider) {
-        dom.setAttribute("provider-name", provider);
+        dom.attribute("provider-name", provider);
     }
 
     // description + url
     public String getDescription() {
         Element descElement = dom.getChild("description");
         if (descElement != null) {
-            return descElement.getText();
+            return descElement.textContent();
         }
         return null;
     }
@@ -377,16 +371,16 @@ public class Feature {
     public void setDescription(String description) {
         Element descElement = dom.getChild("description");
         if (descElement == null) {
-            descElement = new Element("description");
+            descElement = Element.of("description");
             dom.addNode(descElement);
         }
-        descElement.setText(description);
+        descElement.textContent(description);
     }
 
     public String getDescriptionURL() {
         Element descElement = dom.getChild("description");
         if (descElement != null) {
-            return descElement.getAttributeValue("url");
+            return descElement.attribute("url");
         }
         return null;
     }
@@ -394,17 +388,17 @@ public class Feature {
     public void setDescriptionURL(String descriptionURL) {
         Element descElement = dom.getChild("description");
         if (descElement == null) {
-            descElement = new Element("description");
+            descElement = Element.of("description");
             dom.addNode(descElement);
         }
-        descElement.setAttribute("url", descriptionURL);
+        descElement.attribute("url", descriptionURL);
     }
 
     // copyright + url
     public String getCopyright() {
         Element copyrightElement = dom.getChild("copyright");
         if (copyrightElement != null) {
-            return copyrightElement.getText();
+            return copyrightElement.textContent();
         }
         return null;
     }
@@ -412,16 +406,16 @@ public class Feature {
     public void setCopyright(String description) {
         Element copyrightElement = dom.getChild("copyright");
         if (copyrightElement == null) {
-            copyrightElement = new Element("copyright");
+            copyrightElement = Element.of("copyright");
             dom.addNode(copyrightElement);
         }
-        copyrightElement.setText(description);
+        copyrightElement.textContent(description);
     }
 
     public String getCopyrightURL() {
         Element copyrightElement = dom.getChild("copyright");
         if (copyrightElement != null) {
-            return copyrightElement.getAttributeValue("url");
+            return copyrightElement.attribute("url");
         }
         return null;
     }
@@ -429,17 +423,17 @@ public class Feature {
     public void setCopyrightURL(String copyrightURL) {
         Element copyrightElement = dom.getChild("copyright");
         if (copyrightElement == null) {
-            copyrightElement = new Element("copyright");
+            copyrightElement = Element.of("copyright");
             dom.addNode(copyrightElement);
         }
-        copyrightElement.setAttribute("url", copyrightURL);
+        copyrightElement.attribute("url", copyrightURL);
     }
 
     // license + url
     public String getLicense() {
         Element licenseElement = dom.getChild("license");
         if (licenseElement != null) {
-            return licenseElement.getText();
+            return licenseElement.textContent();
         }
         return null;
     }
@@ -447,16 +441,16 @@ public class Feature {
     public void setLicense(String license) {
         Element licenseElement = dom.getChild("license");
         if (licenseElement == null) {
-            licenseElement = new Element("license");
+            licenseElement = Element.of("license");
             dom.addNode(licenseElement);
         }
-        licenseElement.setText(license);
+        licenseElement.textContent(license);
     }
 
     public String getLicenseURL() {
         Element licenseElement = dom.getChild("license");
         if (licenseElement != null) {
-            return licenseElement.getAttributeValue("url");
+            return licenseElement.attribute("url");
         }
         return null;
     }
@@ -464,34 +458,34 @@ public class Feature {
     public void setLicenseURL(String licenseURL) {
         Element licenseElement = dom.getChild("license");
         if (licenseElement == null) {
-            licenseElement = new Element("license");
+            licenseElement = Element.of("license");
             dom.addNode(licenseElement);
         }
-        licenseElement.setAttribute("url", licenseURL);
+        licenseElement.attribute("url", licenseURL);
     }
 
     public String getOS() {
-        return dom.getAttributeValue("os");
+        return dom.attribute("os");
     }
 
     public void setOS(String value) {
-        dom.setAttribute("os", value);
+        dom.attribute("os", value);
     }
 
     public String getArch() {
-        return dom.getAttributeValue("arch");
+        return dom.attribute("arch");
     }
 
     public void setArch(String value) {
-        dom.setAttribute("arch", value);
+        dom.attribute("arch", value);
     }
 
     public String getWS() {
-        return dom.getAttributeValue("ws");
+        return dom.attribute("ws");
     }
 
     public void setWS(String value) {
-        dom.setAttribute("ws", value);
+        dom.attribute("ws", value);
     }
 
     public Stream<Resource> toResource() {
