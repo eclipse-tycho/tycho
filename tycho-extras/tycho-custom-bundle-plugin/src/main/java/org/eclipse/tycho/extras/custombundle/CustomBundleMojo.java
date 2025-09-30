@@ -42,7 +42,89 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
 /**
- * Builds OSGi bundle
+ * Creates a custom OSGi bundle by combining files from a base bundle location with additional file sets.
+ * <p>
+ * This plugin is useful when you need to create custom bundle variants with additional or modified content.
+ * It takes an existing OSGi bundle structure (with META-INF/MANIFEST.MF) and allows you to:
+ * <ul>
+ * <li>Include or exclude specific files from the base bundle location</li>
+ * <li>Add additional files from other locations (like compiled classes, resources, etc.)</li>
+ * <li>Attach the resulting bundle as an artifact with a custom classifier</li>
+ * <li>Update the Bundle-Version in the manifest to match the expanded project version</li>
+ * </ul>
+ * </p>
+ * 
+ * <h2>Example Configuration</h2>
+ * 
+ * <p>
+ * This example creates a custom bundle by combining a base bundle structure from the {@code custom} directory
+ * with compiled classes from the build output:
+ * </p>
+ * 
+ * <pre>
+ * &lt;plugin&gt;
+ *   &lt;groupId&gt;org.eclipse.tycho.extras&lt;/groupId&gt;
+ *   &lt;artifactId&gt;tycho-custom-bundle-plugin&lt;/artifactId&gt;
+ *   &lt;version&gt;${tycho-version}&lt;/version&gt;
+ *   &lt;executions&gt;
+ *     &lt;execution&gt;
+ *       &lt;id&gt;custom-bundle&lt;/id&gt;
+ *       &lt;phase&gt;package&lt;/phase&gt;
+ *       &lt;goals&gt;
+ *         &lt;goal&gt;custom-bundle&lt;/goal&gt;
+ *       &lt;/goals&gt;
+ *       &lt;configuration&gt;
+ *         &lt;!-- Base bundle location containing META-INF/MANIFEST.MF --&gt;
+ *         &lt;bundleLocation&gt;${project.basedir}/custom&lt;/bundleLocation&gt;
+ *         
+ *         &lt;!-- Classifier for the attached artifact --&gt;
+ *         &lt;classifier&gt;attached&lt;/classifier&gt;
+ *         
+ *         &lt;!-- Optional: patterns to include from bundleLocation (default: **&#47;*.*) --&gt;
+ *         &lt;includes&gt;
+ *           &lt;include&gt;**&#47;*.txt&lt;/include&gt;
+ *           &lt;include&gt;META-INF/**&lt;/include&gt;
+ *         &lt;/includes&gt;
+ *         
+ *         &lt;!-- Optional: patterns to exclude from bundleLocation --&gt;
+ *         &lt;excludes&gt;
+ *           &lt;exclude&gt;**&#47;*.bak&lt;/exclude&gt;
+ *         &lt;/excludes&gt;
+ *         
+ *         &lt;!-- Additional files to include in the bundle --&gt;
+ *         &lt;fileSets&gt;
+ *           &lt;fileSet&gt;
+ *             &lt;directory&gt;${project.build.outputDirectory}&lt;/directory&gt;
+ *             &lt;includes&gt;
+ *               &lt;include&gt;**&#47;*.class&lt;/include&gt;
+ *             &lt;/includes&gt;
+ *           &lt;/fileSet&gt;
+ *         &lt;/fileSets&gt;
+ *       &lt;/configuration&gt;
+ *     &lt;/execution&gt;
+ *   &lt;/executions&gt;
+ * &lt;/plugin&gt;
+ * </pre>
+ * 
+ * <h2>Requirements</h2>
+ * <ul>
+ * <li>The {@code bundleLocation} directory must contain a valid OSGi manifest file at {@code META-INF/MANIFEST.MF}</li>
+ * <li>The manifest must contain valid OSGi bundle headers (Bundle-SymbolicName, etc.)</li>
+ * <li>At least one {@code fileSet} must be configured to specify additional files to include</li>
+ * </ul>
+ * 
+ * <h2>Output</h2>
+ * <p>
+ * The plugin creates a JAR file named {@code <artifactId>-<version>-<classifier>.jar} in the project's
+ * build directory and attaches it to the project with the specified classifier. The Bundle-Version in the
+ * manifest is automatically updated to match the expanded version from the project (including qualifiers).
+ * </p>
+ * 
+ * <p>
+ * This plugin supports reproducible builds through the {@code outputTimestamp} parameter.
+ * </p>
+ * 
+ * @since 0.14.0
  */
 @Mojo(name = "custom-bundle")
 public class CustomBundleMojo extends AbstractMojo {
