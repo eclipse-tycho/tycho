@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.pde;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -54,16 +56,16 @@ public class ListDependenciesMojo extends AbstractMojo {
     @Parameter(property = "skip")
     private boolean skip;
 
-    @Component(role = TychoProject.class)
+    @Singleton
     private Map<String, TychoProject> projectTypes;
 
-    @Component
+    @Inject
     private PluginRealmHelper pluginRealmHelper;
 
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

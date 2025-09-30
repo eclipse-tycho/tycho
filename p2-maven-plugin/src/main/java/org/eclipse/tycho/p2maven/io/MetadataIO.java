@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.io;
 
+import javax.inject.Singleton;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,7 +30,6 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -44,7 +44,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-@Component(role = MetadataIO.class)
+@Singleton
 public class MetadataIO {
     private static class Writer extends MetadataWriter {
 

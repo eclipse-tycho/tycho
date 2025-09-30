@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -70,7 +72,7 @@ public abstract class AbstractP2MetadataMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     private boolean compressRepository;
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
     @Override

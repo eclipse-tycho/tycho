@@ -18,7 +18,6 @@ import org.eclipse.tycho.versions.pom.PomFile;
 /**
  * Updates Eclipse/OSGi metadata to match pom version.
  */
-// Note: per-lookup strategy - consider using @Component with explicit scoping
 @Singleton
 public class EclipseVersionUpdater extends VersionUpdater {
 

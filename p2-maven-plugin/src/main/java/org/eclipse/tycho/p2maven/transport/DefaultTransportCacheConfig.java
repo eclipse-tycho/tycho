@@ -12,18 +12,18 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.aether.transfer.TransferListener;
 import org.eclipse.tycho.TychoConstants;
 
-@Component(role = TransportCacheConfig.class)
+@Singleton
 public class DefaultTransportCacheConfig implements TransportCacheConfig, Initializable {
 
 	private static final boolean DEBUG_REQUESTS = Boolean.getBoolean("tycho.p2.transport.debug");
@@ -32,7 +32,7 @@ public class DefaultTransportCacheConfig implements TransportCacheConfig, Initia
 	private boolean update;
 	private boolean interactive;
 
-	@Requirement
+	@Inject
 	private LegacySupport legacySupport;
 	private File cacheLocation;
 

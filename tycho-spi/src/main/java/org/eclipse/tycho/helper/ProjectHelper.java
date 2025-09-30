@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.helper;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -27,19 +29,17 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
-@Component(role = ProjectHelper.class)
+@Singleton
 public class ProjectHelper {
 
-    @Requirement
+    @Inject
     private MojoDescriptorCreator mojoDescriptorCreator;
 
-    @Requirement
+    @Inject
     private LegacySupport legacySupport;
 
     private Map<String, Plugin> cliPlugins = new ConcurrentHashMap<String, Plugin>();

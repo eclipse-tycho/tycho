@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.sbom;
 
+import javax.inject.Singleton;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +27,6 @@ import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.cyclonedx.maven.DefaultModelConverter;
 import org.cyclonedx.maven.ModelConverter;
 import org.eclipse.aether.artifact.Artifact;
@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
  * &lt;/plugin&gt;
  * </pre>
  */
-@Component(role = ModelConverter.class)
+@Singleton
 public class TychoModelConverter extends DefaultModelConverter {
 	private static final String KEY_CONTEXT = TychoSBOMConfiguration.class.toString();
 	private static final Logger LOG = LoggerFactory.getLogger(TychoModelConverter.class);

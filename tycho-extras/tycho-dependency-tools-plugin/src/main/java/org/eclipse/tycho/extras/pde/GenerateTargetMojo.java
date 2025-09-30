@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.pde;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -55,19 +57,19 @@ import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
  */
 @Mojo(name = "generate-target", defaultPhase = LifecyclePhase.NONE, requiresProject = true, threadSafe = true, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, aggregator = true)
 public class GenerateTargetMojo extends AbstractMojo {
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Component
+    @Inject
     private MavenSession mavenSession;
 
-    @Component
+    @Inject
     private MavenProject mavenProject;
 
-    @Component
+    @Inject
     private LegacySupport legacySupport;
 
-    @Component
+    @Inject
     private P2RepositoryManager repositoryManager;
 
     @Parameter(property = "generateTargetFile", defaultValue = "${project.build.directory}/generate.target", required = true)

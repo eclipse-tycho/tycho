@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.target;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.net.URI;
 import java.util.List;
@@ -104,19 +106,19 @@ public class MirrorTargetPlatformMojo extends AbstractMojo {
     @Parameter
     private SlicingOptions options;
 
-    @Component
+    @Inject
     private TargetPlatformService platformService;
 
-    @Component
+    @Inject
     private MirrorApplicationService mirrorService;
 
-    @Component
+    @Inject
     private ReactorRepositoryManager repositoryManager;
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
-    @Component
+    @Inject
     private InstallableUnitSlicer installableUnitSlicer;
 
     @Override

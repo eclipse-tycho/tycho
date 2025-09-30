@@ -14,6 +14,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -209,7 +212,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
-    @Component
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
     /**
@@ -219,22 +222,23 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Parameter(property = "project.build.finalName")
     private String finalName;
 
-    @Component(role = Archiver.class, hint = "jar")
+    @Named("jar")
+@Singleton
     private JarArchiver jarArchiver;
 
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
-    @Component
+    @Inject
     private LicenseFeatureHelper licenseFeatureHelper;
 
-    @Component()
+    @Singleton
     P2ResolverFactory factory;
 
-    @Component
+    @Inject
     private Logger logger;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

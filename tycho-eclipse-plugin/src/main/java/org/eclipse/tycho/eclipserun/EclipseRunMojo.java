@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.eclipserun;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -259,25 +261,25 @@ public class EclipseRunMojo extends AbstractMojo {
 	@Parameter
 	private BundleStartLevel defaultStartLevel;
 
-	@Component
+	@Inject
 	private EquinoxInstallationFactory installationFactory;
 
-	@Component
+	@Inject
 	private EquinoxLauncher launcher;
 
-	@Component
+	@Inject
 	private ToolchainProvider toolchainProvider;
 
-	@Component()
+	@Singleton
 	P2ResolverFactory resolverFactory;
 
-	@Component
+	@Inject
 	private Logger logger;
 
-	@Component
+	@Inject
 	private ToolchainManager toolchainManager;
 
-	@Component
+	@Inject
 	private TargetPlatformFactory platformFactory;
 
 	public EclipseRunMojo() {

@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import javax.inject.Singleton;
 import java.io.File;
 
 import org.apache.maven.artifact.Artifact;
@@ -46,10 +47,10 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
 	@Parameter(defaultValue = "true", property = "tycho.strictVersions")
 	private boolean strictVersions = true;
 
-	@Component
+	@Inject
 	ManifestHelper manifestHelper;
 
-	@Component
+	@Inject
 	BuildContext buildContext;
 
 	@Override

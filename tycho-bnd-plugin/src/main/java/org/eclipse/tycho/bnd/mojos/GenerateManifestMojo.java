@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.bnd.mojos;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -72,7 +74,7 @@ public class GenerateManifestMojo extends AbstractMojo {
 		return true;
 	};
 
-	@Component
+	@Inject
 	private BndPluginManager bndPluginManager;
 
 	@Parameter(property = "project", readonly = true)
@@ -81,9 +83,9 @@ public class GenerateManifestMojo extends AbstractMojo {
 	@Parameter(property = "session", readonly = true)
 	protected MavenSession session;
 
-	@Component
+	@Inject
 	private PluginRealmHelper pluginRealmHelper;
-	@Component
+	@Inject
 	private TychoProjectManager projectManager;
 
 	@Override

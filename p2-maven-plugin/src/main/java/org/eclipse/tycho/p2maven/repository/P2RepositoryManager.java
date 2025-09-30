@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.repository;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,8 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.model.Repository;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -56,20 +56,20 @@ import org.eclipse.tycho.p2maven.LoggerProgressMonitor;
 /**
  * Allows unique access to P2 repositories from maven
  */
-@Component(role = P2RepositoryManager.class)
+@Singleton
 public class P2RepositoryManager {
 	private static final String PROPERTY_KEY = "eclipse.p2.maxDownloadAttempts";
 
-	@Requirement
+	@Inject
 	MavenPropertyHelper propertyHelper;
 
-	@Requirement
+	@Inject
 	IRepositoryIdManager repositoryIdManager;
 
-	@Requirement
+	@Inject
 	IProvisioningAgent agent;
 
-	@Requirement
+	@Inject
 	Logger logger;
 
 	/**

@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,8 +34,6 @@ import org.bouncycastle.openpgp.PGPPublicKeyRing;
 import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.bc.BcPGPPublicKeyRingCollection;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
@@ -45,7 +45,7 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.tycho.p2maven.transport.TransportCacheConfig;
 
-@Component(role = PGPService.class)
+@Singleton
 public class PGPService {
 
     //See GpgSigner.SIGNATURE_EXTENSION
@@ -54,13 +54,13 @@ public class PGPService {
     public static final String MAVEN_CENTRAL_KEY_SERVER = "http://pgp.mit.edu/pks/lookup?op=get&search={0}";
     public static final String UBUNTU_KEY_SERVER = "https://keyserver.ubuntu.com/pks/lookup?op=get&search={0}";
 
-    @Requirement
+    @Inject
     Logger logger;
 
-    @Requirement
+    @Inject
     RepositorySystem repositorySystem;
 
-    @Requirement
+    @Inject
     TransportCacheConfig transportCacheConfig;
 
     /**

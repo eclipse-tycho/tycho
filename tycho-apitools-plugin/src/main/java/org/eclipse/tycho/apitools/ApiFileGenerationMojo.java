@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.apitools;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -97,10 +99,10 @@ public class ApiFileGenerationMojo extends AbstractMojo {
 	@Parameter(defaultValue = "false")
 	private boolean addSourceFolders;
 
-	@Component
+	@Inject
 	private TychoProjectManager projectManager;
 
-	@Component
+	@Inject
 	private BuildPropertiesParser buildPropertiesParser;
 
 	@Override

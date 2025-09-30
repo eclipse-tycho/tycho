@@ -16,6 +16,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,8 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.TargetEnvironment;
@@ -41,20 +41,20 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
  * redundant computations in the common case where all modules have the same target definition file
  * configured.
  */
-@Component(role = TargetDefinitionResolverService.class)
+@Singleton
 public class TargetDefinitionResolverService {
 
     private static final String CACHE_MISS_MESSAGE = "Target definition content cache miss: ";
 
     private ConcurrentMap<ResolutionArguments, CompletableFuture<TargetDefinitionContent>> resolutionCache = new ConcurrentHashMap<>();
 
-    @Requirement
+    @Inject
     private MavenContext mavenContext;
 
-    @Requirement
+    @Inject
     private MavenTargetLocationFactory dependenciesResolver;
 
-    @Requirement
+    @Inject
     private TargetDefinitionVariableResolver varResolver;
 
     // constructor for DS

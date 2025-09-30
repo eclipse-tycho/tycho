@@ -12,6 +12,8 @@
  ******************************************************************************/
 package org.eclipse.tycho.wrap;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -46,16 +48,16 @@ public class WrapMojo extends AbstractMojo {
 
 	private static final String[] HEADERS = { Constants.BUNDLE_SYMBOLICNAME, Constants.BUNDLE_VERSION };
 
-	@Component
+	@Inject
 	private MavenProject project;
 
 	@Parameter(defaultValue = "${settings}", readonly = true)
 	Settings settings;
 
-	@Component
+	@Inject
 	private MojoExecution mojoExecution;
 
-	@Component
+	@Inject
 	private MavenProjectHelper helper;
 
 	/**

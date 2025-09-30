@@ -12,12 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.demo.impl;
 
+import javax.inject.Singleton;
 import org.eclipse.tycho.demo.api.HelloWorld;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import tycho.demo.utils.markdown.api.MarkdownRenderer;
 
-@Component
+@Singleton
 public class HelloWorldService implements HelloWorld {
 
 	@Reference

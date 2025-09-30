@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.Optional;
 
@@ -19,8 +21,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
@@ -45,16 +45,16 @@ import org.eclipse.tycho.core.maven.MavenDependenciesResolver;
  * artifact if it is not present in the target.
  *
  */
-@Component(role = MavenBundleResolver.class)
+@Singleton
 public class MavenBundleResolver {
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Requirement
+    @Inject
     private MavenDependenciesResolver dependenciesResolver;
 
     /**

@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.target;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -21,8 +24,6 @@ import java.util.UUID;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -43,16 +44,17 @@ import org.eclipse.tycho.resolver.InstallableUnitProvider;
  * Provides additional requirements defined in the target platform configuration
  *
  */
-@Component(role = InstallableUnitProvider.class, hint = "target")
+@Named("target")
+@Singleton
 public class TargetPlatformConfigurationInstallableUnitProvider implements InstallableUnitProvider {
 
-    @Requirement
+    @Inject
     private DefaultTargetPlatformConfigurationReader configurationReader;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

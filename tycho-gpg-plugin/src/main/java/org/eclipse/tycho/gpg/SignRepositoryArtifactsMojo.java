@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.gpg;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.File;
@@ -158,10 +159,10 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
 @Singleton
     private XZArchiver xzArchiver;
 
-    @Component
+    @Inject
     private SignedContentFactory signedContentFactory;
 
-    @Component
+    @Inject
     private P2RepositoryManager repositoryManager;
 
     @Override

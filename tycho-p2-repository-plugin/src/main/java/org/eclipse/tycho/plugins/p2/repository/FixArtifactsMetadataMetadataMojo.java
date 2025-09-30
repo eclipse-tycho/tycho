@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 
@@ -61,9 +63,9 @@ public class FixArtifactsMetadataMetadataMojo extends AbstractRepositoryMojo {
     @Parameter(defaultValue = "true", property = "p2.repository.xz.keep")
     private boolean keepNonXzIndexFiles;
 
-    @Component
+    @Inject
     MirrorApplicationService mirrorApp;
-    @Component
+    @Inject
     private FileLockService fileLockService;
 
     @Override

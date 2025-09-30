@@ -12,6 +12,7 @@
  *******************************************************************************/
 package tycho.demo.utils.markdown.impl;
 
+import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,7 +25,7 @@ import org.osgi.service.component.annotations.Component;
 
 import tycho.demo.utils.markdown.api.MarkdownRenderer;
 
-@Component
+@Singleton
 public class MarkdownRendererImpl implements MarkdownRenderer {
 
     private Parser       parser;

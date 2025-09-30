@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.framework;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -23,8 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.Mojo;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 
@@ -32,13 +32,13 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
  * The {@link EclipseWorkspaceManager} manages dedicated workspaces on a per thread basis using a
  * key object
  */
-@Component(role = EclipseWorkspaceManager.class)
+@Singleton
 public class EclipseWorkspaceManager implements Disposable {
 
     private final Map<Thread, Map<Object, EclipseWorkspace<?>>> cache = new WeakHashMap<>();
     private final List<EclipseWorkspace<?>> toclean = new ArrayList<>();
 
-    @Requirement
+    @Inject
     private Logger logger;
 
     /**

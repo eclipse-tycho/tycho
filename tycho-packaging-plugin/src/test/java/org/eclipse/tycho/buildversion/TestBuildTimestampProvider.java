@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,10 +23,10 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.build.BuildTimestampProvider;
 
-@Component(role = BuildTimestampProvider.class, hint = "test")
+@Named("test")
+@Singleton
 public class TestBuildTimestampProvider implements BuildTimestampProvider {
 
 	public static final String PROP_TESTBUILDTIMESTAMPE = "testbuildtimestamp";

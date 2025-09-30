@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -40,14 +40,14 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 
-@Component(role = VerifierService.class)
+@Singleton
 public class VerifierServiceImpl implements VerifierService {
 
     private final NullProgressMonitor monitor = new NullProgressMonitor();
-    @Requirement
+    @Inject
     IProvisioningAgent agent;
 
-    @Requirement
+    @Inject
     Logger logger;
 
     public void setLogger(Logger logger) {

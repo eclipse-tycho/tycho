@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher.persistence;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.Collections;
 import java.util.Map;
@@ -40,13 +42,13 @@ import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
     private static final Object LOCK = new Object();
 
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
-    @Component()
+    @Singleton
     ReactorRepositoryManager reactorRepoManager;
 
-    @Component
+    @Inject
     private Logger logger;
 
     @Override

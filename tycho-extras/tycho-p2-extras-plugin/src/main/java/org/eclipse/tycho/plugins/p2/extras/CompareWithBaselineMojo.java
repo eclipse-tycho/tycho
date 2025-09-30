@@ -12,6 +12,9 @@
  ******************************************************************************/
 package org.eclipse.tycho.plugins.p2.extras;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.net.URI;
 import java.util.Collections;
@@ -106,16 +109,16 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Parameter(property = "onIllegalVersion", defaultValue = "fail", alias = "tycho.p2.baseline.onIllegalVersion")
     private ReportBehavior onIllegalVersion;
 
-    @Component()
+    @Singleton
     P2ResolverFactory resolverFactory;
 
-    @Component
+    @Inject
     private Logger plexusLogger;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Component
+    @Inject
     private TargetPlatformFactory platformFactory;
 
     /**
@@ -124,7 +127,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = BytesArtifactComparator.HINT)
     private String comparator;
-    @Component(role = ArtifactComparator.class)
+    @Singleton
     protected Map<String, ArtifactComparator> artifactComparators;
 
     @Override

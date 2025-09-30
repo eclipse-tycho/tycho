@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import static org.eclipse.tycho.TychoProperties.BUILD_QUALIFIER;
 import static org.eclipse.tycho.TychoProperties.QUALIFIED_VERSION;
 import static org.eclipse.tycho.TychoProperties.UNQUALIFIED_VERSION;
@@ -123,10 +125,10 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     @Parameter(property = "mojoExecution", readonly = true)
     protected MojoExecution execution;
 
-	@Component(role = BuildTimestampProvider.class)
+	@Singleton
 	protected Map<String, BuildTimestampProvider> timestampProviders;
 
-	@Component
+	@Inject
 	private BuildPropertiesParser buildPropertiesParser;
 
 	/**

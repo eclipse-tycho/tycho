@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.zipcomparator.internal;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -20,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
@@ -30,7 +31,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-@Component(role = ContentsComparator.class, hint = ClassfileComparator.TYPE)
+@Named(C)
+@Singleton
 public class ClassfileComparator implements ContentsComparator {
     public static final String TYPE = "class";
 

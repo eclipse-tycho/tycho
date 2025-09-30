@@ -13,6 +13,8 @@
 
 package org.eclipse.tycho.surefire.provider.impl;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,19 +29,17 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 
-@Component(role = ProviderHelper.class)
+@Singleton
 public class ProviderHelper {
 
-    @Requirement
+    @Inject
     private Map<String, TestFrameworkProvider> providers;
 
-    @Requirement
+    @Inject
     private BundleReader bundleReader;
 
     private static final Comparator<ProviderSelection> VERSION_COMPARATOR = Comparator

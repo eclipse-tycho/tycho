@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.eclipsebuild;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -107,25 +109,23 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 	@Parameter(property = "project", readonly = true)
 	protected MavenProject project;
 
-	@Component
+	@Inject
 	protected MavenSession mavenSession;
 
-	@Component
+	@Inject
 	private EclipseWorkspaceManager workspaceManager;
 
-	@Component
+	@Inject
 	private EclipseApplicationManager eclipseApplicationManager;
 
-	@Component
+	@Inject
 	private EclipseApplicationFactory applicationFactory;
 
-	@Component
+	@Inject
 	private TychoProjectManager projectManager;
 
-	@Component
+	@Inject
 	ToolchainManager toolchainManager;
-
-
 
 	@Override
 	public final void execute() throws MojoExecutionException, MojoFailureException {

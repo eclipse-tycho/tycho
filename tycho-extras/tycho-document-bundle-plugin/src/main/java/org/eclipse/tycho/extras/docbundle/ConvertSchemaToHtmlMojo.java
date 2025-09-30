@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.docbundle;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -75,9 +77,9 @@ public class ConvertSchemaToHtmlMojo extends AbstractMojo {
 	@Parameter(property = "reactorProjects", required = true, readonly = true)
 	protected List<MavenProject> reactorProjects;
 
-	@Component
+	@Inject
 	private EclipseWorkspaceManager workspaceManager;
-	@Component
+	@Inject
 	private EclipseApplicationManager applicationManager;
 
 	@Override

@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -32,7 +34,6 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.io.ModelParseException;
-import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.w3c.dom.Element;
 
@@ -40,7 +41,8 @@ import org.w3c.dom.Element;
  * 
  * Responsible for parsing eclipse-repository artifacts (updatesites, catgory.xml)
  */
-@Component(role = Mapping.class, hint = TychoRepositoryMapping.PACKAGING)
+@Named(T)
+@Singleton
 public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
     private static final String ARCHIVE_PRODUCTS_ID = "archive-products";
     private static final String MATERIALIZE_PRODUCTS_ID = "materialize-products";

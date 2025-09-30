@@ -14,6 +14,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.compiler.jdt;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -42,8 +45,6 @@ import org.codehaus.plexus.compiler.CompilerMessage;
 import org.codehaus.plexus.compiler.CompilerMessage.Kind;
 import org.codehaus.plexus.compiler.CompilerOutputStyle;
 import org.codehaus.plexus.compiler.CompilerResult;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
@@ -63,7 +64,8 @@ import org.osgi.framework.Constants;
  * See https://help.eclipse.org/latest/topic/org.eclipse.jdt.doc.isv/guide/jdt_api_options.htm
  */
 
-@Component(role = org.codehaus.plexus.compiler.Compiler.class, hint = "jdt")
+@Named("jdt")
+@Singleton
 public class JDTCompiler extends AbstractCompiler {
 
     private static final String SEPARATOR = "----------";
@@ -81,10 +83,10 @@ public class JDTCompiler extends AbstractCompiler {
 
     static final String COMPILER_NAME = getCompilerName();
 
-    @Requirement
+    @Inject
     private JdkLibraryInfoProvider jdkLibInfoProvider;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
     public JDTCompiler() {

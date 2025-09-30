@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.attribute.FileTime;
@@ -145,7 +147,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
     @Parameter(defaultValue = "${project.build.outputTimestamp}")
     private String outputTimestamp;
 
-    @Component
+    @Inject
     private MavenProjectHelper helper;
 
     @Override

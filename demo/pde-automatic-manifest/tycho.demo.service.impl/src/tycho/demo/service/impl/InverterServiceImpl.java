@@ -1,10 +1,11 @@
 package tycho.demo.service.impl;
 
+import javax.inject.Singleton;
 import org.osgi.service.component.annotations.Component;
 
 import tycho.demo.service.api.InverterService;
 
-@Component
+@Singleton
 public class InverterServiceImpl implements InverterService {
 
     @Override

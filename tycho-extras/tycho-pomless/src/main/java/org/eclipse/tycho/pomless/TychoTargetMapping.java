@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -22,11 +24,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.maven.model.Model;
-import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.w3c.dom.Element;
 
-@Component(role = Mapping.class, hint = TychoTargetMapping.PACKAGING)
+@Named(T)
+@Singleton
 public class TychoTargetMapping extends AbstractXMLTychoMapping {
 
     private static final String NAME_PREFIX = "[target] ";

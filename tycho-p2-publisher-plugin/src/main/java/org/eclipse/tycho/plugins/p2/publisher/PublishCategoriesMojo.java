@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -47,7 +49,8 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 @Mojo(name = "publish-categories", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public final class PublishCategoriesMojo extends AbstractPublishMojo {
 
-    @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
+    @Named(P)
+@Singleton
     private EclipseRepositoryProject eclipseRepositoryProject;
 
     /**

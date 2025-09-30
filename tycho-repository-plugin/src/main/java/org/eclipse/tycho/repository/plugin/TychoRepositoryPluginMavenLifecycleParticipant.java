@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.plugin;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -24,27 +26,25 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.helper.PluginConfigurationHelper;
 import org.eclipse.tycho.helper.ProjectHelper;
 import org.eclipse.tycho.packaging.RepositoryGenerator;
 
-@Component(role = AbstractMavenLifecycleParticipant.class)
+@Singleton
 public class TychoRepositoryPluginMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
-	@Requirement
+	@Inject
 	Map<String, RepositoryGenerator> generators;
 
-	@Requirement
+	@Inject
 	PluginConfigurationHelper configurationHelper;
 
-	@Requirement
+	@Inject
 	ProjectHelper projectHelper;
 
-	@Requirement
+	@Inject
 	Logger logger;
 
 	@Override

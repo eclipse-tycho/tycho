@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import static org.eclipse.tycho.model.Feature.FEATURE_XML;
 
 import java.io.File;
@@ -115,16 +117,16 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     @Parameter(defaultValue = "${project.build.outputTimestamp}")
     private String outputTimestamp;
 
-    @Component
+    @Inject
     private FeatureXmlTransformer featureXmlTransformer;
 
-    @Component
+    @Inject
     private LicenseFeatureHelper licenseFeatureHelper;
 
-	@Component
+	@Inject
 	private TargetPlatformService platformService;
 
-	@Component
+	@Inject
 	private BuildPropertiesParser buildPropertiesParser;
 
     @Override

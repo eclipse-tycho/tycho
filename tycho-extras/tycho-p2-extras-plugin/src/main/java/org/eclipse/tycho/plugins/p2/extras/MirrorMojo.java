@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.extras;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,13 +57,13 @@ public class MirrorMojo extends AbstractMojo {
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
-    @Component
+    @Inject
     MirrorApplicationService mirrorService;
 
-    @Component
+    @Inject
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Component(role = TychoProject.class)
+    @Singleton
     private Map<String, TychoProject> projectTypes;
 
     /**

@@ -33,7 +33,6 @@ import org.eclipse.tycho.versions.pom.GAV;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.pom.Profile;
 
-// Note: per-lookup strategy - consider using @Component with explicit scoping
 @Singleton
 public class ProjectMetadataReader {
     private static final String PACKAGING_POM = "pom";

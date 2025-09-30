@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,7 +67,7 @@ public class UpdateManifestMojo extends AbstractUpdateMojo {
     @Parameter(defaultValue = "true", property = "lower")
     private boolean addMissingLowerBounds;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

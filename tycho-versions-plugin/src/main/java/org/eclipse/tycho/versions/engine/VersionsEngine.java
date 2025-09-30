@@ -34,7 +34,6 @@ import org.eclipse.tycho.versions.pom.PomFile;
  * @TODO find more specific name that reflects what this class actually does.
  * 
  */
-// Note: per-lookup strategy - consider using @Component with explicit scoping
 @Singleton
 public class VersionsEngine {
 

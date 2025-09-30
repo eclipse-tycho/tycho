@@ -12,22 +12,22 @@
  *******************************************************************************/
 package org.eclipse.tycho.build;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 
-@Component(role = BuildListeners.class)
+@Singleton
 public class BuildListeners {
-    @Requirement
+    @Inject
     private PluginRealmHelper realmHelper;
 
-    @Requirement
+    @Inject
     private Logger log;
 
     public void notifyBuildStart(MavenSession session) {

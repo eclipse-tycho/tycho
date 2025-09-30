@@ -19,6 +19,9 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Arrays;
@@ -200,16 +203,17 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     @Parameter(property = "session", readonly = true, required = true)
     protected MavenSession session;
 
-    @Component
+    @Inject
     protected TychoProjectManager projectManager;
 
-    @Component
+    @Inject
     protected ToolchainProvider toolchainProvider;
 
-    @Component
+    @Inject
     protected BuildPropertiesParser buildPropertiesParser;
 
-    @Component(role = TychoProject.class, hint = "eclipse-plugin")
+    @Named("eclipse-plugin")
+@Singleton
     protected OsgiBundleProject osgiBundle;
 
     @Parameter(property = "plugin.artifacts")

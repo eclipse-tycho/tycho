@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.ds;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,15 +23,13 @@ import java.util.Properties;
 
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
 import org.osgi.framework.Version;
 
-@Component(role = DeclarativeServiceConfigurationReader.class)
+@Singleton
 public class DeclarativeServiceConfigurationReader {
 
     private static final String DS_PLUGIN = "org.eclipse.tycho:tycho-ds-plugin";
@@ -44,7 +44,7 @@ public class DeclarativeServiceConfigurationReader {
 
     private static final String PDE_DS_ANNOTATIONS_PREFS = ".settings/org.eclipse.pde.ds.annotations.prefs";
 
-    @Requirement
+    @Inject
     private Logger logger;
 
     public DeclarativeServicesConfiguration getConfiguration(ReactorProject reactorProject) throws IOException {

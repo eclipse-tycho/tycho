@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import static org.osgi.framework.Constants.BUNDLE_LOCALIZATION;
 import static org.osgi.framework.Constants.BUNDLE_LOCALIZATION_DEFAULT_BASENAME;
 import static org.osgi.framework.Constants.BUNDLE_MANIFESTVERSION;
@@ -161,16 +163,16 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     @Parameter(defaultValue = ReactorProject.SOURCE_ARTIFACT_CLASSIFIER)
     private String classifier;
 
-    @Component(role = TychoProject.class)
+    @Singleton
     private Map<String, TychoProject> projectTypes;
 
-    @Component
+    @Inject
     private IncludeValidationHelper includeValidationHelper;
 
-    @Component
+    @Inject
     private BundleReader bundleReader;
 
-    @Component
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
     public void setBuildPropertiesParser(BuildPropertiesParser buildPropertiesParser) {

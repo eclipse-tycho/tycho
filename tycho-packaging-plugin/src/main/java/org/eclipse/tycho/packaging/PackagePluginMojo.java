@@ -14,6 +14,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -72,7 +75,8 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	/**
 	 * The Jar archiver.
 	 */
-	@Component(role = Archiver.class, hint = "jar")
+	@Named("jar")
+@Singleton
 	private JarArchiver jarArchiver;
 
 	/**
@@ -174,19 +178,19 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	@Parameter(defaultValue = "${project.build.outputTimestamp}")
 	private String outputTimestamp;
 
-	@Component
+	@Inject
 	private SourceReferenceComputer soureReferenceComputer;
 
-	@Component
+	@Inject
 	TychoProjectManager projectManager;
 
-	@Component
+	@Inject
 	private BundleReader bundleReader;
 
-	@Component
+	@Inject
 	List<ManifestProcessor> manifestProcessors;
 
-	@Component
+	@Inject
 	PluginRealmHelper pluginRealmHelper;
 
 	@Override

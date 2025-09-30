@@ -12,10 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.TychoProject;
 
-@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_TEST_PLUGIN)
+@Named(P)
+@Singleton
 public class OsgiTestBundleProject extends OsgiBundleProject {
 }

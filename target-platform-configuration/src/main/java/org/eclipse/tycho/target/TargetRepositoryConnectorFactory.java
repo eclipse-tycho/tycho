@@ -12,14 +12,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.target;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.spi.connector.RepositoryConnector;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.transfer.NoRepositoryConnectorException;
 
-@Component(role = RepositoryConnectorFactory.class, hint = TargetArtifactRepositoryLayout.ID)
+@Named(T)
+@Singleton
 public class TargetRepositoryConnectorFactory implements RepositoryConnectorFactory {
 
     @Override

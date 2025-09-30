@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.helper;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -31,8 +33,6 @@ import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugin.descriptor.PluginDescriptorBuilder;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
 import org.codehaus.plexus.component.configurator.expression.TypeAwareExpressionEvaluator;
 import org.codehaus.plexus.util.InterpolationFilterReader;
@@ -41,13 +41,13 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 /**
  * A helper that can be used to access the configuration of the currently executing mojo
  */
-@Component(role = PluginConfigurationHelper.class)
+@Singleton
 public class PluginConfigurationHelper {
 
-    @Requirement
+    @Inject
     ProjectHelper projectHelper;
 
-    @Requirement
+    @Inject
     LegacySupport legacySupport;
 
     private Map<URL, PluginDescriptor> descriptorCache = new ConcurrentHashMap<>();

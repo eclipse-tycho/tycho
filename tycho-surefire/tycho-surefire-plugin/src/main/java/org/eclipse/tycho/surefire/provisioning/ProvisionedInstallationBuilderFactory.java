@@ -12,18 +12,18 @@
  *******************************************************************************/
 package org.eclipse.tycho.surefire.provisioning;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
-@Component(role = ProvisionedInstallationBuilderFactory.class)
+@Singleton
 public class ProvisionedInstallationBuilderFactory {
 
-    @Requirement
+    @Inject
     private DirectorRuntime directorRuntime;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
     public ProvisionedInstallationBuilder createInstallationBuilder() {

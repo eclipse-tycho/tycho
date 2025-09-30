@@ -12,6 +12,8 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -191,23 +193,23 @@ public class BndTestMojo extends AbstractTestMojo {
     @Parameter(defaultValue = ENGINES_DEFAULT, required = true)
     private String testEngines;
 
-    @Component
+    @Inject
     private BundleReader bundleReader;
 
-    @Component
+    @Inject
     private ProjectDependenciesResolver resolver;
 
-    @Component
+    @Inject
     @SuppressWarnings("deprecation")
     private org.apache.maven.artifact.factory.ArtifactFactory artifactFactory;
 
     @Parameter(defaultValue = "${repositorySystemSession}", readonly = true, required = true)
     private RepositorySystemSession repositorySession;
 
-    @Component
+    @Inject
     private RepositorySystem repositorySystem;
 
-    @Component
+    @Inject
     private MavenBundleResolver mavenBundleResolver;
 
     @Override

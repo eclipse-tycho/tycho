@@ -13,6 +13,8 @@
 
 package org.eclipse.tycho.surefire.provider.impl;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import static org.eclipse.tycho.surefire.provider.impl.ProviderHelper.newDependency;
 
 import java.util.List;
@@ -20,12 +22,12 @@ import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.VersionRange;
 
-@Component(role = TestFrameworkProvider.class, hint = "junit5vintage")
+@Named("junit5vintage")
+@Singleton
 public class JUnit5VintageProvider extends AbstractJUnit5Provider {
 
     private static final VersionRange JUNIT_VINTAGE_INTERNAL_VERSION_RANGE = new VersionRange("[5.12,6)");

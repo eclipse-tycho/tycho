@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.bnd;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,8 +25,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -40,11 +41,12 @@ import org.osgi.framework.Version;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Processor;
 
-@Component(role = ClasspathContributor.class, hint = TychoConstants.PDE_BND)
+@Named(T)
+@Singleton
 public class BndClasspathContributor implements ClasspathContributor {
-    @Requirement
+    @Inject
     private Logger logger;
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

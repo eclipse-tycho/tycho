@@ -17,6 +17,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -40,8 +43,6 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
@@ -100,54 +101,55 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 
-@Component(role = DependencyResolver.class, hint = P2DependencyResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
+@Singleton
 public class P2DependencyResolver implements DependencyResolver, Initializable {
 
     public static final String ROLE_HINT = "p2";
 
-    @Requirement
+    @Inject
     private BundleReader bundleReader;
 
-    @Requirement
+    @Inject
     private RepositorySystem repositorySystem;
 
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Requirement
+    @Inject
     private PlexusContainer plexus;
 
-    @Requirement
+    @Inject
     private PluginRealmHelper pluginRealmHelper;
 
-    @Requirement
+    @Inject
     private LegacySupport context;
 
-    @Requirement
+    @Inject
     private P2ResolverFactory resolverFactory;
 
-    @Requirement(hint = DependencyMetadataGenerator.DEPENDENCY_ONLY)
+    @Inject
+    @Named(D)
     private DependencyMetadataGenerator generator;
 
-    @Requirement
+    @Inject
     private ReactorRepositoryManager reactorRepositoryManager;
 
-    @Requirement
+    @Inject
     private LocalRepositoryP2Indices p2index;
 
-    @Requirement
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
-    @Requirement
+    @Inject
     private PomUnits pomUnits;
 
-    @Requirement
+    @Inject
     private MavenDependenciesResolver dependenciesResolver;
 
-    @Requirement
+    @Inject
     private TargetPlatformFactory tpFactory;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
     @Override

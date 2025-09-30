@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging.reverseresolve;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,8 +33,6 @@ import java.util.stream.IntStream;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.core.shared.MavenContext;
@@ -46,7 +47,8 @@ import kong.unirest.json.JSONObject;
  *
  * Use the maven rest API to find an artifact based on its sha1 sum.
  */
-@Component(role = ArtifactCoordinateResolver.class, hint = "central")
+@Named("central")
+@Singleton
 public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinateResolver {
 
 	private static final int TIMEOUT = Integer.getInteger("tycho.search.central.timeout", 10);
@@ -56,10 +58,10 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 	private static final String KEY_VERSION = "v";
 	private static final String KEY_TYPE = "p";
 
-	@Requirement
+	@Inject
 	private Logger log;
 
-	@Requirement
+	@Inject
 	MavenContext mavenContext;
 
 	private Map<File, Optional<Dependency>> filesCache = new ConcurrentHashMap<>();

@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,13 +36,13 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Organization;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.io.ModelParseException;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.model.classpath.ClasspathParser;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.eclipse.tycho.model.classpath.SourceFolderClasspathEntry;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
-@Component(role = Mapping.class, hint = TychoBundleMapping.PACKAGING)
+@Named(T)
+@Singleton
 public class TychoBundleMapping extends AbstractTychoMapping {
 
     private static final String NAME_PREFIX = "[bundle] ";

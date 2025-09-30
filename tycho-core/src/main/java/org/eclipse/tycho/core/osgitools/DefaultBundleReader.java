@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,13 +34,11 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.model.Resource;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.TychoConstants;
 
-@Component(role = BundleReader.class)
+@Singleton
 public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {
 
     private static final long LOCK_TIMEOUT = Long.getLong("tycho.bundlereader.lock.timeout", 5 * 60 * 1000L);
@@ -47,7 +47,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     private File cacheDir;
     private ConcurrentMap<String, Optional<File>> extractedFiles = new ConcurrentHashMap<>();
 
-    @Requirement
+    @Inject
     private FileLockService fileLockService;
 
     @Override

@@ -13,6 +13,8 @@
 
 package org.eclipse.tycho.packaging;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,8 +29,6 @@ import java.util.zip.ZipFile;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.ArchivedFileSet;
 import org.codehaus.plexus.archiver.util.DefaultArchivedFileSet;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildProperties;
@@ -40,7 +40,7 @@ import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;
 
-@Component(role = LicenseFeatureHelper.class)
+@Singleton
 public class LicenseFeatureHelper {
 
 	@Requirement()

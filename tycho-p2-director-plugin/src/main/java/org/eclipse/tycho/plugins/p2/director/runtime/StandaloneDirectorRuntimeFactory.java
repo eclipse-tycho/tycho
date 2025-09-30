@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director.runtime;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +27,6 @@ import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -42,25 +42,25 @@ import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 import org.eclipse.tycho.p2.tools.publisher.PublisherActionRunner;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 
-@Component(role = StandaloneDirectorRuntimeFactory.class)
+@Singleton
 public class StandaloneDirectorRuntimeFactory {
 
-    @Requirement
+    @Inject
     private RepositorySystem repositorySystem;
 
-    @Requirement
+    @Inject
     DirectorRuntime bootstrapDirector;
 
-    @Requirement
+    @Inject
     private EquinoxLauncher launchHelper;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement
+    @Inject
     private P2RepositoryManager repositoryManager;
 
-    @Requirement
+    @Inject
     private IProvisioningAgent agent;
 
     public StandaloneDirectorRuntime createStandaloneDirector(File installLocation, int forkedProcessTimeoutInSeconds)

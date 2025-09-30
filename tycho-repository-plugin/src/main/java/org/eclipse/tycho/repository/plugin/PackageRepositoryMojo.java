@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.plugin;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.attribute.FileTime;
@@ -110,13 +113,14 @@ public class PackageRepositoryMojo extends AbstractMojo implements RepositoryCon
 	@Parameter(defaultValue = "${project.build.outputTimestamp}")
 	private String outputTimestamp;
 
-	@Component(role = Archiver.class, hint = "zip")
+	@Named("zip")
+@Singleton
 	private ZipArchiver zipArchiver;
 
-	@Component(role = RepositoryGenerator.class)
+	@Singleton
 	private Map<String, RepositoryGenerator> generators;
 
-	@Component
+	@Inject
 	private MavenProjectHelper mavenProjectHelper;
 
 	@Override

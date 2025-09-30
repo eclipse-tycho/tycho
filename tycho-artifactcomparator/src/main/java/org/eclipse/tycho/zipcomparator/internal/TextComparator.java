@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.zipcomparator.internal;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -19,7 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
@@ -31,7 +32,8 @@ import com.github.difflib.patch.Patch;
 /**
  * Compares text-like files by ignoring there line ending styles
  */
-@Component(role = ContentsComparator.class, hint = TextComparator.HINT)
+@Named(T)
+@Singleton
 public class TextComparator implements ContentsComparator {
 
     static final String HINT = "txt";

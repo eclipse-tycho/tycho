@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.compiler;
 
+import javax.inject.Singleton;
 import java.util.Map;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -39,7 +40,7 @@ public class ValidateClassPathMojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    @Component(role = TychoProject.class)
+    @Singleton
     private Map<String, TychoProject> projectTypes;
 
     @Override

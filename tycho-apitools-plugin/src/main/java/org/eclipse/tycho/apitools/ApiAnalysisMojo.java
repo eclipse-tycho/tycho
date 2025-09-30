@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.apitools;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -159,13 +161,13 @@ public class ApiAnalysisMojo extends AbstractMojo {
 	@Parameter(defaultValue = "true", property = "tycho.apitools.runAsJob")
 	private boolean runAsJob;
 
-	@Component
+	@Inject
 	private EclipseWorkspaceManager workspaceManager;
 
-	@Component
+	@Inject
 	private TychoProjectManager projectManager;
 
-	@Component
+	@Inject
 	private ApiApplicationResolver applicationResolver;
 
 	@Override

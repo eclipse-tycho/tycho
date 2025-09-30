@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.surefire.bnd;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,8 +26,6 @@ import java.util.stream.Stream;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.core.runtime.CoreException;
@@ -45,12 +46,13 @@ import org.eclipse.tycho.surefire.BndTestMojo;
  * build.properties derived)
  *
  */
-@Component(role = InstallableUnitProvider.class, hint = BndTestMojo.NAME)
+@Named(B)
+@Singleton
 public class BndTestBundlesInstallableUnitProvider implements InstallableUnitProvider {
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement(role = TychoProject.class)
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
     @Override

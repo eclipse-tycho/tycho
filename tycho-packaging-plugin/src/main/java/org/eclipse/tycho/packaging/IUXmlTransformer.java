@@ -13,12 +13,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -29,12 +29,12 @@ import org.eclipse.tycho.model.IU;
 
 import de.pdark.decentxml.Element;
 
-@Component(role = IUXmlTransformer.class)
+@Singleton
 public class IUXmlTransformer {
     private static final String MAVEN_ARTIFACT_ID = "maven-artifactId";
     private static final String MAVEN_VERSION = "maven-version";
     private static final String MAVEN_GROUP_ID = "maven-groupId";
-    @Requirement
+    @Inject
     private Logger log;
 
     public IUXmlTransformer() {

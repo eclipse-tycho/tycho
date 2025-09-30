@@ -14,6 +14,8 @@
 
 package org.eclipse.tycho.core.osgitools;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,8 +30,6 @@ import java.util.stream.Collectors;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
@@ -38,12 +38,12 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.BuildPropertiesImpl;
 import org.eclipse.tycho.core.maven.TychoInterpolator;
 
-@Component(role = BuildPropertiesParser.class)
+@Singleton
 public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposable {
 
     private final Map<String, BuildPropertiesImpl> cache = new HashMap<>();
 
-    @Requirement
+    @Inject
     LegacySupport legacySupport;
 
     @Override

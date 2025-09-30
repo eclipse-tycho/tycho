@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.ds;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -23,8 +25,6 @@ import org.apache.maven.SessionScoped;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ResolvedArtifactKey;
@@ -43,7 +43,8 @@ import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Processor;
 
-@Component(role = ClasspathContributor.class, hint = "ds-annotations")
+@Named("ds-annotations")
+@Singleton
 @SessionScoped
 public class DeclarativeServicesClasspathContributor extends AbstractSpecificationClasspathContributor
 		implements ClasspathContributor {
@@ -56,13 +57,13 @@ public class DeclarativeServicesClasspathContributor extends AbstractSpecificati
 	private static final String DS_ANNOTATIONS_1_2_ARTIFACT_ID = "osgi.cmpn";
 	private static final String DS_ANNOTATIONS_1_2_VERSION = "5.0.0";
 
-	@Requirement
+	@Inject
 	DeclarativeServiceConfigurationReader configurationReader;
 
-	@Requirement
+	@Inject
 	MavenDependenciesResolver dependenciesResolver;
 
-	@Requirement
+	@Inject
 	TychoProjectManager projectManager;
 
 	@Inject

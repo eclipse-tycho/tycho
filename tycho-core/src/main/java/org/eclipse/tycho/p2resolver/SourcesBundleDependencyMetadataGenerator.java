@@ -13,13 +13,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -41,14 +42,15 @@ import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.publisher.DownloadStatsAdvice;
 import org.osgi.framework.BundleException;
 
-@Component(role = DependencyMetadataGenerator.class, hint = DependencyMetadataGenerator.SOURCE_BUNDLE)
+@Named(D)
+@Singleton
 public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGenerator
         implements DependencyMetadataGenerator {
 
-    @Requirement
+    @Inject
     private MavenContext mavenContext;
 
-    @Requirement
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
     @Override

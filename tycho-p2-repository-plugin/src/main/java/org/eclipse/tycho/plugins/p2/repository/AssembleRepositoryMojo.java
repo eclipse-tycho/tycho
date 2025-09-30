@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -302,19 +305,20 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter(defaultValue = "repository.xml")
     private String repositoryFileName;
 
-    @Component
+    @Inject
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Component
+    @Inject
     MirrorApplicationService mirrorApp;
 
-    @Component
+    @Inject
     private TargetDefinitionVariableResolver varResolver;
 
-    @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
+    @Named(P)
+@Singleton
     private EclipseRepositoryProject eclipseRepositoryProject;
 
-    @Component
+    @Inject
     private FileLockService fileLockService;
 
     @Override

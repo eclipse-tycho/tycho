@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.helper;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.Properties;
 
@@ -19,13 +21,10 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.settings.Profile;
 import org.apache.maven.settings.Settings;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-
-@Component(role = MavenPropertyHelper.class)
+@Singleton
 public class MavenPropertyHelper {
 
-    @Requirement
+    @Inject
     LegacySupport legacySupport;
 
     /**

@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.baseline;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -110,16 +112,16 @@ public class DependencyCheckMojo extends AbstractMojo {
 	@Parameter(property = "tycho.dependency.check.verbose", defaultValue = "false")
 	private boolean verbose;
 
-	@Component
+	@Inject
 	private TychoProjectManager projectManager;
 
-	@Component
+	@Inject
 	private List<ArtifactVersionProvider> versionProvider;
 
-	@Component
+	@Inject
 	private BundleReader bundleReader;
 
-	@Component
+	@Inject
 	ToolchainProvider toolchainProvider;
 
 	@Override

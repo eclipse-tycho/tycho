@@ -12,13 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
@@ -36,7 +37,8 @@ import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
-@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION)
+@Named(P)
+@Singleton
 public class TargetPlatformProject extends AbstractTychoProject {
 
     @Override

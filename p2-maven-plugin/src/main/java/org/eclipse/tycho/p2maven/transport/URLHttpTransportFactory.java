@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,18 +26,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 import org.eclipse.tycho.p2maven.transport.Response.ResponseConsumer;
 
-@Component(role = HttpTransportFactory.class, hint = URLHttpTransportFactory.HINT)
+@Named(URLH)
+@Singleton
 public class URLHttpTransportFactory implements HttpTransportFactory {
 
 	static final String HINT = "JavaUrl";
-	@Requirement
+	@Inject
 	ProxyHelper proxyHelper;
-	@Requirement
+	@Inject
 	MavenAuthenticator authenticator;
 
 	@Override
@@ -97,7 +99,6 @@ public class URLHttpTransportFactory implements HttpTransportFactory {
 					transportEncoding.decode(connection.getInputStream()).transferTo(outputStream);
 
 				}
-
 
 			}) {
 				return consumer.handleResponse(response);

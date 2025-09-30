@@ -12,13 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import org.eclipse.equinox.internal.p2.repository.CacheManagerComponent;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 
-@Component(role = IAgentServiceFactory.class, hint = "org.eclipse.equinox.internal.p2.repository.CacheManager")
+@Named("org.eclipse.equinox.internal.p2.repository.CacheManager")
+@Singleton
 public class TychoRepositoryTransportCacheManagerAgentFactory implements IAgentServiceFactory {
 
     @Override

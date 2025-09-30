@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
@@ -32,18 +32,18 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
-@Component(role = PublisherServiceFactory.class)
+@Singleton
 public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
-    @Requirement
+    @Inject
     private MavenContext mavenContext;
-    @Requirement
+    @Inject
     private ReactorRepositoryManager reactorRepoManager;
 
-    @Requirement
+    @Inject
     private TargetPlatformService targetPlatformService;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
     @Override

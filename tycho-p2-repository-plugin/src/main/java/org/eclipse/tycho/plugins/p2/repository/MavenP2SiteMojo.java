@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -205,18 +207,18 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.outputTimestamp}")
     private String outputTimestamp;
 
-    @Component
+    @Inject
     private Logger logger;
-    @Component
+    @Inject
     private RepositorySystem repositorySystem;
 
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
-    @Component
+    @Inject
     private PGPService pgpService;
 
     /**

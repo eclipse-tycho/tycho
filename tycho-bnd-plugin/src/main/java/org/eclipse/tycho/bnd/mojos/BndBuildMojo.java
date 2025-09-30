@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.bnd.mojos;
 
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,7 +35,7 @@ import aQute.bnd.osgi.Jar;
 @Mojo(name = "build", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class BndBuildMojo extends AbstractBndProjectMojo {
 
-	@Component
+	@Inject
 	MavenProjectHelper helper;
 
 	@Override

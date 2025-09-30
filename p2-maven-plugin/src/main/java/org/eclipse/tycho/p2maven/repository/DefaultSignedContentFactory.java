@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.repository;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -21,17 +24,16 @@ import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.util.Objects;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.osgi.signedcontent.SignedContent;
 import org.eclipse.osgi.signedcontent.SignedContentFactory;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.osgi.framework.Bundle;
 
-@Component(role = SignedContentFactory.class)
+@Singleton
 public class DefaultSignedContentFactory implements SignedContentFactory {
 
-	@Requirement(hint = "connect")
+	@Inject
+    @Named("connect")
 	private EquinoxServiceFactory serviceFactory;
 
 	@Override

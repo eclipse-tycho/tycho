@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.tpvalidator;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -107,19 +109,19 @@ public class TPValidationMojo extends AbstractMojo {
     @Parameter
     private String executionEnvironment;
 
-    @Component
+    @Inject
     DirectorRuntime director;
 
-    @Component
+    @Inject
     private Logger logger;
 
-    @Component
+    @Inject
     private ToolchainManager toolchainManager;
 
-    @Component
+    @Inject
     private P2ResolverFactory factory;
 
-    @Component
+    @Inject
     private TargetDefinitionVariableResolver varResolver;
 
     public void execute() throws MojoExecutionException {

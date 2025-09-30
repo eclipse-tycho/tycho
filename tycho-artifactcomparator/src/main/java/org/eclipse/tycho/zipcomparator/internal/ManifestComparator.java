@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.zipcomparator.internal;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -24,7 +26,6 @@ import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
@@ -35,7 +36,8 @@ import aQute.bnd.header.OSGiHeader;
 import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.resource.CapReqBuilder;
 
-@Component(role = ContentsComparator.class, hint = ManifestComparator.TYPE)
+@Named(M)
+@Singleton
 public class ManifestComparator implements ContentsComparator {
 
     public static final String TYPE = "manifest";

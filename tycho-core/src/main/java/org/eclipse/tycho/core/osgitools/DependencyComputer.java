@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +31,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.osgi.container.ModuleCapability;
 import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.container.ModuleRevision;
@@ -59,7 +59,7 @@ import org.osgi.resource.Capability;
  * Note that some functionality, namely SecondaryDependencies, ExtraClasspathEntries and
  * isPatchFragment, has been removed due to time constraints.
  */
-@Component(role = DependencyComputer.class)
+@Singleton
 public class DependencyComputer {
 
     public static class DependencyEntry {

@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.zipcomparator.internal;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Map.Entry;
@@ -19,12 +21,12 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
-@Component(role = ContentsComparator.class, hint = PropertiesComparator.TYPE)
+@Named(P)
+@Singleton
 public class PropertiesComparator implements ContentsComparator {
     public static final String TYPE = "properties";
 

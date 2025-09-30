@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,8 +30,6 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.RepositorySessionDecorator;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
@@ -52,16 +52,16 @@ import org.eclipse.aether.resolution.VersionRangeResult;
 import org.eclipse.aether.version.Version;
 import org.eclipse.tycho.TychoConstants;
 
-@Component(role = MavenDependenciesResolver.class)
+@Singleton
 public class MavenDependenciesResolver {
 
-    @Requirement
+    @Inject
     RepositorySystem repoSystem;
 
-    @Requirement
+    @Inject
     List<RepositorySessionDecorator> decorators;
 
-    @Requirement
+    @Inject
     Logger logger;
 
     /**

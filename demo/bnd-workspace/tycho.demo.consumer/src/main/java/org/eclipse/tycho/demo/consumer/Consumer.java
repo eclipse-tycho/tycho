@@ -12,12 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.demo.consumer;
 
+import javax.inject.Singleton;
 import org.apache.felix.service.command.Descriptor;
 import org.eclipse.tycho.demo.api.HelloWorld;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(property = { "osgi.command.scope=tychodemo", "osgi.command.function=hello"}, service = Object.class, immediate = true)
+@Singleton
 public class Consumer {
 	
 	@Reference

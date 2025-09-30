@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -31,9 +33,9 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 @Mojo(name = "remap-artifacts-to-m2-repo", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public class RemapArtifactToMavenRepositoriesMojo extends AbstractRepositoryMojo {
 
-    @Component
+    @Inject
     MirrorApplicationService mirrorApp;
-    @Component
+    @Inject
     private FileLockService fileLockService;
 
     @Override

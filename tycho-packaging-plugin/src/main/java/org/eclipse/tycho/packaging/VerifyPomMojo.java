@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
@@ -74,10 +76,10 @@ public class VerifyPomMojo extends AbstractMojo {
 	@Parameter(property = "tycho.verify.failOnError")
 	private boolean failOnError;
 
-	@Component
+	@Inject
 	private RepositorySystem repositorySystem;
 
-	@Component
+	@Inject
 	private ModelReader modelReader;
 
 	@Override

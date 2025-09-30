@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.baseline;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,8 +35,6 @@ import java.util.stream.Stream;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -78,7 +79,8 @@ import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
  * will be considered a micro change</li>
  * <ul>
  */
-@Component(role = ArtifactBaselineComparator.class, hint = ArtifactType.TYPE_ECLIPSE_FEATURE)
+@Named(A)
+@Singleton
 public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 
 	private static final int WIDTH = 160;
@@ -86,16 +88,17 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 	private static final String GROUP_SUFFIX = ".feature.group";
 	private static final String JAR_SUFFIX = ".feature.jar";
 
-	@Requirement(hint = "zip")
+	@Inject
+    @Named("zip")
 	ContentsComparator zipComparator;
 
-	@Requirement
+	@Inject
 	MetadataIO metadataIO;
 
-	@Requirement
+	@Inject
 	P2Generator p2generator;
 
-	@Requirement
+	@Inject
 	P2RepositoryManager repositoryManager;
 
 	@Override

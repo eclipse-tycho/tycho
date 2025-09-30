@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.bnd.mojos;
 
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -73,7 +74,7 @@ public class BndRunMojo extends AbstractBndMojo {
 	@Parameter(property = "bndrun.resolve", defaultValue = "false")
 	private boolean resolve;
 
-	@Component
+	@Inject
 	MavenProjectHelper helper;
 
 	@Override

@@ -16,6 +16,8 @@
 
 package org.eclipse.tycho.compiler;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -185,7 +187,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Parameter(defaultValue = "SYSTEM")
     private JDKUsage useJDK;
 
-    @Component
+    @Inject
     private ToolchainManagerPrivate toolChainManager;
 
     /**
@@ -261,10 +263,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Parameter(defaultValue = "consider")
     private PomDependencies pomOnlyDependencies = PomDependencies.consider;
 
-    @Component(role = TychoProject.class)
+    @Singleton
     private Map<String, TychoProject> projectTypes;
 
-    @Component
+    @Inject
     private BundleReader bundleReader;
 
     /**
@@ -326,19 +328,19 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Parameter
     private String log;
 
-    @Component
+    @Inject
     ToolchainProvider toolchainProvider;
 
-    @Component
+    @Inject
     private ToolchainManager toolchainManager;
 
-    @Component
+    @Inject
     private PluginRealmHelper pluginRealmHelper;
 
-    @Component
+    @Inject
     private Logger logger;
 
-    @Component
+    @Inject
     private MavenDependenciesResolver dependenciesResolver;
 
     private ExecutionEnvironment[] manifestBREEs;
@@ -349,7 +351,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private List<String> currentExcludes;
 
-    @Component
+    @Inject
     private TychoProjectManager tychoProjectManager;
 
     private Integer currentRelease;

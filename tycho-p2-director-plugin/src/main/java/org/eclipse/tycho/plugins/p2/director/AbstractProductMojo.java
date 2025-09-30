@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.List;
 
@@ -117,7 +119,7 @@ abstract class AbstractProductMojo extends AbstractMojo {
     @Parameter(property = "p2.timeout", defaultValue = "0")
     private int forkedProcessTimeoutInSeconds;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     int getForkedProcessTimeoutInSeconds() {

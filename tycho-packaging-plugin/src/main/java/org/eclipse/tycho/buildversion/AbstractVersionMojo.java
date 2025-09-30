@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.Map;
 
@@ -34,10 +35,10 @@ public abstract class AbstractVersionMojo extends AbstractMojo {
     @Parameter(property = "project.packaging", required = true, readonly = true)
     protected String packaging;
 
-    @Component(role = TychoProject.class)
+    @Singleton
     protected Map<String, TychoProject> projectTypes;
 
-	@Component
+	@Inject
 	BuildContext buildContext;
 
     protected String getOSGiVersion() {

@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +22,6 @@ import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.PackagingType;
@@ -36,7 +37,8 @@ import org.eclipse.tycho.model.ProductConfiguration;
 /**
  * An eclipse repository project produces a p2 repository where a set of products are published.
  */
-@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
+@Named(P)
+@Singleton
 public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
 
     /**

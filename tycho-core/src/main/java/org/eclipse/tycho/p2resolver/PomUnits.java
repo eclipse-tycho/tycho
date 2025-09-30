@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
@@ -19,8 +21,6 @@ import java.util.Optional;
 
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
@@ -41,24 +41,24 @@ import org.eclipse.tycho.p2maven.InstallableUnitPublisher;
 import org.eclipse.tycho.p2maven.advices.MavenChecksumAdvice;
 import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
 
-@Component(role = PomUnits.class)
+@Singleton
 public class PomUnits {
 
     private static final String KEY = PomUnits.class.getName() + "/dependencies";
 
-    @Requirement
+    @Inject
     TychoProjectManager tychoProjectManager;
 
-    @Requirement
+    @Inject
     InstallableUnitGenerator generator;
 
-    @Requirement
+    @Inject
     InstallableUnitPublisher publisher;
 
-    @Requirement
+    @Inject
     ArtifactHandlerManager artifactHandlerManager;
 
-    @Requirement
+    @Inject
     Logger logger;
 
     public IQueryable<IInstallableUnit> createPomQueryable(ReactorProject reactorProject) {

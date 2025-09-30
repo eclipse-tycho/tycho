@@ -18,6 +18,9 @@
  */
 package org.eclipse.tycho.source;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -103,7 +106,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * The Jar archiver.
      */
-    @Component(role = Archiver.class, hint = "jar")
+    @Named("jar")
+@Singleton
     private JarArchiver jarArchiver;
 
     /**
@@ -162,7 +166,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * Used for attaching the source jar to the project.
      */
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
     /**

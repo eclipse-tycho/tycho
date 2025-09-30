@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.custombundle;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -96,10 +99,11 @@ public class CustomBundleMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${project.build.outputTimestamp}")
 	private String outputTimestamp;
 
-	@Component(role = Archiver.class, hint = "jar")
+	@Named("jar")
+@Singleton
 	private JarArchiver jarArchiver;
 
-	@Component
+	@Inject
 	private MavenProjectHelper projectHelper;
 
 	@Override
