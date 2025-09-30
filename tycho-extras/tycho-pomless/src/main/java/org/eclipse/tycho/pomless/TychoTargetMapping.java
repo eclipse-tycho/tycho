@@ -27,7 +27,7 @@ import org.apache.maven.model.Model;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.w3c.dom.Element;
 
-@Named(T)
+@Named(TychoTargetMapping.PACKAGING)
 @Singleton
 public class TychoTargetMapping extends AbstractXMLTychoMapping {
 

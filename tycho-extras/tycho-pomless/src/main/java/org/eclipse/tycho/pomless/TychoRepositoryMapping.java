@@ -41,7 +41,7 @@ import org.w3c.dom.Element;
  * 
  * Responsible for parsing eclipse-repository artifacts (updatesites, catgory.xml)
  */
-@Named(T)
+@Named(TychoRepositoryMapping.PACKAGING)
 @Singleton
 public class TychoRepositoryMapping extends AbstractXMLTychoMapping {
     private static final String ARCHIVE_PRODUCTS_ID = "archive-products";

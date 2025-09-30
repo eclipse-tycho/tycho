@@ -41,7 +41,7 @@ import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.eclipse.tycho.model.classpath.SourceFolderClasspathEntry;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
-@Named(T)
+@Named(TychoBundleMapping.PACKAGING)
 @Singleton
 public class TychoBundleMapping extends AbstractTychoMapping {
 

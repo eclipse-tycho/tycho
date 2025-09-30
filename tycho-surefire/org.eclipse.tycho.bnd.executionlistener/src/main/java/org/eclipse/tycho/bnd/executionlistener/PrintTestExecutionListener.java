@@ -12,15 +12,12 @@
  ******************************************************************************/
 package org.eclipse.tycho.bnd.executionlistener;
 
-import javax.inject.Singleton;
-import javax.inject.Named;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
 import org.osgi.service.component.annotations.Component;
 
-@Named
-@Singleton
+@Component
 public class PrintTestExecutionListener implements TestExecutionListener {
 	@Override
 	public void executionStarted(TestIdentifier testIdentifier) {
