@@ -17,7 +17,7 @@ import javax.inject.Singleton;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.TychoProject;
 
-@Named(P)
+@Named(PackagingType.TYPE_ECLIPSE_TEST_PLUGIN)
 @Singleton
 public class OsgiTestBundleProject extends OsgiBundleProject {
 }

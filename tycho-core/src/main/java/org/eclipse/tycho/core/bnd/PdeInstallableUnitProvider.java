@@ -65,7 +65,7 @@ import aQute.lib.manifest.ManifestUtil;
  * This provides the basics we need to sort the build by scanning the sourcecode for packages
  * provided and compute a preliminary manifest
  */
-@Named(T)
+@Named(TychoConstants.PDE_BND)
 @Singleton
 public class PdeInstallableUnitProvider implements InstallableUnitProvider {
 

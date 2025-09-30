@@ -37,7 +37,7 @@ import org.eclipse.tycho.model.ProductConfiguration;
 /**
  * An eclipse repository project produces a p2 repository where a set of products are published.
  */
-@Named(P)
+@Named(PackagingType.TYPE_ECLIPSE_REPOSITORY)
 @Singleton
 public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
 

@@ -33,12 +33,12 @@ import org.eclipse.tycho.UnmodifiableDependencyMetadata;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 import org.eclipse.tycho.resolver.P2MetadataProvider;
 
-@Named(T)
+@Named(TychoConstants.PDE_BND)
 @Singleton
 public class BndP2MetadataProvider implements P2MetadataProvider {
 
     @Inject
-    @Named(T)
+    @Named(TychoConstants.PDE_BND)
     InstallableUnitProvider installableUnitProvider;
 
     @Override

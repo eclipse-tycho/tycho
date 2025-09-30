@@ -51,7 +51,7 @@ public class DefaultMavenContext implements MavenContext {
     LegacySupport legacySupport;
 
     @Inject
-    @Named(F)
+    @Named(FrameworkFinder.HINT)
     MavenLogger mavenLogger;
 
     private Properties globalProps;

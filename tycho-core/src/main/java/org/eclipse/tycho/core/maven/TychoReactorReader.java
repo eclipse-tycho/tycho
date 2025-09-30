@@ -38,7 +38,7 @@ import org.eclipse.tycho.PackagingType;
  * types
  */
 @SessionScoped
-@Named(T)
+@Named(TychoReactorReader.ROLE_HINT)
 @Singleton
 public class TychoReactorReader implements MavenWorkspaceReader {
     static final String HINT = "tycho-reactor";

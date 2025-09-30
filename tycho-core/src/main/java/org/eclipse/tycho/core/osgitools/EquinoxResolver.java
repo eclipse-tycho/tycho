@@ -85,7 +85,7 @@ import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 
-@Named(E)
+@Named(EquinoxResolver.HINT)
 @Singleton
 public class EquinoxResolver implements DependenciesResolver {
 

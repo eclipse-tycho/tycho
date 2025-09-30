@@ -128,7 +128,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
     private P2ResolverFactory resolverFactory;
 
     @Inject
-    @Named(D)
+    @Named(DependencyMetadataGenerator.DEPENDENCY_ONLY)
     private DependencyMetadataGenerator generator;
 
     @Inject

@@ -41,7 +41,7 @@ import org.osgi.framework.Version;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Processor;
 
-@Named(T)
+@Named(TychoConstants.PDE_BND)
 @Singleton
 public class BndClasspathContributor implements ClasspathContributor {
     @Inject

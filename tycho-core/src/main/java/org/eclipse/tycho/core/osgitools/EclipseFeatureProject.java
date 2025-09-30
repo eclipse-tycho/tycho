@@ -29,7 +29,7 @@ import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.model.Feature;
 
-@Named(P)
+@Named(PackagingType.TYPE_ECLIPSE_FEATURE)
 @Singleton
 public class EclipseFeatureProject extends AbstractArtifactBasedProject {
     @Override

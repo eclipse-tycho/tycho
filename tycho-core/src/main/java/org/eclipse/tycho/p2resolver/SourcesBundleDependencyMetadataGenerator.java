@@ -42,7 +42,7 @@ import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.publisher.DownloadStatsAdvice;
 import org.osgi.framework.BundleException;
 
-@Named(D)
+@Named(DependencyMetadataGenerator.SOURCE_BUNDLE)
 @Singleton
 public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGenerator
         implements DependencyMetadataGenerator {

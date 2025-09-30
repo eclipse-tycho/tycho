@@ -37,7 +37,7 @@ import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
-@Named(P)
+@Named(PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION)
 @Singleton
 public class TargetPlatformProject extends AbstractTychoProject {
 

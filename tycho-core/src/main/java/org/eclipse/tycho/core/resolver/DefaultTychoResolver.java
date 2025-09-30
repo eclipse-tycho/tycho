@@ -52,7 +52,7 @@ public class DefaultTychoResolver implements TychoResolver {
     @Named("p2")
     private DependencyResolver dependencyResolver;
 
-    @Requirement()
+    @Inject
     TychoProjectManager projectManager;
 
     @Override

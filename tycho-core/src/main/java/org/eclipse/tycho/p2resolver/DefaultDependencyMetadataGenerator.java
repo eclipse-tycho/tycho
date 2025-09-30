@@ -25,7 +25,7 @@ import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 
-@Named(D)
+@Named(DependencyMetadataGenerator.DEPENDENCY_ONLY)
 @Singleton
 public class DefaultDependencyMetadataGenerator extends P2GeneratorImpl implements DependencyMetadataGenerator {
 

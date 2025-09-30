@@ -76,7 +76,7 @@ import org.eclipse.tycho.model.classpath.LibraryClasspathEntry;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.osgi.framework.Filter;
 
-@Named(P)
+@Named(PackagingType.TYPE_ECLIPSE_PLUGIN)
 @Singleton
 public class OsgiBundleProject extends AbstractTychoProject implements BundleProject {
 
@@ -92,7 +92,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private ClasspathReader classpathParser;
 
     @Inject
-    @Named(E)
+    @Named(EquinoxResolver.HINT)
     private DependenciesResolver resolver;
 
     @Inject
