@@ -148,10 +148,14 @@ To configure a source folder to contain test sources in Eclipse:
 3. **Navigate to "Java Build Path"** in the left panel
 4. **Select the "Source" tab**
 5. **Locate the source folder** you want to mark as a test source folder (e.g., `src_test`)
-6. **Expand the source folder entry** by clicking on the arrow/triangle next to it
-7. **Double-click on "Contains test sources"** or select it and click "Edit"
-8. **Set the value to "Yes"**
-9. **Click "Apply and Close"**
+6. **Expand the source folder entry** by clicking on the arrow/triangle next to it to reveal its attributes
+7. **Look for "Contains test sources: No"** in the expanded view
+8. **Double-click on "Contains test sources: No"** or select it and click "Edit"
+9. **In the dialog that appears, change the value to "Yes"**
+10. **Click "OK"** to close the edit dialog
+11. **Click "Apply and Close"** to save the changes
+
+> **Tip**: After marking a source folder as a test source, you'll see "Contains test sources: Yes" in the build path configuration.
 
 ### What This Does
 
@@ -197,6 +201,32 @@ your-plugin-project/
 - When using pomless builds, Tycho automatically detects test source folders marked in the `.classpath` file
 - Test source folders should be included in the `build.properties` file if you want them to be part of the build
 - Make sure your `pom.xml` includes the necessary test plugin configurations (either `maven-surefire-plugin` or `tycho-surefire-plugin` with appropriate executions)
+
+### Alternative: Manual .classpath Editing
+
+If you prefer, you can also directly edit the `.classpath` file in your project root. Add or modify the `classpathentry` element for your test source folder to include the test attribute:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <!-- Production source folder -->
+    <classpathentry kind="src" output="bin" path="src"/>
+    
+    <!-- Test source folder with test attribute -->
+    <classpathentry kind="src" output="bin_test" path="src_test">
+        <attributes>
+            <attribute name="test" value="true"/>
+        </attributes>
+    </classpathentry>
+    
+    <!-- Other classpath entries -->
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+    <classpathentry kind="output" path="bin"/>
+</classpath>
+```
+
+After editing, refresh your project in Eclipse (F5) for the changes to take effect.
 
 ### Example Projects
 
