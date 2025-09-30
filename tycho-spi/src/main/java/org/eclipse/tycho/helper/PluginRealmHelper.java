@@ -12,6 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.helper;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,8 +36,6 @@ import org.apache.maven.plugin.version.PluginVersionResolutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.ComponentDependency;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
@@ -69,34 +71,34 @@ import org.codehaus.plexus.logging.Logger;
  * </pre>
  * 
  */
-@Component(role = PluginRealmHelper.class)
+@Singleton
 public class PluginRealmHelper {
     public static interface PluginFilter {
         public boolean accept(PluginDescriptor descriptor);
     }
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement
+    @Inject
     private MavenPluginManager pluginManager;
 
-    @Requirement
+    @Inject
     private BuildPluginManager buildPluginManager;
 
-    @Requirement
+    @Inject
     private PluginDescriptorCache pluginDescriptorCache;
 
-    @Requirement
+    @Inject
     private LifecyclePluginResolver lifecyclePluginResolver;
 
-    @Requirement
+    @Inject
     protected MavenPluginManager mavenPluginManager;
 
-    @Requirement
+    @Inject
     private PlexusContainer plexus;
 
-    @Requirement
+    @Inject
     private ProjectHelper projectHelper;
 
     public <T> void visitPluginExtensions(MavenProject project, MavenSession mavenSession, Class<T> type,

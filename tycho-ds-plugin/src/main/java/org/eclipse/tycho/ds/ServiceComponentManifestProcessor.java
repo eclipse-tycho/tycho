@@ -14,13 +14,16 @@ package org.eclipse.tycho.ds;
 
 import java.util.jar.Manifest;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.packaging.ManifestProcessor;
 
-@Component(role = ManifestProcessor.class, hint = "scr")
+@Named("scr")
+@Singleton
 public class ServiceComponentManifestProcessor implements ManifestProcessor {
 
 	@Override

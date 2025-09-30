@@ -15,6 +15,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -23,11 +27,11 @@ import java.util.function.Supplier;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Organization;
-import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.w3c.dom.Element;
 
-@Component(role = Mapping.class, hint = TychoFeatureMapping.PACKAGING)
+@Named(TychoFeatureMapping.PACKAGING)
+@Singleton
 public class TychoFeatureMapping extends AbstractXMLTychoMapping {
 
     private static final String NAME_PREFIX = "[feature] ";
