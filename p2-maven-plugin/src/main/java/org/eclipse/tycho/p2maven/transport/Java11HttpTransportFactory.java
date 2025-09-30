@@ -51,7 +51,7 @@ import org.eclipse.tycho.p2maven.transport.Response.ResponseConsumer;
 /**
  * A transport using Java11 HttpClient
  */
-@Named(J)
+@Named(Java11HttpTransportFactory.HINT)
 @Singleton
 public class Java11HttpTransportFactory implements HttpTransportFactory, Initializable {
 	private static final int MAX_DISCARD = 1024 * 10;

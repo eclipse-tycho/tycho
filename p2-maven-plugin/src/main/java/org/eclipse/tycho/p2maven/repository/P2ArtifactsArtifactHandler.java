@@ -17,7 +17,7 @@ import javax.inject.Singleton;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.eclipse.tycho.ArtifactType;
 
-@Named(A)
+@Named(ArtifactType.TYPE_P2_ARTIFACTS)
 @Singleton
 public class P2ArtifactsArtifactHandler extends AbstractArtifactHandler {
 

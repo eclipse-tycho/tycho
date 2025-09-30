@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.tycho.IRepositoryIdManager;
 
-@Named(IR)
+@Named(IRepositoryIdManager.SERVICE_NAME)
 @Singleton
 public class RepositoryIdManagerAgentFactory implements IAgentServiceFactory {
 

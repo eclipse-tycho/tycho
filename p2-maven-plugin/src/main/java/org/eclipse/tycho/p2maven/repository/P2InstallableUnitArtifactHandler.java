@@ -17,7 +17,7 @@ import javax.inject.Singleton;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.eclipse.tycho.PackagingType;
 
-@Named(P)
+@Named(PackagingType.TYPE_P2_IU)
 @Singleton
 public class P2InstallableUnitArtifactHandler extends AbstractArtifactHandler {
 

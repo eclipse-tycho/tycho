@@ -29,7 +29,7 @@ import java.util.Map;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 import org.eclipse.tycho.p2maven.transport.Response.ResponseConsumer;
 
-@Named(URLH)
+@Named(URLHttpTransportFactory.HINT)
 @Singleton
 public class URLHttpTransportFactory implements HttpTransportFactory {
 

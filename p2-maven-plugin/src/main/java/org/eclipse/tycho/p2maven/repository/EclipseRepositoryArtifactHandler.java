@@ -17,7 +17,7 @@ import javax.inject.Singleton;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.eclipse.tycho.ArtifactType;
 
-@Named(A)
+@Named(ArtifactType.TYPE_ECLIPSE_REPOSITORY)
 @Singleton
 public class EclipseRepositoryArtifactHandler extends AbstractArtifactHandler {
 
