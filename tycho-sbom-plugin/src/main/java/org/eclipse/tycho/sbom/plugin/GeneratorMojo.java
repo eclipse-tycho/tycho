@@ -98,14 +98,14 @@ public class GeneratorMojo extends AbstractMojo {
 	 * hashcode of the file, if there is a unique match this one is assumed to be
 	 * the real source even if P2 has not recorded any GAVs
 	 */
-	@Parameter(name = "central-search", property = "central-search")
+	@Parameter(property = "central-search")
 	private boolean centralsearch;
 
 	/**
 	 * A list of URIs that should be used to match against P2 units, this can be
 	 * usually the repositories used during building the product
 	 */
-	@Parameter
+	@Parameter(property = "p2sources")
 	private List<String> p2sources;
 
 	@Override
