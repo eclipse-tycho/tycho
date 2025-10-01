@@ -39,4 +39,5 @@ abstract class AbstractJUnit5Provider extends AbstractJUnitProvider {
     static boolean isJUnit5(MavenProject project, List<ClasspathEntry> testBundleClassPath, VersionRange versionRange) {
         return isEnabled(project, testBundleClassPath, JUNIT5_BUNDLES, versionRange);
     }
+
 }
