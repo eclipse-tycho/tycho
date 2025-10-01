@@ -113,6 +113,14 @@ public class GeneratorMojo extends AbstractMojo {
 
 	@Parameter(name = "process-bundle-classpath")
 	private boolean processBundleClasspath;
+	
+	/**
+	 * If enabled, queries the Open Source Vulnerabilities (OSV) distributed
+	 * vulnerability database for known vulnerabilities in Open Source components
+	 * and adds them as external references to the components
+	 */
+	@Parameter(name = "advisory", property = "advisory")
+	private boolean advisory;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -180,6 +188,9 @@ public class GeneratorMojo extends AbstractMojo {
 		}
 		if (processBundleClasspath) {
 			arguments.add("-process-bundle-classpath");
+		}
+		if (advisory) {
+			arguments.add("-advisory");
 		}
 		if (p2sources != null && !p2sources.isEmpty()) {
 			arguments.add("-p2sources");
