@@ -99,7 +99,8 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 
 	private static final String PARAMETER_JGIT_DIRTY_WORKING_TREE = "jgit.dirtyWorkingTree";
 
-	@Inject(hint = "default")
+	@Inject
+	@Named("default")
 	private BuildTimestampProvider defaultTimestampProvider;
 
 	@Inject
