@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.eclipse.tycho.tycho-its.surefire-junit6</groupId>
+  <artifactId>bundle.test.junit6</artifactId>
+  <packaging>eclipse-test-plugin</packaging>
+  <version>1.0.0</version>
+  
+  <properties>
+  	<tycho-version>6.0.0-SNAPSHOT</tycho-version>
+  </properties>
+  
+  <repositories>
+    <repository>
+      <id>oxygen</id>
+      <layout>p2</layout>
+      <url>${target-platform}</url>
+    </repository>
+  </repositories>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <providerHint>junit6</providerHint>
+          <excludedGroups>slow</excludedGroups>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
