@@ -55,8 +55,8 @@ public class EcJLogFileEnhancer implements AutoCloseable {
             Document document = documentEntry.getValue();
             Element statsElement = getStatsElement(document);
             File file = documentEntry.getKey();
-            return document.root().children("sources").stream()
-                    .flatMap(sources -> sources.children("source").stream())
+            return document.root().children("sources")
+                    .flatMap(sources -> sources.children("source"))
                     .map(source -> new Source(source, statsElement, () -> needsUpdate.add(file)));
         });
     }
