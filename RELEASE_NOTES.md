@@ -6,6 +6,39 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 6.0.0 (under development)
 
+### new `tycho-p2-extras:p2-manager` mojo for managing P2 update sites
+
+The new `tycho-p2-extras:p2-manager` goal provides a convenient way to maintain, update, and manage the integrity of public update sites. This mojo wraps the [P2 Manager application from JustJ Tools](https://eclipse.dev/justj/?page=tools) and makes it much easier to use compared to the previous approach using the eclipse-run goal.
+
+The P2 Manager helps with:
+- Promoting builds to update sites (nightly, milestone, or release)
+- Generating composite repositories
+- Managing repository history and retention policies
+- Creating browsable HTML pages for your update sites
+- Maintaining repository integrity
+
+```xml
+<plugin>
+    <groupId>org.eclipse.tycho.extras</groupId>
+    <artifactId>tycho-p2-extras-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+        <execution>
+            <id>promote-build</id>
+            <goals>
+                <goal>p2-manager</goal>
+            </goals>
+            <configuration>
+                <root>${project.build.directory}/updatesite</root>
+                <promote>file:${project.build.directory}/repository</promote>
+                <timestamp>${maven.build.timestamp}</timestamp>
+                <type>nightly</type>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
 ### new `tycho-wrap:verify` to test a maven-project with a generated manifest can resolve
 
 A common way to ensure compatibility and integration of java libraries is to enable the generation of an OSGi manifest automatically.

@@ -21,6 +21,7 @@
 			<item name="Tycho CI Friendly Versions" href="TychoCiFriendly.html" />
 			<item name="Creating update sites using category.xml" href="Category.html">
 				<item name="Tycho P2 Repository Plugin" href="tycho-p2-repository-plugin/plugin-info.html" />
+				<item name="P2 Manager Mojo" href="tycho-extras/tycho-p2-extras-plugin/p2-manager-mojo.html" />
 			</item>
 			<item name="Properties">
 				<item name="Build Properties" href="BuildProperties.html" />
