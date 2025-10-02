@@ -108,6 +108,9 @@ public class GeneratorMojo extends AbstractMojo {
 	@Parameter(property = "p2sources")
 	private List<String> p2sources;
 
+	@Parameter(name = "process-bundle-classpath")
+	private boolean processBundleClasspath;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (installations == null && installation == null) {
@@ -157,6 +160,9 @@ public class GeneratorMojo extends AbstractMojo {
 		}
 		if (centralsearch) {
 			arguments.add("-central-search");
+		}
+		if (processBundleClasspath) {
+			arguments.add("-process-bundle-classpath");
 		}
 		if (p2sources != null && !p2sources.isEmpty()) {
 			arguments.add("-p2sources");
