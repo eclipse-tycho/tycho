@@ -13,8 +13,8 @@
 	<modules>
 		<module>example.feature</module>
 		<module>example.plugin</module>
-		<module>example.test1</module>
-		<module>example.test2</module>
+		<module>example.testFragment</module>
+		<module>example.testStandAlone</module>
 		<module>product</module>
 		<module>repository</module>
 		<module>target-platform</module>

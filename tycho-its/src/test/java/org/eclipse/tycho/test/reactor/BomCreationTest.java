@@ -61,6 +61,46 @@ public class BomCreationTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void verifyTestFragment() throws Exception {
+		String bomPath = getBomPath("example.testFragment");
+		verifier.verifyFilePresent(bomPath);
+
+		Bom bom = getBom(bomPath);
+		List<Dependency> dependencies = bom.getDependencies();
+
+		// test fragment host bundle dependency
+		Dependency testBundle = getDependency(dependencies,
+				"pkg:maven/tycho-demo/example.test1@1.0.0-SNAPSHOT?type=eclipse-test-plugin");
+		verifyDependency(testBundle,
+				"pkg:p2/example.plugin@1.0.0.today?classifier=osgi.bundle&location=https://www.example.p2.repo/");
+		assertEquals(testBundle.getDependencies().size(), 1);
+
+		verifyBundleDependencies(dependencies);
+		verifyCommonDependencies(dependencies);
+		assertEquals(dependencies.size(), 8);
+	}
+
+	@Test
+	public void verifyTestStandAlone() throws Exception {
+		String bomPath = getBomPath("example.testStandAlone");
+		verifier.verifyFilePresent(bomPath);
+
+		Bom bom = getBom(bomPath);
+		List<Dependency> dependencies = bom.getDependencies();
+
+		// test bundle dependency
+		Dependency testBundle = getDependency(dependencies,
+				"pkg:maven/tycho-demo/example.test2@1.0.0-SNAPSHOT?type=eclipse-test-plugin");
+		verifyDependency(testBundle,
+				"pkg:p2/example.plugin@1.0.0.today?classifier=osgi.bundle&location=https://www.example.p2.repo/");
+		assertEquals(testBundle.getDependencies().size(), 1);
+
+		verifyBundleDependencies(dependencies);
+		verifyCommonDependencies(dependencies);
+		assertEquals(dependencies.size(), 8);
+	}
+
+	@Test
 	public void verifyFeature() throws Exception {
 		String bomPath = getBomPath("example.feature");
 		verifier.verifyFilePresent(bomPath);
