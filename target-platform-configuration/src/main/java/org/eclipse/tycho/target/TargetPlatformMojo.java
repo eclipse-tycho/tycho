@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.target;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -33,7 +35,7 @@ public class TargetPlatformMojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    @Component
+    @Inject
     private TargetPlatformService platformService;
 
     @Override

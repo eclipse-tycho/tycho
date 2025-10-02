@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -46,10 +48,10 @@ public class DependenciesTreeMojo extends AbstractMojo {
     @Parameter(property = "project")
     private MavenProject project;
 
-    @Component
+    @Inject
     private P2DependencyTreeGenerator generator;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

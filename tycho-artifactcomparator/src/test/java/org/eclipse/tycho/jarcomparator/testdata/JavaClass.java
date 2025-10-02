@@ -12,13 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.jarcomparator.testdata;
 
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.codehaus.plexus.component.annotations.Component;
-
-@Component(role = JavaClass.class)
+@Named
+@Singleton
 public class JavaClass {
     public Set<String> getStrings() throws IOException {
         return new LinkedHashSet<String>() {

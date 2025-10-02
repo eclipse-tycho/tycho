@@ -12,16 +12,18 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.inject.Inject;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.osgi.framework.VersionRange;
 
-@Component(role = ClasspathContributor.class, hint = "cm-annotations")
+@Named("cm-annotations")
+@Singleton
 @SessionScoped
 public class ConfigurationAdminAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor {
 

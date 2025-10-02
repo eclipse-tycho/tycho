@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -87,16 +89,16 @@ import org.eclipse.tycho.p2tools.copiedfromp2.PhaseSetFactory;
 @Mojo(name = "director", defaultPhase = LifecyclePhase.NONE, threadSafe = true, requiresProject = false)
 public class DirectorMojo extends AbstractMojo {
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
-    @Component
+    @Inject
     private IProvisioningAgentProvider agentProvider;
 
-    @Component
+    @Inject
     private LegacySupport legacySupport;
 
-    @Component
+    @Inject
     private MojoExecution execution;
 
     /**

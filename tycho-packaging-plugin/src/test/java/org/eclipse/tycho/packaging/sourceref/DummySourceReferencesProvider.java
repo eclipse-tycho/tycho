@@ -13,14 +13,15 @@
 
 package org.eclipse.tycho.packaging.sourceref;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-
 /**
  * For test purposes only
  */
-@Component(role = SourceReferencesProvider.class, hint = "dummy")
+@Named("dummy")
+@Singleton
 public class DummySourceReferencesProvider implements SourceReferencesProvider {
 
     @Override

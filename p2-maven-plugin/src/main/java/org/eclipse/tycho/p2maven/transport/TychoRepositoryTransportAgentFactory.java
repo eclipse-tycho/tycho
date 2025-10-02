@@ -12,10 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
@@ -23,22 +24,23 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.tycho.MavenRepositorySettings;
 
-@Component(role = IAgentServiceFactory.class, hint = "org.eclipse.equinox.internal.p2.repository.Transport")
+@Named("org.eclipse.equinox.internal.p2.repository.Transport")
+@Singleton
 public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactory, Initializable {
 
-    @Requirement
+    @Inject
     private MavenRepositorySettings mavenRepositorySettings;
-	@Requirement
+	@Inject
 	private Logger logger;
 
-	@Requirement
+	@Inject
 	TransportCacheConfig config;
 
-	@Requirement(hint = "tycho")
+	@Inject
+    @Named("tycho")
 	org.eclipse.equinox.internal.p2.repository.Transport repositoryTransport;
 
 	private AtomicBoolean infoPrinted = new AtomicBoolean();
-
 
     @Override
     public Object createService(IProvisioningAgent agent) {
@@ -57,7 +59,6 @@ public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactor
 
 	@Override
 	public void initialize() throws InitializationException {
-
 
 	}
 

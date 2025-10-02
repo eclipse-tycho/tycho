@@ -12,18 +12,19 @@
  *******************************************************************************/
 package org.eclipse.tycho.build;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.Date;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-
 /**
  * Build timestamp provider that returns the same timestamp for all projects, the
  * ${maven.build.timestamp}.
  */
-@Component(role = BuildTimestampProvider.class, hint = DefaultBuildTimestampProvider.ROLE_HINT)
+@Named(D)
+@Singleton
 public class DefaultBuildTimestampProvider implements BuildTimestampProvider {
 
     static final String ROLE_HINT = "default";

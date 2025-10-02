@@ -16,6 +16,8 @@
 
 package copied.org.apache.maven.plugin;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -276,7 +278,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
     /**
      * Plexus compiler manager.
      */
-    @Component
+    @Inject
     private CompilerManager compilerManager;
 
     protected abstract SourceInclusionScanner getSourceInclusionScanner(int staleMillis);

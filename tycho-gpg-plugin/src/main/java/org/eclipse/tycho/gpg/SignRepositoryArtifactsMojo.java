@@ -9,6 +9,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.gpg;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.attribute.FileTime;
@@ -148,16 +151,18 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
     @Parameter(defaultValue = "${project.build.outputTimestamp}")
     private String outputTimestamp;
 
-    @Component(role = UnArchiver.class, hint = "zip")
+    @Named("zip")
+@Singleton
     private ZipUnArchiver zipUnArchiver;
 
-    @Component(role = Archiver.class, hint = "xz")
+    @Named("xz")
+@Singleton
     private XZArchiver xzArchiver;
 
-    @Component
+    @Inject
     private SignedContentFactory signedContentFactory;
 
-    @Component
+    @Inject
     private P2RepositoryManager repositoryManager;
 
     @Override

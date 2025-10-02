@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -35,8 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.apache.commons.io.FileUtils;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -52,7 +53,8 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.transport.ArtifactDownloadProvider;
 import org.eclipse.tycho.transport.TransportProtocolHandler;
 
-@Component(role = org.eclipse.equinox.internal.p2.repository.Transport.class, hint = "tycho")
+@Named("tycho")
+@Singleton
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
 		implements IAgentServiceFactory {
 
@@ -74,16 +76,16 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 
 	private NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
-	@Requirement
+	@Inject
 	Logger logger;
 
-	@Requirement
+	@Inject
 	TransportCacheConfig cacheConfig;
 
-	@Requirement(role = TransportProtocolHandler.class)
+	@Inject
 	Map<String, TransportProtocolHandler> transportProtocolHandlers;
 
-	@Requirement // TODO @Inject results in a list with multiple items of the same provider!
+	@Inject // TODO @Inject results in a list with multiple items of the same provider!
 	List<ArtifactDownloadProvider> artifactDownloadProvider;
 
 	private LongAdder requests = new LongAdder();

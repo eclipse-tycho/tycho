@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -52,7 +54,7 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
     @Parameter()
     private String executionEnvironment;
 
-    @Component
+    @Inject
     private P2ResolverFactory factory;
 
     String getExecutionEnvironment() {

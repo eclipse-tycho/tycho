@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.attribute.FileTime;
@@ -62,13 +65,14 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
     @Parameter(defaultValue = "${project.build.outputTimestamp}")
     private String outputTimestamp;
 
-    @Component
+    @Inject
     private IUXmlTransformer iuTransformer;
 
-    @Component(role = Archiver.class, hint = "zip")
+    @Named("zip")
+@Singleton
     private ZipArchiver zipArchiver;
 
-	@Component
+	@Inject
 	private TychoProjectManager projectManager;
 
     @Override

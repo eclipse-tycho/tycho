@@ -12,13 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import org.eclipse.equinox.internal.p2.core.EventBusComponent;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 
-@Component(role = IAgentServiceFactory.class, hint = "org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus")
+@Named("org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus")
+@Singleton
 public class ProvisioningEventBusAgentFactory implements IAgentServiceFactory {
 
 	@Override

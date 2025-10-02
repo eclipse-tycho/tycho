@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.compiler.jdt;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -33,8 +36,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.LegacySupport;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.tycho.compiler.jdt.copied.LibraryInfo;
@@ -45,19 +46,20 @@ import org.eclipse.tycho.version.TychoVersion;
  * Determine and cache system library info (Java version, bootclasspath, extension and endorsed
  * directories) for given javaHome directories.
  */
-@Component(role = JdkLibraryInfoProvider.class)
+@Named
+@Singleton
 public class JdkLibraryInfoProvider {
 
     private static final String TYCHO_LIB_DETECTOR_VERSION = System.getProperty("tycho.libdetector.version",
             TychoVersion.getTychoVersion());
 
-    @Requirement
+    @Inject
     private LegacySupport legacySupport;
 
-    @Requirement
+    @Inject
     private MavenDependenciesResolver dependenciesResolver;
 
-    @Requirement
+    @Inject
     private Logger log;
 
     private Map<String, LibraryInfo> libraryInfoCache = new HashMap<>();

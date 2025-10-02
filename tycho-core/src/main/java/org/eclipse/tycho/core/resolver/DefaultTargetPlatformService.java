@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,8 +28,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -50,28 +51,29 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
-@Component(role = TargetPlatformService.class)
+@Singleton
 public class DefaultTargetPlatformService implements TargetPlatformService {
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement
+    @Inject
     private LegacySupport legacySupport;
 
-    @Requirement(hint = "p2")
+    @Inject
+    @Named("p2")
     private DependencyResolver dependencyResolver;
 
-    @Requirement
+    @Inject
     private ReactorRepositoryManager repositoryManager;
 
-    @Requirement
+    @Inject
     private P2ResolverFactory p2ResolverFactory;
 
-    @Requirement
+    @Inject
     private TargetPlatformFactory tpFactory;
 
-    @Requirement
+    @Inject
     private IProvisioningAgent agent;
 
     @Override

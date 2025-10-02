@@ -17,7 +17,7 @@ import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
 import org.osgi.service.component.annotations.Component;
 
-@Component(service = TestExecutionListener.class, immediate = true)
+@Component
 public class PrintTestExecutionListener implements TestExecutionListener {
 	@Override
 	public void executionStarted(TestIdentifier testIdentifier) {

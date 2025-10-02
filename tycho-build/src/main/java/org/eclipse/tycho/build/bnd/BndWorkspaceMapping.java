@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.build.bnd;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -23,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.apache.maven.model.Model;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.eclipse.tycho.pomless.NoParentPomFound;
@@ -33,7 +34,8 @@ import org.sonatype.maven.polyglot.mapping.Mapping;
 import aQute.bnd.build.Project;
 import aQute.bnd.build.Workspace;
 
-@Component(role = Mapping.class, hint = "bnd-workspace")
+@Named("bnd-workspace")
+@Singleton
 public class BndWorkspaceMapping extends AbstractTychoMapping {
 
 	private Map<String, List<String>> modulesCache = new ConcurrentHashMap<String, List<String>>();

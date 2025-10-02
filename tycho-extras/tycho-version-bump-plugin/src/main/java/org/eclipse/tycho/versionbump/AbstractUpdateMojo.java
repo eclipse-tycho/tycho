@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 
 import org.apache.maven.execution.MavenSession;
@@ -28,7 +30,7 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     @Parameter(property = "project")
     private MavenProject project;
 
-    @Component
+    @Inject
     private MavenSession mavenSession;
 
     MavenSession getMavenSession() {

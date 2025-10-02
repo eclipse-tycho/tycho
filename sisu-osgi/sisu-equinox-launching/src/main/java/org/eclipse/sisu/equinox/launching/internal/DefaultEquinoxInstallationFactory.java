@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.sisu.equinox.launching.internal;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,8 +34,6 @@ import java.util.jar.Manifest;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
@@ -46,14 +47,15 @@ import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TychoConstants;
 import org.osgi.framework.Constants;
 
-@Component(role = EquinoxInstallationFactory.class)
+@Named
+@Singleton
 public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFactory {
-    @Requirement
+    @Inject
     private PlexusContainer plexus;
 
     private final Map<String, Manifest> manifestCache = new HashMap<>();
 
-    @Requirement
+    @Inject
     private Logger log;
 
     public DefaultEquinoxInstallationFactory() {

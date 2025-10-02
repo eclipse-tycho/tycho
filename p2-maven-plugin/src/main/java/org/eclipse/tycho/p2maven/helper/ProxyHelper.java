@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.helper;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.net.Authenticator.RequestorType;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
@@ -21,8 +24,6 @@ import java.net.URI;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
@@ -32,15 +33,16 @@ import org.eclipse.aether.repository.AuthenticationContext;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
-@Component(role = ProxyHelper.class)
+@Named
+@Singleton
 public class ProxyHelper implements Initializable {
 
-	@Requirement
+	@Inject
 	protected Logger logger;
-	@Requirement
+	@Inject
 	protected LegacySupport context;
 
-	@Requirement
+	@Inject
 	protected SettingsDecrypterHelper decrypter;
 
 	private RepositorySystemSession repositorySession;

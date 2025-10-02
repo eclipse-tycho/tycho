@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -21,8 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.tycho.ArtifactType;
@@ -33,15 +34,16 @@ import org.eclipse.tycho.model.classpath.JUnitBundle;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.eclipse.tycho.model.project.EclipseProject;
 
-@Component(role = ClasspathReader.class)
+@Named
+@Singleton
 public class ClasspathReader implements Disposable {
 
     private Map<String, Collection<ProjectClasspathEntry>> cache = new ConcurrentHashMap<>();
 
-    @Requirement
+    @Inject
     Logger logger;
 
-    @Requirement
+    @Inject
     TychoProjectManager projectManager;
 
     @Override

@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.baseline;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -59,7 +61,7 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Parameter(property = "baselines", name = "baselines")
 	private List<Repository> baselines;
 
-	@Component
+	@Inject
 	private P2RepositoryManager repositoryManager;
 
 	@Parameter(property = "session", readonly = true)
@@ -110,18 +112,18 @@ public class BaselineMojo extends AbstractMojo implements BaselineContext {
 	@Parameter(property = "tycho.baseline.increment", defaultValue = "1")
 	private int increment = 1;
 
-	@Component
+	@Inject
 	protected TychoProjectManager projectManager;
-	@Component
+	@Inject
 	private Logger logger;
 
-	@Component
+	@Inject
 	private Map<String, ArtifactBaselineComparator> comparators;
 
-	@Component
+	@Inject
 	BuildContext buildContext;
 
-	@Component
+	@Inject
 	private BundleReader bundleReader;
 
 	private ThreadLocal<IArtifactRepository> contextArtifactRepository = new ThreadLocal<>();

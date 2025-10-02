@@ -12,6 +12,8 @@
  ******************************************************************************/
 package org.eclipse.tycho.sbom.plugin;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -42,15 +44,15 @@ import org.osgi.framework.BundleException;
 @Mojo(name = "generator", threadSafe = true, requiresProject = false)
 public class GeneratorMojo extends AbstractMojo {
 
-	@Component
+	@Inject
 	private MavenProject project;
 
-	@Component
+	@Inject
 	private EclipseWorkspaceManager workspaceManager;
-	@Component
+	@Inject
 	private EclipseApplicationManager applicationManager;
 
-	@Component
+	@Inject
 	private TransportCacheConfig transportCacheConfig;
 
 	/**

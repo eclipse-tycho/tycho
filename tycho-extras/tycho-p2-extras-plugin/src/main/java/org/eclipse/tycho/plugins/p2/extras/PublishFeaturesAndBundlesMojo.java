@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.extras;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,7 +90,7 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
     @Parameter(property = "project")
     private MavenProject project;
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
     @Override

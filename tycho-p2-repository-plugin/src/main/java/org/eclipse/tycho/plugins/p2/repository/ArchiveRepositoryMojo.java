@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.attribute.FileTime;
@@ -37,7 +40,8 @@ import org.eclipse.tycho.FileLockService;
 @Mojo(name = "archive-repository", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
 
-    @Component(role = Archiver.class, hint = "zip")
+    @Named("zip")
+@Singleton
     private Archiver inflater;
 
     /**
@@ -63,7 +67,7 @@ public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter(defaultValue = "${project.build.outputTimestamp}")
     private String outputTimestamp;
 
-    @Component
+    @Inject
     private FileLockService fileLockService;
 
     @Override

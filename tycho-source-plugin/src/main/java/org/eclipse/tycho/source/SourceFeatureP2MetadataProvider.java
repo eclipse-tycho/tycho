@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -21,8 +24,6 @@ import java.util.Map;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
@@ -41,12 +42,14 @@ import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLDeclaration;
 
-@Component(role = P2MetadataProvider.class, hint = "org.eclipse.tycho.source.SourceFeatureP2MetadataProvider")
+@Named("org.eclipse.tycho.source.SourceFeatureP2MetadataProvider")
+@Singleton
 public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Initializable {
-    @Requirement
+    @Inject
     private Logger log;
 
-    @Requirement(hint = DependencyMetadataGenerator.DEPENDENCY_ONLY)
+    @Inject
+    @Named(D)
     private DependencyMetadataGenerator generator;
 
     @Override

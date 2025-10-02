@@ -1,5 +1,7 @@
 package org.eclipse.tycho.plugins.p2.repository;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.net.URISyntaxException;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -22,9 +24,9 @@ import org.eclipse.tycho.p2tools.copiedfromp2.RepositoryDescriptor;
 @Mojo(name = "repo-to-runnable")
 public class Repo2RunnableMojo extends AbstractMojo {
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
-    @Component
+    @Inject
     private Logger logger;
     @Parameter
     private boolean createFragments;

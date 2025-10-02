@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -97,16 +100,16 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
     @Parameter(defaultValue = "false")
     protected boolean skip;
 
-    @Component
+    @Inject
     protected PlexusContainer plexus;
 
-    @Component
+    @Inject
     protected MavenProjectHelper projectHelper;
 
-    @Component(role = TychoProject.class)
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
-    @Component
+    @Inject
     private IncludeValidationHelper includeValidationHelper;
 
     /**

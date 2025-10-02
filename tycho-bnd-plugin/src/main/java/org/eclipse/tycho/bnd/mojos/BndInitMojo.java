@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.bnd.mojos;
 
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -61,10 +63,10 @@ public class BndInitMojo extends AbstractBndMojo {
 	@Parameter(defaultValue = "${project.basedir}", property = "tycho.bnd.consumerpom.directory")
 	protected File outputDirectory;
 
-	@Component(role = ModelWriter.class)
+	@Inject
 	protected ModelWriter modelWriter;
 
-	@Component(role = ModelReader.class)
+	@Inject
 	protected ModelReader modelReader;
 
 	@Override

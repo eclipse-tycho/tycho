@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Date;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -54,10 +56,10 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 @Mojo(name = "build-qualifier-aggregator", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
 
-	@Component
+	@Inject
 	private TimestampFinder timestampFinder;
 
-	@Component
+	@Inject
 	private TargetPlatformService platformService;
 
 	@Override

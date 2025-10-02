@@ -12,6 +12,8 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire.provider.impl;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import static org.eclipse.tycho.surefire.provider.impl.ProviderHelper.newDependency;
 
 import java.util.List;
@@ -19,14 +21,14 @@ import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 
-@Component(role = TestFrameworkProvider.class, hint = "testng")
+@Named("testng")
+@Singleton
 public class TestNGProvider implements TestFrameworkProvider {
 
     private static final String TESTNG_BSN = "org.testng";

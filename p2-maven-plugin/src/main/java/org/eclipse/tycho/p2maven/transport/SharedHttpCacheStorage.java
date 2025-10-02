@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,13 +39,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.tycho.ReproducibleUtils;
 
-@Component(role = HttpCache.class)
+@Named
+@Singleton
 public class SharedHttpCacheStorage implements HttpCache {
 
 	private static final int MAX_CACHE_LINES = Integer.getInteger("tycho.p2.transport.max-cache-lines", 1000);
@@ -54,7 +56,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 			TimeUnit.HOURS.toMinutes(1));
 	private static final int MAX_IN_MEMORY = 1000;
 
-	@Requirement
+	@Inject
 	TransportCacheConfig cacheConfig;
 
 	private final Map<File, CacheLine> entryCache;

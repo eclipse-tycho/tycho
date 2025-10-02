@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -37,10 +39,10 @@ public class UpdatePomMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     private MavenProject project;
 
-    @Component
+    @Inject
     protected ProjectMetadataReader pomReader;
 
-    @Component
+    @Inject
     private PomVersionUpdater pomUpdater;
 
     @Override

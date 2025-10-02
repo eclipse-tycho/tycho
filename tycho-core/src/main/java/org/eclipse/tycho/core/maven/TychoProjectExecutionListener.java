@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -31,8 +34,6 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -51,27 +52,28 @@ import org.eclipse.tycho.p2maven.DependencyChain;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.resolver.TychoResolver;
 
-@Component(role = ProjectExecutionListener.class, hint = "tycho")
+@Named("tycho")
+@Singleton
 public class TychoProjectExecutionListener implements ProjectExecutionListener {
 
-    @Requirement
+    @Inject
     private TychoResolver resolver;
 
-    @Requirement
+    @Inject
     private ModelWriter modelWriter;
 
-    @Requirement
+    @Inject
     private LegacySupport legacySupport;
 
     private Set<MavenProject> finished = ConcurrentHashMap.newKeySet();
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Requirement
+    @Inject
     private InstallableUnitGenerator generator;
 
     @Override

@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.bnd;
 
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collections;
@@ -21,15 +23,14 @@ import java.util.SortedSet;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-
 import aQute.bnd.osgi.repository.ResourcesRepository;
 import aQute.bnd.osgi.resource.ResourceBuilder;
 import aQute.bnd.service.RepositoryPlugin;
 import aQute.bnd.service.resource.SupportingResource;
 import aQute.bnd.version.Version;
 
-@Component(role = MavenReactorRepository.class)
+@Named
+@Singleton
 public class MavenReactorRepository extends ResourcesRepository implements RepositoryPlugin {
 
 	@Override
