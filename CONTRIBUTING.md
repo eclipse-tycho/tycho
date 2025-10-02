@@ -111,14 +111,14 @@ To run all Tycho integration tests, it is required to first build and install th
 $ mvn clean install -T1C -DskipTests
 ``` 
 
-after that you can runn the integration tests with this command
+after that you can run the integration tests with this command
 
 ```
 $ mvn clean install -f tycho-its/pom.xml
 ``` 
 
 This will take quite some time depending on your system (usually about ~40 minutes), because of that it is usually better to run a single integration test of interest,
-with the follwoing command:
+with the following command:
 
 ```
 $ mvn clean verify -f tycho-its/pom.xml -Dtest=MyTestClass
