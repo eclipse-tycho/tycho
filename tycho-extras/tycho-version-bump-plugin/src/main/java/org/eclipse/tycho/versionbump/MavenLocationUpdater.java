@@ -43,7 +43,7 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 /**
  * Supports updating of maven target locations
@@ -66,7 +66,7 @@ public class MavenLocationUpdater {
         Element dependencies = mavenLocation.getChild("dependencies");
         List<MavenVersionUpdate> updates = new ArrayList<>();
         if (dependencies != null) {
-            for (Element dependency : dependencies.getChildren("dependency")) {
+            for (Element dependency : dependencies.children("dependency").toList()) {
                 Dependency mavenDependency = getDependency(dependency);
                 Artifact dependencyArtifact = helper.createDependencyArtifact(mavenDependency);
                 ArtifactVersions versions = helper.lookupArtifactVersions(dependencyArtifact, false);

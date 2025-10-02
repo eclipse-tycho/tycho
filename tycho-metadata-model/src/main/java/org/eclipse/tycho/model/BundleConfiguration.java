@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.model;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 /**
  * This object represents information of a bundle. This class is a copy of the BundleInfo class in
@@ -28,29 +28,29 @@ public class BundleConfiguration {
     }
 
     public BundleConfiguration(String id, int startLevel, boolean autoStart) {
-        this.configuration = new Element("plugin");
+        this.configuration = Element.of("plugin");
 
         setAutoStart(autoStart);
     }
 
     public boolean isAutoStart() {
-        return Boolean.parseBoolean(configuration.getAttributeValue("autoStart"));
+        return Boolean.parseBoolean(configuration.attribute("autoStart"));
     }
 
     public void setAutoStart(boolean autoStart) {
-        configuration.setAttribute("autoStart", Boolean.toString(autoStart));
+        configuration.attribute("autoStart", Boolean.toString(autoStart));
     }
 
     public String getId() {
-        return configuration.getAttributeValue("id");
+        return configuration.attribute("id");
     }
 
     public void setId(String id) {
-        configuration.setAttribute("id", id);
+        configuration.attribute("id", id);
     }
 
     public int getStartLevel() {
-        String sl = configuration.getAttributeValue("startLevel");
+        String sl = configuration.attribute("startLevel");
         if (sl != null) {
             return Integer.decode(sl).intValue();
         }
@@ -58,6 +58,6 @@ public class BundleConfiguration {
     }
 
     public void setStartLevel(int startLevel) {
-        configuration.setAttribute("startLevel", startLevel != NO_STARTLEVEL ? Integer.toString(startLevel) : null);
+        configuration.attribute("startLevel", startLevel != NO_STARTLEVEL ? Integer.toString(startLevel) : null);
     }
 }

@@ -24,10 +24,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import eu.maveniverse.domtrip.Document;
+
+import eu.maveniverse.domtrip.Serializer;
 
 public class TargetFiles {
     private static final XMLParser PARSER = new XMLParser();
@@ -52,7 +51,7 @@ public class TargetFiles {
 
     private void writeTarget(File targetFile, Document document)
             throws IOException, UnsupportedEncodingException, FileNotFoundException {
-        String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
+        String enc = document.encoding() != null ? document.encoding() : "UTF-8";
         try (Writer w = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(targetFile)), enc);
                 XMLWriter xw = new XMLWriter(w)) {
             try {

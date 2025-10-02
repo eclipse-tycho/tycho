@@ -26,10 +26,8 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class P2ExtrasPlugin extends AbstractTychoIntegrationTest {
 
@@ -157,21 +155,21 @@ public class P2ExtrasPlugin extends AbstractTychoIntegrationTest {
 
 	private static Element extractUnitFromContentXml(Path contentXml, String unitName) throws IOException {
 		XMLParser parser = new XMLParser();
-		Document document = parser.parse(new XMLIOSource(contentXml.toFile()));
+		Document document = Document.of(contentXml.toFile());
 		Element unitElement = document.getChild("repository/units");
-		List<Element> units = unitElement.getChildren("unit");
+		List<Element> units = unitElement.children("unit");
 		Optional<Element> extractedUnit = units.stream()
-				.filter(element -> unitName.equals(element.getAttribute("id").getValue())).findFirst();
+				.filter(element -> unitName.equals(element.attributeObject("id").getValue())).findFirst();
 		assertTrue(String.format("Unit with name '%s' not found in content.xml with units: %s", unitName, units),
 				extractedUnit.isPresent());
 		return extractedUnit.get();
 	}
 
 	private static boolean hasChildWithZippedAttribute(Element element) {
-		if ("zipped".equals(element.getAttributeValue("key"))) {
+		if ("zipped".equals(element.attribute("key"))) {
 			return true;
 		}
-		return element.getChildren().stream().anyMatch(P2ExtrasPlugin::hasChildWithZippedAttribute);
+		return element.children().stream().anyMatch(P2ExtrasPlugin::hasChildWithZippedAttribute);
 	}
 
 }
