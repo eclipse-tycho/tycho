@@ -29,7 +29,6 @@
 
 	<properties>
 		<tycho-version>${project.version}</tycho-version>
-		<invoker.debug>true</invoker.debug>
 	</properties>
 
 	<modules>
@@ -115,37 +114,6 @@
 	<build>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-invoker-plugin</artifactId>
-					<version>3.9.1</version>
-					<configuration>
-						<debug>${invoker.debug}</debug>
-						<projectsDirectory>src/it</projectsDirectory>
-						<cloneProjectsTo>target/it</cloneProjectsTo>
-						<localRepositoryPath>target/local-repo</localRepositoryPath>
-						<postBuildHookScript>verify</postBuildHookScript>
-						<addTestClassPath>true</addTestClassPath>
-						<properties>
-							<tycho-version>${tycho-version}</tycho-version>
-							<tycho-snapshots-url>file://${session.localRepository.basedir}</tycho-snapshots-url>
-							<tycho-extras-version>${project.version}</tycho-extras-version>
-						</properties>
-						<useLocalRepository>true</useLocalRepository>
-						<extraArtifacts>
-							<artifact>org.eclipse.tycho:tycho-maven-plugin:${tycho-version}:maven-plugin</artifact>
-						</extraArtifacts>
-					</configuration>
-					<executions>
-						<execution>
-							<id>integration-test</id>
-							<goals>
-								<goal>install</goal>
-								<goal>run</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
 				<!-- m2eclipse lifecycle mapping -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
