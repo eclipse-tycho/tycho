@@ -17,7 +17,7 @@ Thanks for your interest in this project.
 6. [Commits](#commits)
     1. [Message Guidelines](#message-guidelines)
     2. [Granularity](#granularity)
-7. [Submit Patch](#submit-patch)
+7. [Submitting Pull Requests](#submitting-pull-requests)
 8. [Increasing Versions](#increasing-versions)
 9. [Backporting](#backporting)
 10. [Advanced development tricks](#advanced-development-tricks)
@@ -62,7 +62,7 @@ and the minimal reproducer project to Tycho's [issue tracker](https://github.com
 
 ### Prerequisites
 
-Java 17 and Maven 3.9.9, or newer.
+Java 21 and Maven 3.9.11, or newer.
 
 If your Internet connection uses a proxy, make sure that you have the proxy configured in your [Maven settings.xml](https://maven.apache.org/settings.html).
 
@@ -88,13 +88,9 @@ The preferred and easier way is to follow the instructions above, but you could 
 
 1. Get an [Eclipse IDE](https://www.eclipse.org/downloads/eclipse-packages/) with a recent version of the [Maven integration for Eclipse (m2eclipse)](https://www.eclipse.org/m2e/) and Eclipse PDE installed. m2eclipse is included in various Eclipse packages, e.g. the _Eclipse IDE for Eclipse Committers_ package. To add m2eclipse to your existing Eclipse installation, install it from the Eclipse Marketplace.
 2. Clone this repository (via CLI or EGit)
-3. In Eclipse, use `File > Import > Existing Maven Projects``, select the root directory of the sources, and import all projects. If prompted by m2eclipse, install the proposed project configurators and restart Eclipse.
-4. For Tycho only: Configure the target platform: Open the file `tycho-bundles-target/tycho-bundles-target.target` and click on _Set as Target Platform_ in the upper right corner of the target definition editor.
+3. In Eclipse, use `File > Import > Existing Maven Projects`, select the root directory of the sources, and import all projects. If prompted by m2eclipse, install the proposed project configurators and restart Eclipse.
 
-
-The result should be an Eclipse workspace without build errors. M2eclipse may take some time to download the required libraries from Maven central.
-
-* If there are compile errors in the projects `org.eclipse.tycho.surefire.junit`, `org.eclipse.tycho.surefire.junit4`,  `org.eclipse.tycho.surefire.junit47`, or `org.eclipse.tycho.surefire.osgibooter`, just select these projects and manually trigger an update via _Maven > Update project..._ from the context menu.
+The result should be an Eclipse workspace without build errors. M2eclipse may take some time to download the required libraries from Maven central. Tycho is now built entirely with Maven projects and no longer requires a separate target platform configuration.
 
 ## Tests
 
@@ -219,11 +215,13 @@ Otherwise, the debugger might show unexpected behavior.
 
 ### Message Guidelines
 
-Start with `Bug: <number>` stating the bug number the change is related to; this will enable the Eclipse genie bot to automatically cross-link bug and pull request.
+Use GitHub's [magic keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) to link commits and pull requests to issues. For example, use `Fixes #123` or `Closes https://github.com/eclipse-tycho/tycho/issues/123` in your commit message to automatically close the issue when the PR is merged.
 
-Also in the first line, provide a clear and concise description of the change.
+Provide a clear and concise description of the change in the first line.
 
 Add one blank line, followed by more details about the change. This could include a motivation for the change and/or reasons why things were done in the particular way they are done in the change.
+
+Note: While having an issue is helpful for discussion, it's not strictly required. A pull request with a consistent description is sufficient for straightforward changes.
 
 ### Granularity
 
@@ -231,42 +229,45 @@ Make small commits, yet self-contained commits. This makes them easy to review.
 
 Do not mix concerns in commits: have a commit do a single thing. This makes them reviewable 'in isolation'. This is particularly important if you need to do refactorings to the existing code: Refactorings tend to lead to large diffs which are difficult to review. Therefore make sure to have separate commits for refactorings and for functional changes.
 
-## Submit patch
+## Submitting Pull Requests
 
-As a GitHub pull request. Create a branch off of `master` with a helpful name, like `issue_<issue number>_reproducer` if you are providing an integration test for an existing issue, or `compiler-plugin-bug` if you are fixing a bug with the compiler plugin.
+Submit your changes as a GitHub pull request. Create a branch off of `main` with a helpful name, like `issue_<issue number>_reproducer` if you are providing an integration test for an existing issue, or `compiler-plugin-bug` if you are fixing a bug with the compiler plugin.
 
-Create a branch off of master even for small bug fixes. Changes from `master` can be backported automatically to older versions, and it's important that master not miss any fixes that older versions have. See [Backporting](#backporting) for more information.
+Create a branch off of `main` even for small bug fixes. Changes from `main` can be backported automatically to older versions, and it's important that `main` not miss any fixes that older versions have. See [Backporting](#backporting) for more information.
 
 ## Increasing versions
 
-The micro version will only be used for critical bug-fix releases, in most other cases we will have increased the current minor version already so nothing has to be done.
+Tycho follows a versioning pattern where we maintain a main development line (e.g., Tycho 6.x) and backport changes to the previous stable line (e.g., Tycho 5.x) using micro version changes (e.g., 5.0.1, 5.0.2).
 
-The following list contains changes that only can happen between major version updates:
+As a contributor, you typically don't need to worry about version numbers. The Tycho maintainers handle version management and releases. Just submit your changes to the `main` branch, and they can be backported if needed.
 
-- changing the Java version to run the build
-- requiring a new minimum maven version (e.g. once we require maven 4.x)
-- requiring to change their pom.xml in a non-trivial way (e.g. besides
-changing some configuration value in an existing mojo, or providing a drop-in replacement in the migration guide)
+Major version updates are reserved for significant changes such as:
+- Changing the minimum Java version required to run the build
+- Requiring a new minimum Maven version (e.g., Maven 4.x)
+- Breaking API changes or significant architectural changes
 
-If you require such a change, please note that in the issue and we will assign the next major release to it. Those changes would not be merged until the next major release. Keep your changes small and local as it possibly takes some time and you probably have to catch up with minor changes in the meantime.
+If your contribution requires such a change, please mention it in the issue or pull request.
 
 ## Backporting
 
-In general, we do not backport fixes but recommend using the current [tycho snapshot](https://github.com/eclipse/tycho/wiki#getting-tycho-snapshots) builds to help move things forward and have safe releases.
+In general, we recommend using the current [tycho snapshot](https://github.com/eclipse/tycho/wiki#getting-tycho-snapshots) builds to get the latest fixes and features.
 
-Still backporting is possible with mainly two options:
+However, backporting to stable release branches is possible and encouraged for important fixes. There are two ways to backport:
 
-1. You prepare the necessary things  with PR so they can be reviewed and merged
-2. You pay someone to perform the required steps and drive the release, see https://github.com/eclipse-tycho/tycho#getting-support for details.
+### Automatic Backporting
 
-If you choose one of the first options, backporting usually includes the following steps:
+Once your pull request is merged to `main`, you can request automatic backporting by adding a label like `backport-to-tycho-5.0.x` to the pull request. The [backport workflow](https://github.com/eclipse-tycho/tycho/blob/main/.github/workflows/backport.yml) will automatically create a backport pull request to the target branch.
+
+### Manual Backporting
+
+If automatic backporting doesn't work or you need more control, you can manually backport:
 
 1. Check out the branch you are interested in, they are always named `tycho-<major>.<minor>.x`.
 2. Make sure the branch is at the next version, e.g. the last release was `3.0.0` the next version should be `3.0.1-SNAPSHOT`, if not use the following command to update the version and create a PR with the changed files: `mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=<NEXT_VERSION>-SNAPSHOT`.
-3. Backport the fix to the branch and add a hint to the RELEASE_NOTES.md of that branch that describes what was backported and create a PR targeting your branch of interest so it could be verified, reviewed an merged.
-4. Once it is merged and the SNAPSHOT is available, test your fix
-5. Look through the issues that were fixed after your target release and identify more items that seem useful and repeat with step 3.
-6. Once there is a noticeable amount of things backported that could justify a release create an issue asking for a bugfix release to be performed.
+3. Backport the fix to the branch and add a hint to the RELEASE_NOTES.md of that branch that describes what was backported and create a PR targeting your branch of interest so it could be verified, reviewed and merged.
+4. Once it is merged and the SNAPSHOT is available, test your fix.
+
+For sponsored backports or release management, see https://github.com/eclipse-tycho/tycho#getting-support for details.
 
 ## Advanced development tricks
 
@@ -277,20 +278,20 @@ Tycho makes heavy use of p2 functionality. Therefore it may be useful to try out
 1. Get the p2 sources (see [p2 project information](https://projects.eclipse.org/projects/rt.equinox.p2/developer))
 2. Make changes in the p2 sources, **(!) don't forget to increase the version of that bundle otherwise your changes will be overwritten with the current release version (!)**
 3. Build the changed p2 bundles individually with <tt>mvn clean install -Pbuild-individual-bundles</tt> (see [Equinox/p2/Build](https://wiki.eclipse.org/Equinox/p2/Build) for more information)
-4. Build at least the Tycho module tycho-bundles-external with <tt>mvn clean install</tt> - you should see a warning that the locally built p2 bundles have been used.
-Then the locally built Tycho SNAPSHOT includes the patched p2 version.
+4. Update the dependency versions in Tycho's `pom.xml` files to reference your locally built p2 version
+5. Build Tycho with <tt>mvn clean install</tt> - Maven will use your locally built p2 artifacts from your local Maven repository
 
-Note: Tycho always allows references to locally built artifacts, even if they are not part of the target platform. Therefore you may want to clear the list of locally built artifacts (in the local Maven repository in `.meta/p2-local-metadata.properties`) after you have finished your trials with the patched p2 version.
+The locally built Tycho SNAPSHOT will now include the patched p2 version.
 
 ### Running with a locally built version of the JDT compiler
 
-Tycho internally calls the Eclipse Java Compiler, therefore it might be useful to try your patches to ECJ without waiting for a new release, or even just the next nightly build. With the following steps, it is possible to run a Tycho build with a locally built version of ECJ;
+Tycho internally calls the Eclipse Java Compiler (ECJ), therefore it might be useful to try your patches to ECJ without waiting for a new release, or even just the next nightly build. With the following steps, it is possible to run a Tycho build with a locally built version of ECJ:
 
 1. Get the sources from https://github.com/eclipse-jdt/eclipse.jdt.core
 2. Make changes in the ECJ sources, **(!) don't forget to increase the version of that bundle otherwise your changes will be overwritten with the current release version (!)**
-3. Build the `eclipse.jdt.core/org.eclipse.jdt.core` module with `mvn clean package -Pbuild-individual-bundles -Dtycho.localArtifacts=ignore -DskipTests`
-4. Install the result in your local maven repository under a new version `mvn install:install-file -Dfile=<path to>/eclipse.jdt.core/org.eclipse.jdt.core/target/org.eclipse.jdt.core-<version>-batch-compiler.jar -DgroupId=org.eclipse.jdt -DartifactId=ecj -Dversion=<yournewversion> -Dpackaging=jar`
-5. Now edit the `pom.xml` of the project you'd like to test and either edit or insert
+3. Build the `org.eclipse.jdt.core.compiler.batch` module with `mvn clean install -Pbuild-individual-bundles -Dtycho.localArtifacts=ignore -DskipTests`
+4. The ECJ artifact is now installed in your local Maven repository and will be automatically used by Tycho
+5. If you need to use a specific version in your test project, edit the `pom.xml` and configure the tycho-compiler-plugin:
 ```xml
 <plugin>
   <groupId>org.eclipse.tycho</groupId>
@@ -334,9 +335,12 @@ To get started with YouMonitor, you need to install and run the application. It 
 
 ## Contact
 
-Contact the project developers via the project's "dev" list: https://dev.eclipse.org/mailman/listinfo/tycho-dev.
+The preferred way to get in contact with the Tycho team is through:
 
-You can also post questions in the [Discussions](https://github.com/eclipse-tycho/tycho/discussions) section of this repository.
+- [GitHub Discussions](https://github.com/eclipse-tycho/tycho/discussions) - For questions, ideas, and general discussion
+- [GitHub Issues](https://github.com/eclipse-tycho/tycho/issues) - For bug reports and feature requests
+
+The project's mailing list (https://dev.eclipse.org/mailman/listinfo/tycho-dev) is still available but is primarily used for formal announcements such as new releases.
 
 ## 👔 Process and Legal
 
