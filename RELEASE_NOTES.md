@@ -10,6 +10,11 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 Tycho now requires to run with Java 21. As before it can still compile / test for older java releases.
 
+## At least maven 3.9.9 required to run Tycho build
+
+Tycho now officially requires maven version > 3.9.9. Some extensions require even higher versions.
+If you see the error "No implementation for TargetPlatformArtifactResolver was bound", then try maven 3.9.11
+
 ## Support for JVMs < 1.8 dropped
 
 Previously Tycho could detect JVMs down to Java 1.1 what requires running some java code to run on these platforms.
