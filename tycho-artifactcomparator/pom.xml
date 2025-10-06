@@ -19,7 +19,7 @@
 	</parent>
 	<artifactId>tycho-artifactcomparator</artifactId>
 	<properties>
-		<asm-version>9.8</asm-version>
+		<asm-version>9.9</asm-version>
 	</properties>
 	<name>Tycho Artifactor Comparator Plugin</name>
 	<dependencies>
