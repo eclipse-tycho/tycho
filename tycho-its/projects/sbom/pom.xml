@@ -87,6 +87,18 @@
 					</dependency>
 				</dependencies>
 			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-sbom</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<includes>
+						<include>eclipse-plugin</include>
+						<include>eclipse-feature</include>
+						<include>eclipse-repository</include>
+					</includes>
+				</configuration>
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -98,33 +110,4 @@
 			</plugins>
 		</pluginManagement>		
 	</build>
-
-	<profiles>
-		<profile>
-			<id>sbom-generation</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.eclipse.tycho</groupId>
-						<artifactId>tycho-sbom-plugin</artifactId>
-						<version>${tycho-version}</version>
-						<executions>
-							<execution>
-								<goals>
-									<goal>generator</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<includes>
-								<include>eclipse-plugin</include>
-								<include>eclipse-feature</include>
-								<include>eclipse-repository</include>
-							</includes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>

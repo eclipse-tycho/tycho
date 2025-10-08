@@ -22,7 +22,7 @@ public class SbomPluginTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testBuildWithoutProfile() throws Exception {
-		Verifier verifier = getVerifier("sbom", false);
+		Verifier verifier = getVerifier("sbom-simple-product", false);
 		
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
@@ -30,7 +30,7 @@ public class SbomPluginTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testBuildWithProfile() throws Exception {
-		Verifier verifier = getVerifier("sbom", false);
+		Verifier verifier = getVerifier("sbom-simple-product", false);
 		
 		verifier.addCliOption("-Psbom-generation");
 		verifier.executeGoals(List.of("clean", "verify"));
@@ -39,7 +39,7 @@ public class SbomPluginTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testCLIInvocation() throws Exception {
-		Verifier verifier = getVerifier("sbom", false);
+		Verifier verifier = getVerifier("sbom-simple-product", false);
 		
 		verifier.executeGoals(List.of("clean", "verify", "org.eclipse.tycho:tycho-sbom-plugin:generator"));
 		verifier.verifyErrorFreeLog();
