@@ -74,6 +74,9 @@ public class GeneratorMojo extends AbstractMojo {
 	@Parameter(property = "index", defaultValue = "${project.build.directory}/index.html")
 	private File index;
 
+	@Parameter(property = "print.xml")
+	private boolean xml;
+
 	/**
 	 * Specify a cache location, if no value is be given Tycho uses its own global
 	 * cache location in the m2 local repository
@@ -129,16 +132,30 @@ public class GeneratorMojo extends AbstractMojo {
 		if (verbose) {
 			arguments.add("-verbose");
 		}
-		arguments.add("-xml-outputs");
-		String xmlPath = getAbsolutePath(xmlOutputs, true, false);
-		getLog().info("XML is written to " + xmlPath);
-		arguments.add(xmlPath);
-		arguments.add("-json-outputs");
-		String jsonPath = getAbsolutePath(jsonOutputs, true, false);
-		getLog().info("JSON is written to " + jsonPath);
-		arguments.add(jsonPath);
+		if (xml) {
+			arguments.add("-xml");
+		}
+		if (installations != null) {
+			arguments.add("-xml-outputs");
+			String xmlPath = getAbsolutePath(xmlOutputs, true, false, null);
+			getLog().info("XML is written to " + xmlPath);
+			arguments.add(xmlPath);
+			arguments.add("-json-outputs");
+			String jsonPath = getAbsolutePath(jsonOutputs, true, false, null);
+			getLog().info("JSON is written to " + jsonPath);
+			arguments.add(jsonPath);
+		} else {
+			arguments.add("-xml-output");
+			String xmlPath = getAbsolutePath(xmlOutputs, false, true, "xml");
+			getLog().info("XML is written to " + xmlPath);
+			arguments.add(xmlPath);
+			arguments.add("-json-output");
+			String jsonPath = getAbsolutePath(jsonOutputs, false, true, "json");
+			getLog().info("JSON is written to " + jsonPath);
+			arguments.add(jsonPath);
+		}
 		arguments.add("-index");
-		String indexPath = getAbsolutePath(index, false, true);
+		String indexPath = getAbsolutePath(index, false, true, null);
 		getLog().info("Index is written to " + indexPath);
 		arguments.add(indexPath);
 		arguments.add("-cache");
@@ -191,7 +208,11 @@ public class GeneratorMojo extends AbstractMojo {
 		}
 	}
 
-	private String getAbsolutePath(File file, boolean createPath, boolean createParent) {
+	private String getAbsolutePath(File file, boolean createPath, boolean createParent, String ext) {
+		if (ext != null) {
+			String artifactId = project.getArtifactId();
+			file = new File(file, artifactId + "." + ext);
+		}
 		String absolutePath = file.getAbsolutePath();
 		if (absolutePath.contains("${project.basedir}")) {
 			// when called from CLI we want to replace placeholders manually
