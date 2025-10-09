@@ -30,6 +30,7 @@
 			<item name="Creating SBOMs for Eclipse Artifacts" href="SBOM.html">
 				<item name="SBOM Plugin" href="tycho-sbom-plugin/plugin-info.html" />
 			</item>
+			<item name="Sign custom products" href="SignProducts.html" />
 		</menu>
 		<menu name="Other Tycho Plugins" inherit="top">
 			<item name="Baseline Plugin" href="tycho-baseline-plugin/plugin-info.html" />

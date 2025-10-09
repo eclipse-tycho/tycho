@@ -13,14 +13,18 @@
 package org.eclipse.tycho.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.jar.JarFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
@@ -32,6 +36,30 @@ import org.junit.Test;
  * repository
  */
 public class DemoTest extends AbstractTychoIntegrationTest {
+
+	@Test
+	public void testSignExecutableDemo() throws Exception {
+		Verifier verifier = runDemo("custom-signing-product");
+		Path basedir = Path.of(verifier.getBasedir());
+		// Check the product only contains our "modified" launcher
+		Path exe = basedir.resolve("target/products/launchericons/win32/win32/x86_64/eclipse.exe");
+		Path console = basedir.resolve("target/products/launchericons/win32/win32/x86_64/eclipsec.exe");
+		assertTrue(exe + " does not exits", Files.isRegularFile(exe));
+		assertFalse(exe + " should not exits", Files.isRegularFile(console));
+		// Check the repository only contains our "modified" launcher
+		try (JarFile jarFile = new JarFile(basedir
+				.resolve("target/repository/binary/launchericons.executable.win32.win32.x86_64_1.0.0").toFile())) {
+			assertNotNull("eclipse.exe does not exits in repository", jarFile.getEntry("eclipse.exe"));
+			assertNull("eclipsec.exe does not exits in repository", jarFile.getEntry("eclipsec.exe"));
+		}
+		// Check the cache only contains our "modified" launcher
+		try (JarFile jarFile = new JarFile(basedir.resolve(
+				"target/products/launchericons/win32/win32/x86_64/p2/org.eclipse.equinox.p2.core/cache/binary/launchericons.executable.win32.win32.x86_64_1.0.0")
+				.toFile())) {
+			assertNotNull("eclipse.exe does not exits in repository", jarFile.getEntry("eclipse.exe"));
+			assertNull("eclipsec.exe does not exits in repository", jarFile.getEntry("eclipsec.exe"));
+		}
+	}
 
 	@Test
 	public void testAutomaticManifest() throws Exception {
