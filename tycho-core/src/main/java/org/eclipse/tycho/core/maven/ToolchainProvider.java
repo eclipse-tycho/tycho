@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -29,13 +31,12 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.maven.toolchain.ToolchainManagerPrivate;
 import org.apache.maven.toolchain.ToolchainPrivate;
 import org.apache.maven.toolchain.java.JavaToolchainImpl;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 
-@Component(role = ToolchainProvider.class)
+@Named
+@Singleton
 @SessionScoped
 public class ToolchainProvider {
 
@@ -43,16 +44,16 @@ public class ToolchainProvider {
 
     static final String TYPE_JDK = "jdk";
 
-    @Requirement
+    @Inject
     ToolchainManagerPrivate toolChainManager;
 
-    @Requirement
+    @Inject
     ToolchainManager toolchainManager;
 
-    @Requirement
+    @Inject
     LegacySupport legacySupport;
 
-    @Requirement
+    @Inject
     Logger logger;
 
     private Map<ToolchainKey, Optional<OSGiJavaToolchain>> toolchainMap = new ConcurrentHashMap<>();

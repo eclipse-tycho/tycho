@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import javax.inject.Singleton;
 import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -38,10 +39,10 @@ public class ValidateIdMojo extends AbstractVersionMojo {
     @Parameter(defaultValue = "false")
     private boolean skip;
 
-	@Component
+	@Inject
 	ManifestHelper manifestHelper;
 
-	@Component
+	@Inject
 	BuildContext buildContext;
 
     @Override

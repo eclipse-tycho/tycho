@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,10 +60,10 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
     @Parameter(defaultValue = "false")
     private boolean skip;
 
-    @Component
+    @Inject
     private ToolchainManager toolchainManager;
 
-    @Component
+    @Inject
     private Logger logger;
 
     @Override

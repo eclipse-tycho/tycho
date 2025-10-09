@@ -19,6 +19,9 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -322,25 +325,26 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     @Parameter(property = "surefire.skipAfterFailureCount", defaultValue = "0")
     private Integer skipAfterFailureCount;
 
-    @Component
+    @Inject
     protected RepositorySystem repositorySystem;
 
-    @Component
+    @Inject
     private ResolutionErrorHandler resolutionErrorHandler;
 
-    @Component(role = TychoProject.class)
+    @Singleton
     private Map<String, TychoProject> projectTypes;
 
-    @Component
+    @Inject
     private EquinoxInstallationFactory installationFactory;
 
-    @Component
+    @Inject
     private ProvisionedInstallationBuilderFactory provisionedInstallationBuilderFactory;
 
-    @Component
+    @Inject
     private EquinoxLauncher launcher;
 
-    @Component(hint = "p2")
+    @Named("p2")
+@Singleton
     protected DependencyResolver dependencyResolver;
 
     /**
@@ -586,13 +590,13 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     @Parameter(defaultValue = "booterFirst")
     private ClassLoaderOrder classLoaderOrder;
 
-    @Component
+    @Inject
     private ProviderHelper providerHelper;
 
-    @Component
+    @Inject
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Component
+    @Inject
     protected InstallableUnitGenerator generator;
 
     /**

@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2tools;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,8 +28,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.DependencyArtifacts;
@@ -47,7 +48,7 @@ import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 /**
  * Tool to obtain the list of p2 repositories that contain the dependencies of a module.
  */
-@Component(role = RepositoryReferenceTool.class)
+@Singleton
 public class RepositoryReferenceTool {
     /**
      * Option to indicate that the publisher results of the given module shall be included in the
@@ -55,16 +56,17 @@ public class RepositoryReferenceTool {
      */
     public static final int REPOSITORIES_INCLUDE_CURRENT_MODULE = 1;
 
-    @Requirement(hint = "p2")
+    @Inject
+    @Named("p2")
     private DependencyResolver dependencyResolver;
 
-    @Requirement
+    @Inject
     private MetadataSerializable serializer;
 
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Requirement
+    @Inject
     private ReactorRepositoryManager repositoryManager;
 
     /**

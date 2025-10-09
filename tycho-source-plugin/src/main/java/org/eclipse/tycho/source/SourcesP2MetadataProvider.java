@@ -12,14 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.tycho.BuildPropertiesParser;
@@ -32,13 +33,15 @@ import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2resolver.AttachedArtifact;
 import org.eclipse.tycho.resolver.P2MetadataProvider;
 
-@Component(role = P2MetadataProvider.class, hint = "SourcesP2MetadataProvider")
+@Named("SourcesP2MetadataProvider")
+@Singleton
 public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializable {
 
-    @Requirement(hint = DependencyMetadataGenerator.SOURCE_BUNDLE)
+    @Inject
+    @Named(D)
     private DependencyMetadataGenerator sourcesGenerator;
 
-    @Requirement
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
     @Override

@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -51,10 +53,10 @@ public class P2MetadataMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     protected boolean attachP2Metadata;
 
-    @Component
+    @Inject
     protected MavenProjectHelper projectHelper;
 
-    @Component
+    @Inject
     P2Generator p2generator;
 
     /**
@@ -135,13 +137,13 @@ public class P2MetadataMojo extends AbstractMojo {
     @Parameter(property = "tycho.generateDownloadStatsProperty", defaultValue = "false")
     private boolean generateDownloadStatsProperty;
 
-    @Component
+    @Inject
     private BaselineValidator baselineValidator;
 
     @Parameter(property = "tycho.generateChecksums", defaultValue = "true")
     private boolean generateChecksums;
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
     @Parameter(defaultValue = "false")

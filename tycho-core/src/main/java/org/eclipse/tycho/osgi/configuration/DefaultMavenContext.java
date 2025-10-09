@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.configuration;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -31,25 +34,25 @@ import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.osgi.configuration.FilteringMavenLogger;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
-@Component(role = MavenContext.class)
+@Singleton
 public class DefaultMavenContext implements MavenContext {
 
-    @Requirement
+    @Inject
     ArtifactHandlerManager artifactHandlerManager;
-    @Requirement
+    @Inject
     LegacySupport legacySupport;
 
-    @Requirement(hint = FilteringMavenLogger.HINT)
+    @Inject
+    @Named(FilteringMavenLogger.HINT)
     MavenLogger mavenLogger;
 
     private Properties globalProps;

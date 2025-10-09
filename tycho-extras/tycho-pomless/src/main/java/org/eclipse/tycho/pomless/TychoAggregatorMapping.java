@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
 
@@ -30,10 +32,10 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.apache.maven.model.Model;
-import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
-@Component(role = Mapping.class, hint = "tycho-aggregator")
+@Named("tycho-aggregator")
+@Singleton
 public class TychoAggregatorMapping extends AbstractTychoMapping {
 
     private static final String TYCHO_AUTOMATIC_GENERATED_FILE_HEADER_PREFIX = "## tycho automatic module detection";

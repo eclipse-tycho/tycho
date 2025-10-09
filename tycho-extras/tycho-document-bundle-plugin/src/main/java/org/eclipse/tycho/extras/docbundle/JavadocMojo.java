@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.docbundle;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -91,7 +94,7 @@ public class JavadocMojo extends AbstractMojo {
 	@Parameter(property = "cleanFirst", defaultValue = "true")
 	private boolean cleanFirst;
 
-	@Component
+	@Inject
 	private ToolchainManager toolchainManager;
 
 	@Parameter(property = "session", required = true, readonly = true)
@@ -203,13 +206,13 @@ public class JavadocMojo extends AbstractMojo {
 	@Parameter(property = "project.build.sourceEncoding", readonly = true)
 	private String projectBuildSourceEncoding;
 
-	@Component
+	@Inject
 	private BundleReader bundleReader;
 
-	@Component
+	@Inject
 	private DocletArtifactsResolver docletArtifactsResolver;
 
-	@Component(role = TychoProject.class)
+	@Inject
 	private Map<String, TychoProject> projectTypes;
 
 	/**

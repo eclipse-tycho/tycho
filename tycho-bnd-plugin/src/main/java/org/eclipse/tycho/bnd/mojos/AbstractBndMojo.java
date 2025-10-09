@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.bnd.mojos;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +36,7 @@ public abstract class AbstractBndMojo extends AbstractMojo {
 	@Parameter(property = "session", readonly = true)
 	protected MavenSession session;
 
-	@Component
+	@Inject
 	protected MavenReactorRepository mavenReactorRepository;
 
 	protected Workspace getWorkspace() throws MojoFailureException {

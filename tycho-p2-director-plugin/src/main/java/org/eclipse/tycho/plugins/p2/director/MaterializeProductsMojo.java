@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -80,22 +82,22 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
     @Parameter
     private String EEProfiles;
 
-    @Component
+    @Inject
     private MojoExecution execution;
 
-    @Component
+    @Inject
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Component
+    @Inject
     private StandaloneDirectorRuntimeFactory standaloneDirectorFactory;
 
-    @Component
+    @Inject
     private ToolchainManager toolchainManager;
 
-    @Component
+    @Inject
     private Logger logger;
 
-    @Component
+    @Inject
     DirectorRuntime director;
 
     /**

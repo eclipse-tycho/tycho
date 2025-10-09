@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,8 +23,6 @@ import java.util.UUID;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -38,9 +39,10 @@ import org.eclipse.tycho.resolver.InstallableUnitProvider;
  * build.properties derived)
  *
  */
-@Component(role = InstallableUnitProvider.class, hint = "eclipse-test-plugin-packaging")
+@Named("eclipse-test-plugin-packaging")
+@Singleton
 public class TestPluginPackagingInstallableUnitProvider implements InstallableUnitProvider {
-    @Requirement
+    @Inject
     private Logger logger;
     private Collection<IInstallableUnit> eclipseTestPackagingIUs;
 

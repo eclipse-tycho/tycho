@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -22,7 +24,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
@@ -36,7 +37,8 @@ import org.eclipse.tycho.versions.pom.PomFile;
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 
-@Component(role = MetadataManipulator.class, hint = "eclipse-target-files")
+@Named("eclipse-target-files")
+@Singleton
 public class EclipseTargetFileManipulator extends AbstractMetadataManipulator {
 
     private static final String SEQUENCE_NUMBER_ATTRIBUTE = "sequenceNumber";

@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
 
+import javax.inject.Singleton;
 import java.io.File;
 import java.net.URI;
 
@@ -37,7 +38,7 @@ public class VerifyIntegrityRepositoryMojo extends AbstractP2Mojo implements Log
     private static final Object LOCK = new Object();
     private Logger logger;
 
-    @Component
+    @Inject
     VerifierService verifier;
 
     @Override

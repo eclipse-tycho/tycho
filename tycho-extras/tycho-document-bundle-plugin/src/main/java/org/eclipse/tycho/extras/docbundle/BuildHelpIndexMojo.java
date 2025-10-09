@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.docbundle;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -53,10 +55,10 @@ public class BuildHelpIndexMojo extends AbstractMojo {
 	@Parameter()
 	private Repository buildToolsRepository;
 
-	@Component
+	@Inject
 	private EclipseApplicationManager applicationManager;
 
-	@Component
+	@Inject
 	private EclipseWorkspaceManager workspaceManager;
 
 	@Override

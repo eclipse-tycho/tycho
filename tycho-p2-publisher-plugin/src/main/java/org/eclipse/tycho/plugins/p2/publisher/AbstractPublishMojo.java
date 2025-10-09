@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Collection;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -25,10 +28,10 @@ import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 public abstract class AbstractPublishMojo extends AbstractP2Mojo {
     private static final Object LOCK = new Object();
 
-    @Component
+    @Inject
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Component()
+    @Inject
     PublisherServiceFactory publisherServiceFactory;
 
     @Override

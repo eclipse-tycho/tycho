@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import static org.eclipse.tycho.plugins.p2.BaselineMode.disable;
 import static org.eclipse.tycho.plugins.p2.BaselineMode.fail;
 import static org.eclipse.tycho.plugins.p2.BaselineMode.failCommon;
@@ -33,8 +36,6 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.MavenRepositoryLocation;
@@ -50,7 +51,7 @@ import org.eclipse.tycho.zipcomparator.internal.ClassfileComparator.ClassfileArt
 import org.eclipse.tycho.zipcomparator.internal.CompoundArtifactDelta;
 import org.eclipse.tycho.zipcomparator.internal.SimpleArtifactDelta;
 
-@Component(role = BaselineValidator.class)
+@Singleton
 public class BaselineValidator {
 
     private static class MissingArtifactDelta implements ArtifactDelta {
@@ -70,13 +71,14 @@ public class BaselineValidator {
         }
     }
 
-    @Requirement
+    @Inject
     private Logger log;
 
-    @Requirement(hint = "zip")
+    @Inject
+    @Named("zip")
     private ArtifactComparator zipComparator;
 
-    @Requirement
+    @Inject
     BaselineService baselineService;
 
     public Map<String, IP2Artifact> validateAndReplace(MavenProject project, ComparisonData data,

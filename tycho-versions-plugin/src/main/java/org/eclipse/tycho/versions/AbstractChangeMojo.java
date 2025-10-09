@@ -48,13 +48,13 @@ public abstract class AbstractChangeMojo extends AbstractMojo {
     @Parameter(property = "modules")
     private String modules;
 
-    @Component
+    @Inject
     private VersionsEngine engine;
 
     @Parameter(property = "session", readonly = true)
     protected MavenSession session;
 
-    @Component
+    @Inject
     private ProjectMetadataReader metadataReader;
 
     @Override

@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2tools;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,8 +40,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
 import org.apache.commons.io.FileUtils;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -85,17 +86,18 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
 import org.eclipse.tycho.p2tools.copiedfromp2.RecreateRepositoryApplication;
 import org.eclipse.tycho.p2tools.copiedfromp2.RepositoryDescriptor;
 
-@Component(role = MirrorApplicationService.class)
+@Named
+@Singleton
 public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     private static final String P2_INDEX_FILE = "p2.index";
 
     private static final String MIRROR_FAILURE_MESSAGE = "Mirroring failed";
 
-    @Requirement
+    @Inject
     Logger logger;
 
-    @Requirement
+    @Inject
     IProvisioningAgent agent;
 
     @Override

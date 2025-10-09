@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
+import javax.inject.Singleton;
 import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
@@ -38,7 +39,7 @@ public class PackageTargetDefinitionMojo extends AbstractMojo {
     @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
 
-    @Component
+    @Inject
     MavenProjectHelper projectHelper;
 
     @Override

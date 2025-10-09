@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,9 +21,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Iterator;
 
-import org.codehaus.plexus.component.annotations.Component;
-
-@Component(role = ManifestHelper.class)
+@Named
+@Singleton
 public class ManifestHelper {
 
     /**

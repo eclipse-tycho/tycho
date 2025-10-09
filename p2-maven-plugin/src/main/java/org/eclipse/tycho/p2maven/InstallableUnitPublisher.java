@@ -12,13 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven;
 
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -37,7 +38,8 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 /**
  * Component that helps publishing units using publisher actions
  */
-@Component(role = InstallableUnitPublisher.class)
+@Named
+@Singleton
 public class InstallableUnitPublisher {
 
 	/**

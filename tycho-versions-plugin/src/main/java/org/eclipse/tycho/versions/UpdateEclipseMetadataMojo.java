@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 
 import org.apache.maven.execution.MavenSession;
@@ -35,10 +37,10 @@ public class UpdateEclipseMetadataMojo extends AbstractMojo {
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
-    @Component
+    @Inject
     private ProjectMetadataReader pomReader;
 
-    @Component
+    @Inject
     private EclipseVersionUpdater metadataUpdater;
 
     @Override

@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.bnd;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.util.Map;
-
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 
 import aQute.bnd.build.Workspace;
 import aQute.bnd.service.RepositoryPlugin;
@@ -23,9 +23,10 @@ import aQute.bnd.service.RepositoryPlugin;
 /**
  * Manager that collects BndPlugins in the plexus domain and installs them into a workspace
  */
-@Component(role = BndPluginManager.class)
+@Named
+@Singleton
 public class BndPluginManager {
-    @Requirement
+    @Inject
     private Map<String, RepositoryPlugin> repositoryPlugins;
 
     public void setupWorkspace(Workspace ws) {

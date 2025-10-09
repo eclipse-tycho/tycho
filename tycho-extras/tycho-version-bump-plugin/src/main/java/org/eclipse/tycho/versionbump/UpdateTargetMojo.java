@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
+import javax.inject.Singleton;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -161,7 +162,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     @Parameter(defaultValue = "true", property = "tycho.updatetarget.updateEmptyVersion")
     private boolean updateEmptyVersion;
 
-    @Component
+    @Inject
     private MavenSession mavenSession;
 
     @Parameter(defaultValue = "${mojoExecution}", required = true, readonly = true)

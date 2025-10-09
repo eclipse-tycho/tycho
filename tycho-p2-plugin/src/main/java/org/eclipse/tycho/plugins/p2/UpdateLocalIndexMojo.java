@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -30,7 +32,7 @@ public class UpdateLocalIndexMojo extends AbstractMojo {
     @Parameter(property = "project", readonly = true, required = true)
     private MavenProject project;
 
-    @Component
+    @Inject
     private LocalRepositoryP2Indices p2index;
 
     @Override

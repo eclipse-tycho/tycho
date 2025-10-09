@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.target;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.metadata.ArtifactMetadata;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -19,9 +21,8 @@ import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout2;
-import org.codehaus.plexus.component.annotations.Component;
-
-@Component(role = ArtifactRepositoryLayout.class, hint = TargetArtifactRepositoryLayout.ID)
+@Named(T)
+@Singleton
 public class TargetArtifactRepositoryLayout implements ArtifactRepositoryLayout, ArtifactRepositoryLayout2 {
     public static final String ID = "target";
 

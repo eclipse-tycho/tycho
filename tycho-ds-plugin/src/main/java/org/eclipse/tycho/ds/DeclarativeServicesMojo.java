@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.ds;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -119,13 +121,13 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 	@Parameter(property = "project", readonly = true)
 	protected MavenProject project;
 
-	@Component
+	@Inject
 	private TychoProjectManager manager;
 
-	@Component
+	@Inject
 	private DeclarativeServiceConfigurationReader configurationReader;
 
-	@Component
+	@Inject
 	private PluginRealmHelper pluginRealmHelper;
 
 	@Parameter(property = "session", readonly = true)

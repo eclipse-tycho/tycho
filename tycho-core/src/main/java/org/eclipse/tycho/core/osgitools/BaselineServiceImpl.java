@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,8 +31,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -50,15 +51,16 @@ import org.eclipse.tycho.p2.publisher.P2Artifact;
 import org.eclipse.tycho.p2maven.ListQueryable;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 
-@Component(role = BaselineService.class)
+@Named
+@Singleton
 public class BaselineServiceImpl implements BaselineService {
 
     private IProgressMonitor monitor = new NullProgressMonitor();
 
-    @Requirement
+    @Inject
     private P2RepositoryManager repositoryManager;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
     @Override

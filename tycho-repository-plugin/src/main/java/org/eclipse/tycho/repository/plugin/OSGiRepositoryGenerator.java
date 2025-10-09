@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.plugin;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import static aQute.bnd.osgi.Constants.MIME_TYPE_BUNDLE;
 
 import java.io.File;
@@ -25,7 +27,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.eclipse.tycho.MavenArtifactNamespace;
 import org.eclipse.tycho.packaging.RepositoryGenerator;
@@ -37,7 +38,8 @@ import aQute.bnd.osgi.resource.CapReqBuilder;
 import aQute.bnd.osgi.resource.ResourceBuilder;
 import aQute.libg.cryptography.SHA256;
 
-@Component(role = RepositoryGenerator.class, hint = OSGiRepositoryGenerator.HINT)
+@Named(OSG)
+@Singleton
 public class OSGiRepositoryGenerator implements RepositoryGenerator {
 
 	static final String HINT = "osgi";

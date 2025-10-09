@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,8 +36,6 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildFailureException;
@@ -56,7 +57,8 @@ import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 import org.osgi.framework.Filter;
 
-@Component(role = DefaultTargetPlatformConfigurationReader.class)
+@Named
+@Singleton
 public class DefaultTargetPlatformConfigurationReader {
     public static final String TARGET_DEFINITION_INCLUDE_SOURCE = "targetDefinitionIncludeSource";
     public static final String REFERENCED_REPOSITORY_MODE = "referencedRepositoryMode";
@@ -82,16 +84,16 @@ public class DefaultTargetPlatformConfigurationReader {
     private static final String OPTIONAL_RESOLUTION_REQUIRE = "require";
     private static final String OPTIONAL_RESOLUTION_IGNORE = "ignore";
     private static final String OPTIONAL_RESOLUTION_OPTIONAL = "optional";
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Requirement
+    @Inject
     private TargetPlatformFilterConfigurationReader filterReader;
 
-    @Requirement
+    @Inject
     private TargetPlatformArtifactResolver platformArtifactResolver;
 
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project)

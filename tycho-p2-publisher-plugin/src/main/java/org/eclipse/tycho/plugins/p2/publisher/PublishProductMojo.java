@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -84,16 +87,18 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      */
     private static final String FLAVOR = "tooling";
 
-    @Component(role = UnArchiver.class, hint = "zip")
+    @Named("zip")
+@Singleton
     private UnArchiver deflater;
 
-    @Component
+    @Inject
     private FileLockService fileLockService;
 
-    @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
+    @Named(P)
+@Singleton
     private EclipseRepositoryProject eclipseRepositoryProject;
 
-    @Component
+    @Inject
     private ReactorRepositoryManager reactorRepoManager;
 
     /**

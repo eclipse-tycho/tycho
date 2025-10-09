@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.framework;
 
+import javax.inject.Singleton;
+import javax.inject.Named;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,8 +27,6 @@ import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -48,20 +48,21 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
  * Component that resolves all the bundles that make up an Eclipse Application to run from a given
  * URI
  */
-@Component(role = EclipseApplicationFactory.class)
+@Named
+@Singleton
 @SessionScoped
 public class EclipseApplicationFactory {
 
-    @Requirement
+    @Inject
     private ToolchainManager toolchainManager;
 
-    @Requirement
+    @Inject
     private P2ResolverFactory resolverFactory;
 
-    @Requirement
+    @Inject
     private TargetPlatformFactory platformFactory;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
     private MavenSession mavenSession;
