@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="launchericons" uid="launchericons" version="1.0.0" type="bundles" includeLaunchers="true" autoIncludeRequirements="true">
+
+   <launcher>
+      <linux icon="/icons/icon.xpm"/>
+      <macosx icon="/icons/icon.icns"/>
+      <win useIco="true">
+         <ico path="/icons/icon.ico"/>
+         <bmp/>
+      </win>
+   </launcher>
+
+   <plugins>
+      <plugin id="org.eclipse.osgi"/>
+   </plugins>
+
+</product>

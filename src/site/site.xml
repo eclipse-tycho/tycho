@@ -27,6 +27,7 @@
 				<item name="System Properties" href="SystemProperties.html" />
 				<item name="Tycho Properties" href="TychoProperties.html" />
 			</item>
+			<item name="Sign custom products" href="SignProducts.html" />
 		</menu>
 		<menu name="Other Tycho Plugins" inherit="top">
 			<item name="Baseline Plugin" href="tycho-baseline-plugin/plugin-info.html" />
