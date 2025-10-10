@@ -1,0 +1,67 @@
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.eclipse.tycho.demo</groupId>
+		<artifactId>tycho-junitplatform-parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+	<artifactId>test</artifactId>
+	<packaging>eclipse-plugin</packaging>
+	
+	<properties>
+		<junit-version>6.0.0</junit-version>
+	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-test-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>execute-tests</id>
+						<goals>
+							<goal>junit-platform</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<!-- Sometimes it can be handy to print all bundles that are part of the test framework -->
+					<!-- <printBundles>true</printBundles> -->
+					
+					<!-- Scan classpath can be disabled if other discovery is wanted -->
+					<!-- <scanClasspath>false</scanClasspath> -->
+					
+					<!-- For example we can select individual classes here -->
+					<!-- <selectClass>-->
+					<!-- 	<test>org.eclipse.demo.tycho.test.CalculatorServiceTest</test> -->
+					<!--</selectClass> -->
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<!-- The API is used at compile time of the bundle -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit-version}</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<!-- The console and the engine is only required at test execution time -->
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-console</artifactId>
+			<version>${junit-version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit-version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>
