@@ -105,6 +105,12 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testTychoJunitPlatformDemo() throws Exception {
+		Verifier verifier = runDemo("testing/junit-platform/");
+		verifier.verifyTextInLog("1 tests found");
+	}
+
+	@Test
 	public void testTychoBndWorkspaceDemo() throws Exception {
 		Verifier verifier = runDemo("bnd-workspace");
 		String expectedLocation = "tycho.demo.impl/target/executable/tycho.demo.app.jar";
