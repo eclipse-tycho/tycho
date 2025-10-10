@@ -68,3 +68,54 @@ The following is an example, demonstrating a complex category definition.
 ```
 
 You can read more about P2 Query Syntax [here](https://wiki.eclipse.org/Equinox/p2/Query_Language_for_p2).
+
+## Managing Update Sites with the P2 Manager
+
+The `tycho-p2-extras:p2-manager` goal provides a way to maintain, update, and manage the integrity of a public update site. This mojo wraps the [P2 Manager application from JustJ Tools](https://eclipse.dev/justj/?page=tools) and offers a more convenient and validated configuration compared to using the eclipse-run goal directly.
+
+The P2 Manager can help with:
+- Promoting builds to update sites (nightly, milestone, or release)
+- Generating composite repositories
+- Managing repository history and retention policies
+- Creating browsable HTML pages for your update sites
+- Maintaining repository integrity
+
+### Basic Usage
+
+The simplest usage promotes a repository to your update site:
+
+```xml
+<plugin>
+    <groupId>org.eclipse.tycho.extras</groupId>
+    <artifactId>tycho-p2-extras-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+        <execution>
+            <id>promote-build</id>
+            <goals>
+                <goal>p2-manager</goal>
+            </goals>
+            <configuration>
+                <root>${project.build.directory}/updatesite</root>
+                <promote>file:${project.build.directory}/repository</promote>
+                <timestamp>${maven.build.timestamp}</timestamp>
+                <type>nightly</type>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+### Configuration Parameters
+
+Key parameters include:
+
+- `root` (required): The root folder of the project's update site
+- `promote`: Source repository URI to promote
+- `type`: Build type - `nightly`, `milestone`, or `release` (default: `nightly`)
+- `timestamp`: Build timestamp in format yyyyMMddHHmm
+- `retain`: Number of nightly builds to retain (default: 7)
+- `label`: The project label to use in generated pages (default: "Project")
+- `verbose`: Whether to print progress (default: true)
+
+For a complete list of parameters and advanced options, see the [P2 Manager Mojo documentation](tycho-extras/tycho-p2-extras-plugin/p2-manager-mojo.html).
