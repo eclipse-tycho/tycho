@@ -100,6 +100,24 @@ public class JUnitPlatformMojo extends AbstractMojo {
 	@Parameter(property = "select-package")
 	private List<String> selectPackage;
 
+	/**
+	 * Select specific modules for test discovery (JPMS).
+	 */
+	@Parameter(property = "select-module")
+	private List<String> selectModule;
+
+	/**
+	 * Select classpath resources for test discovery.
+	 */
+	@Parameter(property = "select-resource")
+	private List<String> selectResource;
+
+	/**
+	 * Select URIs for test discovery.
+	 */
+	@Parameter(property = "select-uri")
+	private List<String> selectUri;
+
 	@Parameter(property = "scan-classpath", defaultValue = "true")
 	private boolean scanClasspath;
 
@@ -440,6 +458,24 @@ public class JUnitPlatformMojo extends AbstractMojo {
 				for (String pkg : selectPackage) {
 					arguments.add("--select-package");
 					arguments.add(pkg);
+				}
+			}
+			if (selectModule != null) {
+				for (String module : selectModule) {
+					arguments.add("--select-module");
+					arguments.add(module);
+				}
+			}
+			if (selectResource != null) {
+				for (String resource : selectResource) {
+					arguments.add("--select-resource");
+					arguments.add(resource);
+				}
+			}
+			if (selectUri != null) {
+				for (String uri : selectUri) {
+					arguments.add("--select-uri");
+					arguments.add(uri);
 				}
 			}
 			if (scanClasspath) {
