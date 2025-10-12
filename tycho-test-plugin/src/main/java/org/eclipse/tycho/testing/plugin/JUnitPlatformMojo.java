@@ -80,8 +80,43 @@ public class JUnitPlatformMojo extends AbstractMojo {
 	@Component
 	MavenProject mavenProject;
 
+	/**
+	 * Select specific test classes to execute. Each entry should be a fully
+	 * qualified class name (e.g., "com.example.MyTest").
+	 */
 	@Parameter(property = "select-class")
 	private List<String> selectClass;
+
+	/**
+	 * Select specific test methods to execute. Each entry should be a fully
+	 * qualified method name (e.g., "com.example.MyTest#myTestMethod").
+	 */
+	@Parameter(property = "select-method")
+	private List<String> selectMethod;
+
+	/**
+	 * Select packages to scan for tests.
+	 */
+	@Parameter(property = "select-package")
+	private List<String> selectPackage;
+
+	/**
+	 * Select specific modules for test discovery (JPMS).
+	 */
+	@Parameter(property = "select-module")
+	private List<String> selectModule;
+
+	/**
+	 * Select classpath resources for test discovery.
+	 */
+	@Parameter(property = "select-resource")
+	private List<String> selectResource;
+
+	/**
+	 * Select URIs for test discovery.
+	 */
+	@Parameter(property = "select-uri")
+	private List<String> selectUri;
 
 	@Parameter(property = "scan-classpath", defaultValue = "true")
 	private boolean scanClasspath;
@@ -91,6 +126,79 @@ public class JUnitPlatformMojo extends AbstractMojo {
 
 	@Parameter(property = "reports-dir", defaultValue = "${project.build.directory}/testReports")
 	private File reportsDir;
+
+	/**
+	 * Regular expression to include test classes by name.
+	 */
+	@Parameter(property = "include-classname")
+	private String includeClassname;
+
+	/**
+	 * Regular expression to exclude test classes by name.
+	 */
+	@Parameter(property = "exclude-classname")
+	private String excludeClassname;
+
+	/**
+	 * Package names to include in test execution.
+	 */
+	@Parameter(property = "include-package")
+	private List<String> includePackage;
+
+	/**
+	 * Package names to exclude from test execution.
+	 */
+	@Parameter(property = "exclude-package")
+	private List<String> excludePackage;
+
+	/**
+	 * Test engine IDs to include (e.g., "junit-jupiter", "junit-vintage").
+	 */
+	@Parameter(property = "include-engine")
+	private List<String> includeEngine;
+
+	/**
+	 * Test engine IDs to exclude.
+	 */
+	@Parameter(property = "exclude-engine")
+	private List<String> excludeEngine;
+
+	/**
+	 * Tags to include in test execution.
+	 */
+	@Parameter(property = "include-tag")
+	private List<String> includeTag;
+
+	/**
+	 * Tags to exclude from test execution.
+	 */
+	@Parameter(property = "exclude-tag")
+	private List<String> excludeTag;
+
+	/**
+	 * Fail and return exit status code 2 if no tests are found.
+	 */
+	@Parameter(property = "fail-if-no-tests", defaultValue = "false")
+	private boolean failIfNoTests;
+
+	/**
+	 * Tree printing mode for test output. Valid values: none, summary, flat,
+	 * tree, verbose.
+	 */
+	@Parameter(property = "details")
+	private String details;
+
+	/**
+	 * ASCII art theme for tree printing. Valid values: ascii, unicode.
+	 */
+	@Parameter(property = "details-theme")
+	private String detailsTheme;
+
+	/**
+	 * Style test output in single color (no ANSI color codes).
+	 */
+	@Parameter(property = "single-color", defaultValue = "false")
+	private boolean singleColor;
 
 	@Parameter
 	private Map<String, String> config;
@@ -340,9 +448,83 @@ public class JUnitPlatformMojo extends AbstractMojo {
 					arguments.add(clz);
 				}
 			}
+			if (selectMethod != null) {
+				for (String method : selectMethod) {
+					arguments.add("--select-method");
+					arguments.add(method);
+				}
+			}
+			if (selectPackage != null) {
+				for (String pkg : selectPackage) {
+					arguments.add("--select-package");
+					arguments.add(pkg);
+				}
+			}
+			if (selectModule != null) {
+				for (String module : selectModule) {
+					arguments.add("--select-module");
+					arguments.add(module);
+				}
+			}
+			if (selectResource != null) {
+				for (String resource : selectResource) {
+					arguments.add("--select-resource");
+					arguments.add(resource);
+				}
+			}
+			if (selectUri != null) {
+				for (String uri : selectUri) {
+					arguments.add("--select-uri");
+					arguments.add(uri);
+				}
+			}
 			if (scanClasspath) {
 				arguments.add("--scan-classpath");
 				arguments.add(mavenProject.getArtifact().getFile().getAbsolutePath());
+			}
+			if (includeClassname != null) {
+				arguments.add("--include-classname");
+				arguments.add(includeClassname);
+			}
+			if (excludeClassname != null) {
+				arguments.add("--exclude-classname");
+				arguments.add(excludeClassname);
+			}
+			if (includePackage != null) {
+				for (String pkg : includePackage) {
+					arguments.add("--include-package");
+					arguments.add(pkg);
+				}
+			}
+			if (excludePackage != null) {
+				for (String pkg : excludePackage) {
+					arguments.add("--exclude-package");
+					arguments.add(pkg);
+				}
+			}
+			if (includeEngine != null) {
+				for (String engine : includeEngine) {
+					arguments.add("--include-engine");
+					arguments.add(engine);
+				}
+			}
+			if (excludeEngine != null) {
+				for (String engine : excludeEngine) {
+					arguments.add("--exclude-engine");
+					arguments.add(engine);
+				}
+			}
+			if (includeTag != null) {
+				for (String tag : includeTag) {
+					arguments.add("--include-tag");
+					arguments.add(tag);
+				}
+			}
+			if (excludeTag != null) {
+				for (String tag : excludeTag) {
+					arguments.add("--exclude-tag");
+					arguments.add(tag);
+				}
 			}
 			if (config != null) {
 				for (Entry<String, String> entry : config.entrySet()) {
@@ -350,8 +532,22 @@ public class JUnitPlatformMojo extends AbstractMojo {
 					arguments.add(String.format("%s=%s", entry.getKey(), entry.getValue()));
 				}
 			}
+			if (details != null) {
+				arguments.add("--details");
+				arguments.add(details);
+			}
+			if (detailsTheme != null) {
+				arguments.add("--details-theme");
+				arguments.add(detailsTheme);
+			}
+			if (singleColor) {
+				arguments.add("--single-color");
+			}
 			arguments.add("--reports-dir");
 			arguments.add(reportsDir.getAbsolutePath());
+			if (failIfNoTests) {
+				arguments.add("--fail-if-no-tests");
+			}
 			int exitCode = junit.run(System.out, System.err, arguments.toArray(String[]::new));
 			if (exitCode == 0) {
 				return;
