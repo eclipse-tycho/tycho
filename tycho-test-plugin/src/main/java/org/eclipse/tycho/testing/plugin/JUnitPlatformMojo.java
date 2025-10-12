@@ -80,6 +80,10 @@ public class JUnitPlatformMojo extends AbstractMojo {
 	@Component
 	MavenProject mavenProject;
 
+	/**
+	 * Select specific test classes to execute. Each entry should be a fully
+	 * qualified class name (e.g., "com.example.MyTest").
+	 */
 	@Parameter(property = "select-class")
 	private List<String> selectClass;
 
