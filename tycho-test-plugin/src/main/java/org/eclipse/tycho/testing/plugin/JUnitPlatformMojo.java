@@ -83,9 +83,16 @@ public class JUnitPlatformMojo extends AbstractMojo {
 	@Parameter(property = "select-class")
 	private List<String> selectClass;
 
+	/**
+	 * Select specific test methods to execute. Each entry should be a fully
+	 * qualified method name (e.g., "com.example.MyTest#myTestMethod").
+	 */
 	@Parameter(property = "select-method")
 	private List<String> selectMethod;
 
+	/**
+	 * Select packages to scan for tests.
+	 */
 	@Parameter(property = "select-package")
 	private List<String> selectPackage;
 
@@ -98,39 +105,76 @@ public class JUnitPlatformMojo extends AbstractMojo {
 	@Parameter(property = "reports-dir", defaultValue = "${project.build.directory}/testReports")
 	private File reportsDir;
 
+	/**
+	 * Regular expression to include test classes by name.
+	 */
 	@Parameter(property = "include-classname")
 	private String includeClassname;
 
+	/**
+	 * Regular expression to exclude test classes by name.
+	 */
 	@Parameter(property = "exclude-classname")
 	private String excludeClassname;
 
+	/**
+	 * Package names to include in test execution.
+	 */
 	@Parameter(property = "include-package")
 	private List<String> includePackage;
 
+	/**
+	 * Package names to exclude from test execution.
+	 */
 	@Parameter(property = "exclude-package")
 	private List<String> excludePackage;
 
+	/**
+	 * Test engine IDs to include (e.g., "junit-jupiter", "junit-vintage").
+	 */
 	@Parameter(property = "include-engine")
 	private List<String> includeEngine;
 
+	/**
+	 * Test engine IDs to exclude.
+	 */
 	@Parameter(property = "exclude-engine")
 	private List<String> excludeEngine;
 
+	/**
+	 * Tags to include in test execution.
+	 */
 	@Parameter(property = "include-tag")
 	private List<String> includeTag;
 
+	/**
+	 * Tags to exclude from test execution.
+	 */
 	@Parameter(property = "exclude-tag")
 	private List<String> excludeTag;
 
+	/**
+	 * Fail and return exit status code 2 if no tests are found.
+	 */
 	@Parameter(property = "fail-if-no-tests", defaultValue = "false")
 	private boolean failIfNoTests;
 
+	/**
+	 * Tree printing mode for test output. Valid values: none, summary, flat,
+	 * tree, verbose.
+	 */
 	@Parameter(property = "details")
 	private String details;
 
+	/**
+	 * ASCII art theme for tree printing. Valid values: ascii, unicode.
+	 */
 	@Parameter(property = "details-theme")
 	private String detailsTheme;
 
+	/**
+	 * Style test output in single color (no ANSI color codes).
+	 */
 	@Parameter(property = "single-color", defaultValue = "false")
 	private boolean singleColor;
 
