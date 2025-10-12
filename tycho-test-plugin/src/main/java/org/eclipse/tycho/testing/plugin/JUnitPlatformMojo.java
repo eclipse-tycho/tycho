@@ -83,6 +83,12 @@ public class JUnitPlatformMojo extends AbstractMojo {
 	@Parameter(property = "select-class")
 	private List<String> selectClass;
 
+	@Parameter(property = "select-method")
+	private List<String> selectMethod;
+
+	@Parameter(property = "select-package")
+	private List<String> selectPackage;
+
 	@Parameter(property = "scan-classpath", defaultValue = "true")
 	private boolean scanClasspath;
 
@@ -91,6 +97,42 @@ public class JUnitPlatformMojo extends AbstractMojo {
 
 	@Parameter(property = "reports-dir", defaultValue = "${project.build.directory}/testReports")
 	private File reportsDir;
+
+	@Parameter(property = "include-classname")
+	private String includeClassname;
+
+	@Parameter(property = "exclude-classname")
+	private String excludeClassname;
+
+	@Parameter(property = "include-package")
+	private List<String> includePackage;
+
+	@Parameter(property = "exclude-package")
+	private List<String> excludePackage;
+
+	@Parameter(property = "include-engine")
+	private List<String> includeEngine;
+
+	@Parameter(property = "exclude-engine")
+	private List<String> excludeEngine;
+
+	@Parameter(property = "include-tag")
+	private List<String> includeTag;
+
+	@Parameter(property = "exclude-tag")
+	private List<String> excludeTag;
+
+	@Parameter(property = "fail-if-no-tests", defaultValue = "false")
+	private boolean failIfNoTests;
+
+	@Parameter(property = "details")
+	private String details;
+
+	@Parameter(property = "details-theme")
+	private String detailsTheme;
+
+	@Parameter(property = "single-color", defaultValue = "false")
+	private boolean singleColor;
 
 	@Parameter
 	private Map<String, String> config;
@@ -340,9 +382,65 @@ public class JUnitPlatformMojo extends AbstractMojo {
 					arguments.add(clz);
 				}
 			}
+			if (selectMethod != null) {
+				for (String method : selectMethod) {
+					arguments.add("--select-method");
+					arguments.add(method);
+				}
+			}
+			if (selectPackage != null) {
+				for (String pkg : selectPackage) {
+					arguments.add("--select-package");
+					arguments.add(pkg);
+				}
+			}
 			if (scanClasspath) {
 				arguments.add("--scan-classpath");
 				arguments.add(mavenProject.getArtifact().getFile().getAbsolutePath());
+			}
+			if (includeClassname != null) {
+				arguments.add("--include-classname");
+				arguments.add(includeClassname);
+			}
+			if (excludeClassname != null) {
+				arguments.add("--exclude-classname");
+				arguments.add(excludeClassname);
+			}
+			if (includePackage != null) {
+				for (String pkg : includePackage) {
+					arguments.add("--include-package");
+					arguments.add(pkg);
+				}
+			}
+			if (excludePackage != null) {
+				for (String pkg : excludePackage) {
+					arguments.add("--exclude-package");
+					arguments.add(pkg);
+				}
+			}
+			if (includeEngine != null) {
+				for (String engine : includeEngine) {
+					arguments.add("--include-engine");
+					arguments.add(engine);
+				}
+			}
+			if (excludeEngine != null) {
+				for (String engine : excludeEngine) {
+					arguments.add("--exclude-engine");
+					arguments.add(engine);
+				}
+			}
+			if (includeTag != null) {
+				for (String tag : includeTag) {
+					arguments.add("--include-tag");
+					arguments.add(tag);
+				}
+			}
+			if (excludeTag != null) {
+				for (String tag : excludeTag) {
+					arguments.add("--exclude-tag");
+					arguments.add(tag);
+				}
 			}
 			if (config != null) {
 				for (Entry<String, String> entry : config.entrySet()) {
@@ -350,8 +448,22 @@ public class JUnitPlatformMojo extends AbstractMojo {
 					arguments.add(String.format("%s=%s", entry.getKey(), entry.getValue()));
 				}
 			}
+			if (details != null) {
+				arguments.add("--details");
+				arguments.add(details);
+			}
+			if (detailsTheme != null) {
+				arguments.add("--details-theme");
+				arguments.add(detailsTheme);
+			}
+			if (singleColor) {
+				arguments.add("--single-color");
+			}
 			arguments.add("--reports-dir");
 			arguments.add(reportsDir.getAbsolutePath());
+			if (failIfNoTests) {
+				arguments.add("--fail-if-no-tests");
+			}
 			int exitCode = junit.run(System.out, System.err, arguments.toArray(String[]::new));
 			if (exitCode == 0) {
 				return;
