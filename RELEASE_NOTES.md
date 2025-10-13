@@ -6,16 +6,16 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.0
 
-## Java 21 required to run Tycho build
+### Java 21 required to run Tycho build
 
 Tycho now requires to run with Java 21. As before it can still compile / test for older java releases.
 
-## At least maven 3.9.9 required to run Tycho build
+### At least maven 3.9.9 required to run Tycho build
 
 Tycho now officially requires maven version > 3.9.9. Some extensions require even higher versions.
 If you see the error "No implementation for TargetPlatformArtifactResolver was bound", then try maven 3.9.11
 
-## Support for JVMs < 1.8 dropped
+### Support for JVMs < 1.8 dropped
 
 Previously Tycho could detect JVMs down to Java 1.1 what requires running some java code to run on these platforms.
 As it becomes harder over time to actually compile code for such old targets while compilers are dropping support,
@@ -23,7 +23,7 @@ Tycho from now on by default only supports to detect JVMs with version 1.8 or hi
 
 Users who absolutely need this can configure a previous version of the `tycho-lib-detector` with the system property `tycho.libdetector.version`
 
-## TestNG support improved / TestNG deprecated
+### TestNG support improved / TestNG deprecated
 
 The previous Tycho TestNG support was rather flawed it worked but required some hacks, this is now improved so one can consume
 directly official TestNG artifacts.
@@ -38,20 +38,20 @@ This also revealed that TestNG itself has some major flaws and only works in an 
 **Because of this TestNG is deprecated** and will be removed in a future version unless someone express interest in TestNG and helps improving
 it so we can upgrade to later versions.
 
-## Support for PDE OSGi Testframework integration
+### Support for PDE OSGi Testframework integration
 
 PDE recently added [support for OSGi Testframework](https://eclipse.dev/eclipse/markdown/?f=news/4.37/pde.md#osgi-test-framework-support),
 Tycho can now build such projects as well using the [tycho-surefire:plugin-test](https://tycho.eclipseprojects.io/doc/latest/tycho-surefire-plugin/plugin-test-mojo.html) goal.
 
 A demo can be found [here](https://github.com/eclipse-tycho/tycho/tree/main/demo/testing/tycho/osgitest).
 
-## Support for implicit dependencies in target definitions
+### Support for implicit dependencies in target definitions
 
 In target definitions Tycho now supports to use the `<implicitDependencies>`, 
 see [Eclipse Help](https://help.eclipse.org/latest/topic/org.eclipse.pde.doc.user/guide/tools/editors/target_editor/environment_page.htm)
 for more details.
 
-## Support for version ranges and no version for units in target definitions
+### Support for version ranges and no version for units in target definitions
 
 In target definitions Tycho now supports to use a range as version of a unit or to skip the version entirely in `InstallableUnit` locations, just like Eclipse-PDE.
 Specifying no version is equivalent to `0.0.0` which resolves to the latest version available.
@@ -70,7 +70,7 @@ All of the following variants to specify a version are now possible:
     </locations>
 </target>
 ```
-## new `quickfix`, `cleanup` and `manifest` mojo
+### New `quickfix`, `cleanup` and `manifest` mojo
 
 Keeping code up-todate is a daunting task and Eclipse IDE can be a great help due to its offering for automatic quick-fixes and cleanup actions.
 Still this has usually be applied manually (or automatic on save) and requires some user interaction.
@@ -143,7 +143,7 @@ that are usually hard to maintain manually and can be enabled like this (maybe i
 </plugin>
 ```
 
-## new `check-dependencies` mojo
+### New `check-dependencies` mojo
 
 When using version ranges there is a certain risk that one actually uses some methods from never release and it goes unnoticed.
 
@@ -175,7 +175,7 @@ according to the discovered problems, a configuration for this might look like t
 
 Because this can be a time consuming task to fetch all matching versions it is best placed inside a profile that is enabled on demand.
 
-## new `update-manifest` mojo
+### New `update-manifest` mojo
 
 It is recommended to use as the lower bound the dependency the code was
 compiled with to avoid using newer code from dependencies, but managing
@@ -184,7 +184,7 @@ that manually can be a daunting task.
 There is now a new `tycho-version-bump:update-manifest` mojo that helps in calculate the
 lower bound and update the manifest accordingly.
 
-## new `wrap` mojo
+### New `wrap` mojo
 
 With maven, jars (or more general artifacts) can be build in numerous ways, not all include
 the maven-jar-plugin (e.g. maven-assembly-plugin) and not all are easily
@@ -214,7 +214,7 @@ In the simplest form it can be used like this:
 </plugin>
 ```
 
-## support bumping maven target locations
+### support bumping maven target locations
 
 The `tycho-version-bump-plugin:update-target` now also supports bumping maven target locations to the latest version.
 
@@ -390,6 +390,15 @@ This mojo can be used in two ways:
  </plugin>
 ```
 
+## New `modify-composite-repository` and `modify-repository-properties` mojo
+
+Two new mojos to modify the _meta-content_ of a P2-reposotory have been added to the `tycho-p2-repository-plugin`.
+The mojo `tycho-p2-repository:modify-repository-properties` can modify the metadata of a P2-repository like its name or properties.
+And `tycho-p2-repository:modify-composite-repository` can modify the content or name of a composite P2-repository.
+
+This can be used to customize a just assembled repository or to modify an already existing (remote) repository.
+Both mojos are designed that the modified repository metadata files are always written to a local directory.
+To finally update a remote repository a suitable other tool (like SSH) must be used subsequently to copy these files back to the remote server.
 
 ### New `tycho-eclipse-plugin`
 
@@ -398,7 +407,7 @@ This currently includes
 - the former tycho-extras `tycho-eclipserun-plugin` and its mojos
 - a new `eclipse-build` mojo that allows to take a literal eclipse project and execute the build on it
 
-#### new `eclipse-build` mojo
+### New `eclipse-build` mojo
 
 The `eclipse-build` mojo can be used like this
 
