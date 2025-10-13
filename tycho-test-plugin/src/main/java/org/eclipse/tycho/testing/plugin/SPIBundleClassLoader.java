@@ -42,6 +42,7 @@ class SPIBundleClassLoader extends ClassLoader {
 	private Consumer<String> logger;
 	private List<Bundle> bundles;
 	private Map<String, List<SPIMapping>> mappings = new ConcurrentHashMap<>();
+	private Bundle loaderBundle = FrameworkUtil.getBundle(SPIBundleClassLoader.class);
 
 	public SPIBundleClassLoader(Bundle bundle, List<Bundle> bundles, Consumer<String> logger) {
 		this.bundle = bundle;
@@ -54,9 +55,8 @@ class SPIBundleClassLoader extends ClassLoader {
 		try {
 			return bundle.loadClass(name);
 		} catch (ClassNotFoundException e) {
-			Bundle caller = WALKER.walk(stream -> stream.map(sf -> FrameworkUtil.getBundle(sf.getDeclaringClass()))
-					.filter(Objects::nonNull).findFirst().orElse(null));
-			if (isValidCaller(caller)) {
+			Bundle caller = getCallerBundle();
+			if (isValidCaller(name, caller)) {
 				Optional<SPIMapping> spi = mappings.values().stream().flatMap(Collection::stream)
 						.filter(mapping -> mapping.hasService(name)).filter(mapping -> mapping.isCompatible(caller))
 						.findFirst();
@@ -91,9 +91,8 @@ class SPIBundleClassLoader extends ClassLoader {
 			}
 		}
 		if (name.startsWith(META_INF_SERVICES)) {
-			Bundle caller = WALKER.walk(stream -> stream.map(sf -> FrameworkUtil.getBundle(sf.getDeclaringClass()))
-					.filter(Objects::nonNull).findFirst().orElse(null));
-			if (isValidCaller(caller)) {
+			Bundle caller = getCallerBundle();
+			if (isValidCaller(name, caller)) {
 				List<SPIMapping> spis = mappings.computeIfAbsent(name, spi -> {
 					String serviceName = name.substring(META_INF_SERVICES.length());
 					logger.accept("searching for SPI services " + serviceName + " ...");
@@ -123,8 +122,18 @@ class SPIBundleClassLoader extends ClassLoader {
 		return Collections.enumeration(result);
 	}
 
-	private boolean isValidCaller(Bundle caller) {
-		return caller != null && caller.getSymbolicName().startsWith("junit-platform-");
+	private Bundle getCallerBundle() {
+		return WALKER.walk(stream -> stream.map(sf -> FrameworkUtil.getBundle(sf.getDeclaringClass()))
+				.filter(Objects::nonNull).filter(b -> b != loaderBundle).findFirst().orElse(null));
+	}
+
+	private boolean isValidCaller(String source, Bundle caller) {
+		if (caller != null && caller.getSymbolicName().startsWith("junit-platform-")) {
+			return true;
+		}
+		logger.accept(source + ": Caller " + caller
+				+ " is not allowed to load SPI resources and classes ... ignoring request!");
+		return false;
 	}
 
 	@Override

@@ -43,39 +43,10 @@ public class EmbeddedFrameworkLauncher implements OSGiFrameworkLauncher {
         if (properties == null) {
             properties = Map.of();
         }
-        String storage = properties.get(Constants.FRAMEWORK_STORAGE);
-        Path workDir;
-        if (storage != null) {
-            workDir = Path.of(storage);
-        } else {
-            if (project == null) {
-                workDir = Files.createTempDirectory("embedded");
-            } else {
-                workDir = Files.createTempDirectory(Path.of(project.getBuild().getDirectory()), "embedded");
-            }
-        }
-        cleanWorkDir(workDir);
-        Files.createDirectories(workDir);
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("osgi.configuration.area", workDir.resolve("configuration").toAbsolutePath().toString());
-        map.put("osgi.instance.area", workDir.resolve("data").toAbsolutePath().toString());
-        map.put("osgi.compatibility.bootdelegation", "true");
+        Path workDir = prepareWorkdir(project, properties);
+        Map<String, String> map = createProperties(properties, workDir);
         map.put("osgi.classloader.copy.natives", "true");
-        map.put("osgi.framework.useSystemProperties", "false");
-        map.put("eclipse.ignoreApp", "true");
-        map.put("osgi.noShutdown", "true");
-        String sl = properties.get(Constants.FRAMEWORK_BEGINNING_STARTLEVEL);
-        if (sl != null) {
-            map.put("osgi.bundles.defaultStartLevel", sl);
-        }
-        if (properties != null) {
-            map.putAll(properties);
-        }
-        map.remove(Constants.FRAMEWORK_STORAGE);
-        ServiceLoader<FrameworkFactory> loader = ServiceLoader.load(FrameworkFactory.class,
-                getClass().getClassLoader());
-        FrameworkFactory factory = loader.findFirst()
-                .orElseThrow(() -> new IOException("No FrameworkFactory found on classpath"));
+        FrameworkFactory factory = getFrameworkFactory(FrameworkFactory.class);
         Framework framework = factory.newFramework(map);
         try {
             framework.init();
@@ -90,7 +61,48 @@ public class EmbeddedFrameworkLauncher implements OSGiFrameworkLauncher {
         return new EmbeddedOSGiFramework(framework, Boolean.parseBoolean(properties.get(STANDALONE)));
     }
 
-    private void cleanWorkDir(Path workDir) {
+    static Map<String, String> createProperties(Map<String, String> properties, Path workDir) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("osgi.configuration.area", workDir.resolve("configuration").toAbsolutePath().toString());
+        map.put("osgi.instance.area", workDir.resolve("data").toAbsolutePath().toString());
+        map.put("osgi.compatibility.bootdelegation", "true");
+        map.put("osgi.framework.useSystemProperties", "false");
+        map.put("eclipse.ignoreApp", "true");
+        map.put("osgi.noShutdown", "true");
+        String sl = properties.get(Constants.FRAMEWORK_BEGINNING_STARTLEVEL);
+        if (sl != null) {
+            map.put("osgi.bundles.defaultStartLevel", sl);
+        }
+        if (properties != null) {
+            map.putAll(properties);
+        }
+        map.remove(Constants.FRAMEWORK_STORAGE);
+        return map;
+    }
+
+    static Path prepareWorkdir(MavenProject project, Map<String, String> properties) throws IOException {
+        String storage = properties.get(Constants.FRAMEWORK_STORAGE);
+        Path workDir;
+        if (storage != null) {
+            workDir = Path.of(storage);
+        } else {
+            if (project == null) {
+                workDir = Files.createTempDirectory("embedded");
+            } else {
+                workDir = Files.createTempDirectory(Path.of(project.getBuild().getDirectory()), "embedded");
+            }
+        }
+        cleanWorkDir(workDir);
+        Files.createDirectories(workDir);
+        return workDir;
+    }
+
+    static <T> T getFrameworkFactory(Class<T> type) throws IOException {
+        ServiceLoader<T> loader = ServiceLoader.load(type, EmbeddedFrameworkLauncher.class.getClassLoader());
+        return loader.findFirst().orElseThrow(() -> new IOException("No FrameworkFactory found on classpath"));
+    }
+
+    private static void cleanWorkDir(Path workDir) {
         try {
             Files.walkFileTree(workDir, new FileVisitor<Path>() {
 

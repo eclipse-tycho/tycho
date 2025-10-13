@@ -17,6 +17,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -26,6 +27,7 @@ import java.util.Dictionary;
 import java.util.List;
 import java.util.jar.JarFile;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -106,8 +108,17 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testTychoJunitPlatformDemo() throws Exception {
-		Verifier verifier = runDemo("testing/junit-platform/");
-		verifier.verifyTextInLog("1 tests found");
+		// test with default embedded container...
+		runDemo("testing/junit-platform/").verifyTextInLog("1 tests found");
+		// test with the forked mode
+		runDemo("testing/junit-platform/", "-Djunit-platform.launchType=forked").verifyTextInLog("1 tests found");
+		// test that it fails
+		try {
+			runDemo("testing/junit-platform/", "-Djunit-platform.launchType=unknown");
+			fail();
+		} catch (VerificationException e) {
+			assertTrue(e.getMessage().contains("Launch type 'unknown' is not available"));
+		}
 	}
 
 	@Test

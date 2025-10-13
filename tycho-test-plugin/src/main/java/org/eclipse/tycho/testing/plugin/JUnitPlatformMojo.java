@@ -216,6 +216,9 @@ public class JUnitPlatformMojo extends AbstractMojo {
 	@Parameter
 	private boolean printBundles;
 
+	@Parameter
+	private boolean printDebug;
+
 	@Parameter(property = "junit-platform.skip")
 	private boolean skip;
 
@@ -262,6 +265,8 @@ public class JUnitPlatformMojo extends AbstractMojo {
 		runnerResult.infoMessages().forEach(log::info);
 		if (log.isDebugEnabled()) {
 			runnerResult.debugMessages().forEach(log::debug);
+		} else if (printDebug) {
+			runnerResult.debugMessages().forEach(log::info);
 		}
 		Exception exception = runnerResult.getException();
 		if (exception == null) {
