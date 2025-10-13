@@ -26,9 +26,15 @@
 					</execution>
 				</executions>
 				<configuration>
+					<!-- if you want a forked JVM for test instead -->
+					<!-- <launchType>forked</launchType> -->
+					
 					<!-- Sometimes it can be handy to print all bundles that are part of the test framework -->
 					<!-- <printBundles>true</printBundles> -->
-					
+					  
+					<!-- To see debug messages of the internals, will also be printed with -X -->
+					<!--  <printDebug>true</printDebug> -->
+					 
 					<!-- Scan classpath can be disabled if other discovery is wanted -->
 					<!-- <scanClasspath>false</scanClasspath> -->
 					
