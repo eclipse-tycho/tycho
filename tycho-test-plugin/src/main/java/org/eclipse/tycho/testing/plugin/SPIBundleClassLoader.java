@@ -39,11 +39,11 @@ class SPIBundleClassLoader extends ClassLoader {
 
 	private static final String META_INF_SERVICES = "META-INF/services/";
 	private Bundle bundle;
-	private Consumer<? super CharSequence> logger;
-	private Bundle[] bundles;
+	private Consumer<String> logger;
+	private List<Bundle> bundles;
 	private Map<String, List<SPIMapping>> mappings = new ConcurrentHashMap<>();
 
-	public SPIBundleClassLoader(Bundle bundle, Bundle[] bundles, Consumer<? super CharSequence> logger) {
+	public SPIBundleClassLoader(Bundle bundle, List<Bundle> bundles, Consumer<String> logger) {
 		this.bundle = bundle;
 		this.bundles = bundles;
 		this.logger = logger;
