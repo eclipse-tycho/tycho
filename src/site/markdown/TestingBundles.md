@@ -131,7 +131,77 @@ to automatically inject services:
 
 - https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/bnd/osgi-test
 
+## tycho-test-plugin
 
+The [tycho-test-plugin](https://tycho.eclipseprojects.io/doc/master/tycho-test-plugin/plugin-info.html) is a new plugin introduced in Tycho 6 to provide unified testing of OSGi bundles.
+Unlike previous approaches, it is no longer bound to surefire and offers better integration with modern testing frameworks.
+
+### junit-platform mojo
+
+The `tycho-test:junit-platform` mojo integrates the [JUnit Platform Console Launcher](https://docs.junit.org/current/user-guide/#running-tests-console-launcher) into any OSGi Framework.
+This approach has several advantages:
+
+1. Tycho is completely independent from the used JUnit framework version (since it calls it via a command-line interface)
+2. Better and more natural integration of selecting test engines in the pom.xml or with the target platform
+3. You can use any of the JUnit provided test engines or new features that might be added
+
+This requires:
+- packaging `eclipse-plugin` is used
+- a configured execution of the `tycho-test:junit-platform` goal
+- JUnit Platform dependencies (console launcher and test engines) as test-scoped dependencies
+
+A sample snippet looks like this:
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+   ...
+   <build>
+      ...
+      <plugin>
+         <groupId>org.eclipse.tycho</groupId>
+         <artifactId>tycho-test-plugin</artifactId>
+         <version>${tycho-version}</version>
+         <executions>
+            <execution>
+               <id>execute-tests</id>
+               <goals>
+                  <goal>junit-platform</goal>
+               </goals>
+            </execution>
+         </executions>
+      </plugin>
+   </build>
+   
+   <dependencies>
+      <!-- The API is used at compile time of the bundle -->
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-api</artifactId>
+         <version>${junit-version}</version>
+         <scope>compile</scope>
+      </dependency>
+      
+      <!-- The console and the engine are only required at test execution time -->
+      <dependency>
+         <groupId>org.junit.platform</groupId>
+         <artifactId>junit-platform-console</artifactId>
+         <version>${junit-version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
+         <version>${junit-version}</version>
+         <scope>test</scope>
+      </dependency>
+   </dependencies>
+</project>
+```
+
+To execute the tests, one has to invoke maven with `mvn verify`. The following demo project is provided as an example:
+
+- https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/junit-platform
 
 ## combining different approaches
 
