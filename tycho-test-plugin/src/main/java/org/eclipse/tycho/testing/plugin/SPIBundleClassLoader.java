@@ -104,6 +104,7 @@ class SPIBundleClassLoader extends ClassLoader {
 						URL entry = other.getEntry(name);
 						if (entry != null) {
 							try {
+								logger.accept("Found SPI service in " + other + "!");
 								list.add(new SPIMapping(other.loadClass(serviceName), other, entry));
 							} catch (ClassNotFoundException e) {
 								// should not happen
@@ -128,8 +129,9 @@ class SPIBundleClassLoader extends ClassLoader {
 	}
 
 	private boolean isValidCaller(String source, Bundle caller) {
-		if (caller != null && caller.getSymbolicName().startsWith("junit-platform-")) {
-			return true;
+		if (caller != null) {
+			String bsn = caller.getSymbolicName();
+			return bsn.startsWith("junit-platform-") || bsn.startsWith("junit-jupiter-engine");
 		}
 		logger.accept(source + ": Caller " + caller
 				+ " is not allowed to load SPI resources and classes ... ignoring request!");
