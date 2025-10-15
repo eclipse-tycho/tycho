@@ -78,7 +78,7 @@ public class JUnitPlatformMojo extends AbstractMojo {
 	private List<String> selectPackage;
 
 	/**
-	 * Select specific modules for test discovery (JPMS).
+	 * Select specific Java modules for test discovery.
 	 */
 	@Parameter(property = "select-module")
 	private List<String> selectModule;
