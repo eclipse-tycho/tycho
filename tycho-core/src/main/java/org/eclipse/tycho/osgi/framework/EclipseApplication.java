@@ -154,6 +154,20 @@ public class EclipseApplication {
     }
 
     /**
+     * Adds a product IU
+     * 
+     * @param bundleSymbolicName
+     */
+    public synchronized void addProduct(String productId) {
+        try {
+            resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, productId, "0.0.0");
+            needResolve = true;
+        } catch (IllegalArtifactReferenceException e) {
+            throw new TargetPlatformConfigurationException("Can't add API tools requirement", e);
+        }
+    }
+
+    /**
      * Adds a conditional bundle
      * 
      * @param bundleSymbolicName

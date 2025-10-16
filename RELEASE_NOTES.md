@@ -4,6 +4,12 @@ This page describes the noteworthy improvements provided by each release of Ecli
 If you are reading this in the browser, then you can quickly jump to specific versions by using the rightmost button above the headline:
 ![grafik](https://github.com/eclipse-tycho/tycho/assets/406876/7025e8cb-0cdb-4211-8239-fc01867923af)
 
+## 5.0.1
+
+Backports:
+
+- new tycho-sbom:generator mojo
+
 ## 5.0.0
 
 ### Java 21 required to run Tycho build
