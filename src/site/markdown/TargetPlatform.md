@@ -47,7 +47,11 @@ The p2 repositories need to be marked with layout=p2. (The normal Maven dependen
 
 The PDE target definition file format (`*.target`) allows to select a subset of units (bundles, features, etc.).
 
-In order to add the content of a target definition file (see "Content" tab of the Target Editor) to the target platform in the Tycho build, place the target file in a eclipse-target-definition module and configure it in the target-platform-configuration build plugin. Example:
+Tycho supports multiple ways to reference target definition files in the target-platform-configuration plugin:
+
+#### Using artifact GAV coordinates
+
+Reference a target file from a Maven artifact (either local to the reactor or a remote one):
 
 ```xml
 <plugin>
@@ -66,22 +70,84 @@ In order to add the content of a target definition file (see "Content" tab of th
 </plugin>
 ```
 
-Since Tycho 0.17.0, it is also possible to configure multiple target files by specifying more than one `<artifact>` reference. Tycho interprets these target files independently and in the same way as in Eclipse: Each of the configured target files need to resolve successfully when opened in the Eclipse Target Editor. Note that the use of this Tycho feature is limited because the Eclipse PDE currently does not support activating more than one target file at once (see bug 392652).
+#### Using a local file
+
+Reference a target file that is local to the build:
+
+```xml
+<plugin>
+   <groupId>org.eclipse.tycho</groupId>
+   <artifactId>target-platform-configuration</artifactId>
+   <version>${tycho-version}</version>
+   <configuration>
+      <target>
+         <file>path/to/my.target</file>
+      </target>
+   </configuration>
+</plugin>
+```
+
+#### Using a URI
+
+Reference a target file from a remote URI (supports file://, http://, https://, etc.):
+
+```xml
+<plugin>
+   <groupId>org.eclipse.tycho</groupId>
+   <artifactId>target-platform-configuration</artifactId>
+   <version>${tycho-version}</version>
+   <configuration>
+      <target>
+         <uri>https://example.com/path/to/my.target</uri>
+      </target>
+   </configuration>
+</plugin>
+```
+
+#### Using inline location configuration
+
+Define a target location directly in the POM without a separate `.target` file:
+
+```xml
+<plugin>
+   <groupId>org.eclipse.tycho</groupId>
+   <artifactId>target-platform-configuration</artifactId>
+   <version>${tycho-version}</version>
+   <configuration>
+      <target>
+         <location>
+            <type>InstallableUnit</type>
+            <id>org.eclipse.platform.feature.group</id>
+            <version>0.0.0</version>
+            <repository>
+               <url>https://download.eclipse.org/releases/latest/</url>
+            </repository>
+         </location>
+      </target>
+   </configuration>
+</plugin>
+```
+
+#### Multiple target files
+
+Since Tycho 0.17.0, it is also possible to configure multiple target files by specifying more than one target reference. Tycho interprets these target files independently and in the same way as in Eclipse: Each of the configured target files need to resolve successfully when opened in the Eclipse Target Editor. 
+
+Note: Eclipse PDE supports activating multiple target files at once using reference target locations (see [PDE reference target locations](https://eclipse.dev/eclipse/news/4.23/pde.html#pde-editor-include)).
+
+#### Tycho's interpretation of target definition files
 
 Note: Tycho's interpretation of the target definition file format differs from the PDE in the following aspects:
 
-The selection on the Content tab of the Target Editor is ignored.
-See below for an alternative way to remove individual bundles from the target platform.
-The option "Include source if available" is considered only if target-platform-configuration parameter targetDefinitionIncludeSource is set to honor (default value).
-If targetDefinitionIncludeSource is set to force then available sources are always included and if set to ignore then available sources are always ignored.
+* The selection on the Content tab of the Target Editor is ignored. See below for an alternative way to remove individual bundles from the target platform.
+* The option "Include source if available" is considered only if target-platform-configuration parameter targetDefinitionIncludeSource is set to honor (default value). If targetDefinitionIncludeSource is set to force then available sources are always included and if set to ignore then available sources are always ignored.
 
 ### Extra requirements
 
-See https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifact/target/staging/target-platform-configuration/target-platform-configuration-mojo.html#dependency-resolution
+See [target-platform-configuration dependency-resolution](../target-platform-configuration/target-platform-configuration-mojo.html#dependency-resolution)
 
 ### POM dependencies consider
 
-See https://www.eclipse.org/tycho/sitedocs/target-platform-configuration/target-platform-configuration-mojo.html#pomDependencies.
+See [target-platform-configuration pomDependencies](../target-platform-configuration/target-platform-configuration-mojo.html#pomDependencies).
 
 For an example, see the POM of this [demo project](https://github.com/eclipse-tycho/tycho/tree/master/demo/itp02/build02).
 
@@ -107,7 +173,7 @@ Deleting `~/.m2/repository/.meta/p2-local-metadata.properties` resets Tycho's li
 
 ### Filtering
 
-See https://ci.eclipse.org/tycho/job/tycho-sitedocs/lastSuccessfulBuild/artifact/target/staging/target-platform-configuration/target-platform-configuration-mojo.html#filters
+See [target-platform-configuration filters](../target-platform-configuration/target-platform-configuration-mojo.html#filters)
 
 ### Dependency resolution troubleshooting
 
