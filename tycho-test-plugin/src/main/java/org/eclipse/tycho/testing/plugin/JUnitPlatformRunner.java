@@ -14,10 +14,12 @@
 package org.eclipse.tycho.testing.plugin;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -25,12 +27,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 import java.util.spi.ToolProvider;
 import java.util.stream.StreamSupport;
+import java.util.zip.ZipEntry;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -45,6 +53,8 @@ import org.osgi.framework.wiring.BundleRevisions;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.framework.wiring.FrameworkWiring;
+
+import aQute.bnd.osgi.Constants;
 
 /**
  * Encapsulates the code that actually runs inside the OSGi framework.
@@ -62,9 +72,12 @@ public class JUnitPlatformRunner implements Serializable, Function<BundleContext
 	private String artifactLocation;
 	private String[] runnerArguments;
 
+	private String workDir;
+
 	public JUnitPlatformRunner(Collection<Path> bundlesToInstall, Path projectArtifact, int applicationStartLevel,
 			int extenderStartLevel, boolean startExtender, long startupTimout, boolean printBundles,
-			List<String> runnerArguments) {
+			List<String> runnerArguments, Path workDir) {
+		this.workDir = workDir.toAbsolutePath().toString();
 		this.runnerArguments = runnerArguments.toArray(String[]::new);
 		this.artifactLocation = projectArtifact.toAbsolutePath().toString();
 		this.applicationStartLevel = applicationStartLevel;
@@ -86,14 +99,18 @@ public class JUnitPlatformRunner implements Serializable, Function<BundleContext
 		JUnitPlatformRunnerResult result = new JUnitPlatformRunnerResult();
 		result.debug("Install Bundles ...");
 		List<Bundle> bundles = new ArrayList<>();
+		Optional<Bundle> testProbe = Optional.empty();
 		for (String loc : bundleLocations) {
 			Path path = Path.of(loc);
 			try {
-				Bundle bundle = bundleContext.installBundle(path.toString(), Files.newInputStream(path));
+				Bundle bundle = bundleContext.installBundle(getInstallLocation(path));
 				result.debug("Installed " + bundle);
 				bundles.add(bundle);
+				if (artifactLocation.equals(path.toAbsolutePath().toString())) {
+					testProbe = Optional.of(bundle);
+				}
 			} catch (BundleException | IOException e) {
-				result.debug(path.getFileName() + ": " + e);
+				result.debug("Can't install bundle:" + path.getFileName() + ": " + e);
 			}
 		}
 		result.debug("Resolve bundles...");
@@ -115,7 +132,7 @@ public class JUnitPlatformRunner implements Serializable, Function<BundleContext
 			return result.setException(e);
 		}
 		printBundleInfo(bundles, printBundles ? result::info : result::debug);
-		Optional<Bundle> testProbe = findTestProbe(bundles);
+
 		if (testProbe.isEmpty()) {
 			return result.failure("Testprobe not found in Framework");
 		}
@@ -128,7 +145,7 @@ public class JUnitPlatformRunner implements Serializable, Function<BundleContext
 		if (isFragment(testBundle)) {
 			Optional<Bundle> host = getHost(testBundle);
 			if (host.isEmpty()) {
-				return result.failure(						"Testprobe is a fragment but not attached to any host bundle");	
+				return result.failure("Testprobe is a fragment but not attached to any host bundle");
 			}
 			testBundle = host.get();
 		}
@@ -148,6 +165,52 @@ public class JUnitPlatformRunner implements Serializable, Function<BundleContext
 		}
 	}
 
+	private String getInstallLocation(Path path) throws IOException {
+		try (JarInputStream stream = new JarInputStream(Files.newInputStream(path))) {
+			Manifest manifest = stream.getManifest();
+			if (manifest == null) {
+				// Some jars (e.g. com.sun.jna) are not "real" jars as the MANIFEST is not the
+				// first entry! So instead of throwing an exception here, we need to ignore it
+				// silent and let the OSGi framework decide...
+				return "reference:" + path.toUri();
+			}
+			Attributes mf = manifest.getMainAttributes();
+			if ("dir".equals(mf.getValue("Eclipse-BundleShape"))) {
+				if (!Files.isDirectory(path)) {
+					// we need to expand it...
+					String value = mf.getValue(Constants.BUNDLE_SYMBOLICNAME);
+					if (value == null) {
+						value = UUID.randomUUID().toString();
+					} else {
+						value = value.split(";")[0];
+					}
+					Path destination = Path.of(workDir).resolve("exploded")
+							.resolve(value + "_" + mf.getValue(Constants.BUNDLE_VERSION));
+					Path mfPath = destination.resolve(JarFile.MANIFEST_NAME);
+					Files.createDirectories(mfPath.getParent());
+					try (OutputStream out = Files.newOutputStream(mfPath)) {
+						manifest.write(out);
+					}
+					ZipEntry zipEntry;
+					while ((zipEntry = stream.getNextEntry()) != null) {
+						Path extracting = destination.resolve(zipEntry.getName());
+						if (!extracting.startsWith(destination)) {
+							// prevent zip slip...
+							continue;
+						}
+						if (zipEntry.isDirectory()) {
+							Files.createDirectories(extracting);
+						} else {
+							Files.createDirectories(extracting.getParent());
+							Files.copy(stream, extracting, StandardCopyOption.REPLACE_EXISTING);
+						}
+					}
+					return "reference:" + destination.toUri();
+				}
+			}
+		}
+		return "reference:" + path.toUri();
+	}
 
 	private void setStartLevels(List<Bundle> bundles, JUnitPlatformRunnerResult result) {
 		for (Bundle bundle : bundles) {
@@ -192,19 +255,10 @@ public class JUnitPlatformRunner implements Serializable, Function<BundleContext
 		return hostWires.stream().map(wire -> wire.getProvider().getBundle()).filter(Objects::nonNull).findFirst();
 	}
 
-	private Optional<Bundle> findTestProbe(List<Bundle> bundles) {
-		for (Bundle bundle : bundles) {
-			if (artifactLocation.equals(bundle.getLocation())) {
-				return Optional.of(bundle);
-			}
-		}
-		return Optional.empty();
-	}
-
 	private void printBundleInfo(List<Bundle> bundles, Consumer<String> consumer) {
 		consumer.accept("============ Bundles ==================");
-		Comparator<Bundle> bySymbolicName = Comparator.comparing(Bundle::getSymbolicName,
-				String.CASE_INSENSITIVE_ORDER);
+		Comparator<Bundle> bySymbolicName = Comparator.comparing(
+				bundle -> Objects.requireNonNullElse(bundle.getSymbolicName(), "??"), String.CASE_INSENSITIVE_ORDER);
 		Comparator<Bundle> byState = Comparator.comparingInt(Bundle::getState);
 		bundles.stream().sorted(byState.thenComparing(bySymbolicName)).forEachOrdered(bundle -> {
 			String state = toBundleState(bundle.getState());

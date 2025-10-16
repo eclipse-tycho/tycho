@@ -252,12 +252,14 @@ public class JUnitPlatformMojo extends AbstractMojo {
 			log.debug(path.getFileName().toString());
 		}
 		JUnitPlatformRunnerResult runnerResult;
-		try (OSGiFramework framework = launchFramework()) {
+		Path workDir = getWorkDir();
+		try (OSGiFramework framework = launchFramework(workDir)) {
 			try {
 				runnerResult = framework.runInFramework(
 						new JUnitPlatformRunner(projectDependencies, mavenProject.getArtifact().getFile().toPath(),
 								applicationStartLevel,
-								extenderStartLevel, startExtender, startupTimout, printBundles, buildArguments()));
+								extenderStartLevel, startExtender, startupTimout, printBundles, buildArguments(),
+								workDir));
 			} catch (IOException | RuntimeException e) {
 				throw new MojoExecutionException("Execute runner failed!", e);
 			}
@@ -279,7 +281,7 @@ public class JUnitPlatformMojo extends AbstractMojo {
 		}
 	}
 
-	private OSGiFramework launchFramework() throws MojoExecutionException {
+	private OSGiFramework launchFramework(Path workDir) throws MojoExecutionException {
 		OSGiFrameworkLauncher launcher = launchers.get(launchType);
 		if (launcher == null) {
 			throw new MojoExecutionException("Launch type '" + launchType + "' is not available");
@@ -287,8 +289,7 @@ public class JUnitPlatformMojo extends AbstractMojo {
 		OSGiFramework framework;
 		try {
 			framework = launcher.launchFramework(mavenProject, Map.of( //
-					Constants.FRAMEWORK_STORAGE, Path.of(mavenProject.getBuild().getDirectory())
-							.resolve("junit-platform-work").toAbsolutePath().toString(),
+					Constants.FRAMEWORK_STORAGE, workDir.toAbsolutePath().toString(),
 					Constants.FRAMEWORK_BEGINNING_STARTLEVEL, Integer.toString(1),
 					OSGiFrameworkLauncher.STANDALONE, "true")
 			);
@@ -296,6 +297,11 @@ public class JUnitPlatformMojo extends AbstractMojo {
 			throw new MojoExecutionException("Can't launch '" + launchType + "' framework!", e);
 		}
 		return framework;
+	}
+
+	private Path getWorkDir() {
+		return Path.of(mavenProject.getBuild().getDirectory())
+				.resolve("junit-platform-work");
 	}
 
 	private List<String> buildArguments() {
