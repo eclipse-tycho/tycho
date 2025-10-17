@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
@@ -51,8 +53,8 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
  * <p>
  * The javadoc executable path is determined in this order:
  * <ul>
- * <li><code>executable</code> argument of the <code>javadocOptions</code> configuration
- * element, if available</li>
+ * <li><code>executable</code> argument of the <code>javadocOptions</code>
+ * configuration element, if available</li>
  * <li>active Maven toolchain</li>
  * <li><code>java.home</code> system property</li>
  * <li><code>JAVA_HOME</code> environment setting</li>
@@ -91,10 +93,10 @@ public class JavadocMojo extends AbstractMojo {
 	@Parameter(property = "cleanFirst", defaultValue = "true")
 	private boolean cleanFirst;
 
-	@Component
+	@Inject
 	private ToolchainManager toolchainManager;
 
-	@Parameter(property = "session", required = true, readonly = true)
+	@Inject
 	private MavenSession session;
 
 	@Parameter(property = "reactorProjects", required = true, readonly = true)
@@ -121,13 +123,13 @@ public class JavadocMojo extends AbstractMojo {
 	 * <li><code>doclet</code>, used as javadoc <code>-doclet</code> parameter</li>
 	 * <li><code>docletArtifacts</code>, dependencies will be resovled and added as
 	 * <code>-docletpath</code> parameter</li>
-	 * <li><code>encoding</code>, used as javadoc <code>-encoding</code> parameter (default:
-	 * <code>${project.build.sourceEncoding}</code></li>
-	 * <li><code>additionalArguments</code>, a list of additional arguments passed to
-	 * javadoc</li>
-	 * <li><code>includes</code>/<code>excludes</code>, the list of names of packages to be
-	 * included in or excluded from JavaDoc processing; use '<code>*</code>' character
-	 * as wildcard</li>
+	 * <li><code>encoding</code>, used as javadoc <code>-encoding</code> parameter
+	 * (default: <code>${project.build.sourceEncoding}</code></li>
+	 * <li><code>additionalArguments</code>, a list of additional arguments passed
+	 * to javadoc</li>
+	 * <li><code>includes</code>/<code>excludes</code>, the list of names of
+	 * packages to be included in or excluded from JavaDoc processing; use
+	 * '<code>*</code>' character as wildcard</li>
 	 * <li><code>executable</code>, the javadoc executable path to be used (see mojo
 	 * description for the default path calculation)</li>
 	 * </ul>
@@ -168,10 +170,10 @@ public class JavadocMojo extends AbstractMojo {
 	/**
 	 * Options for creating the toc files.
 	 * <ul>
-	 * <li><code>mainLabel</code>, specifies the main label of the toc file (default:
-	 * "API Reference")</li>
-	 * <li><code>mainFilename</code>, specifies the filename of the TOC file (default:
-	 * "overview-summary.html")
+	 * <li><code>mainLabel</code>, specifies the main label of the toc file
+	 * (default: "API Reference")</li>
+	 * <li><code>mainFilename</code>, specifies the filename of the TOC file
+	 * (default: "overview-summary.html")
 	 * </ul>
 	 * Example configuration:
 	 *
@@ -203,10 +205,10 @@ public class JavadocMojo extends AbstractMojo {
 	@Parameter(property = "project.build.sourceEncoding", readonly = true)
 	private String projectBuildSourceEncoding;
 
-	@Component
+	@Inject
 	private BundleReader bundleReader;
 
-	@Component
+	@Inject
 	private DocletArtifactsResolver docletArtifactsResolver;
 
 	@Component(role = TychoProject.class)
