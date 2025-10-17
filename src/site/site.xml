@@ -3,6 +3,7 @@
 	<body>
 		<menu name="Using Tycho" inherit="top">
 			<item name="Overview" href="index.html"/>
+			<item name="Tycho Build Extension" href="TychoBuildExtension.html" />
 			<item name="Structured Build Layout and Pomless Builds" href="StructuredBuild.html" />
 			<item name="BND Workspace and Pomless Builds" href="BndBuild.html">
 				<item name="Tycho BND Plugin" href="tycho-bnd-plugin/plugin-info.html" />
