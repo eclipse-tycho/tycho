@@ -21,7 +21,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
- * This mojo is only there
+ * This mojo is only there to provide configuration parameters and should not be executed directly.
  */
 @Mojo(name = "configure-document-bundle-plugin", defaultPhase = LifecyclePhase.INITIALIZE, requiresDependencyResolution = ResolutionScope.NONE, threadSafe = true)
 public class ConfigureMojo extends AbstractMojo {
