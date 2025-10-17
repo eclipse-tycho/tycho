@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgi.framework;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -113,7 +114,13 @@ public class EclipseApplicationFactory {
             for (Entry entry : result.getArtifacts()) {
                 if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())
                         && !"org.eclipse.osgi".equals(entry.getId())) {
-                    resolvedBundles.add(entry.getLocation(true).toPath());
+                    File location = entry.getLocation(true);
+                    if (location == null) {
+                        logger.warn("Cannot resolve location for bundle " + entry.getId() + " " + entry.getVersion()
+                                + ". The artifact may not be available or failed to download.");
+                        continue;
+                    }
+                    resolvedBundles.add(location.toPath());
                 }
             }
         }
