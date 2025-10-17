@@ -1,0 +1,2 @@
+package ex;
+class ATest {}
