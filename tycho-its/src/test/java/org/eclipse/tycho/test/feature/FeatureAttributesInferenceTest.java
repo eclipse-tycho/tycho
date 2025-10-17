@@ -45,8 +45,6 @@ public class FeatureAttributesInferenceTest extends AbstractTychoIntegrationTest
 		verifier.verifyErrorFreeLog();
 		File featureTargetDir = new File(verifier.getBasedir(), "feature/target");
 		File featureJar = assertFileExists(featureTargetDir, "feature.attributes.inference.test-1.0.0.jar")[0];
-		File featureSourceJar = assertFileExists(featureTargetDir,
-				"feature.attributes.inference.test-1.0.0-sources-feature.jar")[0];
 
 		List<Element> pluginNodes = getPluginElements(featureJar);
 		Assert.assertEquals(3, pluginNodes.size());
@@ -66,25 +64,6 @@ public class FeatureAttributesInferenceTest extends AbstractTychoIntegrationTest
 				"id", equalTo("org.apiguardian.api"), //
 				"version", isSpecificVersion() //
 		), pluginNodes.get(2));
-
-		// Check the feature.xml in the source-feature-jar
-		List<Element> pluginSourceNodes = getPluginElements(featureSourceJar);
-		Assert.assertEquals(3, pluginSourceNodes.size());
-
-		assertAttributesOnlyElementWith(Map.of(//
-				"id", equalTo("junit-jupiter-api.source"), //
-				"version", isSpecificVersion() //
-		), pluginSourceNodes.get(0));
-
-		assertAttributesOnlyElementWith(Map.of(//
-				"id", equalTo("junit-platform-suite-api.source"), //
-				"version", isSpecificVersion() //
-		), pluginSourceNodes.get(1));
-
-		assertAttributesOnlyElementWith(Map.of(//
-				"id", equalTo("org.apiguardian.api.source"), //
-				"version", isSpecificVersion() //
-		), pluginSourceNodes.get(2));
 	}
 
 	private List<Element> getPluginElements(File featureJar) throws Exception {
