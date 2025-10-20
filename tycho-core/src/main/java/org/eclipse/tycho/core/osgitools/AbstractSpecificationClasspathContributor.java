@@ -16,9 +16,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import javax.inject.Inject;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ClasspathEntry;
@@ -39,10 +40,10 @@ import org.osgi.framework.VersionRange;
  */
 public abstract class AbstractSpecificationClasspathContributor implements ClasspathContributor {
 
-    @Requirement
+    @Inject
     protected MavenBundleResolver mavenBundleResolver;
 
-    @Requirement
+    @Inject
     protected Logger logger;
 
     protected final MavenSession session;
