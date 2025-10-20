@@ -15,13 +15,16 @@ package org.eclipse.tycho.plugins.p2.extras;
 import java.io.File;
 import java.io.IOException;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.zipcomparator.internal.SimpleArtifactDelta;
 
-@Component(role = ArtifactComparator.class, hint = BytesArtifactComparator.HINT)
+@Named(BytesArtifactComparator.HINT)
+@Singleton
 public class BytesArtifactComparator implements ArtifactComparator {
 
     public static final String HINT = "bytes";

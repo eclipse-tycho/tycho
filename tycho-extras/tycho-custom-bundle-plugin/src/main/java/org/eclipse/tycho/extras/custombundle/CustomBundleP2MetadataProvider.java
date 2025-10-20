@@ -22,14 +22,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.IDependencyMetadata;
@@ -44,10 +44,12 @@ import org.eclipse.tycho.resolver.P2MetadataProvider;
  * This component is invoked during Tycho dependency resolution and provides P2
  * metadata that describes artifacts that will be created by custom-bundle goal.
  */
-@Component(role = P2MetadataProvider.class, hint = "org.eclipse.tycho.extras.custombundle.CustomBundleP2MetadataProvider")
-public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initializable {
+@Named("org.eclipse.tycho.extras.custombundle.CustomBundleP2MetadataProvider")
+@Singleton
+public class CustomBundleP2MetadataProvider implements P2MetadataProvider {
 
-	@Requirement(hint = DependencyMetadataGenerator.DEPENDENCY_ONLY)
+	@Inject
+	@Named(DependencyMetadataGenerator.DEPENDENCY_ONLY)
 	private DependencyMetadataGenerator generator;
 
 	@Override
@@ -98,10 +100,6 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
 			return null;
 		}
 		return new File(locationDom.getValue());
-	}
-
-	@Override
-	public void initialize() throws InitializationException {
 	}
 
 	private static class SecondaryDependencyMetadata implements IDependencyMetadata {

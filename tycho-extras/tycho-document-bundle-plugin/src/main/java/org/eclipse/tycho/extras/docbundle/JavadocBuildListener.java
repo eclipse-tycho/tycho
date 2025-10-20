@@ -18,27 +18,30 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.build.BuildListener;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
 import org.eclipse.tycho.helper.PluginConfigurationHelper;
 import org.eclipse.tycho.helper.PluginConfigurationHelper.Configuration;
 import org.eclipse.tycho.helper.ProjectHelper;
 
-@Component(role = BuildListener.class, hint = "javadoc")
+@Named("javadoc")
+@Singleton
 public class JavadocBuildListener implements BuildListener {
 
 	private static final String JAVADOC_GOAL = "javadoc";
 	private static final String ARTIFACT_ID = "maven-javadoc-plugin";
 	private static final String GROUP_ID = "org.apache.maven.plugins";
 
-	@Requirement
+	@Inject
 	private ProjectHelper projectHelper;
 
-	@Requirement
+	@Inject
 	private PluginConfigurationHelper configurationHelper;
 
 	@Override

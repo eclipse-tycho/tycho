@@ -55,9 +55,9 @@
 
   <build>
     <plugins>
-	<plugin>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-metadata</artifactId>
+      <plugin>
+        <groupId>org.eclipse.sisu</groupId>
+        <artifactId>sisu-maven-plugin</artifactId>
       </plugin>
       <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
