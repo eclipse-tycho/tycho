@@ -36,10 +36,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.commons.io.FileUtils;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
@@ -71,19 +73,20 @@ import org.osgi.util.tracker.ServiceTracker;
  * Specification</a> that allows to connect the plexus-world with the maven
  * world.
  */
-@Component(role = EquinoxServiceFactory.class, hint = "connect")
+@Named("connect")
+@Singleton
 public class PlexusFrameworkConnectServiceFactory implements Initializable, Disposable, EquinoxServiceFactory {
 
 	private static final StackWalker WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
-	@Requirement
+	@Inject
 	private Logger log;
 
 	private static final Map<ClassRealm, PlexusConnectFramework> frameworkMap = new HashMap<>();
 
 	private static final Map<ClassLoader, ClassRealm> loaderMap = new HashMap<>();
 
-	@Requirement(role = EquinoxLifecycleListener.class)
+	@Inject
 	private Map<String, EquinoxLifecycleListener> lifecycleListeners;
 
 	private final String name;
