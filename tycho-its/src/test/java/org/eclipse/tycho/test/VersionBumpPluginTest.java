@@ -111,6 +111,31 @@ public class VersionBumpPluginTest extends AbstractTychoIntegrationTest {
 		}
 	}
 
+	@Test
+	public void testUpdateTargetWithVersionRange() throws Exception {
+		Verifier verifier = getVerifier("tycho-version-bump-plugin/update-target-version-range", false, true);
+		String sourceTargetFile = "update-target-version-range.target";
+		verifier.setSystemProperty("target", sourceTargetFile);
+		verifier.executeGoal("org.eclipse.tycho.extras:tycho-version-bump-plugin:" + TychoVersion.getTychoVersion()
+				+ ":update-target");
+		verifier.verifyErrorFreeLog();
+		File targetFile = new File(verifier.getBasedir(), sourceTargetFile);
+		try (FileInputStream input = new FileInputStream(targetFile)) {
+			Document target = TargetDefinitionFile.parseDocument(input);
+			TargetDefinitionFile parsedTarget = TargetDefinitionFile.parse(target, targetFile.getAbsolutePath());
+			List<? extends Location> locations = parsedTarget.getLocations();
+			InstallableUnitLocation iu = locations.stream().filter(InstallableUnitLocation.class::isInstance)
+					.map(InstallableUnitLocation.class::cast).findFirst()
+					.orElseThrow(() -> new AssertionError("IU Location not found!"));
+			List<? extends Unit> units = iu.getUnits();
+			assertEquals(2, units.size());
+			// Version range should remain unchanged
+			assertIUVersion("org.eclipse.equinox.executable.feature.group", "[3.8.0,4.0.0)", units, targetFile);
+			// Regular version should be updated
+			assertIUVersion("org.eclipse.jdt.feature.group", "3.18.500.v20200902-1800", units, targetFile);
+		}
+	}
+
 	private Stream<MavenDependency> dependencies(MavenGAVLocation maven, String g, String a) {
 		Collection<MavenDependency> roots = maven.getRoots();
 		return roots.stream().filter(md -> md.getGroupId().equals(g)).filter(md -> md.getArtifactId().equals(a));

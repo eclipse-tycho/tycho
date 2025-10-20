@@ -148,7 +148,7 @@ public class InstallableUnitLocationUpdater {
         return updated;
     }
 
-    private boolean isVersionRange(String version) {
+    private static boolean isVersionRange(String version) {
         return version != null && (version.startsWith("[") || version.startsWith("("));
     }
 
@@ -344,6 +344,23 @@ public class InstallableUnitLocationUpdater {
         List<IU> list = new ArrayList<>();
         boolean hasLarger = false;
         for (IU iu : units) {
+            // Skip units with version ranges - we can't compare them
+            String iuVersion = iu.version();
+            if (isVersionRange(iuVersion)) {
+                context.getLog().debug("Skip unit " + iu.id() + " with version range " + iuVersion
+                        + " - version ranges are not supported for repository comparison");
+                // Add the unit as-is without version comparison
+                IInstallableUnit unit = childRepository
+                        .query(QueryUtil.createLatestQuery(QueryUtil.createIUQuery(iu.id())), null).stream()
+                        .findFirst().orElse(null);
+                if (unit == null) {
+                    context.getLog().debug("Skip child " + child + " because unit " + iu.id()
+                            + " can't be found in the repository");
+                    return null;
+                }
+                list.add(new IU(iu.id(), iuVersion, iu.element()));
+                continue;
+            }
             IInstallableUnit unit = childRepository
                     .query(QueryUtil.createLatestQuery(QueryUtil.createIUQuery(iu.id())), null).stream().findFirst()
                     .orElse(null);
@@ -353,12 +370,12 @@ public class InstallableUnitLocationUpdater {
                         "Skip child " + child + " because unit " + iu.id() + " can't be found in the repository");
                 return null;
             }
-            int cmp = unit.getVersion().compareTo(Version.create(iu.version()));
+            int cmp = unit.getVersion().compareTo(Version.create(iuVersion));
             if (cmp < 0) {
                 //version is lower than we currently have!
                 context.getLog()
                         .debug("Skip child " + child + " because version of unit " + iu.id() + " in repository ("
-                                + unit.getVersion() + ") is smaller than current largest version (" + iu.version()
+                                + unit.getVersion() + ") is smaller than current largest version (" + iuVersion
                                 + ").");
                 return null;
             }
