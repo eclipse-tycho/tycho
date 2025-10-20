@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -24,7 +26,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -119,17 +120,23 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 	@Parameter(property = "project", readonly = true)
 	protected MavenProject project;
 
-	@Component
-	private TychoProjectManager manager;
+	private final TychoProjectManager manager;
 
-	@Component
-	private DeclarativeServiceConfigurationReader configurationReader;
+	private final DeclarativeServiceConfigurationReader configurationReader;
 
-	@Component
-	private PluginRealmHelper pluginRealmHelper;
+	private final PluginRealmHelper pluginRealmHelper;
 
 	@Parameter(property = "session", readonly = true)
 	private MavenSession session;
+
+	@Inject
+	public DeclarativeServicesMojo(TychoProjectManager manager,
+			DeclarativeServiceConfigurationReader configurationReader,
+			PluginRealmHelper pluginRealmHelper) {
+		this.manager = manager;
+		this.configurationReader = configurationReader;
+		this.pluginRealmHelper = pluginRealmHelper;
+	}
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {

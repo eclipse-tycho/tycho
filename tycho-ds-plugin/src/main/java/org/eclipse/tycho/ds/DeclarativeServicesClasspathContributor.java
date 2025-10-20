@@ -18,13 +18,12 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ResolvedArtifactKey;
@@ -43,7 +42,7 @@ import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Processor;
 
-@Component(role = ClasspathContributor.class, hint = "ds-annotations")
+@Named("ds-annotations")
 @SessionScoped
 public class DeclarativeServicesClasspathContributor extends AbstractSpecificationClasspathContributor
 		implements ClasspathContributor {
@@ -56,18 +55,21 @@ public class DeclarativeServicesClasspathContributor extends AbstractSpecificati
 	private static final String DS_ANNOTATIONS_1_2_ARTIFACT_ID = "osgi.cmpn";
 	private static final String DS_ANNOTATIONS_1_2_VERSION = "5.0.0";
 
-	@Requirement
-	DeclarativeServiceConfigurationReader configurationReader;
+	private final DeclarativeServiceConfigurationReader configurationReader;
 
-	@Requirement
-	MavenDependenciesResolver dependenciesResolver;
+	private final MavenDependenciesResolver dependenciesResolver;
 
-	@Requirement
-	TychoProjectManager projectManager;
+	private final TychoProjectManager projectManager;
 
 	@Inject
-	public DeclarativeServicesClasspathContributor(MavenSession session) {
+	public DeclarativeServicesClasspathContributor(MavenSession session,
+			DeclarativeServiceConfigurationReader configurationReader,
+			MavenDependenciesResolver dependenciesResolver,
+			TychoProjectManager projectManager) {
 		super(session, DS_ANNOTATIONS_PACKAGE, DS_ANNOTATIONS_GROUP_ID, DS_ANNOTATIONS_ARTIFACT_ID);
+		this.configurationReader = configurationReader;
+		this.dependenciesResolver = dependenciesResolver;
+		this.projectManager = projectManager;
 	}
 
 	@Override
