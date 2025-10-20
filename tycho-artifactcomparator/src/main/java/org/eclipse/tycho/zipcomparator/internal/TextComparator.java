@@ -18,8 +18,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.commons.io.IOUtils;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
@@ -31,7 +33,8 @@ import com.github.difflib.patch.Patch;
 /**
  * Compares text-like files by ignoring there line ending styles
  */
-@Component(role = ContentsComparator.class, hint = TextComparator.HINT)
+@Named(TextComparator.HINT)
+@Singleton
 public class TextComparator implements ContentsComparator {
 
     static final String HINT = "txt";

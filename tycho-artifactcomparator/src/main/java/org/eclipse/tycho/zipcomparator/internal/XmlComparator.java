@@ -16,7 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
@@ -24,7 +26,8 @@ import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
 
-@Component(role = ContentsComparator.class, hint = XmlComparator.HINT)
+@Named(XmlComparator.HINT)
+@Singleton
 public class XmlComparator implements ContentsComparator {
 
     static final String HINT = "xml";

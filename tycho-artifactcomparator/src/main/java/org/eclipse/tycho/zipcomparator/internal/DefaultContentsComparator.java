@@ -15,12 +15,15 @@ package org.eclipse.tycho.zipcomparator.internal;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
-@Component(role = ContentsComparator.class, hint = DefaultContentsComparator.TYPE)
+@Named(DefaultContentsComparator.TYPE)
+@Singleton
 public class DefaultContentsComparator implements ContentsComparator {
 
     public static final String TYPE = "default";

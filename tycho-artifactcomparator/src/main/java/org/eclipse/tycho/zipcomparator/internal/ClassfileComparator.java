@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
@@ -30,7 +32,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-@Component(role = ContentsComparator.class, hint = ClassfileComparator.TYPE)
+@Named(ClassfileComparator.TYPE)
+@Singleton
 public class ClassfileComparator implements ContentsComparator {
     public static final String TYPE = "class";
 

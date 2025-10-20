@@ -16,7 +16,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
@@ -30,7 +32,8 @@ import ch.digitalfondue.jfiveparse.Node;
 /**
  * Compares html files for some special cases and fall back to simple textcompare otherwise
  */
-@Component(role = ContentsComparator.class, hint = HtmlComparator.HINT)
+@Named(HtmlComparator.HINT)
+@Singleton
 public class HtmlComparator implements ContentsComparator {
 
     private static final String META_ELEMENT = "meta";

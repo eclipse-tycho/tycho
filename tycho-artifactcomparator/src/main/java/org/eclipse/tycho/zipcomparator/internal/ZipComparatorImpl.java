@@ -31,27 +31,30 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.MatchPatterns;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
-@Component(role = ArtifactComparator.class, hint = ZipComparatorImpl.TYPE)
+@Named(ZipComparatorImpl.TYPE)
+@Singleton
 public class ZipComparatorImpl implements ArtifactComparator {
 
     public static final String TYPE = "zip";
 
     private static final List<String> IGNORED_PATTERNS = List.of("META-INF/maven/**");
 
-    @Requirement
+    @Inject
     private Logger log;
 
-    @Requirement
+    @Inject
     private Map<String, ContentsComparator> comparators;
 
     @Override
