@@ -18,6 +18,8 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -30,7 +32,7 @@ import org.eclipse.tycho.p2tools.copiedfromp2.AbstractPublisherApplication;
 
 public abstract class AbstractP2MetadataMojo extends AbstractMojo {
 
-    @Parameter(property = "project", required = true, readonly = true)
+    @Inject
     protected MavenProject project;
 
     /**

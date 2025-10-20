@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -49,16 +51,16 @@ import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 @Mojo(name = "mirror", threadSafe = true)
 public class MirrorMojo extends AbstractMojo {
 
-    @Parameter(property = "project", readonly = true)
+    @Inject
     private MavenProject project;
 
-    @Parameter(property = "session", readonly = true)
+    @Inject
     private MavenSession session;
 
-    @Component
+    @Inject
     MirrorApplicationService mirrorService;
 
-    @Component
+    @Inject
     private RepositoryReferenceTool repositoryReferenceTool;
 
     @Component(role = TychoProject.class)

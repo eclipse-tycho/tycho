@@ -23,6 +23,8 @@ import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
+import javax.inject.Inject;
+
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.execution.MavenSession;
@@ -77,10 +79,10 @@ public class CustomBundleMojo extends AbstractMojo {
 	@Parameter(required = true)
 	private List<DefaultFileSet> fileSets;
 
-	@Parameter(property = "project")
+	@Inject
 	private MavenProject project;
 
-	@Parameter(property = "session", readonly = true)
+	@Inject
 	private MavenSession session;
 
 	@Parameter
@@ -99,7 +101,7 @@ public class CustomBundleMojo extends AbstractMojo {
 	@Component(role = Archiver.class, hint = "jar")
 	private JarArchiver jarArchiver;
 
-	@Component
+	@Inject
 	private MavenProjectHelper projectHelper;
 
 	@Override

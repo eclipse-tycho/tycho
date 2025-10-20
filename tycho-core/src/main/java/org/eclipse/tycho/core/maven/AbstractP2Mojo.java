@@ -14,6 +14,8 @@ package org.eclipse.tycho.core.maven;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Component;
@@ -31,10 +33,10 @@ import org.eclipse.tycho.p2.tools.BuildContext;
 
 public abstract class AbstractP2Mojo extends AbstractMojo {
 
-    @Parameter(property = "session", readonly = true)
+    @Inject
     private MavenSession session;
 
-    @Parameter(property = "project", readonly = true)
+    @Inject
     private MavenProject project;
 
     @Parameter(property = TychoProperties.BUILD_QUALIFIER)

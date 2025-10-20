@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
+import javax.inject.Inject;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.archiver.MavenArchiver;
@@ -45,7 +47,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -131,10 +132,10 @@ public class MavenP2SiteMojo extends AbstractMojo {
     private static final List<String> DEFAULT_KEY_SERVER = List.of(PGPService.UBUNTU_KEY_SERVER,
             PGPService.MAVEN_CENTRAL_KEY_SERVER);
 
-    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    @Inject
     private MavenProject project;
 
-    @Parameter(defaultValue = "${session}", readonly = true, required = true)
+    @Inject
     private MavenSession session;
 
     /**
@@ -205,18 +206,18 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.outputTimestamp}")
     private String outputTimestamp;
 
-    @Component
+    @Inject
     private Logger logger;
-    @Component
+    @Inject
     private RepositorySystem repositorySystem;
 
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
-    @Component
+    @Inject
     private PGPService pgpService;
 
     /**
@@ -249,7 +250,7 @@ public class MavenP2SiteMojo extends AbstractMojo {
     @Parameter(defaultValue = INCLUDE_PGP_DEFAULT + "")
     private boolean includePGPSignature = INCLUDE_PGP_DEFAULT;
 
-    @Parameter(property = "mojoExecution", readonly = true)
+    @Inject
     MojoExecution execution;
 
     @Override

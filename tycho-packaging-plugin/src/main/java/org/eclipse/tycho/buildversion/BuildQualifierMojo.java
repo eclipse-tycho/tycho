@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.OverConstrainedVersionException;
@@ -96,7 +98,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
 	static final String DEFAULT_DATE_FORMAT = "yyyyMMddHHmm";
 
-	@Parameter(property = "session", readonly = true)
+	@Inject
     protected MavenSession session;
 
     /**
@@ -120,13 +122,13 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 	@Parameter(property = "tycho.buildqualifier.provider")
     protected String timestampProvider;
 
-    @Parameter(property = "mojoExecution", readonly = true)
+	@Inject
     protected MojoExecution execution;
 
 	@Component(role = BuildTimestampProvider.class)
 	protected Map<String, BuildTimestampProvider> timestampProviders;
 
-	@Component
+	@Inject
 	private BuildPropertiesParser buildPropertiesParser;
 
 	/**
