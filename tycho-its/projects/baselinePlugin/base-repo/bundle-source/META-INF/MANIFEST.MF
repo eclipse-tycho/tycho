@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test Bundle Source
+Bundle-SymbolicName: org.eclipse.tycho.it.testbundle.source
+Bundle-Version: 1.0.0
+Eclipse-SourceBundle: org.eclipse.tycho.it.testbundle;version="1.0.0";roots:="."
