@@ -49,15 +49,31 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 	 */
 	@Test
 	public void testRemoveSourceFeature() throws Exception {
-		// Build feature that removes the source feature with only minor version bump (1.0.0 -> 1.0.1)
+		// Build feature that removes the source feature with only minor version bump (1.0.0 -> 1.1.0)
 		// This should pass with the fix
-		Verifier verifier = getBaselineProject("feature-with-sources");
+		Verifier verifier = getBaselineProject("feature-remove-source");
 		verifier.addCliOption("-Dbaseline-url=" + baselineRepo.toURI());
 		
 		// This should succeed because removing .source feature only requires minor version bump
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 	}
+
+	/**
+	 * Test that removing a regular (non-source) bundle requires a major version bump.
+	 */
+	@Test
+	public void testRemoveRegularBundle() throws Exception {
+		// Removing a regular bundle should require major version bump (1.0.0 -> 2.0.0)
+		Verifier verifier = getBaselineProject("feature-remove-bundle");
+		verifier.addCliOption("-Dbaseline-url=" + baselineRepo.toURI());
+		
+		// This should succeed because we bumped to major version
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+	}
+
+
 
 	private File buildBaseRepo() throws Exception, VerificationException {
 		Verifier verifier = getBaselineProject("base-repo");
