@@ -64,7 +64,7 @@
 		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
 		<plexusCompilerVersion>2.15.0</plexusCompilerVersion>
 		<pluginToolsVersion>3.15.1</pluginToolsVersion>
-		<jgit-version>7.3.0.202506031305-r</jgit-version>
+		<jgit-version>7.4.0.202509020913-r</jgit-version>
 		<maven-version>3.9.11</maven-version>
 		<sisu-version>0.9.0.M4</sisu-version>
 		<minimal-maven-version>3.9.11</minimal-maven-version>
@@ -148,7 +148,7 @@
 			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-archiver</artifactId>
-				<version>4.10.0</version>
+				<version>4.10.3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
@@ -245,7 +245,7 @@
 			<dependency>
 				<groupId>org.apache.bcel</groupId>
 				<artifactId>bcel</artifactId>
-				<version>6.10.0</version>
+				<version>6.11.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.maven.plugin-testing</groupId>
@@ -255,7 +255,7 @@
 			<dependency>
 				<groupId>org.apache.maven</groupId>
 				<artifactId>maven-archiver</artifactId>
-				<version>3.6.4</version>
+				<version>3.6.5</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -371,7 +371,7 @@
 						<dependency>
 						    <groupId>org.ow2.asm</groupId>
 						    <artifactId>asm</artifactId>
-						    <version>9.8</version>
+						    <version>9.9</version>
 						</dependency>
 					</dependencies>
 				</plugin>
@@ -446,7 +446,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
-					<version>3.8.1</version>
+					<version>3.9.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -489,7 +489,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>3.6.1</version>
+					<version>3.6.2</version>
 					<executions>
 						<execution>
 							<id>no-duplicate-declared-dependencies</id>
@@ -602,6 +602,7 @@
 		<module>tycho-cleancode-plugin</module>
 		<module>tycho-bndlib</module>
 		<module>tycho-sbom-plugin</module>
+		<module>tycho-test-plugin</module>
 	</modules>
 	<profiles>
 		<profile>
@@ -621,7 +622,7 @@
 					<plugin>
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>0.8.13</version>
+						<version>0.8.14</version>
 						<executions>
 							<execution>
 								<goals>

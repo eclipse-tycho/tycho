@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import org.apache.felix.resolver.util.CopyOnWriteSet;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -53,7 +52,6 @@ import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
-import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.TargetEnvironment;
@@ -109,12 +107,6 @@ public class P2ResolverImpl implements P2Resolver {
     public Map<TargetEnvironment, P2ResolutionResult> resolveTargetDependencies(TargetPlatform context,
             ReactorProject project) {
         P2TargetPlatform targetPlatform = getTargetFromContext(context);
-
-        // Adding extra deps for testswould better be performed as part of tycho-core resolver rather
-        // than in this P2ResolverImpl
-        if (project != null && PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging())) {
-            addDependenciesForTests(additionalRequirements::add);
-        }
 
         // we need a linked hashmap to maintain iteration-order, some of the code relies on it!
         Map<TargetEnvironment, P2ResolutionResult> results = new LinkedHashMap<>();
@@ -468,19 +460,6 @@ public class P2ResolverImpl implements P2Resolver {
 
         // ignore other/unknown artifacts, like binary blobs for now.
         // throw new IllegalArgumentException();
-    }
-
-    public static void addDependenciesForTests(Consumer<IRequirement> requirementsConsumer) {
-        /*
-         * In case the test harness bundles (cf. TestMojo.getTestDependencies()) are part of the
-         * reactor, the dependency resolution needs to identify them as a dependency of
-         * eclipse-test-plugin modules. Otherwise they will be missing in the final target platform
-         * of the module - they would be filtered from the external target platform, and not added
-         * from the reactor - and hence the test runtime resolution would fail (see bug 443396).
-         */
-        requirementsConsumer.accept(optionalGreedyRequirementTo("org.eclipse.equinox.launcher"));
-        requirementsConsumer.accept(optionalGreedyRequirementTo("org.eclipse.core.runtime"));
-        requirementsConsumer.accept(optionalGreedyRequirementTo("org.eclipse.ui.ide.application"));
     }
 
     @Override

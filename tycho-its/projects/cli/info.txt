@@ -1,0 +1,1 @@
+This is just an empty project that might be used for testing cli invocations that do not use a project

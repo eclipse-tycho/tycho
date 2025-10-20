@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.eclipse.tycho.demo</groupId>
+	<artifactId>product-with-icons</artifactId>
+	<version>1.0.0</version>
+	<packaging>eclipse-repository</packaging>
+	
+	<properties>
+		<tycho-version>6.0.0-SNAPSHOT</tycho-version>
+	</properties>
+	
+	<repositories>
+		<repository>
+			<id>platform</id>
+			<url>https://download.eclipse.org/releases/2025-09/</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+	<build>
+		<plugins>
+			<!-- STEP 1 -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-publisher-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>default-publish-osgi-ee</id>
+						<phase>compile</phase>
+					</execution>
+					<execution>
+						<id>default-publish-products</id>
+						<phase>compile</phase>
+					</execution>
+					<execution>
+						<id>default-attach-artifacts</id>
+						<phase>compile</phase>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<!-- STEP 2 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.9.0</version>
+				<executions>
+					<execution>
+						<id>unpack</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/executables</outputDirectory>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<classifier>launchericons.executable.win32.win32.x86_64</classifier>
+									<version>${project.version}</version>
+									<type>zip</type>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- STEP 3 -->
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.5</version>
+				<executions>
+					<execution>
+						<id>delete</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+						<configuration>
+							<excludeDefaultDirectories>true</excludeDefaultDirectories>
+							<filesets>
+								<fileset>
+									<directory>
+										${project.build.directory}/executables</directory>
+									<includes>
+										<include>eclipsec.exe</include>
+									</includes>
+								</fileset>
+							</filesets>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- STEP 4 -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-repository-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>pack</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>archive-repository</goal>
+						</goals>
+						<configuration>
+							<finalName>extraArtifacts/launchericons.executable.win32.win32.x86_64</finalName>
+							<repositoryLocation>${project.build.directory}/executables</repositoryLocation>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Generic configuration-->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>materialize-products</id>
+						<goals>
+							<goal>materialize-products</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

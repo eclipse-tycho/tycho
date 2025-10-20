@@ -34,7 +34,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
-import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
@@ -85,8 +84,7 @@ public class StandaloneDirectorRuntimeFactory {
         URI eclipseLatest = URI.create(TychoConstants.ECLIPSE_LATEST);
         IMetadataRepository eclipseLatestRepository;
         try {
-            eclipseLatestRepository = repositoryManager
-                    .getMetadataRepository(new MavenRepositoryLocation("standalone-director", eclipseLatest));
+            eclipseLatestRepository = repositoryManager.getMetadataRepository(eclipseLatest, "standalone-director");
         } catch (ProvisionException e) {
             throw new MojoExecutionException("Could not load director source repository", e);
         }

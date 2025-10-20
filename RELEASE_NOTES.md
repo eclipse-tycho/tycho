@@ -6,6 +6,29 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 6.0.0 (under development)
 
+### new `tycho-test-plugin` for unified testing of OSGi bundles
+
+Historically Tycho has provided something similar to [maven-surefire-plugin](https://maven.apache.org/surefire/maven-surefire-plugin/) and also actually using it internally.
+This was to give a kind of "like maven" and as surefire is acting as an abstraction over different test-engines and offering a unified configuration, but this has had its shortcomings:
+
+- surefire was never designed to run inside OSGi so we have to use several kinds of workarounds to mitigate for that fact
+- as we need special setup and consideration, we never really extended the surefire mojo and only emulated to be similar to maven-surefire-plugin settings leading to slight diverging over time
+- due to the design we often are bound to the specific test framework by a so called "provider" that helps in setting things up so it plays well with OSGi requirements and surefire demands
+- In the meanwhile there are other techniques like junit-platform that offer similar features like surefire (e.g. the abstraction of test engines) or better integrate into OSGi (e.g. bnd-testing framework) and new features have to be implemented that are often missing.
+
+This now introduces a new `tycho-test-plugin` to make clear it is no longer bound to surefire and open it up for a more unified testing of OSGi bundles, e.g. we might offer different implementations.
+
+#### the new `tycho-test:junit-platform` mojo
+
+With that new approach we now support a new `tycho-test:junit-platform` that integrates the [tests-console-launcher](https://docs.junit.org/current/user-guide/#running-tests-console-launcher) into any OSGi Framework
+what has several advantages over the previous approaches:
+
+1. As we are calling it via a commandline interface, this now makes Tycho completely independent from the used junit-framework version
+2. A better and more natural integration of selecting test-engines in the pom.xml or with the target platform
+3. You can use any of the junit provided test engines or new features that might be added
+
+You can find a demo project [here}(https://github.com/eclipse-tycho/tycho/tree/main/demo/testing/junit-platform).
+
 ### new `tycho-wrap:verify` to test a maven-project with a generated manifest can resolve
 
 A common way to ensure compatibility and integration of java libraries is to enable the generation of an OSGi manifest automatically.

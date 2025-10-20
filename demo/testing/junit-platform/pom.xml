@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.eclipse.tycho.demo</groupId>
+	<artifactId>tycho-junitplatform-parent</artifactId>
+	<packaging>pom</packaging>
+	<version>1.0.0</version>
+
+	<modules>
+		<module>bundle</module>
+		<module>test</module>
+	</modules>
+
+	<properties>
+		<target-platform>https://download.eclipse.org/releases/2025-09/</target-platform>
+		<tycho-version>6.0.0-SNAPSHOT</tycho-version>
+	</properties>
+	<repositories>
+		<repository>
+			<id>platform</id>
+			<url>${target-platform}</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

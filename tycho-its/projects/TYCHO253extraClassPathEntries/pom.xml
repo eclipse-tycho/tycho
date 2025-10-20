@@ -9,7 +9,37 @@
 	<packaging>pom</packaging>
 
 	<modules>
+		<module>org.eclipse.tycho.testExtraClasspathTest1</module>
 		<module>org.eclipse.tycho.testExtraClasspathTest2</module>
 		<module>org.eclipse.tycho.testExtraClasspathTest3</module>
 	</modules>
+	
+	<properties>
+		<target-platform>http://download.eclipse.org/releases/latest</target-platform>
+		<tycho.localArtifacts>ignore</tycho.localArtifacts>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>p2</id>
+			<layout>p2</layout>
+			<url>${target-platform}</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+			</plugin>
+		</plugins>
+	</build>
 </project>
