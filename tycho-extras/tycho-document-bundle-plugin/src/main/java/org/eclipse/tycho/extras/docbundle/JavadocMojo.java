@@ -122,7 +122,7 @@ public class JavadocMojo extends AbstractMojo {
 	 * <li><code>docletArtifacts</code>, dependencies will be resovled and added as
 	 * <code>-docletpath</code> parameter</li>
 	 * <li><code>encoding</code>, used as javadoc <code>-encoding</code> parameter (default:
-	 * <code>${project.build.sourceEncoding}</code></li>
+	 * <code>${project.build.sourceEncoding}</code>)</li>
 	 * <li><code>additionalArguments</code>, a list of additional arguments passed to
 	 * javadoc</li>
 	 * <li><code>includes</code>/<code>excludes</code>, the list of names of packages to be
@@ -171,7 +171,7 @@ public class JavadocMojo extends AbstractMojo {
 	 * <li><code>mainLabel</code>, specifies the main label of the toc file (default:
 	 * "API Reference")</li>
 	 * <li><code>mainFilename</code>, specifies the filename of the TOC file (default:
-	 * "overview-summary.html")
+	 * "overview-summary.html")</li>
 	 * </ul>
 	 * Example configuration:
 	 *
