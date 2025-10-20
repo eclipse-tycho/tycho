@@ -63,6 +63,7 @@
 		<plexusVersion>2.2.0</plexusVersion>
 		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
 		<plexusCompilerVersion>2.15.0</plexusCompilerVersion>
+		<plexusTestingVersion>1.7.0</plexusTestingVersion>
 		<pluginToolsVersion>3.15.1</pluginToolsVersion>
 		<jgit-version>7.4.0.202509020913-r</jgit-version>
 		<maven-version>3.9.11</maven-version>
@@ -159,6 +160,11 @@
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-compiler-manager</artifactId>
 				<version>${plexusCompilerVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-testing</artifactId>
+				<version>${plexusTestingVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>

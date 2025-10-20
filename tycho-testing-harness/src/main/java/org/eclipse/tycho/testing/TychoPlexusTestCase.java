@@ -28,10 +28,13 @@ import org.apache.maven.plugin.testing.stubs.StubArtifactRepository;
 import org.apache.maven.session.scope.internal.SessionScope;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.ContainerConfiguration;
+import org.codehaus.plexus.DefaultContainerConfiguration;
+import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.codehaus.plexus.context.DefaultContext;
+import org.codehaus.plexus.testing.PlexusExtension;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -40,8 +43,8 @@ import org.junit.rules.TemporaryFolder;
 
 /**
  *
- * A wrapper around {@link PlexusTestCase} that allows usage in JUnit 4/5 as well as setting the
- * classpath scanning for usage in "maven like" tests that only test plexus components.
+ * A base class for Tycho tests that require Plexus components. This class uses the modern
+ * plexus-testing library's PlexusExtension internally but maintains JUnit 4 compatibility.
  *
  */
 public class TychoPlexusTestCase {
@@ -49,24 +52,62 @@ public class TychoPlexusTestCase {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    PlexusTestCaseExension ext = new PlexusTestCaseExension();
+    private PlexusContainer container;
 
     @After
-    public void tearDown() throws ComponentLookupException {
-        SessionScope sessionScope = ext.getContainer().lookup(SessionScope.class);
-        sessionScope.exit();
-        ext.teardownContainer();
+    public void tearDown() throws Exception {
+        if (container != null) {
+            SessionScope sessionScope = container.lookup(SessionScope.class);
+            sessionScope.exit();
+            container.dispose();
+            container = null;
+        }
     }
 
     protected PlexusContainer getContainer() {
-        return ext.getContainer();
+        if (container == null) {
+            try {
+                setupContainer();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to setup Plexus container", e);
+            }
+        }
+        return container;
+    }
+
+    private void setupContainer() throws Exception {
+        // Setup container similar to PlexusExtension
+        DefaultContext plexusContext = new DefaultContext();
+        plexusContext.put("basedir", getBasedir());
+        
+        File plexusHome = new File(getBasedir(), "target/plexus-home");
+        if (!plexusHome.isDirectory()) {
+            plexusHome.mkdirs();
+        }
+        plexusContext.put("plexus.home", plexusHome.getAbsolutePath());
+
+        ContainerConfiguration containerConfiguration = new DefaultContainerConfiguration()
+                .setName("test")
+                .setContext(plexusContext.getContextData());
+
+        customizeContainerConfiguration(containerConfiguration);
+
+        container = new DefaultPlexusContainer(containerConfiguration);
+        container.addComponent(container, PlexusContainer.class.getName());
+        
+        // Inject dependencies into this test instance
+        ((DefaultPlexusContainer) container).addPlexusInjector(
+                Collections.emptyList(), binder -> binder.requestInjection(this));
     }
 
     @SuppressWarnings("deprecation")
     @Before
-    public void setUpServiceAndSession() throws ComponentLookupException, IOException {
+    public void setUpServiceAndSession() throws Exception {
+        if (container == null) {
+            setupContainer();
+        }
+        
         LegacySupport legacySupport = lookup(LegacySupport.class);
-        PlexusContainer container = ext.getContainer();
         Settings settings = new Settings();
         ArtifactRepository localRepository = new StubArtifactRepository(temporaryFolder.newFolder().getAbsolutePath()) {
             DefaultRepositoryLayout layout = new DefaultRepositoryLayout();
@@ -95,8 +136,13 @@ public class TychoPlexusTestCase {
         }
     }
 
+    protected void customizeContainerConfiguration(ContainerConfiguration containerConfiguration) {
+        containerConfiguration.setAutoWiring(true);
+        containerConfiguration.setClassPathScanning(PlexusConstants.SCANNING_INDEX);
+    }
+
     public static String getBasedir() {
-        return PlexusTestCaseExension.getBasedir();
+        return PlexusExtension.getBasedir();
     }
 
     protected void modifySession(MavenSession mavenSession) {
@@ -104,15 +150,15 @@ public class TychoPlexusTestCase {
     }
 
     public final <T> T lookup(final Class<T> role) throws ComponentLookupException {
-        return ext.getContainer().lookup(role);
+        return container.lookup(role);
     }
 
     public final <T> T lookup(final Class<T> role, String hint) throws ComponentLookupException {
-        return ext.getContainer().lookup(role, hint);
+        return container.lookup(role, hint);
     }
 
     public final <T> Collection<T> lookupList(final Class<T> role) throws ComponentLookupException {
-        return ext.getContainer().lookupList(role);
+        return container.lookupList(role);
     }
 
     public static File resourceFile(String path) {
@@ -127,31 +173,6 @@ public class TychoPlexusTestCase {
 
     protected static File getBasedir(String name) throws IOException {
         return TestUtil.getBasedir(name);
-    }
-
-    private static final class PlexusTestCaseExension extends PlexusTestCase {
-
-        @Override
-        protected void customizeContainerConfiguration(ContainerConfiguration configuration) {
-            configuration.setAutoWiring(true);
-            configuration.setClassPathScanning(PlexusConstants.SCANNING_INDEX);
-        }
-
-        @Override
-        public synchronized void setupContainer() {
-            super.setupContainer();
-        }
-
-        @Override
-        public synchronized void teardownContainer() {
-            super.teardownContainer();
-        }
-
-        @Override
-        public PlexusContainer getContainer() {
-            return super.getContainer();
-        }
-
     }
 
 }
