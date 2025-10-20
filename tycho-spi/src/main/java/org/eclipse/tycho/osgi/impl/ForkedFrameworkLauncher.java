@@ -27,8 +27,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Named;
+
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.osgi.OSGiFramework;
 import org.eclipse.tycho.osgi.OSGiFrameworkLauncher;
 import org.eclipse.tycho.osgi.impl.ForkedFrameworkMain.SocketCommandChannel;
@@ -38,7 +39,7 @@ import org.osgi.framework.launch.Framework;
 /**
  * The {@link ForkedFrameworkLauncher} launches a framework in a new JVM process
  */
-@Component(role = OSGiFrameworkLauncher.class, hint = "forked")
+@Named("forked")
 public class ForkedFrameworkLauncher implements OSGiFrameworkLauncher {
 
     @Override

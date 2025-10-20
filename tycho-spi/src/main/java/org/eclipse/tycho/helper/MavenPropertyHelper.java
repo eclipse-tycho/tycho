@@ -12,21 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.helper;
 
-import java.util.List;
-import java.util.Properties;
-
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.LegacySupport;
-import org.apache.maven.settings.Profile;
-import org.apache.maven.settings.Settings;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-
-@Component(role = MavenPropertyHelper.class)
-public class MavenPropertyHelper {
-
-    @Requirement
-    LegacySupport legacySupport;
+public interface MavenPropertyHelper {
 
     /**
      * Returns a global (user) property of the given key, the search order is
@@ -42,9 +28,7 @@ public class MavenPropertyHelper {
      * @return the value according to the described search order or <code>null</code> if nothing can
      *         be found.
      */
-    public String getGlobalProperty(String key) {
-        return getGlobalProperty(key, null);
-    }
+    String getGlobalProperty(String key);
 
     /**
      * Returns a global (user) property of the given key, the search order is
@@ -62,47 +46,10 @@ public class MavenPropertyHelper {
      *            the default value to use as a last resort
      * @return the value according to the described search order
      */
-    public String getGlobalProperty(String key, String defaultValue) {
-        MavenSession mavenSession = legacySupport.getSession();
-        if (mavenSession != null) {
-            // Check user properties first ...
-            Properties userProperties = mavenSession.getUserProperties();
-            String userProperty = userProperties.getProperty(key);
-            if (userProperty != null) {
-                return userProperty;
-            }
-            // check if there are any active profile properties ...
-            Settings settings = mavenSession.getSettings();
-            List<Profile> profiles = settings.getProfiles();
-            List<String> activeProfiles = settings.getActiveProfiles();
-            for (Profile profile : profiles) {
-                if (activeProfiles.contains(profile.getId())) {
-                    String profileProperty = profile.getProperties().getProperty(key);
-                    if (profileProperty != null) {
-                        return profileProperty;
-                    }
-                }
-            }
-            // now maven system properties
-            Properties systemProperties = mavenSession.getSystemProperties();
-            String systemProperty = systemProperties.getProperty(key);
-            if (systemProperty != null) {
-                return systemProperty;
-            }
-        }
-        // java system properties last
-        return System.getProperty(key, defaultValue);
-    }
+    String getGlobalProperty(String key, String defaultValue);
 
-    public boolean getGlobalBooleanProperty(String key, boolean defaultValue) {
-        return Boolean.parseBoolean(getGlobalProperty(key, Boolean.toString(defaultValue)));
-    }
+    boolean getGlobalBooleanProperty(String key, boolean defaultValue);
 
-    public int getGlobalIntProperty(String key, int defaultValue) {
-        try {
-            return Integer.parseInt(getGlobalProperty(key, Integer.toString(defaultValue)));
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
-    }
+    int getGlobalIntProperty(String key, int defaultValue);
+
 }
