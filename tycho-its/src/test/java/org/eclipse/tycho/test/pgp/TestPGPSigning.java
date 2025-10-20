@@ -241,9 +241,11 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 			}
 		}
 		
-		// Eclipse platform bundles may be signed or unsigned depending on their jar-signed/anchored state
-		// which can vary based on what's fetched from the remote p2 repository.
-		// org.eclipse.platform_root is a binary and with default skipBinaries=true, it won't be signed
+		// Eclipse platform bundles may be signed or unsigned depending on whether they are
+		// jar-signed AND anchored (i.e., have a trust anchor in their JAR signature).
+		// The skipIfJarsignedAndAnchored=true configuration skips PGP signing for such bundles.
+		// The exact jar-signed/anchored state can vary based on what's fetched from the remote p2 repository.
+		// org.eclipse.platform_root is a binary, and with default skipBinaries=true, it typically won't be signed.
 		Set<String> eclipseBundles = Set.of(
 			"org.eclipse.equinox.common", "org.eclipse.equinox.common.source",
 			"org.eclipse.osgi", "org.eclipse.osgi.source", "org.eclipse.platform_root");
@@ -290,9 +292,11 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 			}
 		}
 		
-		// Eclipse platform bundles may be signed or unsigned depending on their jar-signed/anchored state
-		// which can vary based on what's fetched from the remote p2 repository.
-		// We verify that if they are present, they follow a consistent pattern.
+		// Eclipse platform bundles may be signed or unsigned depending on whether they are
+		// jar-signed AND anchored (i.e., have a trust anchor in their JAR signature).
+		// The skipIfJarsignedAndAnchored=true configuration skips PGP signing for such bundles.
+		// The exact jar-signed/anchored state can vary based on what's fetched from the remote p2 repository.
+		// We allow them to appear in either category but verify they don't appear as unexpected IUs.
 		Set<String> eclipseBundles = Set.of(
 			"org.eclipse.equinox.common", "org.eclipse.equinox.common.source",
 			"org.eclipse.osgi", "org.eclipse.osgi.source");
