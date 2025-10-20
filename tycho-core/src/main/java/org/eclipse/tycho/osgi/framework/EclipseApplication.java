@@ -108,6 +108,11 @@ public class EclipseApplication {
                 if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())
                         && !"org.eclipse.osgi".equals(entry.getId())) {
                     File location = entry.getLocation(true);
+                    if (location == null) {
+                        logger.warn("Cannot resolve location for bundle " + entry.getId() + " " + entry.getVersion()
+                                + ". The artifact may not be available or failed to download.");
+                        continue;
+                    }
                     Path path = location.toPath();
                     if (location.isDirectory()) {
                         MavenProject mavenProject = baseDirMap.get(location);
