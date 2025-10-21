@@ -21,16 +21,15 @@ import java.io.InputStream;
 import javax.inject.Inject;
 
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.testing.PlexusExtension;
+import org.codehaus.plexus.testing.PlexusTest;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 import org.eclipse.tycho.zipcomparator.internal.ClassfileComparator;
 import org.eclipse.tycho.zipcomparator.internal.ContentsComparator;
 import org.eclipse.tycho.zipcomparator.internal.ManifestComparator;
 import org.eclipse.tycho.zipcomparator.internal.PropertiesComparator;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(PlexusExtension.class)
+@PlexusTest
 public class ContentsComparatorTest {
 
     @Inject
