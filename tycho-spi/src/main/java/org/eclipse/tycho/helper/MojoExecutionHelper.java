@@ -14,22 +14,23 @@ package org.eclipse.tycho.helper;
 
 import java.util.Optional;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.apache.maven.execution.MojoExecutionEvent;
 import org.apache.maven.execution.MojoExecutionListener;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 
-@Component(role = MojoExecutionListener.class, hint = "helper")
+@Named("helper")
 public class MojoExecutionHelper implements MojoExecutionListener {
     private static boolean printMemoryInfo = Boolean.getBoolean("tycho.printMemory");
     private static boolean gc = Boolean.getBoolean("tycho.printMemory.gc");
 
     private static final ThreadLocal<MojoExecutionEvent> EVENT = new ThreadLocal<MojoExecutionEvent>();
 
-    @Requirement
+    @Inject
     private Logger logger;
 
     @Override

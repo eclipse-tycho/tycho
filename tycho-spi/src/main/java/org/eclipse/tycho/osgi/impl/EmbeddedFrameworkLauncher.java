@@ -23,8 +23,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import javax.inject.Named;
+
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.osgi.OSGiFramework;
 import org.eclipse.tycho.osgi.OSGiFrameworkLauncher;
 import org.osgi.framework.BundleException;
@@ -35,7 +36,7 @@ import org.osgi.framework.launch.FrameworkFactory;
 /**
  * The {@link EmbeddedFrameworkLauncher} launches a framework in the same JVM
  */
-@Component(role = OSGiFrameworkLauncher.class, hint = "embedded")
+@Named("embedded")
 public class EmbeddedFrameworkLauncher implements OSGiFrameworkLauncher {
 
     @Override

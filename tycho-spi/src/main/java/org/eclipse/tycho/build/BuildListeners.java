@@ -12,58 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.build;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.helper.PluginRealmHelper;
 
-@Component(role = BuildListeners.class)
-public class BuildListeners {
-    @Requirement
-    private PluginRealmHelper realmHelper;
+public interface BuildListeners {
 
-    @Requirement
-    private Logger log;
+    void notifyBuildStart(MavenSession session);
 
-    public void notifyBuildStart(MavenSession session) {
-        Set<String> called = new HashSet<String>();
-        for (MavenProject project : session.getProjects()) {
-            try {
-                realmHelper.visitPluginExtensions(project, session, BuildListener.class, listener -> {
-                    if (called.add(listener.getClass().getName())) {
-                        listener.buildStarted(session);
-                    }
-                });
-            } catch (Exception e) {
-                String message = "Can't call BuildListeners for project: " + project.getId();
-                if (log.isDebugEnabled()) {
-                    log.error(message, e);
-                }
-            }
-        }
-    }
+    void notifyBuildEnd(MavenSession session);
 
-    public void notifyBuildEnd(MavenSession session) {
-        Set<String> called = new HashSet<String>();
-        for (MavenProject project : session.getProjects()) {
-            try {
-                realmHelper.visitPluginExtensions(project, session, BuildListener.class, listener -> {
-                    if (called.add(listener.getClass().getName())) {
-                        listener.buildEnded(session);
-                    }
-                });
-            } catch (Exception e) {
-                String message = "Can't call BuildListeners for project: " + project.getId();
-                if (log.isDebugEnabled()) {
-                    log.error(message, e);
-                }
-            }
-        }
-
-    }
 }
