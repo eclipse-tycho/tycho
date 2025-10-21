@@ -225,6 +225,12 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-testing</artifactId>
+				<version>1.4.0</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
 				<version>5.20.0</version>
