@@ -28,6 +28,19 @@ import org.osgi.framework.wiring.BundleRevision;
 public interface DependencyComputer {
 
     /**
+     * Entry representing a dependency with access rules.
+     */
+    public interface DependencyEntry {
+        BundleRevision getRevision();
+        java.io.File getLocation();
+        boolean isSystemBundle();
+        String getSymbolicName();
+        org.osgi.framework.Version getVersion();
+        ArtifactDescriptor getArtifactDescriptor();
+        java.util.Collection<AccessRule> getRules();
+    }
+
+    /**
      * Computes and returns the List of dependencies of the given {@link ModuleRevision}.
      * 
      * @param module
@@ -36,7 +49,7 @@ public interface DependencyComputer {
      *            function to look up artifact descriptors
      * @return the list of dependencies of the module
      */
-    List<org.eclipse.tycho.core.osgitools.DefaultDependencyComputer.DependencyEntry> computeDependencies(ModuleRevision module,
+    List<DependencyEntry> computeDependencies(ModuleRevision module,
             Function<BundleRevision, ArtifactDescriptor> descriptorLookup);
 
     /**

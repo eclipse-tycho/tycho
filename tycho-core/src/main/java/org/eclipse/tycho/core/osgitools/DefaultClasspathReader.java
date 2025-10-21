@@ -73,13 +73,4 @@ public class DefaultClasspathReader implements ClasspathReader, Disposable {
         });
     }
 
-    public static Collection<MavenArtifactKey> asMaven(Collection<JUnitBundle> artifacts) {
-        return artifacts.stream().map(junit -> toMaven(junit)).toList();
-    }
-
-    public static MavenArtifactKey toMaven(JUnitBundle junit) {
-        return MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT, junit.getBundleName(), junit.getVersionRange(),
-                junit.getMavenGroupId(), junit.getMavenArtifactId());
-    }
-
 }

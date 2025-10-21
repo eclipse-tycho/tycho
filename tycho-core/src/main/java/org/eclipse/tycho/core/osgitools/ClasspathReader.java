@@ -16,10 +16,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
+import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.MavenArtifactKey;
+import org.eclipse.tycho.model.classpath.JUnitBundle;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 
 public interface ClasspathReader {
 
     Collection<ProjectClasspathEntry> parse(File basedir) throws IOException;
+
+    static Collection<MavenArtifactKey> asMaven(Collection<JUnitBundle> artifacts) {
+        return artifacts.stream().map(junit -> toMaven(junit)).toList();
+    }
+
+    static MavenArtifactKey toMaven(JUnitBundle junit) {
+        return MavenArtifactKey.of(ArtifactType.TYPE_INSTALLABLE_UNIT, junit.getBundleName(), junit.getVersionRange(),
+                junit.getMavenGroupId(), junit.getMavenArtifactId());
+    }
 
 }
