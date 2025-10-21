@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.extras.docbundle.runner.BuildHelpIndexRunner;
 import org.eclipse.tycho.osgi.framework.Bundles;
+import org.eclipse.tycho.osgi.framework.DefaultEclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
 import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.EclipseFramework;
@@ -64,7 +65,7 @@ public class BuildHelpIndexMojo extends AbstractMojo {
 		if (manifest == null || !manifest.exists()) {
 			throw new MojoExecutionException("Manifest is not a file: " + manifest);
 		}
-		MavenRepositoryLocation repository = EclipseApplicationManager.getRepository(buildToolsRepository);
+		MavenRepositoryLocation repository = DefaultEclipseApplicationManager.getRepository(buildToolsRepository);
 		EclipseApplication application = applicationManager.getApplication(repository,
 				Bundles.of(Bundles.BUNDLE_ECLIPSE_HELP_BASE), Features.of(), "Build Document Index");
 		EclipseWorkspace<?> workspace = workspaceManager.getWorkspace(repository.getURL(), this);

@@ -15,14 +15,17 @@ package org.eclipse.tycho.artifacts.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityType;
 
-@Component(role = TargetPlatformFilterConfigurationReader.class)
+@Named
+@Singleton
 public class TargetPlatformFilterConfigurationReader {
 
     public List<TargetPlatformFilter> parseFilterConfiguration(Xpp3Dom filtersElement) {

@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.osgi.framework.Bundles;
+import org.eclipse.tycho.osgi.framework.DefaultEclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
 import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.EclipseFramework;
@@ -127,7 +128,7 @@ public class GeneratorMojo extends AbstractMojo {
 		if (installations == null && installation == null) {
 			throw new MojoFailureException("One of 'installations' or 'installation' must be specified");
 		}
-		MavenRepositoryLocation repository = EclipseApplicationManager.getRepository(generatorRepository,
+		MavenRepositoryLocation repository = DefaultEclipseApplicationManager.getRepository(generatorRepository,
 				URI.create("https://download.eclipse.org/cbi/updates/p2-sbom/products/nightly/"));
 		EclipseApplication application = applicationManager.getApplication(repository, Bundles.of(), Features.of(),
 				"SBOM Generator");
