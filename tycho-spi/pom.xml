@@ -26,6 +26,10 @@
 			<artifactId>maven-core</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-compat</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-api</artifactId>
 			<version>${project.version}</version>
