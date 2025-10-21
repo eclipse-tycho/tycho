@@ -168,8 +168,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             DependenciesInfo dependenciesInfo = resolver.computeDependencies(project, artifacts, session);
             for (DependencyEntry entry : dependenciesInfo.getDependencyEntries()) {
                 if (entry.isSystemBundle()) {
-                    if (entry.rules != null) {
-                        strictBootClasspathAccessRules.addAll(entry.rules);
+                    if (entry.getRules() != null) {
+                        strictBootClasspathAccessRules.addAll(entry.getRules());
                     }
                 }
                 File location = entry.getLocation();
@@ -184,19 +184,19 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                             locations = getBundleClasspath(otherArtifact);
                         }
 
-                        if (locations.isEmpty() && !entry.rules.isEmpty()) {
+                        if (locations.isEmpty() && !entry.getRules().isEmpty()) {
                             getLogger().warn("Empty classpath of required bundle " + otherArtifact);
                         }
 
                         classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations,
-                                entry.rules));
+                                entry.getRules()));
                     } else {
                         logger.debug("Cannot fetch artifact info for " + entry.getSymbolicName() + " and location "
                                 + location + ", using raw jar item for classpath");
                         classpath.add(new DefaultClasspathEntry(null,
                                 new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.getSymbolicName(),
                                         entry.getVersion().toString()),
-                                Collections.singletonList(location), entry.rules));
+                                Collections.singletonList(location), entry.getRules()));
                     }
                 }
             }

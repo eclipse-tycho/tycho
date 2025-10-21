@@ -13,43 +13,16 @@
 package org.eclipse.tycho.core;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Iterator;
 
-import org.codehaus.plexus.component.annotations.Component;
-
-@Component(role = ManifestHelper.class)
-public class ManifestHelper {
+public interface ManifestHelper {
 
     /**
      * Get the line number of the given manifest header
      * 
-     * @param mavenProject
+     * @param manifestFile
      * @param headerName
      * @return the line number or 0 if not found
      */
-    public int getLineNumber(File manifestFile, String headerName) {
-        if (manifestFile.isFile()) {
-            try (FileInputStream stream = new FileInputStream(manifestFile)) {
-                Iterator<String> iterator = Files.lines(manifestFile.toPath(), StandardCharsets.UTF_8).iterator();
-                int number = 0;
-                String search = headerName.toLowerCase() + ":";
-                while (iterator.hasNext()) {
-                    String line = iterator.next().toLowerCase();
-                    number++;
-                    if (line.startsWith(search)) {
-                        return number;
-                    }
-
-                }
-            } catch (IOException e) {
-                // can' determine line number then...
-            }
-        }
-        return 0;
-    }
+    int getLineNumber(File manifestFile, String headerName);
 
 }

@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.artifact.Artifact;
@@ -35,8 +36,6 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.artifact.ProjectArtifact;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -79,37 +78,37 @@ import org.osgi.resource.Namespace;
 
 import aQute.bnd.osgi.Processor;
 
-@Component(role = TychoProjectManager.class)
+@Named
 @SessionScoped
 public class TychoProjectManager {
 
     static final String CTX_TARGET_PLATFORM_CONFIGURATION = "TychoProjectManager/targetPlatformConfiguration";
 
-    @Requirement(role = TychoProject.class)
+    @Inject
     Map<String, TychoProject> projectTypes;
 
-    @Requirement
+    @Inject
     BundleReader bundleReader;
 
-    @Requirement
+    @Inject
     DefaultTargetPlatformConfigurationReader configurationReader;
 
-    @Requirement
+    @Inject
     LegacySupport legacySupport;
 
-    @Requirement
+    @Inject
     Logger logger;
 
-    @Requirement
+    @Inject
     ToolchainManager toolchainManager;
 
-    @Requirement
+    @Inject
     PluginRealmHelper pluginRealmHelper;
 
-    @Requirement
+    @Inject
     MavenBundleResolver mavenBundleResolver;
 
-    @Requirement
+    @Inject
     TargetPlatformService targetPlatformService;
 
     private final Map<File, Optional<EclipseProject>> eclipseProjectCache = new ConcurrentHashMap<>();
