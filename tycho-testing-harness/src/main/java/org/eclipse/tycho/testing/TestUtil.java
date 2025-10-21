@@ -17,21 +17,28 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 
-import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.util.FileUtils;
 
 public class TestUtil {
 
+    private static String getBasedir() {
+        String basedir = System.getProperty("basedir");
+        if (basedir == null) {
+            basedir = new File("").getAbsolutePath();
+        }
+        return basedir;
+    }
+
     public static File getTestResourceLocation(String name) throws IOException {
-        File src = new File(PlexusTestCase.getBasedir(), "src/test/resources/" + name);
+        File src = new File(getBasedir(), "src/test/resources/" + name);
         assertTrue(src.exists());
         return src;
     }
 
     // TODO rename to clarify that this creates a copy
     public static File getBasedir(String name) throws IOException {
-        File src = new File(PlexusTestCase.getBasedir(), "src/test/resources/" + name);
-        File dst = new File(PlexusTestCase.getBasedir(), "target/" + name);
+        File src = new File(getBasedir(), "src/test/resources/" + name);
+        File dst = new File(getBasedir(), "target/" + name);
 
         if (dst.isDirectory()) {
             FileUtils.deleteDirectory(dst);

@@ -61,6 +61,7 @@
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
 		<commonsCompressVersion>1.28.0</commonsCompressVersion>
 		<plexusVersion>2.2.0</plexusVersion>
+		<plexusTestingVersion>2.0.0</plexusTestingVersion>
 		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
 		<plexusCompilerVersion>2.15.0</plexusCompilerVersion>
 		<pluginToolsVersion>3.15.1</pluginToolsVersion>
@@ -132,6 +133,11 @@
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-component-annotations</artifactId>
 				<version>${plexusVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-testing</artifactId>
+				<version>${plexusTestingVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.sisu</groupId>

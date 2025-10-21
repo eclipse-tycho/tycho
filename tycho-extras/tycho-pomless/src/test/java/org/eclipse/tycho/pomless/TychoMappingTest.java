@@ -13,35 +13,42 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.File;
+
+import javax.inject.Inject;
 
 import org.codehaus.plexus.ContainerConfiguration;
 import org.codehaus.plexus.PlexusConstants;
-import org.codehaus.plexus.PlexusTestCase;
+import org.codehaus.plexus.testing.PlexusExtension;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.codehaus.plexus.testing.PlexusTestConfiguration;
+import org.junit.Before;
+import org.junit.Test;
 import org.sonatype.maven.polyglot.PolyglotModelManager;
 
-public class TychoMappingTest extends PlexusTestCase {
+@PlexusTest
+public class TychoMappingTest implements PlexusTestConfiguration {
 
+    @Inject
     private PolyglotModelManager polyglotModelManager;
 
     @Override
-    protected void customizeContainerConfiguration(ContainerConfiguration configuration) {
-        super.customizeContainerConfiguration(configuration);
+    public void customizeConfiguration(ContainerConfiguration configuration) {
         configuration.setAutoWiring(true);
         configuration.setClassPathScanning(PlexusConstants.SCANNING_ON);
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        polyglotModelManager = lookup(PolyglotModelManager.class);
-    }
-
+    @Test
     public void testLocateBuildProperties() throws Exception {
         File pom = polyglotModelManager.findPom(new File(getMappingTestDir(), "simple"));
         assertNotNull(pom);
         assertEquals(TychoBundleMapping.META_INF_DIRECTORY, pom.getName());
     }
 
+    @Test
     public void testPriority() throws Exception {
         File pom = polyglotModelManager.findPom(new File(getMappingTestDir(), "precedence"));
         assertNotNull(pom);
@@ -49,7 +56,7 @@ public class TychoMappingTest extends PlexusTestCase {
     }
 
     private File getMappingTestDir() {
-        return new File(getBasedir(), "src/test/resources/mapping/");
+        return new File(PlexusExtension.getBasedir(), "src/test/resources/mapping/");
     }
 
 }

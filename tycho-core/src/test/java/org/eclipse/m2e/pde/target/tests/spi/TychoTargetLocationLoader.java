@@ -253,7 +253,17 @@ public class TychoTargetLocationLoader implements TargetLocationLoader {
         private boolean init;
 
         public PlexusContainer createContainer(File tempDir) throws ComponentLookupException {
+            // Manually initialize the container if it hasn't been done via setUp
             PlexusContainer container = super.getContainer();
+            if (container == null) {
+                try {
+                    temporaryFolder.create();
+                    setUpPlexusContainer();
+                    container = super.getContainer();
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to initialize Plexus container", e);
+                }
+            }
             if (!init) {
                 init = true;
                 LegacySupport legacySupport = lookup(LegacySupport.class);
