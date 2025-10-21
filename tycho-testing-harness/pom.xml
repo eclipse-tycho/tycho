@@ -33,6 +33,11 @@
 			<artifactId>maven-plugin-testing-harness</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-testing</artifactId>
+			<version>1.5.0</version>
+		</dependency>
+		<dependency>
 			<artifactId>junit</artifactId>
 			<groupId>junit</groupId>
 			<scope>compile</scope>
