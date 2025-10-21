@@ -20,20 +20,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.cli.internal.extension.model.CoreExtension;
 import org.apache.maven.cli.internal.extension.model.io.xpp3.CoreExtensionsXpp3Reader;
 import org.apache.maven.execution.MavenSession;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
-@Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoPomlessLifecycleParticipant")
+@Named("TychoPomlessLifecycleParticipant")
+@Singleton
 public class TychoPomlessLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
-    @Requirement
+    @Inject
     protected Logger logger;
 
     @Override

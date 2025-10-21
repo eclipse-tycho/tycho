@@ -43,10 +43,11 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.building.FileModelSource;
 import org.apache.maven.model.building.ModelProcessor;
+import javax.inject.Inject;
+
 import org.apache.maven.model.io.ModelReader;
 import org.apache.maven.model.io.ModelWriter;
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.sonatype.maven.polyglot.PolyglotModelUtil;
@@ -70,10 +71,10 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     private Map<Path, ParentModel> parentModelCache = new HashMap<Path, ParentModel>();
 
-    @Requirement
+    @Inject
     protected PlexusContainer container;
 
-    @Requirement
+    @Inject
     protected Logger logger;
 
     private ModelWriter writer;
