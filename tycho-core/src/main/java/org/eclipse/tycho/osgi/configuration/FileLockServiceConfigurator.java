@@ -13,16 +13,19 @@
 
 package org.eclipse.tycho.osgi.configuration;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.FileLockService;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "FileLockServiceConfigurator")
+@Named("FileLockServiceConfigurator")
+@Singleton
 public class FileLockServiceConfigurator implements EquinoxLifecycleListener {
 
-    @Requirement
+    @Inject
     private FileLockService fileLockService;
 
     /**

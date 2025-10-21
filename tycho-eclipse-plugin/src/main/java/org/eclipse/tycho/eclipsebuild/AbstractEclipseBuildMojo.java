@@ -49,6 +49,7 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.osgi.framework.Bundles;
+import org.eclipse.tycho.osgi.framework.DefaultEclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
 import org.eclipse.tycho.osgi.framework.EclipseApplicationFactory;
 import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
@@ -168,7 +169,7 @@ public abstract class AbstractEclipseBuildMojo<Result extends EclipseBuildResult
 			arguments = List.of();
 		}
 		try (EclipseFramework framework = application.startFramework(workspaceManager
-				.getWorkspace(EclipseApplicationManager.getRepository(eclipseRepository).getURL(), this), arguments)) {
+				.getWorkspace(DefaultEclipseApplicationManager.getRepository(eclipseRepository).getURL(), this), arguments)) {
 			if (debug) {
 				framework.printState();
 			}

@@ -18,19 +18,22 @@ package org.eclipse.tycho.osgi.configuration;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.settings.Profile;
 import org.apache.maven.settings.Settings;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.shared.MavenContext;
 
-@Component(role = EquinoxLifecycleListener.class, hint = "MavenContextConfigurator")
+@Named("MavenContextConfigurator")
+@Singleton
 public class MavenContextConfigurator implements EquinoxLifecycleListener {
 
-    @Requirement
+    @Inject
     private MavenContext context;
 
     @Override
