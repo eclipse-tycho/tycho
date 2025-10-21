@@ -13,13 +13,20 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
-import static org.junit.Assert.assertThrows;
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.InputSource;
@@ -28,21 +35,17 @@ import org.apache.maven.model.Parent;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelParseException;
 import org.apache.maven.model.io.ModelReader;
-import org.codehaus.plexus.ContainerConfiguration;
-import org.codehaus.plexus.PlexusConstants;
-import org.codehaus.plexus.PlexusTestCase;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.junit.Test;
+import org.codehaus.plexus.testing.PlexusTest;
+import org.junit.jupiter.api.Test;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
-public class TychoModelReaderTest extends PlexusTestCase {
+@PlexusTest
+public class TychoModelReaderTest {
 
-    @Override
-    protected void customizeContainerConfiguration(ContainerConfiguration configuration) {
-        super.customizeContainerConfiguration(configuration);
-        configuration.setAutoWiring(true);
-        configuration.setClassPathScanning(PlexusConstants.SCANNING_ON);
-    }
+    @Inject
+    private PlexusContainer container;
 
     @Test
     public void testReadBundle() throws Exception {
@@ -216,7 +219,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
     }
 
     private Mapping getMapping(String packaging) throws ComponentLookupException {
-        return lookup(Mapping.class, packaging);
+        return container.lookup(Mapping.class, packaging);
     }
 
     @Test
