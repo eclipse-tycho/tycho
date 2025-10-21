@@ -32,7 +32,7 @@ import javax.inject.Singleton;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
+import org.eclipse.sisu.PreDestroy;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.Interpolator;
@@ -42,7 +42,7 @@ import org.eclipse.tycho.core.maven.TychoInterpolator;
 
 @Named
 @Singleton
-public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposable {
+public class BuildPropertiesParserImpl implements BuildPropertiesParser {
 
     private final Map<String, BuildPropertiesImpl> cache = new HashMap<>();
 
@@ -95,7 +95,7 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
         return buildProperties;
     }
 
-    @Override
+    @PreDestroy
     public void dispose() {
         cache.clear();
     }

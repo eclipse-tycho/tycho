@@ -32,11 +32,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -75,7 +77,8 @@ import org.eclipse.tycho.model.classpath.LibraryClasspathEntry;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.osgi.framework.Filter;
 
-@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_PLUGIN)
+@Named(PackagingType.TYPE_ECLIPSE_PLUGIN)
+@Singleton
 public class OsgiBundleProject extends AbstractTychoProject implements BundleProject {
 
     private static final String CTX_OSGI_BUNDLE_BASENAME = TychoConstants.CTX_BASENAME + "/osgiBundle";
@@ -83,28 +86,29 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private static final String CTX_CLASSPATH = CTX_OSGI_BUNDLE_BASENAME + "/classPath";
     static final String CTX_ECLIPSE_PLUGIN_PROJECT = CTX_OSGI_BUNDLE_BASENAME + "/eclipsePluginProject";
 
-    @Requirement
+    @Inject
     private BundleReader bundleReader;
 
-    @Requirement
+    @Inject
     private ClasspathReader classpathParser;
 
-    @Requirement(hint = EquinoxResolver.HINT)
+    @Inject
+    @Named(EquinoxResolver.HINT)
     private DependenciesResolver resolver;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement
+    @Inject
     private ToolchainManager toolchainManager;
 
-    @Requirement
+    @Inject
     P2ResolverFactory resolverFactory;
 
-    @Requirement
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
-    @Requirement
+    @Inject
     private MavenBundleResolver mavenBundleResolver;
 
     @Override
