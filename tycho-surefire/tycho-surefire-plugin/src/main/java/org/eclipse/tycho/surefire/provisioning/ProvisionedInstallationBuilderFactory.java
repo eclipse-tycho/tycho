@@ -12,22 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.surefire.provisioning;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+public interface ProvisionedInstallationBuilderFactory {
 
-@Component(role = ProvisionedInstallationBuilderFactory.class)
-public class ProvisionedInstallationBuilderFactory {
-
-    @Requirement
-    private DirectorRuntime directorRuntime;
-
-    @Requirement
-    private Logger logger;
-
-    public ProvisionedInstallationBuilder createInstallationBuilder() {
-        return new ProvisionedInstallationBuilder(directorRuntime, logger);
-    }
+    ProvisionedInstallationBuilder createInstallationBuilder();
 
 }
