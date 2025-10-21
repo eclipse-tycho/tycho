@@ -23,11 +23,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.LockTimeoutException;
 
-@Component(role = FileLockService.class)
+@Named
+@Singleton
 public class FileLockServiceImpl implements FileLockService {
     record FileLocks(FileLockerImpl fileLocker, Lock vmLock) {
     }

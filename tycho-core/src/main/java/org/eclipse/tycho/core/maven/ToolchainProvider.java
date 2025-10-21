@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
@@ -29,13 +30,11 @@ import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.maven.toolchain.ToolchainManagerPrivate;
 import org.apache.maven.toolchain.ToolchainPrivate;
 import org.apache.maven.toolchain.java.JavaToolchainImpl;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 
-@Component(role = ToolchainProvider.class)
+@Named
 @SessionScoped
 public class ToolchainProvider {
 
@@ -43,16 +42,16 @@ public class ToolchainProvider {
 
     static final String TYPE_JDK = "jdk";
 
-    @Requirement
+    @Inject
     ToolchainManagerPrivate toolChainManager;
 
-    @Requirement
+    @Inject
     ToolchainManager toolchainManager;
 
-    @Requirement
+    @Inject
     LegacySupport legacySupport;
 
-    @Requirement
+    @Inject
     Logger logger;
 
     private Map<ToolchainKey, Optional<OSGiJavaToolchain>> toolchainMap = new ConcurrentHashMap<>();
