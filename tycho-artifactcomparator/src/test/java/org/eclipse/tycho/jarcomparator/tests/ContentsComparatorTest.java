@@ -19,22 +19,38 @@ import static org.junit.Assert.assertTrue;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
+import org.codehaus.plexus.ContainerConfiguration;
+import org.codehaus.plexus.DefaultContainerConfiguration;
+import org.codehaus.plexus.DefaultPlexusContainer;
+import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.testing.PlexusTest;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 import org.eclipse.tycho.zipcomparator.internal.ClassfileComparator;
 import org.eclipse.tycho.zipcomparator.internal.ContentsComparator;
 import org.eclipse.tycho.zipcomparator.internal.ManifestComparator;
 import org.eclipse.tycho.zipcomparator.internal.PropertiesComparator;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import javax.inject.Inject;
-
-@PlexusTest
 public class ContentsComparatorTest {
     
-    @Inject
     private PlexusContainer container;
+    
+    @Before
+    public void setUp() throws Exception {
+        ContainerConfiguration config = new DefaultContainerConfiguration();
+        config.setAutoWiring(true);
+        config.setClassPathScanning(PlexusConstants.SCANNING_INDEX);
+        container = new DefaultPlexusContainer(config);
+    }
+    
+    @After
+    public void tearDown() {
+        if (container != null) {
+            container.dispose();
+        }
+    }
     
     @Test
     public void testManifest() throws Exception {

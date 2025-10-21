@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.InputSource;
 import org.apache.maven.model.Model;
@@ -35,25 +33,33 @@ import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelParseException;
 import org.apache.maven.model.io.ModelReader;
 import org.codehaus.plexus.ContainerConfiguration;
+import org.codehaus.plexus.DefaultContainerConfiguration;
+import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.testing.PlexusExtension;
-import org.codehaus.plexus.testing.PlexusTest;
-import org.codehaus.plexus.testing.PlexusTestConfiguration;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
-@PlexusTest
-public class TychoModelReaderTest implements PlexusTestConfiguration {
+public class TychoModelReaderTest {
 
-    @Inject
     private PlexusContainer container;
 
-    @Override
-    public void customizeConfiguration(ContainerConfiguration configuration) {
-        configuration.setAutoWiring(true);
-        configuration.setClassPathScanning(PlexusConstants.SCANNING_ON);
+    @Before
+    public void setUp() throws Exception {
+        ContainerConfiguration config = new DefaultContainerConfiguration();
+        config.setAutoWiring(true);
+        config.setClassPathScanning(PlexusConstants.SCANNING_ON);
+        container = new DefaultPlexusContainer(config);
+    }
+
+    @After
+    public void tearDown() {
+        if (container != null) {
+            container.dispose();
+        }
     }
 
     @Test
@@ -294,7 +300,11 @@ public class TychoModelReaderTest implements PlexusTestConfiguration {
     }
 
     private File getTestResourcesDir() {
-        return new File(PlexusExtension.getBasedir(), "src/test/resources/");
+        String basedir = System.getProperty("basedir");
+        if (basedir == null) {
+            basedir = new File("").getAbsolutePath();
+        }
+        return new File(basedir, "src/test/resources/");
     }
 
 }

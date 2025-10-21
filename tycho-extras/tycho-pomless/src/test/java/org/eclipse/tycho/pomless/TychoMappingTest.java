@@ -18,27 +18,35 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 
-import javax.inject.Inject;
-
 import org.codehaus.plexus.ContainerConfiguration;
+import org.codehaus.plexus.DefaultContainerConfiguration;
+import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusConstants;
-import org.codehaus.plexus.testing.PlexusExtension;
-import org.codehaus.plexus.testing.PlexusTest;
-import org.codehaus.plexus.testing.PlexusTestConfiguration;
+import org.codehaus.plexus.PlexusContainer;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonatype.maven.polyglot.PolyglotModelManager;
 
-@PlexusTest
-public class TychoMappingTest implements PlexusTestConfiguration {
+public class TychoMappingTest {
 
-    @Inject
+    private PlexusContainer container;
     private PolyglotModelManager polyglotModelManager;
 
-    @Override
-    public void customizeConfiguration(ContainerConfiguration configuration) {
-        configuration.setAutoWiring(true);
-        configuration.setClassPathScanning(PlexusConstants.SCANNING_ON);
+    @Before
+    public void setUp() throws Exception {
+        ContainerConfiguration config = new DefaultContainerConfiguration();
+        config.setAutoWiring(true);
+        config.setClassPathScanning(PlexusConstants.SCANNING_ON);
+        container = new DefaultPlexusContainer(config);
+        polyglotModelManager = container.lookup(PolyglotModelManager.class);
+    }
+
+    @After
+    public void tearDown() {
+        if (container != null) {
+            container.dispose();
+        }
     }
 
     @Test
@@ -56,7 +64,11 @@ public class TychoMappingTest implements PlexusTestConfiguration {
     }
 
     private File getMappingTestDir() {
-        return new File(PlexusExtension.getBasedir(), "src/test/resources/mapping/");
+        String basedir = System.getProperty("basedir");
+        if (basedir == null) {
+            basedir = new File("").getAbsolutePath();
+        }
+        return new File(basedir, "src/test/resources/mapping/");
     }
 
 }
