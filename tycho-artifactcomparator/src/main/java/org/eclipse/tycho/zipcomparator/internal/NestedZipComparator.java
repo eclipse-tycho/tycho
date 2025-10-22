@@ -17,18 +17,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
-@Component(role = ContentsComparator.class, hint = NestedZipComparator.TYPE)
+@Named(NestedZipComparator.TYPE)
+@Singleton
 public class NestedZipComparator implements ContentsComparator {
     public static final String TYPE = "zip";
 
-    @Requirement(hint = ZipComparatorImpl.TYPE)
+    @Inject
+    @Named(ZipComparatorImpl.TYPE)
     private ArtifactComparator zipComparator;
 
     @Override

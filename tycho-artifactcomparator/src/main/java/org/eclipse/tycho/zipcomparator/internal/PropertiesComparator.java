@@ -19,12 +19,15 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator.ComparisonData;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifactcomparator.ComparatorInputStream;
 
-@Component(role = ContentsComparator.class, hint = PropertiesComparator.TYPE)
+@Named(PropertiesComparator.TYPE)
+@Singleton
 public class PropertiesComparator implements ContentsComparator {
     public static final String TYPE = "properties";
 
