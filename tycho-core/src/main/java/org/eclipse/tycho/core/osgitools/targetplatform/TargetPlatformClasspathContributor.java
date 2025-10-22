@@ -17,9 +17,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -31,13 +33,14 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.targetplatform.TargetDefinition.ImplicitDependency;
 
-@Component(role = ClasspathContributor.class, hint = "target-platform")
+@Named("target-platform")
+@Singleton
 public class TargetPlatformClasspathContributor implements ClasspathContributor {
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

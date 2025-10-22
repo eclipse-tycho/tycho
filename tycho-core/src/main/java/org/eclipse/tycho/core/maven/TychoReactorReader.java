@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.artifact.ArtifactUtils;
@@ -26,7 +27,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.internal.MavenWorkspaceReader;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
@@ -37,7 +37,7 @@ import org.eclipse.tycho.PackagingType;
  * types
  */
 @SessionScoped
-@Component(role = WorkspaceReader.class, hint = TychoReactorReader.HINT)
+@Named(TychoReactorReader.HINT)
 public class TychoReactorReader implements MavenWorkspaceReader {
     static final String HINT = "tycho-reactor";
 
