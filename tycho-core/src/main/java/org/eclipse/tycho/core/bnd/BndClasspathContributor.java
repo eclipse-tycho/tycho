@@ -21,9 +21,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -40,11 +42,12 @@ import org.osgi.framework.Version;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Processor;
 
-@Component(role = ClasspathContributor.class, hint = TychoConstants.PDE_BND)
+@Named(TychoConstants.PDE_BND)
+@Singleton
 public class BndClasspathContributor implements ClasspathContributor {
-    @Requirement
+    @Inject
     private Logger logger;
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

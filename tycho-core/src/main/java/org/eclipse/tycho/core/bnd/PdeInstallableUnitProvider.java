@@ -29,14 +29,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Manifest;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
@@ -64,16 +66,17 @@ import aQute.lib.manifest.ManifestUtil;
  * This provides the basics we need to sort the build by scanning the sourcecode for packages
  * provided and compute a preliminary manifest
  */
-@Component(role = InstallableUnitProvider.class, hint = TychoConstants.PDE_BND)
+@Named(TychoConstants.PDE_BND)
+@Singleton
 public class PdeInstallableUnitProvider implements InstallableUnitProvider {
 
-    @Requirement
+    @Inject
     private Logger logger;
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
-    @Requirement
+    @Inject
     private InstallableUnitGenerator installableUnitGenerator;
-    @Requirement
+    @Inject
     private MavenDependenciesResolver mavenDependenciesResolver;
 
     private Map<MavenProject, Collection<IInstallableUnit>> cache = new ConcurrentHashMap<>();

@@ -16,9 +16,11 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.plugin.LegacySupport;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
@@ -30,12 +32,13 @@ import org.eclipse.tycho.targetplatform.TargetResolveException;
  * limited way of resolving types in the reactor and do not know how to handle a "target type"
  * project.
  */
-@Component(role = WorkspaceReader.class, hint = "TargetPlatformWorkspaceReader")
+@Named("TargetPlatformWorkspaceReader")
+@Singleton
 public class TargetPlatformWorkspaceReader implements WorkspaceReader {
 
-    @Requirement
+    @Inject
     private TargetPlatformArtifactResolver platformArtifactResolver;
-    @Requirement
+    @Inject
     private LegacySupport legacySupport;
     private WorkspaceRepository repository;
 

@@ -22,8 +22,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -38,12 +40,13 @@ import aQute.bnd.osgi.Instruction;
 import aQute.bnd.service.RepositoryPlugin;
 import aQute.bnd.version.Version;
 
-@Component(role = RepositoryPlugin.class, hint = TargetPlatformRepository.HINT)
+@Named(TargetPlatformRepository.HINT)
+@Singleton
 public class TargetPlatformRepository implements RepositoryPlugin {
 
     static final String HINT = "tycho-target-platform";
 
-    @Requirement
+    @Inject
     private TargetPlatformService targetPlatformService;
 
     @Override
