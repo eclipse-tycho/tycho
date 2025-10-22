@@ -97,9 +97,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     private DependenciesResolver resolver;
 
     @Inject
-    private Logger logger;
-
-    @Inject
     private ToolchainManager toolchainManager;
 
     @Inject
@@ -189,7 +186,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         }
 
                         if (locations.isEmpty() && !entry.getRules().isEmpty()) {
-                            getLogger().warn("Empty classpath of required bundle " + otherArtifact);
+                            logger.warn("Empty classpath of required bundle " + otherArtifact);
                         }
 
                         classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations,
@@ -254,7 +251,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         for (String testCompileRoot : project.getTestCompileSourceRoots()) {
             if (sourceFolder.equals(new File(testCompileRoot))) {
                 // avoid duplicate source folders (bug 368445)
-                getLogger()
+                logger
                 .debug("Removed duplicate test compile root " + testCompileRoot + " from maven project model");
                 project.removeTestCompileSourceRoot(testCompileRoot);
                 return;
@@ -394,7 +391,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     if (matchingBundle != null) {
                         classpath.add(addBundleToClasspath(matchingBundle, path));
                     } else {
-                        getLogger().warn("Missing extra classpath entry " + entry.trim());
+                        logger.warn("Missing extra classpath entry " + entry.trim());
                     }
                 } else {
                     entry = entry.trim();
@@ -404,7 +401,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         ArtifactKey projectKey = getArtifactKey(project);
                         classpath.add(new DefaultClasspathEntry(project, projectKey, locations, null));
                     } else {
-                        getLogger().warn("Missing extra classpath entry " + entry);
+                        logger.warn("Missing extra classpath entry " + entry);
                     }
                 }
             }
