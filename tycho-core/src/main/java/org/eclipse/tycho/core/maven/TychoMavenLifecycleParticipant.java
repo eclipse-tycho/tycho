@@ -37,6 +37,10 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.execution.MavenExecutionRequest;
@@ -45,11 +49,8 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.io.ModelWriter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -67,7 +68,8 @@ import org.eclipse.tycho.p2maven.transport.TransportCacheConfig;
 import org.eclipse.tycho.resolver.TychoResolver;
 import org.eclipse.tycho.version.TychoVersion;
 
-@Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoMavenLifecycleListener")
+@Named("TychoMavenLifecycleListener")
+@Singleton
 public class TychoMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
     static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump") || Boolean.getBoolean("tycho.p2.dump.model");
@@ -80,31 +82,31 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private static final String P2_USER_AGENT_KEY = "p2.userAgent";
     private static final String P2_USER_AGENT_VALUE = "tycho/";
 
-    @Requirement
+    @Inject
     private BundleReader bundleReader;
 
-    @Requirement
+    @Inject
     private TychoResolver resolver;
 
-    @Requirement
+    @Inject
     private PlexusContainer plexus;
 
-    @Requirement
+    @Inject
     private Logger log;
 
-    @Requirement
+    @Inject
     MavenProjectDependencyProcessor dependencyProcessor;
 
-    @Requirement
+    @Inject
     private ModelWriter modelWriter;
 
-    @Requirement
+    @Inject
     BuildListeners buildListeners;
 
-    @Requirement
+    @Inject
     TychoProjectManager projectManager;
 
-    @Requirement
+    @Inject
     TransportCacheConfig transportCacheConfig;
 
     public TychoMavenLifecycleParticipant() {
@@ -219,7 +221,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 // do not use plexus.dispose() as this only works once and we
                 // want to reuse the factory multiple times but make sure the
                 // equinox framework is fully recreated
-                if (factory instanceof Disposable disposable) {
+                if (factory instanceof org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable disposable) {
                     disposable.dispose();
                 }
             } catch (ComponentLookupException e) {
