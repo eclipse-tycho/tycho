@@ -21,14 +21,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -51,25 +51,26 @@ import org.eclipse.tycho.p2resolver.PomReactorProjectFacade;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.osgi.framework.Filter;
 
-public abstract class AbstractTychoProject extends AbstractLogEnabled implements TychoProject {
+public abstract class AbstractTychoProject implements TychoProject {
 
     private static final String CTX_OSGI_BUNDLE_BASENAME = TychoConstants.CTX_BASENAME + "/tychoProject";
     private static final String CTX_MAVEN_SESSION = CTX_OSGI_BUNDLE_BASENAME + "/mavenSession";
     private static final String CTX_MAVEN_PROJECT = CTX_OSGI_BUNDLE_BASENAME + "/mavenProject";
     private static final String CTX_INITIAL_MAVEN_DEPENDENCIES = CTX_OSGI_BUNDLE_BASENAME + "/initialDependencies";
 
-    @Requirement
+    @Inject
     protected MavenDependenciesResolver projectDependenciesResolver;
-    @Requirement
+    @Inject
     protected LegacySupport legacySupport;
 
-    @Requirement
+    @Inject
     protected TychoProjectManager projectManager;
 
-    @Requirement
+    @Inject
     protected Logger logger;
 
-    @Requirement(hint = "p2")
+    @Inject
+    @javax.inject.Named("p2")
     protected DependencyResolver dependencyResolver;
 
     @Override

@@ -12,9 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -23,7 +25,8 @@ import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.model.IU;
 
-@Component(role = TychoProject.class, hint = org.eclipse.tycho.ArtifactType.TYPE_INSTALLABLE_UNIT)
+@Named(org.eclipse.tycho.ArtifactType.TYPE_INSTALLABLE_UNIT)
+@Singleton
 public class P2IUProject extends AbstractArtifactBasedProject {
     @Override
     protected ArtifactDependencyWalker newDependencyWalker(ReactorProject project, TargetEnvironment environment) {

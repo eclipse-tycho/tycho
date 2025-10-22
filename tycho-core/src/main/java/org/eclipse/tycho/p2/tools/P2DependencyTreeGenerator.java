@@ -29,10 +29,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -52,7 +53,8 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
  * This class is intended to be use as a Plexus component, so that all required fields are
  * automatically initialized using DI.
  */
-@Component(role = P2DependencyTreeGenerator.class)
+@Named
+@Singleton
 public final class P2DependencyTreeGenerator {
     private final TychoProjectManager projectManager;
     private final LegacySupport legacySupport;
