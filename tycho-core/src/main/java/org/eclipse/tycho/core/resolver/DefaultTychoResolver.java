@@ -17,11 +17,13 @@ package org.eclipse.tycho.core.resolver;
 import java.util.Optional;
 import java.util.Properties;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.PlatformPropertiesUtils;
@@ -35,7 +37,8 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.resolver.TychoResolver;
 
-@Component(role = TychoResolver.class)
+@Named
+@Singleton
 public class DefaultTychoResolver implements TychoResolver {
 
     private static final String SETUP_MARKER = "DefaultTychoResolver/Setup";
@@ -44,13 +47,14 @@ public class DefaultTychoResolver implements TychoResolver {
     private static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
     private static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement(hint = "p2")
+    @Inject
+    @Named("p2")
     private DependencyResolver dependencyResolver;
 
-    @Requirement()
+    @Inject
     TychoProjectManager projectManager;
 
     @Override

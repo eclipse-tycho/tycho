@@ -12,9 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.plugin.LegacySupport;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.spi.synccontext.SyncContextFactory;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -24,25 +26,26 @@ import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 
-@Component(role = MavenTargetLocationFactory.class)
+@Named
+@Singleton
 public class MavenTargetLocationFactory {
 
-    @Requirement
+    @Inject
     SyncContextFactory syncContextFactory;
 
-    @Requirement
+    @Inject
     MavenContext mavenContext;
 
-    @Requirement
+    @Inject
     MavenDependenciesResolver dependenciesResolver;
 
-    @Requirement
+    @Inject
     IProvisioningAgent provisioningAgent;
 
-    @Requirement
+    @Inject
     RepositorySystem repositorySystem;
 
-    @Requirement
+    @Inject
     LegacySupport legacySupport;
 
     public TargetDefinitionContent resolveTargetDefinitionContent(MavenGAVLocation location,

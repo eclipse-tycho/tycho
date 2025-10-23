@@ -33,11 +33,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.container.Module;
 import org.eclipse.osgi.container.Module.Settings;
@@ -84,29 +86,30 @@ import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 
-@Component(role = DependenciesResolver.class, hint = EquinoxResolver.HINT)
+@Named("equinox")
+@Singleton
 public class EquinoxResolver implements DependenciesResolver {
 
     public static final String HINT = "equinox";
 
     private static final String FORCE_KEEP_USES = "First attempt at resolving bundle failed. Trying harder by keeping `uses` information... This may drastically slow down your build!";
 
-    @Requirement
+    @Inject
     private BundleReader manifestReader;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement
+    @Inject
     private ToolchainManager toolchainManager;
 
-    @Requirement
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
-    @Requirement
+    @Inject
     TychoProjectManager projectManager;
 
-    @Requirement
+    @Inject
     private DependencyComputer dependencyComputer;
 
     public ModuleContainer newResolvedState(ReactorProject project, MavenSession mavenSession, ExecutionEnvironment ee,

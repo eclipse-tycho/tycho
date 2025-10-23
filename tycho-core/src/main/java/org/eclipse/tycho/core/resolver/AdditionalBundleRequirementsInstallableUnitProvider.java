@@ -18,10 +18,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -46,14 +48,15 @@ import aQute.bnd.osgi.Processor;
  * build.properties derived)
  *
  */
-@Component(role = InstallableUnitProvider.class, hint = "bundle-requirement")
+@Named("bundle-requirement")
+@Singleton
 public class AdditionalBundleRequirementsInstallableUnitProvider implements InstallableUnitProvider {
-    @Requirement
+    @Inject
     private Logger logger;
-    @Requirement
+    @Inject
     TychoProjectManager projectManager;
 
-    @Requirement
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
     @Override
