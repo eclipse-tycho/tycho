@@ -6,7 +6,7 @@
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
 	<properties>
-		<tycho-version>4.0.0-SNAPSHOT</tycho-version>
+		<tycho-version>6.0.0-SNAPSHOT</tycho-version>
 	</properties>
 	<build>
 		<plugins>
