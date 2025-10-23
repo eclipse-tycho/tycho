@@ -32,8 +32,9 @@ import java.util.stream.Stream;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.inject.Inject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -78,7 +79,8 @@ import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
  * will be considered a micro change</li>
  * <ul>
  */
-@Component(role = ArtifactBaselineComparator.class, hint = ArtifactType.TYPE_ECLIPSE_FEATURE)
+@Named(ArtifactType.TYPE_ECLIPSE_FEATURE)
+@Singleton
 public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 
 	private static final int WIDTH = 160;
@@ -87,16 +89,17 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 	private static final String JAR_SUFFIX = ".feature.jar";
 	private static final String SOURCE_SUFFIX = ".source";
 
-	@Requirement(hint = "zip")
+	@Inject
+    @Named("zip")
 	ContentsComparator zipComparator;
 
-	@Requirement
+	@Inject
 	MetadataIO metadataIO;
 
-	@Requirement
+	@Inject
 	P2Generator p2generator;
 
-	@Requirement
+	@Inject
 	P2RepositoryManager repositoryManager;
 
 	@Override

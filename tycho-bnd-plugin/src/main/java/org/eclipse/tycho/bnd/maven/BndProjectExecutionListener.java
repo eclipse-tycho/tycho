@@ -19,15 +19,17 @@ import org.apache.maven.execution.ProjectExecutionEvent;
 import org.apache.maven.execution.ProjectExecutionListener;
 import org.apache.maven.lifecycle.LifecycleExecutionException;
 import org.apache.maven.plugin.MojoExecution;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.inject.Inject;
 import org.eclipse.tycho.bnd.MavenReactorRepository;
 
-@Component(role = ProjectExecutionListener.class)
+@Named
+@Singleton
 public class BndProjectExecutionListener implements ProjectExecutionListener {
 
 
-	@Requirement
+	@Inject
 	private MavenReactorRepository mavenReactorRepository;
 
 	@Override
