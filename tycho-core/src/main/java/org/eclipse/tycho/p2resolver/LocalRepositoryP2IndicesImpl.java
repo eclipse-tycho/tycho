@@ -16,8 +16,10 @@ package org.eclipse.tycho.p2resolver;
 import java.io.File;
 import java.io.IOException;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
@@ -25,13 +27,14 @@ import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
-@Component(role = LocalRepositoryP2Indices.class)
+@Named
+@Singleton
 public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
 
     // injected members
-    @Requirement
+    @Inject
     private FileLockService fileLockService;
-    @Requirement
+    @Inject
     private MavenContext mavenContext;
     private File localRepositoryRoot;
 

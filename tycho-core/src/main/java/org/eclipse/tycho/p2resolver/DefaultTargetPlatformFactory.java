@@ -19,8 +19,10 @@ package org.eclipse.tycho.p2resolver;
 import java.io.File;
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
@@ -39,32 +41,33 @@ import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 
-@Component(role = TargetPlatformFactory.class)
+@Named
+@Singleton
 public class DefaultTargetPlatformFactory implements TargetPlatformFactory {
 
     // TODO cache these instances in an p2 agent, and not here
     private LocalMetadataRepository localMetadataRepository;
     private LocalArtifactRepository localArtifactRepository;
 
-    @Requirement
+    @Inject
     private IProvisioningAgent agent;
 
-    @Requirement
+    @Inject
     private MavenContext mavenContext;
 
-    @Requirement
+    @Inject
     private LocalRepositoryP2Indices localRepoIndices;
 
-    @Requirement
+    @Inject
     private IRepositoryIdManager repositoryIdManager;
 
-    @Requirement
+    @Inject
     private MavenBundleResolver bundleResolver;
 
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Requirement
+    @Inject
     private TargetDefinitionResolverService targetDefinitionResolverService;
     private TargetPlatformFactoryImpl impl;
 

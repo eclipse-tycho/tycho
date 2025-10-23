@@ -14,7 +14,9 @@ package org.eclipse.tycho.p2resolver;
 
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.tycho.IArtifactFacade;
@@ -24,7 +26,8 @@ import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 
-@Component(role = DependencyMetadataGenerator.class, hint = DependencyMetadataGenerator.DEPENDENCY_ONLY)
+@Named(DependencyMetadataGenerator.DEPENDENCY_ONLY)
+@Singleton
 public class DefaultDependencyMetadataGenerator extends P2GeneratorImpl implements DependencyMetadataGenerator {
 
     public DefaultDependencyMetadataGenerator() {
