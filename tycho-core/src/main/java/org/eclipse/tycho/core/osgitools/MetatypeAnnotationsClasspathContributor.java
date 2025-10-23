@@ -13,17 +13,18 @@
 package org.eclipse.tycho.core.osgitools;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.osgi.framework.VersionRange;
 
-@Component(role = ClasspathContributor.class, hint = "metatype-annotations")
+@Named("metatype-annotations")
 @SessionScoped
-public class MetatypeAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor {
+public class MetatypeAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor
+        implements ClasspathContributor {
 
     private static final String PACKAGE_NAME = "org.osgi.service.metatype.annotations";
     private static final String GROUP_ID = "org.osgi";

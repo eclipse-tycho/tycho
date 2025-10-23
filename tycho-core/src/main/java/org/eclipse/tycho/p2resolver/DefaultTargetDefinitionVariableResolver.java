@@ -18,18 +18,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 
-@Component(role = TargetDefinitionVariableResolver.class)
+@Named
 @SessionScoped
 public class DefaultTargetDefinitionVariableResolver implements TargetDefinitionVariableResolver {
 
@@ -37,9 +36,9 @@ public class DefaultTargetDefinitionVariableResolver implements TargetDefinition
     private static final Pattern PROJECT_LOC_PATTERN = createVariablePatternArgument("project_loc");
     private static final Pattern ENV_VAR_PATTERN = createVariablePatternArgument("env_var");
 
-    @Requirement
+    @Inject
     private MavenContext mavenContext;
-    @Requirement
+    @Inject
     private Logger logger;
     private MavenSession mavenSession;
 

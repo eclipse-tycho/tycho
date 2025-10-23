@@ -30,8 +30,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -56,36 +58,37 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 
-@Component(role = P2ResolverFactory.class)
+@Named
+@Singleton
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
-    @Requirement
+    @Inject
     IProvisioningAgent agent;
 
-    @Requirement
+    @Inject
     private MavenContext mavenContext;
-    @Requirement
+    @Inject
     private LocalRepositoryP2Indices localRepoIndices;
-    @Requirement
+    @Inject
     private TargetDefinitionResolverService targetDefinitionResolverService;
     private ConcurrentMap<IInstallableUnit, Optional<Entry<IInstallableUnit, IRequiredCapability>>> hostRequirementMap = new ConcurrentHashMap<>();
 
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
-    @Requirement
+    @Inject
     private PomUnits pomUnits;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement
+    @Inject
     private IRepositoryIdManager repositoryIdManager;
 
-    @Requirement
+    @Inject
     private MavenBundleResolver bundleResolver;
 
-    @Requirement
+    @Inject
     private TargetPlatformFactory targetPlatformFactory;
 
     private IProvisioningAgent getAgent() {
