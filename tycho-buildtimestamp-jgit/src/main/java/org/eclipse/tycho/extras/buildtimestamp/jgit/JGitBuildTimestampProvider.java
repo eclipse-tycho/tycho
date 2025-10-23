@@ -62,6 +62,17 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
  * provider which uses the current build timestamp.
  * <p/>
  * 
+ * Shallow repository handling: By default, an error is thrown when the git
+ * repository is shallow (cloned with --depth). To change this behavior,
+ * configure:
+ * 
+ * <pre>
+ * &lt;jgit.shallow&gt;warning&lt;/jgit.shallow&gt;  &lt;!-- fall back to default timestamp provider --&gt;
+ * &lt;jgit.shallow&gt;ignore&lt;/jgit.shallow&gt;   &lt;!-- use shallow history timestamps (may be incorrect) --&gt;
+ * </pre>
+ * 
+ * <p/>
+ * 
  * For additional flexibility, some files can be ignored using gitignore
  * patterns specified in &ltjgit.ignore> element of tycho-packaging-plugin
  * configuration block. Like in a .gitignore file each pattern is separated by a
@@ -97,6 +108,8 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 
 	private static final String PARAMETER_JGIT_DIRTY_WORKING_TREE = "jgit.dirtyWorkingTree";
 
+	private static final String PARAMETER_JGIT_SHALLOW = "jgit.shallow";
+
 	@Requirement(hint = "default")
 	private BuildTimestampProvider defaultTimestampProvider;
 
@@ -112,6 +125,22 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 		public static DirtyBehavior getDirtyWorkingTreeBehaviour(String value) {
 			if (value != null && !value.isBlank()) {
 				for (DirtyBehavior behavior : DirtyBehavior.values()) {
+					if (behavior.name().equalsIgnoreCase(value)) {
+						return behavior;
+					}
+				}
+			}
+			return ERROR;
+		}
+	}
+
+	private enum ShallowBehavior {
+
+		ERROR, WARNING, IGNORE;
+
+		public static ShallowBehavior getShallowBehaviour(String value) {
+			if (value != null && !value.isBlank()) {
+				for (ShallowBehavior behavior : ShallowBehavior.values()) {
 					if (behavior.name().equalsIgnoreCase(value)) {
 						return behavior;
 					}
@@ -178,6 +207,31 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 						}
 					}
 				}
+				// 1.5. check if repository is shallow
+				if (isShallowRepository(repository)) {
+					ShallowBehavior shallowBehaviour = ShallowBehavior
+							.getShallowBehaviour(getShallowBehaviorValue(execution));
+					if (shallowBehaviour == ShallowBehavior.ERROR) {
+						throw new MojoExecutionException(
+								"Git repository is shallow (cloned with --depth). This prevents accurate timestamp determination.\n"
+										+ "To resolve this issue, you can:\n"
+										+ "  1. Clone the full repository history (without --depth)\n"
+										+ "  2. Configure jgit.shallow=warning in tycho-packaging-plugin to fall back to the default timestamp provider\n"
+										+ "  3. Configure jgit.shallow=ignore to use timestamps from the shallow history (may be incorrect)");
+					} else if (shallowBehaviour == ShallowBehavior.WARNING) {
+						if (!quiet) {
+							logger.warn(
+									"Git repository is shallow (cloned with --depth). Timestamps may be incorrect.");
+							logger.warn("Fallback to default timestamp provider");
+						}
+						return defaultTimestampProvider.getTimestamp(session, project, execution);
+					}
+					// IGNORE: continue with shallow history
+					if (!quiet) {
+						logger.info(
+								"Git repository is shallow (cloned with --depth). Using timestamps from shallow history which may be incorrect.");
+					}
+				}
 				// 2. get latest commit for relPath
 				try (RevWalk walk = new RevWalk(repository)) {
 					if (pathFilter != null) {
@@ -213,6 +267,25 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 			}
 		}
 		return System.getProperty(PARAMETER_JGIT_DIRTY_WORKING_TREE);
+	}
+
+	private String getShallowBehaviorValue(MojoExecution execution) {
+		Xpp3Dom pluginConfiguration = getDom(execution);
+		if (pluginConfiguration != null) {
+			Xpp3Dom shallowDom = pluginConfiguration.getChild(PARAMETER_JGIT_SHALLOW);
+			if (shallowDom != null) {
+				String value = shallowDom.getValue();
+				if (value != null) {
+					return value.trim();
+				}
+			}
+		}
+		return System.getProperty(PARAMETER_JGIT_SHALLOW);
+	}
+
+	private boolean isShallowRepository(Repository repository) {
+		File shallowFile = new File(repository.getDirectory(), "shallow");
+		return shallowFile.isFile();
 	}
 
 	private static TreeFilter createPathFilter(String relPath, MojoExecution execution) {
