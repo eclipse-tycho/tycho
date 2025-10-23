@@ -16,7 +16,7 @@ import java.io.File;
 
 import org.codehaus.plexus.logging.Logger;
 
-public class JdkLibraryInfoProviderStub extends JdkLibraryInfoProvider {
+public class JdkLibraryInfoProviderStub extends DefaultJdkLibraryInfoProvider {
 
     private File libDetectorJar;
     private Logger logger;
