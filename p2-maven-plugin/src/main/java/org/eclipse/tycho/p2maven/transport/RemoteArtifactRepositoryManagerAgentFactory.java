@@ -12,8 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.inject.Inject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryComponent;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -23,19 +24,20 @@ import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.helper.MavenPropertyHelper;
 import org.eclipse.tycho.version.TychoVersion;
 
-@Component(role = IAgentServiceFactory.class, hint = "org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager")
+@Named("org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager")
+@Singleton
 public class RemoteArtifactRepositoryManagerAgentFactory implements IAgentServiceFactory {
 
-	@Requirement
+	@Inject
 	Logger logger;
 
-	@Requirement
+	@Inject
 	IRepositoryIdManager repositoryIdManager;
 
-	@Requirement
+	@Inject
 	MavenAuthenticator authenticator;
 
-	@Requirement
+	@Inject
 	MavenPropertyHelper propertyHelper;
 
 	@Override

@@ -13,10 +13,12 @@
 package org.eclipse.tycho.p2maven.repository;
 
 import org.apache.maven.artifact.handler.ArtifactHandler;
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import org.eclipse.tycho.ArtifactType;
 
-@Component(role = ArtifactHandler.class, hint = ArtifactType.TYPE_ECLIPSE_TARGET_DEFINITION)
+@Named(ArtifactType.TYPE_ECLIPSE_TARGET_DEFINITION)
+@Singleton
 public class EclipseTargetDefinitionArtifactHandler extends AbstractArtifactHandler {
 
 	public EclipseTargetDefinitionArtifactHandler() {

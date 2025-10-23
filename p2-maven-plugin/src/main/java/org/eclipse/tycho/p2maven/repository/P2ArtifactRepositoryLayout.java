@@ -19,9 +19,11 @@ import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout2;
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-@Component(role = ArtifactRepositoryLayout.class, hint = P2ArtifactRepositoryLayout.ID)
+@Named(P2ArtifactRepositoryLayout.ID)
+@Singleton
 public class P2ArtifactRepositoryLayout implements ArtifactRepositoryLayout, ArtifactRepositoryLayout2 {
     public static final String ID = "p2";
 

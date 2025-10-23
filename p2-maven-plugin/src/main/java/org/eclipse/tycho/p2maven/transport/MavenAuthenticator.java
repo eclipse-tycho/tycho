@@ -36,8 +36,9 @@ import java.util.stream.Stream;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.inject.Inject;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
@@ -48,7 +49,8 @@ import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
-@Component(role = MavenAuthenticator.class)
+@Named
+@Singleton
 public class MavenAuthenticator extends Authenticator implements Initializable {
 
 	private static final Comparator<URI> LONGEST_PREFIX_MATCH = (loc1, loc2) -> {
@@ -66,19 +68,19 @@ public class MavenAuthenticator extends Authenticator implements Initializable {
 	private static final ThreadLocal<Stack<URI>> locationStack = ThreadLocal.withInitial(Stack::new);
 	private static final Map<URI, List<URI>> repositoryChain = new ConcurrentHashMap<>();
 
-	@Requirement
+	@Inject
 	LegacySupport legacySupport;
 
-	@Requirement
+	@Inject
 	ProxyHelper proxyHelper;
 
-	@Requirement
+	@Inject
 	IRepositoryIdManager repositoryIdManager;
 
-	@Requirement
+	@Inject
 	MavenRepositorySettings mavenRepositorySettings;
 
-	@Requirement
+	@Inject
 	Logger log;
 
 	private List<MavenRepositoryLocation> repositoryLocations;

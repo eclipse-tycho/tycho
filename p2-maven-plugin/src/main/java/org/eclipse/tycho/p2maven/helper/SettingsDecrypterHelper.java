@@ -18,17 +18,19 @@ import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.inject.Inject;
 import org.codehaus.plexus.logging.Logger;
 
 
-@Component(role = SettingsDecrypterHelper.class)
+@Named
+@Singleton
 public class SettingsDecrypterHelper {
 
-    @Requirement
+    @Inject
     private Logger logger;
-    @Requirement
+    @Inject
     private SettingsDecrypter decrypter;
 
     public SettingsDecryptionResult decryptAndLogProblems(Proxy proxySettings) {

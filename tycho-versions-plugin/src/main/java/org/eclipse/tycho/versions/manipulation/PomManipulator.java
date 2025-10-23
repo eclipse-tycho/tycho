@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
@@ -42,7 +43,8 @@ import org.eclipse.tycho.versions.pom.PomUtil;
 import org.eclipse.tycho.versions.pom.Profile;
 import org.eclipse.tycho.versions.pom.Property;
 
-@Component(role = MetadataManipulator.class, hint = PomManipulator.HINT)
+@Named(PomManipulator.HINT)
+@Singleton
 public class PomManipulator extends AbstractMetadataManipulator {
     private static final String POM = "pom";
 

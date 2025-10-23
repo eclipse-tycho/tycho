@@ -39,8 +39,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.inject.Inject;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
@@ -50,7 +51,8 @@ import org.eclipse.tycho.p2maven.transport.Response.ResponseConsumer;
 /**
  * A transport using Java11 HttpClient
  */
-@Component(role = HttpTransportFactory.class, hint = Java11HttpTransportFactory.HINT)
+@Named(Java11HttpTransportFactory.HINT)
+@Singleton
 public class Java11HttpTransportFactory implements HttpTransportFactory, Initializable {
 	private static final int MAX_DISCARD = 1024 * 10;
 	private static final byte[] DUMMY_BUFFER = new byte[MAX_DISCARD];
@@ -67,11 +69,11 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE MMMd HH:mm:ss yyyy", Locale.ENGLISH)));
 
 	static final String HINT = "Java11Client";
-	@Requirement
+	@Inject
 	ProxyHelper proxyHelper;
-	@Requirement
+	@Inject
 	MavenAuthenticator authenticator;
-	@Requirement
+	@Inject
 	Logger logger;
 
 	private HttpClient client;
