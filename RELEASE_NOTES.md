@@ -9,6 +9,8 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 Backports:
 
 - new tycho-sbom:generator mojo
+- new tycho-dependency-tools-plugin:usage mojo
+- new tycho-wrap:verify mojo
 
 ## 5.0.0
 
