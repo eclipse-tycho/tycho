@@ -105,6 +105,37 @@ Tycho now supports calling this tool from CLI (e.g. `mvn org.eclipse.tycho:tycho
 </plugin>
 ```
 
+### new `tycho-dependency-tools:usage` mojo to analyze target platform dependency usage
+
+Managing target platform dependencies can be challenging, especially when it comes to identifying which dependencies are actually needed versus which can be removed.
+The new `tycho-dependency-tools:usage` mojo helps solve this problem by analyzing the actual usage of dependencies from target platform definitions across all projects in the reactor.
+
+This mojo compares the content of target definitions against what is actually used in your projects, making it easy to:
+- Identify unused dependencies that can be safely removed
+- See which dependencies are used directly versus indirectly (through transitive dependencies)
+- Understand the relationship between target platform units and the projects that use them
+
+You can run it from the command line:
+
+```bash
+mvn org.eclipse.tycho.extras:tycho-dependency-tools-plugin:6.0.0-SNAPSHOT:usage
+```
+
+The mojo supports two report layouts:
+- **tree** (default): Organizes units by target file and location with a hierarchical view
+- **simple**: One-line-per-unit format
+
+You can switch layouts using the `usage.layout` property:
+
+```bash
+mvn org.eclipse.tycho.extras:tycho-dependency-tools-plugin:6.0.0-SNAPSHOT:usage -Dusage.layout=simple
+```
+
+For more detailed output showing which projects use each dependency, add the `verbose` flag:
+
+```bash
+mvn org.eclipse.tycho.extras:tycho-dependency-tools-plugin:6.0.0-SNAPSHOT:usage -Dverbose=true
+```
 
 ### Migration Guide 5.x > 6.x
 
