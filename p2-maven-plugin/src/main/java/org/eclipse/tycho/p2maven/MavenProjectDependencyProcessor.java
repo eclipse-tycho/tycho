@@ -32,9 +32,8 @@ import java.util.stream.Stream;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -53,8 +52,7 @@ import org.eclipse.tycho.p2maven.tmp.BundlesAction;
  * THis component computes dependencies between projects
  *
  */
-@Named
-@Singleton
+@Component(role = MavenProjectDependencyProcessor.class)
 public class MavenProjectDependencyProcessor {
 
 	private static final ProjectDependencies EMPTY_DEPENDENCIES = new ProjectDependencies(Map.of(), Set.of());
@@ -62,10 +60,10 @@ public class MavenProjectDependencyProcessor {
 	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump")
 			|| Boolean.getBoolean("tycho.p2.dump.dependencies");
 
-	@Inject
+	@Requirement
 	private InstallableUnitGenerator generator;
 
-	@Inject
+	@Requirement
 	private InstallableUnitSlicer slicer;
 
 	/**

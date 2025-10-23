@@ -23,20 +23,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 import org.eclipse.tycho.p2maven.transport.Response.ResponseConsumer;
 
-@Named(URLHttpTransportFactory.HINT)
-@Singleton
+@Component(role = HttpTransportFactory.class, hint = URLHttpTransportFactory.HINT)
 public class URLHttpTransportFactory implements HttpTransportFactory {
 
 	static final String HINT = "JavaUrl";
-	@Inject
+	@Requirement
 	ProxyHelper proxyHelper;
-	@Inject
+	@Requirement
 	MavenAuthenticator authenticator;
 
 	@Override

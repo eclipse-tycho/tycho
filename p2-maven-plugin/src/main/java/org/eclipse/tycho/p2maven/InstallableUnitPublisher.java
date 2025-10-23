@@ -18,8 +18,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -38,8 +37,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 /**
  * Component that helps publishing units using publisher actions
  */
-@Named
-@Singleton
+@Component(role = InstallableUnitPublisher.class)
 public class InstallableUnitPublisher {
 
 	/**

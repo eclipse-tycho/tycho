@@ -14,14 +14,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.versions.pom.PomFile;
 
 /**
  * Updates pom version to match Eclipse/OSGi metadata.
  */
-@Named
+@Component(role = PomVersionUpdater.class, instantiationStrategy = "per-lookup")
 public class PomVersionUpdater extends VersionUpdater {
 
     @Override

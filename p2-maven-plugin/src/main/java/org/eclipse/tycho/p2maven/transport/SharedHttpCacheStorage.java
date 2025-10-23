@@ -36,15 +36,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.tycho.ReproducibleUtils;
 
-@Named
-@Singleton
+@Component(role = HttpCache.class)
 public class SharedHttpCacheStorage implements HttpCache {
 
 	private static final int MAX_CACHE_LINES = Integer.getInteger("tycho.p2.transport.max-cache-lines", 1000);
@@ -56,7 +54,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 			TimeUnit.HOURS.toMinutes(1));
 	private static final int MAX_IN_MEMORY = 1000;
 
-	@Inject
+	@Requirement
 	TransportCacheConfig cacheConfig;
 
 	private final Map<File, CacheLine> entryCache;

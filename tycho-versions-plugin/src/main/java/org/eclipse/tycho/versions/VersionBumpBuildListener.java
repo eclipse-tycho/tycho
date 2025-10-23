@@ -19,9 +19,8 @@ import org.apache.maven.execution.BuildSummary;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.build.BuildListener;
@@ -33,20 +32,19 @@ import org.eclipse.tycho.versions.engine.VersionsEngine;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.osgi.framework.Version;
 
-@Named("version-bump")
-@Singleton
+@Component(role = BuildListener.class, hint = "version-bump")
 public class VersionBumpBuildListener implements BuildListener {
 
-    @Inject
+    @Requirement
     private Logger logger;
 
-    @Inject
+    @Requirement
     private ProjectMetadataReader metadataReader;
 
-    @Inject
+    @Requirement
     private VersionsEngine engine;
 
-    @Inject
+    @Requirement
     private ProjectHelper projectHelper;
 
     @Override

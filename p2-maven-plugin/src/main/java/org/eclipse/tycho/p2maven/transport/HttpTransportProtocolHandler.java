@@ -18,25 +18,23 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.transport.TransportProtocolHandler;
 
-@Named("http")
-@Singleton
+@Component(role = TransportProtocolHandler.class, hint = "http")
 public class HttpTransportProtocolHandler implements TransportProtocolHandler {
 
 	static final String TRANSPORT_TYPE = System.getProperty("tycho.p2.httptransport.type",
 			Java11HttpTransportFactory.HINT);
 
-	@Inject
+	@Requirement
 	Map<String, HttpTransportFactory> transportFactoryMap;
-	@Inject
+	@Requirement
 	HttpCache httpCache;
 
-	@Inject
+	@Requirement
 	Logger logger;
 
 	private HttpTransportFactory getTransportFactory() {

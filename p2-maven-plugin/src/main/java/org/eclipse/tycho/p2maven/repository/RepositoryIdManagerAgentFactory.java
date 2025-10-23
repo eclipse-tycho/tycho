@@ -12,18 +12,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.repository;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.tycho.IRepositoryIdManager;
 
-@Named(IRepositoryIdManager.SERVICE_NAME)
-@Singleton
+@Component(role = IAgentServiceFactory.class, hint = IRepositoryIdManager.SERVICE_NAME)
 public class RepositoryIdManagerAgentFactory implements IAgentServiceFactory {
 
-	@Inject
+	@Requirement
 	IRepositoryIdManager manager;
 
 	@Override

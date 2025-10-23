@@ -16,12 +16,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.transport.TransportProtocolHandler;
 
-@Named("file")
-@Singleton
+@Component(role = TransportProtocolHandler.class, hint = "file")
 public class FileTransportProtocolHandler implements TransportProtocolHandler {
 
 	@Override

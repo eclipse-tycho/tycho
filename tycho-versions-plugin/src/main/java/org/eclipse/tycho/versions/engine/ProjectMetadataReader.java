@@ -25,22 +25,21 @@ import java.util.Set;
 
 import org.apache.maven.model.building.ModelProcessor;
 import org.codehaus.plexus.PlexusContainer;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.versions.pom.GAV;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.pom.Profile;
 
-@Named
+@Component(role = ProjectMetadataReader.class, instantiationStrategy = "per-lookup")
 public class ProjectMetadataReader {
     private static final String PACKAGING_POM = "pom";
 
-    @Inject
+    @Requirement
     private Logger log;
-    @Inject
+    @Requirement
     private PlexusContainer container;
 
     private Map<File, ProjectMetadata> projects = new LinkedHashMap<>();

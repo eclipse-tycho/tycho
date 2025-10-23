@@ -18,9 +18,8 @@ import java.util.Optional;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.artifact.Artifact;
@@ -35,14 +34,13 @@ import org.eclipse.tycho.TychoConstants;
  * Uses data stored in the P2 metadata to map to maven artifacts
  *
  */
-@Named("p2")
-@Singleton
+@Component(role = ArtifactCoordinateResolver.class, hint = "p2")
 public class P2ArtifactCoordinateResolver implements ArtifactCoordinateResolver {
 
-	@Inject
+	@Requirement
 	private RepositorySystem repositorySystem;
 
-	@Inject
+	@Requirement
 	private Logger log;
 
 	@Override

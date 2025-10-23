@@ -21,20 +21,17 @@ import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.util.Objects;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.osgi.signedcontent.SignedContent;
 import org.eclipse.osgi.signedcontent.SignedContentFactory;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.osgi.framework.Bundle;
 
-@Named
-@Singleton
+@Component(role = SignedContentFactory.class)
 public class DefaultSignedContentFactory implements SignedContentFactory {
 
-	@Inject
-	@Named("connect")
+	@Requirement(hint = "connect")
 	private EquinoxServiceFactory serviceFactory;
 
 	@Override

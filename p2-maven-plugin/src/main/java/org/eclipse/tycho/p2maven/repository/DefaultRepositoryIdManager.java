@@ -19,9 +19,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenRepositoryLocation;
@@ -31,13 +30,12 @@ import org.eclipse.tycho.MavenRepositorySettings;
  * Helper class for the Remote*RepositoryManagers taking care of mapping repository URLs to the
  * settings.xml-configured mirrors and setting passwords.
  */
-@Named
-@Singleton
+@Component(role = IRepositoryIdManager.class)
 public class DefaultRepositoryIdManager implements IRepositoryIdManager {
 
-	@Inject
+	@Requirement
 	private MavenRepositorySettings settings;
-	@Inject
+	@Requirement
 	private Logger logger;
 	// For some reason maven creates different instances of the component even if
 	// there should only be one...

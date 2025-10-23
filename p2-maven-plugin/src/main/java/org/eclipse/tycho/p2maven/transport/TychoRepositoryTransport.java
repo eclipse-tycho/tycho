@@ -35,9 +35,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.apache.commons.io.FileUtils;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -53,8 +52,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.transport.ArtifactDownloadProvider;
 import org.eclipse.tycho.transport.TransportProtocolHandler;
 
-@Named("tycho")
-@Singleton
+@Component(role = org.eclipse.equinox.internal.p2.repository.Transport.class, hint = "tycho")
 public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.repository.Transport
 		implements IAgentServiceFactory {
 
@@ -76,16 +74,16 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 
 	private NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
-	@Inject
+	@Requirement
 	Logger logger;
 
-	@Inject
+	@Requirement
 	TransportCacheConfig cacheConfig;
 
-	@Inject
+	@Requirement(role = TransportProtocolHandler.class)
 	Map<String, TransportProtocolHandler> transportProtocolHandlers;
 
-	@Inject // TODO @Inject results in a list with multiple items of the same provider!
+	@Requirement // TODO @Inject results in a list with multiple items of the same provider!
 	List<ArtifactDownloadProvider> artifactDownloadProvider;
 
 	private LongAdder requests = new LongAdder();

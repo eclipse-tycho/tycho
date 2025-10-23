@@ -32,9 +32,8 @@ import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
@@ -45,23 +44,21 @@ import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.p2maven.helper.SettingsDecrypterHelper;
 
-@Named
-@Singleton
+@Component(role = MavenRepositorySettings.class)
 public class DefaultMavenRepositorySettings implements MavenRepositorySettings, Initializable {
 
     private static final ArtifactRepositoryPolicy P2_REPOSITORY_POLICY = new ArtifactRepositoryPolicy(true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);
 
-    @Inject
+    @Requirement
     private Logger logger;
-    @Inject
+    @Requirement
 	private LegacySupport legacySupport;
 
-    @Inject
+    @Requirement
     private SettingsDecrypterHelper decrypter;
 
-    @Inject
-	@Named("p2")
+    @Requirement(hint = "p2")
     private ArtifactRepositoryLayout p2layout;
 
 	private Map<String, URI> idToMirrorMap = new HashMap<>();

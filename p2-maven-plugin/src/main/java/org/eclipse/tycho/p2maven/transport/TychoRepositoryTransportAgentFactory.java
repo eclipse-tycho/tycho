@@ -14,9 +14,8 @@ package org.eclipse.tycho.p2maven.transport;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
@@ -24,20 +23,18 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.tycho.MavenRepositorySettings;
 
-@Named("org.eclipse.equinox.internal.p2.repository.Transport")
-@Singleton
+@Component(role = IAgentServiceFactory.class, hint = "org.eclipse.equinox.internal.p2.repository.Transport")
 public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactory, Initializable {
 
-    @Inject
+    @Requirement
     private MavenRepositorySettings mavenRepositorySettings;
-	@Inject
+	@Requirement
 	private Logger logger;
 
-	@Inject
+	@Requirement
 	TransportCacheConfig config;
 
-	@Inject
-	@Named("tycho")
+	@Requirement(hint = "tycho")
 	org.eclipse.equinox.internal.p2.repository.Transport repositoryTransport;
 
 	private AtomicBoolean infoPrinted = new AtomicBoolean();

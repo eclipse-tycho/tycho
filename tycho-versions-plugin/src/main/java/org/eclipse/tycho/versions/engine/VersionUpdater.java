@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
 
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
@@ -41,10 +41,10 @@ import org.osgi.framework.Constants;
  */
 public abstract class VersionUpdater {
 
-    @Inject
+    @Requirement
     private Logger logger;
 
-    @Inject
+    @Requirement
     private VersionsEngine engine;
 
     private static interface VersionAdaptor {

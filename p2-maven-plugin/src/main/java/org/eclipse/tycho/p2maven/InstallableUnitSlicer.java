@@ -19,9 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -37,12 +36,11 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 /**
  * A strategy that computes a slice from a set of all units.
  */
-@Named
-@Singleton
+@Component(role = InstallableUnitSlicer.class)
 public class InstallableUnitSlicer {
 
 	private static final SlicingOptions DEFAULT_SLICING_OPTIONS = new SlicingOptions();
-	@Inject
+	@Requirement
 	private Logger log;
 
 	/**

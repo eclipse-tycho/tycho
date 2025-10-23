@@ -19,22 +19,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.eclipse.tycho.BuildProperties;
 
-@Named
-@Singleton
+@Component(role = IncludeValidationHelper.class)
 public class IncludeValidationHelper {
 
-	@Inject
+	@Requirement
 	private Logger log;
 
 	public IncludeValidationHelper() {

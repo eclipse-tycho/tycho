@@ -24,9 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.model.Repository;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -59,21 +58,20 @@ import org.eclipse.tycho.p2maven.LoggerProgressMonitor;
 /**
  * Allows unique access to P2 repositories from maven
  */
-@Named
-@Singleton
+@Component(role = P2RepositoryManager.class)
 public class P2RepositoryManager {
 	private static final String PROPERTY_KEY = "eclipse.p2.maxDownloadAttempts";
 
-	@Inject
+	@Requirement
 	MavenPropertyHelper propertyHelper;
 
-	@Inject
+	@Requirement
 	IRepositoryIdManager repositoryIdManager;
 
-	@Inject
+	@Requirement
 	IProvisioningAgent agent;
 
-	@Inject
+	@Requirement
 	Logger logger;
 
 	/**

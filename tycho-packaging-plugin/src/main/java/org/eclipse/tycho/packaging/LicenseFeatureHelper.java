@@ -24,13 +24,11 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.ArchivedFileSet;
 import org.codehaus.plexus.archiver.util.DefaultArchivedFileSet;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildProperties;
@@ -42,11 +40,10 @@ import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;
 
-@Named
-@Singleton
+@Component(role = LicenseFeatureHelper.class)
 public class LicenseFeatureHelper {
 
-	@Inject
+	@Requirement()
 	TychoProjectManager projectManager;
 
     public LicenseFeatureHelper() {

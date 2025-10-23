@@ -14,7 +14,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
@@ -24,7 +24,7 @@ import org.eclipse.tycho.versions.pom.PomFile;
 
 public abstract class AbstractMetadataManipulator implements MetadataManipulator {
 
-    @Inject
+    @Requirement
     protected Logger logger;
 
     protected boolean isBundle(ProjectMetadata project) {

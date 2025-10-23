@@ -37,9 +37,8 @@ import org.apache.maven.search.api.request.Query;
 import org.apache.maven.search.backend.smo.SmoSearchBackend;
 import org.apache.maven.search.backend.smo.SmoSearchBackendFactory;
 import org.apache.maven.search.backend.smo.SmoSearchResponse;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.inject.Inject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.core.shared.MavenContext;
@@ -50,8 +49,7 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
  *
  * Use the maven rest API to find an artifact based on its sha1 sum.
  */
-@Named("central")
-@Singleton
+@Component(role = ArtifactCoordinateResolver.class, hint = "central")
 public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinateResolver {
 
 	private static final StringField KEY_GROUP_ID = new StringField("g");
@@ -59,10 +57,10 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 	private static final StringField KEY_VERSION = new StringField("v");
 	private static final StringField KEY_TYPE = new StringField("p");
 
-	@Inject
+	@Requirement
 	private Logger log;
 
-	@Inject
+	@Requirement
 	MavenContext mavenContext;
 
 	private Map<File, Optional<Dependency>> filesCache = new ConcurrentHashMap<>();

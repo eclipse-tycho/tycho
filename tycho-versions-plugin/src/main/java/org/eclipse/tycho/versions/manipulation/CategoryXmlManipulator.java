@@ -18,8 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.model.PluginRef;
@@ -31,8 +30,7 @@ import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.pom.PomFile;
 
-@Named("eclipse-repository")
-@Singleton
+@Component(role = MetadataManipulator.class, hint = "eclipse-repository")
 public class CategoryXmlManipulator extends AbstractMetadataManipulator {
 
     private static final String SOURCE_FEATURE_SUFFIX = ".source";

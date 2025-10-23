@@ -17,8 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.IU;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
@@ -27,8 +26,7 @@ import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.pom.PomFile;
 
-@Named("p2-installable-unit")
-@Singleton
+@Component(role = MetadataManipulator.class, hint = "p2-installable-unit")
 public class P2iuXmlManipulator extends AbstractMetadataManipulator {
 
     @Override

@@ -20,11 +20,9 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-
 import org.apache.maven.plugin.MojoFailureException;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.ArtifactKey;
@@ -37,8 +35,7 @@ import org.eclipse.tycho.model.Feature.ImportRef;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 
-@Named
-@Singleton
+@Component(role = FeatureXmlTransformer.class)
 public class FeatureXmlTransformer {
 	/**
 	 * Obsolete attributes that are to remove.
@@ -47,10 +44,10 @@ public class FeatureXmlTransformer {
 	 */
 	private static final List<String> OBSOLETE_PLUGIN_ATTRIBUTES = List.of("unpack", "download-size", "install-size");
 
-	@Inject
+	@Requirement
 	private Logger log;
 
-	@Inject
+	@Requirement
 	private FileLockService fileLockService;
 
 	public FeatureXmlTransformer() {
