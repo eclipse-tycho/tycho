@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Lib
+Bundle-SymbolicName: Lib
+Bundle-Version: 1.0.0
+Export-Package: p;version="1.0.0",
+ q;version="1.0.0"
+Automatic-Module-Name: Lib
+Bundle-RequiredExecutionEnvironment: JavaSE-17
