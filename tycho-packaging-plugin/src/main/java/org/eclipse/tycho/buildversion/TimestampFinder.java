@@ -22,8 +22,10 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
@@ -32,10 +34,11 @@ import org.osgi.framework.Version;
 /**
  * A helper for discovering common timestamps in strings
  */
-@Component(role = TimestampFinder.class)
+@Named
+@Singleton
 public class TimestampFinder {
 
-	@Requirement
+	@Inject
 	Logger logger;
 
 

@@ -18,16 +18,18 @@ import java.util.jar.Manifest;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.inject.Inject;
 import org.eclipse.tycho.packaging.SourceReferences;
 
-@Component(role = SourceReferenceComputer.class)
+@Named
+@Singleton
 public class SourceReferenceComputer {
 
     private static final String MANIFEST_HEADER = "Eclipse-SourceReferences";
 
-    @Requirement
+    @Inject
     private Map<String, SourceReferencesProvider> providerMap;
 
     public SourceReferenceComputer() {
