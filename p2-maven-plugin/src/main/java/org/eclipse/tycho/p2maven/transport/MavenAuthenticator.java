@@ -33,7 +33,6 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -124,7 +123,7 @@ public class MavenAuthenticator extends Authenticator {
 	}
 
 	private List<MavenRepositoryLocation> getMavenLocations() {
-		Stream<MavenRepositoryLocation> locations = repositoryLocations.stream();
+		Stream<MavenRepositoryLocation> locations = getRepositoryLocations().stream();
 		locations = Stream.concat(locations, repositoryIdManager.getKnownMavenRepositoryLocations());
 		List<MavenRepositoryLocation> sorted = locations
 				.sorted(Comparator.comparing(MavenRepositoryLocation::getURL, LONGEST_PREFIX_MATCH)).toList();
@@ -189,26 +188,6 @@ public class MavenAuthenticator extends Authenticator {
 		headerConsumer.accept(header, "Basic " + encoding);
 	}
 
-	@PostConstruct
-	public void initialize() {
-		MavenSession session = legacySupport.getSession();
-		if (session == null) {
-			repositoryLocations = List.of();
-		} else {
-			List<MavenProject> projects = Objects.requireNonNullElse(session.getProjects(), Collections.emptyList());
-			repositoryLocations = projects.stream().map(MavenProject::getRemoteArtifactRepositories)
-					.flatMap(Collection::stream).filter(r -> r.getLayout() instanceof P2ArtifactRepositoryLayout)
-					.map(r -> {
-						try {
-							return new MavenRepositoryLocation(r.getId(), new URL(r.getUrl()).toURI());
-						} catch (MalformedURLException | URISyntaxException e) {
-							return null;
-						}
-					}).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
-		}
-
-	}
-
 	public void enterLoad(URI location) {
 		log.debug("Enter loading repository " + location);
 		Stack<URI> stack = locationStack.get();
@@ -223,6 +202,28 @@ public class MavenAuthenticator extends Authenticator {
 	public void exitLoad() {
 		URI pop = locationStack.get().pop();
 		log.debug("Exit loading repository " + pop);
+	}
+
+	private synchronized List<MavenRepositoryLocation> getRepositoryLocations() {
+		if (repositoryLocations == null) {
+			MavenSession session = legacySupport.getSession();
+			if (session == null) {
+				return List.of();
+			} else {
+				List<MavenProject> projects = Objects.requireNonNullElse(session.getProjects(),
+						Collections.emptyList());
+				repositoryLocations = projects.stream().map(MavenProject::getRemoteArtifactRepositories)
+						.flatMap(Collection::stream).filter(r -> r.getLayout() instanceof P2ArtifactRepositoryLayout)
+						.map(r -> {
+							try {
+								return new MavenRepositoryLocation(r.getId(), new URL(r.getUrl()).toURI());
+							} catch (MalformedURLException | URISyntaxException e) {
+								return null;
+							}
+						}).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
+			}
+		}
+		return repositoryLocations;
 	}
 
 }
