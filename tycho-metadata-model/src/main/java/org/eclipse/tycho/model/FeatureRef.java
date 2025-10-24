@@ -14,7 +14,7 @@ package org.eclipse.tycho.model;
 
 import java.util.Arrays;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class FeatureRef {
 
@@ -29,23 +29,23 @@ public class FeatureRef {
     }
 
     public FeatureRef(String name) {
-        this(new Element(name));
+        this(Element.of(name));
     }
 
     public String getId() {
-        return dom.getAttributeValue("id");
+        return dom.attribute("id");
     }
 
     public void setId(String id) {
-        dom.setAttribute("id", id);
+        dom.attribute("id", id);
     }
 
     public String getVersion() {
-        return dom.getAttributeValue("version");
+        return dom.attribute("version");
     }
 
     public void setVersion(String version) {
-        dom.setAttribute("version", version);
+        dom.attribute("version", version);
     }
 
     @Override
@@ -54,31 +54,31 @@ public class FeatureRef {
     }
 
     public String getOS() {
-        return dom.getAttributeValue("os");
+        return dom.attribute("os");
     }
 
     public void setOS(String value) {
-        dom.setAttribute("os", value);
+        dom.attribute("os", value);
     }
 
     public String getArch() {
-        return dom.getAttributeValue("arch");
+        return dom.attribute("arch");
     }
 
     public void setArch(String value) {
-        dom.setAttribute("arch", value);
+        dom.attribute("arch", value);
     }
 
     public String getWS() {
-        return dom.getAttributeValue("ws");
+        return dom.attribute("ws");
     }
 
     public void setWS(String value) {
-        dom.setAttribute("ws", value);
+        dom.attribute("ws", value);
     }
 
     public InstallMode getInstallMode() throws ModelFileSyntaxException {
-        String installModeString = dom.getAttributeValue("installMode");
+        String installModeString = dom.attribute("installMode");
 
         if (installModeString == null) {
             // default

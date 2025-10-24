@@ -15,7 +15,7 @@ package org.eclipse.tycho.versions.pom;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class DependencyManagement {
     final Element dependencyManagement;
@@ -31,7 +31,7 @@ public class DependencyManagement {
         Element dependencies = dependencyManagement.getChild("dependencies");
 
         if (dependencies != null) {
-            for (Element dependency : dependencies.getChildren("dependency"))
+            for (Element dependency : dependencies.children("dependency").toList())
                 result.add(new GAV(dependency));
         }
 

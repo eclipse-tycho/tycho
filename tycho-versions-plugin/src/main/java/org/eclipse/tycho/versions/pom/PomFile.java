@@ -30,21 +30,21 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.Node;
-import de.pdark.decentxml.Text;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParseException;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
+import eu.maveniverse.domtrip.Node;
+import eu.maveniverse.domtrip.Text;
+
+import eu.maveniverse.domtrip.DomTripException;
+
+import eu.maveniverse.domtrip.Serializer;
 
 public class PomFile {
 
     public static final String POM_XML = "pom.xml";
     private static final String DEFAULT_XML_ENCODING = "UTF-8";
 
-    private static XMLParser parser = new XMLParser();
+    private static Serializer serializer = new Serializer();
 
     private Document document;
     private Element project;
@@ -59,7 +59,7 @@ public class PomFile {
     public PomFile(Document pom, boolean isMutable) {
         this.document = pom;
         this.isMutable = isMutable;
-        this.project = document.getRootElement();
+        this.project = document.root();
 
         this.version = this.getExplicitVersionFromXML();
         if (this.version == null) {
@@ -73,17 +73,17 @@ public class PomFile {
     public static PomFile read(File file, boolean isMutable) throws IOException {
         try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
             return read(is, isMutable);
-        } catch (XMLParseException xpe) {
-            throw new XMLParseException("This Pom " + file.getAbsolutePath() + " is in the Wrong Format", xpe);
+        } catch (DomTripException xpe) {
+            throw new DomTripException("This Pom " + file.getAbsolutePath() + " is in the Wrong Format", xpe);
         }
     }
 
     public static PomFile read(InputStream input, boolean isMutable) throws IOException {
-        return new PomFile(parser.parse(new XMLIOSource(input)), isMutable);
+        return new PomFile(Document.of(input), isMutable);
     }
 
     public static void write(PomFile pom, OutputStream out) throws IOException {
-        String encoding = pom.document.getEncoding() != null ? pom.document.getEncoding() : DEFAULT_XML_ENCODING;
+        String encoding = pom.document.encoding() != null ? pom.document.encoding() : DEFAULT_XML_ENCODING;
         Writer w = new OutputStreamWriter(out, encoding);
         XMLWriter xw = new XMLWriter(w);
         try {
@@ -111,16 +111,16 @@ public class PomFile {
             if (versionElement == null) {
                 versionElement = addEmptyVersionElementToXML(project);
             }
-            versionElement.setText(version);
+            versionElement.textContent(version);
         } else {
             removeVersionElementFromXML(project);
         }
     }
 
     private static Element addEmptyVersionElementToXML(Element project) {
-        Element result = new Element(project, "version");
+        Element result = Element.of(project, "version");
         // TODO proper indentation
-        project.addNode(new Text("\n"));
+        project.addNode(Text.of("\n"));
         return result;
     }
 
@@ -129,7 +129,7 @@ public class PomFile {
         for (Iterator<Node> iterator = elements.iterator(); iterator.hasNext();) {
             Node node = iterator.next();
             if (node instanceof Element element) {
-                if ("version".equals(element.getName())) {
+                if ("version".equals(element.name())) {
                     iterator.remove();
 
                     // also return newline after the element
@@ -153,7 +153,7 @@ public class PomFile {
         if (element == null) {
             throw new IllegalArgumentException("No parent/version");
         }
-        element.setText(newVersion);
+        element.textContent(newVersion);
     }
 
     /**
@@ -217,8 +217,8 @@ public class PomFile {
 
     public List<String> getModules() {
         LinkedHashSet<String> result = new LinkedHashSet<>();
-        for (Element modules : project.getChildren("modules")) {
-            for (Element module : modules.getChildren("module")) {
+        for (Element modules : project.children("modules").toList()) {
+            for (Element module : modules.children("module").toList()) {
                 result.add(module.getTrimmedText());
             }
         }
@@ -227,8 +227,8 @@ public class PomFile {
 
     public List<Profile> getProfiles() {
         ArrayList<Profile> result = new ArrayList<>();
-        for (Element profiles : project.getChildren("profiles")) {
-            for (Element profile : profiles.getChildren("profile")) {
+        for (Element profiles : project.children("profiles").toList()) {
+            for (Element profile : profiles.children("profile").toList()) {
                 result.add(new Profile(profile));
             }
         }
