@@ -51,8 +51,6 @@ public class DefaultPomManipulator extends AbstractMetadataManipulator implement
 
     private static final String NULL = "<null>";
 
-    public static final String HINT = POM;
-
     @Override
     public boolean addMoreChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         PomFile pom = project.getMetadata(PomFile.class);

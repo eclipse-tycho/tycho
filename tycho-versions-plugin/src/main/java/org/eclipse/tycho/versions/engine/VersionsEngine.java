@@ -59,7 +59,7 @@ public class VersionsEngine {
 
     @Inject
     @Named(PomManipulator.HINT)
-    private MetadataManipulator pomManipulator;
+    private PomManipulator pomManipulator;
 
     private Collection<ProjectMetadata> projects;
 
@@ -151,7 +151,7 @@ public class VersionsEngine {
             // TODO property changes should be added as a new type of change in VersionChangeDescriptors
             for (PropertyChange propertyChange : propertyChanges) {
                 if (pom == propertyChange.pom) {
-                    ((PomManipulator) pomManipulator).applyPropertyChange(project.getPomFile().getName(), pom,
+                    pomManipulator.applyPropertyChange(project.getPomFile().getName(), pom,
                             propertyChange.propertyName, propertyChange.propertyValue);
                 }
             }
