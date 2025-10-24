@@ -16,11 +16,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -37,21 +39,22 @@ import org.osgi.framework.Constants;
 /**
  * Build timestamp provider that inherits the timestamp of the fragment host
  */
-@Component(role = BuildTimestampProvider.class, hint = FragmentHostBuildTimestampProvider.ROLE_HINT)
+@Singleton
+@Named(FragmentHostBuildTimestampProvider.ROLE_HINT)
 public class FragmentHostBuildTimestampProvider implements BuildTimestampProvider {
 
 	static final String ROLE_HINT = "fragment-host";
 
-	@Requirement
+	@Inject
 	private TychoProjectManager projectManager;
 
-	@Requirement
+	@Inject
 	private Logger logger;
 
-	@Requirement
+	@Inject
 	private TimestampFinder timestampFinder;
 
-	@Requirement
+	@Inject
 	private PluginConfigurationHelper configurationHelper;
 
 	@Override

@@ -12,7 +12,7 @@ public class TimestampFinderTest {
 
     @Test
     public void testFindInString() throws Exception {
-        TimestampFinder finder = new TimestampFinder();
+        DefaultTimestampFinder finder = new DefaultTimestampFinder();
 
         assertEquals(utcTimestamp(2012, 05, 06, 22, 00), finder.findInString("N201205062200"));
         assertEquals(utcTimestamp(2012, 05, 06, 22, 00), finder.findInString("I201205062200"));

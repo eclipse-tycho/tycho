@@ -20,10 +20,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
@@ -97,16 +98,16 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
     @Parameter(defaultValue = "false")
     protected boolean skip;
 
-    @Component
+    @Inject
     protected PlexusContainer plexus;
 
-    @Component
+    @Inject
     protected MavenProjectHelper projectHelper;
 
-    @Component(role = TychoProject.class)
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
-    @Component
+    @Inject
     private IncludeValidationHelper includeValidationHelper;
 
     /**

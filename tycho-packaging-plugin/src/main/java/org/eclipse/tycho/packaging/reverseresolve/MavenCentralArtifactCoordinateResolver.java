@@ -26,6 +26,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
@@ -37,8 +41,6 @@ import org.apache.maven.search.api.request.Query;
 import org.apache.maven.search.backend.smo.SmoSearchBackend;
 import org.apache.maven.search.backend.smo.SmoSearchBackendFactory;
 import org.apache.maven.search.backend.smo.SmoSearchResponse;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.core.shared.MavenContext;
@@ -49,7 +51,8 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
  *
  * Use the maven rest API to find an artifact based on its sha1 sum.
  */
-@Component(role = ArtifactCoordinateResolver.class, hint = "central")
+@Singleton
+@Named("central")
 public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinateResolver {
 
 	private static final StringField KEY_GROUP_ID = new StringField("g");
@@ -57,10 +60,10 @@ public class MavenCentralArtifactCoordinateResolver implements ArtifactCoordinat
 	private static final StringField KEY_VERSION = new StringField("v");
 	private static final StringField KEY_TYPE = new StringField("p");
 
-	@Requirement
+	@Inject
 	private Logger log;
 
-	@Requirement
+	@Inject
 	MavenContext mavenContext;
 
 	private Map<File, Optional<Dependency>> filesCache = new ConcurrentHashMap<>();

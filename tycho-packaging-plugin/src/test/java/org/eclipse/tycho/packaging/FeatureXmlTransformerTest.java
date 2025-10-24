@@ -51,7 +51,7 @@ public class FeatureXmlTransformerTest {
 
     @Test
     public void testExpandReferences() throws Exception {
-        subject = new FeatureXmlTransformer(new SilentLog(), new NoopFileLockService());
+        subject = new DefaultFeatureXmlTransformer(new SilentLog(), new NoopFileLockService());
         Feature feature = Feature
                 .read(new File(TestUtil.getBasedir("projects/featureXmlVersionExpansion/"), "feature.xml"));
 

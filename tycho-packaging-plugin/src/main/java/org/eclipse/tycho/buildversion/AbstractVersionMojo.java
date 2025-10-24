@@ -15,8 +15,9 @@ package org.eclipse.tycho.buildversion;
 import java.io.File;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
@@ -34,10 +35,10 @@ public abstract class AbstractVersionMojo extends AbstractMojo {
     @Parameter(property = "project.packaging", required = true, readonly = true)
     protected String packaging;
 
-    @Component(role = TychoProject.class)
+    @Inject
     protected Map<String, TychoProject> projectTypes;
 
-	@Component
+	@Inject
 	BuildContext buildContext;
 
     protected String getOSGiVersion() {

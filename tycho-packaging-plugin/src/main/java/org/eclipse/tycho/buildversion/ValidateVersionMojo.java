@@ -19,10 +19,12 @@ import java.io.File;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Mojo;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Parameter;
+import javax.inject.Inject;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.core.ManifestHelper;
@@ -46,10 +48,10 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
 	@Parameter(defaultValue = "true", property = "tycho.strictVersions")
 	private boolean strictVersions = true;
 
-	@Component
+	@Inject
 	ManifestHelper manifestHelper;
 
-	@Component
+	@Inject
 	BuildContext buildContext;
 
 	@Override

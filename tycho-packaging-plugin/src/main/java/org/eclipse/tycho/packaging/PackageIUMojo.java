@@ -19,11 +19,14 @@ import java.nio.file.attribute.FileTime;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Mojo;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Parameter;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import javax.inject.Inject;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
@@ -62,13 +65,13 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
     @Parameter(defaultValue = "${project.build.outputTimestamp}")
     private String outputTimestamp;
 
-    @Component
+    @Inject
     private IUXmlTransformer iuTransformer;
 
-    @Component(role = Archiver.class, hint = "zip")
+    	@Inject
     private ZipArchiver zipArchiver;
 
-	@Component
+	@Inject
 	private TychoProjectManager projectManager;
 
     @Override

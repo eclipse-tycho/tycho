@@ -35,7 +35,7 @@ import org.junit.Test;
 
 public class IncludeValidationHelperTest {
 
-    private IncludeValidationHelper subject = new IncludeValidationHelper(new SilentLog());
+    private IncludeValidationHelper subject = new DefaultIncludeValidationHelper(new SilentLog());
 
     @Test
     public void testCheckSourceIncludesExistAntPatterns() throws Exception {
@@ -117,7 +117,7 @@ public class IncludeValidationHelperTest {
             }
         };
 
-        IncludeValidationHelper subject = new IncludeValidationHelper(log);
+        IncludeValidationHelper subject = new DefaultIncludeValidationHelper(log);
 
         BuildPropertiesImpl buildProperties = createBuildProperties("src.includes", "foo3, bar3*,**/*.me");
         MavenProject project = createMockProject();

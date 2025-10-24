@@ -17,10 +17,12 @@ import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Mojo;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Parameter;
+import javax.inject.Inject;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.ManifestHelper;
 import org.sonatype.plexus.build.incremental.BuildContext;
@@ -38,10 +40,10 @@ public class ValidateIdMojo extends AbstractVersionMojo {
     @Parameter(defaultValue = "false")
     private boolean skip;
 
-	@Component
+	@Inject
 	ManifestHelper manifestHelper;
 
-	@Component
+	@Inject
 	BuildContext buildContext;
 
     @Override
