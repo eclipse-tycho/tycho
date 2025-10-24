@@ -19,34 +19,36 @@ import java.net.Proxy;
 import java.net.Proxy.Type;
 import java.net.URI;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.Authentication;
 import org.eclipse.aether.repository.AuthenticationContext;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
-@Component(role = ProxyHelper.class)
-public class ProxyHelper implements Initializable {
+@Named
+@Singleton
+public class ProxyHelper {
 
-	@Requirement
+	@Inject
 	protected Logger logger;
-	@Requirement
+	@Inject
 	protected LegacySupport context;
 
-	@Requirement
+	@Inject
 	protected SettingsDecrypterHelper decrypter;
 
 	private RepositorySystemSession repositorySession;
 
-	@Override
-	public void initialize() throws InitializationException {
+	@PostConstruct
+	public void initialize() {
 		MavenSession session = context.getSession();
 		if (session != null) {
 			repositorySession = session.getRepositorySession();
