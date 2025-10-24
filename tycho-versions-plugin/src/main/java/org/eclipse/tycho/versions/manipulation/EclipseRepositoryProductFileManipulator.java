@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
@@ -33,7 +35,8 @@ import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.utils.ProductFileFilter;
 
-@Component(role = MetadataManipulator.class, hint = "eclipse-repository-products")
+@Named("eclipse-repository-products")
+@Singleton
 public class EclipseRepositoryProductFileManipulator extends ProductFileManipulator {
 
     @Override
