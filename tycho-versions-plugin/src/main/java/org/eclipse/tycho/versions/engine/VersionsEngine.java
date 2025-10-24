@@ -21,8 +21,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.versions.manipulation.PomManipulator;
 import org.eclipse.tycho.versions.pom.PomFile;
@@ -33,7 +34,7 @@ import org.eclipse.tycho.versions.pom.PomFile;
  * @TODO find more specific name that reflects what this class actually does.
  * 
  */
-@Component(role = VersionsEngine.class, instantiationStrategy = "per-lookup")
+@Named
 public class VersionsEngine {
 
     private static class PropertyChange {
@@ -50,14 +51,15 @@ public class VersionsEngine {
         }
     }
 
-    @Requirement
+    @Inject
     private Logger logger;
 
-    @Requirement(role = MetadataManipulator.class)
+    @Inject
     private List<MetadataManipulator> manipulators;
 
-    @Requirement(hint = PomManipulator.HINT)
-    private MetadataManipulator pomManipulator;
+    @Inject
+    @Named(PomManipulator.HINT)
+    private PomManipulator pomManipulator;
 
     private Collection<ProjectMetadata> projects;
 
@@ -149,7 +151,7 @@ public class VersionsEngine {
             // TODO property changes should be added as a new type of change in VersionChangeDescriptors
             for (PropertyChange propertyChange : propertyChanges) {
                 if (pom == propertyChange.pom) {
-                    ((PomManipulator) pomManipulator).applyPropertyChange(project.getPomFile().getName(), pom,
+                    pomManipulator.applyPropertyChange(project.getPomFile().getName(), pom,
                             propertyChange.propertyName, propertyChange.propertyValue);
                 }
             }
