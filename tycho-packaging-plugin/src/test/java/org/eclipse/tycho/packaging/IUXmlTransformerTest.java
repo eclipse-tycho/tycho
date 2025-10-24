@@ -47,7 +47,7 @@ public class IUXmlTransformerTest {
 
     @Test
     public void testExpandVersion() throws Exception {
-        subject = new IUXmlTransformer();
+        subject = new DefaultIUXmlTransformer();
         IU iu = IU.read(new File(TestUtil.getBasedir("projects/iuXmlValueReplacement/"), "p2iu.xml"));
 
         subject.replaceSelfQualifiers(iu, "1.0.0.ABC", "ABC");
@@ -58,7 +58,7 @@ public class IUXmlTransformerTest {
 
     @Test
     public void testExpandVersionInCapabilities() throws Exception {
-        subject = new IUXmlTransformer();
+        subject = new DefaultIUXmlTransformer();
         IU iu = IU.read(new File(TestUtil.getBasedir("projects/iuXmlValueReplacement/"), "p2iu.xml"));
 
         subject.replaceQualifierInCapabilities(iu.getProvidedCapabilites(), "CAPABILITY");
@@ -69,7 +69,7 @@ public class IUXmlTransformerTest {
 
     @Test
     public void testExpandReferences() throws Exception {
-        subject = new IUXmlTransformer();
+        subject = new DefaultIUXmlTransformer();
         IU iu = IU.read(new File(TestUtil.getBasedir("projects/iuXmlValueReplacement/"), "p2iu.xml"));
 
         TargetPlatform tp = mock(TargetPlatform.class);

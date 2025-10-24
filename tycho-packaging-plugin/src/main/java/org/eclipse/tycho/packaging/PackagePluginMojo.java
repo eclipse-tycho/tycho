@@ -37,9 +37,10 @@ import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.model.License;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Parameter;
+import javax.inject.Inject;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
@@ -72,7 +73,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	/**
 	 * The Jar archiver.
 	 */
-	@Component(role = Archiver.class, hint = "jar")
+		@Inject
 	private JarArchiver jarArchiver;
 
 	/**
@@ -174,19 +175,19 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 	@Parameter(defaultValue = "${project.build.outputTimestamp}")
 	private String outputTimestamp;
 
-	@Component
+	@Inject
 	private SourceReferenceComputer soureReferenceComputer;
 
-	@Component
+	@Inject
 	TychoProjectManager projectManager;
 
-	@Component
+	@Inject
 	private BundleReader bundleReader;
 
-	@Component
+	@Inject
 	List<ManifestProcessor> manifestProcessors;
 
-	@Component
+	@Inject
 	PluginRealmHelper pluginRealmHelper;
 
 	@Override

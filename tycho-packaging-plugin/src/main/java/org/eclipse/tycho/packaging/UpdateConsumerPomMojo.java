@@ -41,11 +41,14 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Mojo;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Parameter;
+import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import javax.inject.Inject;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
@@ -73,16 +76,16 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${session}", readonly = true, required = true)
 	private MavenSession session;
 
-	@Component(role = ModelWriter.class)
+		@Inject
 	protected ModelWriter modelWriter;
 
-	@Component(role = ModelReader.class)
+		@Inject
 	protected ModelReader modelReader;
 
-	@Component
+	@Inject
 	private Map<String, ArtifactCoordinateResolver> artifactCoordinateResolvers;
 
-	@Component
+	@Inject
 	ArtifactHandlerManager artifactHandlerManager;
 
 	/**

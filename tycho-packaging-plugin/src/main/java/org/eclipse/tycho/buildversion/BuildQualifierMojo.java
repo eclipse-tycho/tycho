@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.OverConstrainedVersionException;
@@ -29,7 +31,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -123,10 +124,10 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     @Parameter(property = "mojoExecution", readonly = true)
     protected MojoExecution execution;
 
-	@Component(role = BuildTimestampProvider.class)
+	@Inject
 	protected Map<String, BuildTimestampProvider> timestampProviders;
 
-	@Component
+	@Inject
 	private BuildPropertiesParser buildPropertiesParser;
 
 	/**
