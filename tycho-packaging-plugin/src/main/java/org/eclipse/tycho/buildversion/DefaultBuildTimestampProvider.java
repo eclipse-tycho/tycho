@@ -16,11 +16,13 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.build.BuildTimestampProvider;
 
 /**
@@ -29,7 +31,8 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
  * value is used for the timestamp. If it does not exist (or cannot be parsed),
  * the ${maven.build.timestamp} timestamp is used instead.
  */
-@Component(role = BuildTimestampProvider.class, hint = DefaultBuildTimestampProvider.ROLE_HINT)
+@Singleton
+@Named(DefaultBuildTimestampProvider.ROLE_HINT)
 public class DefaultBuildTimestampProvider implements BuildTimestampProvider {
 
     static final String ROLE_HINT = "default";

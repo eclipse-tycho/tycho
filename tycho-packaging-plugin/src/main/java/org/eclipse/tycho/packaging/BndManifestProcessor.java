@@ -22,13 +22,12 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.maven.SessionScoped;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.TychoConstants;
@@ -55,15 +54,15 @@ import aQute.bnd.osgi.resource.CapReqBuilder;
  * </ul>
  */
 @SessionScoped
-@Component(role = ManifestProcessor.class, hint = "bnd", instantiationStrategy = "")
+@Named("bnd")
 public class BndManifestProcessor implements ManifestProcessor {
 
-	@Requirement
+	@Inject
 	private PluginRealmHelper pluginRealmHelper;
-	@Requirement
+	@Inject
 	private Logger logger;
 
-	@Requirement
+	@Inject
 	private PluginConfigurationHelper configurationHelper;
 
 	private MavenSession mavenSession;
