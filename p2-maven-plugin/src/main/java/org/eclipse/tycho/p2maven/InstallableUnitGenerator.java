@@ -32,13 +32,15 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -75,35 +77,36 @@ import org.xml.sax.SAXException;
  * Component used to generate {@link IInstallableUnit}s from other artifacts
  *
  */
-@Component(role = InstallableUnitGenerator.class)
+@Named
+@Singleton
 public class InstallableUnitGenerator {
 
 	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump")
 			|| Boolean.getBoolean("tycho.p2.dump.units");
 
-	@Requirement
+	@Inject
 	private Logger log;
 
 	private static final String KEY_UNITS = "InstallableUnitGenerator.units";
 
 	private static final String KEY_ARTIFACT_FILE = "InstallableUnitGenerator.artifactFile";
 
-	@Requirement
+	@Inject
 	private IProvisioningAgent provisioningAgent;
 
-	@Requirement(role = InstallableUnitProvider.class)
+	@Inject
 	private Map<String, InstallableUnitProvider> additionalUnitProviders;
 
-	@Requirement
+	@Inject
 	private PluginRealmHelper pluginRealmHelper;
 
-	@Requirement
+	@Inject
 	private InstallableUnitPublisher publisher;
 
-	@Requirement
+	@Inject
 	private PlexusContainer plexus;
 
-	@Requirement
+	@Inject
 	ArtifactHandlerManager artifactHandlerManager;
 
 	private Map<Artifact, ArtifactUnits> artifactUnitMap = new ConcurrentHashMap<>();
