@@ -15,10 +15,11 @@ package org.eclipse.tycho.bnd.mojos;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.bnd.MavenReactorRepository;
@@ -34,7 +35,7 @@ public abstract class AbstractBndMojo extends AbstractMojo {
 	@Parameter(property = "session", readonly = true)
 	protected MavenSession session;
 
-	@Component
+	@Inject
 	protected MavenReactorRepository mavenReactorRepository;
 
 	protected Workspace getWorkspace() throws MojoFailureException {

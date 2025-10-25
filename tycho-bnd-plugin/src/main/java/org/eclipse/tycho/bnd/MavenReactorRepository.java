@@ -19,10 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.project.MavenProject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.project.MavenProject;
 
 import aQute.bnd.osgi.repository.ResourcesRepository;
 import aQute.bnd.osgi.resource.ResourceBuilder;
