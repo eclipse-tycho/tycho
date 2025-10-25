@@ -24,11 +24,12 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.failsafe.util.FailsafeSummaryXmlUtils;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -191,23 +192,23 @@ public class BndTestMojo extends AbstractTestMojo {
     @Parameter(defaultValue = ENGINES_DEFAULT, required = true)
     private String testEngines;
 
-    @Component
+    @Inject
     private BundleReader bundleReader;
 
-    @Component
+    @Inject
     private ProjectDependenciesResolver resolver;
 
-    @Component
+    @Inject
     @SuppressWarnings("deprecation")
     private org.apache.maven.artifact.factory.ArtifactFactory artifactFactory;
 
     @Parameter(defaultValue = "${repositorySystemSession}", readonly = true, required = true)
     private RepositorySystemSession repositorySession;
 
-    @Component
+    @Inject
     private RepositorySystem repositorySystem;
 
-    @Component
+    @Inject
     private MavenBundleResolver mavenBundleResolver;
 
     @Override
