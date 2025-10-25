@@ -1,0 +1,94 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho</artifactId>
+		<version>6.0.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>tycho-junit-platform-application</artifactId>
+	<name>Junit-Platform Application</name>
+	<description>The Junit-Platform Application allows to run the
+		junit-platform-launcher inside an OSGi framework</description>
+	<properties>
+		<!-- the runner is possibly used inside a forked framework with a test
+		jvm so we need to support as low as possible here -->
+		<java.version>8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.app</artifactId>
+			<version>1.7.500</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.e4.ui.workbench3</artifactId>
+			<version>0.17.500</version>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.component.annotations</artifactId>
+			<version>1.5.1</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<release>${java.version}</release>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>bnd-process</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<bnd><![CDATA[
+						Bundle-SymbolicName: ${project.artifactId};singleton:=true
+						Import-Package: org.eclipse.ui.testing;resolution:=optional,*
+						Automatic-Module-Name: ${bsn}
+						Bundle-ActivationPolicy: lazy
+						-snapshot:
+						-nodefaultversion: true
+						-noextraheaders: true
+						-removeheaders: Private-Package, Bundle-SCM, Bundle-Developers, Bundle-DocURL, Bundle-License
+					]]></bnd>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestFile>
+							${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+
+	</build>
+</project>
