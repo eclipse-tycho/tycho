@@ -25,7 +25,6 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -34,9 +33,9 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 import org.eclipse.tycho.surefire.BndTestMojo;
 
@@ -47,9 +46,6 @@ import org.eclipse.tycho.surefire.BndTestMojo;
  */
 @Component(role = InstallableUnitProvider.class, hint = BndTestMojo.NAME)
 public class BndTestBundlesInstallableUnitProvider implements InstallableUnitProvider {
-    @Requirement
-    private Logger logger;
-
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
