@@ -6,8 +6,9 @@ import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.inject.Inject;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
@@ -17,10 +18,11 @@ import org.eclipse.tycho.UnmodifiableDependencyMetadata;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.resolver.P2MetadataProvider;
 
-@Component(role = P2MetadataProvider.class, hint = PublishProductInstallableUnitProvider.HINT)
+@Named(PublishProductInstallableUnitProvider.HINT)
+@Singleton
 public class PublishProductMetadataProvider implements P2MetadataProvider {
 
-    @Requirement
+    @Inject
     private InstallableUnitGenerator installableUnitGenerator;
 
     @Override

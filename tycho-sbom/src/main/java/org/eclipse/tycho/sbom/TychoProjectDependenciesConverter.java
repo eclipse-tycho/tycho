@@ -23,6 +23,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
@@ -43,7 +45,8 @@ import org.eclipse.tycho.p2.tools.P2DependencyTreeGenerator.DependencyTreeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@org.codehaus.plexus.component.annotations.Component(role = ProjectDependenciesConverter.class)
+@Named
+@Singleton
 public class TychoProjectDependenciesConverter extends DefaultProjectDependenciesConverter {
 	private static final Logger LOG = LoggerFactory.getLogger(TychoProjectDependenciesConverter.class);
 

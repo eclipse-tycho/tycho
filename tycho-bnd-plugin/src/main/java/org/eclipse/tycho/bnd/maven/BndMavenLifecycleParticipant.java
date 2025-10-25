@@ -34,8 +34,9 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.inject.Inject;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
@@ -63,7 +64,8 @@ import biz.aQute.resolve.Bndrun;
  * <code>test<code> maven dependency</li>
  * </ul>
  */
-@Component(role = AbstractMavenLifecycleParticipant.class)
+@Named
+@Singleton
 public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
 	private static final Set<Entry<String, String>> BND_TO_MAVEN_MAPPING = Map.of(//
@@ -73,10 +75,10 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 			Constants.TESTPATH, Artifact.SCOPE_TEST //
 	).entrySet();
 
-	@Requirement
+	@Inject
 	private Logger logger;
 
-	@Requirement
+	@Inject
 	private BndPluginManager bndPluginManager;
 
 	@Override

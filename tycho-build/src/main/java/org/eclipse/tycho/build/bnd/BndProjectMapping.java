@@ -22,11 +22,13 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.maven.lifecycle.Lifecycle;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.bndlib.JdtProjectBuilder;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
@@ -39,11 +41,12 @@ import aQute.bnd.build.Project;
 import aQute.bnd.build.ProjectBuilder;
 import aQute.bnd.build.Workspace;
 
-@Component(role = Mapping.class, hint = "bnd")
+@Named("bnd")
+@Singleton
 public class BndProjectMapping extends AbstractTychoMapping {
 
 	private static final String TYCHO_BND_PLUGIN = "tycho-bnd-plugin";
-	@Requirement(role = Lifecycle.class)
+	@Inject
 	private Map<String, Lifecycle> lifecycles;
 
 	@Override

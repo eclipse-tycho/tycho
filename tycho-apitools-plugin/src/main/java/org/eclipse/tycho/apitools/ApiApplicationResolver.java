@@ -16,8 +16,9 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Set;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.inject.Inject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
@@ -34,16 +35,17 @@ import org.osgi.service.log.LogEntry;
  * Component that resolves the bundles that make up the ApiApplication from a
  * given URI
  */
-@Component(role = ApiApplicationResolver.class)
+@Named
+@Singleton
 public class ApiApplicationResolver {
 
-	@Requirement
+	@Inject
 	private Logger logger;
 
-	@Requirement
+	@Inject
 	private EclipseApplicationFactory applicationFactory;
 
-	@Requirement
+	@Inject
 	private EclipseApplicationManager applicationManager;
 
 	public Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
