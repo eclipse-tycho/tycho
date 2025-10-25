@@ -14,70 +14,23 @@ package org.eclipse.tycho.apitools;
 
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Set;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.osgi.framework.Bundles;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
-import org.eclipse.tycho.osgi.framework.EclipseApplicationFactory;
-import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
-import org.eclipse.tycho.osgi.framework.Features;
-import org.osgi.framework.BundleException;
-import org.osgi.service.log.LogEntry;
+
 /**
  * Component that resolves the bundles that make up the ApiApplication from a
  * given URI
  */
-@Component(role = ApiApplicationResolver.class)
-public class ApiApplicationResolver {
+public interface ApiApplicationResolver {
 
-	@Requirement
-	private Logger logger;
-
-	@Requirement
-	private EclipseApplicationFactory applicationFactory;
-
-	@Requirement
-	private EclipseApplicationManager applicationManager;
-
-	public Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
+	Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
 			ArtifactKey artifactKey, Collection<TargetEnvironment> environment)
-			throws IllegalArtifactReferenceException {
-		return applicationFactory.getApiBaselineBundles(baselineRepoLocations, artifactKey, environment);
-	}
+			throws IllegalArtifactReferenceException;
 
-	public EclipseApplication getApiApplication(MavenRepositoryLocation apiToolsRepo) {
-
-		EclipseApplication application = applicationManager.getApplication(apiToolsRepo, new Bundles(Set.of(Bundles.BUNDLE_API_TOOLS)),
-				new Features(Set.of()), "Api Tools");
-		application.setLoggingFilter(ApiApplicationResolver::isOnlyDebug);
-		return application;
-	}
-
-	private static boolean isOnlyDebug(LogEntry entry) {
-		String message = entry.getMessage();
-		if (message.contains("The workspace ") && message.contains("with unsaved changes")) {
-			return true;
-		}
-		if (message.contains("Workspace was not properly initialized or has already shutdown")) {
-			return true;
-		}
-		if (message.contains("Platform proxy API not available")) {
-			return true;
-		}
-		if (message.contains("Error processing mirrors URL")) {
-			return true;
-		}
-		if (entry.getException() instanceof BundleException) {
-			return true;
-		}
-		return false;
-	}
+	EclipseApplication getApiApplication(MavenRepositoryLocation apiToolsRepo);
 
 }
