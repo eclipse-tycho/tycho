@@ -1,0 +1,14 @@
+FILE-LAST_UPDATED=1761384657415
+HTTP_RESPONSE_CODE=200
+accept-ranges=bytes
+cache-control=private, max-age\=8m, no-transform
+connection=close
+content-security-policy=frame-ancestors 'self'
+content-type=application/x-xz
+date=Sat, 25 Oct 2025 09\:30\:57 GMT
+etag="27194-62171435104eb"
+keep-alive=timeout\=50
+last-modified=Fri, 06 Sep 2024 10\:56\:44 GMT
+server=nginx
+strict-transport-security=max-age\=63072000; includeSubDomains; preload
+transfer-encoding=chunked
