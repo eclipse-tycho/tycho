@@ -155,6 +155,10 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
 		}
 	}
 
+	/**
+	 * Initializes the repository settings from the current Maven session.
+	 * This method is called automatically after dependency injection is complete.
+	 */
 	@PostConstruct
 	public void initialize() {
 		MavenSession session = legacySupport.getSession();
