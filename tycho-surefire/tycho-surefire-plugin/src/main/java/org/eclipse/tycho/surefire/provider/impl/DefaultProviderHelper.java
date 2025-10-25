@@ -48,6 +48,7 @@ public class DefaultProviderHelper implements ProviderHelper {
     private static final Comparator<ProviderSelection> VERSION_COMPARATOR = Comparator
             .comparing(ProviderSelection::provider, Comparator.comparing(TestFrameworkProvider::getVersion));
 
+    @Override
     public ProviderSelection selectProvider(MavenProject project, List<ClasspathEntry> classpath,
             Properties providerProperties, String providerHint) throws MojoExecutionException {
         if (providerHint != null) {
@@ -72,6 +73,7 @@ public class DefaultProviderHelper implements ProviderHelper {
         return Collections.max(candidates, VERSION_COMPARATOR);
     }
 
+    @Override
     public Set<Artifact> filterTestFrameworkBundles(TestFrameworkProvider provider, List<Artifact> pluginArtifacts)
             throws MojoExecutionException {
         Set<Artifact> result = new LinkedHashSet<>();
@@ -134,6 +136,7 @@ public class DefaultProviderHelper implements ProviderHelper {
         }
     }
 
+    @Override
     public List<String> getSymbolicNames(Set<Artifact> bundleArtifacts) {
         List<String> result = new ArrayList<>();
         for (Artifact artifact : bundleArtifacts) {
