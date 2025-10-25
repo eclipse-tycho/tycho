@@ -27,7 +27,6 @@ import javax.inject.Singleton;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -36,9 +35,9 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.resolver.InstallableUnitProvider;
 import org.eclipse.tycho.surefire.BndTestMojo;
 
@@ -50,9 +49,6 @@ import org.eclipse.tycho.surefire.BndTestMojo;
 @Named(BndTestMojo.NAME)
 @Singleton
 public class BndTestBundlesInstallableUnitProvider implements InstallableUnitProvider {
-    @Inject
-    private Logger logger;
-
     @Inject
     private Map<String, TychoProject> projectTypes;
 

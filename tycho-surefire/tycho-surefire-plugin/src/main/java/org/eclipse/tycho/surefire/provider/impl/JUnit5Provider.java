@@ -13,7 +13,6 @@
 
 package org.eclipse.tycho.surefire.provider.impl;
 
-import static java.util.Collections.singletonList;
 import static org.eclipse.tycho.surefire.provider.impl.DefaultProviderHelper.newDependency;
 
 import java.util.List;
@@ -24,7 +23,6 @@ import javax.inject.Named;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ClasspathEntry;
-import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.VersionRange;
 
 @Named("junit5")
@@ -34,7 +32,7 @@ public class JUnit5Provider extends AbstractJUnit5Provider {
 
     @Override
     public List<Dependency> getRequiredArtifacts() {
-        return singletonList(newDependency("org.eclipse.tycho.surefire.junit5"));
+        return List.of(newDependency("org.eclipse.tycho.surefire.junit5"));
     }
 
     @Override
