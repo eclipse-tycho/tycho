@@ -473,8 +473,10 @@ public class BundlesAction extends AbstractPublisherAction {
 		String capFilter = directives.get(Namespace.REQUIREMENT_FILTER_DIRECTIVE);
 		
 		// Fix for JavaSE-25 and future Java versions not recognized by OSGi framework
-		// When OSGi encounters an unknown BREE like "JavaSE-25", it converts it to osgi.ee=UNKNOWN
-		// We need to detect this and convert the BREE to a proper osgi.ee filter
+		// OSGi's StateObjectFactory.createBundleDescription() converts unknown BREE values (like JavaSE-25)
+		// to osgi.ee=UNKNOWN when parsing the manifest, before Tycho can process it.
+		// This workaround detects the UNKNOWN filter and reconstructs it from the original BREE header.
+		// See https://github.com/eclipse-tycho/tycho/issues/5446
 		if (capFilter != null && capFilter.contains("UNKNOWN") && "osgi.ee".equals(namespace)) {
 			String breeHeader = manifest.get(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT);
 			if (breeHeader != null && !breeHeader.isEmpty()) {
