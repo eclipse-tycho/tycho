@@ -41,6 +41,17 @@ import aQute.bnd.print.JarPrinter;
 import aQute.bnd.version.MavenVersion;
 import aQute.bnd.version.Version;
 
+/**
+ * This mojos allows creating OSGi jars by specifying an arbitrary input and output, 
+ * some <a href="https://bnd.bndtools.org/chapters/160-jars.html">bnd instructions</a> 
+ * and (optionally) attach the result to the maven project.
+ * 
+ * This has the advantage that projects are able to publish 
+ * two "flavors" of their artifact: a plain one and an OSGi-fied one 
+ * that could help to convince projects to provide such things as 
+ * it has zero influence to their build and ways how they build artifacts.
+ * 
+ */
 @Mojo(name = "wrap", requiresProject = true, threadSafe = true, defaultPhase = LifecyclePhase.PACKAGE)
 public class WrapMojo extends AbstractMojo {
 
