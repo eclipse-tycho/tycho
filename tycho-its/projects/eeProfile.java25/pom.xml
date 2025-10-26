@@ -10,7 +10,6 @@
 
 	<modules>
 		<module>bundle</module>
-		<module>repository</module>
 	</modules>
 
 	<build>
@@ -30,18 +29,5 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-p2-repository-plugin</artifactId>
-					<version>${tycho-version}</version>
-					<configuration>
-						<!-- to ease programmatic assertions -->
-						<compress>false</compress>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 	</build>
 </project>

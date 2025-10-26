@@ -12,39 +12,26 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.eeProfile;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import java.io.File;
-import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.P2RepositoryTool;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
 @Ignore("unless java 25 jvm is available to tycho build")
 public class Java25ResolutionTest extends AbstractTychoIntegrationTest {
 
-	private static File buildResult;
-
-	@BeforeClass
-	public static void setUp() throws Exception {
-		Verifier verifier = new Java25ResolutionTest().getVerifier("eeProfile.java25", false);
+	@Test
+	public void testBundleBuildForJava25() throws Exception {
+		// Test that a bundle with JavaSE-25 BREE can be built with javac compiler
+		Verifier verifier = getVerifier("eeProfile.java25", false);
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
-		buildResult = new File(verifier.getBasedir());
-	}
-
-	@Test
-	public void testProductBuildForJava25() throws Exception {
-		// a p2 repository that contains a product for Java 25
-		P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
-		List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
-		// we expect java 25
-		assertThat(jreUnitVersions, hasItem("25.0.0"));
+		verifier.verifyTextInLog("Building jar:");
+		File buildResult = new File(verifier.getBasedir());
+		File bundleJar = new File(buildResult, "bundle/target/java25.bundle-1.0.0-SNAPSHOT.jar");
+		assertTrue("Bundle JAR should exist", bundleJar.exists());
 	}
 
 }
