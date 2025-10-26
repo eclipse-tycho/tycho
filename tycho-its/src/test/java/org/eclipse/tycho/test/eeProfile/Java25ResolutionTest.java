@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.eeProfile;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 
 import org.apache.maven.it.Verifier;

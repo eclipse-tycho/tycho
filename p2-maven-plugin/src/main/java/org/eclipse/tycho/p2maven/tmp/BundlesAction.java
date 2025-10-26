@@ -504,9 +504,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	private String convertBreeToOsgiEeFilter(String breeHeader) {
 		// BREE can contain multiple comma-separated values, we need to pick the highest version
 		String[] brees = breeHeader.split(",");
-		String highestBree = null;
 		int highestVersion = -1;
-		String eeType = "JavaSE"; // default to JavaSE
 		
 		for (String bree : brees) {
 			bree = bree.trim();
@@ -522,9 +520,6 @@ public class BundlesAction extends AbstractPublisherAction {
 					int version = Integer.parseInt(versionStr);
 					if (version > highestVersion) {
 						highestVersion = version;
-						highestBree = bree;
-						// J2SE is for older versions, map to JavaSE for the filter
-						eeType = "JavaSE";
 					}
 				} catch (NumberFormatException e) {
 					// Ignore malformed BREE entries
@@ -532,9 +527,10 @@ public class BundlesAction extends AbstractPublisherAction {
 			}
 		}
 		
-		if (highestBree != null && highestVersion > 0) {
+		if (highestVersion > 0) {
 			// Convert to osgi.ee filter format: (&(osgi.ee=JavaSE)(version=XX))
-			return "(&(osgi.ee=" + eeType + ")(version=" + highestVersion + "))";
+			// Note: J2SE is mapped to JavaSE for the filter
+			return "(&(osgi.ee=JavaSE)(version=" + highestVersion + "))";
 		}
 		
 		return null;
