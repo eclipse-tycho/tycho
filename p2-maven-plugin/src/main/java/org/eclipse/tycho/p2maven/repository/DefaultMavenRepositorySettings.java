@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -54,8 +53,6 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
 
     @Inject
     private Logger logger;
-    @Inject
-	private LegacySupport legacySupport;
 
     @Inject
     private SettingsDecrypterHelper decrypter;
@@ -66,19 +63,30 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
 
 	private Map<String, URI> idToMirrorMap = new HashMap<>();
 
-	private Settings settings;
+	private final Settings settings;
 
-	private List<Mirror> mirrors;
+	private final List<Mirror> mirrors;
 
-	private RepositorySystemSession repositorySession;
+	private final RepositorySystemSession repositorySession;
 
-    public DefaultMavenRepositorySettings() {
-        // for plexus
+	@Inject
+	public DefaultMavenRepositorySettings(LegacySupport legacySupport) {
+		MavenSession session = legacySupport.getSession();
+		if (session != null) {
+			settings = session.getSettings();
+			mirrors = session.getRequest().getMirrors();
+			repositorySession = session.getRepositorySession();
+		} else {
+			settings = new Settings();
+			mirrors = Collections.emptyList();
+			repositorySession = null;
+		}
     }
 
 	public DefaultMavenRepositorySettings(RepositorySystemSession repositorySystemSession) {
-		// for test
 		repositorySession = repositorySystemSession;
+		settings = new Settings();
+		mirrors = Collections.emptyList();
     }
 
     @Override
@@ -152,23 +160,6 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
 			idToMirrorMap.remove(repositoryId);
 		} else {
 			idToMirrorMap.put(repositoryId, mirroredUrl);
-		}
-	}
-
-	/**
-	 * Initializes the repository settings from the current Maven session.
-	 * This method is called automatically after dependency injection is complete.
-	 */
-	@PostConstruct
-	public void initialize() {
-		MavenSession session = legacySupport.getSession();
-		if (session != null) {
-			settings = session.getSettings();
-			mirrors = session.getRequest().getMirrors();
-			repositorySession = session.getRepositorySession();
-		} else {
-			settings = new Settings();
-			mirrors = Collections.emptyList();
 		}
 	}
 
