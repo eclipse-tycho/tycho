@@ -38,24 +38,24 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.resolver.ResolutionErrorHandler;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.surefire.api.booter.ProviderParameterNames;
 import org.apache.maven.surefire.api.util.ScanResult;
 import org.apache.maven.surefire.booter.BooterConstants;
 import org.apache.maven.surefire.booter.PropertiesWrapper;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -324,9 +324,6 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
 
     @Component
     protected RepositorySystem repositorySystem;
-
-    @Component
-    private ResolutionErrorHandler resolutionErrorHandler;
 
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
@@ -1212,23 +1209,28 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
 
         if (frameworkExtensions != null) {
             for (Dependency frameworkExtension : frameworkExtensions) {
-                Artifact artifact = repositorySystem.createDependencyArtifact(frameworkExtension);
-                ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-                request.setArtifact(artifact);
-                request.setResolveRoot(true).setResolveTransitively(false);
-                request.setLocalRepository(session.getLocalRepository());
-                // XXX wrong repositories -- these are user artifacts, not plugin artifacts
-                request.setRemoteRepositories(project.getPluginArtifactRepositories());
-                request.setOffline(session.isOffline());
-                request.setForceUpdate(session.getRequest().isUpdateSnapshots());
-                ArtifactResolutionResult result = repositorySystem.resolve(request);
+                org.eclipse.aether.artifact.Artifact artifact = new org.eclipse.aether.artifact.DefaultArtifact(
+                        frameworkExtension.getGroupId(), frameworkExtension.getArtifactId(),
+                        frameworkExtension.getType(), frameworkExtension.getVersion());
+                ArtifactRequest artifactRequest = new ArtifactRequest();
+                artifactRequest.setArtifact(artifact);
+                artifactRequest.setRepositories(RepositoryUtils.toRepos(project.getRemoteArtifactRepositories()));
+                ArtifactResult artifactResult;
                 try {
-                    resolutionErrorHandler.throwErrors(request, result);
+                    artifactResult = repositorySystem.resolveArtifact(session.getRepositorySession(), artifactRequest);
+                    if (artifactResult.isResolved()) {
+                        files.add(artifactResult.getArtifact().getFile());
+                    } else {
+                        MojoExecutionException exception = new MojoExecutionException(
+                                "Failed to resolve framework extension " + frameworkExtension.getManagementKey());
+                        artifactResult.getExceptions().forEach(exception::addSuppressed);
+                        throw exception;
+                    }
                 } catch (ArtifactResolutionException e) {
                     throw new MojoExecutionException(
                             "Failed to resolve framework extension " + frameworkExtension.getManagementKey(), e);
                 }
-                files.add(artifact.getFile());
+
             }
         }
 
