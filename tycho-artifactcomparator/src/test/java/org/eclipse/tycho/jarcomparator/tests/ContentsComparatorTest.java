@@ -73,6 +73,14 @@ public class ContentsComparatorTest {
                 "src/test/resources/classfiles/MalformedClass2.clazz"));
     }
 
+    @Test
+    public void testManifestWithJavaVersion() throws Exception {
+        // Test that manifests with different Java-Version headers are considered equal (ignored)
+        assertTrue(isContentEqual(ManifestComparator.TYPE,
+                "src/test/resources/manifest/MANIFEST-JavaVersion1.MF",
+                "src/test/resources/manifest/MANIFEST-JavaVersion2.MF"));
+    }
+
     private boolean isContentEqual(String type, String baseline, String reactor) throws Exception {
         ContentsComparator comparator = container.lookup(ContentsComparator.class, type);
         try (InputStream is = new FileInputStream(baseline)) {

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: tester
+Build-Jdk: 21.0.5
+Java-Version: 21
+Bundle-Version: 1.0.0.1
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: baseline.bundle02
+
