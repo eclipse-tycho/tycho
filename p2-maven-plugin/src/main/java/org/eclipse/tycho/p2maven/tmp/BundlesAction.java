@@ -293,7 +293,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		ManifestElement[] rawRequireCapHeader = parseManifestHeader(Constants.REQUIRE_CAPABILITY, manifest,
 				bd.getLocation());
 		for (GenericSpecification requiredCap : bd.getGenericRequires()) {
-			addRequirement(requirements, requiredCap, rawRequireCapHeader, bd, manifest);
+			addRequirement(requirements, requiredCap, rawRequireCapHeader, bd);
 		}
 
 		// Create set of provided capabilities
@@ -464,78 +464,19 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	protected void addRequirement(List<IRequirement> reqsDeps, GenericSpecification requireCapSpec,
-			ManifestElement[] rawRequireCapabilities, BundleDescription bd, Map<String, String> manifest) {
+			ManifestElement[] rawRequireCapabilities, BundleDescription bd) {
 		BundleRequirement req = requireCapSpec.getRequirement();
 
 		String namespace = req.getNamespace();
 		Map<String, String> directives = req.getDirectives();
 
 		String capFilter = directives.get(Namespace.REQUIREMENT_FILTER_DIRECTIVE);
-		
-		// Fix for JavaSE-25 and future Java versions not recognized by OSGi framework
-		// OSGi's StateObjectFactory.createBundleDescription() converts unknown BREE values (like JavaSE-25)
-		// to osgi.ee=UNKNOWN when parsing the manifest, before Tycho can process it.
-		// This workaround detects the UNKNOWN filter and reconstructs it from the original BREE header.
-		// See https://github.com/eclipse-tycho/tycho/issues/5446
-		if (capFilter != null && capFilter.contains("UNKNOWN") && "osgi.ee".equals(namespace)) {
-			String breeHeader = manifest.get(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT);
-			if (breeHeader != null && !breeHeader.isEmpty()) {
-				String fixedFilter = convertBreeToOsgiEeFilter(breeHeader);
-				if (fixedFilter != null) {
-					capFilter = fixedFilter;
-				}
-			}
-		}
-		
 		boolean optional = directives.get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE) == Namespace.RESOLUTION_OPTIONAL;
 		boolean greedy = optional ? INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE)) : true;
 
 		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, optional ? 0 : 1, 1,
 				greedy, bd.getSymbolicName());
 		reqsDeps.add(requireCap);
-	}
-
-	/**
-	 * Converts a Bundle-RequiredExecutionEnvironment (BREE) value to an osgi.ee filter.
-	 * This is needed because newer Java versions (like JavaSE-25) may not be recognized
-	 * by the OSGi framework and get converted to "UNKNOWN".
-	 * 
-	 * @param breeHeader the BREE header value (e.g., "JavaSE-25" or "JavaSE-17,JavaSE-25")
-	 * @return an osgi.ee filter string, or null if the BREE cannot be parsed
-	 */
-	private String convertBreeToOsgiEeFilter(String breeHeader) {
-		// BREE can contain multiple comma-separated values, we need to pick the highest version
-		String[] brees = breeHeader.split(",");
-		int highestVersion = -1;
-		
-		for (String bree : brees) {
-			bree = bree.trim();
-			// Parse JavaSE-XX or J2SE-XX format
-			if (bree.startsWith("JavaSE-") || bree.startsWith("J2SE-")) {
-				try {
-					String prefix = bree.startsWith("JavaSE-") ? "JavaSE-" : "J2SE-";
-					String versionStr = bree.substring(prefix.length());
-					// Remove "1." prefix if present (e.g., "1.8" -> "8")
-					if (versionStr.startsWith("1.")) {
-						versionStr = versionStr.substring(2);
-					}
-					int version = Integer.parseInt(versionStr);
-					if (version > highestVersion) {
-						highestVersion = version;
-					}
-				} catch (NumberFormatException e) {
-					// Ignore malformed BREE entries
-				}
-			}
-		}
-		
-		if (highestVersion > 0) {
-			// Convert to osgi.ee filter format: (&(osgi.ee=JavaSE)(version=XX))
-			// Note: J2SE is mapped to JavaSE for the filter
-			return "(&(osgi.ee=JavaSE)(version=" + highestVersion + "))";
-		}
-		
-		return null;
 	}
 
 	protected void addCapability(List<IProvidedCapability> caps, GenericDescription provideCapDesc,

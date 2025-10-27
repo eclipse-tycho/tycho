@@ -131,6 +131,23 @@ public class BndManifestProcessor implements ManifestProcessor {
 		String existingValue = mainAttributes.getValue(Constants.REQUIRE_CAPABILITY);
 		String newValue = calcAttributes.getValue(Constants.REQUIRE_CAPABILITY);
 		if (newValue != null) {
+			// Fix for JavaSE-25 and future Java versions not recognized by bndlib
+			// Bnd's Analyzer may generate osgi.ee=UNKNOWN for unrecognized BREE values
+			// We need to detect and fix this before it gets into the manifest
+			// See https://github.com/bndtools/bnd/issues/6858
+			if (newValue.contains("UNKNOWN")) {
+				String breeHeader = mainAttributes.getValue(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT);
+				if (breeHeader != null && !breeHeader.isEmpty()) {
+					String fixedFilter = convertBreeToOsgiEeFilter(breeHeader);
+					if (fixedFilter != null) {
+						// Replace the UNKNOWN filter with the correct one
+						newValue = newValue.replaceAll("osgi\\.ee;\\s*filter:=\"[^\"]*UNKNOWN[^\"]*\"", 
+								"osgi.ee;filter:=\"" + fixedFilter + "\"");
+						logger.debug("Fixed UNKNOWN osgi.ee filter to: " + fixedFilter);
+					}
+				}
+			}
+			
 			Parameters additional = OSGiHeader.parseHeader(newValue);
 			if (additional.containsKey(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE)) {
 				// remove deprecated header but use the ee namespace
@@ -164,4 +181,47 @@ public class BndManifestProcessor implements ManifestProcessor {
 		}
 	}
 
+	/**
+	 * Converts a Bundle-RequiredExecutionEnvironment (BREE) value to an osgi.ee filter.
+	 * This is a workaround for bndlib not recognizing newer Java versions (like JavaSE-25).
+	 * 
+	 * @param breeHeader the BREE header value (e.g., "JavaSE-25" or "JavaSE-17,JavaSE-25")
+	 * @return an osgi.ee filter string, or null if the BREE cannot be parsed
+	 */
+	private String convertBreeToOsgiEeFilter(String breeHeader) {
+		// BREE can contain multiple comma-separated values, we need to pick the highest version
+		String[] brees = breeHeader.split(",");
+		int highestVersion = -1;
+		
+		for (String bree : brees) {
+			bree = bree.trim();
+			// Parse JavaSE-XX or J2SE-XX format
+			if (bree.startsWith("JavaSE-") || bree.startsWith("J2SE-")) {
+				try {
+					String prefix = bree.startsWith("JavaSE-") ? "JavaSE-" : "J2SE-";
+					String versionStr = bree.substring(prefix.length());
+					// Remove "1." prefix if present (e.g., "1.8" -> "8")
+					if (versionStr.startsWith("1.")) {
+						versionStr = versionStr.substring(2);
+					}
+					int version = Integer.parseInt(versionStr);
+					if (version > highestVersion) {
+						highestVersion = version;
+					}
+				} catch (NumberFormatException e) {
+					// Ignore malformed BREE entries
+				}
+			}
+		}
+		
+		if (highestVersion > 0) {
+			// Convert to osgi.ee filter format: (&(osgi.ee=JavaSE)(version=XX))
+			// Note: J2SE is mapped to JavaSE for the filter
+			return "(&(osgi.ee=JavaSE)(version=" + highestVersion + "))";
+		}
+		
+		return null;
+	}
+
 }
+
