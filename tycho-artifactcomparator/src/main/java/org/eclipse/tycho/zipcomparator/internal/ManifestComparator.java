@@ -59,7 +59,9 @@ public class ManifestComparator implements ContentsComparator {
             new Name("Bundle-Developers"), //
             new Name("Tool"),
             // this is common attribute not supported by Tycho yet
-            new Name("Eclipse-SourceReferences"));
+            new Name("Eclipse-SourceReferences"),
+            // Java-Version is added by some tooling and should be ignored
+            new Name("Java-Version"));
     // TODO make it possible to disable default ignores and add custom ignore
 
     @Override
