@@ -21,3 +21,6 @@ updates:
   labels:
     - "backport"
     - "dependencies"
+  ignore:
+    - dependency-name: "org.codehaus.plexus:plexus-archiver"
+      versions: ["4.10.1", "4.10.2", "4.10.3"]
