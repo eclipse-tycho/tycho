@@ -16,7 +16,7 @@ A structured build layout usually has the following folders, even though you mig
     - `sites` - if you have any update-sites they go into this folder
         - `my-site`
         - `...`
-    - `products` - the products to assemble are located here
+    - `products` - the products to assemble are located here (see [Building Products](Products.html) for details)
         - `cool-product`
         - `...`
 - `target-platform.target` the target platform that should be used

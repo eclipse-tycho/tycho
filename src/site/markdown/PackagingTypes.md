@@ -5,7 +5,7 @@ Tycho defines the following custom Maven packaging types targeted for Eclipse Pl
 * `eclipse-plugin` corresponds to [Eclipse Plug-in and Plug-in Fragment projects](https://github.com/eclipse-pde/eclipse.pde/blob/master/docs/User_Guide.md#Plug-in).
 * `eclipse-test-plugin` is similar to `eclipse-plugin` but only contains Plugin Tests to be executed inside an OSGi runtime. There is a notable difference between `eclipse-plugin` and `eclipse-test-plugin` with respect to the goal executed during `integration-test`. The former uses `tycho-surefire-plugin:integration-test` while the latter uses `tycho-surefire-plugin:test`.
 * `eclipse-feature` corresponds to [Eclipse Feature projects](https://github.com/eclipse-pde/eclipse.pde/blob/master/docs/User_Guide.md#Feature)
-* `eclipse-repository` corresponds to projects containing a `category.xml` file, the support of [Eclipse Update Site projects](https://github.com/eclipse-pde/eclipse.pde/blob/master/docs/User_Guide.md#Update-Site) has been removed in latest Tycho versions
+* `eclipse-repository` corresponds to projects containing a `category.xml` file or `.product` files for building Eclipse products. The support of [Eclipse Update Site projects](https://github.com/eclipse-pde/eclipse.pde/blob/master/docs/User_Guide.md#Update-Site) has been removed in latest Tycho versions. See [Building Products](Products.html) for information on building Eclipse RCP applications.
 * `eclipse-target-definition` corresponds to [Eclipse Target Platform](https://github.com/eclipse-pde/eclipse.pde/blob/master/docs/User_Guide.md#Target_Platform)
 * `p2-installable-unit` corresponds to [Installable Units](https://github.com/eclipse-equinox/p2/blob/master/docs/Installable_Units.md)
 
