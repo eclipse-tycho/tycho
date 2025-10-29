@@ -23,3 +23,6 @@ project-dependencies.xml
 project-units.xml
 requirements.txt
 .DS_Store
+
+## Tools downloaded for testing
+actionlint
