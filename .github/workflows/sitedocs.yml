@@ -6,12 +6,23 @@ on:
   push:
     branches: 
       - 'main'
+    paths:
+      - 'src/site/**'
+      - '**/src/site/**'
+      - 'pom.xml'
+  pull_request:
+    branches: 
+      - 'main'
+    paths:
+      - 'src/site/**'
+      - '**/src/site/**'
+      - 'pom.xml'
 permissions:
   contents: read
 
 jobs:
   build:
-    name: Publish site-docs
+    name: Build site-docs
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -26,6 +37,7 @@ jobs:
       with:
        path: 'tycho'
     - name: Checkout page
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with:
        path: 'page'
@@ -53,7 +65,9 @@ jobs:
         if-no-files-found: error
         path: |
           ${{ github.workspace }}/tycho/target/staging/**/*.*
-    - run: |
+    - name: Deploy to GitHub Pages
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
         cd ${{ github.workspace }}/page/doc/
         git config user.name "Tycho Bot"
         git config user.email tycho-bot@eclipse.org
