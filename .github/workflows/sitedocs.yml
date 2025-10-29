@@ -59,7 +59,7 @@ jobs:
     - name: Upload site-doc
       uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
       with:
-        name: site-docs-${{ env.GITHUB_REF_NAME }}
+        name: site-docs-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || env.GITHUB_REF_NAME }}
         if-no-files-found: error
         path: |
           ${{ github.workspace }}/tycho/target/staging/**/*.*
