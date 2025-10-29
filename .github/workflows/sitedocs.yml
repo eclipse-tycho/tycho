@@ -1,4 +1,4 @@
-name: Publish Tycho site-docs
+name: Tycho site-docs
 concurrency: 
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -8,15 +8,13 @@ on:
       - 'main'
     paths:
       - 'src/site/**'
-      - '**/src/site/**'
-      - 'pom.xml'
   pull_request:
     branches: 
       - 'main'
     paths:
       - 'src/site/**'
-      - '**/src/site/**'
-      - 'pom.xml'
+      - .github/workflows/sitedocs.yml
+
 permissions:
   contents: read
 
