@@ -12,6 +12,9 @@ updates:
     p2:
       patterns:
         - "org.eclipse.platform:org.eclipse.equinox.p2.*"
+  ignore:
+    - dependency-name: "org.codehaus.plexus:plexus-archiver"
+      versions: ["4.10.1", "4.10.2", "4.10.3"]
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
@@ -32,3 +35,6 @@ updates:
     p2:
       patterns:
         - "org.eclipse.platform:org.eclipse.equinox.p2.*"
+  ignore:
+    - dependency-name: "org.codehaus.plexus:plexus-archiver"
+      versions: ["4.10.1", "4.10.2", "4.10.3"]
