@@ -97,7 +97,7 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 	 * Gets the effective cleanup profile by merging project settings with mojo configuration.
 	 * If useProjectSettings is true, project settings override mojo configuration.
 	 * 
-	 * @return the effective cleanup profile map
+	 * @return the effective cleanup profile map, or null if no settings are configured
 	 */
 	private Map<String, String> getEffectiveCleanUpProfile() {
 		Map<String, String> effectiveProfile = new HashMap<>();
