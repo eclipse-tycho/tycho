@@ -653,10 +653,15 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             //... if not we notify the caller that nothing has to be done here.
             return null;
         }
-        TestFrameworkProvider provider = providerHelper
-                .selectProvider(project, getProjectType().getClasspath(DefaultReactorProject.adapt(project)),
-                        getMergedProviderProperties(), providerHint)
-                .provider();
+        ProviderSelection selection = providerHelper.selectProvider(project,
+                getProjectType().getClasspath(DefaultReactorProject.adapt(project)),
+                getMergedProviderProperties(), providerHint);
+        TestFrameworkProvider provider = selection.provider();
+        if ("junit4".equals(selection.hint())) {
+            getLog().warn("The JUnit 4 test framework provider is deprecated and may be removed in a future release. "
+                    + "Please migrate to JUnit 5 or use JUnit Vintage to run JUnit 4 tests. "
+                    + "See https://github.com/eclipse-jdt/eclipse.jdt.ui/issues/2586 for more information.");
+        }
         try {
             PropertiesWrapper wrapper = createSurefireProperties(provider, scanResult);
             storeProperties(wrapper.getProperties(), surefireProperties);
@@ -750,6 +755,11 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         TestFrameworkProvider provider = selection.provider();
         getLog().info(String.format("Selected test framework %s (%s) with provider %s %s", provider.getType(),
                 provider.getVersion(), selection.hint(), provider.getVersionRange()));
+        if ("junit4".equals(selection.hint())) {
+            getLog().warn("The JUnit 4 test framework provider is deprecated and may be removed in a future release. "
+                    + "Please migrate to JUnit 5 or use JUnit Vintage to run JUnit 4 tests. "
+                    + "See https://github.com/eclipse-jdt/eclipse.jdt.ui/issues/2586 for more information.");
+        }
         Collection<IRequirement> testRequiredPackages = new ArrayList<>();
         Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
         for (Artifact artifact : testFrameworkBundles) {
