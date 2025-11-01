@@ -10,3 +10,7 @@
 !/.settings/org.eclipse.jdt.core.prefs
 !/.settings/org.eclipse.jdt.ui.prefs
 /target/
+
+# Build artifacts - HTTP cache
+http/
+https/
