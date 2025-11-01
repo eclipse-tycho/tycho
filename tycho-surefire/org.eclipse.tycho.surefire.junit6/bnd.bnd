@@ -1,0 +1,17 @@
+# We only import some of the junit packages here to create a requirement on them and to allow
+# to load them if the test bundle itself does not import them already.
+# Apart from that the content in this bundle is only used to bootstrap
+# surefire and we include all we need for that as it does not comply with OSGi rules.
+Import-Package: \
+ org.junit.platform.launcher, \
+ org.junit.jupiter.api, \
+ org.junit.jupiter.engine, \
+ org.junit.platform.suite.api, \
+ org.junit.platform.suite.engine;status=INTERNAL, \
+ java.*
+Fragment-Host: org.eclipse.tycho.surefire.osgibooter
+# The JUnit Runner is still compatible with Java 1.8, as all included upstream dependencies are.
+# (This is checked in the tycho-surefire-plugin's pom.xml. See execution 'enforce-runtime-jdk-compatibility'.)
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+-removeheaders: Tool, Bnd-*, Created-By, Private-Package
+-fixupmessages "Classes found in the wrong directory"; is:=warning

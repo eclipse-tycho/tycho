@@ -25,6 +25,7 @@
 		<module>org.eclipse.tycho.surefire.osgibooter</module>
 		<module>org.eclipse.tycho.surefire.junit4</module>
 		<module>org.eclipse.tycho.surefire.junit5</module>
+		<module>org.eclipse.tycho.surefire.junit6</module>
 		<module>org.eclipse.tycho.surefire.junit5.vintage</module>
 		<module>org.eclipse.tycho.surefire.junit5.vintage.internal</module>
 		<module>org.eclipse.tycho.surefire.testng</module>
