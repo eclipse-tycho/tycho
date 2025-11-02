@@ -248,7 +248,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private void removeDuplicateTestCompileRoot(File sourceFolder, MavenProject project) {
-        for (String testCompileRoot : project.getTestCompileSourceRoots()) {
+        // Make a copy to avoid direct modification during iteration (Maven 4.0.0 compatibility)
+        List<String> testCompileRoots = new ArrayList<>(project.getTestCompileSourceRoots());
+        for (String testCompileRoot : testCompileRoots) {
             if (sourceFolder.equals(new File(testCompileRoot))) {
                 // avoid duplicate source folders (bug 368445)
                 logger

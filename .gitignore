@@ -26,3 +26,6 @@ requirements.txt
 
 ## Tools downloaded for testing
 actionlint
+# Test artifacts
+http/
+https/
