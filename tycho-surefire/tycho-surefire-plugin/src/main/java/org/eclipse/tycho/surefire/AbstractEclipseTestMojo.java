@@ -153,18 +153,19 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private String debugOptions;
 
     /**
-     * (junit47 provider with JUnit4.8+ only) Groups/categories for this test (comma-separated).
+     * (JUnit 4.8+ only) Groups/categories for this test (comma-separated).
      * Only classes/methods/etc decorated with one of the group/category specified here will be
-     * included in test run, if specified. For JUnit, this parameter forces the use of the junit47
-     * provider
+     * included in test run, if specified. This parameter requires JUnit 4.8 or higher, as the
+     * {@code @Category} annotation was introduced in JUnit 4.8.
      */
     @Parameter(property = "groups")
     private String groups;
 
     /**
-     * (junit47 provider with JUnit4.8+ only) Excluded groups/categories (comma-separated). Any
+     * (JUnit 4.8+ only) Excluded groups/categories (comma-separated). Any
      * methods/classes/etc with one of the groups/categories specified in this list will
-     * specifically not be run. For JUnit, this parameter forces the use of the junit47 provider
+     * specifically not be run. This parameter requires JUnit 4.8 or higher, as the
+     * {@code @Category} annotation was introduced in JUnit 4.8.
      */
     @Parameter(property = "excludedGroups")
     private String excludedGroups;
@@ -378,7 +379,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private boolean trimStackTrace;
 
     /**
-     * (JUnit 4.7 provider) Supports values "classes"/"methods"/"both" to run in separate threads,
+     * Supports values "classes"/"methods"/"both" to run in separate threads,
      * as controlled by threadCount.
      *
      * @since 0.16.0
@@ -387,7 +388,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private ParallelMode parallel;
 
     /**
-     * (JUnit 4.7 provider) Indicates that threadCount is per cpu core.
+     * Indicates that threadCount is per cpu core.
      *
      * @since 0.16.0
      */
@@ -395,7 +396,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private boolean perCoreThreadCount;
 
     /**
-     * (JUnit 4.7 provider) The attribute thread-count allows you to specify how many threads should
+     * The attribute thread-count allows you to specify how many threads should
      * be allocated for this execution. Only makes sense to use in conjunction with the parallel
      * parameter.
      *
@@ -405,7 +406,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private int threadCount = -1;
 
     /**
-     * (JUnit 4.7 provider) Indicates that the thread pool will be unlimited. The parallel parameter
+     * Indicates that the thread pool will be unlimited. The parallel parameter
      * and the actual number of classes/methods will decide. Setting this to "true" effectively
      * disables perCoreThreadCount and threadCount.
      *
