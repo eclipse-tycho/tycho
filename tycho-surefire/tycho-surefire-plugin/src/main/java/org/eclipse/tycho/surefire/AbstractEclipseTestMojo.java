@@ -379,8 +379,8 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private boolean trimStackTrace;
 
     /**
-     * (JUnit 4.7+) Supports values "classes"/"methods"/"both" to run in separate threads,
-     * as controlled by threadCount. This parameter requires JUnit 4.7 or higher.
+     * Supports values "classes"/"methods"/"both" to run in separate threads,
+     * as controlled by threadCount.
      *
      * @since 0.16.0
      */
@@ -388,7 +388,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private ParallelMode parallel;
 
     /**
-     * (JUnit 4.7+) Indicates that threadCount is per cpu core. This parameter requires JUnit 4.7 or higher.
+     * Indicates that threadCount is per cpu core.
      *
      * @since 0.16.0
      */
@@ -396,9 +396,9 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private boolean perCoreThreadCount;
 
     /**
-     * (JUnit 4.7+) The attribute thread-count allows you to specify how many threads should
+     * The attribute thread-count allows you to specify how many threads should
      * be allocated for this execution. Only makes sense to use in conjunction with the parallel
-     * parameter. This parameter requires JUnit 4.7 or higher.
+     * parameter.
      *
      * @since 0.16.0
      */
@@ -406,9 +406,9 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private int threadCount = -1;
 
     /**
-     * (JUnit 4.7+) Indicates that the thread pool will be unlimited. The parallel parameter
+     * Indicates that the thread pool will be unlimited. The parallel parameter
      * and the actual number of classes/methods will decide. Setting this to "true" effectively
-     * disables perCoreThreadCount and threadCount. This parameter requires JUnit 4.7 or higher.
+     * disables perCoreThreadCount and threadCount.
      *
      * @since 0.16.0
      */
