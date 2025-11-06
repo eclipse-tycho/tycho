@@ -104,6 +104,7 @@ Now we need to sign the binaries, as explained this a custom step that depends o
 
 Now we need to package them as zip files again and place them at the location where Tycho is looking for them:
 
+```xml
 <plugin>
 	<groupId>org.eclipse.tycho</groupId>
 	<artifactId>tycho-p2-repository-plugin</artifactId>
@@ -122,6 +123,7 @@ Now we need to package them as zip files again and place them at the location wh
 		</execution>
 	</executions>
 </plugin>
+```
 
 ## Result
 
