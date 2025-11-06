@@ -67,12 +67,22 @@ public class VersionsEngine {
 
     private boolean updateVersionRangeMatchingBounds;
 
+    private boolean updatePackageVersions = true;
+
     public boolean isUpdateVersionRangeMatchingBounds() {
         return updateVersionRangeMatchingBounds;
     }
 
     public void setUpdateVersionRangeMatchingBounds(boolean updateVersionRangeMatchingBounds) {
         this.updateVersionRangeMatchingBounds = updateVersionRangeMatchingBounds;
+    }
+
+    public boolean isUpdatePackageVersions() {
+        return updatePackageVersions;
+    }
+
+    public void setUpdatePackageVersions(boolean updatePackageVersions) {
+        this.updatePackageVersions = updatePackageVersions;
     }
 
     public void setProjects(Collection<ProjectMetadata> projects) {
@@ -106,6 +116,7 @@ public class VersionsEngine {
         originalVersionChanges.clear();
         propertyChanges.clear();
         updateVersionRangeMatchingBounds = false;
+        updatePackageVersions = true;
         projects = null;
     }
 
@@ -113,6 +124,7 @@ public class VersionsEngine {
 
         VersionChangesDescriptor versionChangeContext = new VersionChangesDescriptor(originalVersionChanges,
                 new DefaultVersionRangeUpdateStrategy(isUpdateVersionRangeMatchingBounds()), projects);
+        versionChangeContext.setUpdatePackageVersions(updatePackageVersions);
 
         // collecting secondary changes
         boolean newChanges = true;
