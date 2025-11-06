@@ -62,8 +62,16 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 	 * If enabled, the cleanup profile settings will be written to the project's
 	 * org.eclipse.jdt.ui.prefs file after cleanup
 	 */
-	@Parameter(property = "updateProjectSettings")
-	private boolean updateProjectSettings;
+	@Parameter(property = "updateProjectCleanupProfile")
+	private boolean updateProjectCleanupProfile;
+
+	/**
+	 * If enabled, the save action cleanup settings will be written to the project's
+	 * org.eclipse.jdt.ui.prefs file after cleanup. Only updates if
+	 * sp_cleanup.on_save_use_additional_actions=true is set in the file.
+	 */
+	@Parameter(property = "updateProjectSaveActions")
+	private boolean updateProjectSaveActions;
 
 	@Override
 	protected String[] getRequireBundles() {
@@ -102,11 +110,18 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 		builder.newLine();
 		builder.newLine();
 		builder.write();
-		if (updateProjectSettings) {
+		if (updateProjectCleanupProfile) {
 			try {
-				updateProjectSettingsFile();
+				updateProjectSettingsFile("cleanup.");
 			} catch (IOException e) {
-				getLog().warn("Can't update project settings", e);
+				getLog().warn("Can't update project cleanup profile settings", e);
+			}
+		}
+		if (updateProjectSaveActions) {
+			try {
+				updateProjectSettingsFile("sp_cleanup.");
+			} catch (IOException e) {
+				getLog().warn("Can't update project save action settings", e);
 			}
 		}
 	}
@@ -120,9 +135,10 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 	/**
 	 * Updates the org.eclipse.jdt.ui.prefs file with the cleanup profile settings
 	 * 
+	 * @param prefix the prefix to use for filtering keys (e.g., "cleanup." or "sp_cleanup.")
 	 * @throws IOException
 	 */
-	private void updateProjectSettingsFile() throws IOException {
+	private void updateProjectSettingsFile(String prefix) throws IOException {
 
 		Path settingsDir = project.getBasedir().toPath().resolve(".settings");
 		Path prefsFile = settingsDir.resolve("org.eclipse.jdt.ui.prefs");
@@ -133,14 +149,54 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 
 		// Read all lines from the file with explicit charset
 		List<String> lines = Files.readAllLines(prefsFile, StandardCharsets.UTF_8);
+		
+		// For cleanup profile (cleanup.), check if cleanup_profile is defined
+		if ("cleanup.".equals(prefix)) {
+			boolean cleanupProfileDefined = false;
+			for (String line : lines) {
+				if (line.startsWith("cleanup_profile=")) {
+					cleanupProfileDefined = true;
+					break;
+				}
+			}
+			if (!cleanupProfileDefined) {
+				getLog().info("Skipping cleanup profile settings update: cleanup_profile is not defined");
+				return;
+			}
+		}
+		
+		// For save actions (sp_cleanup.), check if on_save_use_additional_actions is true
+		if ("sp_cleanup.".equals(prefix)) {
+			boolean saveActionsEnabled = false;
+			for (String line : lines) {
+				if (line.startsWith("sp_cleanup.on_save_use_additional_actions=")) {
+					String[] kv = line.split("=", 2);
+					if (kv.length == 2 && "true".equals(kv[1].trim())) {
+						saveActionsEnabled = true;
+						break;
+					}
+				}
+			}
+			if (!saveActionsEnabled) {
+				getLog().info("Skipping save action settings update: sp_cleanup.on_save_use_additional_actions is not true");
+				return;
+			}
+		}
+		
 		List<String> updatedLines = new ArrayList<>();
-		Set<String> missingKeys = new HashSet<>(cleanUpProfile.keySet());
+		Set<String> missingKeys = new HashSet<>();
+		
+		// Filter cleanUpProfile keys based on prefix and prepare missing keys set
+		for (String key : cleanUpProfile.keySet()) {
+			if (key.startsWith(prefix)) {
+				missingKeys.add(key);
+			}
+		}
 
 		// Process existing lines
 		for (String line : lines) {
-			boolean updated = false;
 			// Skip comments and empty lines - keep them as-is
-			if (!line.startsWith("cleanup.")) {
+			if (!line.startsWith(prefix)) {
 				updatedLines.add(line);
 				continue;
 			}
@@ -158,8 +214,14 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 			}
 		}
 		// Add any keys from the profile that weren't found in the file
+		// For save actions, ensure we add the "sp_" prefix
 		for (String key : missingKeys) {
-			updatedLines.add(key + "=" + cleanUpProfile.get(key));
+			if ("sp_cleanup.".equals(prefix) && !key.startsWith("sp_")) {
+				// Add sp_ prefix if missing
+				updatedLines.add("sp_" + key + "=" + cleanUpProfile.get(key));
+			} else {
+				updatedLines.add(key + "=" + cleanUpProfile.get(key));
+			}
 		}
 
 		// Write the updated content back to the file with explicit charset
