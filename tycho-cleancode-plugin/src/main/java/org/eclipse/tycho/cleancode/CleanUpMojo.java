@@ -191,7 +191,7 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 		for (String key : cleanUpProfile.keySet()) {
 			if (key.startsWith(prefix)) {
 				missingKeys.add(key);
-			} else if ("sp_cleanup.".equals(prefix) && key.startsWith("cleanup.") && !key.startsWith("sp_cleanup.")) {
+			} else if ("sp_cleanup.".equals(prefix) && key.startsWith("cleanup.")) {
 				// For save actions, convert cleanup.* to sp_cleanup.*
 				String spKey = "sp_" + key;
 				missingKeys.add(spKey);
@@ -215,9 +215,12 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 			if (missingKeys.remove(key)) {
 				// For save actions, if the original key was cleanup.*, use it, otherwise use the key as-is
 				String originalKey = key;
-				if ("sp_cleanup.".equals(prefix) && key.startsWith("sp_") && cleanUpProfile.containsKey(key.substring(3))) {
-					// Original key was cleanup.* without sp_ prefix
-					originalKey = key.substring(3); // Remove "sp_"
+				if ("sp_cleanup.".equals(prefix) && key.startsWith("sp_cleanup.")) {
+					String keyWithoutSpPrefix = key.substring("sp_".length());
+					if (cleanUpProfile.containsKey(keyWithoutSpPrefix)) {
+						// Original key was cleanup.* without sp_ prefix
+						originalKey = keyWithoutSpPrefix;
+					}
 				}
 				String value = cleanUpProfile.containsKey(key) ? cleanUpProfile.get(key) : cleanUpProfile.get(originalKey);
 				updatedLines.add(key + "=" + value);
@@ -230,9 +233,9 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 			// For save actions, if the key already has sp_ prefix, use cleanUpProfile.get(key), 
 			// otherwise it's a converted key so get value from original cleanup.* key
 			String value;
-			if ("sp_cleanup.".equals(prefix) && key.startsWith("sp_") && !cleanUpProfile.containsKey(key)) {
+			if ("sp_cleanup.".equals(prefix) && key.startsWith("sp_cleanup.") && !cleanUpProfile.containsKey(key)) {
 				// This was converted from cleanup.* to sp_cleanup.*, get value from original
-				String originalKey = key.substring(3); // Remove "sp_"
+				String originalKey = key.substring("sp_".length());
 				value = cleanUpProfile.get(originalKey);
 			} else {
 				value = cleanUpProfile.get(key);
