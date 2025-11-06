@@ -187,9 +187,14 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 		Set<String> missingKeys = new HashSet<>();
 		
 		// Filter cleanUpProfile keys based on prefix and prepare missing keys set
+		// For save actions, also accept keys without "sp_" prefix and convert them
 		for (String key : cleanUpProfile.keySet()) {
 			if (key.startsWith(prefix)) {
 				missingKeys.add(key);
+			} else if ("sp_cleanup.".equals(prefix) && key.startsWith("cleanup.") && !key.startsWith("sp_cleanup.")) {
+				// For save actions, convert cleanup.* to sp_cleanup.*
+				String spKey = "sp_" + key;
+				missingKeys.add(spKey);
 			}
 		}
 
@@ -208,20 +213,31 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 			String key = kv[0].trim();
 			// Check if this line matches any key in the cleanup profile
 			if (missingKeys.remove(key)) {
-				updatedLines.add(key + "=" + cleanUpProfile.get(key));
+				// For save actions, if the original key was cleanup.*, use it, otherwise use the key as-is
+				String originalKey = key;
+				if ("sp_cleanup.".equals(prefix) && key.startsWith("sp_") && cleanUpProfile.containsKey(key.substring(3))) {
+					// Original key was cleanup.* without sp_ prefix
+					originalKey = key.substring(3); // Remove "sp_"
+				}
+				String value = cleanUpProfile.containsKey(key) ? cleanUpProfile.get(key) : cleanUpProfile.get(originalKey);
+				updatedLines.add(key + "=" + value);
 			} else {
 				updatedLines.add(line);
 			}
 		}
 		// Add any keys from the profile that weren't found in the file
-		// For save actions, ensure we add the "sp_" prefix
 		for (String key : missingKeys) {
-			if ("sp_cleanup.".equals(prefix) && !key.startsWith("sp_")) {
-				// Add sp_ prefix if missing
-				updatedLines.add("sp_" + key + "=" + cleanUpProfile.get(key));
+			// For save actions, if the key already has sp_ prefix, use cleanUpProfile.get(key), 
+			// otherwise it's a converted key so get value from original cleanup.* key
+			String value;
+			if ("sp_cleanup.".equals(prefix) && key.startsWith("sp_") && !cleanUpProfile.containsKey(key)) {
+				// This was converted from cleanup.* to sp_cleanup.*, get value from original
+				String originalKey = key.substring(3); // Remove "sp_"
+				value = cleanUpProfile.get(originalKey);
 			} else {
-				updatedLines.add(key + "=" + cleanUpProfile.get(key));
+				value = cleanUpProfile.get(key);
 			}
+			updatedLines.add(key + "=" + value);
 		}
 
 		// Write the updated content back to the file with explicit charset
