@@ -47,6 +47,18 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertBundleManifest(basedir);
     }
 
+    public void testExportPackageNoBump() throws Exception {
+        File basedir = TestUtil.getBasedir("projects/exportpackage-nobump");
+
+        VersionsEngine engine = newEngine(basedir);
+        engine.setUpdatePackageVersions(false);
+        engine.addVersionChange("exportpackage-nobump", "1.0.1.qualifier");
+        engine.apply();
+
+        assertPom(basedir);
+        assertBundleManifest(basedir);
+    }
+
     public void testMultimodule() throws Exception {
         File basedir = TestUtil.getBasedir("projects/multimodule");
 

@@ -42,7 +42,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
 
     @Override
     public boolean addMoreChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
-        if (isBundle(project)) {
+        if (isBundle(project) && versionChangeContext.shouldUpdatePackageVersions()) {
             Set<PackageVersionChange> changes = computeExportedPackageChanges(project, versionChangeContext);
             return versionChangeContext.addPackageVersionChanges(changes);
         }
