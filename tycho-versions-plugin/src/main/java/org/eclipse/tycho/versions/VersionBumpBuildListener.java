@@ -89,6 +89,7 @@ public class VersionBumpBuildListener implements BuildListener {
                             logger.info(project.getId() + " requires a version bump from " + currentVersion + " => "
                                     + newVersion);
                             engine.setProjects(metadataReader.getProjects());
+                            engine.setUpdatePackageVersions(false);
                             engine.addVersionChange(pomFile.getArtifactId(), newVersion);
                             engine.apply();
                             bumped++;
