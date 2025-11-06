@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,16 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 	@Parameter(property = "updateProjectSettings")
 	private boolean updateProjectSettings;
 
+	/**
+	 * If set to <code>true</code>, the settings file
+	 * ${project.basedir}/.settings/org.eclipse.jdt.ui.prefs will be read and
+	 * cleanup settings will be extracted. These settings will override the
+	 * mojo configured cleanUpProfile. If the file is not present, the build
+	 * will not fail.
+	 */
+	@Parameter(defaultValue = "true")
+	private boolean useProjectSettings;
+
 	@Override
 	protected String[] getRequireBundles() {
 		return new String[] { "org.eclipse.jdt.ui" };
@@ -77,8 +88,78 @@ public class CleanUpMojo extends AbstractEclipseBuildMojo<CleanupResult> {
 
 	@Override
 	protected CleanUp createExecutable() {
-		return new CleanUp(project.getBasedir().toPath(), debug, cleanUpProfile, applyCleanupsIndividually,
+		Map<String, String> effectiveProfile = getEffectiveCleanUpProfile();
+		return new CleanUp(project.getBasedir().toPath(), debug, effectiveProfile, applyCleanupsIndividually,
 				getIgnores());
+	}
+
+	/**
+	 * Gets the effective cleanup profile by merging project settings with mojo configuration.
+	 * If useProjectSettings is true, project settings override mojo configuration.
+	 * 
+	 * @return the effective cleanup profile map, or null if no settings are configured
+	 */
+	private Map<String, String> getEffectiveCleanUpProfile() {
+		Map<String, String> effectiveProfile = new HashMap<>();
+		
+		// Start with mojo configured profile if present
+		if (cleanUpProfile != null && !cleanUpProfile.isEmpty()) {
+			effectiveProfile.putAll(cleanUpProfile);
+		}
+		
+		// Override with project settings if enabled
+		if (useProjectSettings) {
+			Path prefsFile = project.getBasedir().toPath().resolve(".settings").resolve("org.eclipse.jdt.ui.prefs");
+			
+			if (Files.isRegularFile(prefsFile)) {
+				try {
+					Map<String, String> projectSettings = loadCleanupSettingsFromPrefsFile(prefsFile);
+					effectiveProfile.putAll(projectSettings);
+					getLog().debug("Loaded " + projectSettings.size() + " cleanup settings from " + prefsFile);
+				} catch (IOException e) {
+					getLog().debug("Parameter 'useProjectSettings' is set to true, but could not read preferences file '" 
+							+ prefsFile + "': " + e.getMessage());
+				}
+			} else {
+				getLog().debug("Parameter 'useProjectSettings' is set to true, but preferences file '" + prefsFile
+						+ "' could not be found");
+			}
+		}
+		
+		return effectiveProfile.isEmpty() ? null : effectiveProfile;
+	}
+
+	/**
+	 * Loads cleanup settings from the Eclipse preferences file.
+	 * Extracts all keys starting with "cleanup." or "sp_cleanup."
+	 * 
+	 * @param prefsFile the preferences file path
+	 * @return map of cleanup settings
+	 * @throws IOException if the file cannot be read
+	 */
+	private Map<String, String> loadCleanupSettingsFromPrefsFile(Path prefsFile) throws IOException {
+		Map<String, String> cleanupSettings = new HashMap<>();
+		List<String> lines = Files.readAllLines(prefsFile, StandardCharsets.UTF_8);
+		
+		for (String line : lines) {
+			line = line.trim();
+			// Skip empty lines and comments
+			if (line.isEmpty() || line.startsWith("#")) {
+				continue;
+			}
+			
+			// Check if line starts with cleanup-related prefixes
+			if (line.startsWith("cleanup.") || line.startsWith("sp_cleanup.")) {
+				String[] kv = line.split("=", 2);
+				if (kv.length == 2) {
+					String key = kv[0].trim();
+					String value = kv[1].trim();
+					cleanupSettings.put(key, value);
+				}
+			}
+		}
+		
+		return cleanupSettings;
 	}
 
 	private List<Pattern> getIgnores() {
