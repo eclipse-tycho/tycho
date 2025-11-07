@@ -3,7 +3,7 @@
 Tycho supports building projects that use the [BND Workspace Layout](https://bndtools.org/concepts.html).
 
 ## BND Workspace Layout
-A BND Workspace layout build layout usually has the following structure:
+A BND Workspace layout usually has the following structure:
 
 - `root folder` - this usually is the root of your project repository
     - `cnf` - configuration folder for general setup

@@ -8,7 +8,7 @@ so we try to give some guidance here.
 
 **Important note** Signing the binary does not really sign your product as a whole! As Eclipse is extensible by nature it can be modified or the binary can be copied to a complete different product!
 
-As signing is usually not performed during normal development, it might be good to put the following configurations into a `profile` e.g. with the name sign-products, the current process is quite convoluted so we likey want to improve that over time to make it simpler.
+As signing is usually not performed during normal development, it might be good to put the following configurations into a `profile` e.g. with the name sign-products, the current process is quite convoluted so we likely want to improve that over time to make it simpler.
 
 ## Step 1: Move some of the executions to the compile phase
 
@@ -38,7 +38,7 @@ Because we want to modify some files before they appear in the assembly reposito
 
 ## Step 2: Expand the customized product binaries
 
-Maven and P2 manage artifacts as zip files so they can be transfered as a stream, because usually the signing tools are not capable to sign binaries inside a zip file we first need to extract them we use the windows binaries here as an example:
+Maven and P2 manage artifacts as zip files so they can be transferred as a stream, because usually the signing tools are not capable to sign binaries inside a zip file we first need to extract them we use the windows binaries here as an example:
 
 ```xml
 <plugin>
