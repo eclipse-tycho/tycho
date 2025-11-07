@@ -2,7 +2,7 @@
 
 A `category.xml` file can be used to define which content is placed into a p2 repository.
 It can also specify how to display the content in the p2 installation dialog.
-For Tycho to use it, it must to be placed into the root of an project with the packaging type 'eclipse-repository'.
+For Tycho to use it, it must be placed into the root of a project with the packaging type 'eclipse-repository'.
 
 **Note:** The `eclipse-repository` packaging type can also be used to build Eclipse products (RCP applications). See [Building Products](Products.html) for more information on product builds.
 
