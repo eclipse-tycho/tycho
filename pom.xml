@@ -62,7 +62,7 @@
 		<commonsCompressVersion>1.28.0</commonsCompressVersion>
 		<plexusVersion>2.2.0</plexusVersion>
 		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
-		<plexusCompilerVersion>2.15.0</plexusCompilerVersion>
+		<plexusCompilerVersion>2.16.0</plexusCompilerVersion>
 		<pluginToolsVersion>3.15.2</pluginToolsVersion>
 		<jgit-version>7.4.0.202509020913-r</jgit-version>
 		<maven-version>3.9.11</maven-version>
