@@ -19,9 +19,8 @@ The automatic approach uses the `includeJRE="true"` attribute in your `.product`
 
 When `includeJRE="true"` is set in your product file:
 
-1. Tycho looks for JRE installable units (IUs) in your target platform
-2. It automatically resolves the appropriate JRE based on the product's target environments
-3. The JRE is included in the final product materialization and archives
+1. It automatically resolves the appropriate JRE based on the product's target environments
+2. The JRE is included in the final product materialization and archives
 
 This approach leverages the p2 dependency resolution mechanism, making it the most integrated and streamlined solution.
 
