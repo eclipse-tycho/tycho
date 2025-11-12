@@ -29,6 +29,9 @@ Run OSGi bundle tests with Tycho Surefire. This section covers unit testing, int
 ### [Building Products](Products.html)
 Create Eclipse RCP applications and products with Tycho. Learn how to define products, materialize them, and create platform-specific distributions.
 
+### [Including a JRE with Products](IncludeJRE.html)
+Bundle a Java Runtime Environment with your Eclipse product. Learn about automatic JRE inclusion using `includeJRE="true"` and manual inclusion via features.
+
 ### [Signing Products](SignProducts.html)
 Sign your Eclipse products for distribution using code signing certificates.
 
