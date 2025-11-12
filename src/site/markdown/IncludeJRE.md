@@ -27,12 +27,11 @@ This approach leverages the p2 dependency resolution mechanism, making it the mo
 
 ### Prerequisites
 
-To use automatic JRE inclusion, you need:
+To use automatic JRE inclusion, you only need:
 
-1. A JRE available as p2 installable units (IUs) in your target platform
-2. The JRE provider must supply units with the capability name "jre" (the default)
+1. Set `includeJRE="true"` in your product file
 
-[JustJ](https://www.eclipse.org/justj/) is the recommended JRE provider for Eclipse products, offering pre-packaged JRE distributions as p2 repositories.
+That's it! Tycho automatically fetches the JRE from the default [JustJ](https://www.eclipse.org/justj/) repository.
 
 ### Configuration Example
 
@@ -60,75 +59,38 @@ To use automatic JRE inclusion, you need:
 </product>
 ```
 
-**Step 2: Add a JustJ p2 repository to your pom.xml**
+That's all you need! When `includeJRE="true"` is set, Tycho automatically:
+- Fetches the appropriate JRE from the JustJ repository (https://download.eclipse.org/justj/jres)
+- Resolves the correct JRE version based on your product's target environments
+- Includes the JRE in the final product
 
-```xml
-<project>
-  <!-- ... -->
-  
-  <repositories>
-    <!-- Your target platform repository -->
-    <repository>
-      <id>eclipse-release</id>
-      <url>https://download.eclipse.org/releases/2024-12/</url>
-      <layout>p2</layout>
-    </repository>
-    
-    <!-- Add JustJ repository for JRE -->
-    <repository>
-      <id>justj</id>
-      <url>https://download.eclipse.org/justj/jres/21/updates/release/</url>
-      <layout>p2</layout>
-    </repository>
-  </repositories>
-  
-  <!-- ... -->
-</project>
-```
+### Customizing the JRE Repository (Optional)
 
-**Step 3: Configure target platform (optional but recommended)**
-
-When using JustJ JREs, it's recommended to configure the target platform to avoid conflicts with Tycho's default JRE unit injection:
+By default, Tycho uses the JustJ repository at `https://download.eclipse.org/justj/jres`. If you need to use a different JRE source or disable automatic JRE fetching, you can configure the `productRepository` parameter in the `tycho-p2-director-plugin`:
 
 ```xml
 <plugin>
   <groupId>org.eclipse.tycho</groupId>
-  <artifactId>target-platform-configuration</artifactId>
+  <artifactId>tycho-p2-director-plugin</artifactId>
   <version>${tycho-version}</version>
   <configuration>
-    <!-- Prevents Tycho from injecting mock JRE units -->
-    <executionEnvironment>none</executionEnvironment>
+    <!-- Use a specific JustJ version repository -->
+    <productRepository>https://download.eclipse.org/justj/jres/21/updates/release/</productRepository>
+    
+    <!-- Or disable automatic JRE fetching entirely -->
+    <!-- <productRepository></productRepository> -->
   </configuration>
 </plugin>
 ```
-
-This configuration tells Tycho not to inject its default mock execution environment units, allowing JustJ to provide the actual JRE capabilities.
 
 ### Choosing a JustJ JRE Version
 
-JustJ provides JRE distributions for multiple Java versions. Common repositories include:
+By default, Tycho uses the base JustJ repository (`https://download.eclipse.org/justj/jres`) which provides JREs for multiple Java versions. If you need a specific Java version, you can configure the `productRepository` parameter as shown above.
 
-- Java 17: `https://download.eclipse.org/justj/jres/17/updates/release/`
-- Java 21: `https://download.eclipse.org/justj/jres/21/updates/release/`
-
-Select the JRE version that matches your application's requirements and ensure it's compatible with your Eclipse platform version.
-
-### Customizing the JRE Name
-
-By default, Tycho looks for a JRE capability named "jre". If you need to use a different name, you can configure it in the `tycho-p2-publisher-plugin`:
-
-```xml
-<plugin>
-  <groupId>org.eclipse.tycho</groupId>
-  <artifactId>tycho-p2-publisher-plugin</artifactId>
-  <version>${tycho-version}</version>
-  <configuration>
-    <jreName>myCustomJreName</jreName>
-  </configuration>
-</plugin>
-```
-
-However, this is rarely necessary when using standard JRE providers like JustJ.
+Common JustJ repository options:
+- Default (all versions): `https://download.eclipse.org/justj/jres`
+- Java 17 specific: `https://download.eclipse.org/justj/jres/17/updates/release/`
+- Java 21 specific: `https://download.eclipse.org/justj/jres/21/updates/release/`
 
 ## Method 2: Manual JRE Inclusion via Features
 
@@ -216,19 +178,26 @@ The JRE is typically placed in a `jre` or `jdk` subdirectory within your product
 
 ### JRE Not Found During Build
 
-**Problem**: Tycho cannot resolve the JRE during product materialization.
+**Problem**: Tycho cannot resolve the JRE during product materialization when using automatic inclusion.
 
 **Solutions**:
-- Verify that your JustJ repository URL is correct and accessible
 - Ensure the `includeJRE="true"` attribute is present in your product file
-- Check that `executionEnvironment` is set to `none` in target-platform-configuration
+- Check that the `productRepository` parameter is configured correctly (if customized)
+- Verify internet connectivity to download from the JustJ repository
+
+**Problem**: Tycho cannot resolve the JRE when using manual feature inclusion.
+
+**Solutions**:
+- Verify that your JustJ repository URL is correct and accessible in the `<repositories>` section
+- Check that `executionEnvironment` is set to `none` in target-platform-configuration to avoid conflicts
 
 ### Multiple JRE Versions Resolved
 
 **Problem**: Multiple JRE versions are being resolved, causing conflicts.
 
 **Solutions**:
-- Specify only one JustJ repository corresponding to your desired Java version
+- When using automatic inclusion: Configure a specific JRE version via the `productRepository` parameter
+- When using manual inclusion: Specify only one JustJ repository in your `<repositories>` section
 - Review your target platform configuration to ensure no conflicting JRE sources
 
 ### Product Fails to Launch
@@ -240,13 +209,17 @@ The JRE is typically placed in a `jre` or `jdk` subdirectory within your product
 - Check that the product's launcher is correctly configured to use the bundled JRE
 - Ensure the JRE version is compatible with your Eclipse platform and plugins
 
-### Understanding `executionEnvironment=none`
+### Understanding `executionEnvironment=none` (Manual Method Only)
 
-**Why is this needed?**
+**Why is this needed for manual JRE inclusion?**
+
+When manually including JRE features in your product, you need to set `executionEnvironment=none` in the target-platform-configuration.
 
 By default, Tycho injects mock "a.jre" units into the target platform to satisfy Java package imports (like `javax.xml`, `java.util`, etc.) and execution environment requirements. These mock units don't provide an actual JRE—they're just markers for dependency resolution.
 
-When using JustJ, which provides real JRE bundles with the same capabilities, you get conflicts. Setting `executionEnvironment=none` tells Tycho: "Don't inject your mock JRE units; I'm providing a real JRE through my target platform."
+When you explicitly add JustJ features to your target platform, which provides real JRE bundles with the same capabilities, you get conflicts. Setting `executionEnvironment=none` tells Tycho: "Don't inject your mock JRE units; I'm providing a real JRE through my target platform."
+
+**Note**: This is NOT needed for automatic JRE inclusion with `includeJRE="true"`, as Tycho handles the JRE outside of the target platform.
 
 ## Complete Working Example
 
@@ -318,11 +291,6 @@ Here's a complete, minimal example for a product with automatic JRE inclusion:
       <url>https://download.eclipse.org/releases/2024-12/</url>
       <layout>p2</layout>
     </repository>
-    <repository>
-      <id>justj-21</id>
-      <url>https://download.eclipse.org/justj/jres/21/updates/release/</url>
-      <layout>p2</layout>
-    </repository>
   </repositories>
   
   <build>
@@ -332,15 +300,6 @@ Here's a complete, minimal example for a product with automatic JRE inclusion:
         <artifactId>tycho-maven-plugin</artifactId>
         <version>${tycho-version}</version>
         <extensions>true</extensions>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>target-platform-configuration</artifactId>
-        <version>${tycho-version}</version>
-        <configuration>
-          <executionEnvironment>none</executionEnvironment>
-        </configuration>
       </plugin>
       
       <plugin>
@@ -391,11 +350,11 @@ Yes, you can use any JRE provider that publishes JRE artifacts as p2 installable
 
 ### Does `includeJRE="true"` work with all operating systems?
 
-Yes, when properly configured with a target platform that includes JRE IUs for all your target environments. JustJ provides JRE distributions for Windows, macOS, and Linux on various architectures (x86_64, aarch64).
+Yes, Tycho automatically resolves the appropriate JRE for each target environment. JustJ provides JRE distributions for Windows, macOS, and Linux on various architectures (x86_64, aarch64).
 
 ### What's the difference between `jre.full` and other JRE features?
 
-JustJ provides different JRE feature variants:
+This question applies to the manual JRE inclusion method. JustJ provides different JRE feature variants:
 - `org.eclipse.justj.openjdk.hotspot.jre.full` - Complete JRE with all modules
 - `org.eclipse.justj.openjdk.hotspot.jre.minimal` - Minimal JRE for reduced size
 
@@ -403,10 +362,7 @@ Choose based on your application's Java module requirements. Most applications s
 
 ### How do I include JREs for multiple platforms?
 
-Tycho automatically handles multi-platform builds. Simply ensure:
-1. Your product defines multiple target environments in target-platform-configuration
-2. The JustJ repository contains JREs for all your target platforms
-3. Tycho will resolve and include the appropriate JRE for each platform automatically
+Tycho automatically handles multi-platform builds. Simply define multiple target environments in your target-platform-configuration:
 
 ```xml
 <plugin>
@@ -414,7 +370,6 @@ Tycho automatically handles multi-platform builds. Simply ensure:
   <artifactId>target-platform-configuration</artifactId>
   <version>${tycho-version}</version>
   <configuration>
-    <executionEnvironment>none</executionEnvironment>
     <environments>
       <environment>
         <os>win32</os>
@@ -435,3 +390,5 @@ Tycho automatically handles multi-platform builds. Simply ensure:
   </configuration>
 </plugin>
 ```
+
+Tycho will automatically resolve and include the appropriate JRE for each platform when `includeJRE="true"` is set.
