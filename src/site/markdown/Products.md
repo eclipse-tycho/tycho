@@ -212,4 +212,5 @@ Activate the profile with: `mvn clean verify -Pdevelopment`
 - [Tycho P2 Director Plugin Documentation](tycho-p2-director-plugin/plugin-info.html) - Complete reference for all configuration options
 - [Tycho P2 Repository Plugin Documentation](tycho-p2-repository-plugin/plugin-info.html) - For configuring the P2 repository
 - [Packaging Types](PackagingTypes.html) - Information about the `eclipse-repository` packaging type
+- [Including a JRE with Products](IncludeJRE.html) - How to bundle a Java Runtime Environment with your product
 - [Signing Products](SignProducts.html) - How to sign custom Eclipse products with Tycho
