@@ -136,13 +136,23 @@ Tycho provides numerous Maven plugins for various aspects of Eclipse development
 - [Eclipse Plugin](tycho-eclipse-plugin/plugin-info.html) (`tycho-eclipse-plugin`) - Work with Eclipse installations
   - [eclipse-run](tycho-eclipse-plugin/eclipse-run-mojo.html) - Runs Eclipse application
   - [eclipse-build](tycho-eclipse-plugin/eclipse-build-mojo.html) - Builds with Eclipse
+- [Maven Plugin](tycho-maven-plugin/plugin-info.html) (`tycho-maven-plugin`) - Tycho Maven build extension providing lifecycle bindings
+- [P2 Maven Plugin](p2-maven-plugin/plugin-info.html) (`p2-maven-plugin`) - P2 integration for Maven artifact handlers
+- [Repository Plugin](tycho-repository-plugin/plugin-info.html) (`tycho-repository-plugin`) - Create OSGi repositories
+  - [package-repository](tycho-repository-plugin/package-repository-mojo.html) - Packages OSGi repository
+- [SBOM Plugin](tycho-sbom-plugin/plugin-info.html) (`tycho-sbom-plugin`) - Generate Software Bill of Materials
+  - [generator](tycho-sbom-plugin/generator-mojo.html) - Generates SBOM document
 - [Wrap Plugin](tycho-wrap-plugin/plugin-info.html) (`tycho-wrap-plugin`) - Wrap plain JARs into OSGi bundles
   - [wrap](tycho-wrap-plugin/wrap-mojo.html) - Wraps JARs as OSGi bundles
   - [verify](tycho-wrap-plugin/verify-mojo.html) - Verifies wrapped bundles
-- [SBOM Plugin](tycho-sbom-plugin/plugin-info.html) (`tycho-sbom-plugin`) - Generate Software Bill of Materials
-  - [generator](tycho-sbom-plugin/generator-mojo.html) - Generates SBOM document
 
 ### Tycho Extras
+- [Custom Bundle Plugin](tycho-extras/tycho-custom-bundle-plugin/plugin-info.html) (`tycho-custom-bundle-plugin`) - Attach custom OSGi bundles with classifiers
+  - [custom-bundle](tycho-extras/tycho-custom-bundle-plugin/custom-bundle-mojo.html) - Attaches custom bundle artifacts
+- [Dependency Tools Plugin](tycho-extras/tycho-dependency-tools-plugin/plugin-info.html) (`tycho-dependency-tools-plugin`) - Tools for analyzing and managing dependencies
+  - [list-dependencies](tycho-extras/tycho-dependency-tools-plugin/list-dependencies-mojo.html) - Lists project dependencies
+  - [generate-target](tycho-extras/tycho-dependency-tools-plugin/generate-target-mojo.html) - Generates target definition from dependencies
+  - [usage](tycho-extras/tycho-dependency-tools-plugin/usage-mojo.html) - Analyzes target platform usage
 - [Document Bundle Plugin](tycho-extras/tycho-document-bundle-plugin/plugin-info.html) (`tycho-document-bundle-plugin`) - Generate documentation bundles
   - [build-help-index](tycho-extras/tycho-document-bundle-plugin/build-help-index-mojo.html) - Builds help index
   - [javadoc](tycho-extras/tycho-document-bundle-plugin/javadoc-mojo.html) - Generates Javadoc
