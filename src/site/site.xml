@@ -41,8 +41,11 @@
 		</menu>
 		<menu name="Other Tycho Plugins" inherit="top">
 			<item name="Baseline Plugin" href="tycho-baseline-plugin/plugin-info.html" />
+			<item name="CleanCode Plugin" href="tycho-cleancode-plugin/plugin-info.html" />
 			<item name="Compiler Plugin" href="tycho-compiler-plugin/plugin-info.html" />
+			<item name="Custom Bundle Plugin" href="tycho-extras/tycho-custom-bundle-plugin/plugin-info.html"/>
 			<item name="Declarative Services Plugin" href="tycho-ds-plugin/plugin-info.html" />
+			<item name="Dependency Tools Plugin" href="tycho-extras/tycho-dependency-tools-plugin/plugin-info.html"/>
 			<item name="Document Bundle Plugin" href="tycho-extras/tycho-document-bundle-plugin/plugin-info.html"/>
 			<item name="Eclipse Plugin" href="tycho-eclipse-plugin/plugin-info.html" />
 			<item name="GPG Signature Plugin" href="tycho-gpg-plugin/plugin-info.html"/>
@@ -50,9 +53,9 @@
 			<item name="P2 Publisher Plugin" href="tycho-p2-publisher-plugin/plugin-info.html" />
 			<item name="P2 Extras Plugin" href="tycho-extras/tycho-p2-extras-plugin/plugin-info.html"/>
 			<item name="PDE API Tools Plugin" href="tycho-apitools-plugin/plugin-info.html" />
+			<item name="Repository Plugin" href="tycho-repository-plugin/plugin-info.html" />
 			<item name="Source Plugin" href="tycho-source-plugin/plugin-info.html" />
 			<item name="Versions Plugin" href="tycho-versions-plugin/plugin-info.html" />
-			<item name="CleanCode Plugin" href="tycho-cleancode-plugin/plugin-info.html" />
 		</menu>
 		<!-- always include all reports -->
 		<menu ref="reports" inherit="bottom"/>
