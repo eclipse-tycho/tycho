@@ -49,8 +49,6 @@
 			<item name="Document Bundle Plugin" href="tycho-extras/tycho-document-bundle-plugin/plugin-info.html"/>
 			<item name="Eclipse Plugin" href="tycho-eclipse-plugin/plugin-info.html" />
 			<item name="GPG Signature Plugin" href="tycho-gpg-plugin/plugin-info.html"/>
-			<item name="Maven Plugin" href="tycho-maven-plugin/plugin-info.html" />
-			<item name="P2 Maven Plugin" href="p2-maven-plugin/plugin-info.html" />
 			<item name="P2 Metadata Plugin" href="tycho-p2-plugin/plugin-info.html" />
 			<item name="P2 Publisher Plugin" href="tycho-p2-publisher-plugin/plugin-info.html" />
 			<item name="P2 Extras Plugin" href="tycho-extras/tycho-p2-extras-plugin/plugin-info.html"/>
