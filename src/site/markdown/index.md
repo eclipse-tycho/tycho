@@ -136,8 +136,6 @@ Tycho provides numerous Maven plugins for various aspects of Eclipse development
 - [Eclipse Plugin](tycho-eclipse-plugin/plugin-info.html) (`tycho-eclipse-plugin`) - Work with Eclipse installations
   - [eclipse-run](tycho-eclipse-plugin/eclipse-run-mojo.html) - Runs Eclipse application
   - [eclipse-build](tycho-eclipse-plugin/eclipse-build-mojo.html) - Builds with Eclipse
-- [Maven Plugin](tycho-maven-plugin/plugin-info.html) (`tycho-maven-plugin`) - Tycho Maven build extension providing lifecycle bindings
-- [P2 Maven Plugin](p2-maven-plugin/plugin-info.html) (`p2-maven-plugin`) - P2 integration for Maven artifact handlers
 - [Repository Plugin](tycho-repository-plugin/plugin-info.html) (`tycho-repository-plugin`) - Create OSGi repositories
   - [package-repository](tycho-repository-plugin/package-repository-mojo.html) - Packages OSGi repository
 - [SBOM Plugin](tycho-sbom-plugin/plugin-info.html) (`tycho-sbom-plugin`) - Generate Software Bill of Materials
