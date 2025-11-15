@@ -21,6 +21,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
@@ -32,11 +36,7 @@ import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.StringUtils;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -44,38 +44,49 @@ import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
 import org.eclipse.tycho.p2maven.helper.SettingsDecrypterHelper;
 
-@Component(role = MavenRepositorySettings.class)
-public class DefaultMavenRepositorySettings implements MavenRepositorySettings, Initializable {
+@Named
+@Singleton
+public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
 
     private static final ArtifactRepositoryPolicy P2_REPOSITORY_POLICY = new ArtifactRepositoryPolicy(true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);
 
-    @Requirement
+    @Inject
     private Logger logger;
-    @Requirement
-	private LegacySupport legacySupport;
 
-    @Requirement
+    @Inject
     private SettingsDecrypterHelper decrypter;
 
-    @Requirement(hint = "p2")
+    @Inject
+    @Named("p2")
     private ArtifactRepositoryLayout p2layout;
 
 	private Map<String, URI> idToMirrorMap = new HashMap<>();
 
-	private Settings settings;
+	private final Settings settings;
 
-	private List<Mirror> mirrors;
+	private final List<Mirror> mirrors;
 
-	private RepositorySystemSession repositorySession;
+	private final RepositorySystemSession repositorySession;
 
-    public DefaultMavenRepositorySettings() {
-        // for plexus
+	@Inject
+	public DefaultMavenRepositorySettings(LegacySupport legacySupport) {
+		MavenSession session = legacySupport.getSession();
+		if (session != null) {
+			settings = session.getSettings();
+			mirrors = session.getRequest().getMirrors();
+			repositorySession = session.getRepositorySession();
+		} else {
+			settings = new Settings();
+			mirrors = Collections.emptyList();
+			repositorySession = null;
+		}
     }
 
 	public DefaultMavenRepositorySettings(RepositorySystemSession repositorySystemSession) {
-		// for test
 		repositorySession = repositorySystemSession;
+		settings = new Settings();
+		mirrors = Collections.emptyList();
     }
 
     @Override
@@ -149,19 +160,6 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 			idToMirrorMap.remove(repositoryId);
 		} else {
 			idToMirrorMap.put(repositoryId, mirroredUrl);
-		}
-	}
-
-	@Override
-	public void initialize() throws InitializationException {
-		MavenSession session = legacySupport.getSession();
-		if (session != null) {
-			settings = session.getSettings();
-			mirrors = session.getRequest().getMirrors();
-			repositorySession = session.getRepositorySession();
-		} else {
-			settings = new Settings();
-			mirrors = Collections.emptyList();
 		}
 	}
 
