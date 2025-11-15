@@ -12,22 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -37,17 +29,11 @@ import javax.inject.Singleton;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
-import org.eclipse.equinox.p2.query.CollectionResult;
-import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.tycho.p2maven.io.MetadataIO;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 
 /**
@@ -57,11 +43,6 @@ import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 @Named
 @Singleton
 public class MavenProjectDependencyProcessor {
-
-	private static final ProjectDependencies EMPTY_DEPENDENCIES = new ProjectDependencies(Map.of(), Set.of());
-
-	private static final boolean DUMP_DATA = Boolean.getBoolean("tycho.p2.dump")
-			|| Boolean.getBoolean("tycho.p2.dump.dependencies");
 
 	@Inject
 	private InstallableUnitGenerator generator;
@@ -88,119 +69,7 @@ public class MavenProjectDependencyProcessor {
 			throws CoreException {
 		Objects.requireNonNull(session);
 		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = generator.getInstallableUnits(projects, session);
-		Collection<IInstallableUnit> availableIUs = projectIUMap.values().stream().flatMap(Collection::stream)
-				.collect(Collectors.toSet());
-		Map<MavenProject, ProjectDependencies> projectDependenciesMap = computeProjectDependencies(projects,
-				new CollectionResult<>(availableIUs), projectIUMap);
-		Map<IInstallableUnit, MavenProject> iuProjectMap = new HashMap<>();
-		for (var entry : projectIUMap.entrySet()) {
-			MavenProject mavenProject = entry.getKey();
-			for (IInstallableUnit iu : entry.getValue()) {
-				iuProjectMap.put(iu, mavenProject);
-			}
-		}
-		return new ProjectDependencyClosure() {
-
-			@Override
-			public Optional<MavenProject> getProject(IInstallableUnit installableUnit) {
-				return Optional.ofNullable(iuProjectMap.get(installableUnit));
-			}
-
-			@Override
-			public ProjectDependencies getProjectDependecies(MavenProject mavenProject) {
-				return projectDependenciesMap.getOrDefault(mavenProject, EMPTY_DEPENDENCIES);
-			}
-
-			@Override
-			public Stream<Entry<MavenProject, Collection<IInstallableUnit>>> dependencies(
-					Function<MavenProject, Collection<IInstallableUnit>> contextIuSupplier) {
-				return projectDependenciesMap.entrySet().stream()
-						.map(pd -> new SimpleEntry<>(pd.getKey(),
-								pd.getValue().getDependencies(contextIuSupplier.apply(pd.getKey()))));
-			}
-
-			@Override
-			public boolean isFragment(MavenProject mavenProject) {
-
-				return getProjectUnits(mavenProject).stream().anyMatch(MavenProjectDependencyProcessor::isFragment);
-			}
-
-			@Override
-			public Collection<IInstallableUnit> getProjectUnits(MavenProject mavenProject) {
-				Collection<IInstallableUnit> collection = projectIUMap.get(mavenProject);
-				if (collection != null) {
-					return collection;
-				}
-				return Collections.emptyList();
-			}
-
-		};
-	}
-
-	/**
-	 * Given a set of projects, compute the mapping of a project to its dependencies
-	 * 
-	 * @param projects    the projects to investigate
-	 * @param avaiableIUs all available units that should be used to fulfill project
-	 *                    requirements
-	 * @return a Map from the passed projects to their dependencies
-	 * @throws CoreException if computation failed
-	 */
-	private Map<MavenProject, ProjectDependencies> computeProjectDependencies(Collection<MavenProject> projects,
-			IQueryable<IInstallableUnit> avaiableIUs, Map<MavenProject, Collection<IInstallableUnit>> projectIUMap)
-			throws CoreException {
-		List<CoreException> errors = new CopyOnWriteArrayList<>();
-		Map<MavenProject, ProjectDependencies> result = new ConcurrentHashMap<>();
-		projects.parallelStream().unordered().takeWhile(nil -> errors.isEmpty()).forEach(project -> {
-			try {
-				ProjectDependencies projectDependencies = computeProjectDependencies(
-						Set.copyOf(projectIUMap.get(project)),
-						avaiableIUs);
-				result.put(project, projectDependencies);
-				if (DUMP_DATA) {
-					File file = new File(project.getBasedir(), "project-dependencies.xml");
-					try {
-						new MetadataIO().writeXML(
-								Collections.unmodifiableCollection(projectDependencies.getDependencies(List.of())),
-								file);
-					} catch (IOException e) {
-					}
-				}
-			} catch (CoreException e) {
-				errors.add(e);
-			}
-		});
-		if (errors.isEmpty()) {
-			return result;
-		}
-		if (errors.size() == 1) {
-			throw errors.get(0);
-		}
-		MultiStatus multiStatus = new MultiStatus(InstallableUnitGenerator.class, IStatus.ERROR,
-				"computing installable unit units failed");
-		errors.forEach(e -> multiStatus.add(e.getStatus()));
-		throw new CoreException(multiStatus);
-	}
-
-	/**
-	 * Given a {@link MavenProject} and a collection of {@link IInstallableUnit},
-	 * compute the collection of dependencies that fulfill the projects requirements
-	 * 
-	 * @param project     the project to query for requirements
-	 * @param avaiableIUs all available units that should be used to fulfill project
-	 *                    requirements
-	 * @return the collection of dependent {@link InstallableUnit}s
-	 * @throws CoreException if computation failed
-	 */
-	private ProjectDependencies computeProjectDependencies(Set<IInstallableUnit> projectUnits,
-			IQueryable<IInstallableUnit> avaiableIUs)
-			throws CoreException {
-		if (projectUnits.isEmpty()) {
-			return EMPTY_DEPENDENCIES;
-		}
-		Map<IRequirement, Collection<IInstallableUnit>> dependencies = slicer.computeDirectDependencies(projectUnits,
-				avaiableIUs);
-		return new ProjectDependencies(dependencies, projectUnits);
+		return new ProjectDependencyClosureGraph(projectIUMap, slicer);
 	}
 
 	private static boolean hasAnyHost(IInstallableUnit unit, Iterable<IInstallableUnit> collection) {
@@ -212,10 +81,6 @@ public class MavenProjectDependencyProcessor {
 			}
 			return false;
 		});
-	}
-
-	private static boolean isFragment(IInstallableUnit installableUnit) {
-		return getFragmentCapability(installableUnit).findAny().isPresent();
 	}
 
 	private static Stream<IProvidedCapability> getFragmentCapability(IInstallableUnit installableUnit) {
