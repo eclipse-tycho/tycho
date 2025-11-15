@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -94,6 +95,45 @@ public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 		verifier.verifyTextInLog(
 				"p2os / p2ws / p2arch must be mutually specified, p2os=win32 given, p2ws missing, p2arch missing");
 		assertFalse(Files.isDirectory(Path.of(verifier.getBasedir(), "target", "product")));
+	}
+
+	@Test
+	public void testP2CacheIsDeleted() throws Exception {
+		Verifier verifier = getVerifier("product.deleteP2Cache", false);
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+
+		File basedir = new File(verifier.getBasedir());
+		Path productDir = basedir.toPath().resolve("target/products/test.product/linux/gtk/x86_64");
+
+		// Verify product was created
+		assertTrue("Product directory should exist", Files.exists(productDir));
+
+		// Verify p2 cache directory was deleted
+		Path cacheDir = productDir.resolve("p2/org.eclipse.equinox.p2.core/cache");
+		assertFalse("P2 cache directory should not exist when deleteP2Cache=true", Files.exists(cacheDir));
+
+		// Verify that p2 directory itself still exists (just not the cache
+		// subdirectory)
+		Path p2Dir = productDir.resolve("p2");
+		assertTrue("P2 directory should still exist", Files.exists(p2Dir));
+	}
+
+	@Test
+	public void testP2CacheIsKeptByDefault() throws Exception {
+		Verifier verifier = getVerifier("product.keepP2Cache", false);
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+
+		File basedir = new File(verifier.getBasedir());
+		Path productDir = basedir.toPath().resolve("target/products/test.product/linux/gtk/x86_64");
+
+		// Verify product was created
+		assertTrue("Product directory should exist", Files.exists(productDir));
+
+		// Verify p2 cache directory exists (default behavior - cache should be kept)
+		Path cacheDir = productDir.resolve("p2/org.eclipse.equinox.p2.core/cache");
+		assertTrue("P2 cache directory should exist by default (deleteP2Cache not set)", Files.exists(cacheDir));
 	}
 
 }
