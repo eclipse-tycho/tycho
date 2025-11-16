@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -69,7 +70,7 @@ class ProjectDependencyClosureGraph implements ProjectDependencyClosure {
 
 	private final Map<IInstallableUnit, MavenProject> iuProjectMap = new HashMap<>();
 
-	private Map<MavenProject, ProjectDependencies> projectDependenciesMap;
+	private final Map<MavenProject, ProjectDependencies> projectDependenciesMap = new ConcurrentHashMap<>();
 
 	Map<MavenProject, Collection<IInstallableUnit>> projectIUMap;
 
@@ -87,8 +88,6 @@ class ProjectDependencyClosureGraph implements ProjectDependencyClosure {
 		}
 		// Build the graph structure
 		buildGraph();
-		// Compute project dependencies
-		projectDependenciesMap = computeProjectDependenciesFromGraph();
 		// Write DOT file if requested
 		if (DUMP_DATA) {
 			try {
@@ -144,36 +143,6 @@ class ProjectDependencyClosureGraph implements ProjectDependencyClosure {
 		projectEdgesMap.putAll(result);
 	}
 
-	/**
-	 * Compute project dependencies from the built graph structure
-	 */
-	private Map<MavenProject, ProjectDependencies> computeProjectDependenciesFromGraph() {
-		Map<MavenProject, ProjectDependencies> result = new LinkedHashMap<>();
-		
-		for (var entry : projectIUMap.entrySet()) {
-			MavenProject project = entry.getKey();
-			Set<IInstallableUnit> projectUnits = Set.copyOf(entry.getValue());
-			
-			// Build requirements map from edges
-			// Group edges by requirement and collect all satisfying IUs
-			Map<IRequirement, Collection<IInstallableUnit>> requirementsMap = new LinkedHashMap<>();
-			List<Edge> edges = projectEdgesMap.getOrDefault(project, List.of());
-			
-			for (Edge edge : edges) {
-				// Only add if not from the same project (use project from capability)
-				if (!edge.capability.project.equals(project)) {
-					requirementsMap.computeIfAbsent(edge.requirement.requirement, k -> new ArrayList<>())
-							.add(edge.capability.installableUnit);
-				}
-			}
-			
-			result.put(project, new ProjectDependencies(requirementsMap, projectUnits));
-		}
-		
-		return result;
-	}
-
-	
 	
 	/**
 	 * Detect all cycles in the dependency graph using Tarjan's algorithm for strongly connected components
@@ -263,14 +232,38 @@ class ProjectDependencyClosureGraph implements ProjectDependencyClosure {
 
 	@Override
 	public ProjectDependencies getProjectDependecies(MavenProject mavenProject) {
-		return projectDependenciesMap.getOrDefault(mavenProject, EMPTY_DEPENDENCIES);
+		return projectDependenciesMap.computeIfAbsent(mavenProject, project -> computeProjectDependencies(project));
+	}
+
+	private ProjectDependencies computeProjectDependencies(MavenProject project) {
+		Collection<IInstallableUnit> projectUnits = projectIUMap.get(project);
+		if (projectUnits != null) {
+			// Build requirements map from edges
+			// Group edges by requirement and collect all satisfying IUs
+			Map<IRequirement, Collection<IInstallableUnit>> requirementsMap = new LinkedHashMap<>();
+			List<Edge> edges = projectEdgesMap.getOrDefault(project, List.of());
+
+			for (Edge edge : edges) {
+				// Only add if not from the same project (use project from capability)
+				if (!edge.capability.project.equals(project)) {
+					requirementsMap.computeIfAbsent(edge.requirement.requirement, k -> new ArrayList<>())
+							.add(edge.capability.installableUnit);
+				}
+			}
+			return new ProjectDependencies(requirementsMap, Set.copyOf(projectUnits));
+		}
+		return EMPTY_DEPENDENCIES;
 	}
 
 	@Override
 	public Stream<Entry<MavenProject, Collection<IInstallableUnit>>> dependencies(
 			Function<MavenProject, Collection<IInstallableUnit>> contextIuSupplier) {
-		return projectDependenciesMap.entrySet().stream().map(pd -> new SimpleEntry<>(pd.getKey(),
-				pd.getValue().getDependencies(contextIuSupplier.apply(pd.getKey()))));
+		return projectIUMap.keySet().stream().map(mavenProject -> {
+			ProjectDependencies projectDependencies = getProjectDependecies(mavenProject);
+			Collection<IInstallableUnit> dependentUnits = projectDependencies
+					.getDependencies(contextIuSupplier.apply(mavenProject));
+			return new SimpleEntry<>(mavenProject, dependentUnits);
+		});
 	}
 
 	@Override
@@ -331,7 +324,7 @@ class ProjectDependencyClosureGraph implements ProjectDependencyClosure {
 			return false;
 		});
 	}
-
+	
 	private static Stream<IRequirement> getFragmentHostRequirement(IInstallableUnit installableUnit) {
 		return getFragmentCapability(installableUnit).map(provided -> {
 			String hostName = provided.getName();
