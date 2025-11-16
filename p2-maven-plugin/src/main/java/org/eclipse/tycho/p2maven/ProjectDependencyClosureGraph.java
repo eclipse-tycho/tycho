@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -33,6 +34,7 @@ import java.util.stream.Stream;
 
 import org.apache.maven.project.MavenProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -286,6 +288,29 @@ class ProjectDependencyClosureGraph implements ProjectDependencyClosure {
 		return Collections.emptyList();
 	}
 
+	@Override
+	public Collection<MavenProject> getDependencyProjects(MavenProject mavenProject,
+			Collection<IInstallableUnit> contextIUs) {
+		ProjectDependencies projectDependecies = getProjectDependecies(mavenProject);
+		List<MavenProject> list = projectDependecies.getDependencies(contextIUs).stream()
+				.flatMap(dependency -> getProject(dependency).stream()).distinct().toList();
+		if (isFragment(mavenProject)) {
+			// for projects that are fragments don't do any special processing...
+			return list;
+		}
+		// for regular projects we must check if they have any fragment requirements
+		// that must be attached here, example is SWT that defines a requirement to its
+		// fragments and if build inside the same reactor with a consumer (e.g. JFace)
+		// has to be applied
+		return list.stream().flatMap(project -> {
+			ProjectDependencies dependecies = getProjectDependecies(project);
+			return Stream.concat(Stream.of(project),
+					dependecies.getDependencies(contextIUs).stream()
+							.filter(dep -> hasAnyHost(dep, dependecies.projectUnits))
+							.flatMap(dependency -> getProject(dependency).stream()));
+		}).toList();
+	}
+
 	private static boolean isFragment(IInstallableUnit installableUnit) {
 		return getFragmentCapability(installableUnit).findAny().isPresent();
 	}
@@ -294,6 +319,31 @@ class ProjectDependencyClosureGraph implements ProjectDependencyClosure {
 
 		return installableUnit.getProvidedCapabilities().stream()
 				.filter(cap -> BundlesAction.CAPABILITY_NS_OSGI_FRAGMENT.equals(cap.getNamespace()));
+	}
+
+	private static boolean hasAnyHost(IInstallableUnit unit, Iterable<IInstallableUnit> collection) {
+		return getFragmentHostRequirement(unit).anyMatch(req -> {
+			for (IInstallableUnit iu : collection) {
+				if (req.isMatch(iu)) {
+					return true;
+				}
+			}
+			return false;
+		});
+	}
+
+	private static Stream<IRequirement> getFragmentHostRequirement(IInstallableUnit installableUnit) {
+		return getFragmentCapability(installableUnit).map(provided -> {
+			String hostName = provided.getName();
+			for (IRequirement requirement : installableUnit.getRequirements()) {
+				if (requirement instanceof IRequiredCapability requiredCapability) {
+					if (hostName.equals(requiredCapability.getName())) {
+						return requirement;
+					}
+				}
+			}
+			return null;
+		}).filter(Objects::nonNull);
 	}
 
 }
