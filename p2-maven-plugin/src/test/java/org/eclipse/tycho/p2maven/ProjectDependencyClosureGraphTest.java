@@ -307,7 +307,294 @@ public class ProjectDependencyClosureGraphTest {
 		when(req.toString()).thenReturn("Requirement[" + namespace + ":" + name + "]");
 		when(req.getFilter()).thenReturn(null); // No filter means it always matches
 		when(req.getMax()).thenReturn(Integer.MAX_VALUE); // No limit on max
+		when(req.getMin()).thenReturn(1); // Default: mandatory requirement
+		when(req.isGreedy()).thenReturn(true); // Default: greedy
 		return req;
+	}
+
+	private IRequirement createMockRequirement(String namespace, String name, int min, boolean greedy) {
+		IRequirement req = createMockRequirement(namespace, name);
+		when(req.getMin()).thenReturn(min);
+		when(req.isGreedy()).thenReturn(greedy);
+		return req;
+	}
+
+	@Test
+	public void testOptionalRequirementFormatting() throws CoreException, IOException {
+		// Create a project with an optional requirement (getMin() == 0)
+		MavenProject projectA = createMockProject("projectA");
+		MavenProject projectB = createMockProject("projectB");
+
+		IInstallableUnit iuA = createMockIU("bundleA", "1.0.0");
+		IInstallableUnit iuB = createMockIU("bundleB", "1.0.0");
+
+		// Create an optional requirement (min=0)
+		IRequirement optionalReq = createMockRequirement("osgi.bundle", "bundleB", 0, false);
+		when(iuA.getRequirements()).thenReturn(List.of(optionalReq));
+		when(iuA.getMetaRequirements()).thenReturn(List.of());
+		when(iuA.getProvidedCapabilities()).thenReturn(List.of());
+
+		IProvidedCapability capB = createMockCapability("osgi.bundle", "bundleB", "1.0.0");
+		when(iuB.getProvidedCapabilities()).thenReturn(List.of(capB));
+		when(iuB.getRequirements()).thenReturn(List.of());
+		when(iuB.getMetaRequirements()).thenReturn(List.of());
+
+		when(iuB.satisfies(optionalReq)).thenReturn(true);
+		when(iuA.satisfies(optionalReq)).thenReturn(false);
+
+		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = Map.of(
+				projectA, List.of(iuA),
+				projectB, List.of(iuB)
+		);
+
+		ProjectDependencyClosureGraph graph = new ProjectDependencyClosureGraph(projectIUMap);
+		File dotFile = new File(tempDir, "optional-requirement.dot");
+		DotDump.dump(dotFile, graph);
+
+		assertTrue(dotFile.exists(), "DOT file should be created");
+		String content = Files.readString(dotFile.toPath());
+		
+		// Should contain italic formatting for optional requirement
+		assertTrue(content.contains("<I>"), "Should contain italic formatting for optional requirement");
+		System.out.println("Optional requirement DOT content:\n" + content);
+	}
+
+	@Test
+	public void testMandatoryCompileRequirementFormatting() throws CoreException, IOException {
+		// Create a project with mandatory compile requirements (osgi.bundle and java.package)
+		MavenProject projectA = createMockProject("projectA");
+		MavenProject projectB = createMockProject("projectB");
+
+		IInstallableUnit iuA = createMockIU("bundleA", "1.0.0");
+		IInstallableUnit iuB = createMockIU("bundleB", "1.0.0");
+
+		// Create a mandatory osgi.bundle requirement
+		IRequirement bundleReq = mock(org.eclipse.equinox.internal.p2.metadata.IRequiredCapability.class);
+		when(bundleReq.toString()).thenReturn("Requirement[osgi.bundle:bundleB]");
+		when(bundleReq.getFilter()).thenReturn(null);
+		when(bundleReq.getMax()).thenReturn(Integer.MAX_VALUE);
+		when(bundleReq.getMin()).thenReturn(1);
+		when(bundleReq.isGreedy()).thenReturn(true);
+		when(((org.eclipse.equinox.internal.p2.metadata.IRequiredCapability)bundleReq).getNamespace())
+				.thenReturn("osgi.bundle");
+
+		when(iuA.getRequirements()).thenReturn(List.of(bundleReq));
+		when(iuA.getMetaRequirements()).thenReturn(List.of());
+		when(iuA.getProvidedCapabilities()).thenReturn(List.of());
+
+		IProvidedCapability capB = createMockCapability("osgi.bundle", "bundleB", "1.0.0");
+		when(iuB.getProvidedCapabilities()).thenReturn(List.of(capB));
+		when(iuB.getRequirements()).thenReturn(List.of());
+		when(iuB.getMetaRequirements()).thenReturn(List.of());
+
+		when(iuB.satisfies(bundleReq)).thenReturn(true);
+		when(iuA.satisfies(bundleReq)).thenReturn(false);
+
+		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = Map.of(
+				projectA, List.of(iuA),
+				projectB, List.of(iuB)
+		);
+
+		ProjectDependencyClosureGraph graph = new ProjectDependencyClosureGraph(projectIUMap);
+		File dotFile = new File(tempDir, "mandatory-compile-requirement.dot");
+		DotDump.dump(dotFile, graph);
+
+		assertTrue(dotFile.exists(), "DOT file should be created");
+		String content = Files.readString(dotFile.toPath());
+		
+		// Should contain bold formatting for mandatory compile requirement
+		assertTrue(content.contains("<B>"), "Should contain bold formatting for mandatory compile requirement");
+		System.out.println("Mandatory compile requirement DOT content:\n" + content);
+	}
+
+	@Test
+	public void testGreedyRequirementFormatting() throws CoreException, IOException {
+		// Create a project with a greedy requirement
+		MavenProject projectA = createMockProject("projectA");
+		MavenProject projectB = createMockProject("projectB");
+
+		IInstallableUnit iuA = createMockIU("bundleA", "1.0.0");
+		IInstallableUnit iuB = createMockIU("bundleB", "1.0.0");
+
+		// Create a greedy requirement
+		IRequirement greedyReq = createMockRequirement("some.namespace", "someCapability", 1, true);
+		when(iuA.getRequirements()).thenReturn(List.of(greedyReq));
+		when(iuA.getMetaRequirements()).thenReturn(List.of());
+		when(iuA.getProvidedCapabilities()).thenReturn(List.of());
+
+		IProvidedCapability capB = createMockCapability("some.namespace", "someCapability", "1.0.0");
+		when(iuB.getProvidedCapabilities()).thenReturn(List.of(capB));
+		when(iuB.getRequirements()).thenReturn(List.of());
+		when(iuB.getMetaRequirements()).thenReturn(List.of());
+
+		when(iuB.satisfies(greedyReq)).thenReturn(true);
+		when(iuA.satisfies(greedyReq)).thenReturn(false);
+
+		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = Map.of(
+				projectA, List.of(iuA),
+				projectB, List.of(iuB)
+		);
+
+		ProjectDependencyClosureGraph graph = new ProjectDependencyClosureGraph(projectIUMap);
+		File dotFile = new File(tempDir, "greedy-requirement.dot");
+		DotDump.dump(dotFile, graph);
+
+		assertTrue(dotFile.exists(), "DOT file should be created");
+		String content = Files.readString(dotFile.toPath());
+		
+		// Should contain underline formatting for greedy requirement
+		assertTrue(content.contains("<U>"), "Should contain underline formatting for greedy requirement");
+		System.out.println("Greedy requirement DOT content:\n" + content);
+	}
+
+	@Test
+	public void testCombinedFormattingOptionalAndMandatoryCompile() throws CoreException, IOException {
+		// Create a project with a requirement that is both optional and mandatory compile
+		MavenProject projectA = createMockProject("projectA");
+		MavenProject projectB = createMockProject("projectB");
+
+		IInstallableUnit iuA = createMockIU("bundleA", "1.0.0");
+		IInstallableUnit iuB = createMockIU("bundleB", "1.0.0");
+
+		// Create an optional (min=0) osgi.bundle requirement (mandatory compile)
+		IRequirement combinedReq = mock(org.eclipse.equinox.internal.p2.metadata.IRequiredCapability.class);
+		when(combinedReq.toString()).thenReturn("Requirement[osgi.bundle:bundleB]");
+		when(combinedReq.getFilter()).thenReturn(null);
+		when(combinedReq.getMax()).thenReturn(Integer.MAX_VALUE);
+		when(combinedReq.getMin()).thenReturn(0); // Optional
+		when(combinedReq.isGreedy()).thenReturn(false);
+		when(((org.eclipse.equinox.internal.p2.metadata.IRequiredCapability)combinedReq).getNamespace())
+				.thenReturn("osgi.bundle"); // Mandatory compile
+
+		when(iuA.getRequirements()).thenReturn(List.of(combinedReq));
+		when(iuA.getMetaRequirements()).thenReturn(List.of());
+		when(iuA.getProvidedCapabilities()).thenReturn(List.of());
+
+		IProvidedCapability capB = createMockCapability("osgi.bundle", "bundleB", "1.0.0");
+		when(iuB.getProvidedCapabilities()).thenReturn(List.of(capB));
+		when(iuB.getRequirements()).thenReturn(List.of());
+		when(iuB.getMetaRequirements()).thenReturn(List.of());
+
+		when(iuB.satisfies(combinedReq)).thenReturn(true);
+		when(iuA.satisfies(combinedReq)).thenReturn(false);
+
+		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = Map.of(
+				projectA, List.of(iuA),
+				projectB, List.of(iuB)
+		);
+
+		ProjectDependencyClosureGraph graph = new ProjectDependencyClosureGraph(projectIUMap);
+		File dotFile = new File(tempDir, "combined-optional-mandatory.dot");
+		DotDump.dump(dotFile, graph);
+
+		assertTrue(dotFile.exists(), "DOT file should be created");
+		String content = Files.readString(dotFile.toPath());
+		
+		// Should contain both italic and bold formatting
+		assertTrue(content.contains("<I>"), "Should contain italic formatting for optional");
+		assertTrue(content.contains("<B>"), "Should contain bold formatting for mandatory compile");
+		System.out.println("Combined optional+mandatory compile requirement DOT content:\n" + content);
+	}
+
+	@Test
+	public void testAllFormattingsCombined() throws CoreException, IOException {
+		// Create a project with a requirement that is optional, mandatory compile, and greedy
+		MavenProject projectA = createMockProject("projectA");
+		MavenProject projectB = createMockProject("projectB");
+
+		IInstallableUnit iuA = createMockIU("bundleA", "1.0.0");
+		IInstallableUnit iuB = createMockIU("bundleB", "1.0.0");
+
+		// Create an optional (min=0), greedy, java.package requirement (mandatory compile)
+		IRequirement allCombinedReq = mock(org.eclipse.equinox.internal.p2.metadata.IRequiredCapability.class);
+		when(allCombinedReq.toString()).thenReturn("Requirement[java.package:org.example]");
+		when(allCombinedReq.getFilter()).thenReturn(null);
+		when(allCombinedReq.getMax()).thenReturn(Integer.MAX_VALUE);
+		when(allCombinedReq.getMin()).thenReturn(0); // Optional
+		when(allCombinedReq.isGreedy()).thenReturn(true); // Greedy
+		when(((org.eclipse.equinox.internal.p2.metadata.IRequiredCapability)allCombinedReq).getNamespace())
+				.thenReturn("java.package"); // Mandatory compile
+
+		when(iuA.getRequirements()).thenReturn(List.of(allCombinedReq));
+		when(iuA.getMetaRequirements()).thenReturn(List.of());
+		when(iuA.getProvidedCapabilities()).thenReturn(List.of());
+
+		IProvidedCapability capB = createMockCapability("java.package", "org.example", "1.0.0");
+		when(iuB.getProvidedCapabilities()).thenReturn(List.of(capB));
+		when(iuB.getRequirements()).thenReturn(List.of());
+		when(iuB.getMetaRequirements()).thenReturn(List.of());
+
+		when(iuB.satisfies(allCombinedReq)).thenReturn(true);
+		when(iuA.satisfies(allCombinedReq)).thenReturn(false);
+
+		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = Map.of(
+				projectA, List.of(iuA),
+				projectB, List.of(iuB)
+		);
+
+		ProjectDependencyClosureGraph graph = new ProjectDependencyClosureGraph(projectIUMap);
+		File dotFile = new File(tempDir, "all-combined-formatting.dot");
+		DotDump.dump(dotFile, graph);
+
+		assertTrue(dotFile.exists(), "DOT file should be created");
+		String content = Files.readString(dotFile.toPath());
+		
+		// Should contain all three formatting types
+		assertTrue(content.contains("<I>"), "Should contain italic formatting for optional");
+		assertTrue(content.contains("<B>"), "Should contain bold formatting for mandatory compile");
+		assertTrue(content.contains("<U>"), "Should contain underline formatting for greedy");
+		System.out.println("All combined formatting DOT content:\n" + content);
+	}
+
+	@Test
+	public void testNonMandatoryCompileRequirementNoBoLD() throws CoreException, IOException {
+		// Verify that requirements with other namespaces (not osgi.bundle or java.package)
+		// don't get bold formatting
+		MavenProject projectA = createMockProject("projectA");
+		MavenProject projectB = createMockProject("projectB");
+
+		IInstallableUnit iuA = createMockIU("bundleA", "1.0.0");
+		IInstallableUnit iuB = createMockIU("bundleB", "1.0.0");
+
+		// Create a requirement with a different namespace (should NOT be bold)
+		IRequirement nonCompileReq = mock(org.eclipse.equinox.internal.p2.metadata.IRequiredCapability.class);
+		when(nonCompileReq.toString()).thenReturn("Requirement[osgi.service:SomeService]");
+		when(nonCompileReq.getFilter()).thenReturn(null);
+		when(nonCompileReq.getMax()).thenReturn(Integer.MAX_VALUE);
+		when(nonCompileReq.getMin()).thenReturn(1); // Mandatory but not compile
+		when(nonCompileReq.isGreedy()).thenReturn(false);
+		when(((org.eclipse.equinox.internal.p2.metadata.IRequiredCapability)nonCompileReq).getNamespace())
+				.thenReturn("osgi.service"); // Different namespace, should NOT be bold
+
+		when(iuA.getRequirements()).thenReturn(List.of(nonCompileReq));
+		when(iuA.getMetaRequirements()).thenReturn(List.of());
+		when(iuA.getProvidedCapabilities()).thenReturn(List.of());
+
+		IProvidedCapability capB = createMockCapability("osgi.service", "SomeService", "1.0.0");
+		when(iuB.getProvidedCapabilities()).thenReturn(List.of(capB));
+		when(iuB.getRequirements()).thenReturn(List.of());
+		when(iuB.getMetaRequirements()).thenReturn(List.of());
+
+		when(iuB.satisfies(nonCompileReq)).thenReturn(true);
+		when(iuA.satisfies(nonCompileReq)).thenReturn(false);
+
+		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = Map.of(
+				projectA, List.of(iuA),
+				projectB, List.of(iuB)
+		);
+
+		ProjectDependencyClosureGraph graph = new ProjectDependencyClosureGraph(projectIUMap);
+		File dotFile = new File(tempDir, "non-compile-requirement.dot");
+		DotDump.dump(dotFile, graph);
+
+		assertTrue(dotFile.exists(), "DOT file should be created");
+		String content = Files.readString(dotFile.toPath());
+		
+		// Should NOT contain bold formatting for non-compile requirement
+		assertFalse(content.contains("<B>"), "Should NOT contain bold formatting for non-compile namespace");
+		// Should still have the requirement listed
+		assertTrue(content.contains("osgi.service"), "Should contain the requirement");
+		System.out.println("Non-compile requirement DOT content:\n" + content);
 	}
 
 	@Test

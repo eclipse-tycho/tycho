@@ -23,12 +23,16 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.project.MavenProject;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.p2maven.ProjectDependencyClosureGraph.Edge;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 
 /**
  * Utility class to dump dependencies graphs as dot files for visualization
  */
+@SuppressWarnings("restriction")
 public class DotDump {
 
 	/**
@@ -94,8 +98,17 @@ public class DotDump {
 					if (targetName != null) {
 						// Build label from requirements
 						String label = edgeInfo.getLabel();
-						writer.println("  " + sourceName + " -> " + targetName + " [color=" + edgeInfo.color
-								+ ", label=\"" + escapeLabel(label) + "\"];");
+						
+						// Check if label contains HTML-like formatting
+						if (label.startsWith("<") && label.endsWith(">")) {
+							// Use HTML-like label without quotes
+							writer.println("  " + sourceName + " -> " + targetName + " [color=" + edgeInfo.color
+									+ ", label=" + label + "];");
+						} else {
+							// Use regular quoted label
+							writer.println("  " + sourceName + " -> " + targetName + " [color=" + edgeInfo.color
+									+ ", label=\"" + escapeLabel(label) + "\"];");
+						}
 					}
 				}
 			}
@@ -109,28 +122,112 @@ public class DotDump {
 	 */
 	private static class EdgeInfo {
 		final String color;
-		final List<String> requirements = new ArrayList<>();
+		final List<IRequirement> requirements = new ArrayList<>();
 
 		EdgeInfo(String color) {
 			this.color = color;
 		}
 
 		void addRequirement(IRequirement requirement) {
+			// Check if requirement is already in the list by comparing string representations
 			String reqString = requirement.toString();
-			if (!requirements.contains(reqString)) {
-				requirements.add(reqString);
+			boolean alreadyAdded = requirements.stream()
+					.anyMatch(r -> r.toString().equals(reqString));
+			if (!alreadyAdded) {
+				requirements.add(requirement);
 			}
 		}
 
 		String getLabel() {
 			if (requirements.isEmpty()) {
 				return "";
-			} else if (requirements.size() == 1) {
-				return requirements.get(0);
+			}
+			
+			// Build formatted label for each requirement
+			List<String> formattedRequirements = new ArrayList<>();
+			for (IRequirement requirement : requirements) {
+				formattedRequirements.add(formatRequirement(requirement));
+			}
+			
+			if (formattedRequirements.size() == 1) {
+				return formattedRequirements.get(0);
 			} else {
 				// Join multiple requirements with line breaks
-				return String.join("\\n", requirements);
+				return String.join("\\n", formattedRequirements);
 			}
+		}
+		
+		/**
+		 * Format a requirement with appropriate HTML-like styling based on its properties
+		 */
+		private static String formatRequirement(IRequirement requirement) {
+			String reqText = escapeHtml(requirement.toString());
+			
+			boolean isOptional = requirement.getMin() == 0;
+			boolean isMandatoryCompile = isMandatoryCompileRequirement(requirement);
+			boolean isGreedy = requirement.isGreedy();
+			
+			// Apply formatting if needed
+			if (isOptional || isMandatoryCompile || isGreedy) {
+				StringBuilder formatted = new StringBuilder("<");
+				
+				// Apply italic for optional
+				if (isOptional) {
+					formatted.append("<I>");
+				}
+				
+				// Apply bold for mandatory compile
+				if (isMandatoryCompile) {
+					formatted.append("<B>");
+				}
+				
+				// Apply underline for greedy
+				if (isGreedy) {
+					formatted.append("<U>");
+				}
+				
+				formatted.append(reqText);
+				
+				// Close tags in reverse order
+				if (isGreedy) {
+					formatted.append("</U>");
+				}
+				if (isMandatoryCompile) {
+					formatted.append("</B>");
+				}
+				if (isOptional) {
+					formatted.append("</I>");
+				}
+				
+				formatted.append(">");
+				return formatted.toString();
+			}
+			
+			return reqText;
+		}
+		
+		/**
+		 * Check if a requirement is a mandatory compile requirement
+		 * (osgi.bundle or java.package namespace)
+		 */
+		private static boolean isMandatoryCompileRequirement(IRequirement requirement) {
+			if (requirement instanceof IRequiredCapability) {
+				IRequiredCapability reqCap = (IRequiredCapability) requirement;
+				String namespace = reqCap.getNamespace();
+				return BundlesAction.CAPABILITY_NS_OSGI_BUNDLE.equals(namespace)
+						|| PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(namespace);
+			}
+			return false;
+		}
+		
+		/**
+		 * Escape HTML special characters for use in HTML-like labels
+		 */
+		private static String escapeHtml(String text) {
+			return text.replace("&", "&amp;")
+					.replace("<", "&lt;")
+					.replace(">", "&gt;")
+					.replace("\"", "&quot;");
 		}
 	}
 
