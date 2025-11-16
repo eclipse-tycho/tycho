@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.maven.project.MavenProject;
 import org.eclipse.core.runtime.CoreException;
@@ -213,7 +212,7 @@ public class ProjectDependencyClosureGraphTest {
 
 		// Dump to file
 		File dotFile = new File(tempDir, "test-dependencies.dot");
-		graph.dump(dotFile);
+		DotDump.dump(dotFile, graph);
 
 		// Verify file was created
 		assertTrue(dotFile.exists(), "DOT file should be created");
@@ -352,7 +351,7 @@ public class ProjectDependencyClosureGraphTest {
 		// Create graph and dump
 		ProjectDependencyClosureGraph graph = new ProjectDependencyClosureGraph(projectIUMap);
 		File dotFile = new File(tempDir, "two-project-cycle.dot");
-		graph.dump(dotFile);
+		DotDump.dump(dotFile, graph);
 
 		// Verify file was created and contains cycle markers
 		assertTrue(dotFile.exists(), "DOT file should be created");
@@ -417,7 +416,7 @@ public class ProjectDependencyClosureGraphTest {
 		// Create graph and dump
 		ProjectDependencyClosureGraph graph = new ProjectDependencyClosureGraph(projectIUMap);
 		File dotFile = new File(tempDir, "three-project-cycle.dot");
-		graph.dump(dotFile);
+		DotDump.dump(dotFile, graph);
 
 		// Verify file was created and contains cycle markers
 		assertTrue(dotFile.exists(), "DOT file should be created");
@@ -453,7 +452,7 @@ public class ProjectDependencyClosureGraphTest {
 		// Create graph and dump
 		ProjectDependencyClosureGraph graph = new ProjectDependencyClosureGraph(projectIUMap);
 		File dotFile = new File(tempDir, "self-reference-cycle.dot");
-		graph.dump(dotFile);
+		DotDump.dump(dotFile, graph);
 
 		// Verify file was created and contains gray edge for self-reference
 		assertTrue(dotFile.exists(), "DOT file should be created");

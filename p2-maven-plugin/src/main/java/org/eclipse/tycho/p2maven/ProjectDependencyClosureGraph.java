@@ -13,9 +13,7 @@
 package org.eclipse.tycho.p2maven;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,10 +69,10 @@ class ProjectDependencyClosureGraph implements ProjectDependencyClosure {
 
 	private Map<MavenProject, ProjectDependencies> projectDependenciesMap;
 
-	private Map<MavenProject, Collection<IInstallableUnit>> projectIUMap;
+	Map<MavenProject, Collection<IInstallableUnit>> projectIUMap;
 
 	// Graph structure: maps each project to its outgoing edges
-	private Map<MavenProject, List<Edge>> projectEdgesMap = new HashMap<>();
+	Map<MavenProject, List<Edge>> projectEdgesMap = new HashMap<>();
 
 	ProjectDependencyClosureGraph(Map<MavenProject, Collection<IInstallableUnit>> projectIUMap) throws CoreException {
 		this.projectIUMap = projectIUMap;
@@ -92,8 +90,7 @@ class ProjectDependencyClosureGraph implements ProjectDependencyClosure {
 		// Write DOT file if requested
 		if (DUMP_DATA) {
 			try {
-				File dotFile = new File("project-dependencies.dot");
-				dump(dotFile);
+				DotDump.dump(new File("project-dependencies.dot"), this);
 			} catch (IOException e) {
 				// Ignore dump errors
 			}
@@ -174,115 +171,14 @@ class ProjectDependencyClosureGraph implements ProjectDependencyClosure {
 		return result;
 	}
 
-	/**
-	 * Dump the graph to a DOT file for visualization
-	 * 
-	 * @param file the file to write the DOT representation to
-	 * @throws IOException if writing fails
-	 */
-	public void dump(File file) throws IOException {
-		// Detect cycles
-		Set<Set<MavenProject>> cycles = detectCycles();
-		
-		try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
-			writer.println("digraph ProjectDependencies {");
-			writer.println("  rankdir=LR;");
-			writer.println("  node [shape=box];");
-			writer.println();
-			
-			// Create a mapping of projects to short names for the graph
-			Map<MavenProject, String> projectNames = new HashMap<>();
-			int counter = 0;
-			for (MavenProject project : projectIUMap.keySet()) {
-				String nodeName = "p" + counter++;
-				projectNames.put(project, nodeName);
-				String label = project.getArtifactId();
-				writer.println("  " + nodeName + " [label=\"" + escapeLabel(label) + "\"];");
-			}
-			writer.println();
-			
-			// Write edges with color coding based on cycle type and requirement labels
-			for (var entry : projectEdgesMap.entrySet()) {
-				MavenProject sourceProject = entry.getKey();
-				String sourceName = projectNames.get(sourceProject);
-				
-				// Group edges by target project to collect all requirements for each dependency
-				Map<MavenProject, EdgeInfo> targetProjectEdges = new HashMap<>();
-				for (Edge edge : entry.getValue()) {
-					MavenProject targetProject = edge.capability.project;
-					
-					// Determine edge color
-					String color;
-					if (targetProject.equals(sourceProject)) {
-						// Self-reference cycle - GRAY
-						color = "gray";
-					} else if (isInCycle(sourceProject, targetProject, cycles)) {
-						// Part of a transitive cycle - RED
-						color = "red";
-					} else {
-						// Normal dependency - BLACK
-						color = "black";
-					}
-					
-					EdgeInfo edgeInfo = targetProjectEdges.computeIfAbsent(targetProject, 
-							k -> new EdgeInfo(color));
-					edgeInfo.addRequirement(edge.requirement.requirement);
-				}
-				
-				// Write edge for each target project with requirement labels
-				for (var targetEntry : targetProjectEdges.entrySet()) {
-					MavenProject targetProject = targetEntry.getKey();
-					EdgeInfo edgeInfo = targetEntry.getValue();
-					String targetName = projectNames.get(targetProject);
-					if (targetName != null) {
-						// Build label from requirements
-						String label = edgeInfo.getLabel();
-						writer.println("  " + sourceName + " -> " + targetName + 
-								" [color=" + edgeInfo.color + ", label=\"" + escapeLabel(label) + "\"];");
-					}
-				}
-			}
-			
-			writer.println("}");
-		}
-	}
 	
-	/**
-	 * Helper class to collect edge information for a dependency relationship
-	 */
-	private static class EdgeInfo {
-		final String color;
-		final List<String> requirements = new ArrayList<>();
-		
-		EdgeInfo(String color) {
-			this.color = color;
-		}
-		
-		void addRequirement(IRequirement requirement) {
-			String reqString = requirement.toString();
-			if (!requirements.contains(reqString)) {
-				requirements.add(reqString);
-			}
-		}
-		
-		String getLabel() {
-			if (requirements.isEmpty()) {
-				return "";
-			} else if (requirements.size() == 1) {
-				return requirements.get(0);
-			} else {
-				// Join multiple requirements with line breaks
-				return String.join("\\n", requirements);
-			}
-		}
-	}
 	
 	/**
 	 * Detect all cycles in the dependency graph using Tarjan's algorithm for strongly connected components
 	 * 
 	 * @return a set of sets, where each inner set represents a cycle (strongly connected component with more than one node)
 	 */
-	private Set<Set<MavenProject>> detectCycles() {
+	Set<Set<MavenProject>> detectCycles() {
 		Set<Set<MavenProject>> cycles = new HashSet<>();
 		Map<MavenProject, Integer> index = new HashMap<>();
 		Map<MavenProject, Integer> lowLink = new HashMap<>();
@@ -357,21 +253,6 @@ class ProjectDependencyClosureGraph implements ProjectDependencyClosure {
 		return false;
 	}
 	
-	/**
-	 * Check if an edge from source to target is part of a cycle
-	 */
-	private boolean isInCycle(MavenProject source, MavenProject target, Set<Set<MavenProject>> cycles) {
-		for (Set<MavenProject> cycle : cycles) {
-			if (cycle.contains(source) && cycle.contains(target)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private String escapeLabel(String label) {
-		return label.replace("\\", "\\\\").replace("\"", "\\\"");
-	}
 
 	@Override
 	public Optional<MavenProject> getProject(IInstallableUnit installableUnit) {
