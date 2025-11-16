@@ -69,7 +69,7 @@ public class MavenProjectDependencyProcessor {
 			throws CoreException {
 		Objects.requireNonNull(session);
 		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = generator.getInstallableUnits(projects, session);
-		return new ProjectDependencyClosureGraph(projectIUMap, slicer);
+		return new ProjectDependencyClosureGraph(projectIUMap);
 	}
 
 	private static boolean hasAnyHost(IInstallableUnit unit, Iterable<IInstallableUnit> collection) {
