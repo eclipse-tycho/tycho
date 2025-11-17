@@ -430,7 +430,6 @@ public class DefaultTargetPlatformConfigurationReader {
                 File target = basedir.resolve(file).toFile();
                 if (TargetDefinitionFile.isTargetFile(target)) {
                     result.addTarget(target);
-                    return;
                 } else {
                     result.addLazyTargetFile(() -> {
                         if (TargetDefinitionFile.isTargetFile(target)) {
