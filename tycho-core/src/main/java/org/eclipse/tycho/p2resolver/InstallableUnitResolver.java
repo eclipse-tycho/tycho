@@ -56,7 +56,7 @@ public class InstallableUnitResolver {
     private Boolean includeAllEnvironments = null;
     private Boolean includeSource = null;
 
-    private List<TargetEnvironment> environments;
+    private Collection<TargetEnvironment> environments;
 
     private ExecutionEnvironmentResolutionHints executionEnvironment;
 
@@ -66,7 +66,7 @@ public class InstallableUnitResolver {
 
     private IncludeSourceMode sourceMode;
 
-    public InstallableUnitResolver(List<TargetEnvironment> environments,
+    public InstallableUnitResolver(Collection<TargetEnvironment> environments,
             ExecutionEnvironmentResolutionHints executionEnvironment, IncludeSourceMode sourceMode,
             MavenLogger logger) {
         this.environments = environments;

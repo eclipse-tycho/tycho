@@ -58,7 +58,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
     private static final String MIRROR_MODE = "metadataOrArtifacts"; //$NON-NLS-1$
 
     protected SlicingOptions slicingOptions = new SlicingOptions();
-    protected List<TargetEnvironment> environments = new ArrayList<>();
+    protected Collection<TargetEnvironment> environments = new ArrayList<>();
 
     private URI baseline;
     private String comparatorID;
@@ -482,7 +482,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
         return slicer;
     }
 
-    public void setEnvironments(List<TargetEnvironment> environments) {
+    public void setEnvironments(Collection<TargetEnvironment> environments) {
         this.environments = environments;
     }
 

@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +45,15 @@ import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
 
+/**
+ * Configuration for target platform resolution in Tycho builds.
+ * <p>
+ * This class encapsulates all configuration options related to target platform resolution,
+ * including target environments, target definition files, execution environments, dependency
+ * resolution settings, and filters. It serves as the central configuration point for how Tycho
+ * resolves and constructs the target platform for a build.
+ * </p>
+ */
 public class TargetPlatformConfiguration implements DependencyResolverConfiguration {
 
     public enum BREEHeaderSelectionPolicy {
@@ -94,7 +104,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private String resolver;
 
-    private List<TargetEnvironment> environments = new ArrayList<>();
+    private Collection<TargetEnvironment> environments = new LinkedHashSet<>();
     private List<TargetEnvironment> filteredEnvironments = new ArrayList<>();
 
     private boolean implicitTargetEnvironment = true;
@@ -131,13 +141,15 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private List<Xpp3Dom> xmlFragments = new ArrayList<>();
 
     /**
-     * Returns the list of configured target environments, or the running environment if no
-     * environments have been specified explicitly.
+     * Returns the collection of configured target environments, or the running environment if no
+     * environments have been specified explicitly. The returned collection maintains insertion
+     * order and contains no duplicates.
      * 
+     * @return the configured target environments
      * @see #isImplicitTargetEnvironment()
      */
-    public List<TargetEnvironment> getEnvironments() {
-        return environments;
+    public Collection<TargetEnvironment> getEnvironments() {
+        return List.copyOf(environments);
     }
 
     public String getTargetPlatformResolver() {

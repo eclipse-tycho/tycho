@@ -15,6 +15,7 @@ package org.eclipse.tycho.p2.target.facade;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +30,7 @@ import org.eclipse.tycho.targetplatform.TargetPlatformFilter;
 // TODO 412416 add an TargetPlatformConfiguration interface with only getters, and add implementation backed by the POM configuration
 public class TargetPlatformConfigurationStub {
 
-    private List<TargetEnvironment> environments;
+    private Collection<TargetEnvironment> environments;
     private final List<TargetPlatformFilter> iuFilters = new ArrayList<>();
 
     private final Set<MavenRepositoryLocation> repositories = new LinkedHashSet<>();
@@ -42,11 +43,11 @@ public class TargetPlatformConfigurationStub {
         // TODO Auto-generated constructor stub
     }
 
-    public void setEnvironments(List<TargetEnvironment> environments) {
+    public void setEnvironments(Collection<TargetEnvironment> environments) {
         this.environments = environments;
     }
 
-    public List<TargetEnvironment> getEnvironments() {
+    public Collection<TargetEnvironment> getEnvironments() {
         return environments;
     }
 

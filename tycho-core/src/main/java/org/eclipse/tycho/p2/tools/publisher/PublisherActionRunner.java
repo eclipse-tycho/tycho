@@ -13,7 +13,6 @@
 package org.eclipse.tycho.p2.tools.publisher;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
@@ -34,11 +33,11 @@ import org.eclipse.tycho.helper.StatusTool;
 public class PublisherActionRunner {
 
     private IMetadataRepository contextIUs;
-    private List<TargetEnvironment> environments;
+    private Collection<TargetEnvironment> environments;
     private Logger logger;
 
-    public PublisherActionRunner(IMetadataRepository contextInstallableUnits, List<TargetEnvironment> environments,
-            Logger logger) {
+    public PublisherActionRunner(IMetadataRepository contextInstallableUnits,
+            Collection<TargetEnvironment> environments, Logger logger) {
         this.contextIUs = contextInstallableUnits;
         this.environments = environments;
         this.logger = logger;

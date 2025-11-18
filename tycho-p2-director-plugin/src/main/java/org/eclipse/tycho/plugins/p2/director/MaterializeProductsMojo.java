@@ -23,6 +23,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -212,15 +213,23 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
             }
         }
         if (parallel) {
-            ExecutorService executorService = Executors.newWorkStealingPool();
+            ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
             ExecutorCompletionService<Void> service = new ExecutorCompletionService<>(executorService);
             try {
                 int tasks = 0;
+                Collection<TargetEnvironment> environments = getEnvironments();
                 for (Product product : products) {
-                    for (TargetEnvironment env : getEnvironments()) {
+                    for (TargetEnvironment env : environments) {
                         service.submit(() -> {
-                            buildProduct(director, sources, product, env);
-                            return null;
+                            Thread thread = Thread.currentThread();
+                            String name = thread.getName();
+                            try {
+                                thread.setName("materialize " + product.getId() + " " + env);
+                                buildProduct(director, sources, product, env);
+                                return null;
+                            } finally {
+                                thread.setName(name);
+                            }
                         });
                         tasks++;
                     }

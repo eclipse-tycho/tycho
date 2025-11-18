@@ -17,6 +17,7 @@
 package org.eclipse.tycho.p2resolver;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -62,7 +63,7 @@ public class TargetDefinitionResolverService {
     }
 
     public TargetDefinitionContent getTargetDefinitionContent(TargetDefinition definition,
-            List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs,
+            Collection<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs,
             IncludeSourceMode includeSourceMode, ReferencedRepositoryMode referencedRepositoryMode,
             IProvisioningAgent agent) {
         ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, includeSourceMode,
@@ -141,13 +142,13 @@ public class TargetDefinitionResolverService {
     private static final class ResolutionArguments {
 
         final TargetDefinition definition;
-        final List<TargetEnvironment> environments;
+        final Collection<TargetEnvironment> environments;
         final ExecutionEnvironmentResolutionHints jreIUs;
         final IProvisioningAgent agent;
         private IncludeSourceMode includeSourceMode;
         private ReferencedRepositoryMode referencedRepositoryMode;
 
-        public ResolutionArguments(TargetDefinition definition, List<TargetEnvironment> environments,
+        public ResolutionArguments(TargetDefinition definition, Collection<TargetEnvironment> environments,
                 ExecutionEnvironmentResolutionHints jreIUs, IncludeSourceMode includeSourceMode,
                 ReferencedRepositoryMode repositoryMode, IProvisioningAgent agent) {
             this.definition = definition;

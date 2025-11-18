@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.metadata;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata;
@@ -28,6 +28,6 @@ public interface DependencyMetadataGenerator {
     /**
      * Generates dependency-only artifact metadata
      */
-    public IDependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
+    public IDependencyMetadata generateMetadata(IArtifactFacade artifact, Collection<TargetEnvironment> environments,
             OptionalResolutionAction optionalAction, PublisherOptions options);
 }
