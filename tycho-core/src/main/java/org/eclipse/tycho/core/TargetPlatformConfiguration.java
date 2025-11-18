@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -94,7 +95,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private String resolver;
 
-    private List<TargetEnvironment> environments = new ArrayList<>();
+    private Set<TargetEnvironment> environments = new LinkedHashSet<>();
     private List<TargetEnvironment> filteredEnvironments = new ArrayList<>();
 
     private boolean implicitTargetEnvironment = true;
@@ -137,7 +138,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
      * @see #isImplicitTargetEnvironment()
      */
     public List<TargetEnvironment> getEnvironments() {
-        return environments;
+        return List.copyOf(environments);
     }
 
     public String getTargetPlatformResolver() {
