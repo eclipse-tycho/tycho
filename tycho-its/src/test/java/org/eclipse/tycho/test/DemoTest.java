@@ -136,6 +136,11 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testTychoMultiReleaseClasspathDemo() throws Exception {
+		runDemo("multi-release-jar-classpath");
+	}
+
+	@Test
 	public void testTychoBndPdeWorkspaceDemo() throws Exception {
 		runDemo("bnd-pde-workspace");
 	}

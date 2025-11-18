@@ -13,6 +13,7 @@
 package org.eclipse.tycho.model.classpath;
 
 import java.io.File;
+import java.util.OptionalInt;
 
 public interface SourceFolderClasspathEntry extends ProjectClasspathEntry {
 
@@ -27,4 +28,20 @@ public interface SourceFolderClasspathEntry extends ProjectClasspathEntry {
      * @return the configured output folder
      */
     File getOutputFolder();
+
+    /**
+     * @return the Java release version if this entry is marked as a multi-release source folder, or
+     *         an empty OptionalInt if not
+     */
+    default OptionalInt getMultiReleaseVersion() {
+        String release = getAttributes().get("release");
+        if (release != null && !release.isBlank()) {
+            try {
+                return OptionalInt.of(Integer.parseInt(release));
+            } catch (NumberFormatException e) {
+                // invalid value, ignore
+            }
+        }
+        return OptionalInt.empty();
+    }
 }
