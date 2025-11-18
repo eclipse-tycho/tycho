@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -63,7 +63,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
         return qualifier;
     }
 
-    protected List<TargetEnvironment> getEnvironments() {
+    protected Collection<TargetEnvironment> getEnvironments() {
         return projectManager.getTargetPlatformConfiguration(project).getEnvironments();
     }
 

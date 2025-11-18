@@ -158,7 +158,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
             //Target projects do not have any (initial) dependency metadata
         } else {
             TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
-            List<TargetEnvironment> environments = configuration.getEnvironments();
+            Collection<TargetEnvironment> environments = configuration.getEnvironments();
             Collection<IDependencyMetadata> metadataMap = getDependencyMetadata(session, project, environments,
                     OptionalResolutionAction.OPTIONAL);
             Map<DependencyMetadataType, Set<IInstallableUnit>> typeMap = new TreeMap<>();
@@ -177,7 +177,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
     }
 
     protected Collection<IDependencyMetadata> getDependencyMetadata(final MavenSession session,
-            final MavenProject project, final List<TargetEnvironment> environments,
+            final MavenProject project, final Collection<TargetEnvironment> environments,
             final OptionalResolutionAction optionalAction) {
         final ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         final File artifactLocation = (File) reactorProject
@@ -247,7 +247,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
             TargetPlatformConfiguration configuration) {
         // 'this' project should obey optionalDependencies configuration
 
-        final List<TargetEnvironment> environments = configuration.getEnvironments();
+        final Collection<TargetEnvironment> environments = configuration.getEnvironments();
         final OptionalResolutionAction optionalAction = configuration.getDependencyResolverConfiguration()
                 .getOptionalResolutionAction();
         Collection<IDependencyMetadata> dependencyMetadata = getDependencyMetadata(session, project, environments,
@@ -317,7 +317,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
     @Override
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
             TargetPlatform targetPlatform, DependencyResolverConfiguration resolverConfiguration,
-            List<TargetEnvironment> environments) {
+            Collection<TargetEnvironment> environments) {
         Objects.requireNonNull(targetPlatform);
         TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
 

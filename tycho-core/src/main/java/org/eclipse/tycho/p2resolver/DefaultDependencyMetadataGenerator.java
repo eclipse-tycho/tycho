@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -35,7 +35,7 @@ public class DefaultDependencyMetadataGenerator extends P2GeneratorImpl implemen
     }
 
     @Override
-    public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
+    public DependencyMetadata generateMetadata(IArtifactFacade artifact, Collection<TargetEnvironment> environments,
             OptionalResolutionAction optionalAction, PublisherOptions options) {
         PublisherInfo publisherInfo = new PublisherInfo();
         publisherInfo.setArtifactOptions(IPublisherInfo.A_NO_MD5);

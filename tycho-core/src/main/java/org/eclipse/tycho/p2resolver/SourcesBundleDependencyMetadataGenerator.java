@@ -14,6 +14,7 @@
 package org.eclipse.tycho.p2resolver;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -24,7 +25,6 @@ import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.StateObjectFactory;
 import org.eclipse.tycho.BuildPropertiesParser;
@@ -39,6 +39,7 @@ import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.publisher.AbstractMetadataGenerator;
 import org.eclipse.tycho.p2.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.publisher.DownloadStatsAdvice;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.osgi.framework.BundleException;
 
 @Component(role = DependencyMetadataGenerator.class, hint = DependencyMetadataGenerator.SOURCE_BUNDLE)
@@ -52,14 +53,14 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
     private BuildPropertiesParser buildPropertiesParser;
 
     @Override
-    public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
+    public DependencyMetadata generateMetadata(IArtifactFacade artifact, Collection<TargetEnvironment> environments,
             OptionalResolutionAction optionalAction, PublisherOptions options) {
         return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction, options);
     }
 
     @Override
-    protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact, List<TargetEnvironment> environments,
-            OptionalResolutionAction optionalAction) {
+    protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
+            Collection<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
         ArrayList<IPublisherAction> actions = new ArrayList<>();
 
         String id = artifact.getArtifactId();

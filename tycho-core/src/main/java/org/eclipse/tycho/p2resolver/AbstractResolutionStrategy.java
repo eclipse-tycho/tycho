@@ -15,7 +15,6 @@ package org.eclipse.tycho.p2resolver;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -55,7 +54,7 @@ public abstract class AbstractResolutionStrategy {
         return resolve(getEffectiveFilterProperties(environment), monitor);
     }
 
-    public Collection<IInstallableUnit> multiPlatformResolve(List<TargetEnvironment> environments,
+    public Collection<IInstallableUnit> multiPlatformResolve(Collection<TargetEnvironment> environments,
             IProgressMonitor monitor) throws ResolverException {
         Set<IInstallableUnit> result = new LinkedHashSet<>();
 
