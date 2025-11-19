@@ -27,7 +27,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -57,10 +59,15 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TychoProperties;
+import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
+import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
+import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
+import org.eclipse.tycho.model.classpath.SourceFolderClasspathEntry;
 import org.eclipse.tycho.packaging.IncludeValidationHelper;
 import org.osgi.framework.Version;
 
@@ -80,6 +87,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     private static final String I18N_KEY_BUNDLE_NAME = "bundleName";
 
     private static final String VERSION_QUALIFIER = "qualifier";
+    private static final String VERSIONS_DIRECTORY = "META-INF/versions";
 
     /**
      * Whether the source jar should be an Eclipse source bundle.
@@ -201,9 +209,69 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             }
         }
 
+        // Add multi-release source folders if Multi-Release manifest header is present
+        resources.addAll(getMultiReleaseSources(p));
+
         if (requireSourceRoots && resources.isEmpty()) {
             throw new MojoExecutionException("no source folders found in build.properties");
         }
+        return resources;
+    }
+
+    /**
+     * Collects source folders for multi-release JAR support.
+     * 
+     * @param p the Maven project
+     * @return list of resources for multi-release sources
+     * @throws MojoExecutionException if reading manifest or classpath fails
+     */
+    private List<Resource> getMultiReleaseSources(MavenProject p) throws MojoExecutionException {
+        List<Resource> resources = new ArrayList<>();
+        
+        // Check if Multi-Release manifest header is present
+        OsgiManifest manifest = bundleReader.loadManifest(p.getBasedir());
+        if (!Boolean.parseBoolean(manifest.getValue("Multi-Release"))) {
+            return resources;
+        }
+        
+        try {
+            // Get the Eclipse plugin project to access classpath entries
+            TychoProject projectType = projectTypes.get(p.getPackaging());
+            if (!(projectType instanceof BundleProject)) {
+                return resources;
+            }
+            BundleProject bundleProject = (BundleProject) projectType;
+            EclipsePluginProject eclipseProject = ((OsgiBundleProject) bundleProject)
+                    .getEclipsePluginProject(DefaultReactorProject.adapt(p));
+            
+            // Find source folders with release attribute
+            Collection<ProjectClasspathEntry> classpathEntries = eclipseProject.getClasspathEntries();
+            Map<Integer, List<SourceFolderClasspathEntry>> multiReleaseSourceFolders = classpathEntries.stream()
+                    .filter(SourceFolderClasspathEntry.class::isInstance)
+                    .map(SourceFolderClasspathEntry.class::cast)
+                    .filter(entry -> entry.getMultiReleaseVersion().isPresent())
+                    .collect(Collectors.groupingBy(entry -> entry.getMultiReleaseVersion().getAsInt(),
+                            LinkedHashMap::new, Collectors.toList()));
+            
+            // Add each multi-release source folder with appropriate target path
+            for (Map.Entry<Integer, List<SourceFolderClasspathEntry>> entry : multiReleaseSourceFolders.entrySet()) {
+                Integer release = entry.getKey();
+                for (SourceFolderClasspathEntry sourceEntry : entry.getValue()) {
+                    File sourcePath = sourceEntry.getSourcePath();
+                    if (sourcePath.isDirectory()) {
+                        Resource resource = new Resource();
+                        resource.setDirectory(sourcePath.getAbsolutePath());
+                        // Place multi-release sources in META-INF/versions/<release>/
+                        resource.setTargetPath(VERSIONS_DIRECTORY + "/" + release + "/");
+                        resources.add(resource);
+                        getLog().debug("Adding multi-release source folder for release " + release + ": " + sourcePath);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            getLog().warn("Failed to process multi-release source folders: " + e.getMessage(), e);
+        }
+        
         return resources;
     }
 
