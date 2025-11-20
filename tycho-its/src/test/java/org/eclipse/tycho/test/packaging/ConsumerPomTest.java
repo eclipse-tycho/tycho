@@ -33,6 +33,7 @@ public class ConsumerPomTest extends AbstractTychoIntegrationTest {
 	DefaultModelReader reader = new DefaultModelReader();
 
 	@Test
+	@Ignore("Disabled because of maven central outages")
 	public void testReplaceP2() throws Exception {
 		Verifier verifier = getVerifier("packaging.consumer.pom", true);
 		verifier.addCliOption("-U");

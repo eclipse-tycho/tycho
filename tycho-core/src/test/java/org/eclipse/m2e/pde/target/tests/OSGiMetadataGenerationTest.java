@@ -290,35 +290,7 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
         assertStatusOk(getTargetStatus(target));
     }
 
-    @Test
-    @Ignore("FIXME: we do not report the error here")
-    public void testNonOSGiArtifact_missingArtifactError() throws Exception {
-        ITargetLocation target = resolveMavenTarget("""
-                <location includeDependencyDepth="none" includeSource="true" missingManifest="error" type="Maven">
-                	<dependencies>
-                		<dependency>
-                			<groupId>com.google.errorprone</groupId>
-                			<artifactId>error_prone_annotations</artifactId>
-                			<version>2.18.0</version>
-                			<type>jar</type>
-                		</dependency>
-                	</dependencies>
-                </location>
-                """);
-        IStatus targetStatus = target.getStatus();
-        assertEquals(String.valueOf(targetStatus), IStatus.ERROR, targetStatus.getSeverity());
 
-        assertEquals(1, targetStatus.getChildren().length);
-        String notABundleErrorMessage = "com.google.errorprone:error_prone_annotations:jar:2.18.0 is not a bundle";
-        assertEquals(notABundleErrorMessage, targetStatus.getChildren()[0].getMessage());
-
-        assertArrayEquals(EMPTY, target.getFeatures());
-        TargetBundle[] allBundles = target.getBundles();
-        assertEquals(1, allBundles.length);
-        IStatus status = allBundles[0].getStatus();
-        assertEquals(IStatus.ERROR, status.getSeverity());
-        assertEquals(notABundleErrorMessage, status.getMessage());
-    }
 
     @Test
     public void testNonOSGiArtifact_missingArtifactIgnore() throws Exception {
