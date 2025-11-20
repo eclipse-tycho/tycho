@@ -115,7 +115,6 @@ public class ResolverTests extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	@Ignore
 	// Due to technical reasons, the Maven artifact is rebundled during the
 	// target-platform phase.
 	// Therefore dependency:tree lists it as 'wrapped.com.squareup.okhttp3.okhttp'
