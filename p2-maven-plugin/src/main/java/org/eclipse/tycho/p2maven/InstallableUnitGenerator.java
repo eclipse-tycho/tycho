@@ -56,7 +56,6 @@ import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.PackagingType;
@@ -120,7 +119,6 @@ public class InstallableUnitGenerator {
 	 */
 	public Map<MavenProject, Collection<IInstallableUnit>> getInstallableUnits(Collection<MavenProject> projects,
 			MavenSession session) throws CoreException {
-		init();
 		Objects.requireNonNull(session);
 		List<CoreException> errors = new CopyOnWriteArrayList<>();
 		Map<MavenProject, Collection<IInstallableUnit>> result = new ConcurrentHashMap<>();
@@ -144,13 +142,6 @@ public class InstallableUnitGenerator {
 		throw new CoreException(multiStatus);
 	}
 
-	private void init() {
-		// this requirement is here to bootstrap P2 service access
-		// see https://github.com/eclipse-equinox/p2/issues/100
-		// then this would not be required anymore
-		provisioningAgent.getService(IArtifactRepositoryManager.class);
-	}
-
 	/**
 	 * Computes the {@link IInstallableUnit}s for the given project, the computation
 	 * is cached unless forceUpdate is <code>true</code> meaning data is always
@@ -166,7 +157,6 @@ public class InstallableUnitGenerator {
 	@SuppressWarnings("unchecked")
 	public Collection<IInstallableUnit> getInstallableUnits(MavenProject project, MavenSession session,
 			boolean forceUpdate) throws CoreException {
-		init();
 		Objects.requireNonNull(session);
 		log.debug("Computing installable units for " + project + ", force update = " + forceUpdate);
 		synchronized (project) {
