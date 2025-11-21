@@ -35,7 +35,6 @@
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>org.eclipse.jdt.ui</artifactId>
-			<version>3.35.100</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
@@ -46,7 +45,6 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.preferences</artifactId>
-			<version>3.12.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
@@ -57,7 +55,6 @@
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>org.eclipse.jdt.core.manipulation</artifactId>
-			<version>1.23.100</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
@@ -68,7 +65,6 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.ltk.core.refactoring</artifactId>
-			<version>3.15.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
@@ -89,7 +85,6 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.ui.ide</artifactId>
-			<version>3.22.700</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
@@ -100,7 +95,6 @@
 		<dependency>
 			<groupId>org.eclipse.pde</groupId>
 			<artifactId>org.eclipse.pde.ui</artifactId>
-			<version>3.16.200</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
