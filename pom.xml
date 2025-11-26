@@ -72,7 +72,7 @@
 		<surefire-version>3.5.3</surefire-version>
 		<equinoxVersion>3.23.200</equinoxVersion>
 		<ecjVersion>3.43.0</ecjVersion>
-		<bouncycastleVersion>1.82</bouncycastleVersion>
+		<bouncycastleVersion>1.83</bouncycastleVersion>
 		<bnd.version>7.1.0</bnd.version>
 		<junit5.minor>13.4</junit5.minor>
 		<junit5.version>5.${junit5.minor}</junit5.version>
