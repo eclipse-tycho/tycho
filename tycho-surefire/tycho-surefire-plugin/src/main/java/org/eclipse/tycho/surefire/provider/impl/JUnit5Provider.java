@@ -46,4 +46,5 @@ public class JUnit5Provider extends AbstractJUnit5Provider {
     public VersionRange getVersionRange() {
         return JUNIT5_VERSION_RANGE;
     }
+
 }
