@@ -41,23 +41,24 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.resolver.ResolutionErrorHandler;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.surefire.api.booter.ProviderParameterNames;
 import org.apache.maven.surefire.api.util.ScanResult;
 import org.apache.maven.surefire.booter.BooterConstants;
 import org.apache.maven.surefire.booter.PropertiesWrapper;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -327,9 +328,6 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
 
     @Inject
     protected RepositorySystem repositorySystem;
-
-    @Inject
-    private ResolutionErrorHandler resolutionErrorHandler;
 
     @Inject
     private Map<String, TychoProject> projectTypes;
@@ -1215,23 +1213,34 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
 
         if (frameworkExtensions != null) {
             for (Dependency frameworkExtension : frameworkExtensions) {
-                Artifact artifact = repositorySystem.createDependencyArtifact(frameworkExtension);
-                ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-                request.setArtifact(artifact);
-                request.setResolveRoot(true).setResolveTransitively(false);
-                request.setLocalRepository(session.getLocalRepository());
+                String classifier = frameworkExtension.getClassifier();
+                String extension = frameworkExtension.getType() != null ? frameworkExtension.getType() : "jar";
+                org.eclipse.aether.artifact.Artifact aetherArtifact;
+                if (classifier != null && !classifier.isEmpty()) {
+                    aetherArtifact = new DefaultArtifact(frameworkExtension.getGroupId(), 
+                            frameworkExtension.getArtifactId(), classifier, extension, 
+                            frameworkExtension.getVersion());
+                } else {
+                    aetherArtifact = new DefaultArtifact(frameworkExtension.getGroupId(), 
+                            frameworkExtension.getArtifactId(), "", extension, 
+                            frameworkExtension.getVersion());
+                }
+                
+                ArtifactRequest request = new ArtifactRequest();
+                request.setArtifact(aetherArtifact);
                 // XXX wrong repositories -- these are user artifacts, not plugin artifacts
-                request.setRemoteRepositories(project.getPluginArtifactRepositories());
-                request.setOffline(session.isOffline());
-                request.setForceUpdate(session.getRequest().isUpdateSnapshots());
-                ArtifactResolutionResult result = repositorySystem.resolve(request);
+                request.setRepositories(RepositoryUtils.toRepos(project.getPluginArtifactRepositories()));
+                
                 try {
-                    resolutionErrorHandler.throwErrors(request, result);
+                    ArtifactResult result = repositorySystem.resolveArtifact(session.getRepositorySession(), request);
+                    org.eclipse.aether.artifact.Artifact resolved = result.getArtifact();
+                    if (resolved != null && resolved.getFile() != null) {
+                        files.add(resolved.getFile());
+                    }
                 } catch (ArtifactResolutionException e) {
                     throw new MojoExecutionException(
                             "Failed to resolve framework extension " + frameworkExtension.getManagementKey(), e);
                 }
-                files.add(artifact.getFile());
             }
         }
 
