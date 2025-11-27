@@ -6,11 +6,72 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 5.0.1
 
-Backports:
+### Backported Features
 
 - new tycho-sbom:generator mojo
 - new tycho-dependency-tools-plugin:usage mojo
 - new tycho-wrap:verify mojo
+- Support multi-release source folders in tycho-source-plugin
+- Add multi-release JAR support via classpath attributes
+- Add deleteP2Cache option to MaterializeProductsMojo to delete the p2 cache after product installation
+- Add updateProjectSettings parameter to CleanUpMojo to update project settings with cleanup profile
+- Support updating the save profile in cleanup mojo
+- Fix bump-versions to only update bundle version, not package versions
+- Ignore Java-Version header in ManifestComparator
+- Add missing version-ranges to implicit imports of tycho.surefire.junit5
+- Fix NPE when artifact location cannot be resolved during bundle resolution
+- Fix tycho-baseline-plugin to treat source feature removal as minor version change
+- Support version ranges in UpdateTargetMojo
+- Print the equinox logfile to the log if error occurs in director
+- Fix Reproducible Builds issues
+- Make sure TargetEnvironments are unique
+
+### Dependency Upgrades
+
+The following notable dependencies have been upgraded:
+
+#### Eclipse Platform
+
+All Eclipse Platform dependencies have been updated to align with the 2025-09 release:
+- JDT (ECJ, JDT Core, JDT Launching, JDT Core Manipulation, JDT UI)
+- PDE (PDE Core, PDE API Tools, PDE UI)
+- Equinox (OSGi, P2, Registry, Preferences, etc.)
+- Platform UI (Workbench, IDE, JFace)
+
+#### Build Tools & Libraries
+
+- ASM: 9.8 → 9.9
+- JGit: 7.3.0 → 7.4.0
+- Jetty: 12.0.x → 12.1.4
+- Bouncycastle: 1.81 → 1.82
+- Apache BCEL: 6.10.0 → 6.11.0
+- Apache Commons Codec: 1.18.0 → 1.20.0
+- Apache Commons Compress: 1.27.1 → 1.28.0
+- Apache Commons IO: 2.19.0 → 2.21.0
+- Apache Commons Lang3: 3.17.0 → 3.20.0
+- Apache Commons Net: 3.11.1 → 3.12.0
+- Apache Felix SCR: 2.2.12 → 2.2.14
+- CycloneDX Core Java: 10.2.1 → 11.0.1
+- EMF Ecore: 2.39.0 → 2.41.0
+- JaCoCo: 0.8.13 → 0.8.14
+- Mockito: 5.18.0 → 5.20.0
+- Plexus Archiver: 4.10.0 → 4.10.4
+- Plexus Compiler: 2.15.0 → 2.16.1
+- Plexus Interpolation: 1.28 → 1.29
+- XMLUnit: 2.10.2 → 2.11.0
+
+#### Maven Plugins
+
+- Maven Antrun Plugin: 3.1.0 → 3.2.0
+- Maven Archiver: 3.6.3 → 3.6.5
+- Maven Compiler Plugin: 3.14.0 → 3.14.1
+- Maven Dependency Plugin: 3.8.1 → 3.9.0
+- Maven Enforcer Plugin: 3.5.0 → 3.6.2
+- Maven JAR Plugin: 3.4.2 → 3.5.0
+- Maven Javadoc Plugin: 3.11.2 → 3.12.0
+- Maven Plugin Testing Harness: 3.3.0 → 3.4.0
+- Maven Plugin Tools: 3.15.1 → 3.15.2
+- Maven Release Plugin: 3.1.1 → 3.2.0
 
 ## 5.0.0
 
