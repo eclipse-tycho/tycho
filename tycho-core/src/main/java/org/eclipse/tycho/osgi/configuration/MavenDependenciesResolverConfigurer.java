@@ -20,30 +20,38 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.InvalidRepositoryException;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.settings.Settings;
+import org.apache.maven.project.RepositorySessionDecorator;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.collection.CollectResult;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
-import org.eclipse.tycho.core.DependencyResolutionException;
 import org.eclipse.tycho.core.MavenDependenciesResolver;
 import org.eclipse.tycho.core.MavenModelFacade;
 import org.eclipse.tycho.core.maven.MavenArtifactFacade;
@@ -61,69 +69,130 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
     @Inject
     private RepositorySystem repositorySystem;
 
+    @Inject
+    private List<RepositorySessionDecorator> decorators;
+
     @Override
     public Collection<?> resolve(String groupId, String artifactId, String version, String packaging, String classifier,
             Collection<String> scopes, int depth, Collection<MavenArtifactRepositoryReference> additionalRepositories,
-            Object session) throws DependencyResolutionException {
-        Artifact artifact;
+            Object session) throws org.eclipse.tycho.core.DependencyResolutionException {
+        
+        String extension = packaging != null ? packaging : "jar";
+        org.eclipse.aether.artifact.Artifact aetherArtifact;
         if (classifier != null && !classifier.isEmpty()) {
-            artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, packaging,
-                    classifier);
+            aetherArtifact = new DefaultArtifact(groupId, artifactId, classifier, extension, version);
         } else {
-            artifact = repositorySystem.createArtifact(groupId, artifactId, version, null, packaging);
+            aetherArtifact = new DefaultArtifact(groupId, artifactId, "", extension, version);
         }
-        logger.debug("Resolving " + artifact);
-        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-        request.setArtifact(artifact);
+        logger.debug("Resolving " + aetherArtifact);
+        
         MavenSession mavenSession = getMavenSession(session);
-        request.setResolveRoot(true);
-        request.setOffline(mavenSession.isOffline());
-        request.setCollectionFilter(a -> isValidScope(a, scopes));
-        request.setResolutionFilter(a -> {
-            List<String> trail = a.getDependencyTrail();
-            if (logger.isDebugEnabled()) {
-                logger.debug("[depth=" + trail.size() + ", scope matches =" + isValidScope(a, scopes) + "][" + a + "]["
-                        + trail.stream().collect(Collectors.joining(" >> ")) + "]");
+        MavenProject project = mavenSession.getCurrentProject();
+        RepositorySystemSession repositorySession = getRepositorySession(project, mavenSession);
+        
+        List<RemoteRepository> repositories = getEffectiveRepositories(project, additionalRepositories);
+        
+        try {
+            if (depth == 0) {
+                // Only resolve the root artifact without dependencies
+                ArtifactRequest artifactRequest = new ArtifactRequest(aetherArtifact, repositories, null);
+                org.eclipse.aether.resolution.ArtifactResult result = repositorySystem.resolveArtifact(repositorySession, artifactRequest);
+                Artifact mavenArtifact = RepositoryUtils.toArtifact(result.getArtifact());
+                if (mavenArtifact != null && mavenArtifact.getFile() != null) {
+                    return List.of(new MavenArtifactFacade(mavenArtifact));
+                }
+                return List.of();
             }
-            return trail.size() <= depth && isValidScope(a, scopes);
-        });
-        request.setLocalRepository(mavenSession.getLocalRepository());
-        request.setResolveTransitively(depth > 0);
-        request.setRemoteRepositories(getEffectiveRepositories(mavenSession.getCurrentProject(), additionalRepositories,
-                repositorySystem, mavenSession.getSettings()));
-        ArtifactResolutionResult result = repositorySystem.resolve(request);
-        if (result.hasExceptions()) {
-            throw new DependencyResolutionException("resolving " + artifact + " failed!", result.getExceptions());
+            
+            // Collect and resolve dependencies
+            CollectRequest collectRequest = new CollectRequest();
+            collectRequest.setRoot(new Dependency(aetherArtifact, null));
+            collectRequest.setRepositories(repositories);
+            
+            CollectResult collectResult = repositorySystem.collectDependencies(repositorySession, collectRequest);
+            DependencyNode rootNode = collectResult.getRoot();
+            
+            final int maxDepth = depth;
+            final Collection<String> effectiveScopes = scopes;
+            
+            DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, (node, parents) -> {
+                // Filter by depth (parents list size represents the depth)
+                if (parents.size() >= maxDepth) {
+                    return false;
+                }
+                // Filter by scope
+                Dependency dependency = node.getDependency();
+                if (dependency != null) {
+                    Artifact mavenArt = RepositoryUtils.toArtifact(dependency.getArtifact());
+                    if (mavenArt != null) {
+                        mavenArt.setScope(dependency.getScope());
+                        return isValidScope(mavenArt, effectiveScopes);
+                    }
+                }
+                return true;
+            });
+            dependencyRequest.setRoot(rootNode);
+            
+            DependencyResult dependencyResult = repositorySystem.resolveDependencies(repositorySession, dependencyRequest);
+            
+            List<Object> result = new ArrayList<>();
+            for (org.eclipse.aether.resolution.ArtifactResult ar : dependencyResult.getArtifactResults()) {
+                if (ar.isResolved()) {
+                    org.eclipse.aether.artifact.Artifact resolved = ar.getArtifact();
+                    if (resolved != null && resolved.getFile() != null) {
+                        Artifact mavenArtifact = RepositoryUtils.toArtifact(resolved);
+                        DependencyNode node = ar.getRequest().getDependencyNode();
+                        if (node != null && node.getDependency() != null) {
+                            mavenArtifact.setScope(node.getDependency().getScope());
+                        }
+                        if (isValidScope(mavenArtifact, effectiveScopes)) {
+                            result.add(new MavenArtifactFacade(mavenArtifact));
+                        }
+                    }
+                } else {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Failed to resolve: " + ar.getRequest().getArtifact());
+                    }
+                }
+            }
+            return result;
+            
+        } catch (ArtifactResolutionException | DependencyCollectionException | DependencyResolutionException e) {
+            throw new org.eclipse.tycho.core.DependencyResolutionException("resolving " + aetherArtifact + " failed!", List.of(e));
         }
-        return result.getArtifacts().stream().filter(a -> a.getFile() != null).map(MavenArtifactFacade::new).toList();
     }
 
-    @SuppressWarnings("deprecation")
-    public static List<ArtifactRepository> getEffectiveRepositories(MavenProject project,
-            Collection<MavenArtifactRepositoryReference> additionalRepositories, RepositorySystem repositorySystem,
-            Settings settings) {
-        List<ArtifactRepository> projectRepositories;
+    private RepositorySystemSession getRepositorySession(MavenProject project, MavenSession session) {
+        RepositorySystemSession repositorySession = session.getRepositorySession();
+        for (RepositorySessionDecorator decorator : decorators) {
+            RepositorySystemSession decorated = decorator.decorate(project, repositorySession);
+            if (decorated != null) {
+                repositorySession = decorated;
+            }
+        }
+        return repositorySession;
+    }
+
+    public static List<RemoteRepository> getEffectiveRepositories(MavenProject project,
+            Collection<MavenArtifactRepositoryReference> additionalRepositories) {
+        List<RemoteRepository> repositories = new ArrayList<>();
         if (project == null) {
-            try {
-                projectRepositories = List.of(repositorySystem.createDefaultRemoteRepository());
-            } catch (InvalidRepositoryException e) {
-                projectRepositories = List.of();
-            }
+            // Use Maven Central as default
+            repositories.add(new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/").build());
         } else {
-            projectRepositories = project.getRemoteArtifactRepositories();
-        }
-        if (additionalRepositories != null && !additionalRepositories.isEmpty()) {
-            List<ArtifactRepository> repositories = new ArrayList<>(projectRepositories);
-            for (MavenArtifactRepositoryReference reference : additionalRepositories) {
-                repositories.add(repositorySystem.createArtifactRepository(reference.getId(), reference.getUrl(), null,
-                        null, null));
+            List<RemoteRepository> projectRepos = project.getRemoteProjectRepositories();
+            if (projectRepos != null) {
+                repositories.addAll(projectRepos);
             }
-            projectRepositories = repositorySystem.getEffectiveRepositories(repositories);
         }
-        repositorySystem.injectMirror(projectRepositories, settings.getMirrors());
-        repositorySystem.injectProxy(projectRepositories, settings.getProxies());
-        repositorySystem.injectAuthentication(projectRepositories, settings.getServers());
-        return projectRepositories;
+        
+        if (additionalRepositories != null && !additionalRepositories.isEmpty()) {
+            for (MavenArtifactRepositoryReference reference : additionalRepositories) {
+                repositories.add(new RemoteRepository.Builder(reference.getId(), "default", reference.getUrl()).build());
+            }
+        }
+        
+        return repositories;
     }
 
     protected boolean isValidScope(Artifact artifact, Collection<String> scopes) {
