@@ -20,17 +20,18 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.resolver.ResolutionErrorHandler;
+import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
 
 @Named
 @Singleton
@@ -40,19 +41,14 @@ public class DocletArtifactsResolver {
     private RepositorySystem repositorySystem;
 
     @Inject
-    private ResolutionErrorHandler resolutionErrorHandler;
-
-    @Inject
     private LegacySupport legacySupport;
 
     public DocletArtifactsResolver() {
         // needed for plexus
     }
 
-    DocletArtifactsResolver(RepositorySystem repositorySystem, ResolutionErrorHandler resolutionErrorHandler,
-            LegacySupport legacySupport) {
+    DocletArtifactsResolver(RepositorySystem repositorySystem, LegacySupport legacySupport) {
         this.repositorySystem = repositorySystem;
-        this.resolutionErrorHandler = resolutionErrorHandler;
         this.legacySupport = legacySupport;
     }
 
@@ -76,23 +72,37 @@ public class DocletArtifactsResolver {
         MavenProject project = session.getCurrentProject();
 
         for (Dependency dependency : dependencies) {
-            Artifact artifact = repositorySystem.createDependencyArtifact(dependency);
-            ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-            request.setArtifact(artifact);
-            request.setResolveRoot(true).setResolveTransitively(true);
-            request.setLocalRepository(session.getLocalRepository());
-            request.setRemoteRepositories(project.getPluginArtifactRepositories());
-            request.setOffline(session.isOffline());
-            request.setForceUpdate(session.getRequest().isUpdateSnapshots());
-            ArtifactResolutionResult result = repositorySystem.resolve(request);
-            try {
-                resolutionErrorHandler.throwErrors(request, result);
-            } catch (ArtifactResolutionException e) {
-                throw new MojoExecutionException("Failed to resolve doclet artifact " + dependency.getManagementKey(),
-                        e);
+            String classifier = dependency.getClassifier();
+            String extension = dependency.getType() != null ? dependency.getType() : "jar";
+            org.eclipse.aether.artifact.Artifact aetherArtifact;
+            if (classifier != null && !classifier.isEmpty()) {
+                aetherArtifact = new DefaultArtifact(dependency.getGroupId(), 
+                        dependency.getArtifactId(), classifier, extension, 
+                        dependency.getVersion());
+            } else {
+                aetherArtifact = new DefaultArtifact(dependency.getGroupId(), 
+                        dependency.getArtifactId(), "", extension, 
+                        dependency.getVersion());
             }
-            for (Artifact resolvedArtifact : result.getArtifacts()) {
-                files.add(resolvedArtifact.getFile().getAbsolutePath());
+            
+            CollectRequest collectRequest = new CollectRequest();
+            collectRequest.setRoot(new org.eclipse.aether.graph.Dependency(aetherArtifact, null));
+            collectRequest.setRepositories(RepositoryUtils.toRepos(project.getPluginArtifactRepositories()));
+            
+            DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, null);
+            
+            try {
+                DependencyResult result = repositorySystem.resolveDependencies(session.getRepositorySession(), dependencyRequest);
+                for (var ar : result.getArtifactResults()) {
+                    if (ar.isResolved()) {
+                        org.eclipse.aether.artifact.Artifact resolved = ar.getArtifact();
+                        if (resolved != null && resolved.getFile() != null) {
+                            files.add(resolved.getFile().getAbsolutePath());
+                        }
+                    }
+                }
+            } catch (DependencyResolutionException e) {
+                throw new MojoExecutionException("Failed to resolve doclet artifact " + dependency.getManagementKey(), e);
             }
         }
 
