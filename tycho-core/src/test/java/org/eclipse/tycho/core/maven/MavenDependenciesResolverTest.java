@@ -13,11 +13,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.LegacyLocalRepositoryManager;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.DefaultMavenExecutionRequestPopulator;
 import org.apache.maven.execution.DefaultMavenExecutionResult;
@@ -31,8 +31,7 @@ import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.aether.DefaultRepositorySystemSession;
-import org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory;
-import org.eclipse.aether.repository.LocalRepository;
+import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.DependencyResolutionException;
 import org.eclipse.tycho.core.MavenDependenciesResolver;
@@ -46,12 +45,6 @@ public class MavenDependenciesResolverTest extends AbstractMojoTestCase {
             ComponentLookupException, MavenExecutionRequestPopulationException, IOException, Exception {
         File localRepo = Files.createTempDirectory("testResolveCommonsIO").toFile();
         
-        // Create a properly configured repository session
-        DefaultRepositorySystemSession repositorySession = MavenRepositorySystemUtils.newSession();
-        LocalRepository localRepository = new LocalRepository(localRepo);
-        repositorySession.setLocalRepositoryManager(
-                new SimpleLocalRepositoryManagerFactory().newInstance(repositorySession, localRepository));
-        
         // Create the Maven execution request
         MavenExecutionRequest request = new DefaultMavenExecutionRequest();
         request.setLocalRepositoryPath(localRepo);
@@ -59,6 +52,11 @@ public class MavenDependenciesResolverTest extends AbstractMojoTestCase {
         DefaultMavenExecutionRequestPopulator populator = getContainer()
                 .lookup(DefaultMavenExecutionRequestPopulator.class);
         populator.populateDefaults(request);
+        
+        // Create a properly configured repository session using LegacyLocalRepositoryManager
+        DefaultRepositorySystemSession baseSession = MavenRepositorySystemUtils.newSession();
+        ArtifactRepository localRepository = request.getLocalRepository();
+        RepositorySystemSession repositorySession = LegacyLocalRepositoryManager.overlay(localRepository, baseSession, null);
         
         // Create session with proper repository system session
         MavenSession session = new MavenSession(getContainer(), repositorySession, request, 

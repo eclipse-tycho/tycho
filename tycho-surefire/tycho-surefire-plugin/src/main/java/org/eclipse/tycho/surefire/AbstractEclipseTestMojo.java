@@ -1222,7 +1222,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
                             frameworkExtension.getVersion());
                 } else {
                     aetherArtifact = new DefaultArtifact(frameworkExtension.getGroupId(), 
-                            frameworkExtension.getArtifactId(), "", extension, 
+                            frameworkExtension.getArtifactId(), null, extension, 
                             frameworkExtension.getVersion());
                 }
                 
