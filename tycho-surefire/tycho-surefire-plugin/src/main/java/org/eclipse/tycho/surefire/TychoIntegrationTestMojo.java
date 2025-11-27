@@ -233,7 +233,7 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
                     dependency.getVersion());
         } else {
             aetherArtifact = new DefaultArtifact(dependency.getGroupId(), 
-                    dependency.getArtifactId(), "", extension, 
+                    dependency.getArtifactId(), null, extension, 
                     dependency.getVersion());
         }
         

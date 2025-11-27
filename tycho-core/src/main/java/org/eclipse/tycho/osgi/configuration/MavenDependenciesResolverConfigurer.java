@@ -82,7 +82,7 @@ public class MavenDependenciesResolverConfigurer implements MavenDependenciesRes
         if (classifier != null && !classifier.isEmpty()) {
             aetherArtifact = new DefaultArtifact(groupId, artifactId, classifier, extension, version);
         } else {
-            aetherArtifact = new DefaultArtifact(groupId, artifactId, "", extension, version);
+            aetherArtifact = new DefaultArtifact(groupId, artifactId, null, extension, version);
         }
         logger.debug("Resolving " + aetherArtifact);
         
