@@ -38,7 +38,6 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -107,9 +106,6 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
 
     @Requirement
     private BundleReader bundleReader;
-
-    @Requirement
-    private RepositorySystem repositorySystem;
 
     @Requirement
     private TychoProjectManager projectManager;
@@ -435,7 +431,7 @@ public class P2DependencyResolver implements DependencyResolver, Initializable {
             descriptorMapping = null;
         }
         MavenDependencyInjector.injectMavenDependencies(project, dependencyArtifacts, testDependencyArtifacts,
-                bundleReader, descriptorMapping, logger, repositorySystem, context.getSession().getSettings(),
+                bundleReader, descriptorMapping, logger,
                 buildPropertiesParser, configuration);
     }
 
