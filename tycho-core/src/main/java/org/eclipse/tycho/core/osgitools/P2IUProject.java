@@ -22,7 +22,6 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.model.IU;
 
 @Named(org.eclipse.tycho.ArtifactType.TYPE_INSTALLABLE_UNIT)

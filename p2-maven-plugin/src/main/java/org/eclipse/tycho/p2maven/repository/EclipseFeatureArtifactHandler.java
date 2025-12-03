@@ -15,7 +15,6 @@ package org.eclipse.tycho.p2maven.repository;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.eclipse.tycho.ArtifactType;
 
 @Named(ArtifactType.TYPE_ECLIPSE_FEATURE)

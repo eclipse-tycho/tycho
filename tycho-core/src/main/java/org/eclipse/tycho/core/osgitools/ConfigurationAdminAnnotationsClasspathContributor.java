@@ -18,7 +18,6 @@ import javax.inject.Named;
 import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.osgi.framework.VersionRange;
 
 @Named("cm-annotations")

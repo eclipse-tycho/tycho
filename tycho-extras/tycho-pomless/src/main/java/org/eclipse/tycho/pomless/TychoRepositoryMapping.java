@@ -35,7 +35,6 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.io.ModelParseException;
-import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.w3c.dom.Element;
 
 /**

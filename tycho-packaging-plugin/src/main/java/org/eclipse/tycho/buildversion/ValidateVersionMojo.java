@@ -16,15 +16,14 @@ package org.eclipse.tycho.buildversion;
 
 import java.io.File;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
-import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Mojo;
-import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Parameter;
-import javax.inject.Inject;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.core.ManifestHelper;

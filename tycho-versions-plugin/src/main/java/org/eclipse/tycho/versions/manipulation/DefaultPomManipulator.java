@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
@@ -83,8 +82,7 @@ public class DefaultPomManipulator extends AbstractMetadataManipulator implement
                     versionChangeContext.findMetadataByBasedir(new File(project.getBasedir(), module))
                             .ifPresent(moduleMeta -> {
                                 PomFile modulePom = moduleMeta.getMetadata(PomFile.class);
-                                if (modulePom != null && modulePom.isMutable()
-                                        && POM.equals(modulePom.getPackaging())
+                                if (modulePom != null && modulePom.isMutable() && POM.equals(modulePom.getPackaging())
                                         && isVersionEquals(modulePom.getVersion(), change.getVersion())) {
                                     if (versionChangeContext.addVersionChange(
                                             new PomVersionChange(modulePom, change.getNewVersion()))) {
@@ -140,8 +138,7 @@ public class DefaultPomManipulator extends AbstractMetadataManipulator implement
                 }
             } else {
                 GAV parent = pom.getParent();
-                if (parent != null && isGavEquals(parent, change)
-                        && !PomUtil.containsProperties(parent.getVersion())) {
+                if (parent != null && isGavEquals(parent, change) && !PomUtil.containsProperties(parent.getVersion())) {
                     logger.info("  %s//project/parent/version: %s => %s".formatted(pomName, version, newVersion));
                     parent.setVersion(newVersion);
                 }

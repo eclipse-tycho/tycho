@@ -39,7 +39,6 @@ import javax.inject.Singleton;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
@@ -61,7 +60,6 @@ import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
@@ -251,8 +249,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         for (String testCompileRoot : project.getTestCompileSourceRoots()) {
             if (sourceFolder.equals(new File(testCompileRoot))) {
                 // avoid duplicate source folders (bug 368445)
-                logger
-                .debug("Removed duplicate test compile root " + testCompileRoot + " from maven project model");
+                logger.debug("Removed duplicate test compile root " + testCompileRoot + " from maven project model");
                 project.removeTestCompileSourceRoot(testCompileRoot);
                 return;
             }

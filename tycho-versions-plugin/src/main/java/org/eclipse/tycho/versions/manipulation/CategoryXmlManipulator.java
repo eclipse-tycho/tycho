@@ -25,7 +25,6 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
-import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
