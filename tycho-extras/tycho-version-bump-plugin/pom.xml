@@ -28,7 +28,7 @@
 	</prerequisites>
 	<name>Tycho Version Bump Plugin</name>
 	<properties>
-		<versions-mojo-version>2.18.0</versions-mojo-version>
+		<versions-mojo-version>2.20.1</versions-mojo-version>
 	</properties>
 
 	<dependencies>
