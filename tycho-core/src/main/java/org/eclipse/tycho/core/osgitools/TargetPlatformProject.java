@@ -32,7 +32,6 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.model.Feature;

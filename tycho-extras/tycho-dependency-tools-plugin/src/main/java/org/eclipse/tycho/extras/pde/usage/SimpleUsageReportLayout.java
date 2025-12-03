@@ -11,7 +11,6 @@ package org.eclipse.tycho.extras.pde.usage;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -36,16 +35,15 @@ final class SimpleUsageReportLayout implements ReportLayout {
             reportConsumer.accept(targetFile.getOrigin() + " contains "
                     + report.getTargetDefinitionContent(targetFile).query(QueryUtil.ALL_UNITS, null).toSet().size()
                     + " units from " + targetFile.getLocations().size() + " locations");
-            
+
             // Show if this target is referenced by other targets
             if (report.targetReferences.containsKey(targetFile)) {
                 List<TargetDefinition> referencedBy = report.targetReferences.get(targetFile);
-                String referencingTargets = referencedBy.stream()
-                        .map(TargetDefinition::getOrigin)
+                String referencingTargets = referencedBy.stream().map(TargetDefinition::getOrigin)
                         .collect(Collectors.joining(", "));
                 reportConsumer.accept("  Referenced in: " + referencingTargets);
             }
-            
+
             // Show target references (targets that this target references)
             for (TargetDefinition.Location location : targetFile.getLocations()) {
                 if (location instanceof TargetDefinition.TargetReferenceLocation refLoc) {

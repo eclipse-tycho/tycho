@@ -26,7 +26,6 @@ import javax.inject.Singleton;
 
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.ProductConfiguration;
-import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProductConfigurations;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;

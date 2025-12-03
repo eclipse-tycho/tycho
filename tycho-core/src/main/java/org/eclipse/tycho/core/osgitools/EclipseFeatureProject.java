@@ -27,7 +27,6 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.model.Feature;
 
 @Named(PackagingType.TYPE_ECLIPSE_FEATURE)

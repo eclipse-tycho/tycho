@@ -24,6 +24,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -38,9 +40,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
-import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Parameter;
-import javax.inject.Inject;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.artifact.ArtifactTypeRegistry;

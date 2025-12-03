@@ -26,18 +26,16 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.inject.Inject;
+
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
-import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Mojo;
-import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Parameter;
-import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import javax.inject.Inject;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;

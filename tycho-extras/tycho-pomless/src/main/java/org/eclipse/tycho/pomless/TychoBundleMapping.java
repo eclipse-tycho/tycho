@@ -40,7 +40,6 @@ import org.apache.maven.model.io.ModelParseException;
 import org.eclipse.tycho.model.classpath.ClasspathParser;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.eclipse.tycho.model.classpath.SourceFolderClasspathEntry;
-import org.sonatype.maven.polyglot.mapping.Mapping;
 
 @Named(TychoBundleMapping.PACKAGING)
 @Singleton

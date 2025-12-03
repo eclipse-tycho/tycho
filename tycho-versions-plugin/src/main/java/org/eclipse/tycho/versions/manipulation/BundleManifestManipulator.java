@@ -30,7 +30,6 @@ import javax.inject.Singleton;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.model.manifest.MutableBundleManifest;
 import org.eclipse.tycho.versions.bundle.MutableBndFile;
-import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PackageVersionChange;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;

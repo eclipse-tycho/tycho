@@ -19,7 +19,6 @@ import org.apache.maven.plugin.InvalidPluginDescriptorException;
 import org.apache.maven.plugin.PluginDescriptorParsingException;
 import org.apache.maven.plugin.PluginManagerException;
 import org.apache.maven.plugin.PluginResolutionException;
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugin.version.PluginVersionResolutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.helper.DefaultPluginRealmHelper.PluginFilter;
