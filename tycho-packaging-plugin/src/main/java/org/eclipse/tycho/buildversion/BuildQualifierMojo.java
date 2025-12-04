@@ -53,18 +53,27 @@ import org.osgi.framework.Version;
  * </ol>
  * </p>
  * <p>
- * The generated qualifier is assigned to <code>buildQualifier</code> project property. The
- * unqualified project version is assigned to <code>unqualifiedVersion</code> project property. The
- * unqualified version is calculated based on <code>${project.version}</code> and can be used for
- * any Tycho project and regular Maven project. Different projects can use different formats to
- * expand the timestamp (not recommended). The concatenation of <code>${unqualifiedVersion}</code>
- * and <code>${buildQualifier}</code>, if not empty, is assigned to the project property
- * <code>qualifiedVersion</code>.
+ * The generated qualifier is assigned to <code>buildQualifier</code> project
+ * property. The unqualified project version is assigned to
+ * <code>unqualifiedVersion</code> project property. The unqualified version is
+ * calculated based on <code>${project.version}</code> and can be used for any
+ * Tycho project and regular Maven project. Different projects can use different
+ * formats to expand the timestamp (not recommended). The concatenation of
+ * <code>${unqualifiedVersion}</code> and <code>${buildQualifier}</code>, if not
+ * empty, is assigned to the project property <code>qualifiedVersion</code>.
  * </p>
  * <p>
- * The timestamp generation logic is extensible. The primary use case is to generate build version
- * qualifier based on the timestamp of the last project commit. Here is example pom.xml snippet that
- * enables custom timestamp generation logic
+ * The timestamp generation logic is extensible. The primary use case is to
+ * generate build version qualifier based on the timestamp of the last project
+ * commit. Here is example pom.xml snippet that enables custom timestamp
+ * generation logic
+ * </p>
+ * <p>
+ * If configured build qualifier will strip repeated qualifier if matching to
+ * micro version. If <code>stripQualifierIfDuplicates</code> property is
+ * enabled, it will generate for version 1.0.0.qualifier and qualifier equal 0
+ * version 1.0.0. If disabled, it will generate for same version 1.0.0.0 so the
+ * last part is not stripped off.
  * 
  * <pre>
  * ...
@@ -81,6 +90,7 @@ import org.osgi.framework.Version;
  *    &lt;/dependencies&gt;
  *    &lt;configuration&gt;
  *      &lt;timestampProvider&gt;custom&lt;/timestampProvider&gt;
+ *      &lt;stripQualifierIfDuplicates&gt;false&lt;/stripQualifierIfDuplicates&gt;
  *    &lt;/configuration&gt;
  * &lt;/plugin&gt;
  * ...
@@ -123,6 +133,9 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
     @Parameter(property = "mojoExecution", readonly = true)
     protected MojoExecution execution;
+
+	@Parameter(name = "stripQualifierMatchingMicro", defaultValue = "true", property = "tycho.buildqualifier.stripqualifiermatchingmicro")
+	protected boolean stripQualifierMatchingMicro;
 
 	@Inject
 	protected Map<String, BuildTimestampProvider> timestampProviders;
@@ -181,10 +194,13 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 		validateQualifier(forceContextQualifier, qualifier);
 
 		String pomOSGiVersion = getUnqualifiedVersion();
-		String suffix = "." + qualifier;
-		if (pomOSGiVersion.endsWith(suffix)) {
-			return new TychoProjectVersion(pomOSGiVersion.substring(0, pomOSGiVersion.length() - suffix.length()),
-					qualifier);
+		if (stripQualifierMatchingMicro) {
+			// Equal qualifier should be stripped only if enabled.
+			String suffix = "." + qualifier;
+			if (pomOSGiVersion.endsWith(suffix)) {
+				return new TychoProjectVersion(pomOSGiVersion.substring(0, pomOSGiVersion.length() - suffix.length()),
+						qualifier);
+			}
 		}
 		return new TychoProjectVersion(pomOSGiVersion, qualifier);
     }
