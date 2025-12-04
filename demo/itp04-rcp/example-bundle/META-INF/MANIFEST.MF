@@ -8,5 +8,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.swt;bundle-version="3.6.0",
  org.eclipse.ui;bundle-version="3.6.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: Eclipse.org
