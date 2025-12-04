@@ -842,13 +842,6 @@ public class TreeUsageReportLayoutTest {
                 true);
     }
 
-    private TargetDefinition createMockTargetDefinition(String origin) {
-        TargetDefinition targetDef = mock(TargetDefinition.class);
-        when(targetDef.getOrigin()).thenReturn(origin);
-        when(targetDef.getLocations()).thenReturn(Arrays.asList());
-        return targetDef;
-    }
-
     @SuppressWarnings("unchecked")
     private TargetDefinition createMockTargetDefinitionWithIULocations(String origin,
             Map<String, List<IInstallableUnit>> locationUnits) {

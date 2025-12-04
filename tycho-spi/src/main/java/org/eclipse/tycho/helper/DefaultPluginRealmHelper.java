@@ -26,7 +26,6 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.InvalidPluginDescriptorException;
 import org.apache.maven.plugin.MavenPluginManager;
-import org.apache.maven.plugin.PluginDescriptorCache;
 import org.apache.maven.plugin.PluginDescriptorParsingException;
 import org.apache.maven.plugin.PluginManagerException;
 import org.apache.maven.plugin.PluginResolutionException;
@@ -80,13 +79,7 @@ public class DefaultPluginRealmHelper implements PluginRealmHelper {
     private Logger logger;
 
     @Inject
-    private MavenPluginManager pluginManager;
-
-    @Inject
     private BuildPluginManager buildPluginManager;
-
-    @Inject
-    private PluginDescriptorCache pluginDescriptorCache;
 
     @Inject
     private LifecyclePluginResolver lifecyclePluginResolver;

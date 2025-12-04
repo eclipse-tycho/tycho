@@ -20,7 +20,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
@@ -39,9 +38,6 @@ import org.osgi.service.log.LogEntry;
 @Named
 @Singleton
 public class DefaultApiApplicationResolver implements ApiApplicationResolver {
-
-	@Inject
-	private Logger logger;
 
 	@Inject
 	private EclipseApplicationFactory applicationFactory;

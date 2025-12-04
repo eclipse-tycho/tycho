@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2025 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,13 +18,11 @@ import javax.inject.Named;
 import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.osgi.framework.VersionRange;
 
 @Named("metatype-annotations")
 @SessionScoped
-public class MetatypeAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor
-        implements ClasspathContributor {
+public class MetatypeAnnotationsClasspathContributor extends AbstractSpecificationClasspathContributor {
 
     private static final String PACKAGE_NAME = "org.osgi.service.metatype.annotations";
     private static final String GROUP_ID = "org.osgi";

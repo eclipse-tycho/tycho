@@ -40,16 +40,13 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.IRepositoryIdManager;
 import org.eclipse.tycho.MavenDependencyDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProjectManager;
-import org.eclipse.tycho.core.osgitools.MavenBundleResolver;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.shared.MavenContext;
@@ -57,6 +54,7 @@ import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 
 @Named
 @Singleton
@@ -81,12 +79,6 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     @Inject
     private Logger logger;
-
-    @Inject
-    private IRepositoryIdManager repositoryIdManager;
-
-    @Inject
-    private MavenBundleResolver bundleResolver;
 
     @Inject
     private TargetPlatformFactory targetPlatformFactory;
