@@ -21,13 +21,11 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.Mojo;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.PreDestroy;
 
 @Named
@@ -36,9 +34,6 @@ public class DefaultEclipseWorkspaceManager implements EclipseWorkspaceManager {
 
     private final Map<Thread, Map<Object, EclipseWorkspace<?>>> cache = new WeakHashMap<>();
     private final List<EclipseWorkspace<?>> toclean = new ArrayList<>();
-
-    @Inject
-    private Logger logger;
 
     /**
      * @param key

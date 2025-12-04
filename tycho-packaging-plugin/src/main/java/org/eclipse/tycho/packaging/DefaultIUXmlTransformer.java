@@ -65,7 +65,8 @@ public class DefaultIUXmlTransformer implements IUXmlTransformer {
     }
 
     //Replace the qualifier found in the capabilities.
-    public void replaceQualifierInCapabilities(List<Element> providedCapabilities, String qualifier) {
+	@Override
+	public void replaceQualifierInCapabilities(List<Element> providedCapabilities, String qualifier) {
         if (providedCapabilities == null)
             return;
         for (Element capability : providedCapabilities) {
@@ -97,7 +98,8 @@ public class DefaultIUXmlTransformer implements IUXmlTransformer {
         }
     }
 
-    public void replaceZerosInRequirements(IU iu, TargetPlatform targetPlatform) throws MojoFailureException {
+	@Override
+	public void replaceZerosInRequirements(IU iu, TargetPlatform targetPlatform) throws MojoFailureException {
         List<Element> requirements = iu.getRequiredCapabilites();
         if (requirements == null)
             return;
@@ -137,7 +139,8 @@ public class DefaultIUXmlTransformer implements IUXmlTransformer {
         iu.addProperty(MAVEN_VERSION, project.getVersion());
     }
 
-    public void addSelfCapability(IU iu) {
+	@Override
+	public void addSelfCapability(IU iu) {
         if (iu.getSelfCapabilities().size() == 0)
             return;
         iu.addSelfCapability();

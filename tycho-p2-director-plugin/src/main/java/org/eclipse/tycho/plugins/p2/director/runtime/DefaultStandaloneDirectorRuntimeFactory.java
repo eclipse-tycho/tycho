@@ -28,10 +28,8 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -48,9 +46,6 @@ import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 public class DefaultStandaloneDirectorRuntimeFactory implements StandaloneDirectorRuntimeFactory {
 
     @Inject
-    private RepositorySystem repositorySystem;
-
-    @Inject
     DirectorRuntime bootstrapDirector;
 
     @Inject
@@ -61,9 +56,6 @@ public class DefaultStandaloneDirectorRuntimeFactory implements StandaloneDirect
 
     @Inject
     private P2RepositoryManager repositoryManager;
-
-    @Inject
-    private IProvisioningAgent agent;
 
     @Override
     public StandaloneDirectorRuntime createStandaloneDirector(File installLocation, int forkedProcessTimeoutInSeconds)
