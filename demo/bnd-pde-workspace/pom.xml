@@ -12,7 +12,7 @@
 		<module>tycho.demo.impl</module>
 	</modules>
 	<properties>
-		<tycho-version>4.0.0-SNAPSHOT</tycho-version>
+		<tycho-version>5.0.1</tycho-version>
 	</properties>
 	<repositories>
 		<repository>

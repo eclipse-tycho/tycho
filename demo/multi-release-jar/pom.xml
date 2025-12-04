@@ -8,8 +8,8 @@
 	<packaging>eclipse-plugin</packaging>
 	<properties>
 		<!-- This values are overridden by the test execution but are usefull if running as a standalone project (e.g. debugging) -->
-		<tycho-version>4.0.0-SNAPSHOT</tycho-version>
-		<target-platform>https://download.eclipse.org/releases/2022-12/</target-platform>
+		<tycho-version>5.0.1</tycho-version>
+		<target-platform>https://download.eclipse.org/releases/2025-09/</target-platform>
 	</properties>
 	<repositories>
 		<repository>
