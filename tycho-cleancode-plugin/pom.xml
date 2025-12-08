@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>org.eclipse.jdt.ui</artifactId>
-			<version>3.35.100</version>
+			<version>3.36.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>org.eclipse.jdt.core.manipulation</artifactId>
-			<version>1.23.100</version>
+			<version>1.23.200</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>

@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>org.eclipse.jdt.launching</artifactId>
-			<version>3.23.400</version>
+			<version>3.24.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
