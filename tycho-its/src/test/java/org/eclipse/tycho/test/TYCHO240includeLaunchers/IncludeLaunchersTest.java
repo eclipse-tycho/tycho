@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2025 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,9 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ArchUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.arch.Processor;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
@@ -36,7 +38,12 @@ public class IncludeLaunchersTest extends AbstractTychoIntegrationTest {
 		File binaryDir = new File(targetdir, "repository/binary/");
 		String executable;
 		if (SystemUtils.IS_OS_MAC) {
-			executable = "includedLauncher.executable.cocoa.macosx.x86_64_1.0.0";
+			Processor cpu = ArchUtils.getProcessor();
+			if (cpu.isAarch64() && cpu.is64Bit()) {
+				executable = "includedLauncher.executable.cocoa.macosx.aarch64_1.0.0";
+			} else {
+				executable = "includedLauncher.executable.cocoa.macosx.x86_64_1.0.0";
+			}
 		} else if (SystemUtils.IS_OS_WINDOWS) {
 			executable = "includedLauncher.executable.win32.win32.x86_64_1.0.0";
 		} else {
