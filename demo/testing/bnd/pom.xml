@@ -6,7 +6,7 @@
 	<packaging>pom</packaging>
 	<version>1.0.0</version>
 	<properties>
-		<target-platform>https://download.eclipse.org/releases/2022-12/</target-platform>
+		<target-platform>https://download.eclipse.org/releases/2025-12/</target-platform>
 		<tycho-version>5.0.1</tycho-version>
 		<bnd-version>6.4.0</bnd-version>
 	</properties>
