@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.ltk.core.refactoring</artifactId>
-			<version>3.15.0</version>
+			<version>3.15.100</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
