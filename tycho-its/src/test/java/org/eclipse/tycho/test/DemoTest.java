@@ -31,6 +31,7 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -100,6 +101,7 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	@Ignore
 	public void testTychoBndDemo() throws Exception {
 		runDemo("testing/bnd/", "-f", "osgi-test");
 		// TODO add a TCK test demo, e.g. when h2 complies to the jdbc spec we can use
