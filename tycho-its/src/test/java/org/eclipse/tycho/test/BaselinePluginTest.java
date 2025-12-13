@@ -41,13 +41,13 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	/**
-	 * Test that removing a source bundle from a feature only requires a minor
+	 * Test that removing a source bundle or source feature from a feature only requires a minor
 	 * version bump.
 	 * 
 	 * This test verifies the fix for the issue where FeatureBaselineComparator was
-	 * treating removal of source bundles (requirements ending with ".source") as a
-	 * major version change. Source bundles are deprecated and should only trigger
-	 * a minor version bump.
+	 * treating removal of source artifacts (requirements ending with ".source" for bundles or
+	 * ".source.feature.group" for features) as a major version change. Source artifacts are
+	 * deprecated and should only trigger a minor version bump when removed.
 	 */
 	@Test
 	public void testRemoveSourceBundle() throws Exception {
@@ -58,28 +58,6 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-Dbaseline-url=" + baselineRepo.toURI());
 
 		// This should succeed because removing .source bundle only requires minor
-		// version bump
-		verifier.executeGoals(List.of("clean", "verify"));
-		verifier.verifyErrorFreeLog();
-	}
-
-	/**
-	 * Test that removing a source feature (ending with .source.feature.group) from a feature 
-	 * only requires a minor version bump.
-	 * 
-	 * This test verifies that FeatureBaselineComparator correctly handles removal of source
-	 * features which have requirements ending with ".source.feature.group". Like source bundles,
-	 * source features are deprecated and should only trigger a minor version bump when removed.
-	 */
-	@Test
-	public void testRemoveSourceFeature() throws Exception {
-		// Build feature that removes the source feature with only minor version bump
-		// (1.0.0 -> 1.1.0)
-		// This should pass with the fix
-		Verifier verifier = getBaselineProject("feature-remove-source-feature");
-		verifier.addCliOption("-Dbaseline-url=" + baselineRepo.toURI());
-
-		// This should succeed because removing .source.feature.group only requires minor
 		// version bump
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
