@@ -16,8 +16,6 @@
 		<module>bundle-source</module>
 		<module>lib1</module>
 		<module>feature</module>
-		<module>feature-source</module>
-		<module>wrapper-feature</module>
 		<module>site</module>
 	</modules>
 
