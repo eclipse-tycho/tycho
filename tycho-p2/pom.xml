@@ -36,6 +36,7 @@
 								Bundle-SymbolicName: org.eclipse.tycho.p2;singleton:=true
 								Automatic-Module-Name: ${bsn}
 								Bundle-ActivationPolicy: lazy
+								DynamicImport-Package: org.eclipse.tycho.p2.repository.*
 							]]>
 							</bnd>
 						</configuration>
