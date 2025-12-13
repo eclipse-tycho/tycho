@@ -86,6 +86,7 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 	private static final String GROUP_SUFFIX = ".feature.group";
 	private static final String JAR_SUFFIX = ".feature.jar";
 	private static final String SOURCE_SUFFIX = ".source";
+	private static final String SOURCE_FEATURE_GROUP_SUFFIX = ".source.feature.group";
 
 	@Requirement(hint = "zip")
 	ContentsComparator zipComparator;
@@ -274,8 +275,9 @@ public class FeatureBaselineComparator implements ArtifactBaselineComparator {
 			}
 			List<IRequiredCapability> projectValue = projectMap.get(id);
 			if (projectValue == null || projectValue.isEmpty()) {
-				// Source features are deprecated and should only trigger a minor version change
-				ImpliedVersionChange change = id.name.endsWith(SOURCE_SUFFIX) ? ImpliedVersionChange.MINOR : ImpliedVersionChange.MAJOR;
+				// Source bundles and source features are deprecated and should only trigger a minor version change
+				ImpliedVersionChange change = (id.name.endsWith(SOURCE_SUFFIX) || id.name.endsWith(SOURCE_FEATURE_GROUP_SUFFIX)) 
+						? ImpliedVersionChange.MINOR : ImpliedVersionChange.MAJOR;
 				list.add(new Diff(change, Type.REQUIREMENT, Delta.REMOVED,
 						String.format("Requirement %s:%s is removed from baseline version", id.namespace, id.name)));
 				continue;
