@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2025 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,7 @@ public class MetaRequirementsTest extends AbstractTychoIntegrationTest {
 		 * includes a director, is intentionally not updatable and hence cannot be
 		 * used.)
 		 */
-		Verifier verifier = getVerifier("product.metaRequirements", false);
+		Verifier verifier = getVerifier("product.metaRequirements");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		verifier.verifyTextInLog("The custom touchpoint action has been executed");
