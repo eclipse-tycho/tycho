@@ -14,13 +14,16 @@
 		<module>bundle</module>
 		<module>touchpoint</module>
 	</modules>
+	<properties>
+		<target-platform>http://download.eclipse.org/releases/latest</target-platform>
+	</properties>
 
 	<repositories>
 		<!-- TODO consider checking in a new test data repository -->
 		<repository>
 			<id>indigo</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/latest</url>
+			<url>${target-platform}</url>
 		</repository>
 	</repositories>
 
