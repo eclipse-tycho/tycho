@@ -137,14 +137,7 @@ public class FeatureRootAdviceTest {
         createAdvice(buildProperties);
     }
 
-    @Ignore("No check that config specs are valid")
-    @Test(expected = IllegalArgumentException.class)
-    public void testParseBuildPropertiesInvalidConfigs2() {
-        Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
-        buildProperties.put("root.ws.os.arch", "file:rootfiles/file1.txt");
 
-        createAdvice(buildProperties);
-    }
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseBuildPropertiesWithTrailingDots() {
