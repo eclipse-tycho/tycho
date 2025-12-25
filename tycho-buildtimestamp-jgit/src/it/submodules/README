@@ -1,2 +1,0 @@
-This test validates that jgit timestamp provider uses commits from submodule repository
-and NOT commit from outer repository.
