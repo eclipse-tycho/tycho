@@ -21,10 +21,12 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -45,19 +47,20 @@ import org.osgi.framework.Constants;
 /**
  * provides a preliminary IU to make generated sources visible to the project dependencies stage
  */
-@Component(role = InstallableUnitProvider.class, hint = "source")
+@Named("source")
+@Singleton
 public class SourceInstallableUnitProvider implements InstallableUnitProvider {
 
-    @Requirement
+    @Inject
     private InstallableUnitPublisher publisher;
 
-    @Requirement
+    @Inject
     private BundleReader bundleReader;
 
-    @Requirement(role = TychoProject.class)
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
-    @Requirement
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
     @Override
