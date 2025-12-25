@@ -16,15 +16,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -34,6 +33,13 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.surefire.api.util.ScanResult;
 import org.apache.maven.surefire.booter.PropertiesWrapper;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.graph.DependencyFilter;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.PackagingType;
@@ -166,9 +172,9 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
             super.setupTestBundles(Collections.emptySet(), testRuntime, provider);
 
             for (final var dependency : dependencies) {
-                final var resolveArtifact = resolveDependency(dependency);
+                final var resolvedArtifacts = resolveDependency(dependency);
 
-                for (final var artifact : resolveArtifact.getArtifacts()) {
+                for (final var artifact : resolvedArtifacts) {
                     final var file = artifact.getFile();
 
                     if (file != null) {
@@ -217,30 +223,50 @@ public class TychoIntegrationTestMojo extends AbstractEclipseTestMojo {
         return meta;
     }
 
-    private ArtifactResolutionResult resolveDependency(final Dependency dependency) {
-        final var artifact = repositorySystem.createDependencyArtifact(dependency);
-        final var remoteRepositories = new ArrayList<ArtifactRepository>(32);
-        remoteRepositories.addAll(pluginRemoteRepositories);
-        remoteRepositories.addAll(projectRemoteRepositories);
-
-        final var request = new ArtifactResolutionRequest()//
-                .setOffline(session.isOffline())//
-                .setArtifact(artifact)//
-                .setLocalRepository(localRepository)//
-                .setResolveTransitively(true)//
-                .setCollectionFilter(new ProviderDependencyArtifactFilter())//
-                .setRemoteRepositories(remoteRepositories);
-        return repositorySystem.resolve(request);
-    }
-
-    private static final class ProviderDependencyArtifactFilter implements ArtifactFilter {
-        static final Collection<String> SCOPES = List.of(Artifact.SCOPE_COMPILE, Artifact.SCOPE_COMPILE_PLUS_RUNTIME,
-                Artifact.SCOPE_RUNTIME);
-
-        @Override
-        public boolean include(final Artifact artifact) {
-            final var scope = artifact.getScope();
-            return !artifact.isOptional() && (scope == null || SCOPES.contains(scope));
+    private Set<Artifact> resolveDependency(final Dependency dependency) throws MojoExecutionException {
+        String classifier = dependency.getClassifier();
+        String extension = dependency.getType() != null ? dependency.getType() : "jar";
+        org.eclipse.aether.artifact.Artifact aetherArtifact;
+        if (classifier != null && !classifier.isEmpty()) {
+            aetherArtifact = new DefaultArtifact(dependency.getGroupId(), 
+                    dependency.getArtifactId(), classifier, extension, 
+                    dependency.getVersion());
+        } else {
+            aetherArtifact = new DefaultArtifact(dependency.getGroupId(), 
+                    dependency.getArtifactId(), null, extension, 
+                    dependency.getVersion());
+        }
+        
+        List<org.eclipse.aether.repository.RemoteRepository> remoteRepositories = new java.util.ArrayList<>();
+        remoteRepositories.addAll(RepositoryUtils.toRepos(pluginRemoteRepositories));
+        remoteRepositories.addAll(RepositoryUtils.toRepos(projectRemoteRepositories));
+        
+        CollectRequest collectRequest = new CollectRequest();
+        collectRequest.setRoot(new org.eclipse.aether.graph.Dependency(aetherArtifact, null));
+        collectRequest.setRepositories(remoteRepositories);
+        
+        // Filter to include compile and runtime scopes, exclude optional dependencies
+        DependencyFilter filter = DependencyFilterUtils.classpathFilter(
+                org.eclipse.aether.util.artifact.JavaScopes.COMPILE, 
+                org.eclipse.aether.util.artifact.JavaScopes.RUNTIME);
+        
+        DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, filter);
+        
+        try {
+            DependencyResult result = repositorySystem.resolveDependencies(session.getRepositorySession(), dependencyRequest);
+            Set<Artifact> artifacts = new HashSet<>();
+            for (var ar : result.getArtifactResults()) {
+                if (ar.isResolved()) {
+                    org.eclipse.aether.artifact.Artifact resolved = ar.getArtifact();
+                    if (resolved != null && resolved.getFile() != null) {
+                        Artifact mavenArtifact = RepositoryUtils.toArtifact(resolved);
+                        artifacts.add(mavenArtifact);
+                    }
+                }
+            }
+            return artifacts;
+        } catch (DependencyResolutionException e) {
+            throw new MojoExecutionException("Failed to resolve dependency " + dependency.getManagementKey(), e);
         }
     }
 }
