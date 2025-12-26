@@ -73,7 +73,7 @@
 		<equinoxVersion>3.24.0</equinoxVersion>
 		<ecjVersion>3.44.0</ecjVersion>
 		<bouncycastleVersion>1.83</bouncycastleVersion>
-		<bnd.version>7.1.0</bnd.version>
+		<bnd.version>7.2.0</bnd.version>
 		<junit5.minor>13.4</junit5.minor>
 		<junit5.version>5.${junit5.minor}</junit5.version>
 		<junit5.platform.version>1.${junit5.minor}</junit5.platform.version>
