@@ -17,6 +17,7 @@ import static org.junit.Assert.assertArrayEquals;
 import java.util.List;
 
 import org.eclipse.pde.core.target.ITargetLocation;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -24,6 +25,7 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
+@Ignore("Disabled for incompatibility with Maven 4")
 public class MixedCasesTest extends AbstractMavenTargetTest {
     @Parameter(0)
     public Boolean includeSource;

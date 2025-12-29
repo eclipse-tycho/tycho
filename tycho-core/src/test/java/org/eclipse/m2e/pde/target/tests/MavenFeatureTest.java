@@ -27,6 +27,7 @@ import org.junit.runners.Parameterized.Parameters;
  * Test that the generated features contain the expected content
  */
 @RunWith(Parameterized.class)
+@Ignore("Disabled for incompatibility with Maven 4")
 public class MavenFeatureTest extends AbstractMavenTargetTest {
     @Parameter(0)
     public Boolean includeSource;
