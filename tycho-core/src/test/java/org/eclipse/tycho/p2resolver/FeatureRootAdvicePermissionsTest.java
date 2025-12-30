@@ -115,13 +115,7 @@ public class FeatureRootAdvicePermissionsTest {
         callGetDescriptorsForAllConfigurations(advice);
     }
 
-    @Ignore
-    @Test(expected = IllegalArgumentException.class)
-    public void testPermissionsChmodInvalidValue() throws Exception {
-        Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
-        buildProperties.put("root.permissions.og-rwx", "file1.txt");
-        createAdvice(buildProperties).getDescriptor(GLOBAL_SPEC);
-    }
+
 
     private static List<String[]> createAdviceAndGetPermissions(Properties buildProperties, String configSpec) {
         IFeatureRootAdvice advice = createAdvice(buildProperties);
