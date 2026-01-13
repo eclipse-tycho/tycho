@@ -19,6 +19,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
 
 /**
@@ -28,8 +29,8 @@ import org.eclipse.tycho.osgi.framework.EclipseApplication;
 public interface ApiApplicationResolver {
 
 	Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
-			ArtifactKey artifactKey, Collection<TargetEnvironment> environment)
-			throws IllegalArtifactReferenceException;
+			ReferencedRepositoryMode baselineRepositoryReferences, ArtifactKey artifactKey,
+			Collection<TargetEnvironment> environment) throws IllegalArtifactReferenceException;
 
 	EclipseApplication getApiApplication(MavenRepositoryLocation apiToolsRepo);
 

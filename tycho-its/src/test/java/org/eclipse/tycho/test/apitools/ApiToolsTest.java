@@ -191,4 +191,15 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyTextInLog("Can't resolve API baseline");
 	}
+
+	@Test
+	public void testBaselineWithReferencesResolution_Default() throws Exception {
+		// This test doesn't expect an api break, the 'api-break' just project fits here
+		Verifier verifier = getVerifier("api-tools/api-break", true, true);
+		File repo = ResourceUtil.resolveTestResource("repositories/api-tools-with-repo-reference");
+		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+	}
 }

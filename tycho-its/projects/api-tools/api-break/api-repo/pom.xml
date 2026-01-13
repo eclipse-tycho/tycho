@@ -8,4 +8,25 @@
   </parent>
   <artifactId>api-repo</artifactId>
   <packaging>eclipse-repository</packaging>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-repository-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <!-- This is only used to build the reference repository
+          build against in tests. Depending on the exact test-case,
+          the configuration should be changed.
+          To build the repository, include this module in the parent. -->
+          <compress>false</compress>
+          <xzCompress>false</xzCompress>
+          <includeAllDependencies>true</includeAllDependencies>
+          <addIUTargetRepositoryReferences>true</addIUTargetRepositoryReferences>
+          <addPomRepositoryReferences>true</addPomRepositoryReferences>
+          <filterProvided>true</filterProvided>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
