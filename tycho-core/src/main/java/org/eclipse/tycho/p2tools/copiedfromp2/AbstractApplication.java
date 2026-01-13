@@ -244,7 +244,7 @@ public abstract class AbstractApplication {
             else if (repository instanceof IMetadataRepository && !descriptor.isAppend())
                 ((IMetadataRepository) repository).removeAll();
             else if (repository instanceof IArtifactRepository && !descriptor.isAppend())
-                ((IArtifactRepository) repository).removeAll();
+                ((IArtifactRepository) repository).removeAll(new NullProgressMonitor());
             return true;
         }
         return false;

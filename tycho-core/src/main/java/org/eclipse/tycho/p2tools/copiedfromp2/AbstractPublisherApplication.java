@@ -266,7 +266,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
             processCommandLineArguments(args, info);
             Object result = run(info);
             if (result != IApplication.EXIT_OK) {
-                System.out.println(NLS.bind(Messages.message_publisherArguments, null));
+                System.out.println(Messages.message_publisherArguments);
                 for (String arg : args) {
                     System.out.println(arg);
                 }
@@ -303,7 +303,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
                 Throwable th = result.getException();
                 if (th != null) {
                     System.out.println();
-                    System.out.println(NLS.bind(Messages.message_resultException, null));
+                    System.out.println(Messages.message_resultException);
                     th.printStackTrace(System.out);
                     System.out.println();
                 }
