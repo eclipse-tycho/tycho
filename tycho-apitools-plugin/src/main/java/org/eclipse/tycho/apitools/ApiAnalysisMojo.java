@@ -55,6 +55,7 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.exceptions.VersionBumpRequiredException;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
 import org.eclipse.tycho.osgi.framework.EclipseFramework;
@@ -96,6 +97,18 @@ public class ApiAnalysisMojo extends AbstractMojo {
 
 	@Parameter(property = "baselines", name = "baselines")
 	private List<Repository> baselines;
+
+	/**
+	 * Specifies if references to other p2-repositories declared in any of the
+	 * baseline repositories are considered.
+	 * <ul>
+	 * <li>{@code include} -- content of referenced repositories is included in the
+	 * baseline</li>
+	 * <li>{@code ignore} -- references to other p2-repositories are ignored</li>
+	 * </ul>
+	 */
+	@Parameter(defaultValue = "ignore")
+	private ReferencedRepositoryMode baselineRepositoryReferences;
 
 	@Parameter()
 	private Repository apiToolsRepository;
@@ -367,7 +380,7 @@ public class ApiAnalysisMojo extends AbstractMojo {
 			Collection<Path> baselineBundles = applicationResolver.getApiBaselineBundles(
 					baselines.stream().filter(repo -> repo.getUrl() != null)
 							.map(repo -> new MavenRepositoryLocation(repo.getId(), URI.create(repo.getUrl()))).toList(),
-					artifactKey.get(), targetEnvironments);
+					baselineRepositoryReferences, artifactKey.get(), targetEnvironments);
 			getLog().debug("API baseline contains " + baselineBundles.size() + " bundles (resolve takes " + time(start)
 					+ ").");
 			return baselineBundles;
