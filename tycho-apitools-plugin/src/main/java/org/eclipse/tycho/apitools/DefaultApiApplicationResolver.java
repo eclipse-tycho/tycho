@@ -24,6 +24,8 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetEnvironment;
+import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.osgi.framework.Bundles;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
 import org.eclipse.tycho.osgi.framework.EclipseApplicationFactory;
@@ -31,6 +33,7 @@ import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.Features;
 import org.osgi.framework.BundleException;
 import org.osgi.service.log.LogEntry;
+
 /**
  * Component that resolves the bundles that make up the ApiApplication from a
  * given URI
@@ -46,9 +49,11 @@ public class DefaultApiApplicationResolver implements ApiApplicationResolver {
 	private EclipseApplicationManager applicationManager;
 
 	public Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
-			ArtifactKey artifactKey, Collection<TargetEnvironment> environment)
-			throws IllegalArtifactReferenceException {
-		return applicationFactory.getApiBaselineBundles(baselineRepoLocations, artifactKey, environment);
+			ReferencedRepositoryMode baselineRepositoryReferences, ArtifactKey artifactKey,
+			Collection<TargetEnvironment> environment) throws IllegalArtifactReferenceException {
+		TargetPlatform baselineTarget = applicationFactory.createTargetPlatform(baselineRepoLocations,
+				baselineRepositoryReferences);
+		return applicationFactory.getApiBaselineBundles(baselineTarget, artifactKey, environment);
 	}
 
 	public EclipseApplication getApiApplication(MavenRepositoryLocation apiToolsRepo) {
