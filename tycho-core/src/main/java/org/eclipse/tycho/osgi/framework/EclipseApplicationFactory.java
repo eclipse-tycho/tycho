@@ -42,6 +42,7 @@ import org.eclipse.tycho.core.resolver.P2ResolutionResult.Entry;
 import org.eclipse.tycho.core.resolver.P2Resolver;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 
@@ -89,9 +90,15 @@ public class EclipseApplicationFactory {
     }
 
     public TargetPlatform createTargetPlatform(Collection<MavenRepositoryLocation> locations) {
+        return createTargetPlatform(locations, ReferencedRepositoryMode.ignore);
+    }
+
+    public TargetPlatform createTargetPlatform(Collection<MavenRepositoryLocation> locations,
+            ReferencedRepositoryMode repositoryReferences) {
         TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
         tpConfiguration.setIgnoreLocalArtifacts(true);
         tpConfiguration.setIncludeSourceMode(IncludeSourceMode.ignore);
+        tpConfiguration.setReferencedRepositoryMode(repositoryReferences);
         for (MavenRepositoryLocation location : locations) {
             tpConfiguration.addP2Repository(location);
         }
@@ -106,11 +113,15 @@ public class EclipseApplicationFactory {
     public Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
             ArtifactKey artifactKey, Collection<TargetEnvironment> environment)
             throws IllegalArtifactReferenceException {
+        return getApiBaselineBundles(createTargetPlatform(baselineRepoLocations), artifactKey, environment);
+    }
+
+    public Collection<Path> getApiBaselineBundles(TargetPlatform baselineTarget, ArtifactKey artifactKey,
+            Collection<TargetEnvironment> environment) throws IllegalArtifactReferenceException {
         P2Resolver resolver = createResolver(environment);
         resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, artifactKey.getId(), "0.0.0");
         List<Path> resolvedBundles = new ArrayList<>();
-        TargetPlatform targetPlatform = createTargetPlatform(baselineRepoLocations);
-        for (P2ResolutionResult result : resolver.resolveTargetDependencies(targetPlatform, null).values()) {
+        for (P2ResolutionResult result : resolver.resolveTargetDependencies(baselineTarget, null).values()) {
             for (Entry entry : result.getArtifacts()) {
                 if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())
                         && !"org.eclipse.osgi".equals(entry.getId())) {

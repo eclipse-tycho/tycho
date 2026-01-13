@@ -40,6 +40,7 @@
 							<url>${baselineRepo}</url>
 						</repository>
 					</baselines>
+					<baselineRepositoryReferences>include</baselineRepositoryReferences>
 				</configuration>
 				<executions>
 					<execution>
