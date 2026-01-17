@@ -121,7 +121,9 @@ public class MavenLocationUpdater {
 
     DefaultVersionsHelper getHelper(UpdateTargetMojo context) throws MojoExecutionException {
         RuleService ruleService = new RulesServiceBuilder().withWagonMap(wagonMap).withServerId("serverId")
-                .withLog(context.getLog()).withMavenSession(context.getMavenSession()).build();
+                .withLog(context.getLog()).withMavenSession(context.getMavenSession())
+                .withRulesUri(context.getMavenRulesUri()).withRuleSet(context.getMavenRuleSet())
+                .withIgnoredVersions(context.getMavenIgnoredVersions()).build();
         PomHelper pomHelper = new PomHelper(artifactFactory,
                 new VersionsExpressionEvaluator(context.getMavenSession(), context.getMojoExecution()));
         return new DefaultVersionsHelper.Builder().withPomHelper(pomHelper).withArtifactFactory(artifactFactory)
