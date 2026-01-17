@@ -43,15 +43,6 @@ public class RemoteAgentDisableP2MirrorsTest extends TychoPlexusTestCase {
     }
 
     @Test
-    @Ignore("can't be tested that way!")
-    public void testDisableP2Mirrors() throws Exception {
-        IProvisioningAgent agent = createRemoteAgent(true);
-        IArtifactRepository repo = loadRepository(agent, ResourceUtil.resourceFile("p2-mirrors-disable").toURI());
-
-        assertNull(repo.getProperty(IRepository.PROP_MIRRORS_URL));
-    }
-
-    @Test
     public void testWithoutDisableP2Mirrors() throws Exception {
         IProvisioningAgent agent = createRemoteAgent(false);
         IArtifactRepository repo = loadRepository(agent, ResourceUtil.resourceFile("p2-mirrors-disable").toURI());
