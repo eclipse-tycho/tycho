@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -99,6 +100,11 @@ import org.xml.sax.SAXException;
  * This implements the "maven" target location type
  */
 public class MavenTargetDefinitionContent implements TargetDefinitionContent {
+
+    private static final String[] OSGI_RUNTIME_HEADERS = { org.osgi.framework.Constants.EXPORT_PACKAGE,
+            org.osgi.framework.Constants.IMPORT_PACKAGE, org.osgi.framework.Constants.REQUIRE_BUNDLE,
+            org.osgi.framework.Constants.REQUIRE_CAPABILITY, org.osgi.framework.Constants.PROVIDE_CAPABILITY,
+            org.osgi.framework.Constants.BUNDLE_ACTIVATOR, org.osgi.framework.Constants.BUNDLE_CLASSPATH };
 
     private static final RemoteRepository CENTRAL = new RemoteRepository.Builder(TychoConstants.DEFAULT_REMOTE_REPO_ID,
             "default", TychoConstants.DEFAULT_REMOTE_REPO_URL)
@@ -290,7 +296,7 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                             sourceArtifact);
                                 } else {
                                     unit = generateSourceBundle(symbolicName, bundleVersion, manifest, sourceFile,
-                                            sourceArtifact);
+                                            sourceArtifact, logger);
                                 }
                                 sourceBundles.add(unit);
                                 if (unit != null && logger.isDebugEnabled()) {
@@ -391,9 +397,41 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
         }
     }
 
-    private IInstallableUnit generateSourceBundle(String symbolicName, String bundleVersion, Manifest manifest,
-            File sourceFile, IArtifactFacade sourceArtifact) throws IOException, BundleException {
+    /**
+     * Strips runtime OSGi headers from source JAR manifests that should not be present in source
+     * bundles. This is a defensive measure against upstream packaging issues where source JARs
+     * incorrectly contain the same OSGi metadata as runtime JARs (e.g., jetty-servlet-api 4.0.8).
+     * 
+     * @param manifest
+     *            the manifest to clean
+     * @param symbolicName
+     *            the bundle symbolic name (for logging)
+     * @param version
+     *            the bundle version (for logging)
+     * @param logger
+     *            the logger to use for log messages
+     */
+    private static void stripRuntimeOSGiHeaders(Manifest manifest, String symbolicName, String version,
+            MavenLogger logger) {
+        Attributes attr = manifest.getMainAttributes();
+        List<String> removedHeaders = new ArrayList<>();
+        for (String header : OSGI_RUNTIME_HEADERS) {
+            if (attr.getValue(header) != null) {
+                removedHeaders.add(header);
+                attr.remove(new Attributes.Name(header));
+            }
+        }
+        if (removedHeaders.isEmpty()) {
+            return;
+        }
+        logger.warn("Source JAR for " + symbolicName + ":" + version
+                + " contains runtime OSGi headers that were stripped: " + String.join(", ", removedHeaders)
+                + ". This indicates a packaging issue in the upstream artifact.");
+    }
 
+    private IInstallableUnit generateSourceBundle(String symbolicName, String bundleVersion, Manifest manifest,
+            File sourceFile, IArtifactFacade sourceArtifact, MavenLogger logger) throws IOException, BundleException {
+        stripRuntimeOSGiHeaders(manifest, symbolicName, bundleVersion, logger);
         File tempFile = File.createTempFile("tycho_wrapped_source", ".jar");
         tempFile.deleteOnExit();
         MavenBundleWrapper.addSourceBundleMetadata(manifest, symbolicName, bundleVersion);
