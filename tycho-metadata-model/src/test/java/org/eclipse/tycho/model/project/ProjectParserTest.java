@@ -12,11 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.model.project;
 
+import static org.eclipse.tycho.model.project.ProjectParser.resolveLinks;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tycho.model.project.ProjectParser.LinkDescription;
@@ -46,7 +48,7 @@ public class ProjectParserTest {
     @Test
     void testLinkNoLocationOrUri() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link"), LinkDescription.FOLDER, null, null);
-        Path result = ProjectParser.resolvePath(link, Path.of("link/subdir"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link/subdir"), PROJECT_PATH, VARS);
         assertNull(result);
     }
 
@@ -54,7 +56,7 @@ public class ProjectParserTest {
     void testLinkDirSimpleCase() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link"), LinkDescription.FOLDER, null,
                 URI.create("foo/bar"));
-        Path result = ProjectParser.resolvePath(link, Path.of("link/subdir"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link/subdir"), PROJECT_PATH, VARS);
         assertEquals(Path.of("/path/to/project/foo/bar/subdir"), result);
     }
 
@@ -62,7 +64,7 @@ public class ProjectParserTest {
     void testLinkDirProjectLoc() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link"), LinkDescription.FOLDER, null,
                 URI.create("PROJECT_LOC/bar"));
-        Path result = ProjectParser.resolvePath(link, Path.of("link/subdir"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link/subdir"), PROJECT_PATH, VARS);
         assertEquals(Path.of("/path/to/project/bar/subdir"), result);
     }
 
@@ -70,7 +72,7 @@ public class ProjectParserTest {
     void testLinkDirParent1ProjectLoc() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link"), LinkDescription.FOLDER, null,
                 URI.create("PARENT-1-PROJECT_LOC/otherproject"));
-        Path result = ProjectParser.resolvePath(link, Path.of("link/subdir"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link/subdir"), PROJECT_PATH, VARS);
         assertEquals(Path.of("/path/to/otherproject/subdir"), result);
     }
 
@@ -78,21 +80,21 @@ public class ProjectParserTest {
     void testLinkDirParent2ProjectLoc() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link"), LinkDescription.FOLDER, null,
                 URI.create("PARENT-2-PROJECT_LOC/anotherdir"));
-        Path result = ProjectParser.resolvePath(link, Path.of("link/subdir"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link/subdir"), PROJECT_PATH, VARS);
         assertEquals(Path.of("/path/anotherdir/subdir"), result);
     }
 
     @Test
     void testLinkDirVarExpandEndingInProjectLoc() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link"), LinkDescription.FOLDER, null, URI.create("FOO1/x"));
-        Path result = ProjectParser.resolvePath(link, Path.of("link/subdir"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link/subdir"), PROJECT_PATH, VARS);
         assertEquals(Path.of("/path/to/project/other/dir/bar/foo/x/subdir"), result);
     }
 
     @Test
     void testLinkDirVarExpandEndingInParent1ProjectLoc() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link"), LinkDescription.FOLDER, null, URI.create("FOO2/x"));
-        Path result = ProjectParser.resolvePath(link, Path.of("link/subdir"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link/subdir"), PROJECT_PATH, VARS);
         assertEquals(Path.of("/path/to/otherproject/dir/bar/foo/x/subdir"), result);
     }
 
@@ -100,7 +102,7 @@ public class ProjectParserTest {
     void testLinkDirRecursion() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link"), LinkDescription.FOLDER, null,
                 URI.create("RECURSION1/x"));
-        Path result = ProjectParser.resolvePath(link, Path.of("link/subdir"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link/subdir"), PROJECT_PATH, VARS);
         assertNull(result);
     }
 
@@ -108,7 +110,7 @@ public class ProjectParserTest {
     void testLinkDirVarExpandLiteral() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link"), LinkDescription.FOLDER, null,
                 URI.create("LITERAL/x"));
-        Path result = ProjectParser.resolvePath(link, Path.of("link/subdir"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link/subdir"), PROJECT_PATH, VARS);
         assertEquals(Path.of("/path/to/project/value/x/subdir"), result);
     }
 
@@ -116,7 +118,7 @@ public class ProjectParserTest {
     void testLinkDirVarExpandFailingKeepDollarVariable() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link"), LinkDescription.FOLDER, null,
                 URI.create("UNKNOWN/x"));
-        Path result = ProjectParser.resolvePath(link, Path.of("link/subdir"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link/subdir"), PROJECT_PATH, VARS);
         assertEquals(Path.of("/path/to/project/${DONTKNOW}/foo/x/subdir"), result);
     }
 
@@ -124,7 +126,7 @@ public class ProjectParserTest {
     void testLinkDirAbsolutePathInsteadOfUri() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link"), LinkDescription.FOLDER, Path.of("/absolute/path"),
                 null);
-        Path result = ProjectParser.resolvePath(link, Path.of("link/subdir"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link/subdir"), PROJECT_PATH, VARS);
         assertEquals(Path.of("/absolute/path/subdir"), result);
     }
 
@@ -132,15 +134,78 @@ public class ProjectParserTest {
     void testLinkFileSimpleCase() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link.txt"), LinkDescription.FILE, null,
                 URI.create("linktarget.txt"));
-        Path result = ProjectParser.resolvePath(link, Path.of("link.txt"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link.txt"), PROJECT_PATH, VARS);
         assertEquals(Path.of("/path/to/project/linktarget.txt"), result);
+    }
+
+    @Test
+    void testLinkFileInDirSimpleCase() throws Exception {
+        LinkDescription link = new LinkDescription(Path.of("folder/link.txt"), LinkDescription.FILE, null,
+                URI.create("linktarget.txt"));
+        Path result = resolveLinks(List.of(link), Path.of("folder/link.txt"), PROJECT_PATH, VARS);
+        assertEquals(Path.of("/path/to/project/linktarget.txt"), result);
+    }
+
+    @Test
+    void testLinkedFileInDirSimpleCase() throws Exception {
+        LinkDescription link = new LinkDescription(Path.of("link.txt"), LinkDescription.FILE, null,
+                URI.create("folder/linktarget.txt"));
+        Path result = resolveLinks(List.of(link), Path.of("link.txt"), PROJECT_PATH, VARS);
+        assertEquals(Path.of("/path/to/project/folder/linktarget.txt"), result);
+    }
+
+    @Test
+    void testLinkFileFromDirToDirSimpleCase() throws Exception {
+        LinkDescription link = new LinkDescription(Path.of("folder/link.txt"), LinkDescription.FILE, null,
+                URI.create("folder/linktarget.txt"));
+        Path result = resolveLinks(List.of(link), Path.of("folder/link.txt"), PROJECT_PATH, VARS);
+        assertEquals(Path.of("/path/to/project/folder/linktarget.txt"), result);
+    }
+
+    @Test
+    void testLinkedFileInLinkedDir() throws Exception {
+        LinkDescription fileLink = new LinkDescription(Path.of("folder/link.txt"), LinkDescription.FILE, null,
+                URI.create("folder/linktarget.txt"));
+        LinkDescription folderLink = new LinkDescription(Path.of("folder"), LinkDescription.FOLDER, null,
+                URI.create("foldertarget"));
+
+        List<LinkDescription> links = List.of(fileLink, folderLink); // expect file to be resolved
+        assertEquals(Path.of("/path/to/project/folder/linktarget.txt"),
+                resolveLinks(links, Path.of("folder/link.txt"), PROJECT_PATH, VARS));
+        links = List.of(folderLink, fileLink); // expect folder to be resolved
+        assertEquals(Path.of("/path/to/project/foldertarget/link.txt"),
+                resolveLinks(List.of(folderLink, fileLink), Path.of("folder/link.txt"), PROJECT_PATH, VARS));
+    }
+
+    @Test
+    void testLinkedNestedDirSimpleCase() throws Exception {
+        LinkDescription link = new LinkDescription(Path.of("folder"), LinkDescription.FOLDER, null,
+                URI.create("folder/foldertarget2"));
+        Path result = resolveLinks(List.of(link), Path.of("folder/link.txt"), PROJECT_PATH, VARS);
+        assertEquals(Path.of("/path/to/project/folder/foldertarget2/link.txt"), result);
+    }
+
+    @Test
+    void testLinkToNestedDirSimpleCase() throws Exception {
+        LinkDescription link = new LinkDescription(Path.of("folder/folder2"), LinkDescription.FOLDER, null,
+                URI.create("foldertarget"));
+        Path result = resolveLinks(List.of(link), Path.of("folder/folder2/link.txt"), PROJECT_PATH, VARS);
+        assertEquals(Path.of("/path/to/project/foldertarget/link.txt"), result);
+    }
+
+    @Test
+    void testLinkDirFromDirToDirSimpleCase() throws Exception {
+        LinkDescription link = new LinkDescription(Path.of("folder/folder2"), LinkDescription.FOLDER, null,
+                URI.create("folder/foldertarget2"));
+        Path result = resolveLinks(List.of(link), Path.of("folder/folder2/link.txt"), PROJECT_PATH, VARS);
+        assertEquals(Path.of("/path/to/project/folder/foldertarget2/link.txt"), result);
     }
 
     @Test
     void testLinkFileAbsolutePathInsteadOfUri() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link.txt"), LinkDescription.FILE,
                 Path.of("/path/to/some/txtfile.txt"), null);
-        Path result = ProjectParser.resolvePath(link, Path.of("link.txt"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link.txt"), PROJECT_PATH, VARS);
         assertEquals(Path.of("/path/to/some/txtfile.txt"), result);
     }
 
@@ -148,7 +213,7 @@ public class ProjectParserTest {
     void testLinkFileIllegalSegmentAfterFile() throws Exception {
         LinkDescription link = new LinkDescription(Path.of("link.txt"), LinkDescription.FILE,
                 Path.of("/path/to/some/txtfile.txt"), null);
-        Path result = ProjectParser.resolvePath(link, Path.of("link.txt/thisisinvalid"), PROJECT_PATH, VARS);
+        Path result = resolveLinks(List.of(link), Path.of("link.txt/thisisinvalid"), PROJECT_PATH, VARS);
         assertNull(result);
     }
 
