@@ -4,6 +4,51 @@ This page describes the noteworthy improvements provided by each release of Ecli
 If you are reading this in the browser, then you can quickly jump to specific versions by using the rightmost button above the headline:
 ![grafik](https://github.com/eclipse-tycho/tycho/assets/406876/7025e8cb-0cdb-4211-8239-fc01867923af)
 
+## 5.0.2
+
+### Features
+
+- Add JUnit 6 provider support
+- Support resource links to nested files and folders
+
+### Bug Fixes
+
+- Strip runtime OSGi headers from source JAR manifests
+- Fix version filtering regression in update-target mojo
+- Consider P2-repository reference when resolving API-analysis baseline
+
+### Dependency Upgrades
+
+The following notable dependencies have been upgraded:
+
+#### Eclipse Platform
+
+All Eclipse Platform dependencies have been updated to align with the 2025-12 release:
+- JDT (ECJ, JDT Core, JDT Launching, JDT Core Manipulation, JDT UI)
+- PDE (PDE Core, PDE API Tools, PDE UI)
+- Equinox (OSGi, P2, Registry, Preferences, etc.)
+- Platform UI (Workbench, IDE, JFace)
+
+#### Build Tools & Libraries
+
+- ASM: 9.9 → 9.9.1
+- Apache BCEL: 6.11.0 → 6.12.0
+- Apache Commons Exec: 1.5.0 → 1.6.0
+- Apache Maven: 3.9.11 → 3.9.12
+- Apache Maven Archiver: 3.6.5 → 3.6.6
+- Apache Maven Release Plugin: 3.3.0 → 3.3.1
+- BND: 7.1.0 → 7.2.1
+- CycloneDX Core Java: 11.0.1 → 12.0.1
+- JGit: 7.4.0 → 7.5.0
+- Jetty: 12.1.4 → 12.1.5
+- JUnit 5: 5.11.4 → 5.14.2
+- Maven Njord Extension: 0.8.7 → 0.9.3
+- Maven Plugin Testing Harness: upgraded
+- Mockito: 5.20.0 → 5.21.0
+- Plexus Archiver: 4.10.4 → 4.11.0
+- Plexus Buildnumber Maven Plugin: 3.2.1 → 3.3.0
+- Versions Maven Plugin: 2.18.0 → 2.21.0
+
 ## 5.0.1
 
 ### Backported Features
