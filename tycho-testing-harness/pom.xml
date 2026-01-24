@@ -17,7 +17,7 @@
 	<parent>
 		<artifactId>tycho</artifactId>
 		<groupId>org.eclipse.tycho</groupId>
-		<version>5.0.2</version>
+		<version>5.0.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>tycho-testing-harness</artifactId>
 

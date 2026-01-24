@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho-surefire</artifactId>
-		<version>5.0.2</version>
+		<version>5.0.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>org.eclipse.tycho.surefire.testng.fixup</artifactId>
 	<name>Fixup imports for TestNG</name>
