@@ -12,10 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.ds;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -27,6 +28,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.DeclarativeServicesConfiguration;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.osgi.framework.Version;
 
 @Component(role = DeclarativeServiceConfigurationReader.class)
@@ -42,7 +44,10 @@ public class DeclarativeServiceConfigurationReader {
     private static final String PROPERTY_ENABLED = "enabled";
     private static final String PROPERTY_PATH = "path";
 
-    private static final String PDE_DS_ANNOTATIONS_PREFS = ".settings/org.eclipse.pde.ds.annotations.prefs";
+	private static final Path PDE_DS_ANNOTATIONS_PREFS = Path.of(".settings", "org.eclipse.pde.ds.annotations.prefs");
+
+	@Requirement
+	private TychoProjectManager projectManager;
 
     @Requirement
     private Logger logger;
@@ -52,8 +57,7 @@ public class DeclarativeServiceConfigurationReader {
     }
 
     public DeclarativeServicesConfiguration getConfiguration(MavenProject mavenProject) throws IOException {
-        Properties settings = getProjectSettings(mavenProject.getBasedir(), getMojoSettings(mavenProject, logger),
-                mavenProject, logger);
+		Properties settings = getProjectSettings(mavenProject);
 		if (Boolean.parseBoolean(settings.getProperty(PROPERTY_ENABLED, DEFAULT_ENABLED))) {
             return new DeclarativeServicesConfiguration() {
 
@@ -80,12 +84,14 @@ public class DeclarativeServiceConfigurationReader {
         return null;
     }
 
-    private static Properties getProjectSettings(File basedir, Properties mojoProperties, MavenProject mavenProject,
-            Logger logger) throws FileNotFoundException, IOException {
+	private Properties getProjectSettings(MavenProject mavenProject) throws FileNotFoundException, IOException {
+		Properties mojoProperties = getMojoSettings(mavenProject, logger);
         Properties properties = new Properties(mojoProperties);
-        File prefs = new File(basedir, PDE_DS_ANNOTATIONS_PREFS);
-        if (prefs.exists()) {
-            try (FileInputStream stream = new FileInputStream(prefs)) {
+		Path prefs = projectManager.getEclipseProject(mavenProject)
+				.map(eclipse -> eclipse.getFile(PDE_DS_ANNOTATIONS_PREFS))
+				.orElseGet(() -> mavenProject.getBasedir().toPath().resolve(PDE_DS_ANNOTATIONS_PREFS));
+		if (Files.exists(prefs)) {
+			try (InputStream stream = Files.newInputStream(prefs)) {
                 properties.load(stream);
                 logger.debug("declarative-services project configuration for " + mavenProject.toString() + ":"
                         + System.lineSeparator() + properties);
