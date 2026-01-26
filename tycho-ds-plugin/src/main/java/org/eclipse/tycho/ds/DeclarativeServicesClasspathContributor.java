@@ -12,8 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.ds;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
@@ -104,10 +105,12 @@ public class DeclarativeServicesClasspathContributor extends AbstractSpecificati
 			// can't determine the minimum specification version then...
 		}
 		try {
-			File bndFile = new File(project.getBasedir(), TychoConstants.PDE_BND);
-			if (bndFile.exists()) {
+			Path bndFile = projectManager.getEclipseProject(project)
+					.map(eclipse -> eclipse.getFile(TychoConstants.PDE_BND))
+					.orElseGet(() -> project.getBasedir().toPath().resolve(TychoConstants.PDE_BND));
+			if (Files.exists(bndFile)) {
 				try (Processor processor = new Processor()) {
-					processor.setProperties(bndFile);
+					processor.setProperties(bndFile.toFile());
 					Version lowerVersion = new Version("1.3.0"); // lowest version supported by BND
 					Version upperVersion = null;
 					String mergeProperties = processor.mergeProperties(Constants.DSANNOTATIONS_OPTIONS);
