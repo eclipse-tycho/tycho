@@ -23,4 +23,19 @@ public interface ArtifactVersionProvider {
     Stream<ArtifactVersion> getPackageVersions(IInstallableUnit unit, String packageName, VersionRange versionRange,
             MavenProject mavenProject);
 
+    /**
+     * Gets versions of bundles matching the given bundle symbolic name and version
+     * range.
+     *
+     * @param unit          the installable unit that currently provides the bundle
+     * @param bundleName    the bundle symbolic name
+     * @param versionRange  the version range to match
+     * @param mavenProject  the maven project context
+     * @return a stream of artifact versions matching the criteria
+     */
+    default Stream<ArtifactVersion> getBundleVersions(IInstallableUnit unit, String bundleName,
+            VersionRange versionRange, MavenProject mavenProject) {
+        return Stream.empty();
+    }
+
 }
