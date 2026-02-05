@@ -432,11 +432,9 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     private IInstallableUnit generateSourceBundle(String symbolicName, String bundleVersion, Manifest manifest,
             File sourceFile, IArtifactFacade sourceArtifact, MavenLogger logger) throws IOException, BundleException {
         stripRuntimeOSGiHeaders(manifest, symbolicName, bundleVersion, logger);
-        File tempFile = File.createTempFile("tycho_wrapped_source", ".jar");
-        tempFile.deleteOnExit();
-        MavenBundleWrapper.addSourceBundleMetadata(manifest, symbolicName, bundleVersion);
-        MavenBundleWrapper.transferJarEntries(sourceFile, manifest, tempFile);
-        return publish(BundlesAction.createBundleDescription(tempFile), tempFile, sourceArtifact);
+        File eclipseSourceFile = MavenBundleWrapper.getEclipseSourceBundle(sourceFile, manifest, symbolicName,
+                bundleVersion);
+        return publish(BundlesAction.createBundleDescription(eclipseSourceFile), eclipseSourceFile, sourceArtifact);
 
     }
 

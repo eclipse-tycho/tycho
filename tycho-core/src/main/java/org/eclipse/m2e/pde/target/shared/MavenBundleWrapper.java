@@ -397,4 +397,50 @@ public class MavenBundleWrapper {
     public static boolean isValidSourceManifest(Manifest manifest) {
         return manifest != null && manifest.getMainAttributes().getValue(ECLIPSE_SOURCE_BUNDLE_HEADER) != null;
     }
+
+    /**
+     * Creates or returns a cached Eclipse source bundle from a source JAR file. The resulting
+     * bundle will have proper Eclipse-SourceBundle manifest headers. The cached file is stored
+     * alongside the original source file with "-eclipse-source" suffix.
+     * 
+     * @param sourceFile
+     *            the original source JAR file (e.g., xyz-source.jar)
+     * @param manifest
+     *            the manifest to use (will be modified with source bundle metadata)
+     * @param symbolicName
+     *            the bundle symbolic name of the host bundle
+     * @param bundleVersion
+     *            the version of the host bundle
+     * @return the cached eclipse source bundle file
+     * @throws IOException
+     *             if reading/writing files fails
+     */
+    public static File getEclipseSourceBundle(File sourceFile, Manifest manifest, String symbolicName,
+            String bundleVersion) throws IOException {
+        // Create the cached file name: xyz-source.jar -> xyz-eclipse-source.jar
+        String sourceName = sourceFile.getName();
+        String eclipseSourceName;
+        if (sourceName.endsWith(".jar")) {
+            eclipseSourceName = sourceName.substring(0, sourceName.length() - 4) + "-eclipse-source.jar";
+        } else {
+            eclipseSourceName = sourceName + "-eclipse-source";
+        }
+        File eclipseSourceFile = new File(sourceFile.getParentFile(), eclipseSourceName);
+        Path eclipseSourcePath = eclipseSourceFile.toPath();
+        Path sourceFilePath = sourceFile.toPath();
+
+        // Check if cached file exists and is up-to-date
+        if (!isOutdated(eclipseSourcePath, sourceFilePath)) {
+            return eclipseSourceFile;
+        }
+
+        // Generate new eclipse source bundle
+        addSourceBundleMetadata(manifest, symbolicName, bundleVersion);
+        transferJarEntries(sourceFile, manifest, eclipseSourceFile);
+
+        // Set the last modified time to match source file for cache validation
+        Files.setLastModifiedTime(eclipseSourcePath, Files.getLastModifiedTime(sourceFilePath));
+
+        return eclipseSourceFile;
+    }
 }
