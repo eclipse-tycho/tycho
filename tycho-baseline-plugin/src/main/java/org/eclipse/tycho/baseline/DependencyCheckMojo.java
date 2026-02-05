@@ -47,6 +47,7 @@ import org.eclipse.tycho.baseline.analyze.DependencyVersionProblem;
 import org.eclipse.tycho.baseline.analyze.ImportPackageChecker;
 import org.eclipse.tycho.baseline.analyze.JrtClasses;
 import org.eclipse.tycho.baseline.analyze.MethodSignature;
+import org.eclipse.tycho.baseline.analyze.RequireBundleChecker;
 import org.eclipse.tycho.core.MarkdownBuilder;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.maven.OSGiJavaToolchain;
@@ -56,6 +57,7 @@ import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.model.manifest.MutableBundleManifest;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.resource.Namespace;
 
@@ -148,6 +150,7 @@ public class DependencyCheckMojo extends AbstractMojo {
 
 		// Create checkers that maintain their own state
 		ImportPackageChecker importPackageChecker = new ImportPackageChecker(context, units, usages);
+		RequireBundleChecker requireBundleChecker = new RequireBundleChecker(context, units, usages);
 
 		for (GenericInfo genericInfo : requirements) {
 			if (PackageNamespace.PACKAGE_NAMESPACE.equals(genericInfo.getNamespace())) {
@@ -156,6 +159,13 @@ public class DependencyCheckMojo extends AbstractMojo {
 				String packageVersion = pkgInfo.getOrDefault(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE, "0.0.0");
 				String packageName = pkgInfo.get(PackageNamespace.PACKAGE_NAMESPACE);
 				importPackageChecker.check(packageName, packageVersion);
+			} else if (BundleNamespace.BUNDLE_NAMESPACE.equals(genericInfo.getNamespace())) {
+				Map<String, String> bundleInfo = getVersionInfo(genericInfo,
+						BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+				String bundleVersionStr = bundleInfo.getOrDefault(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE,
+						"0.0.0");
+				String bundleName = bundleInfo.get(BundleNamespace.BUNDLE_NAMESPACE);
+				requireBundleChecker.check(bundleName, bundleVersionStr);
 			}
 		}
 		List<DependencyVersionProblem> dependencyProblems = context.getProblems();
@@ -166,6 +176,7 @@ public class DependencyCheckMojo extends AbstractMojo {
 			try {
 				MutableBundleManifest manifest = MutableBundleManifest.read(manifestFile);
 				boolean changed = importPackageChecker.applySuggestions(manifest);
+				changed |= requireBundleChecker.applySuggestions(manifest);
 				if (changed) {
 					MutableBundleManifest.write(manifest, manifestFile);
 				}
@@ -213,7 +224,8 @@ public class DependencyCheckMojo extends AbstractMojo {
 			}
 			results.add("");
 		}
-		importPackageChecker.reportSuggestions(results,  log);
+		importPackageChecker.reportSuggestions(results, log);
+		requireBundleChecker.reportSuggestions(results, log);
 		results.write();
 	}
 

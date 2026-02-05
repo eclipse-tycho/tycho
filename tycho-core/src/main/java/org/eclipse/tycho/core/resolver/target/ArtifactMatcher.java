@@ -88,6 +88,17 @@ public class ArtifactMatcher {
                 .max(Comparator.naturalOrder());
     }
 
+    /**
+     * Finds a bundle (IInstallableUnit) by its symbolic name from a collection of IUs.
+     *
+     * @param bundleName the bundle symbolic name to find
+     * @param ius        the collection of installable units to search
+     * @return an Optional containing the IU if found, empty otherwise
+     */
+    public static Optional<IInstallableUnit> findBundle(String bundleName, Collection<IInstallableUnit> ius) {
+        return ius.stream().filter(iu -> bundleName.equals(iu.getId())).findFirst();
+    }
+
     public static Version parseAsOSGiVersion(String version) throws IllegalArtifactReferenceException {
         if (version == null) {
             return Version.emptyVersion;
