@@ -100,6 +100,37 @@ public class MavenArtifactVersionProvider implements ArtifactVersionProvider {
 		return Stream.empty();
 	}
 
+	@Override
+	public Stream<ArtifactVersion> getBundleVersions(IInstallableUnit unit, String bundleName,
+			VersionRange versionRange, MavenProject mavenProject) {
+		String groupId = unit.getProperty(TychoConstants.PROP_GROUP_ID);
+		String artifactId = unit.getProperty(TychoConstants.PROP_ARTIFACT_ID);
+		String classifier = unit.getProperty(TychoConstants.PROP_CLASSIFIER);
+		if (groupId != null && artifactId != null && !"sources".equals(classifier)) {
+			List<RemoteRepository> repositories = RepositoryUtils.toRepos(mavenProject.getRemoteArtifactRepositories());
+			DefaultArtifact artifact = new DefaultArtifact(groupId, artifactId, classifier, "jar", "[0,)");
+			VersionRangeRequest rangeRequest = new VersionRangeRequest(artifact, repositories, "");
+			try {
+				VersionRangeResult range = repoSystem.resolveVersionRange(session.getRepositorySession(), rangeRequest);
+				// now we sort from highest > lowest version
+				List<Version> versions = range.getVersions().stream()
+						.sorted(Comparator.<Version>naturalOrder().reversed()).toList();
+				return versions.stream()
+						.map(v -> new MavenBundleArtifactVersion(artifact, v, bundleName, repositories))
+						.filter(mav -> mav.getVersion() != null)
+						// and drop all until we find a matching version
+						.dropWhile(mav -> !versionRange.includes(mav.getVersion()))
+						// and stop when we find the first non matching version
+						.takeWhile(mav -> versionRange.includes(mav.getVersion()))
+						// cast to make compiler happy
+						.map(ArtifactVersion.class::cast);
+			} catch (VersionRangeResolutionException e) {
+				// can't provide any useful data then...
+			}
+		}
+		return Stream.empty();
+	}
+
 	private class MavenPackageArtifactVersion implements ArtifactVersion {
 
 		private Artifact artifact;
@@ -144,6 +175,62 @@ public class MavenArtifactVersionProvider implements ArtifactVersionProvider {
 				}
 			}
 			return packageVersion;
+		}
+
+		@Override
+		public String toString() {
+			return getVersion() + " (maven artifact " + artifact + ")";
+		}
+
+		@Override
+		public String getProvider() {
+			ModuleRevisionBuilder info = readOSGiInfo(getArtifact());
+			if (info != null) {
+				return info.getSymbolicName() + " " + info.getVersion();
+			}
+			return null;
+		}
+
+	}
+
+	private class MavenBundleArtifactVersion implements ArtifactVersion {
+
+		private Artifact artifact;
+		private List<RemoteRepository> repositories;
+		private Path path;
+		private String bundleName;
+		private org.osgi.framework.Version bundleVersion;
+
+		public MavenBundleArtifactVersion(Artifact artifact, Version version, String bundleName,
+				List<RemoteRepository> repositories) {
+			this.artifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(),
+					artifact.getExtension(), version.toString());
+			this.bundleName = bundleName;
+			this.repositories = repositories;
+		}
+
+		@Override
+		public Path getArtifact() {
+			if (path == null) {
+				try {
+					ArtifactRequest request = new ArtifactRequest(artifact, repositories, "");
+					ArtifactResult result = repoSystem.resolveArtifact(session.getRepositorySession(), request);
+					path = result.getArtifact().getFile().toPath();
+				} catch (ArtifactResolutionException e) {
+				}
+			}
+			return path;
+		}
+
+		@Override
+		public org.osgi.framework.Version getVersion() {
+			if (bundleVersion == null) {
+				ModuleRevisionBuilder builder = readOSGiInfo(getArtifact());
+				if (builder != null && bundleName.equals(builder.getSymbolicName())) {
+					bundleVersion = builder.getVersion();
+				}
+			}
+			return bundleVersion;
 		}
 
 		@Override
