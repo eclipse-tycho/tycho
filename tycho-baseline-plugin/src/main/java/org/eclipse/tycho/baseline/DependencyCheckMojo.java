@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,21 +43,24 @@ import org.eclipse.osgi.container.builders.OSGiManifestBuilderFactory;
 import org.eclipse.osgi.internal.framework.FilterImpl;
 import org.eclipse.tycho.DependencyArtifacts;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.artifacts.ArtifactVersion;
 import org.eclipse.tycho.artifacts.ArtifactVersionProvider;
 import org.eclipse.tycho.baseline.analyze.ClassCollection;
 import org.eclipse.tycho.baseline.analyze.ClassMethods;
 import org.eclipse.tycho.baseline.analyze.ClassUsage;
 import org.eclipse.tycho.baseline.analyze.DependencyAnalyzer;
+import org.eclipse.tycho.baseline.analyze.DependencyChecker;
+import org.eclipse.tycho.baseline.analyze.DependencyChecker.CheckContext;
+import org.eclipse.tycho.baseline.analyze.DependencyChecker.DependencyVersionProblem;
+import org.eclipse.tycho.baseline.analyze.ImportPackageChecker;
 import org.eclipse.tycho.baseline.analyze.JrtClasses;
 import org.eclipse.tycho.baseline.analyze.MethodSignature;
+import org.eclipse.tycho.baseline.analyze.RequireBundleChecker;
 import org.eclipse.tycho.core.MarkdownBuilder;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.maven.OSGiJavaToolchain;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
-import org.eclipse.tycho.core.resolver.target.ArtifactMatcher;
 import org.eclipse.tycho.model.manifest.MutableBundleManifest;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
@@ -148,29 +150,39 @@ public class DependencyCheckMojo extends AbstractMojo {
 		List<DependencyVersionProblem> dependencyProblems = new ArrayList<>();
 		Map<Path, ClassCollection> analyzeCache = new HashMap<>();
 		Log log = getLog();
-		Map<String, Version> lowestPackageVersion = new HashMap<>();
-		Map<String, Set<Version>> allPackageVersion = new HashMap<>();
-		Set<String> packageWithError = new HashSet<>();
-		Map<String, Version> lowestBundleVersion = new HashMap<>();
-		Map<String, Set<Version>> allBundleVersion = new HashMap<>();
-		Set<String> bundleWithError = new HashSet<>();
 		DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer((m, e) -> getLog().error(m, e));
 		Function<String, Optional<ClassMethods>> classResolver = dependencyAnalyzer
 				.createDependencyClassResolver(jrtClassResolver, artifacts);
+
+		// Create the shared check context
+		CheckContext context = new CheckContext(dependencyProblems, analyzeCache, dependencyAnalyzer, classResolver,
+				versionProvider, project, log, verbose);
+
+		// Create checkers that maintain their own state
+		ImportPackageChecker importPackageChecker = new ImportPackageChecker(context, units, usages);
+		RequireBundleChecker requireBundleChecker = new RequireBundleChecker(context, units, usages);
+
 		for (GenericInfo genericInfo : requirements) {
 			if (PackageNamespace.PACKAGE_NAMESPACE.equals(genericInfo.getNamespace())) {
-				checkImportPackage(genericInfo, units, usages, analyzeCache, dependencyProblems, dependencyAnalyzer,
-						classResolver, lowestPackageVersion, allPackageVersion, packageWithError, log);
+				Map<String, String> pkgInfo = getVersionInfo(genericInfo,
+						PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+				String packageVersion = pkgInfo.getOrDefault(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE, "0.0.0");
+				String packageName = pkgInfo.get(PackageNamespace.PACKAGE_NAMESPACE);
+				importPackageChecker.check(packageName, packageVersion);
 			} else if (BundleNamespace.BUNDLE_NAMESPACE.equals(genericInfo.getNamespace())) {
-				checkRequireBundle(genericInfo, units, usages, analyzeCache, dependencyProblems, dependencyAnalyzer,
-						classResolver, lowestBundleVersion, allBundleVersion, bundleWithError, log);
+				Map<String, String> bundleInfo = getVersionInfo(genericInfo,
+						BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+				String bundleVersionStr = bundleInfo.getOrDefault(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE,
+						"0.0.0");
+				String bundleName = bundleInfo.get(BundleNamespace.BUNDLE_NAMESPACE);
+				requireBundleChecker.check(bundleName, bundleVersionStr);
 			}
 		}
 		if (dependencyProblems.isEmpty()) {
 			return;
 		}
 		if (applySuggestions) {
-			applyLowerBounds(packageWithError, lowestPackageVersion, bundleWithError, lowestBundleVersion);
+			applyLowerBounds(importPackageChecker, requireBundleChecker);
 		}
 		MarkdownBuilder results = new MarkdownBuilder(reportFileName);
 		Set<String> keys = new HashSet<>();
@@ -212,258 +224,33 @@ public class DependencyCheckMojo extends AbstractMojo {
 			}
 			results.add("");
 		}
-		if (!packageWithError.isEmpty()) {
-			results.add("");
-			for (String pkg : packageWithError) {
-				String suggestion = String.format("Suggested lower version for package `%s` is `%s`", pkg,
-						lowestPackageVersion.get(pkg));
-				Set<Version> all = allPackageVersion.get(pkg);
-				if (all != null && !all.isEmpty()) {
-					suggestion += " out of " + all.stream().map(v -> String.format("`%s`", v))
-							.collect(Collectors.joining(", ", "[", "]"));
-				}
-				log.info(suggestion);
-				results.add(suggestion);
-			}
-		}
-		if (!bundleWithError.isEmpty()) {
-			results.add("");
-			for (String bundle : bundleWithError) {
-				String suggestion = String.format("Suggested lower version for bundle `%s` is `%s`", bundle,
-						lowestBundleVersion.get(bundle));
-				Set<Version> all = allBundleVersion.get(bundle);
-				if (all != null && !all.isEmpty()) {
-					suggestion += " out of " + all.stream().map(v -> String.format("`%s`", v))
-							.collect(Collectors.joining(", ", "[", "]"));
-				}
-				log.info(suggestion);
-				results.add(suggestion);
-			}
-		}
+		reportSuggestions(results, "package", importPackageChecker, log);
+		reportSuggestions(results, "bundle", requireBundleChecker, log);
 		results.write();
 	}
 
-	private void checkImportPackage(GenericInfo genericInfo, Collection<IInstallableUnit> units,
-			List<ClassUsage> usages, Map<Path, ClassCollection> analyzeCache,
-			List<DependencyVersionProblem> dependencyProblems, DependencyAnalyzer dependencyAnalyzer,
-			Function<String, Optional<ClassMethods>> classResolver, Map<String, Version> lowestPackageVersion,
-			Map<String, Set<Version>> allPackageVersion, Set<String> packageWithError, Log log)
-			throws MojoFailureException {
-		Map<String, String> pkgInfo = getVersionInfo(genericInfo, PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-		String packageVersion = pkgInfo.getOrDefault(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE, "0.0.0");
-		String packageName = pkgInfo.get(PackageNamespace.PACKAGE_NAMESPACE);
-		Optional<IInstallableUnit> packageProvidingUnit = ArtifactMatcher.findPackage(packageName, units);
-		if (packageProvidingUnit.isEmpty()) {
-			return;
-		}
-		IInstallableUnit unit = packageProvidingUnit.get();
-		Optional<org.eclipse.equinox.p2.metadata.Version> matchedPackageVersion = ArtifactMatcher
-				.getPackageVersion(unit, packageName);
-		if (matchedPackageVersion.isEmpty()
-				|| matchedPackageVersion.get().equals(org.eclipse.equinox.p2.metadata.Version.emptyVersion)) {
-			log.warn("Package " + packageName + " has no version exported and can not be checked for compatibility");
-			return;
-		}
-		matchedPackageVersion.filter(v -> v.isOSGiCompatible()).ifPresent(v -> {
-			Version current = new Version(v.toString());
-			allPackageVersion.computeIfAbsent(packageName, nil -> new TreeSet<>()).add(current);
-			lowestPackageVersion.put(packageName, current);
-		});
-		VersionRange versionRange = VersionRange.valueOf(packageVersion);
-		List<ArtifactVersion> list = versionProvider.stream()
-				.flatMap(avp -> avp.getPackageVersions(unit, packageName, versionRange, project)).toList();
-		if (log.isDebugEnabled()) {
-			log.debug("== " + packageName + " " + packageVersion + " is provided by " + unit + " with version range "
-					+ versionRange + ", matching versions: "
-					+ list.stream().map(av -> av.getVersion()).map(String::valueOf).collect(Collectors.joining(", ")));
-		}
-		Set<MethodSignature> packageMethods = collectMethodsForPackage(usages, packageName);
-		Map<MethodSignature, Collection<String>> references = collectReferencesForPackage(usages, packageName);
-		if (packageMethods.isEmpty()) {
-			return;
-		}
-		if (log.isDebugEnabled()) {
-			for (MethodSignature signature : packageMethods) {
-				log.debug("Referenced: " + signature.id());
-			}
-		}
-		for (ArtifactVersion v : list) {
-			Version version = v.getVersion();
-			if (version == null) {
-				continue;
-			}
-			if (!allPackageVersion.computeIfAbsent(packageName, nil -> new TreeSet<>()).add(version)) {
-				continue;
-			}
-			Path artifact = v.getArtifact();
-			log.debug(v + "=" + artifact);
-			if (artifact == null) {
-				continue;
-			}
-			ClassCollection collection = analyzeCache.get(artifact);
-			if (collection == null) {
-				collection = dependencyAnalyzer.analyzeProvides(artifact.toFile(), classResolver);
-				analyzeCache.put(artifact, collection);
-			}
-			boolean ok = checkMethodsInCollection(collection, packageMethods, packageName, packageName, version,
-					references, dependencyProblems, packageWithError, v, unit, packageVersion,
-					matchedPackageVersion.orElse(null), log, "Import-Package");
-			if (ok) {
-				lowestPackageVersion.merge(packageName, version, (v1, v2) -> v1.compareTo(v2) > 0 ? v2 : v1);
-			}
-		}
-	}
-
-	private void checkRequireBundle(GenericInfo genericInfo, Collection<IInstallableUnit> units,
-			List<ClassUsage> usages, Map<Path, ClassCollection> analyzeCache,
-			List<DependencyVersionProblem> dependencyProblems, DependencyAnalyzer dependencyAnalyzer,
-			Function<String, Optional<ClassMethods>> classResolver, Map<String, Version> lowestBundleVersion,
-			Map<String, Set<Version>> allBundleVersion, Set<String> bundleWithError, Log log)
-			throws MojoFailureException {
-		Map<String, String> bundleInfo = getVersionInfo(genericInfo, BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-		String bundleVersionStr = bundleInfo.getOrDefault(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE, "0.0.0");
-		String bundleName = bundleInfo.get(BundleNamespace.BUNDLE_NAMESPACE);
-		Optional<IInstallableUnit> bundleProvidingUnit = ArtifactMatcher.findBundle(bundleName, units);
-		if (bundleProvidingUnit.isEmpty()) {
-			return;
-		}
-		IInstallableUnit unit = bundleProvidingUnit.get();
-		org.eclipse.equinox.p2.metadata.Version matchedBundleVersion = unit.getVersion();
-		if (matchedBundleVersion.equals(org.eclipse.equinox.p2.metadata.Version.emptyVersion)) {
-			log.warn("Bundle " + bundleName + " has no version and can not be checked for compatibility");
-			return;
-		}
-		if (matchedBundleVersion.isOSGiCompatible()) {
-			Version current = new Version(matchedBundleVersion.toString());
-			allBundleVersion.computeIfAbsent(bundleName, nil -> new TreeSet<>()).add(current);
-			lowestBundleVersion.put(bundleName, current);
-		}
-		VersionRange versionRange = VersionRange.valueOf(bundleVersionStr);
-		List<ArtifactVersion> list = versionProvider.stream()
-				.flatMap(avp -> avp.getBundleVersions(unit, bundleName, versionRange, project)).toList();
-		if (log.isDebugEnabled()) {
-			log.debug("== Bundle " + bundleName + " " + bundleVersionStr + " is provided by " + unit
-					+ " with version range " + versionRange + ", matching versions: "
-					+ list.stream().map(av -> av.getVersion()).map(String::valueOf).collect(Collectors.joining(", ")));
-		}
-		// For require-bundle, collect all packages exported by this bundle and check
-		// methods from all of them
-		Set<String> exportedPackages = getExportedPackages(unit);
-		Set<MethodSignature> bundleMethods = new TreeSet<>();
-		Map<MethodSignature, Collection<String>> references = new HashMap<>();
-		for (String packageName : exportedPackages) {
-			bundleMethods.addAll(collectMethodsForPackage(usages, packageName));
-			references.putAll(collectReferencesForPackage(usages, packageName));
-		}
-		if (bundleMethods.isEmpty()) {
-			return;
-		}
-		if (log.isDebugEnabled()) {
-			for (MethodSignature signature : bundleMethods) {
-				log.debug("Referenced from bundle " + bundleName + ": " + signature.id());
-			}
-		}
-		for (ArtifactVersion v : list) {
-			Version version = v.getVersion();
-			if (version == null) {
-				continue;
-			}
-			if (!allBundleVersion.computeIfAbsent(bundleName, nil -> new TreeSet<>()).add(version)) {
-				continue;
-			}
-			Path artifact = v.getArtifact();
-			log.debug(v + "=" + artifact);
-			if (artifact == null) {
-				continue;
-			}
-			ClassCollection collection = analyzeCache.get(artifact);
-			if (collection == null) {
-				collection = dependencyAnalyzer.analyzeProvides(artifact.toFile(), classResolver);
-				analyzeCache.put(artifact, collection);
-			}
-			// For Require-Bundle, pass null as packageNameFilter since methods can come from different packages
-			boolean ok = checkMethodsInCollection(collection, bundleMethods, bundleName, null, version, references,
-					dependencyProblems, bundleWithError, v, unit, bundleVersionStr, matchedBundleVersion, log,
-					"Require-Bundle");
-			if (ok) {
-				lowestBundleVersion.merge(bundleName, version, (v1, v2) -> v1.compareTo(v2) > 0 ? v2 : v1);
-			}
-		}
-	}
-
-	private Set<String> getExportedPackages(IInstallableUnit unit) {
-		Set<String> packages = new HashSet<>();
-		unit.getProvidedCapabilities().stream()
-				.filter(cap -> "java.package".equals(cap.getNamespace()))
-				.forEach(cap -> packages.add(cap.getName()));
-		return packages;
-	}
-
-	private Set<MethodSignature> collectMethodsForPackage(List<ClassUsage> usages, String packageName) {
-		Set<MethodSignature> methods = new TreeSet<>();
-		for (ClassUsage usage : usages) {
-			usage.signatures().filter(ms -> packageName.equals(ms.packageName())).forEach(methods::add);
-		}
-		return methods;
-	}
-
-	private Map<MethodSignature, Collection<String>> collectReferencesForPackage(List<ClassUsage> usages,
-			String packageName) {
-		Map<MethodSignature, Collection<String>> references = new HashMap<>();
-		for (ClassUsage usage : usages) {
-			usage.signatures().filter(ms -> packageName.equals(ms.packageName())).forEach(sig -> {
-				references.computeIfAbsent(sig, nil -> new TreeSet<>()).addAll(usage.classRef(sig));
-			});
-		}
-		return references;
-	}
-
-	private boolean checkMethodsInCollection(ClassCollection collection, Set<MethodSignature> methods,
-			String dependencyName, String packageNameFilter, Version version,
-			Map<MethodSignature, Collection<String>> references, List<DependencyVersionProblem> dependencyProblems,
-			Set<String> withError, ArtifactVersion v, IInstallableUnit unit, String versionStr,
-			org.eclipse.equinox.p2.metadata.Version matchedVersion, Log log, String dependencyType) {
-		boolean ok = true;
-		Set<MethodSignature> set = collection.provides().collect(Collectors.toSet());
-		for (MethodSignature mthd : methods) {
-			if (!set.contains(mthd)) {
-				List<MethodSignature> provided = collection.get(mthd.className());
-				if (provided != null && packageNameFilter != null) {
-					provided = provided.stream().filter(ms -> packageNameFilter.equals(ms.packageName())).toList();
+	private void reportSuggestions(MarkdownBuilder results, String type, DependencyChecker checker, Log log) {
+		Set<String> withError = checker.getWithError();
+		if (!withError.isEmpty()) {
+			results.add("");
+			for (String name : withError) {
+				String suggestion = String.format("Suggested lower version for %s `%s` is `%s`", type, name,
+						checker.getLowestVersions().get(name));
+				Set<Version> all = checker.getAllVersions().get(name);
+				if (all != null && !all.isEmpty()) {
+					suggestion += " out of " + all.stream().map(v -> String.format("`%s`", v))
+							.collect(Collectors.joining(", ", "[", "]"));
 				}
-				if (log.isDebugEnabled()) {
-					log.debug("Not found: " + mthd);
-					if (provided != null) {
-						for (MethodSignature s : provided) {
-							log.debug("Provided:  " + s);
-						}
-					}
-				}
-				dependencyProblems.add(new DependencyVersionProblem(dependencyName + "_" + version,
-						String.format(
-								"%s `%s %s` (compiled against `%s` provided by `%s %s`) includes `%s` (provided by `%s`) but this version is missing the method `%s#%s`",
-								dependencyType, dependencyName, versionStr,
-								matchedVersion != null ? matchedVersion.toString()
-										: org.eclipse.equinox.p2.metadata.Version.emptyVersion.toString(),
-								unit.getId(), unit.getVersion(), version, v.getProvider(), mthd.className(),
-								getMethodRef(mthd)),
-						references.get(mthd), provided));
-				ok = false;
-				withError.add(dependencyName);
+				log.info(suggestion);
+				results.add(suggestion);
 			}
 		}
-		return ok;
 	}
 
-	private String getMethodRef(MethodSignature mthd) {
-		if (verbose) {
-			return String.format("%s %s", mthd.methodName(), mthd.signature());
-		}
-		return mthd.methodName();
-	}
-
-	private void applyLowerBounds(Set<String> packageWithError, Map<String, Version> lowestPackageVersion,
-			Set<String> bundleWithError, Map<String, Version> lowestBundleVersion) throws MojoFailureException {
+	private void applyLowerBounds(ImportPackageChecker importPackageChecker, RequireBundleChecker requireBundleChecker)
+			throws MojoFailureException {
+		Set<String> packageWithError = importPackageChecker.getWithError();
+		Set<String> bundleWithError = requireBundleChecker.getWithError();
 		if (packageWithError.isEmpty() && bundleWithError.isEmpty()) {
 			return;
 		}
@@ -473,6 +260,7 @@ public class DependencyCheckMojo extends AbstractMojo {
 			if (!packageWithError.isEmpty()) {
 				Map<String, String> importedPackagesVersion = manifest.getImportPackagesVersions();
 				Map<String, String> packageUpdates = new HashMap<>();
+				Map<String, Version> lowestPackageVersion = importPackageChecker.getLowestVersions();
 				for (String packageName : packageWithError) {
 					Version lowestVersion = lowestPackageVersion.getOrDefault(packageName, Version.emptyVersion);
 					String current = importedPackagesVersion.get(packageName);
@@ -492,6 +280,7 @@ public class DependencyCheckMojo extends AbstractMojo {
 			if (!bundleWithError.isEmpty()) {
 				Map<String, String> requiredBundleVersions = manifest.getRequiredBundleVersions();
 				Map<String, String> bundleUpdates = new HashMap<>();
+				Map<String, Version> lowestBundleVersion = requireBundleChecker.getLowestVersions();
 				for (String bundleName : bundleWithError) {
 					Version lowestVersion = lowestBundleVersion.getOrDefault(bundleName, Version.emptyVersion);
 					String current = requiredBundleVersions.get(bundleName);
@@ -547,10 +336,5 @@ public class DependencyCheckMojo extends AbstractMojo {
 		}
 		// use running jvm
 		return new JrtClasses(null);
-	}
-
-	private static record DependencyVersionProblem(String key, String message, Collection<String> references,
-			List<MethodSignature> provided) {
-
 	}
 }
