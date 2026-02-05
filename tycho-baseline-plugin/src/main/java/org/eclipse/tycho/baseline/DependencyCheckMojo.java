@@ -305,9 +305,9 @@ public class DependencyCheckMojo extends AbstractMojo {
 				collection = dependencyAnalyzer.analyzeProvides(artifact.toFile(), classResolver);
 				analyzeCache.put(artifact, collection);
 			}
-			boolean ok = checkMethodsInCollection(collection, packageMethods, packageName, version, references,
-					dependencyProblems, packageWithError, v, unit, packageVersion, matchedPackageVersion, log,
-					"Import-Package");
+			boolean ok = checkMethodsInCollection(collection, packageMethods, packageName, packageName, version,
+					references, dependencyProblems, packageWithError, v, unit, packageVersion,
+					matchedPackageVersion.orElse(null), log, "Import-Package");
 			if (ok) {
 				lowestPackageVersion.merge(packageName, version, (v1, v2) -> v1.compareTo(v2) > 0 ? v2 : v1);
 			}
@@ -381,29 +381,10 @@ public class DependencyCheckMojo extends AbstractMojo {
 				collection = dependencyAnalyzer.analyzeProvides(artifact.toFile(), classResolver);
 				analyzeCache.put(artifact, collection);
 			}
-			boolean ok = true;
-			Set<MethodSignature> set = collection.provides().collect(Collectors.toSet());
-			for (MethodSignature mthd : bundleMethods) {
-				if (!set.contains(mthd)) {
-					List<MethodSignature> provided = collection.get(mthd.className());
-					if (log.isDebugEnabled()) {
-						log.debug("Not found: " + mthd);
-						if (provided != null) {
-							for (MethodSignature s : provided) {
-								log.debug("Provided:  " + s);
-							}
-						}
-					}
-					dependencyProblems.add(new DependencyVersionProblem(bundleName + "_" + version,
-							String.format(
-									"Require-Bundle `%s %s` (compiled against `%s` from `%s %s`) includes `%s` (provided by `%s`) but this version is missing the method `%s#%s`",
-									bundleName, bundleVersionStr, matchedBundleVersion.toString(), unit.getId(),
-									unit.getVersion(), version, v.getProvider(), mthd.className(), getMethodRef(mthd)),
-							references.get(mthd), provided));
-					ok = false;
-					bundleWithError.add(bundleName);
-				}
-			}
+			// For Require-Bundle, pass null as packageNameFilter since methods can come from different packages
+			boolean ok = checkMethodsInCollection(collection, bundleMethods, bundleName, null, version, references,
+					dependencyProblems, bundleWithError, v, unit, bundleVersionStr, matchedBundleVersion, log,
+					"Require-Bundle");
 			if (ok) {
 				lowestBundleVersion.merge(bundleName, version, (v1, v2) -> v1.compareTo(v2) > 0 ? v2 : v1);
 			}
@@ -438,17 +419,17 @@ public class DependencyCheckMojo extends AbstractMojo {
 	}
 
 	private boolean checkMethodsInCollection(ClassCollection collection, Set<MethodSignature> methods,
-			String packageName, Version version, Map<MethodSignature, Collection<String>> references,
-			List<DependencyVersionProblem> dependencyProblems, Set<String> withError, ArtifactVersion v,
-			IInstallableUnit unit, String versionStr, Optional<org.eclipse.equinox.p2.metadata.Version> matchedVersion,
-			Log log, String dependencyType) {
+			String dependencyName, String packageNameFilter, Version version,
+			Map<MethodSignature, Collection<String>> references, List<DependencyVersionProblem> dependencyProblems,
+			Set<String> withError, ArtifactVersion v, IInstallableUnit unit, String versionStr,
+			org.eclipse.equinox.p2.metadata.Version matchedVersion, Log log, String dependencyType) {
 		boolean ok = true;
 		Set<MethodSignature> set = collection.provides().collect(Collectors.toSet());
 		for (MethodSignature mthd : methods) {
 			if (!set.contains(mthd)) {
 				List<MethodSignature> provided = collection.get(mthd.className());
-				if (provided != null) {
-					provided = provided.stream().filter(ms -> packageName.equals(ms.packageName())).toList();
+				if (provided != null && packageNameFilter != null) {
+					provided = provided.stream().filter(ms -> packageNameFilter.equals(ms.packageName())).toList();
 				}
 				if (log.isDebugEnabled()) {
 					log.debug("Not found: " + mthd);
@@ -458,16 +439,17 @@ public class DependencyCheckMojo extends AbstractMojo {
 						}
 					}
 				}
-				dependencyProblems.add(new DependencyVersionProblem(packageName + "_" + version,
+				dependencyProblems.add(new DependencyVersionProblem(dependencyName + "_" + version,
 						String.format(
 								"%s `%s %s` (compiled against `%s` provided by `%s %s`) includes `%s` (provided by `%s`) but this version is missing the method `%s#%s`",
-								dependencyType, packageName, versionStr,
-								matchedVersion.orElse(org.eclipse.equinox.p2.metadata.Version.emptyVersion).toString(),
+								dependencyType, dependencyName, versionStr,
+								matchedVersion != null ? matchedVersion.toString()
+										: org.eclipse.equinox.p2.metadata.Version.emptyVersion.toString(),
 								unit.getId(), unit.getVersion(), version, v.getProvider(), mthd.className(),
 								getMethodRef(mthd)),
 						references.get(mthd), provided));
 				ok = false;
-				withError.add(packageName);
+				withError.add(dependencyName);
 			}
 		}
 		return ok;
