@@ -44,6 +44,7 @@ import org.eclipse.tycho.copyfrom.oomph.P2Index.Repository;
 import org.eclipse.tycho.copyfrom.oomph.P2IndexImpl;
 import org.eclipse.tycho.core.resolver.target.ArtifactMatcher;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.eclipse.tycho.p2maven.transport.TransportCacheConfig;
 import org.osgi.framework.VersionRange;
 
@@ -78,13 +79,31 @@ public class EclipseIndexArtifactVersionProvider implements ArtifactVersionProvi
 		});
 		String id = unit.getId();
 		return found.entrySet().stream().map(entry -> {
-			return new EclipseIndexArtifactVersion(entry.getValue(), id, packageName, entry.getKey(), logger);
+			return new EclipseIndexPackageArtifactVersion(entry.getValue(), id, packageName, entry.getKey(), logger);
 		}).filter(eia -> versionRange.includes(eia.getVersion()))
-				.sorted(Comparator.comparing(EclipseIndexArtifactVersion::getVersion).reversed())
+				.sorted(Comparator.comparing(EclipseIndexPackageArtifactVersion::getVersion).reversed())
 				.map(ArtifactVersion.class::cast);
 	}
 
-	private class EclipseIndexArtifactVersion implements ArtifactVersion {
+	@Override
+	public Stream<ArtifactVersion> getBundleVersions(IInstallableUnit unit, String bundleName,
+			VersionRange versionRange, MavenProject mavenProject) {
+		Map<Repository, Set<Version>> map = p2Index.lookupCapabilities(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
+				bundleName);
+		Map<Version, List<Repository>> found = new HashMap<>();
+		map.entrySet().forEach(entry -> {
+			entry.getValue().stream().filter(v -> v.isOSGiCompatible()).forEach(v -> {
+				found.computeIfAbsent(v, x -> new ArrayList<>()).add(entry.getKey());
+			});
+		});
+		return found.entrySet().stream().map(entry -> {
+			return new EclipseIndexBundleArtifactVersion(entry.getValue(), bundleName, entry.getKey(), logger);
+		}).filter(eia -> versionRange.includes(eia.getVersion()))
+				.sorted(Comparator.comparing(EclipseIndexBundleArtifactVersion::getVersion).reversed())
+				.map(ArtifactVersion.class::cast);
+	}
+
+	private class EclipseIndexPackageArtifactVersion implements ArtifactVersion {
 
 		private Version version;
 		private String packageName;
@@ -95,7 +114,7 @@ public class EclipseIndexArtifactVersionProvider implements ArtifactVersionProvi
 		private Optional<IInstallableUnit> unit;
 		private Repository unitRepo;
 
-		public EclipseIndexArtifactVersion(List<Repository> repositories, String unitId, String packageName,
+		public EclipseIndexPackageArtifactVersion(List<Repository> repositories, String unitId, String packageName,
 				Version version, Logger logger) {
 			osgiVersion = org.osgi.framework.Version.parseVersion(version.getOriginal());
 			this.repositories = repositories;
@@ -185,6 +204,108 @@ public class EclipseIndexArtifactVersionProvider implements ArtifactVersionProvi
 		@Override
 		public String getProvider() {
 			return getUnit().map(unit -> unit.getId() + " " + unit.getVersion()).orElse(null);
+		}
+
+	}
+
+	private class EclipseIndexBundleArtifactVersion implements ArtifactVersion {
+
+		private Version version;
+		private String bundleName;
+		private Path tempFile;
+		private List<Repository> repositories;
+		private org.osgi.framework.Version osgiVersion;
+		private Optional<IInstallableUnit> unit;
+		private Repository unitRepo;
+
+		public EclipseIndexBundleArtifactVersion(List<Repository> repositories, String bundleName,
+				Version version, Logger logger) {
+			osgiVersion = org.osgi.framework.Version.parseVersion(version.getOriginal());
+			this.repositories = repositories;
+			this.bundleName = bundleName;
+			this.version = version;
+		}
+
+		@Override
+		public Path getArtifact() {
+			if (tempFile == null) {
+				IInstallableUnit unit = getUnit().orElse(null);
+				if (unit != null) {
+					Path file;
+					try {
+						file = Files.createTempFile(unit.getId(), ".jar");
+					} catch (IOException e) {
+						return null;
+					}
+					file.toFile().deleteOnExit();
+					List<Repository> list = new ArrayList<>(repositories);
+					if (unitRepo != null) {
+						list.remove(unitRepo);
+						list.add(0, unitRepo);
+					}
+					for (Repository repository : list) {
+						try {
+							org.apache.maven.model.Repository r = new org.apache.maven.model.Repository();
+							r.setUrl(repository.getLocation().toString());
+							try (OutputStream stream = Files.newOutputStream(file)) {
+								repositoryManager.downloadArtifact(unit, repositoryManager.getArtifactRepository(r),
+										stream);
+								return tempFile = file;
+							}
+						} catch (Exception e) {
+							logger.error("Fetch artifact for unit " + unit.getId() + " from " + repository.getLocation()
+									+ " failed: " + e);
+						}
+					}
+					file.toFile().delete();
+				}
+			}
+			return tempFile;
+		}
+
+		private Optional<IInstallableUnit> getUnit() {
+			if (unit == null) {
+				for (Repository repository : repositories) {
+					try {
+						org.apache.maven.model.Repository r = new org.apache.maven.model.Repository();
+						r.setUrl(repository.getLocation().toString());
+						IMetadataRepository metadataRepository = repositoryManager.getMetadataRepository(r);
+						// For bundles, we query by the bundle ID (same as unit ID) and version
+						IInstallableUnit foundUnit = metadataRepository
+								.query(QueryUtil.createIUQuery(bundleName, version), null).stream().findFirst()
+								.orElse(null);
+						if (foundUnit != null) {
+							this.unitRepo = repository;
+							return unit = Optional.of(foundUnit);
+						} else {
+							logger.debug("Bundle " + bundleName + " version " + version
+									+ " not found in metadata of " + repository.getLocation());
+						}
+					} catch (Exception e) {
+						logger.error("Fetch metadata from " + repository.getLocation() + ":: " + e);
+					}
+				}
+				unit = Optional.empty();
+			}
+			return Objects.requireNonNullElse(unit, Optional.empty());
+		}
+
+		@Override
+		public org.osgi.framework.Version getVersion() {
+			return osgiVersion;
+		}
+
+		@Override
+		public String toString() {
+			if (unit != null && unit.isPresent()) {
+				return getVersion() + " (" + unit.get() + ")";
+			}
+			return getVersion().toString();
+		}
+
+		@Override
+		public String getProvider() {
+			return getUnit().map(u -> u.getId() + " " + u.getVersion()).orElse(null);
 		}
 
 	}
