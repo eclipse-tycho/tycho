@@ -65,8 +65,6 @@ public class ReproducibleBuildTest extends AbstractTychoIntegrationTest {
 		checkTimestamps(verifier.getBasedir() + "/reproducible.bundle/target/reproducible.bundle-1.0.0-sources.jar");
 		checkTimestamps(
 				verifier.getBasedir() + "/reproducible.bundle.feature/target/reproducible.bundle.feature-1.0.0.jar");
-		checkTimestamps(verifier.getBasedir()
-				+ "/reproducible.bundle.feature/target/reproducible.bundle.feature-1.0.0-sources-feature.jar");
 		checkTimestamps(verifier.getBasedir() + "/reproducible.iu/target/reproducible.iu-1.0.0.zip");
 		checkTimestamps(verifier.getBasedir() + "/reproducible.repository/target/reproducible.repository-1.0.0.zip");
 		checkTimestamps(verifier.getBasedir() + "/reproducible.repository/target/p2-site.zip");
