@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: test.bundle
+Bundle-Version: 0.0.1.qualifier
+Automatic-Module-Name: test.bundle
+Require-Bundle: org.mockito.mockito-core2,
+ org.mockito.mockito-core2.source

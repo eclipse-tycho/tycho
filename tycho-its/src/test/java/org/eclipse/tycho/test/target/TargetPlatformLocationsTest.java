@@ -186,4 +186,20 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 	}
+
+	@Test
+	public void testMavenRewriteManifest() throws Exception {
+		Verifier verifier = getVerifier("target.maven-rewriteManifest", false, true);
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
+	public void testMavenRewriteManifestNoInstruction() throws Exception {
+		Verifier verifier = getVerifier("target.maven-rewriteManifest-noInstruction", false, true);
+		assertThrows("Verification did not fail even if bnd instruction was missing.", VerificationException.class,
+				() -> verifier.executeGoal("verify"));
+		verifier.verifyTextInLog(
+				"Reason: The location must contain exactly one bnd instruction which must contain a symbolic name that differs from the original one.");
+	}
 }
