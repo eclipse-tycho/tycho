@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,17 +13,31 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine.tests;
 
+import static org.eclipse.tycho.versions.engine.tests.ExtraAssertions.assertBundleManifest;
+import static org.eclipse.tycho.versions.engine.tests.ExtraAssertions.assertCategoryXml;
+import static org.eclipse.tycho.versions.engine.tests.ExtraAssertions.assertFeatureXml;
+import static org.eclipse.tycho.versions.engine.tests.ExtraAssertions.assertP2IuXml;
+import static org.eclipse.tycho.versions.engine.tests.ExtraAssertions.assertPom;
+import static org.eclipse.tycho.versions.engine.tests.ExtraAssertions.assertProductFile;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 
+import org.codehaus.plexus.testing.PlexusTest;
 import org.eclipse.tycho.testing.TestUtil;
+import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.eclipse.tycho.versions.engine.IllegalVersionChangeException;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
+import org.junit.Test;
 
-public class VersionsEngineTest extends AbstractVersionChangeTest {
+@PlexusTest
+public class VersionsEngineTest extends TychoPlexusTestCase {
+
+    @Test
     public void testSimple() throws Exception {
         File basedir = TestUtil.getBasedir("projects/simple");
 
@@ -36,6 +50,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertBundleManifest(basedir);
     }
 
+    @Test
     public void testExportPackage() throws Exception {
         File basedir = TestUtil.getBasedir("projects/exportpackage");
 
@@ -47,6 +62,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertBundleManifest(basedir);
     }
 
+    @Test
     public void testExportPackageNoBump() throws Exception {
         File basedir = TestUtil.getBasedir("projects/exportpackage-nobump");
 
@@ -59,6 +75,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertBundleManifest(basedir);
     }
 
+    @Test
     public void testMultimodule() throws Exception {
         File basedir = TestUtil.getBasedir("projects/multimodule");
 
@@ -96,6 +113,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
 
     }
 
+    @Test
     public void testUpdateVersionRanges() throws Exception {
         File basedir = TestUtil.getBasedir("projects/versionranges");
 
@@ -114,6 +132,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
 
     }
 
+    @Test
     public void testProfile() throws Exception {
         File basedir = TestUtil.getBasedir("projects/profile");
 
@@ -130,6 +149,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertBundleManifest(new File(basedir, "bundle02"));
     }
 
+    @Test
     public void testAggregator() throws Exception {
         File basedir = TestUtil.getBasedir("projects/aggregator");
 
@@ -149,6 +169,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertBundleManifest(new File(basedir, "detached"));
     }
 
+    @Test
     public void testDependencySimple() throws Exception {
         File basedir = TestUtil.getBasedir("projects/dependencysimple");
 
@@ -165,6 +186,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertPom(new File(basedir, "someproject"));
     }
 
+    @Test
     public void testDependencyOtherVersion() throws Exception {
         File basedir = TestUtil.getBasedir("projects/dependencyotherversion");
 
@@ -181,6 +203,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertPom(new File(basedir, "someproject"));
     }
 
+    @Test
     public void testDependencyManagmentSimple() throws Exception {
         File basedir = TestUtil.getBasedir("projects/dependencymanagementsimple");
 
@@ -197,6 +220,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertPom(new File(basedir, "someproject"));
     }
 
+    @Test
     public void testDependencyManagmentOtherVersion() throws Exception {
         File basedir = TestUtil.getBasedir("projects/dependencymanagementotherversion");
 
@@ -213,6 +237,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertPom(new File(basedir, "someproject"));
     }
 
+    @Test
     public void testDeepNesting() throws Exception {
         File basedir = TestUtil.getBasedir("projects/deepnesting");
 
@@ -231,6 +256,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertBundleManifest(new File(basedir, "child/grandchild/bundle"));
     }
 
+    @Test
     public void testDeepNestingInverseOrder() throws Exception {
         File basedir = TestUtil.getBasedir("projects/deepnesting");
 
@@ -250,6 +276,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertBundleManifest(new File(basedir, "child/grandchild/bundle"));
     }
 
+    @Test
     public void testExplicitVersion() throws Exception {
         File basedir = TestUtil.getBasedir("projects/exlicitversion");
 
@@ -267,6 +294,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertBundleManifest(new File(basedir, "sameversion"));
     }
 
+    @Test
     public void testPomDependencyNoVersion() throws Exception {
         File basedir = TestUtil.getBasedir("projects/dependencynoversion");
 
@@ -278,6 +306,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertPom(new File(basedir, "module"));
     }
 
+    @Test
     public void testWrongSnapshotVersion() throws Exception {
         try {
             Versions.assertIsOsgiVersion("1.2.3_SNAPSHOT");
@@ -289,10 +318,12 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         }
     }
 
+    @Test
     public void testAssertOsgiVersion() {
         Versions.assertIsOsgiVersion("1.2.3.qualifier");
     }
 
+    @Test
     public void testBuildPluginManagement() throws Exception {
         File basedir = TestUtil.getBasedir("projects/pluginmanagement");
 
@@ -306,6 +337,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertPom(new File(basedir, "jar"));
     }
 
+    @Test
     public void testPomProperties() throws Exception {
         File basedir = TestUtil.getBasedir("projects/pomproperties");
 
@@ -317,6 +349,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertPom(basedir);
     }
 
+    @Test
     public void testNonOsgiVersionOsgiProject() throws Exception {
         assertNonOsgiVersionOsgiProject("bundle");
         assertNonOsgiVersionOsgiProject("feature");
@@ -335,6 +368,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertEquals(1, e.getErrors().size());
     }
 
+    @Test
     public void testNonOsgiVersionNonOsgiProject() throws Exception {
         File basedir = TestUtil.getBasedir("projects/nonosgiversion/maven");
 
@@ -344,6 +378,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         engine.apply();
     }
 
+    @Test
     public void testBuildPluginNoGroupId() throws Exception {
         File basedir = TestUtil.getBasedir("projects/buildpluginnogroupid");
 
@@ -353,6 +388,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         engine.apply();
     }
 
+    @Test
     public void testProfileNoId() throws Exception {
         File basedir = TestUtil.getBasedir("projects/profilenoid");
 
@@ -362,6 +398,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         engine.apply();
     }
 
+    @Test
     public void testTargetPlatform() throws Exception {
         File basedir = TestUtil.getBasedir("projects/targetplatform");
 
