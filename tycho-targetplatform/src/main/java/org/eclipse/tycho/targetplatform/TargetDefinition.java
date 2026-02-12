@@ -149,6 +149,8 @@ public interface TargetDefinition {
 
 		String getLabel();
 
+		boolean ignoreExistingMetadata();
+		
 		@Override
 		public default String getTypeDescription() {
 			return TYPE;
