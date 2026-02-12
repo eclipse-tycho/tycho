@@ -69,7 +69,7 @@ import aQute.bnd.osgi.resource.CapReqBuilder;
 
 public final class TargetDefinitionFile implements TargetDefinition {
 
-	public static final String ELEMENT_LOCATIONS = "locations";
+  public static final String ELEMENT_LOCATIONS = "locations";
 	private static final Map<URI, TargetDefinitionFile> FILE_CACHE = new ConcurrentHashMap<>();
 	// just for information purpose
 	private final String origin;
@@ -82,6 +82,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 	private final List<ImplicitDependency> implicitDependencies;
 	public static final String FILE_EXTENSION = ".target";
 	public static final String APPLICATION_TARGET = "application/target";
+	private static final String ATTRIBUTE_IGNORE_EXISTING_METADATA = "ignoreExistingMetadata";
 
 	private abstract static class AbstractPathLocation implements TargetDefinition.PathLocation {
 		private String path;
@@ -168,7 +169,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 			MissingManifestStrategy getMissingManifestStrategy, boolean includeSource,
 			Collection<BNDInstructions> getInstructions, DependencyDepth getIncludeDependencyDepth,
 			Collection<MavenArtifactRepositoryReference> getRepositoryReferences, Element getFeatureTemplate,
-			String label) implements TargetDefinition.MavenGAVLocation {
+			String label, boolean ignoreExistingMetadata) implements TargetDefinition.MavenGAVLocation {
 
 		MavenLocation {
 			getFeatureTemplate = getFeatureTemplate == null ? null : (Element) getFeatureTemplate.cloneNode(true);
@@ -543,7 +544,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 		return new MavenLocation(parseRoots(dom, globalExcludes), scopes, parseManifestStrategy(dom),
 				Boolean.parseBoolean(dom.getAttribute("includeSource")), parseInstructions(dom),
 				parseDependencyDepth(dom, scope), parseRepositoryReferences(dom), featureTemplate,
-				dom.getAttribute("label"));
+				dom.getAttribute("label"), Boolean.parseBoolean(dom.getAttribute(ATTRIBUTE_IGNORE_EXISTING_METADATA)));
 	}
 
 	private static IULocation parseIULocation(Element dom) {
