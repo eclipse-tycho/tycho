@@ -65,29 +65,15 @@
 				<version>${tycho-version}</version>
 				<executions>
 					<execution>
-						<id>plugin-source</id>
+						<id>attach-source</id>
 						<goals>
-							<goal>plugin-source</goal>
-							<goal>feature-source</goal>
+						<goal>plugin-source</goal>
 						</goals>
+					<phase>package</phase>
 					</execution>
 				</executions>
 			</plugin>
 			
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-p2-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<executions>
-					<execution>
-						<id>attach-p2-metadata</id>
-						<phase>package</phase>
-						<goals>
-							<goal>p2-metadata</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 	
