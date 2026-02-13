@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.bundle.tests;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,36 +26,36 @@ import java.util.Map;
 import org.eclipse.tycho.model.manifest.ManifestAttribute;
 import org.eclipse.tycho.model.manifest.MutableBundleManifest;
 import org.eclipse.tycho.versions.pom.tests.MutablePomFileTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class MutableBundleManifestTest {
-    @Test
-    public void echo() throws Exception {
-        assertRoundtrip("/manifests/m01.mf");
-        assertRoundtrip("/manifests/m02.mf");
-        assertRoundtrip("/manifests/m03.mf");
+    @ParameterizedTest
+    @ValueSource(strings = { "/manifests/m01.mf", "/manifests/m02.mf", "/manifests/m03.mf" })
+    public void echo(String value) throws Exception {
+        assertRoundtrip(value);
     }
 
     @Test
     public void getters() throws IOException {
         MutableBundleManifest mf = getManifest("/manifests/getters.mf");
 
-        Assert.assertEquals("1.0.0.qualifier", mf.getVersion());
-        Assert.assertEquals("TYCHO0214versionChange.bundle01", mf.getSymbolicName());
-        Assert.assertEquals("host-bundle", mf.getFragmentHostSymbolicName());
-        Assert.assertEquals("1.0.0.qualifier", mf.getFragmentHostVersion());
+        assertEquals("1.0.0.qualifier", mf.getVersion());
+        assertEquals("TYCHO0214versionChange.bundle01", mf.getSymbolicName());
+        assertEquals("host-bundle", mf.getFragmentHostSymbolicName());
+        assertEquals("1.0.0.qualifier", mf.getFragmentHostVersion());
 
         Map<String, String> expectedRequiredBundleVersion = new HashMap<>();
         expectedRequiredBundleVersion.put("bundle1", "1.0.0");
         expectedRequiredBundleVersion.put("bundle2", "1.1.0");
         expectedRequiredBundleVersion.put("bundle3", null);
-        Assert.assertEquals(expectedRequiredBundleVersion, mf.getRequiredBundleVersions());
+        assertEquals(expectedRequiredBundleVersion, mf.getRequiredBundleVersions());
 
         Map<String, String> expectedImportPackage = new HashMap<>();
         expectedImportPackage.put("com.package1", null);
         expectedImportPackage.put("com.package2", "2.6.0");
-        Assert.assertEquals(expectedImportPackage, mf.getImportPackagesVersions());
+        assertEquals(expectedImportPackage, mf.getImportPackagesVersions());
 
     }
 
@@ -127,8 +129,8 @@ public class MutableBundleManifestTest {
         String written = toAsciiString(manifest);
 
         // then
-        Assert.assertEquals(manifestStr, written);
-        Assert.assertEquals("name", manifest.getSymbolicName());
+        assertEquals(manifestStr, written);
+        assertEquals("name", manifest.getSymbolicName());
     }
 
     @Test
@@ -142,9 +144,9 @@ public class MutableBundleManifestTest {
         String written = toAsciiString(manifest);
 
         // then
-        Assert.assertEquals(manifestStr, written);
-        Assert.assertEquals("name", manifest.getSymbolicName());
-        Assert.assertEquals("version", manifest.getVersion());
+        assertEquals(manifestStr, written);
+        assertEquals("name", manifest.getSymbolicName());
+        assertEquals("version", manifest.getVersion());
     }
 
     @Test
@@ -158,9 +160,9 @@ public class MutableBundleManifestTest {
         String written = toAsciiString(manifest);
 
         // then
-        Assert.assertEquals(manifestStr, written);
-        Assert.assertEquals("name", manifest.getSymbolicName());
-        Assert.assertEquals("version", manifest.getVersion());
+        assertEquals(manifestStr, written);
+        assertEquals("name", manifest.getSymbolicName());
+        assertEquals("version", manifest.getVersion());
     }
 
     @Test
@@ -174,9 +176,9 @@ public class MutableBundleManifestTest {
         String written = toAsciiString(manifest);
 
         // then
-        Assert.assertEquals(manifestStr, written);
-        Assert.assertEquals("name", manifest.getSymbolicName());
-        Assert.assertEquals("version", manifest.getVersion());
+        assertEquals(manifestStr, written);
+        assertEquals("name", manifest.getSymbolicName());
+        assertEquals("version", manifest.getVersion());
     }
 
     private void assertRoundtrip(String path) throws IOException {
@@ -186,15 +188,14 @@ public class MutableBundleManifestTest {
     }
 
     private void assertContents(MutableBundleManifest mf, String path) throws IOException {
-        Assert.assertEquals(toAsciiString(toByteArray(path)), toAsciiString(mf));
+        assertEquals(toAsciiString(toByteArray(path)), toAsciiString(mf));
     }
 
     private String toAsciiString(MutableBundleManifest mf) throws IOException {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         MutableBundleManifest.write(mf, buf);
 
-        String actual = toAsciiString(buf.toByteArray());
-        return actual;
+        return toAsciiString(buf.toByteArray());
     }
 
     private MutableBundleManifest getManifest(String path) throws IOException {
@@ -202,11 +203,9 @@ public class MutableBundleManifestTest {
     }
 
     private static byte[] toByteArray(String path) throws IOException {
-        byte expected[];
         try (InputStream is = MutablePomFileTest.class.getResourceAsStream(path)) {
-            expected = is.readAllBytes();
+            return is.readAllBytes();
         }
-        return expected;
     }
 
     private static String toAsciiString(byte[] bytes) {

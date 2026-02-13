@@ -1,24 +1,23 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * Contributors:
  *******************************************************************************/
 package org.eclipse.tycho.versions.bundle.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 
 import org.eclipse.tycho.model.manifest.ManifestAttribute;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ManifestAttributeTest {
 
@@ -117,7 +116,7 @@ public class ManifestAttributeTest {
         assertFalse(attribute.hasName("header"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailOnAddLineWithNewLines() {
         // given
         String line1 = "headername: headervalue1";
@@ -125,7 +124,7 @@ public class ManifestAttributeTest {
 
         // when
         ManifestAttribute attribute = new ManifestAttribute(line1);
-        attribute.add(line2);
+        assertThrows(IllegalArgumentException.class, () -> attribute.add(line2));
     }
 
     @Test
@@ -201,9 +200,16 @@ public class ManifestAttributeTest {
         attribute.writeTo(writer, "\n");
 
         // then
-        assertEquals("headername: abcdefghijklmnopq\n"
-                + " rstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n"
-                + " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n" + " abcdefghijklmnop\n"
-                + " qrstuvwxyzABCDE\n" + " FGHIJKLMNOPQRSTUVWXYZ0123\n" + " 456789\n", writer.toString());
+        assertEquals(
+                """
+                        headername: abcdefghijklmnopq
+                         rstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+                         abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+                         abcdefghijklmnop
+                         qrstuvwxyzABCDE
+                         FGHIJKLMNOPQRSTUVWXYZ0123
+                         456789
+                        """,
+                writer.toString());
     }
 }

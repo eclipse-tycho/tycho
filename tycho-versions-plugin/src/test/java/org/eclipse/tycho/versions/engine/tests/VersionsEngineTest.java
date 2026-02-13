@@ -19,23 +19,29 @@ import static org.eclipse.tycho.versions.engine.tests.ExtraAssertions.assertFeat
 import static org.eclipse.tycho.versions.engine.tests.ExtraAssertions.assertP2IuXml;
 import static org.eclipse.tycho.versions.engine.tests.ExtraAssertions.assertPom;
 import static org.eclipse.tycho.versions.engine.tests.ExtraAssertions.assertProductFile;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 
+import javax.inject.Inject;
+
 import org.codehaus.plexus.testing.PlexusTest;
 import org.eclipse.tycho.testing.TestUtil;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.eclipse.tycho.versions.engine.IllegalVersionChangeException;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @PlexusTest
-public class VersionsEngineTest extends TychoPlexusTestCase {
+public class VersionsEngineTest {
+    @Inject
+    private VersionsEngine engine;
+    @Inject
+    private ProjectMetadataReader reader;
 
     @Test
     public void testSimple() throws Exception {
@@ -308,14 +314,7 @@ public class VersionsEngineTest extends TychoPlexusTestCase {
 
     @Test
     public void testWrongSnapshotVersion() throws Exception {
-        try {
-            Versions.assertIsOsgiVersion("1.2.3_SNAPSHOT");
-            fail("invalid version accepted");
-        } catch (NumberFormatException e) {
-            // thrown by equinox <3.8M5
-        } catch (IllegalArgumentException e) {
-            // thrown by equinox 3.8M5
-        }
+        assertThrows(IllegalArgumentException.class, () -> Versions.assertIsOsgiVersion("1.2.3_SNAPSHOT"));
     }
 
     @Test
@@ -349,12 +348,10 @@ public class VersionsEngineTest extends TychoPlexusTestCase {
         assertPom(basedir);
     }
 
-    @Test
-    public void testNonOsgiVersionOsgiProject() throws Exception {
-        assertNonOsgiVersionOsgiProject("bundle");
-        assertNonOsgiVersionOsgiProject("feature");
-        assertNonOsgiVersionOsgiProject("product");
-        assertNonOsgiVersionOsgiProject("repository");
+    @ParameterizedTest
+    @ValueSource(strings = { "bundle", "feature", "product", "repository" })
+    public void testNonOsgiVersionOsgiProject(String value) throws Exception {
+        assertNonOsgiVersionOsgiProject(value);
     }
 
     private void assertNonOsgiVersionOsgiProject(String artifactId) throws Exception {
@@ -415,8 +412,6 @@ public class VersionsEngineTest extends TychoPlexusTestCase {
     }
 
     private VersionsEngine newEngine(File basedir) throws Exception {
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        ProjectMetadataReader reader = lookup(ProjectMetadataReader.class);
 
         reader.addBasedir(basedir, true);
 

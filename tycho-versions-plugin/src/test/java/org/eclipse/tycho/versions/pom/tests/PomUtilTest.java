@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 SAP SE and others.
+ * Copyright (c) 2024, 2026 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,14 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.pom.tests;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.pom.PomUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PomUtilTest {
 
