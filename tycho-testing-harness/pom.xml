@@ -68,6 +68,16 @@
 			<artifactId>sisu-osgi-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<version>${junit5.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.junit.platform</groupId>
+		    <artifactId>junit-platform-suite-engine</artifactId>
+		    <version>${junit5.platform.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
