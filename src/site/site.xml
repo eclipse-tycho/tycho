@@ -26,7 +26,9 @@
 				<item name="Including a JRE with Products" href="IncludeJRE.html" />
 				<item name="Signing Products" href="SignProducts.html" />
 			</item>
-			<item name="Creating update sites using category.xml" href="Category.html">
+			<item name="Building P2 Update Sites" href="BuildingSites.html">
+				<item name="Advanced Category Definitions" href="CategoryDefinitions.html" />
+				<item name="Controlling Repository Content" href="RepositoryContent.html" />
 				<item name="Tycho P2 Repository Plugin" href="tycho-p2-repository-plugin/plugin-info.html" />
 			</item>
 			<item name="Properties">
