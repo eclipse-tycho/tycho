@@ -25,10 +25,8 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class MultienvP2infTest extends AbstractTychoIntegrationTest {
 
@@ -43,13 +41,13 @@ public class MultienvP2infTest extends AbstractTychoIntegrationTest {
 
 		try (ZipFile zip = new ZipFile(new File(verifier.getBasedir(), "product/target/repository/content.jar"))) {
 			InputStream is = zip.getInputStream(zip.getEntry("content.xml"));
-			doc = new XMLParser().parse(new XMLIOSource(is));
+			doc = Document.of(is);
 		}
 
 		List<String> ids = new ArrayList<>();
-		Element units = doc.getChild("repository/units");
-		for (Element unit : units.getChildren("unit")) {
-			ids.add(unit.getAttributeValue("id"));
+		Element units = doc.root().child("units").orElse(null);
+		for (Element unit : units.children("unit").toList()) {
+			ids.add(unit.attribute("id"));
 		}
 
 		// disabled due to a limitation of BundlesAction

@@ -24,9 +24,8 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class FeatureWithRestrictionsTest extends AbstractTychoIntegrationTest {
 
@@ -38,14 +37,14 @@ public class FeatureWithRestrictionsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File contentXml = new File(verifier.getBasedir(), "target/p2content.xml");
-		Document artifactsDocument = XMLParser.parse(contentXml);
+		Document artifactsDocument = Document.of(contentXml.toPath());
 		String unitId = "com.test.sample.feature.feature.group";
-		Optional<Element> unit = artifactsDocument.getChild("units").getChildren("unit").stream().filter(elem -> {
-			return unitId.equals(elem.getAttributeValue("id"));
+		Optional<Element> unit = artifactsDocument.root().children("unit").filter(elem -> {
+			return unitId.equals(elem.attribute("id"));
 		}).findFirst();
 		assertTrue("Unit with id " + unitId + " not found", unit.isPresent());
 		assertFalse("Version 2 was required by unit",
-				unit.stream().flatMap(elem -> elem.getChild("requires").getChildren("required").stream())
-						.anyMatch(elem -> "[2.0.0,2.0.0]".equals(elem.getAttributeValue("range"))));
+				unit.stream().flatMap(elem -> elem.child("requires").orElse(null).children("required"))
+						.anyMatch(elem -> "[2.0.0,2.0.0]".equals(elem.attribute("range"))));
 	}
 }

@@ -28,9 +28,8 @@ import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 
@@ -81,10 +80,10 @@ public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 
 	void verifyHasChecksum(File artifactXml) throws IOException {
 		assertTrue("required artifact file " + artifactXml.getAbsolutePath() + " not found!", artifactXml.exists());
-		Document artifactsDocument = XMLParser.parse(artifactXml);
-		for (Element artifact : artifactsDocument.getChild("artifacts").getChildren("artifact")) {
-			Map<String, String> map = artifact.getChild("properties").getChildren("property").stream()
-					.collect(Collectors.toMap(e -> e.getAttributeValue("name"), e -> e.getAttributeValue("value")));
+		Document artifactsDocument = Document.of(artifactXml.toPath());
+		for (Element artifact : artifactsDocument.root().children("artifact").toList()) {
+			Map<String, String> map = artifact.child("properties").orElse(null).children("property")
+					.collect(Collectors.toMap(e -> e.attribute("name"), e -> e.attribute("value")));
 			if (!map.containsKey("download.checksum.sha-256")) {
 				fail("Checksum property not found for artifact: \r\n" + artifact);
 			}

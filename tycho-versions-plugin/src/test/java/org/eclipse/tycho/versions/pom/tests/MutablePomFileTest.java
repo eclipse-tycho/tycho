@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.junit.jupiter.api.Test;
 
-import de.pdark.decentxml.XMLParseException;
+import eu.maveniverse.domtrip.DomTripException;
 
 public class MutablePomFileTest {
 
@@ -140,7 +140,7 @@ public class MutablePomFileTest {
     public void testCompileMessage() throws Exception {
         URL url = getClass().getResource("/poms/compilemessage.xml");
         File pomFile = new File(url.toURI());
-        XMLParseException pe = assertThrows(XMLParseException.class, () -> PomFile.read(pomFile, true));
+        DomTripException pe = assertThrows(DomTripException.class, () -> PomFile.read(pomFile, true));
         assertEquals("This Pom " + pomFile.getAbsolutePath() + " is in the Wrong Format", pe.getMessage());
     }
 
