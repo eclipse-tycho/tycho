@@ -8,8 +8,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.TargetEnvironment;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testDirectorStandaloneWindows() throws Exception {
 		Verifier verifier = getVerifier("tycho-p2-director-plugin/director-goal-standalone", true, true);
-		verifier.addCliOption("-Pdirector-windows");
+		verifier.addCliArgument("-Pdirector-windows");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 
@@ -28,7 +28,7 @@ public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testDirectorStandaloneLinux() throws Exception {
 		Verifier verifier = getVerifier("tycho-p2-director-plugin/director-goal-standalone", true, true);
-		verifier.addCliOption("-Pdirector-linux");
+		verifier.addCliArgument("-Pdirector-linux");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 
@@ -38,7 +38,7 @@ public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testDirectorStandaloneMacOsDestinationWithAppSuffix() throws Exception {
 		Verifier verifier = getVerifier("tycho-p2-director-plugin/director-goal-standalone", true, true);
-		verifier.addCliOption("-Pdirector-macos-destination-with-app-suffix");
+		verifier.addCliArgument("-Pdirector-macos-destination-with-app-suffix");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 
@@ -49,7 +49,7 @@ public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testDirectorStandaloneMacOsDestinationWithoutAppSuffix() throws Exception {
 		Verifier verifier = getVerifier("tycho-p2-director-plugin/director-goal-standalone", true, true);
-		verifier.addCliOption("-Pdirector-macos-destination-without-app-suffix");
+		verifier.addCliArgument("-Pdirector-macos-destination-without-app-suffix");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 
@@ -60,7 +60,7 @@ public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testDirectorStandaloneMacOsDestinationWithFullBundlePath() throws Exception {
 		Verifier verifier = getVerifier("tycho-p2-director-plugin/director-goal-standalone", true, true);
-		verifier.addCliOption("-Pdirector-macos-destination-with-full-bundle-path");
+		verifier.addCliArgument("-Pdirector-macos-destination-with-full-bundle-path");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 
@@ -71,7 +71,7 @@ public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testDirectorStandaloneUsingRunningEnvironment() throws Exception {
 		Verifier verifier = getVerifier("tycho-p2-director-plugin/director-goal-standalone", true, true);
-		verifier.addCliOption("-Pdirector-running-environment");
+		verifier.addCliArgument("-Pdirector-running-environment");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 
@@ -86,7 +86,7 @@ public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testDirectorStandaloneInconsistentP2Options() throws Exception {
 		Verifier verifier = getVerifier("tycho-p2-director-plugin/director-goal-standalone", true, true);
-		verifier.addCliOption("-Pdirector-iconsistent-p2-arguments");
+		verifier.addCliArgument("-Pdirector-iconsistent-p2-arguments");
 		try {
 			verifier.executeGoal("package");
 			fail(VerificationException.class.getName() + " expected");

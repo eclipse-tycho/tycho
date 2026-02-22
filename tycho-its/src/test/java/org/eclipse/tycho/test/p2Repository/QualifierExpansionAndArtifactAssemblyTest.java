@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.List;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
@@ -50,7 +50,7 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
 	@BeforeClass
 	public static void executeBuild() throws Exception {
 		verifier = new QualifierExpansionAndArtifactAssemblyTest().getVerifier("p2Repository.reactor", false);
-		verifier.addCliOption("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
+		verifier.addCliArgument("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
 
 		/*
 		 * Do not execute "install" to ensure that features and bundles can be included

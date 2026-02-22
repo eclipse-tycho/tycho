@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
@@ -38,7 +38,7 @@ public class P2RepositoryPropertiesTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testArtifactRepositoryExtraProperties() throws Exception {
 		Verifier verifier = getVerifier("p2Repository.reactor", false);
-		verifier.addCliOption("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
+		verifier.addCliArgument("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 		File artifactXml = new File(verifier.getBasedir(), "eclipse-repository/target/repository/artifacts.xml");

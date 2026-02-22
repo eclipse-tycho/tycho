@@ -14,7 +14,7 @@ package org.eclipse.tycho.test.TYCHO0383dotQualifierMatching;
 
 import java.io.File;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class DotQualifierMatchingTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testFeature() throws Exception {
 		Verifier verifier = getVerifier("/TYCHO0383dotQualifierMatching/featureDotQualifier", false);
-		verifier.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_342.toString());
+		verifier.addCliArgument("-Dp2.repo=" + P2Repositories.ECLIPSE_342.toString());
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 
@@ -34,7 +34,7 @@ public class DotQualifierMatchingTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testProduct() throws Exception {
 		Verifier verifier = getVerifier("/TYCHO0383dotQualifierMatching/productDotQualifier", false);
-		verifier.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_342.toString());
+		verifier.addCliArgument("-Dp2.repo=" + P2Repositories.ECLIPSE_342.toString());
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 

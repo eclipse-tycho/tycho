@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -62,7 +62,7 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testMavenArtifactHaveMavenRepoPath() throws Exception {
 		Verifier verifier = getVerifier("target.maven", false, true);
-		verifier.addCliOption("-DoutputAbsoluteArtifactFilename=true");
+		verifier.addCliArgument("-DoutputAbsoluteArtifactFilename=true");
 		verifier.executeGoal("dependency:list");
 		verifier.verifyErrorFreeLog();
 		assertFalse("Location for Maven deps should not resolve to cache",
@@ -104,7 +104,7 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testTargetPlatformArtifactCaching() throws Exception {
 		Verifier verifier = getVerifier("target.artifact.caching", false, true);
-		verifier.addCliOption("-Dtycho.localArtifacts=default");
+		verifier.addCliArgument("-Dtycho.localArtifacts=default");
 
 		File annotBundleManifestFile = new File(verifier.getBasedir(),
 				"target.test/plugins/osgi.annotation.bundle_0.0.1/META-INF/MANIFEST.MF");

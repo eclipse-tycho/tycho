@@ -14,7 +14,7 @@ package org.eclipse.tycho.test.surefire;
 
 import java.util.List;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
@@ -25,7 +25,7 @@ public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testProvisionAppAndRunTest() throws Exception {
 		Verifier verifier = getVerifier("surefire.p2InstalledRuntime");
-		verifier.addCliOption("-PprovisionProduct");
+		verifier.addCliArgument("-PprovisionProduct");
 		verifier.executeGoals(List.of("clean", "integration-test"));
 		verifier.verifyErrorFreeLog();
 	}
@@ -33,8 +33,8 @@ public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testRunTestOnProvisionedApp() throws Exception {
 		Verifier verifier = getVerifier("surefire.p2InstalledRuntime");
-		verifier.addCliOption("-PuseProvisionedProduct");
-		verifier.addCliOption("-DproductClassifier=" + getProductClassifier());
+		verifier.addCliArgument("-PuseProvisionedProduct");
+		verifier.addCliArgument("-DproductClassifier=" + getProductClassifier());
 		verifier.executeGoals(List.of("clean", "integration-test"));
 		verifier.verifyErrorFreeLog();
 	}
@@ -42,8 +42,8 @@ public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testRunTestOnProvisionedDirector() throws Exception {
 		Verifier verifier = getVerifier("surefire.p2InstalledRuntime");
-		verifier.addCliOption("-PuseProvisionedProductDirector");
-		verifier.addCliOption("-DproductClassifier=" + getProductClassifier());
+		verifier.addCliArgument("-PuseProvisionedProductDirector");
+		verifier.addCliArgument("-DproductClassifier=" + getProductClassifier());
 		verifier.executeGoals(List.of("clean", "integration-test"));
 		verifier.verifyErrorFreeLog();
 		verifier.verifyTextInLog("Tests run: 1");
@@ -52,12 +52,12 @@ public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testDifferentHarnessVersions() throws Exception {
 		Verifier verifier = getVerifier("surefire.p2InstalledRuntime", false);
-		verifier.addCliOption("-Dtarget-platform=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
+		verifier.addCliArgument("-Dtarget-platform=" + ResourceUtil.P2Repositories.ECLIPSE_OXYGEN.toString());
 		// Use different TP for test bundle and product under test
-		verifier.addCliOption(
+		verifier.addCliArgument(
 				"-Dother.p2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString().replace("/", "//"));
-		verifier.addCliOption("-PuseProvisionedProduct");
-		verifier.addCliOption("-DproductClassifier=" + getProductClassifier());
+		verifier.addCliArgument("-PuseProvisionedProduct");
+		verifier.addCliArgument("-DproductClassifier=" + getProductClassifier());
 		verifier.executeGoals(List.of("clean", "integration-test"));
 		verifier.verifyErrorFreeLog();
 	}

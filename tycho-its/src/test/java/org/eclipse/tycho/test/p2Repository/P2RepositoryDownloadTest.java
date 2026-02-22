@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
@@ -71,7 +71,7 @@ public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testReactorCanBeVerified() throws Exception {
 		Verifier verifier = getVerifier("reactor.makeBehaviour", true, true);
-		verifier.addCliOption("-T1C");
+		verifier.addCliArgument("-T1C");
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 		verifyTextNotInLog(verifier, "No digest algorithm is available to verify download of");
