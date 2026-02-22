@@ -401,7 +401,9 @@ public class MavenBundleWrapper {
     /**
      * Creates or returns a cached Eclipse source bundle from a source JAR file. The resulting
      * bundle will have proper Eclipse-SourceBundle manifest headers. The cached file is stored
-     * alongside the original source file with "-eclipse-source" suffix.
+     * alongside the original source file, named using the source bundle symbolic name and version
+     * (e.g., {@code com.example.bundle.source_1.0.0.jar}) to support caching different wrappings
+     * of the same source file with different BSN/version combinations.
      * 
      * @param sourceFile
      *            the original source JAR file (e.g., xyz-source.jar)
@@ -417,14 +419,9 @@ public class MavenBundleWrapper {
      */
     public static File getEclipseSourceBundle(File sourceFile, Manifest manifest, String symbolicName,
             String bundleVersion) throws IOException {
-        // Create the cached file name: xyz-source.jar -> xyz-eclipse-source.jar
-        String sourceName = sourceFile.getName();
-        String eclipseSourceName;
-        if (sourceName.endsWith(".jar")) {
-            eclipseSourceName = sourceName.substring(0, sourceName.length() - 4) + "-eclipse-source.jar";
-        } else {
-            eclipseSourceName = sourceName + "-eclipse-source";
-        }
+        // Create the cached file name based on the actual BSN and version to handle
+        // cases where the same source jar is wrapped with different BSN/version
+        String eclipseSourceName = getSourceBundleName(symbolicName) + "_" + bundleVersion + ".jar";
         File eclipseSourceFile = new File(sourceFile.getParentFile(), eclipseSourceName);
         Path eclipseSourcePath = eclipseSourceFile.toPath();
         Path sourceFilePath = sourceFile.toPath();

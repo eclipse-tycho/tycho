@@ -50,7 +50,7 @@ public class MavenBundleWrapperTest {
 
         assertNotNull(result);
         assertTrue("Eclipse source bundle should exist", result.exists());
-        assertEquals("test-source-eclipse-source.jar", result.getName());
+        assertEquals("com.example.bundle.source_1.0.0.jar", result.getName());
         assertEquals(sourceFile.getParentFile(), result.getParentFile());
 
         // Verify manifest headers
@@ -111,6 +111,38 @@ public class MavenBundleWrapperTest {
         assertEquals(result1.getAbsolutePath(), result2.getAbsolutePath());
         // The file should be regenerated (different size due to different content)
         assertTrue("Regenerated bundle should have different size", result2.length() != firstSize);
+    }
+
+    @Test
+    public void testGetEclipseSourceBundle_differentBSNCreatesSeparateCache() throws Exception {
+        // Create a source JAR file
+        File sourceFile = temporaryFolder.newFile("artifact-source.jar");
+        createSourceJar(sourceFile);
+
+        // Wrap the same source with different BSN/version
+        Manifest manifest1 = new Manifest();
+        File result1 = MavenBundleWrapper.getEclipseSourceBundle(sourceFile, manifest1, "com.example.bundle", "1.0.0");
+
+        Manifest manifest2 = new Manifest();
+        File result2 = MavenBundleWrapper.getEclipseSourceBundle(sourceFile, manifest2, "com.other.bundle", "2.0.0");
+
+        // Should be different files
+        assertFalse("Different BSN/version should produce different cache files",
+                result1.getAbsolutePath().equals(result2.getAbsolutePath()));
+        assertEquals("com.example.bundle.source_1.0.0.jar", result1.getName());
+        assertEquals("com.other.bundle.source_2.0.0.jar", result2.getName());
+
+        // Verify each has correct manifest
+        try (JarFile jar1 = new JarFile(result1)) {
+            Attributes attrs1 = jar1.getManifest().getMainAttributes();
+            assertEquals("com.example.bundle.source", attrs1.getValue("Bundle-SymbolicName"));
+            assertEquals("1.0.0", attrs1.getValue("Bundle-Version"));
+        }
+        try (JarFile jar2 = new JarFile(result2)) {
+            Attributes attrs2 = jar2.getManifest().getMainAttributes();
+            assertEquals("com.other.bundle.source", attrs2.getValue("Bundle-SymbolicName"));
+            assertEquals("2.0.0", attrs2.getValue("Bundle-Version"));
+        }
     }
 
     @Test
