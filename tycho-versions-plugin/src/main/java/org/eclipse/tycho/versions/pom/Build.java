@@ -15,7 +15,7 @@ package org.eclipse.tycho.versions.pom;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class Build {
     private final Element dom;
@@ -26,16 +26,16 @@ public class Build {
 
     public List<Plugin> getPlugins() {
         List<Plugin> result = new ArrayList<>();
-        Element plugins = dom.getChild("plugins");
+        Element plugins = dom.child("plugins").orElse(null);
         if (plugins != null) {
-            for (Element plugin : plugins.getChildren("plugin"))
+            for (Element plugin : plugins.children("plugin").toList())
                 result.add(new Plugin(plugin));
         }
         return result;
     }
 
     public PluginManagement getPluginManagement() {
-        Element pluginManagement = dom.getChild("pluginManagement");
+        Element pluginManagement = dom.child("pluginManagement").orElse(null);
         if (pluginManagement == null) {
             return null;
         }
@@ -43,7 +43,7 @@ public class Build {
     }
 
     public static Build getBuild(Element dom) {
-        Element build = dom.getChild("build");
+        Element build = dom.child("build").orElse(null);
         return build != null ? new Build(build) : null;
     }
 }

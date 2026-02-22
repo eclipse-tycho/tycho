@@ -17,25 +17,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import eu.maveniverse.domtrip.Document;
 
 public class TargetFiles {
-    private static final XMLParser PARSER = new XMLParser();
 
     private Map<File, Document> targets = new ConcurrentHashMap<File, Document>();
 
     public void addTargetFile(File targetFile) throws IOException {
-        targets.put(targetFile, PARSER.parse(new XMLIOSource(targetFile)));
+        targets.put(targetFile, Document.of(targetFile.toPath()));
     }
 
     public Map<File, Document> getTargets() {
@@ -51,15 +45,9 @@ public class TargetFiles {
     }
 
     private void writeTarget(File targetFile, Document document)
-            throws IOException, UnsupportedEncodingException, FileNotFoundException {
-        String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
-        try (Writer w = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(targetFile)), enc);
-                XMLWriter xw = new XMLWriter(w)) {
-            try {
-                document.toXML(xw);
-            } finally {
-                xw.flush();
-            }
+            throws IOException, FileNotFoundException {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile))) {
+            document.toXml(os);
         }
     }
 

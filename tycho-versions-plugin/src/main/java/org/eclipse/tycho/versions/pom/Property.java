@@ -15,7 +15,7 @@ package org.eclipse.tycho.versions.pom;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class Property {
     private final Element dom;
@@ -25,18 +25,18 @@ public class Property {
     }
 
     public String getName() {
-        return dom.getName();
+        return dom.name();
     }
 
     public void setValue(String value) {
-        dom.setText(value);
+        dom.textContent(value);
     }
 
     public static List<Property> getProperties(Element dom) {
         List<Property> result = new ArrayList<>();
-        Element properties = dom.getChild("properties");
+        Element properties = dom.child("properties").orElse(null);
         if (properties != null) {
-            for (Element property : properties.getChildren()) {
+            for (Element property : properties.children().toList()) {
                 result.add(new Property(property));
             }
         }
@@ -44,6 +44,6 @@ public class Property {
     }
 
     public String getValue() {
-        return dom.getTrimmedText();
+        return dom.textContentTrimmed();
     }
 }
