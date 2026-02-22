@@ -34,6 +34,13 @@ public class ClassUsage {
 	private Set<MethodSignature> usedMethodSignatures = new HashSet<>();
 	private Map<MethodSignature, Collection<String>> classRef = new HashMap<>();
 
+	/**
+	 * Creates a new ClassUsage by analyzing method invocations in the given class
+	 * bytes.
+	 *
+	 * @param classbytes the raw class file bytes to analyze
+	 * @param jrt        the JRT class resolver to filter out java runtime references
+	 */
 	public ClassUsage(byte[] classbytes, JrtClasses jrt) {
 		ClassReader reader = new ClassReader(classbytes);
 		reader.accept(new ClassVisitor(Opcodes.ASM9) {
@@ -66,10 +73,19 @@ public class ClassUsage {
 		}, ClassReader.SKIP_FRAMES);
 	}
 
+	/**
+	 * @return a stream of all method signatures used by this class
+	 */
 	public Stream<MethodSignature> signatures() {
 		return usedMethodSignatures.stream();
 	}
 
+	/**
+	 * Returns the classes that reference the given method signature.
+	 *
+	 * @param mthd the method signature to look up
+	 * @return the collection of referencing class names, or an empty list
+	 */
 	public Collection<String> classRef(MethodSignature mthd) {
 		return classRef.getOrDefault(mthd, List.of());
 	}

@@ -33,6 +33,12 @@ public class ClassMethods {
 	private List<ClassMethodSignature> signatures = new ArrayList<>();
 	private Function<String, Optional<ClassMethods>> supplier;
 
+	/**
+	 * Creates a new ClassMethods by analyzing the given class bytes.
+	 *
+	 * @param classbytes the raw class file bytes to analyze
+	 * @param supplier   resolver for looking up referenced classes
+	 */
 	public ClassMethods(byte[] classbytes, Function<String, Optional<ClassMethods>> supplier) {
 		this.supplier = supplier;
 		ClassReader reader = new ClassReader(classbytes);
