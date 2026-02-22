@@ -66,8 +66,8 @@ import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.packaging.LicenseFeatureHelper;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 /**
  * Generates a source feature for projects of packaging type <code>eclipse-feature</code>. By
@@ -364,9 +364,9 @@ public class SourceFeatureMojo extends AbstractMojo {
      */
     Feature createSourceFeatureSkeleton(Feature feature, Properties mergedFeatureProperties,
             Properties sourceTemplateProperties) throws IOException, MojoExecutionException {
-        Document document = new Document();
-        document.setEncoding("UTF-8");
-        document.setRootNode(new Element("feature"));
+        Document document = Document.of();
+        document.encoding("UTF-8");
+        document.root(Element.of("feature"));
         Feature sourceFeature = new Feature(document);
         sourceFeature.setId(feature.getId() + ".source");
         sourceFeature.setVersion(feature.getVersion());
@@ -416,7 +416,7 @@ public class SourceFeatureMojo extends AbstractMojo {
         }
 
         if (includeBinaryFeature) {
-            FeatureRef binaryRef = new FeatureRef(new Element("includes"));
+            FeatureRef binaryRef = new FeatureRef(Element.of("includes"));
             binaryRef.setId(feature.getId());
             binaryRef.setVersion(feature.getVersion());
             if (feature.getOS() != null) {
@@ -485,7 +485,7 @@ public class SourceFeatureMojo extends AbstractMojo {
             if (result.getArtifacts().size() == 1) {
                 Entry entry = result.getArtifacts().iterator().next();
 
-                FeatureRef sourceRef = new FeatureRef(new Element("includes"));
+                FeatureRef sourceRef = new FeatureRef(Element.of("includes"));
                 sourceRef.setId(sourceId);
                 sourceRef.setVersion(entry.getVersion());
                 sourceFeature.addFeatureRef(sourceRef);

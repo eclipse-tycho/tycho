@@ -20,7 +20,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.model.IU;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public interface IUXmlTransformer {
 
