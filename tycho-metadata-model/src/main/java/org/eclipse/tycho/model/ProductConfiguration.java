@@ -20,8 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,20 +27,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import de.pdark.decentxml.Attribute;
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.Node;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import eu.maveniverse.domtrip.Attribute;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
+import eu.maveniverse.domtrip.Node;
 
 /**
  * As of eclipse 3.5.1, file format does not seem to be documented. There are most likely multiple
  * parser implementations. org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile
  */
 public class ProductConfiguration {
-    private static final XMLParser parser = new XMLParser();
 
     public static ProductConfiguration read(File file) throws IOException {
         InputStream is = new BufferedInputStream(new FileInputStream(file));
@@ -51,21 +45,14 @@ public class ProductConfiguration {
 
     public static ProductConfiguration read(InputStream input) throws IOException {
         try (input) {
-            return new ProductConfiguration(parser.parse(new XMLIOSource(input)));
+            return new ProductConfiguration(Document.of(input));
         }
     }
 
     public static void write(ProductConfiguration product, File file) throws IOException {
         Document document = product.document;
         try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
-            String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
-            Writer w = new OutputStreamWriter(os, enc);
-            XMLWriter xw = new XMLWriter(w);
-            try {
-                document.toXML(xw);
-            } finally {
-                xw.flush();
-            }
+            document.toXml(os);
         }
     }
 
@@ -75,25 +62,25 @@ public class ProductConfiguration {
 
     public ProductConfiguration(Document document) {
         this.document = document;
-        this.dom = document.getRootElement();
+        this.dom = document.root();
     }
 
     public String getProduct() {
-        return dom.getAttributeValue("id");
+        return dom.attribute("id");
     }
 
     public String getApplication() {
-        return dom.getAttributeValue("application");
+        return dom.attribute("application");
     }
 
     public List<FeatureRef> getFeatures() throws ModelFileSyntaxException {
-        Element featuresDom = dom.getChild("features");
+        Element featuresDom = dom.child("features").orElse(null);
         if (featuresDom == null) {
             return Collections.emptyList();
         }
 
         ArrayList<FeatureRef> features = new ArrayList<>();
-        for (Element featureDom : featuresDom.getChildren()) {
+        for (Element featureDom : featuresDom.children().toList()) {
             features.add(parseFeature(featureDom));
         }
         return Collections.unmodifiableList(features);
@@ -101,24 +88,24 @@ public class ProductConfiguration {
 
     private static FeatureRef parseFeature(Element featureDom) throws ModelFileSyntaxException {
         // knowing the name of the parent element is useful for the error message, so we check the name here
-        if (!"feature".equals(featureDom.getName())) {
+        if (!"feature".equals(featureDom.name())) {
             throw new ModelFileSyntaxException(
-                    "Invalid child element \"" + featureDom.getName() + "\" in \"features\"");
+                    "Invalid child element \"" + featureDom.name() + "\" in \"features\"");
         }
         return new FeatureRef(featureDom);
     }
 
     // TODO 428889 remove once p2 handles installMode="root" features
     public void removeRootInstalledFeatures() {
-        Element featuresDom = dom.getChild("features");
+        Element featuresDom = dom.child("features").orElse(null);
         if (featuresDom != null) {
 
-            for (int childIx = featuresDom.getNodes().size() - 1; childIx > 0; --childIx) {
+            for (int childIx = featuresDom.nodeCount() - 1; childIx > 0; --childIx) {
                 Node nodeDom = featuresDom.getNode(childIx);
 
                 if (nodeDom instanceof Element elementDom) {
                     if (parseFeature(elementDom).getInstallMode() == FeatureRef.InstallMode.root) {
-                        featuresDom.removeNode(childIx);
+                        featuresDom.removeNode(nodeDom);
                     }
                 }
             }
@@ -126,11 +113,11 @@ public class ProductConfiguration {
     }
 
     public String getId() {
-        return dom.getAttributeValue("uid");
+        return dom.attribute("uid");
     }
 
     public Launcher getLauncher() {
-        Element domLauncher = dom.getChild("launcher");
+        Element domLauncher = dom.child("launcher").orElse(null);
         if (domLauncher == null) {
             return null;
         }
@@ -138,29 +125,29 @@ public class ProductConfiguration {
     }
 
     public String getName() {
-        return dom.getAttributeValue("name");
+        return dom.attribute("name");
     }
 
     public List<PluginRef> getPlugins() {
-        Element pluginsDom = dom.getChild("plugins");
+        Element pluginsDom = dom.child("plugins").orElse(null);
         if (pluginsDom == null) {
             return Collections.emptyList();
         }
 
         ArrayList<PluginRef> plugins = new ArrayList<>();
-        for (Element pluginDom : pluginsDom.getChildren("plugin")) {
+        for (Element pluginDom : pluginsDom.children("plugin").toList()) {
             plugins.add(new PluginRef(pluginDom));
         }
         return Collections.unmodifiableList(plugins);
     }
 
     public ProductType getType() {
-        String type = dom.getAttributeValue("type");
+        String type = dom.attribute("type");
         if (type != null && !type.isEmpty()) {
             return ProductType.parse(type);
         }
         // Support legacy 'useFeatures' attribute  
-        String useFeatures = dom.getAttributeValue("useFeatures");
+        String useFeatures = dom.attribute("useFeatures");
         if (useFeatures != null && !useFeatures.isEmpty()) {
             return Boolean.parseBoolean(useFeatures) ? ProductType.FEATURES : ProductType.BUNDLES;
         }
@@ -168,100 +155,100 @@ public class ProductConfiguration {
     }
 
     public boolean includeLaunchers() {
-        String attribute = dom.getAttributeValue("includeLaunchers");
+        String attribute = dom.attribute("includeLaunchers");
         return attribute == null || Boolean.parseBoolean(attribute);
     }
 
     public boolean includeJRE() {
-        String attribute = dom.getAttributeValue("includeJRE");
+        String attribute = dom.attribute("includeJRE");
         return attribute != null && Boolean.parseBoolean(attribute);
     }
 
     public String getVersion() {
-        return dom.getAttributeValue("version");
+        return dom.attribute("version");
     }
 
     public void setVersion(String version) {
-        dom.setAttribute("version", version);
+        dom.attribute("version", version);
     }
 
     public List<String> getW32Icons() {
-        Element domLauncher = dom.getChild("launcher");
+        Element domLauncher = dom.child("launcher").orElse(null);
         if (domLauncher == null) {
 
             return null;
         }
-        Element win = domLauncher.getChild("win");
+        Element win = domLauncher.child("win").orElse(null);
         if (win == null) {
             return null;
         }
         List<String> icons = new ArrayList<>();
-        String useIco = win.getAttributeValue("useIco");
+        String useIco = win.attribute("useIco");
         if (Boolean.valueOf(useIco)) {
-            // for (Element ico : win.getChildren("ico"))
+            // for (Element ico : win.children("ico").toList())
             {
-                Element ico = win.getChild("ico");
+                Element ico = win.child("ico").orElse(null);
                 // should be only 1
-                icons.add(ico.getAttributeValue("path"));
+                icons.add(ico.attribute("path"));
             }
         } else {
-            for (Element bmp : win.getChildren("bmp")) {
-                List<Attribute> attibuteNames = bmp.getAttributes();
+            for (Element bmp : win.children("bmp").toList()) {
+                List<Attribute> attibuteNames = new ArrayList<>(bmp.attributeObjects().values());
                 if (attibuteNames != null && attibuteNames.size() > 0)
-                    icons.add(attibuteNames.get(0).getValue());
+                    icons.add(attibuteNames.get(0).value());
             }
         }
         return icons;
     }
 
     public String getLinuxIcon() {
-        Element domLauncher = dom.getChild("launcher");
+        Element domLauncher = dom.child("launcher").orElse(null);
         if (domLauncher == null) {
 
             return null;
         }
-        Element linux = domLauncher.getChild("linux");
+        Element linux = domLauncher.child("linux").orElse(null);
         if (linux == null) {
             return null;
         }
 
-        return linux.getAttributeValue("icon");
+        return linux.attribute("icon");
     }
 
     public String getFreeBSDIcon() {
-        Element domLauncher = dom.getChild("launcher");
+        Element domLauncher = dom.child("launcher").orElse(null);
         if (domLauncher == null) {
 
             return null;
         }
-        Element freebsd = domLauncher.getChild("freebsd");
+        Element freebsd = domLauncher.child("freebsd").orElse(null);
         if (freebsd == null) {
             return null;
         }
 
-        return freebsd.getAttributeValue("icon");
+        return freebsd.attribute("icon");
     }
 
     public Map<String, BundleConfiguration> getPluginConfiguration() {
-        Element configurationsDom = dom.getChild("configurations");
+        Element configurationsDom = dom.child("configurations").orElse(null);
         if (configurationsDom == null) {
             return null;
         }
 
         Map<String, BundleConfiguration> configs = new HashMap<>();
-        for (Element pluginDom : configurationsDom.getChildren("plugin")) {
-            configs.put(pluginDom.getAttributeValue("id"), new BundleConfiguration(pluginDom));
+        for (Element pluginDom : configurationsDom.children("plugin").toList()) {
+            configs.put(pluginDom.attribute("id"), new BundleConfiguration(pluginDom));
         }
         return Collections.unmodifiableMap(configs);
     }
 
     public List<ConfigurationProperty> getConfigurationProperties() {
-        Element configurationsDom = dom.getChild("configurations");
+        Element configurationsDom = dom.child("configurations").orElse(null);
         if (configurationsDom == null) {
             return null;
         }
 
-        List<Element> propertyDoms = configurationsDom.getChildren("property");
+        List<Element> propertyDoms = configurationsDom.children("property").toList();
         if (propertyDoms == null) {
             return null;
         }
@@ -274,16 +261,16 @@ public class ProductConfiguration {
     }
 
     public String getMacIcon() {
-        Element domLauncher = dom.getChild("launcher");
+        Element domLauncher = dom.child("launcher").orElse(null);
         if (domLauncher == null) {
 
             return null;
         }
-        Element linux = domLauncher.getChild("macosx");
+        Element linux = domLauncher.child("macosx").orElse(null);
         if (linux == null) {
             return null;
         }
-        return linux.getAttributeValue("icon");
+        return linux.attribute("icon");
     }
 
     /**
@@ -309,7 +296,7 @@ public class ProductConfiguration {
     }
 
     public ConfigIni getConfigIni() {
-        Element configIniElement = dom.getChild("configIni");
+        Element configIniElement = dom.child("configIni").orElse(null);
         if (configIniElement == null) {
             return null;
         }
@@ -325,7 +312,7 @@ public class ProductConfiguration {
         private boolean useDefault = true;
 
         private ConfigIni(Element configIniElement) {
-            useDefault = "default".equals(configIniElement.getAttributeValue("use"));
+            useDefault = "default".equals(configIniElement.attribute("use"));
             linuxConfigIni = getOsSpecificConfigIni(configIniElement, "linux");
             freebsdConfigIni = getOsSpecificConfigIni(configIniElement, "freebsd");
             macosxConfigIni = getOsSpecificConfigIni(configIniElement, "macosx");
@@ -338,9 +325,9 @@ public class ProductConfiguration {
         }
 
         private String getOsSpecificConfigIni(Element configIniElement, String os) {
-            Element osElement = configIniElement.getChild(os);
+            Element osElement = configIniElement.child(os).orElse(null);
             if (osElement != null) {
-                String trimmedValue = osElement.getTrimmedText();
+                String trimmedValue = osElement.textContentTrimmed();
                 if (!trimmedValue.isEmpty()) {
                     return trimmedValue;
                 }
@@ -378,15 +365,15 @@ public class ProductConfiguration {
         }
 
         public String getName() {
-            return dom.getAttributeValue("name");
+            return dom.attribute("name");
         }
 
         public String getValue() {
-            return dom.getAttributeValue("value");
+            return dom.attribute("value");
         }
 
         public void setValue(String value) {
-            dom.setAttribute("value", value);
+            dom.attribute("value", value);
         }
     }
 }
