@@ -12,9 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -85,7 +88,9 @@ public class EcJLogFileEnhancer implements AutoCloseable {
             throws IOException, FileNotFoundException {
         for (File file : needsUpdate) {
             Document document = documents.get(file);
-            document.toXml(file.toPath());
+            try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
+                document.toXml(os);
+            }
         }
     }
 
@@ -107,7 +112,7 @@ public class EcJLogFileEnhancer implements AutoCloseable {
             element.attribute(ATTRIBUTES_INFOS, "0");
             element.attribute(ATTRIBUTES_PROBLEMS, "0");
             element.attribute(ATTRIBUTES_WARNINGS, "0");
-            source.addNode(0, element);
+            source.insertNode(0, element);
         }
         return element;
     }

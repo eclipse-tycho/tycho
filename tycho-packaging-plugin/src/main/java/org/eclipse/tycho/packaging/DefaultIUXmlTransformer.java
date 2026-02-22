@@ -129,7 +129,7 @@ public class DefaultIUXmlTransformer implements IUXmlTransformer {
             for (Element property : properties) {
                 String key = property.attribute("name");
                 if (MAVEN_GROUP_ID.equals(key) || MAVEN_ARTIFACT_ID.equals(key) || MAVEN_VERSION.equals(key)) {
-                    property.getParent().removeNode(property);
+                    property.parentElement().removeNode(property);
                 }
             }
         }

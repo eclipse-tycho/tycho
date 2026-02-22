@@ -14,7 +14,11 @@
 package org.eclipse.tycho.versionbump;
 
 import java.io.File;
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Period;
@@ -191,7 +195,11 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
             }
         }
         if (changed) {
-            target.toXml(file.toPath());
+            try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
+                target.toXml(os);
+            } catch (IOException e) {
+                throw new MojoFailureException("Failed to write updated target file", e);
+            }
             if (mavenUpdates.size() > 0) {
                 builder.h3("The following maven artifacts have been updated:");
                 Set<String> updatedMsg = new HashSet<>();

@@ -9,6 +9,6 @@
 
   <artifactId>repositoryWithOneProductFile</artifactId>
   <packaging>eclipse-repository</packaging>
-
 <version>1.0.1-SNAPSHOT</version>
+
 </project>

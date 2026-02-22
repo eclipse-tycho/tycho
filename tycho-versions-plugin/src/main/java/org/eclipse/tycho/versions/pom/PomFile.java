@@ -102,9 +102,9 @@ public class PomFile {
 
     private static Element addEmptyVersionElementToXML(Element project) {
         Element result = Element.of("version");
-        project.addNode(result);
         // TODO proper indentation
-        project.addNode(Text.of("\n"));
+        result.precedingWhitespace("\n");
+        project.addNode(result);
         return result;
     }
 
