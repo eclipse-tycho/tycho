@@ -1,6 +1,6 @@
 package org.eclipse.tycho.test;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.junit.Test;
 
 public class EclipsePluginTest extends AbstractTychoIntegrationTest {

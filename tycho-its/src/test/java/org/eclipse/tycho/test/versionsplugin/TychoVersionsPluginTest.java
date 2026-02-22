@@ -32,7 +32,7 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -72,7 +72,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 		Verifier verifier = getVerifier("tycho-version-plugin/set-version/compat", true);
 
-		verifier.addCliOption("-DnewVersion=" + expectedNewVersion);
+		verifier.addCliArgument("-DnewVersion=" + expectedNewVersion);
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
 
 		verifier.verifyErrorFreeLog();
@@ -88,7 +88,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 		Verifier verifier = getVerifier("tycho-version-plugin/set-version/update-target", true);
 
-		verifier.addCliOption("-DnewVersion=" + expectedNewVersion);
+		verifier.addCliArgument("-DnewVersion=" + expectedNewVersion);
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
 
 		verifier.verifyErrorFreeLog();
@@ -104,7 +104,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 		Verifier verifier = getVerifier("tycho-version-plugin/set-version/pde-bnd", true);
 
-		verifier.addCliOption("-DnewVersion=" + expectedNewVersion);
+		verifier.addCliArgument("-DnewVersion=" + expectedNewVersion);
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
 
 		verifier.verifyErrorFreeLog();
@@ -121,7 +121,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 		Verifier verifier = getVerifier("tycho-version-plugin/set-version/nested_modules", true);
 
-		verifier.addCliOption("-DnewVersion=" + expectedNewVersion);
+		verifier.addCliArgument("-DnewVersion=" + expectedNewVersion);
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
 
 		verifier.verifyErrorFreeLog();
@@ -150,7 +150,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 	public void updateProjectVersionOnlyChangesVersionOfNestedProjectsIfSameVersionAsRoot() throws Exception {
 		Verifier verifier = getVerifier("tycho-version-plugin/set-version/only_same_version", false);
 
-		verifier.addCliOption("-DnewVersion=1.0.1");
+		verifier.addCliArgument("-DnewVersion=1.0.1");
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
 
 		verifier.verifyErrorFreeLog();
@@ -198,8 +198,8 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		// -DnewVersion=1.1.0-SNAPSHOT
 		// -DupdateVersionRangeMatchingBounds
 		Verifier verifier = getVerifier("tycho-version-plugin/set-version/version_ranges", true);
-		verifier.addCliOption("-DnewVersion=" + expectedNewMavenVersion);
-		verifier.addCliOption("-DupdateVersionRangeMatchingBounds");
+		verifier.addCliArgument("-DnewVersion=" + expectedNewMavenVersion);
+		verifier.addCliArgument("-DupdateVersionRangeMatchingBounds");
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
 		{// check the package itself is updated
 			Manifest provider = getManifest(verifier, "provider.bundle");
@@ -244,8 +244,8 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		String expectedUpperBoundVersion = "[11,12)";
 
 		Verifier verifier = getVerifier("tycho-version-plugin/set-version/version_ranges_major_version", true);
-		verifier.addCliOption("-DnewVersion=" + expectedNewMavenVersion);
-		verifier.addCliOption("-DupdateVersionRangeMatchingBounds");
+		verifier.addCliArgument("-DnewVersion=" + expectedNewMavenVersion);
+		verifier.addCliArgument("-DupdateVersionRangeMatchingBounds");
 		verifier.executeGoals(asList("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version"));
 		{// check the pom.xml is updated
 			MavenXpp3Reader pomReader = new MavenXpp3Reader();
@@ -325,7 +325,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		String MANIFEST_VERSION = "2.0.0";
 
 		Verifier verifier = getVerifier("tycho-version-plugin/update-pom/pomNamedPomXml", false);
-		verifier.addCliOption("--file " + POM_NAME);
+		verifier.addCliArgument("--file " + POM_NAME);
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:%s:update-pom".formatted(VERSION));
 		verifier.verifyErrorFreeLog();
 		MavenXpp3Reader pomReader = new MavenXpp3Reader();
@@ -349,7 +349,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		String MANIFEST_VERSION = "2.0.0";
 
 		Verifier verifier = getVerifier("tycho-version-plugin/update-pom/pomNotNamedPomXml", false);
-		verifier.addCliOption("--file " + POM_NAME);
+		verifier.addCliArgument("--file " + POM_NAME);
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:%s:update-pom".formatted(VERSION));
 		verifier.verifyErrorFreeLog();
 		MavenXpp3Reader pomReader = new MavenXpp3Reader();
@@ -374,7 +374,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		String MANIFEST_VERSION = "2.0.0";
 
 		Verifier verifier = getVerifier("tycho-version-plugin/update-pom/modularPom", false);
-		verifier.addCliOption("--file " + POM_NAME);
+		verifier.addCliArgument("--file " + POM_NAME);
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:%s:update-pom".formatted(VERSION));
 		verifier.verifyErrorFreeLog();
 		MavenXpp3Reader pomReader = new MavenXpp3Reader();
@@ -401,7 +401,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 		Verifier verifier = getVerifier("tycho-version-plugin/set-version/ci_friendly", false);
 
-		verifier.addCliOption("-DnewVersion=" + expectedNewVersion);
+		verifier.addCliArgument("-DnewVersion=" + expectedNewVersion);
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
 
 		verifier.verifyErrorFreeLog();

@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.RepositoryReference;
@@ -40,7 +40,7 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 	public void testRefLocation() throws Exception {
 
 		List<RepositoryReference> allRepositoryReferences = buildAndGetRepositoryReferences(
-				"/p2Repository.repositoryRef.location", v -> v.addCliOption("-Dtest-data-repo="
+				"/p2Repository.repositoryRef.location", v -> v.addCliArgument("-Dtest-data-repo="
 						+ ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString().replace("/", "//")));
 
 		assertEquals(4, allRepositoryReferences.size());

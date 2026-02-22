@@ -18,8 +18,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.List;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.codehaus.plexus.util.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +55,7 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		// (1.0.0 -> 1.1.0)
 		// This should pass with the fix
 		Verifier verifier = getBaselineProject("feature-remove-source");
-		verifier.addCliOption("-Dbaseline-url=" + baselineRepo.toURI());
+		verifier.addCliArgument("-Dbaseline-url=" + baselineRepo.toURI());
 
 		// This should succeed because removing .source bundle only requires minor
 		// version bump
@@ -77,7 +77,7 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		// (1.0.0 -> 1.1.0)
 		// This should pass with the fix
 		Verifier verifier = getBaselineProject("feature-remove-source-feature");
-		verifier.addCliOption("-Dbaseline-url=" + baselineRepo.toURI());
+		verifier.addCliArgument("-Dbaseline-url=" + baselineRepo.toURI());
 
 		// This should succeed because removing .source.feature.group only requires minor
 		// version bump
@@ -93,7 +93,7 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 	public void testRemoveRegularBundle() throws Exception {
 		// Removing a regular bundle should require major version bump (1.0.0 -> 2.0.0)
 		Verifier verifier = getBaselineProject("feature-remove-bundle");
-		verifier.addCliOption("-Dbaseline-url=" + baselineRepo.toURI());
+		verifier.addCliArgument("-Dbaseline-url=" + baselineRepo.toURI());
 
 		// This should succeed because we bumped to major version
 		verifier.executeGoals(List.of("clean", "verify"));
@@ -114,7 +114,7 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		// bumped
 		// This should fail because B extends A and now exposes the new method
 		Verifier verifier = getBaselineProject("bundle-with-inheritance");
-		verifier.addCliOption("-Dbaseline-url=" + baselineRepo.toURI());
+		verifier.addCliArgument("-Dbaseline-url=" + baselineRepo.toURI());
 
 		assertThrows(VerificationException.class, () -> {
 			verifier.executeGoals(List.of("clean", "verify"));
@@ -125,7 +125,7 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 
 	private File buildBaseRepo() throws Exception, VerificationException {
 		Verifier verifier = getBaselineProject("base-repo");
-		verifier.addCliOption("-Dtycho.baseline.skip=true");
+		verifier.addCliArgument("-Dtycho.baseline.skip=true");
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File repoBase = new File(verifier.getBasedir(), "base-repo/site/target/repository");
@@ -139,8 +139,8 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 
 	private Verifier getBaselineProject(String project) throws Exception {
 		Verifier verifier = getVerifier("baselinePlugin", false, true);
-		verifier.addCliOption("-f");
-		verifier.addCliOption(project + "/pom.xml");
+		verifier.addCliArgument("-f");
+		verifier.addCliArgument(project + "/pom.xml");
 		return verifier;
 	}
 }

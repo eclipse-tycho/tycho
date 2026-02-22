@@ -18,8 +18,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class SbomPluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testBuildWithProfile() throws Exception {
 		Verifier verifier = getVerifier("sbom-simple-product", false);
-		verifier.addCliOption("-Psbom-generation");
+		verifier.addCliArgument("-Psbom-generation");
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 		Path basedir = Path.of(verifier.getBasedir());

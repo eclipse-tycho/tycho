@@ -37,8 +37,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
@@ -161,19 +161,19 @@ public abstract class AbstractTychoIntegrationTest {
 			verifier.getEnvironmentVariables().put("MAVEN_OPTS", mvnOpts);
 			System.out.flush();
 		}
-		verifier.addCliOption("-Dmaven.home=" + getMavenHome());
-		verifier.addCliOption("-Dtycho-version=" + getTychoVersion());
+		verifier.addCliArgument("-Dmaven.home=" + getMavenHome());
+		verifier.addCliArgument("-Dtycho-version=" + getTychoVersion());
 		File tmpDir = new File(getTychoIntegrationTestsFolder(), "target/tmp");
 		tmpDir.mkdirs();
-		verifier.addCliOption("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
+		verifier.addCliArgument("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
 		if (setTargetPlatform) {
-			verifier.addCliOption("-Dtarget-platform=" + getTargetPlatform().replace("/", "//"));
+			verifier.addCliArgument("-Dtarget-platform=" + getTargetPlatform().replace("/", "//"));
 		}
 		if (ignoreLocalArtifacts) {
-			verifier.addCliOption("-Dtycho.localArtifacts=ignore");
+			verifier.addCliArgument("-Dtycho.localArtifacts=ignore");
 		}
-		verifier.addCliOption("-X");
-		verifier.addCliOption("-s " + userSettings.getAbsolutePath());
+		verifier.addCliArgument("-X");
+		verifier.addCliArguments("-s", userSettings.getAbsolutePath());
 		String property = EnvironmentUtil.getProperty("local-repo");
 		if (property != null) {
 			verifier.getVerifierProperties().put("use.mavenRepoLocal", "true");
@@ -182,7 +182,7 @@ public abstract class AbstractTychoIntegrationTest {
 
 		String customOptions = System.getProperty("it.cliOptions");
 		if (customOptions != null && !customOptions.trim().isEmpty()) {
-			verifier.addCliOption(customOptions);
+			verifier.addCliArguments(customOptions.split(" "));
 		}
 
 		return verifier;
@@ -207,7 +207,7 @@ public abstract class AbstractTychoIntegrationTest {
 	}
 
 	protected static Verifier executeOnlyProject(Verifier verifier, String projectFolder) {
-		verifier.addCliOption("-pl " + projectFolder);
+		verifier.addCliArgument("-pl " + projectFolder);
 		return verifier;
 	}
 
