@@ -242,9 +242,9 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
-				<groupId>de.pdark</groupId>
-				<artifactId>decentxml</artifactId>
-				<version>1.4</version>
+				<groupId>eu.maveniverse.maven.domtrip</groupId>
+				<artifactId>domtrip-core</artifactId>
+				<version>0.4.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.bcel</groupId>

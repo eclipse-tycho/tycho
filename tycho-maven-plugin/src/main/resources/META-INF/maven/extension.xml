@@ -27,7 +27,7 @@
     <!-- <exportedPackage>org.eclipse.core.runtime</exportedPackage>
     <exportedPackage>org.eclipse.core.resources</exportedPackage>  -->
     <!-- other  -->
-    <exportedPackage>de.pdark.decentxml</exportedPackage>
+    <exportedPackage>eu.maveniverse.domtrip</exportedPackage>
     <!--  bnd -->
 	<exportedPackage>aQute.bnd.annotation</exportedPackage>
 	<exportedPackage>aQute.bnd.annotation.baseline</exportedPackage>
@@ -184,6 +184,6 @@
     <exportedArtifact>org.eclipse.tycho:sisu-equinox-embedder</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:org.eclipse.osgi</exportedArtifact>
     
-    <exportedArtifact>de.pdark:decentxml</exportedArtifact>
+    <exportedArtifact>eu.maveniverse.maven.domtrip:domtrip-core</exportedArtifact>
   </exportedArtifacts>
 </extension>
