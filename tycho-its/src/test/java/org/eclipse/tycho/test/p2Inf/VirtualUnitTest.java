@@ -22,9 +22,8 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 /**
  * Test that a virtual IU created just with metadata in a p2.inf file can be
@@ -64,7 +63,7 @@ public class VirtualUnitTest extends AbstractTychoIntegrationTest {
 		assertTrue("Host IU " + hostUnitId + " not found", hostUnit.isPresent());
 		assertTrue("Configure IU " + configureUnitId + " not found", configureUnit.isPresent());
 		assertTrue("Requirement of IU " + configureUnitId + " not found in IU " + hostUnitId,
-				hostUnitRequirements.anyMatch(elem -> configureUnitId.equals(elem.getAttributeValue("name"))));
+				hostUnitRequirements.anyMatch(elem -> configureUnitId.equals(elem.attribute("name"))));
 	}
 
 	@Test
@@ -86,7 +85,7 @@ public class VirtualUnitTest extends AbstractTychoIntegrationTest {
 		assertTrue("Host IU " + hostUnitId + " not found", hostUnit.isPresent());
 		assertTrue("Configure IU " + configureUnitId + " not found", configureUnit.isPresent());
 		assertTrue("Requirement of IU " + configureUnitId + " not found in IU " + hostUnitId,
-				hostUnitRequirements.anyMatch(elem -> configureUnitId.equals(elem.getAttributeValue("name"))));
+				hostUnitRequirements.anyMatch(elem -> configureUnitId.equals(elem.attribute("name"))));
 
 		// Client bundle assertions
 		String clientUnitId = "pvumb.bundle2";
@@ -98,22 +97,22 @@ public class VirtualUnitTest extends AbstractTychoIntegrationTest {
 
 		assertTrue("Client IU " + clientUnitId + " not found", clientUnit.isPresent());
 		assertTrue("Requirement of IU " + hostUnitId + " not found in IU " + clientUnitId,
-				clientUnitRequirements.anyMatch(elem -> hostUnitId.equals(elem.getAttributeValue("name"))));
+				clientUnitRequirements.anyMatch(elem -> hostUnitId.equals(elem.attribute("name"))));
 	}
 
 	private static List<Element> getUnits(String baseDir, String filePath) throws IOException {
 		File p2Content = new File(baseDir, filePath);
-		Document doc = XMLParser.parse(p2Content);
+		Document doc = Document.of(p2Content.toPath());
 
-		return doc.getChild("units").getChildren("unit");
+		return doc.root().children("unit").toList();
 	}
 
 	private static Optional<Element> findUnit(List<Element> units, String hostUnitId) {
-		return units.stream().filter(elem -> hostUnitId.equals(elem.getAttributeValue("id"))).findFirst();
+		return units.stream().filter(elem -> hostUnitId.equals(elem.attribute("id"))).findFirst();
 	}
 
 	private static Stream<Element> findRequirements(Optional<Element> hostUnit) {
-		return hostUnit.stream().flatMap(elem -> elem.getChild("requires").getChildren("required").stream());
+		return hostUnit.stream().flatMap(elem -> elem.child("requires").orElse(null).children("required"));
 	}
 
 }

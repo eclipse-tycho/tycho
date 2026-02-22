@@ -18,16 +18,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class IU {
     public static final String SOURCE_FILE_NAME = "p2iu.xml";
@@ -55,8 +50,6 @@ public class IU {
 
     public static final String P2_IU_NAMESPACE = "org.eclipse.equinox.p2.iu";
 
-    private static XMLParser parser = new XMLParser();
-
     private final Document document;
 
     private final Element iuDom;
@@ -67,22 +60,22 @@ public class IU {
     }
 
     public String getId() {
-        return iuDom.getAttributeValue(ID);
+        return iuDom.attribute(ID);
     }
 
     public String getVersion() {
-        return iuDom.getAttributeValue(VERSION);
+        return iuDom.attribute(VERSION);
     }
 
     public void setVersion(String version) {
-        iuDom.setAttribute(VERSION, version);
+        iuDom.attribute(VERSION, version);
     }
 
     public List<Element> getProvidedCapabilites() {
-        List<Element> provides = iuDom.getChildren(PROVIDES);
+        List<Element> provides = iuDom.children(PROVIDES).toList();
         if (provides == null || provides.isEmpty())
             return null;
-        return provides.get(0).getChildren(PROVIDED);
+        return provides.get(0).children(PROVIDED).toList();
     }
 
     public List<Element> getSelfCapabilities() {
@@ -91,70 +84,70 @@ public class IU {
         if (providedCapabilities == null)
             return selfCapabilities;
         for (Element capability : providedCapabilities) {
-            if (getId().equals(capability.getAttributeValue(NAME))
-                    && P2_IU_NAMESPACE.equals(capability.getAttributeValue(NAMESPACE)))
+            if (getId().equals(capability.attribute(NAME))
+                    && P2_IU_NAMESPACE.equals(capability.attribute(NAMESPACE)))
                 selfCapabilities.add(capability);
         }
         return selfCapabilities;
     }
 
     public void addSelfCapability() {
-        Element provides = iuDom.getChild(PROVIDES);
+        Element provides = iuDom.child(PROVIDES).orElse(null);
         if (provides == null) {
-            provides = new Element(PROVIDES);
+            provides = Element.of(PROVIDES);
             iuDom.addNode(provides);
         }
-        Element newCapability = new Element(PROVIDED);
-        newCapability.addAttribute(NAMESPACE, P2_IU_NAMESPACE);
-        newCapability.addAttribute(NAME, getId());
-        newCapability.addAttribute(VERSION, getVersion());
+        Element newCapability = Element.of(PROVIDED);
+        newCapability.attribute(NAMESPACE, P2_IU_NAMESPACE);
+        newCapability.attribute(NAME, getId());
+        newCapability.attribute(VERSION, getVersion());
 
         provides.addNode(newCapability);
     }
 
     public List<Element> getRequiredCapabilites() {
-        List<Element> requires = iuDom.getChildren(REQUIRES);
+        List<Element> requires = iuDom.children(REQUIRES).toList();
         if (requires == null || requires.isEmpty())
             return null;
-        return requires.get(0).getChildren(REQUIRED);
+        return requires.get(0).children(REQUIRED).toList();
     }
 
     public List<Element> getProperties() {
-        List<Element> properties = iuDom.getChildren(PROPERTIES);
+        List<Element> properties = iuDom.children(PROPERTIES).toList();
         if (properties == null || properties.isEmpty())
             return null;
-        return properties.get(0).getChildren(PROPERTY);
+        return properties.get(0).children(PROPERTY).toList();
     }
 
     public void addProperty(String name, String value) {
-        Element properties = iuDom.getChild(PROPERTIES);
+        Element properties = iuDom.child(PROPERTIES).orElse(null);
         if (properties == null) {
-            iuDom.addNode(new Element(PROPERTIES));
-            properties = iuDom.getChild(PROPERTIES);
+            iuDom.addNode(Element.of(PROPERTIES));
+            properties = iuDom.child(PROPERTIES).orElse(null);
         }
-        Element elt = new Element(PROPERTY);
-        elt.setAttribute(NAME, name);
-        elt.setAttribute("value", value);
+        Element elt = Element.of(PROPERTY);
+        elt.attribute(NAME, name);
+        elt.attribute("value", value);
         properties.addNode(elt);
     }
 
     public List<Element> getArtifacts() {
-        Element artifacts = iuDom.getChild(ARTIFACTS);
+        Element artifacts = iuDom.child(ARTIFACTS).orElse(null);
         if (artifacts == null)
             return null;
-        return artifacts.getChildren(ARTIFACT);
+        return artifacts.children(ARTIFACT).toList();
     }
 
     public void addArtifact(String classifier, String id, String version) {
-        Element artifacts = iuDom.getChild(ARTIFACTS);
+        Element artifacts = iuDom.child(ARTIFACTS).orElse(null);
         if (artifacts == null) {
-            artifacts = new Element(ARTIFACTS);
+            artifacts = Element.of(ARTIFACTS);
             iuDom.addNode(artifacts);
         }
-        Element newArtifact = new Element(ARTIFACT);
-        newArtifact.addAttribute(CLASSIFIER, classifier);
-        newArtifact.addAttribute(ID, id);
-        newArtifact.addAttribute(VERSION, version);
+        Element newArtifact = Element.of(ARTIFACT);
+        newArtifact.attribute(CLASSIFIER, classifier);
+        newArtifact.attribute(ID, id);
+        newArtifact.attribute(VERSION, version);
 
         artifacts.addNode(newArtifact);
     }
@@ -164,8 +157,8 @@ public class IU {
         if (artifacts == null)
             return null;
         for (Element artifact : artifacts) {
-            if (getId().equals(artifact.getAttributeValue(ID))
-                    && "binary".equals(artifact.getAttributeValue(CLASSIFIER)))
+            if (getId().equals(artifact.attribute(ID))
+                    && "binary".equals(artifact.attribute(CLASSIFIER)))
                 return artifact;
         }
         return null;
@@ -173,9 +166,9 @@ public class IU {
 
     public static IU read(File file) throws IOException {
         try (FileInputStream is = new FileInputStream(file)) {
-            Document iuDocument = parser.parse(new XMLIOSource(is));
-            Element root = iuDocument.getChild(UNIT);
-            if (root == null)
+            Document iuDocument = Document.of(is);
+            Element root = iuDocument.root();
+            if (root == null || !UNIT.equals(root.name()))
                 throw new RuntimeException("No iu found.");
 
             IU result = new IU(iuDocument, root);
@@ -214,15 +207,7 @@ public class IU {
     public static void write(IU iu, File file, String indent) throws IOException {
         Document document = iu.document;
         try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
-            String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
-            Writer w = new OutputStreamWriter(os, enc);
-            XMLWriter xw = new XMLWriter(w);
-            xw.setIndent(indent);
-            try {
-                document.toXML(xw);
-            } finally {
-                xw.flush();
-            }
+            document.toXml(os);
         }
     }
 }

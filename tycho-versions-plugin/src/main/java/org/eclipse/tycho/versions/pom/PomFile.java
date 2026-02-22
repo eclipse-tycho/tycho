@@ -23,29 +23,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.Node;
-import de.pdark.decentxml.Text;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParseException;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
+import eu.maveniverse.domtrip.Element;
+import eu.maveniverse.domtrip.Node;
+import eu.maveniverse.domtrip.Text;
 
 public class PomFile {
 
     public static final String POM_XML = "pom.xml";
-    private static final String DEFAULT_XML_ENCODING = "UTF-8";
-
-    private static XMLParser parser = new XMLParser();
-
     private Document document;
     private Element project;
 
@@ -59,7 +49,7 @@ public class PomFile {
     public PomFile(Document pom, boolean isMutable) {
         this.document = pom;
         this.isMutable = isMutable;
-        this.project = document.getRootElement();
+        this.project = document.root();
 
         this.version = this.getExplicitVersionFromXML();
         if (this.version == null) {
@@ -73,25 +63,18 @@ public class PomFile {
     public static PomFile read(File file, boolean isMutable) throws IOException {
         try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
             return read(is, isMutable);
-        } catch (XMLParseException xpe) {
-            throw new XMLParseException("This Pom " + file.getAbsolutePath() + " is in the Wrong Format", xpe);
+        } catch (DomTripException xpe) {
+            throw new DomTripException("This Pom " + file.getAbsolutePath() + " is in the Wrong Format", xpe);
         }
     }
 
     public static PomFile read(InputStream input, boolean isMutable) throws IOException {
-        return new PomFile(parser.parse(new XMLIOSource(input)), isMutable);
+        return new PomFile(Document.of(input), isMutable);
     }
 
     public static void write(PomFile pom, OutputStream out) throws IOException {
-        String encoding = pom.document.getEncoding() != null ? pom.document.getEncoding() : DEFAULT_XML_ENCODING;
-        Writer w = new OutputStreamWriter(out, encoding);
-        XMLWriter xw = new XMLWriter(w);
-        try {
-            pom.setVersionInXML();
-            pom.document.toXML(xw);
-        } finally {
-            xw.flush();
-        }
+        pom.setVersionInXML();
+        pom.document.toXml(out);
     }
 
     public static void write(PomFile pom, File file) throws IOException {
@@ -107,38 +90,42 @@ public class PomFile {
     private void setVersionInXML() {
         boolean writeProjectVersion = preferExplicitProjectVersion || !version.equals(getParentVersion());
         if (writeProjectVersion) {
-            Element versionElement = project.getChild("version");
+            Element versionElement = project.child("version").orElse(null);
             if (versionElement == null) {
                 versionElement = addEmptyVersionElementToXML(project);
             }
-            versionElement.setText(version);
+            versionElement.textContent(version);
         } else {
             removeVersionElementFromXML(project);
         }
     }
 
     private static Element addEmptyVersionElementToXML(Element project) {
-        Element result = new Element(project, "version");
+        Element result = Element.of("version");
         // TODO proper indentation
-        project.addNode(new Text("\n"));
+        result.precedingWhitespace("\n");
+        project.addNode(result);
         return result;
     }
 
     private static void removeVersionElementFromXML(Element project) {
-        List<Node> elements = project.getNodes();
-        for (Iterator<Node> iterator = elements.iterator(); iterator.hasNext();) {
-            Node node = iterator.next();
+        List<Node> nodesToRemove = new ArrayList<>();
+        List<Node> nodeList = project.nodes().toList();
+        for (int i = 0; i < nodeList.size(); i++) {
+            Node node = nodeList.get(i);
             if (node instanceof Element element) {
-                if ("version".equals(element.getName())) {
-                    iterator.remove();
-
-                    // also return newline after the element
-                    if (iterator.hasNext() && iterator.next() instanceof Text) {
-                        iterator.remove();
+                if ("version".equals(element.name())) {
+                    nodesToRemove.add(element);
+                    // also remove newline after the element
+                    if (i + 1 < nodeList.size() && nodeList.get(i + 1) instanceof Text) {
+                        nodesToRemove.add(nodeList.get(i + 1));
                     }
-                    return;
+                    break;
                 }
             }
+        }
+        for (Node node : nodesToRemove) {
+            project.removeNode(node);
         }
     }
 
@@ -149,11 +136,11 @@ public class PomFile {
      * @see #setVersion(String)
      */
     public void setParentVersion(String newVersion) {
-        Element element = project.getChild("parent/version");
+        Element element = project.path("parent", "version").orElse(null);
         if (element == null) {
             throw new IllegalArgumentException("No parent/version");
         }
-        element.setText(newVersion);
+        element.textContent(newVersion);
     }
 
     /**
@@ -211,15 +198,15 @@ public class PomFile {
     }
 
     public GAV getParent() {
-        Element element = project.getChild("parent");
+        Element element = project.child("parent").orElse(null);
         return element != null ? new GAV(element) : null;
     }
 
     public List<String> getModules() {
         LinkedHashSet<String> result = new LinkedHashSet<>();
-        for (Element modules : project.getChildren("modules")) {
-            for (Element module : modules.getChildren("module")) {
-                result.add(module.getTrimmedText());
+        for (Element modules : project.children("modules").toList()) {
+            for (Element module : modules.children("module").toList()) {
+                result.add(module.textContentTrimmed());
             }
         }
         return new ArrayList<>(result);
@@ -227,8 +214,8 @@ public class PomFile {
 
     public List<Profile> getProfiles() {
         ArrayList<Profile> result = new ArrayList<>();
-        for (Element profiles : project.getChildren("profiles")) {
-            for (Element profile : profiles.getChildren("profile")) {
+        for (Element profiles : project.children("profiles").toList()) {
+            for (Element profile : profiles.children("profile").toList()) {
                 result.add(new Profile(profile));
             }
         }
@@ -252,8 +239,8 @@ public class PomFile {
     }
 
     private String getElementValue(String name) {
-        Element child = project.getChild(name);
-        return child != null ? child.getTrimmedText() : null;
+        Element child = project.child(name).orElse(null);
+        return child != null ? child.textContentTrimmed() : null;
     }
 
     public boolean isMutable() {

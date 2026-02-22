@@ -37,9 +37,8 @@ import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2resolver.AttachedArtifact;
 import org.eclipse.tycho.resolver.P2MetadataProvider;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLDeclaration;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 @Component(role = P2MetadataProvider.class, hint = "org.eclipse.tycho.source.SourceFeatureP2MetadataProvider")
 public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Initializable {
@@ -91,9 +90,9 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
          */
         Feature feature = Feature.read(new File(project.getBasedir(), "feature.xml"));
 
-        Document document = new Document();
-        document.setRootNode(new Element("feature"));
-        document.setXmlDeclaration(new XMLDeclaration("1.0", "UTF-8"));
+        Document document = Document.of();
+        document.root(Element.of("feature"));
+        document.withXmlDeclaration();
         Feature sourceFeature = new Feature(document);
 
         sourceFeature.setId(feature.getId() + ".source");

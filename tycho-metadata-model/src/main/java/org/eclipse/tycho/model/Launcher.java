@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class Launcher {
 
@@ -57,83 +57,83 @@ public class Launcher {
     }
 
     public String getName() {
-        return dom.getAttributeValue("name");
+        return dom.attribute("name");
     }
 
     public Map<String, String> getLinuxIcon() {
-        Element linuxDom = dom.getChild("linux");
+        Element linuxDom = dom.child("linux").orElse(null);
         if (linuxDom == null) {
             return Collections.emptyMap();
         }
         Map<String, String> linux = new HashMap<>();
-        putIfNotNull(linux, ICON_LINUX, linuxDom.getAttributeValue(ICON_LINUX));
+        putIfNotNull(linux, ICON_LINUX, linuxDom.attribute(ICON_LINUX));
         return Collections.unmodifiableMap(linux);
     }
 
     public Map<String, String> getFreeBSDIcon() {
-        Element freebsdDom = dom.getChild("freebsd");
+        Element freebsdDom = dom.child("freebsd").orElse(null);
         if (freebsdDom == null) {
             return Collections.emptyMap();
         }
         Map<String, String> freebsd = new HashMap<>(1);
-        putIfNotNull(freebsd, ICON_FREEBSD, freebsdDom.getAttributeValue(ICON_FREEBSD));
+        putIfNotNull(freebsd, ICON_FREEBSD, freebsdDom.attribute(ICON_FREEBSD));
         return Collections.unmodifiableMap(freebsd);
     }
 
     public Map<String, String> getMacosxIcon() {
-        Element macosxDom = dom.getChild("macosx");
+        Element macosxDom = dom.child("macosx").orElse(null);
         if (macosxDom == null) {
             return Collections.emptyMap();
         }
         Map<String, String> mac = new HashMap<>();
-        putIfNotNull(mac, ICON_LINUX, macosxDom.getAttributeValue(ICON_LINUX));
+        putIfNotNull(mac, ICON_LINUX, macosxDom.attribute(ICON_LINUX));
         return Collections.unmodifiableMap(mac);
     }
 
     public Map<String, String> getSolarisIcon() {
-        Element solarisDom = dom.getChild("solaris");
+        Element solarisDom = dom.child("solaris").orElse(null);
         if (solarisDom == null) {
             return Collections.emptyMap();
         }
         Map<String, String> solaris = new HashMap<>();
-        putIfNotNull(solaris, ICON_SOLARIS_LARGE, solarisDom.getAttributeValue(ICON_SOLARIS_LARGE));
-        putIfNotNull(solaris, ICON_SOLARIS_MEDIUM, solarisDom.getAttributeValue(ICON_SOLARIS_MEDIUM));
-        putIfNotNull(solaris, ICON_SOLARIS_SMALL, solarisDom.getAttributeValue(ICON_SOLARIS_SMALL));
-        putIfNotNull(solaris, ICON_SOLARIS_TINY, solarisDom.getAttributeValue(ICON_SOLARIS_TINY));
+        putIfNotNull(solaris, ICON_SOLARIS_LARGE, solarisDom.attribute(ICON_SOLARIS_LARGE));
+        putIfNotNull(solaris, ICON_SOLARIS_MEDIUM, solarisDom.attribute(ICON_SOLARIS_MEDIUM));
+        putIfNotNull(solaris, ICON_SOLARIS_SMALL, solarisDom.attribute(ICON_SOLARIS_SMALL));
+        putIfNotNull(solaris, ICON_SOLARIS_TINY, solarisDom.attribute(ICON_SOLARIS_TINY));
         return Collections.unmodifiableMap(solaris);
     }
 
     public boolean getWindowsUseIco() {
-        Element winDom = dom.getChild("win");
+        Element winDom = dom.child("win").orElse(null);
         if (winDom == null) {
             return false;
         }
-        boolean useIco = Boolean.parseBoolean(winDom.getAttributeValue("useIco"));
+        boolean useIco = Boolean.parseBoolean(winDom.attribute("useIco"));
         return useIco;
     }
 
     public Map<String, String> getWindowsIcon() {
-        Element winDom = dom.getChild("win");
+        Element winDom = dom.child("win").orElse(null);
         if (winDom == null) {
             return Collections.emptyMap();
         }
         Map<String, String> windows = new HashMap<>();
         if (getWindowsUseIco()) {
-            Element ico = winDom.getChild("ico");
+            Element ico = winDom.child("ico").orElse(null);
             if (ico != null) {
-                putIfNotNull(windows, ICON_WINDOWS_ICO_PATH, ico.getAttributeValue(ICON_WINDOWS_ICO_PATH));
+                putIfNotNull(windows, ICON_WINDOWS_ICO_PATH, ico.attribute(ICON_WINDOWS_ICO_PATH));
             }
         } else {
-            Element bmp = winDom.getChild("bmp");
+            Element bmp = winDom.child("bmp").orElse(null);
             if (bmp != null) {
-                putIfNotNull(windows, ICON_WINDOWS_SMALL_HIGH, bmp.getAttributeValue(ICON_WINDOWS_SMALL_HIGH));
-                putIfNotNull(windows, ICON_WINDOWS_SMALL_LOW, bmp.getAttributeValue(ICON_WINDOWS_SMALL_LOW));
-                putIfNotNull(windows, ICON_WINDOWS_MEDIUM_HIGH, bmp.getAttributeValue(ICON_WINDOWS_MEDIUM_HIGH));
-                putIfNotNull(windows, ICON_WINDOWS_MEDIUM_LOW, bmp.getAttributeValue(ICON_WINDOWS_MEDIUM_LOW));
-                putIfNotNull(windows, ICON_WINDOWS_LARGE_HIGH, bmp.getAttributeValue(ICON_WINDOWS_LARGE_HIGH));
-                putIfNotNull(windows, ICON_WINDOWS_LARGE_LOW, bmp.getAttributeValue(ICON_WINDOWS_LARGE_LOW));
+                putIfNotNull(windows, ICON_WINDOWS_SMALL_HIGH, bmp.attribute(ICON_WINDOWS_SMALL_HIGH));
+                putIfNotNull(windows, ICON_WINDOWS_SMALL_LOW, bmp.attribute(ICON_WINDOWS_SMALL_LOW));
+                putIfNotNull(windows, ICON_WINDOWS_MEDIUM_HIGH, bmp.attribute(ICON_WINDOWS_MEDIUM_HIGH));
+                putIfNotNull(windows, ICON_WINDOWS_MEDIUM_LOW, bmp.attribute(ICON_WINDOWS_MEDIUM_LOW));
+                putIfNotNull(windows, ICON_WINDOWS_LARGE_HIGH, bmp.attribute(ICON_WINDOWS_LARGE_HIGH));
+                putIfNotNull(windows, ICON_WINDOWS_LARGE_LOW, bmp.attribute(ICON_WINDOWS_LARGE_LOW));
                 putIfNotNull(windows, ICON_WINDOWS_EXTRA_LARGE_HIGH,
-                        bmp.getAttributeValue(ICON_WINDOWS_EXTRA_LARGE_HIGH));
+                        bmp.attribute(ICON_WINDOWS_EXTRA_LARGE_HIGH));
             }
         }
         return Collections.unmodifiableMap(windows);

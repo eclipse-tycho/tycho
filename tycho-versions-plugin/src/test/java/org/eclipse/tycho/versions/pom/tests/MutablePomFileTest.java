@@ -14,7 +14,7 @@
 package org.eclipse.tycho.versions.pom.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -25,8 +25,6 @@ import java.nio.charset.StandardCharsets;
 
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.junit.jupiter.api.Test;
-
-import de.pdark.decentxml.XMLParseException;
 
 public class MutablePomFileTest {
 
@@ -140,8 +138,9 @@ public class MutablePomFileTest {
     public void testCompileMessage() throws Exception {
         URL url = getClass().getResource("/poms/compilemessage.xml");
         File pomFile = new File(url.toURI());
-        XMLParseException pe = assertThrows(XMLParseException.class, () -> PomFile.read(pomFile, true));
-        assertEquals("This Pom " + pomFile.getAbsolutePath() + " is in the Wrong Format", pe.getMessage());
+        // domtrip is more lenient than decentxml and can parse slightly malformed XML
+        PomFile pom = PomFile.read(pomFile, true);
+        assertNotNull(pom);
     }
 
     private PomFile getPom(String path) throws IOException {

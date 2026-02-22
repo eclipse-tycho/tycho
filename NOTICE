@@ -156,15 +156,11 @@ commons-io (2.5)
 * Project: https://commons.apache.org/proper/commons-io/
 * Source: https://svn.apache.org/viewvc/commons/proper/io/tags/commons-io-2.5
 
-de.pdark.decentxml (1.3)
+eu.maveniverse.maven.domtrip:domtrip-core (0.4.0)
 
-* License: New BSD license
-* Project: https://code.google.com/p/decentxml/
-* Source: https://decentxml.googlecode.com/svn/tags/r1.3/
-
-de.pdark.decentxml (1.4)
-
-* License: New BSD license
+* License: Eclipse Public License 2.0
+* Project: https://github.com/maveniverse/domtrip
+* Source: https://github.com/maveniverse/domtrip
 
 doxia-sink-api (1.0)
 

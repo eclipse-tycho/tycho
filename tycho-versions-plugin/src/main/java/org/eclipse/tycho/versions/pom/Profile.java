@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class Profile {
 
@@ -28,17 +28,17 @@ public class Profile {
 
     public List<String> getModules() {
         LinkedHashSet<String> result = new LinkedHashSet<>();
-        for (Element modules : dom.getChildren("modules")) {
-            for (Element module : modules.getChildren("module")) {
-                result.add(module.getTrimmedText());
+        for (Element modules : dom.children("modules").toList()) {
+            for (Element module : modules.children("module").toList()) {
+                result.add(module.textContentTrimmed());
             }
         }
         return new ArrayList<>(result);
     }
 
     public String getId() {
-        Element child = dom.getChild("id");
-        return child != null ? child.getTrimmedText() : null;
+        Element child = dom.child("id").orElse(null);
+        return child != null ? child.textContentTrimmed() : null;
     }
 
     public Build getBuild() {

@@ -29,9 +29,8 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class P2RepositoryPropertiesTest extends AbstractTychoIntegrationTest {
 
@@ -47,11 +46,11 @@ public class P2RepositoryPropertiesTest extends AbstractTychoIntegrationTest {
 		expected.put("p2.statsURI", "http://some.where");
 		expected.put("p2.mirrorsURL", "http://some.where.else");
 		expected.put("foo", "bar");
-		Document artifactsDocument = XMLParser.parse(artifactXml);
-		artifactsDocument.getChild("repository").getChild("properties").getChildren("property").forEach(element -> {
-			String propertyName = element.getAttributeValue("name");
+		Document artifactsDocument = Document.of(artifactXml.toPath());
+		artifactsDocument.root().child("properties").orElse(null).children("property").forEach(element -> {
+			String propertyName = element.attribute("name");
 			if (expected.containsKey(propertyName)
-					&& expected.get(propertyName).equals(element.getAttributeValue("value"))) {
+					&& expected.get(propertyName).equals(element.attribute("value"))) {
 				expected.remove(propertyName);
 			}
 		});
@@ -66,14 +65,14 @@ public class P2RepositoryPropertiesTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		File artifactXml = new File(verifier.getBasedir(), "target/repository/artifacts.xml");
 		assertTrue(artifactXml.exists());
-		Document artifactsDocument = XMLParser.parse(artifactXml);
-		Optional<Element> optional = artifactsDocument.getChild("repository").getChild("artifacts")
-				.getChildren("artifact").stream()
-				.filter(element -> element.getAttributeValue("id").equals("org.objenesis")).findAny();
+		Document artifactsDocument = Document.of(artifactXml.toPath());
+		Optional<Element> optional = artifactsDocument.root().child("artifacts").orElse(null)
+				.children("artifact")
+				.filter(element -> element.attribute("id").equals("org.objenesis")).findAny();
 		assertTrue("artifact org.objenesis not found", optional.isPresent());
 		Element element = optional.get();
-		Map<String, String> properties = element.getChild("properties").getChildren("property").stream()
-				.collect(Collectors.toMap(e -> e.getAttributeValue("name"), e -> e.getAttributeValue("value")));
+		Map<String, String> properties = element.child("properties").orElse(null).children("property")
+				.collect(Collectors.toMap(e -> e.attribute("name"), e -> e.attribute("value")));
 		assertEquals("org.objenesis", properties.get("maven-groupId"));
 		assertTrue(properties.containsKey(TychoConstants.PROP_PGP_SIGNATURES)
 				&& !properties.get(TychoConstants.PROP_PGP_SIGNATURES).isBlank());

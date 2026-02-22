@@ -34,8 +34,8 @@ import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.PomFile;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 @Named("eclipse-target-files")
 @Singleton
@@ -59,16 +59,16 @@ public class EclipseTargetFileManipulator extends AbstractMetadataManipulator {
     }
 
     private void applyChanges(PomVersionChange change, Document document, String fileName) {
-        Element dom = document.getRootElement();
+        Element dom = document.root();
         boolean changed = false;
-        for (Element locations : dom.getChildren("locations")) {
-            List<Element> children = locations.getChildren("location");
+        for (Element locations : dom.children("locations").toList()) {
+            List<Element> children = locations.children("location").toList();
             for (int j = 0; j < children.size(); j++) {
                 Element location = children.get(j);
-                String locationType = location.getAttributeValue("type");
+                String locationType = location.attribute("type");
                 //TODO probably also update maven target locations?
                 if (TARGET_TYPE.equals(locationType)) {
-                    String uri = location.getAttributeValue(TARGET_TYPE_URI_ATTRIBUTE);
+                    String uri = location.attribute(TARGET_TYPE_URI_ATTRIBUTE);
                     if (uri.startsWith(MVN_URL_PREFIX)) {
                         String[] coordinates = uri.substring(MVN_URL_PREFIX.length()).split(":");
                         if (coordinates.length < 3) {
@@ -91,7 +91,7 @@ public class EclipseTargetFileManipulator extends AbstractMetadataManipulator {
                             logger.info("  " + fileName + "//target/locations/location[" + j + "]/@"
                                     + TARGET_TYPE_URI_ATTRIBUTE + ": " + uri + " => " + newUri);
                             changed = true;
-                            location.setAttribute(TARGET_TYPE_URI_ATTRIBUTE, newUri);
+                            location.attribute(TARGET_TYPE_URI_ATTRIBUTE, newUri);
                         }
                     }
                 }
@@ -99,9 +99,9 @@ public class EclipseTargetFileManipulator extends AbstractMetadataManipulator {
         }
         if (changed) {
             try {
-                int sequenceNumber = Integer.parseInt(dom.getAttributeValue(SEQUENCE_NUMBER_ATTRIBUTE));
+                int sequenceNumber = Integer.parseInt(dom.attribute(SEQUENCE_NUMBER_ATTRIBUTE));
                 int nextSequenceNumber = sequenceNumber + 1;
-                dom.setAttribute(SEQUENCE_NUMBER_ATTRIBUTE, String.valueOf(nextSequenceNumber));
+                dom.attribute(SEQUENCE_NUMBER_ATTRIBUTE, String.valueOf(nextSequenceNumber));
                 logger.info("  " + fileName + "//target/@" + SEQUENCE_NUMBER_ATTRIBUTE + ": " + sequenceNumber + " => "
                         + nextSequenceNumber);
             } catch (NumberFormatException e) {

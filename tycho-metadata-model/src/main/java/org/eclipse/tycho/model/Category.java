@@ -21,25 +21,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class Category {
 
     public static final String CATEGORY_XML = "category.xml";
-
-    private static XMLParser parser = new XMLParser();
 
     private final Element dom;
 
@@ -47,12 +40,12 @@ public class Category {
 
     public Category(Document document) {
         this.document = document;
-        this.dom = document.getRootElement();
+        this.dom = document.root();
     }
 
     public List<SiteFeatureRef> getFeatures() {
         ArrayList<SiteFeatureRef> features = new ArrayList<>();
-        for (Element featureDom : dom.getChildren("feature")) {
+        for (Element featureDom : dom.children("feature").toList()) {
             features.add(new SiteFeatureRef(featureDom));
         }
         return Collections.unmodifiableList(features);
@@ -60,7 +53,7 @@ public class Category {
 
     public List<PluginRef> getPlugins() {
         ArrayList<PluginRef> plugins = new ArrayList<>();
-        for (Element pluginDom : dom.getChildren("bundle")) {
+        for (Element pluginDom : dom.children("bundle").toList()) {
             plugins.add(new PluginRef(pluginDom));
         }
         return Collections.unmodifiableList(plugins);
@@ -68,7 +61,7 @@ public class Category {
 
     public List<RepositoryReference> getRepositoryReferences() {
         ArrayList<RepositoryReference> repos = new ArrayList<>();
-        for (Element repoDom : dom.getChildren("repository-reference")) {
+        for (Element repoDom : dom.children("repository-reference").toList()) {
             repos.add(new RepositoryReference(repoDom));
         }
         return Collections.unmodifiableList(repos);
@@ -80,21 +73,14 @@ public class Category {
 
     public static Category read(InputStream is) throws IOException {
         try (is) {
-            return new Category(parser.parse(new XMLIOSource(is)));
+            return new Category(Document.of(is));
         }
     }
 
     public static void write(Category category, File file) throws IOException {
         Document document = category.document;
         try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
-            String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
-            Writer w = new OutputStreamWriter(os, enc);
-            XMLWriter xw = new XMLWriter(w);
-            try {
-                document.toXML(xw);
-            } finally {
-                xw.flush();
-            }
+            document.toXml(os);
         }
     }
 

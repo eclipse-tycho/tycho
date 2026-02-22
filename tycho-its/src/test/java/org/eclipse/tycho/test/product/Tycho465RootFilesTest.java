@@ -29,10 +29,8 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
@@ -289,11 +287,10 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 	}
 
 	private static Document openXmlFromZip(File zipFile, String xmlFile) throws IOException, ZipException {
-		XMLParser parser = new XMLParser();
 		try (ZipFile zip = new ZipFile(zipFile)) {
 			ZipEntry contentXmlEntry = zip.getEntry(xmlFile);
 			InputStream entryStream = zip.getInputStream(contentXmlEntry);
-			return parser.parse(new XMLIOSource(entryStream));
+			return Document.of(entryStream);
 		}
 	}
 
@@ -309,9 +306,9 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 	private static Set<Element> findIU(Document contentXML, String iuId) {
 		Set<Element> foundIUs = new HashSet<>();
 
-		Element repository = contentXML.getRootElement();
-		for (Element unit : repository.getChild("units").getChildren("unit")) {
-			if (iuId.equals(unit.getAttributeValue("id"))) {
+		Element repository = contentXML.root();
+		for (Element unit : repository.child("units").orElse(null).children("unit").toList()) {
+			if (iuId.equals(unit.attribute("id"))) {
 				foundIUs.add(unit);
 			}
 		}
@@ -322,9 +319,9 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		boolean foundIU = false;
 
 		if (propName != null) {
-			for (Element property : unit.getChild("properties").getChildren("property")) {
-				if (propName.equals(property.getAttributeValue("name"))
-						&& propValue.equals((property.getAttributeValue("value")))) {
+			for (Element property : unit.child("properties").orElse(null).children("property").toList()) {
+				if (propName.equals(property.attribute("name"))
+						&& propValue.equals((property.attribute("value")))) {
 					foundIU = true;
 					break;
 				}
@@ -339,8 +336,8 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		boolean hasAllRequirements = true;
 		for (String requiredIu : requiredIus) {
 			boolean foundIU = false;
-			for (Element property : unit.getChild("requires").getChildren("required")) {
-				if (requiredIu.equals(property.getAttributeValue("name"))) {
+			for (Element property : unit.child("requires").orElse(null).children("required").toList()) {
+				if (requiredIu.equals(property.attribute("name"))) {
 					foundIU = true;
 					break;
 				}
@@ -354,12 +351,12 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 	}
 
 	private static boolean iuHasTouchpointDataInstruction(Element unit, String instructionTrimmedText) {
-		Element touchpointDataElem = unit.getChild("touchpointData");
+		Element touchpointDataElem = unit.child("touchpointData").orElse(null);
 
 		if (touchpointDataElem != null) {
-			for (Element instructions : touchpointDataElem.getChildren("instructions")) {
-				for (Element instruction : instructions.getChildren("instruction")) {
-					if (instructionTrimmedText.equals(instruction.getTrimmedText())) {
+			for (Element instructions : touchpointDataElem.children("instructions").toList()) {
+				for (Element instruction : instructions.children("instruction").toList()) {
+					if (instructionTrimmedText.equals(instruction.textContentTrimmed())) {
 						return true;
 					}
 				}

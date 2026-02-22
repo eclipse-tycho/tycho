@@ -13,12 +13,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.versionbump;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Period;
@@ -43,11 +43,8 @@ import org.eclipse.tycho.core.MarkdownBuilder;
 import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
-import de.pdark.decentxml.XMLWriter;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 /**
  * This allows to update a target file to use newer version of specified items, e.g. IUs from
@@ -178,9 +175,8 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     @Override
     protected void doUpdate(File file) throws Exception {
         getLog().info("Update target file " + file);
-        //we use the descent xml parser here because we need to retain the formating of the original file
-        XMLParser parser = new XMLParser();
-        Document target = parser.parse(new XMLIOSource(file));
+        //we use domtrip here because we need to retain the formatting of the original file
+        Document target = Document.of(file.toPath());
         boolean changed = false;
         builder = new MarkdownBuilder(reportFileName);
         builder.h2("The content of the target `" + file.getName() + "` was updated");
@@ -199,14 +195,10 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
             }
         }
         if (changed) {
-            String enc = target.getEncoding() != null ? target.getEncoding() : "UTF-8";
-            try (Writer w = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file)), enc);
-                    XMLWriter xw = new XMLWriter(w)) {
-                try {
-                    target.toXML(xw);
-                } finally {
-                    xw.flush();
-                }
+            try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
+                target.toXml(os);
+            } catch (IOException e) {
+                throw new MojoFailureException("Failed to write updated target file", e);
             }
             if (mavenUpdates.size() > 0) {
                 builder.h3("The following maven artifacts have been updated:");
@@ -225,16 +217,16 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     }
 
     static void setElementValue(String name, String value, Element root) {
-        Element child = root.getChild(name);
+        Element child = root.child(name).orElse(null);
         if (child != null) {
-            child.setText(value);
+            child.textContent(value);
         }
     }
 
     static String getElementValue(String name, Element root) {
-        Element child = root.getChild(name);
+        Element child = root.child(name).orElse(null);
         if (child != null) {
-            String text = child.getText().trim();
+            String text = child.textContent().trim();
             if (text.isBlank()) {
                 return null;
             }
@@ -244,9 +236,9 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     }
 
     private List<Element> getLocations(String type, Document target) {
-        Element locations = target.getRootElement().getChild("locations");
+        Element locations = target.root().child("locations").orElse(null);
         if (locations != null) {
-            return locations.getChildren().stream().filter(elem -> type.equals(elem.getAttributeValue("type")))
+            return locations.children().filter(elem -> type.equals(elem.attribute("type")))
                     .toList();
         }
         return List.of();

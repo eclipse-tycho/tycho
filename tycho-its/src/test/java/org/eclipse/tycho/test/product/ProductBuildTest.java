@@ -32,9 +32,8 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class ProductBuildTest extends AbstractTychoIntegrationTest {
 
@@ -95,14 +94,14 @@ public class ProductBuildTest extends AbstractTychoIntegrationTest {
 	protected void checkPGP(Verifier verifier, String repositoryArtifacts) throws IOException {
 		File artifactXml = new File(verifier.getBasedir(), repositoryArtifacts);
 		assertTrue("required artifacts file " + artifactXml.getAbsolutePath() + " not found!", artifactXml.isFile());
-		Document artifactsDocument = XMLParser.parse(artifactXml);
-		Optional<Element> optional = artifactsDocument.getChild("repository").getChild("artifacts")
-				.getChildren("artifact").stream()
-				.filter(element -> element.getAttributeValue("id").equals("org.mockito.mockito-core")).findAny();
+		Document artifactsDocument = Document.of(artifactXml.toPath());
+		Optional<Element> optional = artifactsDocument.root().child("artifacts").orElse(null)
+				.children("artifact")
+				.filter(element -> element.attribute("id").equals("org.mockito.mockito-core")).findAny();
 		assertTrue("artifact org.mockito.mockito-core not found", optional.isPresent());
 		Element element = optional.get();
-		Map<String, String> properties = element.getChild("properties").getChildren("property").stream()
-				.collect(Collectors.toMap(e -> e.getAttributeValue("name"), e -> e.getAttributeValue("value")));
+		Map<String, String> properties = element.child("properties").orElse(null).children("property")
+				.collect(Collectors.toMap(e -> e.attribute("name"), e -> e.attribute("value")));
 		for (String property : REQUIRED_PGP_PROPERTIES) {
 			assertTrue("property " + property + " is missing", properties.containsKey(property));
 			assertFalse("property " + property + " is present but empty", properties.get(property).isBlank());
