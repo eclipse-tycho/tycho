@@ -26,6 +26,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -33,7 +36,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
@@ -103,7 +105,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * The Jar archiver.
      */
-    @Component(role = Archiver.class, hint = "jar")
+    @Inject
+    @Named("jar")
     private JarArchiver jarArchiver;
 
     /**
@@ -162,7 +165,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * Used for attaching the source jar to the project.
      */
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
     /**

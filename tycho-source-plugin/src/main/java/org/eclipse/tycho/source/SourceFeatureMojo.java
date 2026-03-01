@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.execution.MavenSession;
@@ -34,7 +37,6 @@ import org.apache.maven.model.PluginExecution;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -45,7 +47,6 @@ import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.AbstractScanner;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildProperties;
@@ -209,7 +210,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
-    @Component
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
     /**
@@ -219,22 +220,23 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Parameter(property = "project.build.finalName")
     private String finalName;
 
-    @Component(role = Archiver.class, hint = "jar")
+    @Inject
+    @Named("jar")
     private JarArchiver jarArchiver;
 
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
-    @Component
+    @Inject
     private LicenseFeatureHelper licenseFeatureHelper;
 
-    @Component()
+    @Inject
     P2ResolverFactory factory;
 
-    @Component
-    private Logger logger;
+    @Inject
+    private org.slf4j.Logger logger;
 
-    @Component
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override
