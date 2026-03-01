@@ -13,7 +13,6 @@
 package org.eclipse.tycho.p2maven;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -29,12 +28,9 @@ import javax.inject.Singleton;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
-import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 
 /**
  * THis component computes dependencies between projects
@@ -46,9 +42,6 @@ public class MavenProjectDependencyProcessor {
 
 	@Inject
 	private InstallableUnitGenerator generator;
-
-	@Inject
-	private InstallableUnitSlicer slicer;
 
 	/**
 	 * Computes the {@link ProjectDependencyClosure} of the given collection of
@@ -69,38 +62,7 @@ public class MavenProjectDependencyProcessor {
 			throws CoreException {
 		Objects.requireNonNull(session);
 		Map<MavenProject, Collection<IInstallableUnit>> projectIUMap = generator.getInstallableUnits(projects, session);
-		return new ProjectDependencyClosureGraph(projectIUMap, slicer);
-	}
-
-	private static boolean hasAnyHost(IInstallableUnit unit, Iterable<IInstallableUnit> collection) {
-		return getFragmentHostRequirement(unit).anyMatch(req -> {
-			for (IInstallableUnit iu : collection) {
-				if (req.isMatch(iu)) {
-					return true;
-				}
-			}
-			return false;
-		});
-	}
-
-	private static Stream<IProvidedCapability> getFragmentCapability(IInstallableUnit installableUnit) {
-
-		return installableUnit.getProvidedCapabilities().stream()
-				.filter(cap -> BundlesAction.CAPABILITY_NS_OSGI_FRAGMENT.equals(cap.getNamespace()));
-	}
-
-	private static Stream<IRequirement> getFragmentHostRequirement(IInstallableUnit installableUnit) {
-		return getFragmentCapability(installableUnit).map(provided -> {
-			String hostName = provided.getName();
-			for (IRequirement requirement : installableUnit.getRequirements()) {
-				if (requirement instanceof IRequiredCapability requiredCapability) {
-					if (hostName.equals(requiredCapability.getName())) {
-						return requirement;
-					}
-				}
-			}
-			return null;
-		}).filter(Objects::nonNull);
+		return new ProjectDependencyClosureGraph(projectIUMap);
 	}
 
 	private static boolean isMatch(IRequirement requirement, Collection<IInstallableUnit> contextIUs) {
@@ -114,7 +76,7 @@ public class MavenProjectDependencyProcessor {
 	public static final class ProjectDependencies {
 
 		private final Map<IRequirement, Collection<IInstallableUnit>> requirementsMap;
-		private final Set<IInstallableUnit> projectUnits;
+		final Set<IInstallableUnit> projectUnits;
 
 		ProjectDependencies(Map<IRequirement, Collection<IInstallableUnit>> requirementsMap,
 				Set<IInstallableUnit> projectUnits) {
@@ -166,31 +128,13 @@ public class MavenProjectDependencyProcessor {
 		 * @return the collection of projects this maven project depend on in this
 		 *         closure
 		 */
-		default Collection<MavenProject> getDependencyProjects(MavenProject mavenProject,
-				Collection<IInstallableUnit> contextIUs) {
-			ProjectDependencies projectDependecies = getProjectDependecies(mavenProject);
-			List<MavenProject> list = projectDependecies.getDependencies(contextIUs).stream()
-					.flatMap(dependency -> getProject(dependency).stream()).distinct().toList();
-			if (isFragment(mavenProject)) {
-				// for projects that are fragments don't do any special processing...
-				return list;
-			}
-			// for regular projects we must check if they have any fragment requirements
-			// that must be attached here, example is SWT that defines a requirement to its
-			// fragments and if build inside the same reactor with a consumer (e.g. JFace)
-			// has to be applied
-			return list.stream().flatMap(project -> {
-				ProjectDependencies dependecies = getProjectDependecies(project);
-				return Stream.concat(Stream.of(project), dependecies.getDependencies(contextIUs).stream()
-						.filter(dep -> hasAnyHost(dep, dependecies.projectUnits))
-						.flatMap(dependency -> getProject(dependency).stream()));
-			}).toList();
-		}
+		Collection<MavenProject> getDependencyProjects(MavenProject mavenProject,
+				Collection<IInstallableUnit> contextIUs);
 
 		/**
 		 * Check if the given unit is a fragment
 		 * 
-		 * @param installableUnit the unit to check
+		 * @param mavenProject the project to check
 		 * @return <code>true</code> if this is a fragment, <code>false</code> otherwise
 		 */
 		boolean isFragment(MavenProject mavenProject);
