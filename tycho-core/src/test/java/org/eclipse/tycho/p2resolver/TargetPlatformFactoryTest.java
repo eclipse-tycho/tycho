@@ -295,18 +295,7 @@ public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
         subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects);
     }
 
-    @Test
-    @Ignore("This test don't work because maven provides a 'not real' local repo to the test")
-    public void testMavenArtifactsInTargetDefinitionResolveToMavenPath() throws Exception {
-        File targetDefinition = resourceFile("targetresolver/mavenDep.target");
-        tpConfig.addTargetDefinition(TargetDefinitionFile.read(targetDefinition));
-        P2TargetPlatform targetPlatform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, List.of());
-        File artifactLocation = targetPlatform.getArtifactLocation(
-                new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, "org.apache.commons.logging", "1.2.0"));
-        assertNotNull(artifactLocation);
-        Path p2ArtifactPath = artifactLocation.toPath();
-        assertTrue(p2ArtifactPath.startsWith(localM2Repo));
-    }
+
 
     @Test
     public void testUnitsWithVersionRangeAndNoVersionInTargetDefinition() throws Exception {
