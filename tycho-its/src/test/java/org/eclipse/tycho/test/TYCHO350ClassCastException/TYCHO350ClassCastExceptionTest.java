@@ -11,7 +11,7 @@ package org.eclipse.tycho.test.TYCHO350ClassCastException;
 
 import static java.util.Arrays.asList;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 

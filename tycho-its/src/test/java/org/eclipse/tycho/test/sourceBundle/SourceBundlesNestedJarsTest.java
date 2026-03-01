@@ -21,7 +21,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.jar.JarFile;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;

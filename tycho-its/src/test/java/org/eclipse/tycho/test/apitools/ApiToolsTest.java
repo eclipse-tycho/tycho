@@ -21,8 +21,8 @@ import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 	public void testApiBreak() throws Exception {
 		Verifier verifier = getVerifier("api-tools/api-break", true, true);
 		File repo = ResourceUtil.resolveTestResource("repositories/api-tools");
-		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+		verifier.addCliArgument("-DbaselineRepo=" + repo.toURI());
 
 		assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("clean", "verify")), () -> {
 			String msg = "No API errors where detected!";
@@ -101,7 +101,7 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 	public void testEmbeddedJars() throws Exception {
 		Verifier verifier = getVerifier("api-tools/embedded-jars", true, true);
 		File repo = ResourceUtil.resolveTestResource("repositories/api-tools");
-		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+		verifier.addCliArgument("-DbaselineRepo=" + repo.toURI());
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 	}
@@ -119,7 +119,7 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 	public void testNoBin() throws Exception {
 		Verifier verifier = getVerifier("api-tools/missing-bin", true, true);
 		File repo = ResourceUtil.resolveTestResource("repositories/api-tools");
-		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+		verifier.addCliArgument("-DbaselineRepo=" + repo.toURI());
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 	}
@@ -137,7 +137,7 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 	public void testSingleJar() throws Exception {
 		Verifier verifier = getVerifier("api-tools/single-jar", true, true);
 		File repo = ResourceUtil.resolveTestResource("repositories/api-tools");
-		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+		verifier.addCliArgument("-DbaselineRepo=" + repo.toURI());
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 	}
@@ -153,7 +153,7 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 	public void testInvalidRepo() throws Exception {
 		Verifier verifier = getVerifier("api-tools/single-jar", true, true);
 		File repo = ResourceUtil.resolveTestResource("repositories/api-tools-broken");
-		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+		verifier.addCliArgument("-DbaselineRepo=" + repo.toURI());
 
 		assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("clean", "verify")),
 				"Did not error on missing repo");
@@ -163,8 +163,8 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 	public void testBaselineResolutonFailure_Error() throws Exception {
 		Verifier verifier = getVerifier("api-tools/missing-dependency", true, true);
 		File repo = ResourceUtil.resolveTestResource("repositories/api-tools-incomplete");
-		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
-		verifier.addCliOption("-DfailResolutionError=true");
+		verifier.addCliArgument("-DbaselineRepo=" + repo.toURI());
+		verifier.addCliArgument("-DfailResolutionError=true");
 
 		assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("clean", "verify")),
 				"Did not error on resolution failure");
@@ -175,7 +175,7 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 	public void testBaselineResolutonFailure_Warn() throws Exception {
 		Verifier verifier = getVerifier("api-tools/missing-dependency", true, true);
 		File repo = ResourceUtil.resolveTestResource("repositories/api-tools-incomplete");
-		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+		verifier.addCliArgument("-DbaselineRepo=" + repo.toURI());
 
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyTextInLog("Can't resolve API baseline");
@@ -185,7 +185,7 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 	public void testBaselineResolutonFailure_Default() throws Exception {
 		Verifier verifier = getVerifier("api-tools/single-jar", true, true);
 		File repo = ResourceUtil.resolveTestResource("repositories/api-tools-incomplete");
-		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+		verifier.addCliArgument("-DbaselineRepo=" + repo.toURI());
 
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyTextInLog("Can't resolve API baseline");
@@ -196,7 +196,7 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		// This test doesn't expect an api break, the 'api-break' just project fits here
 		Verifier verifier = getVerifier("api-tools/api-break", true, true);
 		File repo = ResourceUtil.resolveTestResource("repositories/api-tools-with-repo-reference");
-		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+		verifier.addCliArgument("-DbaselineRepo=" + repo.toURI());
 
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();

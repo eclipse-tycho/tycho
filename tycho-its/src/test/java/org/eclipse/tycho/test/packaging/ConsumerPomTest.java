@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.DefaultModelReader;
@@ -36,8 +36,8 @@ public class ConsumerPomTest extends AbstractTychoIntegrationTest {
 	@Ignore("Disabled because of maven central outages")
 	public void testReplaceP2() throws Exception {
 		Verifier verifier = getVerifier("packaging.consumer.pom", true);
-		verifier.addCliOption("-U");
-		verifier.addCliOption("-DmapDependencies=true");
+		verifier.addCliArgument("-U");
+		verifier.addCliArgument("-DmapDependencies=true");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 		DefaultModelReader reader = new DefaultModelReader();
@@ -66,8 +66,8 @@ public class ConsumerPomTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testReplacePackagingType() throws Exception {
 		Verifier verifier = getVerifier("packaging.consumer.pom", true);
-		verifier.addCliOption("-U");
-		verifier.addCliOption("-DmapDependencies=false");
+		verifier.addCliArgument("-U");
+		verifier.addCliArgument("-DmapDependencies=false");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 		DefaultModelReader reader = new DefaultModelReader();

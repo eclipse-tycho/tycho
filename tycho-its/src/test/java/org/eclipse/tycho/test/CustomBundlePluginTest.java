@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.junit.Test;
 
 public class CustomBundlePluginTest extends AbstractTychoIntegrationTest {

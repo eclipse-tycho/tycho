@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.TYCHO0367localRepositoryCrosstalk;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ public class LocalRepositoryCrosstalkTest extends AbstractTychoIntegrationTest {
 		// now run bundle1 test, it should not "see" artifacts in local repo from newer
 		// update site
 		Verifier v02 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle01", false);
-		v02.addCliOption("-Dp2.repo=https:////download.eclipse.org/releases/2024-06/");
+		v02.addCliArgument("-Dp2.repo=https:////download.eclipse.org/releases/2024-06/");
 		v02.executeGoal("install");
 		v02.verifyErrorFreeLog();
 	}

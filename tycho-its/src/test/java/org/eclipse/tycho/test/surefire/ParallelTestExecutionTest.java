@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.XMLTool;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class ParallelTestExecutionTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testParallelExecution() throws Exception {
 		Verifier verifier = getVerifier("/surefire.junit47/parallel");
-		verifier.addCliOption("-Dparallel=classes");
+		verifier.addCliArgument("-Dparallel=classes");
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 		File surefireReportsDir = new File(verifier.getBasedir(), "target/surefire-reports");
