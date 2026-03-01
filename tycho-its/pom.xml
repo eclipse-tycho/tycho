@@ -245,6 +245,12 @@
 			<artifactId>cyclonedx-core-java</artifactId>
 			<version>12.1.0</version>
 		</dependency>
+		<!-- for extracting test project zip files -->
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-archiver</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 		<!-- artifacts to be tested -->
 		<dependency>

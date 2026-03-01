@@ -57,19 +57,4 @@
 		</plugins>
 	</build>
 
-	<!-- ITests currently failing and not being actively debugged -->
-	<!-- profiles>
-		<profile>
-			<id>its</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-invoker-plugin</artifactId>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles-->
-
 </project>
