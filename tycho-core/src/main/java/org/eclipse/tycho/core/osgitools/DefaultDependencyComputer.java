@@ -218,7 +218,68 @@ public class DefaultDependencyComputer implements DependencyComputer {
             addDependencyViaImportPackage(bundle, added, visiblePackages, entries, descriptorLookup);
         }
 
+        addTransitiveDependenciesWithForbiddenAccess(added, entries, descriptorLookup);
+
         return new ArrayList<>(entries);
+    }
+
+    /**
+     * Adds all transitive dependencies of already collected bundles with forbidden access rules.
+     * The Java compiler may need to resolve types from transitive dependencies (e.g. when an
+     * exception type or a superclass comes from a bundle not directly required by the current
+     * project). Adding these with forbidden access ensures compilation succeeds while still
+     * preventing direct use of types from not imported bundles.
+     */
+    private void addTransitiveDependenciesWithForbiddenAccess(Set<BundleRevision> added, Set<DependencyEntry> entries,
+            Function<BundleRevision, ArtifactDescriptor> descriptorLookup) {
+        Set<BundleRevision> closure = computeRequirementsClosure(added);
+        List<BundleRevision> transitiveDeps = closure.stream().filter(rev -> !added.contains(rev))
+                .filter(rev -> !(rev instanceof ModuleRevision mr
+                        && Constants.SYSTEM_BUNDLE_ID == mr.getRevisions().getModule().getId()))
+                .sorted((a, b) -> a.getSymbolicName().compareTo(b.getSymbolicName())).toList();
+        for (BundleRevision dep : transitiveDeps) {
+            if (added.add(dep)) {
+                // empty rules = all packages forbidden
+                ArtifactDescriptor descriptor = descriptorLookup.apply(dep);
+                if (descriptor != null) {
+                    entries.add(new DependencyEntry(dep, descriptor, Collections.emptyList()));
+                }
+            }
+        }
+    }
+
+    /**
+     * Computes the transitive closure of all requirements (Require-Bundle and Import-Package) for
+     * the given set of bundles.
+     */
+    private Set<BundleRevision> computeRequirementsClosure(Set<BundleRevision> roots) {
+        Set<BundleRevision> closure = new HashSet<>(roots);
+        LinkedList<BundleRevision> queue = new LinkedList<>(roots);
+        while (!queue.isEmpty()) {
+            BundleRevision current = queue.removeFirst();
+            if (current.getWiring() == null) {
+                continue;
+            }
+            // follow Require-Bundle wires
+            for (BundleWire wire : current.getWiring().getRequiredWires(BundleNamespace.BUNDLE_NAMESPACE)) {
+                if (closure.add(wire.getProvider())) {
+                    queue.add(wire.getProvider());
+                }
+            }
+            // follow Import-Package wires
+            for (BundleWire wire : current.getWiring().getRequiredWires(PackageNamespace.PACKAGE_NAMESPACE)) {
+                if (closure.add(wire.getProvider())) {
+                    queue.add(wire.getProvider());
+                }
+            }
+            // follow fragment host wires
+            for (BundleWire wire : current.getWiring().getRequiredWires(HostNamespace.HOST_NAMESPACE)) {
+                if (closure.add(wire.getProvider())) {
+                    queue.add(wire.getProvider());
+                }
+            }
+        }
+        return closure;
     }
 
     private List<BundleRevision> getRequiredBundles(BundleRevision module) {
