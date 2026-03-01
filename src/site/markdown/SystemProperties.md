@@ -38,14 +38,33 @@ eclipse.p2.maxDownloadAttempts | _any positive integer_ | 3 | Describes how ofte
 
 ### Tycho P2 Transport
 
-These properties control how Tycho downloads artifacts from P2 servers
+These properties control how Tycho downloads artifacts from P2 servers.
+
+#### Cache Behavior and the `-U` Option
+
+Tycho's P2 transport uses a cache to improve build performance by avoiding repeated downloads of unchanged remote resources. The cache stores HTTP responses, including successful downloads and error responses (like 404 Not Found).
+
+**Important:** The Maven `-U` (or `--update-snapshots`) command-line option forces Tycho to bypass the cache and re-check all remote P2 repositories. This is useful when:
+
+- A P2 repository was recently published or updated and the cache contains stale data
+- A previous build failed because a repository was temporarily unavailable (the 404 response may be cached)
+- You need to ensure you have the latest versions of all artifacts
+
+Example usage:
+```bash
+mvn clean verify -U
+```
+
+The `-U` option takes precedence over the `tycho.p2.transport.min-cache-minutes` setting - when `-U` is specified, the cache is always bypassed regardless of the configured cache duration.
+
+#### Transport Properties
 
 Name | Value | Default | Documentation
 --- | --- | --- | ---
 tycho.p2.transport.cache | file path | local maven repository | Specify the location where Tycho stores certain cache files to speed up successive builds
 tycho.p2.transport.debug | true/false | false | enable debugging of the Tycho Transport
 tycho.p2.transport.max-download-threads | number | 4 | maximum number of threads that should be used to download artifacts in parallel
-tycho.p2.transport.min-cache-minutes | number | 60 | Number of minutes that a cache entry is assumed to be fresh and is not fetched again from the server
+tycho.p2.transport.min-cache-minutes | number | 60 | Number of minutes that a cache entry is assumed to be fresh and is not fetched again from the server. Use `-U` on the command line to force an immediate refresh regardless of this setting.
 tycho.p2.transport.bundlepools.priority | number | 100 | priority used for bundle pools
 tycho.p2.transport.bundlepools.shared | true/false | true | query shared bundle pools for artifacts before downloading them from remote servers
 tycho.p2.transport.bundlepools.workspace | true/false | true | query Workspace bundle pools for artifacts before downloading them from remote servers
