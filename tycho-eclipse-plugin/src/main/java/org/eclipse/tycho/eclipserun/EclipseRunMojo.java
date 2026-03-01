@@ -67,7 +67,7 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
  * Launch an eclipse process with arbitrary commandline arguments. The eclipse
  * installation is defined by the dependencies to bundles specified.
  */
-@Mojo(name = "eclipse-run", threadSafe = true)
+@Mojo(name = "eclipse-run", threadSafe = true, requiresProject = false)
 public class EclipseRunMojo extends AbstractMojo {
 
 	/**
@@ -450,7 +450,7 @@ public class EclipseRunMojo extends AbstractMojo {
 			}
 		}
 		cli.setJvmExecutable(executable);
-		cli.setWorkingDirectory(project.getBasedir());
+		cli.setWorkingDirectory(project.getBasedir() != null ? project.getBasedir() : new File("").getAbsoluteFile());
 
 		cli.addVMArguments(splitArgLine(argLine));
 		if (jvmArgs != null) {
