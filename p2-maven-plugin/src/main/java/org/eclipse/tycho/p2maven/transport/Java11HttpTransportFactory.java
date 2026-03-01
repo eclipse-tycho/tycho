@@ -44,6 +44,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
+import org.eclipse.tycho.helper.MavenPropertyHelper;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 import org.eclipse.tycho.p2maven.transport.Response.ResponseConsumer;
 
@@ -67,12 +68,26 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE MMMd HH:mm:ss yyyy", Locale.ENGLISH)));
 
 	static final String HINT = "Java11Client";
+	
+	// Maven Resolver compatible configuration properties
+	private static final String PROP_RETRY_HANDLER_COUNT = "aether.connector.http.retryHandler.count";
+	private static final String PROP_RETRY_HANDLER_INTERVAL = "aether.connector.http.retryHandler.interval";
+	
+	// Default values aligned with Maven Resolver
+	private static final int DEFAULT_MAX_RETRY_ATTEMPTS = 3;
+	private static final int DEFAULT_RETRY_DELAY_SECONDS = 5;
+	
 	@Requirement
 	ProxyHelper proxyHelper;
 	@Requirement
 	MavenAuthenticator authenticator;
 	@Requirement
 	Logger logger;
+	@Requirement
+	MavenPropertyHelper propertyHelper;
+	
+	private int maxRetryAttempts;
+	private int retryDelaySeconds;
 
 	private HttpClient client;
 	private HttpClient clientHttp1;
@@ -80,7 +95,7 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 	@Override
 	public HttpTransport createTransport(URI uri) {
 		Java11HttpTransport transport = new Java11HttpTransport(client, clientHttp1, HttpRequest.newBuilder().uri(uri),
-				uri, logger);
+				uri, logger, maxRetryAttempts, retryDelaySeconds);
 		authenticator.preemtiveAuth((k, v) -> transport.setHeader(k, v), uri);
 		return transport;
 	}
@@ -92,13 +107,18 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 		private Logger logger;
 		private HttpClient clientHttp1;
 		private URI uri;
+		private int maxRetryAttempts;
+		private int retryDelaySeconds;
 
-		public Java11HttpTransport(HttpClient client, HttpClient clientHttp1, Builder builder, URI uri, Logger logger) {
+		public Java11HttpTransport(HttpClient client, HttpClient clientHttp1, Builder builder, URI uri, Logger logger,
+				int maxRetryAttempts, int retryDelaySeconds) {
 			this.client = client;
 			this.clientHttp1 = clientHttp1;
 			this.builder = builder;
 			this.uri = uri;
 			this.logger = logger;
+			this.maxRetryAttempts = maxRetryAttempts;
+			this.retryDelaySeconds = retryDelaySeconds;
 		}
 
 		@Override
@@ -124,47 +144,106 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 				throw new InterruptedIOException();
 			}
 		}
+		
+		private boolean shouldRetry(int statusCode) {
+			return statusCode == 503 || statusCode == 429;
+		}
+		
+		private long getRetryDelay(HttpResponse<?> response) {
+			String retryAfterHeader = response.headers().firstValue("Retry-After").orElse(null);
+			if (retryAfterHeader == null || retryAfterHeader.isBlank()) {
+				return retryDelaySeconds;
+			}
+			
+			// Try to parse as seconds (integer)
+			if (Character.isDigit(retryAfterHeader.charAt(0))) {
+				try {
+					return Long.parseLong(retryAfterHeader.trim());
+				} catch (NumberFormatException e) {
+					// Fall through to date parsing
+				}
+			}
+			
+			// Try to parse as HTTP date
+			for (ThreadLocal<DateFormat> dateFormat : DATE_PATTERNS) {
+				try {
+					long retryTime = dateFormat.get().parse(retryAfterHeader).getTime();
+					long currentTime = System.currentTimeMillis();
+					long delayMillis = retryTime - currentTime;
+					if (delayMillis > 0) {
+						return TimeUnit.MILLISECONDS.toSeconds(delayMillis);
+					}
+				} catch (ParseException e) {
+					// Try next pattern
+				}
+			}
+			
+			// Default if parsing fails
+			return retryDelaySeconds;
+		}
 
 		private <T> T performGet(ResponseConsumer<T> consumer, HttpClient httpClient)
 				throws IOException, InterruptedException {
-			HttpRequest request = builder.GET().timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).build();
-			HttpResponse<InputStream> response = httpClient.send(request, BodyHandlers.ofInputStream());
-			try (ResponseImplementation<InputStream> implementation = new ResponseImplementation<>(response) {
+			int retriesLeft = maxRetryAttempts;
+			while (retriesLeft > 0) {
+				retriesLeft--;
+				HttpRequest request = builder.GET().timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).build();
+				HttpResponse<InputStream> response = httpClient.send(request, BodyHandlers.ofInputStream());
+				
+				int statusCode = response.statusCode();
+				if (shouldRetry(statusCode) && retriesLeft > 0) {
+					long delaySeconds = getRetryDelay(response);
+					logger.info("Server returned status " + statusCode + " for " + uri 
+							+ ", waiting " + delaySeconds + " seconds before retry. " 
+							+ retriesLeft + " retries left.");
+					// Close the response stream before retrying
+					try (InputStream stream = response.body()) {
+						// Discard any content
+					} catch (IOException e) {
+						// Ignore
+					}
+					TimeUnit.SECONDS.sleep(delaySeconds);
+					continue;
+				}
+				
+				try (ResponseImplementation<InputStream> implementation = new ResponseImplementation<>(response) {
 
-				@Override
-				public void close() {
-					if (response.version() == Version.HTTP_1_1) {
-						// discard any remaining data and close the stream to return the connection to
-						// the pool..
-						try (InputStream stream = response.body()) {
-							int discarded = 0;
-							while (discarded < MAX_DISCARD) {
-								int read = stream.read(DUMMY_BUFFER);
-								if (read < 0) {
-									break;
+					@Override
+					public void close() {
+						if (response.version() == Version.HTTP_1_1) {
+							// discard any remaining data and close the stream to return the connection to
+							// the pool..
+							try (InputStream stream = response.body()) {
+								int discarded = 0;
+								while (discarded < MAX_DISCARD) {
+									int read = stream.read(DUMMY_BUFFER);
+									if (read < 0) {
+										break;
+									}
+									discarded += read;
 								}
-								discarded += read;
+							} catch (IOException e) {
+								// don't care...
 							}
-						} catch (IOException e) {
-							// don't care...
-						}
-					} else {
-						// just closing should be enough to signal to the framework...
-						try (InputStream stream = response.body()) {
-						} catch (IOException e) {
-							// don't care...
+						} else {
+							// just closing should be enough to signal to the framework...
+							try (InputStream stream = response.body()) {
+							} catch (IOException e) {
+								// don't care...
+							}
 						}
 					}
-				}
 
-				@Override
-				public void transferTo(OutputStream outputStream, ContentEncoding transportEncoding)
-						throws IOException {
-					transportEncoding.decode(response.body()).transferTo(outputStream);
+					@Override
+					public void transferTo(OutputStream outputStream, ContentEncoding transportEncoding)
+							throws IOException {
+						transportEncoding.decode(response.body()).transferTo(outputStream);
+					}
+				}) {
+					return consumer.handleResponse(implementation);
 				}
-			}) {
-				return consumer.handleResponse(implementation);
 			}
+			throw new IOException("Maximum retry attempts exceeded for " + uri);
 		}
 
 		@Override
@@ -187,22 +266,38 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 		}
 
 		private Response doHead(HttpClient httpClient) throws IOException, InterruptedException {
-			HttpResponse<Void> response = httpClient.send(
-					builder.method("HEAD", BodyPublishers.noBody()).timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
-							.build(),
-					BodyHandlers.discarding());
-			return new ResponseImplementation<>(response) {
-				@Override
-				public void close() {
-					// nothing...
+			int retriesLeft = maxRetryAttempts;
+			while (retriesLeft > 0) {
+				retriesLeft--;
+				HttpResponse<Void> response = httpClient.send(
+						builder.method("HEAD", BodyPublishers.noBody()).timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
+								.build(),
+						BodyHandlers.discarding());
+				
+				int statusCode = response.statusCode();
+				if (shouldRetry(statusCode) && retriesLeft > 0) {
+					long delaySeconds = getRetryDelay(response);
+					logger.info("Server returned status " + statusCode + " for HEAD " + uri 
+							+ ", waiting " + delaySeconds + " seconds before retry. " 
+							+ retriesLeft + " retries left.");
+					TimeUnit.SECONDS.sleep(delaySeconds);
+					continue;
 				}
+				
+				return new ResponseImplementation<>(response) {
+					@Override
+					public void close() {
+						// nothing...
+					}
 
-				@Override
-				public void transferTo(OutputStream outputStream, ContentEncoding transportEncoding)
-						throws IOException {
-					throw new IOException("HEAD returns no body");
-				}
-			};
+					@Override
+					public void transferTo(OutputStream outputStream, ContentEncoding transportEncoding)
+							throws IOException {
+						throw new IOException("HEAD returns no body");
+					}
+				};
+			}
+			throw new IOException("Maximum retry attempts exceeded for HEAD " + uri);
 		}
 
 	}
@@ -258,6 +353,21 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 
 	@Override
 	public void initialize() throws InitializationException {
+		// Read retry configuration from Maven properties
+		// Align with Maven Resolver configuration: aether.connector.http.retryHandler.count (default: 3)
+		maxRetryAttempts = propertyHelper.getGlobalIntProperty(PROP_RETRY_HANDLER_COUNT, DEFAULT_MAX_RETRY_ATTEMPTS);
+		
+		// Read retry delay configuration
+		// Maven uses aether.connector.http.retryHandler.interval in milliseconds, we use seconds
+		// Convert from milliseconds to seconds, defaulting to 5 seconds if not set
+		int retryIntervalMs = propertyHelper.getGlobalIntProperty(PROP_RETRY_HANDLER_INTERVAL, DEFAULT_RETRY_DELAY_SECONDS * 1000);
+		retryDelaySeconds = (int) TimeUnit.MILLISECONDS.toSeconds(retryIntervalMs);
+		if (retryDelaySeconds == 0 && retryIntervalMs > 0) {
+			retryDelaySeconds = 1; // Minimum 1 second if interval was set but less than 1 second
+		} else if (retryDelaySeconds == 0) {
+			retryDelaySeconds = DEFAULT_RETRY_DELAY_SECONDS; // Use default if interval is 0
+		}
+		
 		ProxySelector proxySelector = new ProxySelector() {
 
 			@Override
