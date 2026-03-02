@@ -45,8 +45,8 @@ public class MultienvP2infTest extends AbstractTychoIntegrationTest {
 		}
 
 		List<String> ids = new ArrayList<>();
-		Element units = doc.root().child("units").orElse(null);
-		for (Element unit : units.children("unit").toList()) {
+		Element units = doc.root().childElement("units").orElse(null);
+		for (Element unit : units.childElements("unit").toList()) {
 			ids.add(unit.attribute("id"));
 		}
 

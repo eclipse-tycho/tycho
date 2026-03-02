@@ -73,9 +73,9 @@ public class DownloadStatsTest extends AbstractTychoIntegrationTest {
 			elementFilter = o -> true;
 		}
 		List<String> downloadStats = new ArrayList<>();
-		for (Element element : document.root().child("artifacts").orElse(null).children("artifact").toList()) {
+		for (Element element : document.root().childElement("artifacts").orElse(null).childElements("artifact").toList()) {
 			if (elementFilter.test(element)) {
-				for (Element property : element.child("properties").orElse(null).children("property").toList()) {
+				for (Element property : element.childElement("properties").orElse(null).childElements("property").toList()) {
 					if (property.attribute("name").equals("download.stats")) {
 						downloadStats.add(property.attribute("value"));
 					}

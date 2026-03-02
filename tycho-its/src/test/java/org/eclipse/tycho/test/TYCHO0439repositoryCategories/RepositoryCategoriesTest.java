@@ -46,8 +46,8 @@ public class RepositoryCategoriesTest extends AbstractTychoIntegrationTest {
 			document = Document.of(contentJar.getInputStream(contentXmlEntry));
 		}
 		Element repository = document.root();
-		all_units: for (Element unit : repository.child("units").orElse(null).children("unit").toList()) {
-			for (Element property : unit.child("properties").orElse(null).children("property").toList()) {
+		all_units: for (Element unit : repository.childElement("units").orElse(null).childElements("unit").toList()) {
+			for (Element property : unit.childElement("properties").orElse(null).childElements("property").toList()) {
 				if ("org.eclipse.equinox.p2.type.category".equals(property.attribute("name"))
 						&& Boolean.parseBoolean(property.attribute("value"))) {
 					found = true;

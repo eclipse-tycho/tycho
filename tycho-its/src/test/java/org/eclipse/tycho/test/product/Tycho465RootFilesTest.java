@@ -307,7 +307,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		Set<Element> foundIUs = new HashSet<>();
 
 		Element repository = contentXML.root();
-		for (Element unit : repository.child("units").orElse(null).children("unit").toList()) {
+		for (Element unit : repository.childElement("units").orElse(null).childElements("unit").toList()) {
 			if (iuId.equals(unit.attribute("id"))) {
 				foundIUs.add(unit);
 			}
@@ -319,7 +319,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		boolean foundIU = false;
 
 		if (propName != null) {
-			for (Element property : unit.child("properties").orElse(null).children("property").toList()) {
+			for (Element property : unit.childElement("properties").orElse(null).childElements("property").toList()) {
 				if (propName.equals(property.attribute("name"))
 						&& propValue.equals((property.attribute("value")))) {
 					foundIU = true;
@@ -336,7 +336,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		boolean hasAllRequirements = true;
 		for (String requiredIu : requiredIus) {
 			boolean foundIU = false;
-			for (Element property : unit.child("requires").orElse(null).children("required").toList()) {
+			for (Element property : unit.childElement("requires").orElse(null).childElements("required").toList()) {
 				if (requiredIu.equals(property.attribute("name"))) {
 					foundIU = true;
 					break;
@@ -351,11 +351,11 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 	}
 
 	private static boolean iuHasTouchpointDataInstruction(Element unit, String instructionTrimmedText) {
-		Element touchpointDataElem = unit.child("touchpointData").orElse(null);
+		Element touchpointDataElem = unit.childElement("touchpointData").orElse(null);
 
 		if (touchpointDataElem != null) {
-			for (Element instructions : touchpointDataElem.children("instructions").toList()) {
-				for (Element instruction : instructions.children("instruction").toList()) {
+			for (Element instructions : touchpointDataElem.childElements("instructions").toList()) {
+				for (Element instruction : instructions.childElements("instruction").toList()) {
 					if (instructionTrimmedText.equals(instruction.textContentTrimmed())) {
 						return true;
 					}

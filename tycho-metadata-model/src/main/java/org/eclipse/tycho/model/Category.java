@@ -45,7 +45,7 @@ public class Category {
 
     public List<SiteFeatureRef> getFeatures() {
         ArrayList<SiteFeatureRef> features = new ArrayList<>();
-        for (Element featureDom : dom.children("feature").toList()) {
+        for (Element featureDom : dom.childElements("feature").toList()) {
             features.add(new SiteFeatureRef(featureDom));
         }
         return Collections.unmodifiableList(features);
@@ -53,7 +53,7 @@ public class Category {
 
     public List<PluginRef> getPlugins() {
         ArrayList<PluginRef> plugins = new ArrayList<>();
-        for (Element pluginDom : dom.children("bundle").toList()) {
+        for (Element pluginDom : dom.childElements("bundle").toList()) {
             plugins.add(new PluginRef(pluginDom));
         }
         return Collections.unmodifiableList(plugins);
@@ -61,7 +61,7 @@ public class Category {
 
     public List<RepositoryReference> getRepositoryReferences() {
         ArrayList<RepositoryReference> repos = new ArrayList<>();
-        for (Element repoDom : dom.children("repository-reference").toList()) {
+        for (Element repoDom : dom.childElements("repository-reference").toList()) {
             repos.add(new RepositoryReference(repoDom));
         }
         return Collections.unmodifiableList(repos);

@@ -34,9 +34,9 @@ public class Property {
 
     public static List<Property> getProperties(Element dom) {
         List<Property> result = new ArrayList<>();
-        Element properties = dom.child("properties").orElse(null);
+        Element properties = dom.childElement("properties").orElse(null);
         if (properties != null) {
-            for (Element property : properties.children().toList()) {
+            for (Element property : properties.childElements().toList()) {
                 result.add(new Property(property));
             }
         }

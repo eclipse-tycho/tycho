@@ -53,7 +53,7 @@ public class EcJLogFileEnhancer implements AutoCloseable {
             Document document = documentEntry.getValue();
             Element statsElement = getStatsElement(document);
             File file = documentEntry.getKey();
-            return document.root().children("sources").flatMap(sources -> sources.children("source"))
+            return document.root().childElements("sources").flatMap(sources -> sources.childElements("source"))
                     .map(source -> new Source(source, statsElement, () -> needsUpdate.add(file)));
         });
     }
@@ -69,8 +69,8 @@ public class EcJLogFileEnhancer implements AutoCloseable {
     }
 
     private static Element getStatsElement(Document document) {
-        for (Element stats : document.root().children("stats").toList()) {
-            for (Element problem_summary : stats.children("problem_summary").toList()) {
+        for (Element stats : document.root().childElements("stats").toList()) {
+            for (Element problem_summary : stats.childElements("problem_summary").toList()) {
                 return problem_summary;
             }
         }
@@ -105,14 +105,14 @@ public class EcJLogFileEnhancer implements AutoCloseable {
     }
 
     private static Element getProblemsElement(Element source) {
-        Element element = source.child(ELEMENT_PROBLEMS).orElse(null);
+        Element element = source.childElement(ELEMENT_PROBLEMS).orElse(null);
         if (element == null) {
             element = Element.of(ELEMENT_PROBLEMS);
             element.attribute(ATTRIBUTES_ERRORS, "0");
             element.attribute(ATTRIBUTES_INFOS, "0");
             element.attribute(ATTRIBUTES_PROBLEMS, "0");
             element.attribute(ATTRIBUTES_WARNINGS, "0");
-            source.insertNode(0, element);
+            source.insertChild(0, element);
         }
         return element;
     }
@@ -154,7 +154,7 @@ public class EcJLogFileEnhancer implements AutoCloseable {
             element.attribute("problemID", Integer.toString(problemId));
             Element messageElement = Element.of("message");
             messageElement.attribute("value", message);
-            element.addNode(messageElement);
+            element.addChild(messageElement);
             incrementAttribute(problemsElement, ATTRIBUTES_PROBLEMS, 1);
             if (SEVERITY_ERROR.equals(severity)) {
                 incrementAttribute(problemsElement, ATTRIBUTES_ERRORS, 1);
@@ -171,12 +171,12 @@ public class EcJLogFileEnhancer implements AutoCloseable {
                     incrementAttribute(statsElement, ATTRIBUTES_WARNINGS, 1);
                 }
             }
-            problemsElement.addNode(element);
+            problemsElement.addChild(element);
             needsUpdate.run();
         }
 
         public boolean hasClass(String classFile) {
-            return source.children("classfile").map(elem -> elem.attribute("path"))
+            return source.childElements("classfile").map(elem -> elem.attribute("path"))
                     .filter(Objects::nonNull).anyMatch(path -> path.endsWith(classFile));
         }
 

@@ -72,10 +72,10 @@ public class IU {
     }
 
     public List<Element> getProvidedCapabilites() {
-        List<Element> provides = iuDom.children(PROVIDES).toList();
+        List<Element> provides = iuDom.childElements(PROVIDES).toList();
         if (provides == null || provides.isEmpty())
             return null;
-        return provides.get(0).children(PROVIDED).toList();
+        return provides.get(0).childElements(PROVIDED).toList();
     }
 
     public List<Element> getSelfCapabilities() {
@@ -92,64 +92,64 @@ public class IU {
     }
 
     public void addSelfCapability() {
-        Element provides = iuDom.child(PROVIDES).orElse(null);
+        Element provides = iuDom.childElement(PROVIDES).orElse(null);
         if (provides == null) {
             provides = Element.of(PROVIDES);
-            iuDom.addNode(provides);
+            iuDom.addChild(provides);
         }
         Element newCapability = Element.of(PROVIDED);
         newCapability.attribute(NAMESPACE, P2_IU_NAMESPACE);
         newCapability.attribute(NAME, getId());
         newCapability.attribute(VERSION, getVersion());
 
-        provides.addNode(newCapability);
+        provides.addChild(newCapability);
     }
 
     public List<Element> getRequiredCapabilites() {
-        List<Element> requires = iuDom.children(REQUIRES).toList();
+        List<Element> requires = iuDom.childElements(REQUIRES).toList();
         if (requires == null || requires.isEmpty())
             return null;
-        return requires.get(0).children(REQUIRED).toList();
+        return requires.get(0).childElements(REQUIRED).toList();
     }
 
     public List<Element> getProperties() {
-        List<Element> properties = iuDom.children(PROPERTIES).toList();
+        List<Element> properties = iuDom.childElements(PROPERTIES).toList();
         if (properties == null || properties.isEmpty())
             return null;
-        return properties.get(0).children(PROPERTY).toList();
+        return properties.get(0).childElements(PROPERTY).toList();
     }
 
     public void addProperty(String name, String value) {
-        Element properties = iuDom.child(PROPERTIES).orElse(null);
+        Element properties = iuDom.childElement(PROPERTIES).orElse(null);
         if (properties == null) {
-            iuDom.addNode(Element.of(PROPERTIES));
-            properties = iuDom.child(PROPERTIES).orElse(null);
+            iuDom.addChild(Element.of(PROPERTIES));
+            properties = iuDom.childElement(PROPERTIES).orElse(null);
         }
         Element elt = Element.of(PROPERTY);
         elt.attribute(NAME, name);
         elt.attribute("value", value);
-        properties.addNode(elt);
+        properties.addChild(elt);
     }
 
     public List<Element> getArtifacts() {
-        Element artifacts = iuDom.child(ARTIFACTS).orElse(null);
+        Element artifacts = iuDom.childElement(ARTIFACTS).orElse(null);
         if (artifacts == null)
             return null;
-        return artifacts.children(ARTIFACT).toList();
+        return artifacts.childElements(ARTIFACT).toList();
     }
 
     public void addArtifact(String classifier, String id, String version) {
-        Element artifacts = iuDom.child(ARTIFACTS).orElse(null);
+        Element artifacts = iuDom.childElement(ARTIFACTS).orElse(null);
         if (artifacts == null) {
             artifacts = Element.of(ARTIFACTS);
-            iuDom.addNode(artifacts);
+            iuDom.addChild(artifacts);
         }
         Element newArtifact = Element.of(ARTIFACT);
         newArtifact.attribute(CLASSIFIER, classifier);
         newArtifact.attribute(ID, id);
         newArtifact.attribute(VERSION, version);
 
-        artifacts.addNode(newArtifact);
+        artifacts.addChild(newArtifact);
     }
 
     public Element getSelfArtifact() {

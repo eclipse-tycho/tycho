@@ -28,10 +28,10 @@ public class DependencyManagement {
 
         List<GAV> result = new ArrayList<>();
 
-        Element dependencies = dependencyManagement.child("dependencies").orElse(null);
+        Element dependencies = dependencyManagement.childElement("dependencies").orElse(null);
 
         if (dependencies != null) {
-            for (Element dependency : dependencies.children("dependency").toList())
+            for (Element dependency : dependencies.childElements("dependency").toList())
                 result.add(new GAV(dependency));
         }
 
@@ -39,7 +39,7 @@ public class DependencyManagement {
     }
 
     public static DependencyManagement getDependencyManagement(Element dom) {
-        Element dependencyManagement = dom.child("dependencyManagement").orElse(null);
+        Element dependencyManagement = dom.childElement("dependencyManagement").orElse(null);
         if (dependencyManagement == null) {
             return null;
         }

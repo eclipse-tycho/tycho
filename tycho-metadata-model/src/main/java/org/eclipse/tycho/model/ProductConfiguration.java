@@ -74,13 +74,13 @@ public class ProductConfiguration {
     }
 
     public List<FeatureRef> getFeatures() throws ModelFileSyntaxException {
-        Element featuresDom = dom.child("features").orElse(null);
+        Element featuresDom = dom.childElement("features").orElse(null);
         if (featuresDom == null) {
             return Collections.emptyList();
         }
 
         ArrayList<FeatureRef> features = new ArrayList<>();
-        for (Element featureDom : featuresDom.children().toList()) {
+        for (Element featureDom : featuresDom.childElements().toList()) {
             features.add(parseFeature(featureDom));
         }
         return Collections.unmodifiableList(features);
@@ -97,15 +97,15 @@ public class ProductConfiguration {
 
     // TODO 428889 remove once p2 handles installMode="root" features
     public void removeRootInstalledFeatures() {
-        Element featuresDom = dom.child("features").orElse(null);
+        Element featuresDom = dom.childElement("features").orElse(null);
         if (featuresDom != null) {
 
-            for (int childIx = featuresDom.nodeCount() - 1; childIx > 0; --childIx) {
+            for (int childIx = featuresDom.childCount() - 1; childIx > 0; --childIx) {
                 Node nodeDom = featuresDom.getNode(childIx);
 
                 if (nodeDom instanceof Element elementDom) {
                     if (parseFeature(elementDom).getInstallMode() == FeatureRef.InstallMode.root) {
-                        featuresDom.removeNode(nodeDom);
+                        featuresDom.removeChild(nodeDom);
                     }
                 }
             }
@@ -117,7 +117,7 @@ public class ProductConfiguration {
     }
 
     public Launcher getLauncher() {
-        Element domLauncher = dom.child("launcher").orElse(null);
+        Element domLauncher = dom.childElement("launcher").orElse(null);
         if (domLauncher == null) {
             return null;
         }
@@ -129,13 +129,13 @@ public class ProductConfiguration {
     }
 
     public List<PluginRef> getPlugins() {
-        Element pluginsDom = dom.child("plugins").orElse(null);
+        Element pluginsDom = dom.childElement("plugins").orElse(null);
         if (pluginsDom == null) {
             return Collections.emptyList();
         }
 
         ArrayList<PluginRef> plugins = new ArrayList<>();
-        for (Element pluginDom : pluginsDom.children("plugin").toList()) {
+        for (Element pluginDom : pluginsDom.childElements("plugin").toList()) {
             plugins.add(new PluginRef(pluginDom));
         }
         return Collections.unmodifiableList(plugins);
@@ -173,26 +173,26 @@ public class ProductConfiguration {
     }
 
     public List<String> getW32Icons() {
-        Element domLauncher = dom.child("launcher").orElse(null);
+        Element domLauncher = dom.childElement("launcher").orElse(null);
         if (domLauncher == null) {
 
             return null;
         }
-        Element win = domLauncher.child("win").orElse(null);
+        Element win = domLauncher.childElement("win").orElse(null);
         if (win == null) {
             return null;
         }
         List<String> icons = new ArrayList<>();
         String useIco = win.attribute("useIco");
         if (Boolean.valueOf(useIco)) {
-            // for (Element ico : win.children("ico").toList())
+            // for (Element ico : win.childElements("ico").toList())
             {
-                Element ico = win.child("ico").orElse(null);
+                Element ico = win.childElement("ico").orElse(null);
                 // should be only 1
                 icons.add(ico.attribute("path"));
             }
         } else {
-            for (Element bmp : win.children("bmp").toList()) {
+            for (Element bmp : win.childElements("bmp").toList()) {
                 List<Attribute> attibuteNames = new ArrayList<>(bmp.attributeObjects().values());
                 if (attibuteNames != null && attibuteNames.size() > 0)
                     icons.add(attibuteNames.get(0).value());
@@ -202,12 +202,12 @@ public class ProductConfiguration {
     }
 
     public String getLinuxIcon() {
-        Element domLauncher = dom.child("launcher").orElse(null);
+        Element domLauncher = dom.childElement("launcher").orElse(null);
         if (domLauncher == null) {
 
             return null;
         }
-        Element linux = domLauncher.child("linux").orElse(null);
+        Element linux = domLauncher.childElement("linux").orElse(null);
         if (linux == null) {
             return null;
         }
@@ -216,12 +216,12 @@ public class ProductConfiguration {
     }
 
     public String getFreeBSDIcon() {
-        Element domLauncher = dom.child("launcher").orElse(null);
+        Element domLauncher = dom.childElement("launcher").orElse(null);
         if (domLauncher == null) {
 
             return null;
         }
-        Element freebsd = domLauncher.child("freebsd").orElse(null);
+        Element freebsd = domLauncher.childElement("freebsd").orElse(null);
         if (freebsd == null) {
             return null;
         }
@@ -230,25 +230,25 @@ public class ProductConfiguration {
     }
 
     public Map<String, BundleConfiguration> getPluginConfiguration() {
-        Element configurationsDom = dom.child("configurations").orElse(null);
+        Element configurationsDom = dom.childElement("configurations").orElse(null);
         if (configurationsDom == null) {
             return null;
         }
 
         Map<String, BundleConfiguration> configs = new HashMap<>();
-        for (Element pluginDom : configurationsDom.children("plugin").toList()) {
+        for (Element pluginDom : configurationsDom.childElements("plugin").toList()) {
             configs.put(pluginDom.attribute("id"), new BundleConfiguration(pluginDom));
         }
         return Collections.unmodifiableMap(configs);
     }
 
     public List<ConfigurationProperty> getConfigurationProperties() {
-        Element configurationsDom = dom.child("configurations").orElse(null);
+        Element configurationsDom = dom.childElement("configurations").orElse(null);
         if (configurationsDom == null) {
             return null;
         }
 
-        List<Element> propertyDoms = configurationsDom.children("property").toList();
+        List<Element> propertyDoms = configurationsDom.childElements("property").toList();
         if (propertyDoms == null) {
             return null;
         }
@@ -261,12 +261,12 @@ public class ProductConfiguration {
     }
 
     public String getMacIcon() {
-        Element domLauncher = dom.child("launcher").orElse(null);
+        Element domLauncher = dom.childElement("launcher").orElse(null);
         if (domLauncher == null) {
 
             return null;
         }
-        Element linux = domLauncher.child("macosx").orElse(null);
+        Element linux = domLauncher.childElement("macosx").orElse(null);
         if (linux == null) {
             return null;
         }
@@ -296,7 +296,7 @@ public class ProductConfiguration {
     }
 
     public ConfigIni getConfigIni() {
-        Element configIniElement = dom.child("configIni").orElse(null);
+        Element configIniElement = dom.childElement("configIni").orElse(null);
         if (configIniElement == null) {
             return null;
         }
@@ -325,7 +325,7 @@ public class ProductConfiguration {
         }
 
         private String getOsSpecificConfigIni(Element configIniElement, String os) {
-            Element osElement = configIniElement.child(os).orElse(null);
+            Element osElement = configIniElement.childElement(os).orElse(null);
             if (osElement != null) {
                 String trimmedValue = osElement.textContentTrimmed();
                 if (!trimmedValue.isEmpty()) {

@@ -34,7 +34,7 @@ public class GAV {
     }
 
     public void setVersion(String version) {
-        dom.child("version").orElse(null).textContent(version);
+        dom.childElement("version").orElse(null).textContent(version);
     }
 
     public String getRelativePath() {
@@ -42,7 +42,7 @@ public class GAV {
     }
 
     private String getChildText(String name) {
-        Element child = dom.child(name).orElse(null);
+        Element child = dom.childElement(name).orElse(null);
         return child != null ? child.textContentTrimmed() : null;
     }
 }

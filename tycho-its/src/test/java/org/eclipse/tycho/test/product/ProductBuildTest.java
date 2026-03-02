@@ -95,12 +95,12 @@ public class ProductBuildTest extends AbstractTychoIntegrationTest {
 		File artifactXml = new File(verifier.getBasedir(), repositoryArtifacts);
 		assertTrue("required artifacts file " + artifactXml.getAbsolutePath() + " not found!", artifactXml.isFile());
 		Document artifactsDocument = Document.of(artifactXml.toPath());
-		Optional<Element> optional = artifactsDocument.root().child("artifacts").orElse(null)
-				.children("artifact")
+		Optional<Element> optional = artifactsDocument.root().childElement("artifacts").orElse(null)
+				.childElements("artifact")
 				.filter(element -> element.attribute("id").equals("org.mockito.mockito-core")).findAny();
 		assertTrue("artifact org.mockito.mockito-core not found", optional.isPresent());
 		Element element = optional.get();
-		Map<String, String> properties = element.child("properties").orElse(null).children("property")
+		Map<String, String> properties = element.childElement("properties").orElse(null).childElements("property")
 				.collect(Collectors.toMap(e -> e.attribute("name"), e -> e.attribute("value")));
 		for (String property : REQUIRED_PGP_PROPERTIES) {
 			assertTrue("property " + property + " is missing", properties.containsKey(property));

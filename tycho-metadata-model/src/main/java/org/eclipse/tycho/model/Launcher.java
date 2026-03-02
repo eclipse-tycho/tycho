@@ -61,7 +61,7 @@ public class Launcher {
     }
 
     public Map<String, String> getLinuxIcon() {
-        Element linuxDom = dom.child("linux").orElse(null);
+        Element linuxDom = dom.childElement("linux").orElse(null);
         if (linuxDom == null) {
             return Collections.emptyMap();
         }
@@ -71,7 +71,7 @@ public class Launcher {
     }
 
     public Map<String, String> getFreeBSDIcon() {
-        Element freebsdDom = dom.child("freebsd").orElse(null);
+        Element freebsdDom = dom.childElement("freebsd").orElse(null);
         if (freebsdDom == null) {
             return Collections.emptyMap();
         }
@@ -81,7 +81,7 @@ public class Launcher {
     }
 
     public Map<String, String> getMacosxIcon() {
-        Element macosxDom = dom.child("macosx").orElse(null);
+        Element macosxDom = dom.childElement("macosx").orElse(null);
         if (macosxDom == null) {
             return Collections.emptyMap();
         }
@@ -91,7 +91,7 @@ public class Launcher {
     }
 
     public Map<String, String> getSolarisIcon() {
-        Element solarisDom = dom.child("solaris").orElse(null);
+        Element solarisDom = dom.childElement("solaris").orElse(null);
         if (solarisDom == null) {
             return Collections.emptyMap();
         }
@@ -104,7 +104,7 @@ public class Launcher {
     }
 
     public boolean getWindowsUseIco() {
-        Element winDom = dom.child("win").orElse(null);
+        Element winDom = dom.childElement("win").orElse(null);
         if (winDom == null) {
             return false;
         }
@@ -113,18 +113,18 @@ public class Launcher {
     }
 
     public Map<String, String> getWindowsIcon() {
-        Element winDom = dom.child("win").orElse(null);
+        Element winDom = dom.childElement("win").orElse(null);
         if (winDom == null) {
             return Collections.emptyMap();
         }
         Map<String, String> windows = new HashMap<>();
         if (getWindowsUseIco()) {
-            Element ico = winDom.child("ico").orElse(null);
+            Element ico = winDom.childElement("ico").orElse(null);
             if (ico != null) {
                 putIfNotNull(windows, ICON_WINDOWS_ICO_PATH, ico.attribute(ICON_WINDOWS_ICO_PATH));
             }
         } else {
-            Element bmp = winDom.child("bmp").orElse(null);
+            Element bmp = winDom.childElement("bmp").orElse(null);
             if (bmp != null) {
                 putIfNotNull(windows, ICON_WINDOWS_SMALL_HIGH, bmp.attribute(ICON_WINDOWS_SMALL_HIGH));
                 putIfNotNull(windows, ICON_WINDOWS_SMALL_LOW, bmp.attribute(ICON_WINDOWS_SMALL_LOW));
