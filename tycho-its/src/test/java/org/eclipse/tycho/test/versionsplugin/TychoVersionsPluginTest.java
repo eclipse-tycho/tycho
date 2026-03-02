@@ -325,7 +325,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		String MANIFEST_VERSION = "2.0.0";
 
 		Verifier verifier = getVerifier("tycho-version-plugin/update-pom/pomNamedPomXml", false);
-		verifier.addCliArgument("--file " + POM_NAME);
+		verifier.addCliArguments("--file", POM_NAME);
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:%s:update-pom".formatted(VERSION));
 		verifier.verifyErrorFreeLog();
 		MavenXpp3Reader pomReader = new MavenXpp3Reader();
@@ -349,7 +349,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		String MANIFEST_VERSION = "2.0.0";
 
 		Verifier verifier = getVerifier("tycho-version-plugin/update-pom/pomNotNamedPomXml", false);
-		verifier.addCliArgument("--file " + POM_NAME);
+		verifier.addCliArguments("--file", POM_NAME);
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:%s:update-pom".formatted(VERSION));
 		verifier.verifyErrorFreeLog();
 		MavenXpp3Reader pomReader = new MavenXpp3Reader();
@@ -374,7 +374,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		String MANIFEST_VERSION = "2.0.0";
 
 		Verifier verifier = getVerifier("tycho-version-plugin/update-pom/modularPom", false);
-		verifier.addCliArgument("--file " + POM_NAME);
+		verifier.addCliArguments("--file", POM_NAME);
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:%s:update-pom".formatted(VERSION));
 		verifier.verifyErrorFreeLog();
 		MavenXpp3Reader pomReader = new MavenXpp3Reader();

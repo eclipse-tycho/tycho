@@ -207,7 +207,7 @@ public abstract class AbstractTychoIntegrationTest {
 	}
 
 	protected static Verifier executeOnlyProject(Verifier verifier, String projectFolder) {
-		verifier.addCliArgument("-pl " + projectFolder);
+		verifier.addCliArguments("-pl", projectFolder);
 		return verifier;
 	}
 

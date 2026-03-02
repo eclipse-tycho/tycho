@@ -63,7 +63,7 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 	public void testAlsoMake() throws Exception {
 		// REACTOR_MAKE_UPSTREAM
 		verifier.addCliArgument("-am");
-		verifier.addCliArgument("-pl feature1");
+		verifier.addCliArguments("-pl", "feature1");
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifyErrorFreeLog(verifier);
 		verifier.verifyFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
@@ -77,7 +77,7 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testAlsoMakeSite() throws Exception {
 		verifier.addCliArgument("-am");
-		verifier.addCliArgument("-pl site");
+		verifier.addCliArguments("-pl", "site");
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifyErrorFreeLog(verifier);
 	}
@@ -85,7 +85,7 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testAlsoMakeProduct() throws Exception {
 		verifier.addCliArgument("-am");
-		verifier.addCliArgument("-pl product");
+		verifier.addCliArguments("-pl", "product");
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifyErrorFreeLog(verifier);
 	}
@@ -94,7 +94,7 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 	public void testAlsoMakeWithIndirectDependencies() throws Exception {
 		// REACTOR_MAKE_UPSTREAM
 		verifier.addCliArgument("-am");
-		verifier.addCliArgument("-pl bundle1b");
+		verifier.addCliArguments("-pl", "bundle1b");
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifyErrorFreeLog(verifier);
 		verifier.verifyFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
@@ -109,7 +109,7 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 	public void testAlsoMakeDependentsNeedsToPickUpDependenciesOfDependents() throws Exception {
 		// REACTOR_MAKE_DOWNSTREAM
 		verifier.addCliArgument("-amd");
-		verifier.addCliArgument("-pl bundle1");
+		verifier.addCliArguments("-pl", "bundle1");
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifyErrorFreeLog(verifier);
 		verifier.verifyFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
@@ -125,7 +125,7 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 		// REACTOR_MAKE_BOTH
 		verifier.addCliArgument("-am");
 		verifier.addCliArgument("-amd");
-		verifier.addCliArgument("-pl feature1,bundle2");
+		verifier.addCliArguments("-pl", "feature1,bundle2");
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifyErrorFreeLog(verifier);
 		verifier.verifyFilePresent("bundle1/target/bundle1-1.0.0-SNAPSHOT.jar");
@@ -136,7 +136,7 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testSingleProjectNoOptionFails() throws Exception {
-		verifier.addCliArgument("-pl feature1");
+		verifier.addCliArguments("-pl", "feature1");
 		assertThrows("Build should fail due to missing reactor dependency", VerificationException.class,
 				() -> verifier.executeGoals(List.of("clean", "verify")));
 		verifier.verifyTextInLog(
