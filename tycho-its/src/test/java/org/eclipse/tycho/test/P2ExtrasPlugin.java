@@ -155,8 +155,8 @@ public class P2ExtrasPlugin extends AbstractTychoIntegrationTest {
 
 	private static Element extractUnitFromContentXml(Path contentXml, String unitName) throws IOException {
 		Document document = Document.of(contentXml);
-		Element unitElement = document.root().child("units").orElse(null);
-		List<Element> units = unitElement.children("unit").toList();
+		Element unitElement = document.root().childElement("units").orElse(null);
+		List<Element> units = unitElement.childElements("unit").toList();
 		Optional<Element> extractedUnit = units.stream()
 				.filter(element -> unitName.equals(element.attribute("id"))).findFirst();
 		assertTrue(String.format("Unit with name '%s' not found in content.xml with units: %s", unitName, units),
@@ -168,7 +168,7 @@ public class P2ExtrasPlugin extends AbstractTychoIntegrationTest {
 		if ("zipped".equals(element.attribute("key"))) {
 			return true;
 		}
-		return element.children().anyMatch(P2ExtrasPlugin::hasChildWithZippedAttribute);
+		return element.childElements().anyMatch(P2ExtrasPlugin::hasChildWithZippedAttribute);
 	}
 
 }

@@ -28,8 +28,8 @@ public class Profile {
 
     public List<String> getModules() {
         LinkedHashSet<String> result = new LinkedHashSet<>();
-        for (Element modules : dom.children("modules").toList()) {
-            for (Element module : modules.children("module").toList()) {
+        for (Element modules : dom.childElements("modules").toList()) {
+            for (Element module : modules.childElements("module").toList()) {
                 result.add(module.textContentTrimmed());
             }
         }
@@ -37,7 +37,7 @@ public class Profile {
     }
 
     public String getId() {
-        Element child = dom.child("id").orElse(null);
+        Element child = dom.childElement("id").orElse(null);
         return child != null ? child.textContentTrimmed() : null;
     }
 

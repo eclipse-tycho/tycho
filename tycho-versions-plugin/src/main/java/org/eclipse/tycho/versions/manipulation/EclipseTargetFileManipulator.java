@@ -61,8 +61,8 @@ public class EclipseTargetFileManipulator extends AbstractMetadataManipulator {
     private void applyChanges(PomVersionChange change, Document document, String fileName) {
         Element dom = document.root();
         boolean changed = false;
-        for (Element locations : dom.children("locations").toList()) {
-            List<Element> children = locations.children("location").toList();
+        for (Element locations : dom.childElements("locations").toList()) {
+            List<Element> children = locations.childElements("location").toList();
             for (int j = 0; j < children.size(); j++) {
                 Element location = children.get(j);
                 String locationType = location.attribute("type");

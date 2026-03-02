@@ -81,8 +81,8 @@ public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 	void verifyHasChecksum(File artifactXml) throws IOException {
 		assertTrue("required artifact file " + artifactXml.getAbsolutePath() + " not found!", artifactXml.exists());
 		Document artifactsDocument = Document.of(artifactXml.toPath());
-		for (Element artifact : artifactsDocument.root().children("artifact").toList()) {
-			Map<String, String> map = artifact.child("properties").orElse(null).children("property")
+		for (Element artifact : artifactsDocument.root().childElements("artifact").toList()) {
+			Map<String, String> map = artifact.childElement("properties").orElse(null).childElements("property")
 					.collect(Collectors.toMap(e -> e.attribute("name"), e -> e.attribute("value")));
 			if (!map.containsKey("download.checksum.sha-256")) {
 				fail("Checksum property not found for artifact: \r\n" + artifact);

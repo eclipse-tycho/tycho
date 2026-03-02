@@ -20,9 +20,9 @@ import eu.maveniverse.domtrip.Element;
 public class Dependencies {
     public static List<GAV> getDependencies(Element dom) {
         ArrayList<GAV> result = new ArrayList<>();
-        Element dependencies = dom.child("dependencies").orElse(null);
+        Element dependencies = dom.childElement("dependencies").orElse(null);
         if (dependencies != null) {
-            for (Element dependency : dependencies.children("dependency").toList())
+            for (Element dependency : dependencies.childElements("dependency").toList())
                 result.add(new GAV(dependency));
         }
         return result;

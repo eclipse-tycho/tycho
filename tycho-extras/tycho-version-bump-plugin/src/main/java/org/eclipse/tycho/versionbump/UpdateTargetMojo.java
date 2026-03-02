@@ -217,14 +217,14 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     }
 
     static void setElementValue(String name, String value, Element root) {
-        Element child = root.child(name).orElse(null);
+        Element child = root.childElement(name).orElse(null);
         if (child != null) {
             child.textContent(value);
         }
     }
 
     static String getElementValue(String name, Element root) {
-        Element child = root.child(name).orElse(null);
+        Element child = root.childElement(name).orElse(null);
         if (child != null) {
             String text = child.textContent().trim();
             if (text.isBlank()) {
@@ -236,9 +236,9 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     }
 
     private List<Element> getLocations(String type, Document target) {
-        Element locations = target.root().child("locations").orElse(null);
+        Element locations = target.root().childElement("locations").orElse(null);
         if (locations != null) {
-            return locations.children().filter(elem -> type.equals(elem.attribute("type")))
+            return locations.childElements().filter(elem -> type.equals(elem.attribute("type")))
                     .toList();
         }
         return List.of();

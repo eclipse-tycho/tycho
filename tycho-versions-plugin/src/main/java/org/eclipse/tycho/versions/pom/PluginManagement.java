@@ -26,9 +26,9 @@ public class PluginManagement {
 
     public List<Plugin> getPlugins() {
         List<Plugin> result = new ArrayList<>();
-        Element plugins = pluginManagement.child("plugins").orElse(null);
+        Element plugins = pluginManagement.childElement("plugins").orElse(null);
         if (plugins != null) {
-            for (Element plugin : plugins.children("plugin").toList())
+            for (Element plugin : plugins.childElements("plugin").toList())
                 result.add(new Plugin(plugin));
         }
         return result;

@@ -30,9 +30,9 @@ public class Plugin {
 
     public List<GAV> getDependencies() {
         ArrayList<GAV> result = new ArrayList<>();
-        Element dependencies = plugin.child("dependencies").orElse(null);
+        Element dependencies = plugin.childElement("dependencies").orElse(null);
         if (dependencies != null) {
-            for (Element dependency : dependencies.children("dependency").toList()) {
+            for (Element dependency : dependencies.childElements("dependency").toList()) {
                 result.add(new GAV(dependency));
             }
         }
@@ -41,15 +41,15 @@ public class Plugin {
 
     public List<GAV> getTargetArtifacts() {
         ArrayList<GAV> result = new ArrayList<>();
-        Element configuration = plugin.child("configuration").orElse(null);
+        Element configuration = plugin.childElement("configuration").orElse(null);
         if (configuration == null) {
             return result;
         }
-        Element target = configuration.child("target").orElse(null);
+        Element target = configuration.childElement("target").orElse(null);
         if (target == null) {
             return result;
         }
-        for (Element artifact : target.children("artifact").toList()) {
+        for (Element artifact : target.childElements("artifact").toList()) {
             result.add(new GAV(artifact));
         }
         return result;

@@ -104,7 +104,7 @@ public class VirtualUnitTest extends AbstractTychoIntegrationTest {
 		File p2Content = new File(baseDir, filePath);
 		Document doc = Document.of(p2Content.toPath());
 
-		return doc.root().children("unit").toList();
+		return doc.root().childElements("unit").toList();
 	}
 
 	private static Optional<Element> findUnit(List<Element> units, String hostUnitId) {
@@ -112,7 +112,7 @@ public class VirtualUnitTest extends AbstractTychoIntegrationTest {
 	}
 
 	private static Stream<Element> findRequirements(Optional<Element> hostUnit) {
-		return hostUnit.stream().flatMap(elem -> elem.child("requires").orElse(null).children("required"));
+		return hostUnit.stream().flatMap(elem -> elem.childElement("requires").orElse(null).childElements("required"));
 	}
 
 }

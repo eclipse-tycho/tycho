@@ -90,7 +90,7 @@ public class PomFile {
     private void setVersionInXML() {
         boolean writeProjectVersion = preferExplicitProjectVersion || !version.equals(getParentVersion());
         if (writeProjectVersion) {
-            Element versionElement = project.child("version").orElse(null);
+            Element versionElement = project.childElement("version").orElse(null);
             if (versionElement == null) {
                 versionElement = addEmptyVersionElementToXML(project);
             }
@@ -104,13 +104,13 @@ public class PomFile {
         Element result = Element.of("version");
         // TODO proper indentation
         result.precedingWhitespace("\n");
-        project.addNode(result);
+        project.addChild(result);
         return result;
     }
 
     private static void removeVersionElementFromXML(Element project) {
         List<Node> nodesToRemove = new ArrayList<>();
-        List<Node> nodeList = project.nodes().toList();
+        List<Node> nodeList = project.children().toList();
         for (int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
             if (node instanceof Element element) {
@@ -125,7 +125,7 @@ public class PomFile {
             }
         }
         for (Node node : nodesToRemove) {
-            project.removeNode(node);
+            project.removeChild(node);
         }
     }
 
@@ -198,14 +198,14 @@ public class PomFile {
     }
 
     public GAV getParent() {
-        Element element = project.child("parent").orElse(null);
+        Element element = project.childElement("parent").orElse(null);
         return element != null ? new GAV(element) : null;
     }
 
     public List<String> getModules() {
         LinkedHashSet<String> result = new LinkedHashSet<>();
-        for (Element modules : project.children("modules").toList()) {
-            for (Element module : modules.children("module").toList()) {
+        for (Element modules : project.childElements("modules").toList()) {
+            for (Element module : modules.childElements("module").toList()) {
                 result.add(module.textContentTrimmed());
             }
         }
@@ -214,8 +214,8 @@ public class PomFile {
 
     public List<Profile> getProfiles() {
         ArrayList<Profile> result = new ArrayList<>();
-        for (Element profiles : project.children("profiles").toList()) {
-            for (Element profile : profiles.children("profile").toList()) {
+        for (Element profiles : project.childElements("profiles").toList()) {
+            for (Element profile : profiles.childElements("profile").toList()) {
                 result.add(new Profile(profile));
             }
         }
@@ -239,7 +239,7 @@ public class PomFile {
     }
 
     private String getElementValue(String name) {
-        Element child = project.child(name).orElse(null);
+        Element child = project.childElement(name).orElse(null);
         return child != null ? child.textContentTrimmed() : null;
     }
 

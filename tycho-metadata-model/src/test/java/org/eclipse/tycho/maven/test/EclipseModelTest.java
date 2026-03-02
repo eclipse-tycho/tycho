@@ -124,7 +124,7 @@ class EclipseModelTest {
         Feature.write(feature, new File("target/feature-default-encoding.xml"));
 
         Document document = Document.of(new File("target/feature-default-encoding.xml").toPath());
-        Element child = document.root().child("license").orElse(null);
+        Element child = document.root().childElement("license").orElse(null);
 
         assertEquals("\u201cI AGREE\u201d", child.textContent().trim());
     }

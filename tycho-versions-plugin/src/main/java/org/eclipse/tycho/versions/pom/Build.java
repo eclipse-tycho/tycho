@@ -26,16 +26,16 @@ public class Build {
 
     public List<Plugin> getPlugins() {
         List<Plugin> result = new ArrayList<>();
-        Element plugins = dom.child("plugins").orElse(null);
+        Element plugins = dom.childElement("plugins").orElse(null);
         if (plugins != null) {
-            for (Element plugin : plugins.children("plugin").toList())
+            for (Element plugin : plugins.childElements("plugin").toList())
                 result.add(new Plugin(plugin));
         }
         return result;
     }
 
     public PluginManagement getPluginManagement() {
-        Element pluginManagement = dom.child("pluginManagement").orElse(null);
+        Element pluginManagement = dom.childElement("pluginManagement").orElse(null);
         if (pluginManagement == null) {
             return null;
         }
@@ -43,7 +43,7 @@ public class Build {
     }
 
     public static Build getBuild(Element dom) {
-        Element build = dom.child("build").orElse(null);
+        Element build = dom.childElement("build").orElse(null);
         return build != null ? new Build(build) : null;
     }
 }

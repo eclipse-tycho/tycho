@@ -71,11 +71,11 @@ public class MavenLocationUpdater {
             throws VersionRangeResolutionException, ArtifactResolutionException, MojoExecutionException,
             VersionRetrievalException {
         DefaultVersionsHelper helper = getHelper(context);
-        Element dependencies = mavenLocation.child("dependencies").orElse(null);
+        Element dependencies = mavenLocation.childElement("dependencies").orElse(null);
         ArtifactFactory artifactFactory = new ArtifactFactory(artifactHandlerManager);
         List<MavenVersionUpdate> updates = new ArrayList<>();
         if (dependencies != null) {
-            for (Element dependency : dependencies.children("dependency").toList()) {
+            for (Element dependency : dependencies.childElements("dependency").toList()) {
                 Dependency mavenDependency = getDependency(dependency);
                 Artifact dependencyArtifact = artifactFactory.createArtifact(mavenDependency);
                 ArtifactVersions versions = helper.lookupArtifactVersions(dependencyArtifact, false);

@@ -39,12 +39,12 @@ public class FeatureWithRestrictionsTest extends AbstractTychoIntegrationTest {
 		File contentXml = new File(verifier.getBasedir(), "target/p2content.xml");
 		Document artifactsDocument = Document.of(contentXml.toPath());
 		String unitId = "com.test.sample.feature.feature.group";
-		Optional<Element> unit = artifactsDocument.root().children("unit").filter(elem -> {
+		Optional<Element> unit = artifactsDocument.root().childElements("unit").filter(elem -> {
 			return unitId.equals(elem.attribute("id"));
 		}).findFirst();
 		assertTrue("Unit with id " + unitId + " not found", unit.isPresent());
 		assertFalse("Version 2 was required by unit",
-				unit.stream().flatMap(elem -> elem.child("requires").orElse(null).children("required"))
+				unit.stream().flatMap(elem -> elem.childElement("requires").orElse(null).childElements("required"))
 						.anyMatch(elem -> "[2.0.0,2.0.0]".equals(elem.attribute("range"))));
 	}
 }

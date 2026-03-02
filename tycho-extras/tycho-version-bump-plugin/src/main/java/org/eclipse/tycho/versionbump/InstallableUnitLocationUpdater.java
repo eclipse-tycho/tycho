@@ -75,7 +75,7 @@ public class InstallableUnitLocationUpdater {
         Log log = context.getLog();
         ResolvedRepository location = getResolvedLocation(iuLocation);
         log.info("Check " + location.getLocation() + " for updates...");
-        List<IU> units = iuLocation.children("unit")
+        List<IU> units = iuLocation.childElements("unit")
                 .map(unit -> new IU(unit.attribute("id"), getUnitVersion(unit), unit)).toList();
         IMetadataRepositoryManager repositoryManager = agent.getService(IMetadataRepositoryManager.class);
         URI currentLocation = new URI(location.location());
@@ -83,7 +83,7 @@ public class InstallableUnitLocationUpdater {
         MetadataRepositoryUpdate updateRepository = getMetadataRepository(location, context, units, repositoryManager);
         boolean updated = updateRepository.updateLocation(location);
         List<VersionUpdate> updates = new ArrayList<>();
-        for (Element unit : iuLocation.children("unit").toList()) {
+        for (Element unit : iuLocation.childElements("unit").toList()) {
             String id = unit.attribute("id");
             String currentVersion = getUnitVersion(unit);
             if (isVersionRange(currentVersion)) {
@@ -393,7 +393,7 @@ public class InstallableUnitLocationUpdater {
     }
 
     private ResolvedRepository getResolvedLocation(Element iuLocation) {
-        Element element = iuLocation.child("repository").orElse(null);
+        Element element = iuLocation.childElement("repository").orElse(null);
         String attribute = element.attribute("location");
         String resolved = varResolver.resolve(attribute);
         return new ResolvedRepository(element.attribute("id"), resolved, element);

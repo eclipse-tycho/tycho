@@ -47,7 +47,7 @@ public class P2RepositoryPropertiesTest extends AbstractTychoIntegrationTest {
 		expected.put("p2.mirrorsURL", "http://some.where.else");
 		expected.put("foo", "bar");
 		Document artifactsDocument = Document.of(artifactXml.toPath());
-		artifactsDocument.root().child("properties").orElse(null).children("property").forEach(element -> {
+		artifactsDocument.root().childElement("properties").orElse(null).childElements("property").forEach(element -> {
 			String propertyName = element.attribute("name");
 			if (expected.containsKey(propertyName)
 					&& expected.get(propertyName).equals(element.attribute("value"))) {
@@ -66,12 +66,12 @@ public class P2RepositoryPropertiesTest extends AbstractTychoIntegrationTest {
 		File artifactXml = new File(verifier.getBasedir(), "target/repository/artifacts.xml");
 		assertTrue(artifactXml.exists());
 		Document artifactsDocument = Document.of(artifactXml.toPath());
-		Optional<Element> optional = artifactsDocument.root().child("artifacts").orElse(null)
-				.children("artifact")
+		Optional<Element> optional = artifactsDocument.root().childElement("artifacts").orElse(null)
+				.childElements("artifact")
 				.filter(element -> element.attribute("id").equals("org.objenesis")).findAny();
 		assertTrue("artifact org.objenesis not found", optional.isPresent());
 		Element element = optional.get();
-		Map<String, String> properties = element.child("properties").orElse(null).children("property")
+		Map<String, String> properties = element.childElement("properties").orElse(null).childElements("property")
 				.collect(Collectors.toMap(e -> e.attribute("name"), e -> e.attribute("value")));
 		assertEquals("org.objenesis", properties.get("maven-groupId"));
 		assertTrue(properties.containsKey(TychoConstants.PROP_PGP_SIGNATURES)
