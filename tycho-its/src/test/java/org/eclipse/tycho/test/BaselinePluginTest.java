@@ -143,4 +143,62 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption(project + "/pom.xml");
 		return verifier;
 	}
+
+	/**
+	 * Test the check-dependencies goal with applySuggestions=true. Verifies that
+	 * version ranges are correctly generated for various Import-Package and
+	 * Require-Bundle scenarios:
+	 * <ul>
+	 * <li>Import-Package with too-low version range gets corrected</li>
+	 * <li>Import-Package without version gets a proper range</li>
+	 * <li>Require-Bundle with range gets lower bound bumped without qualifier</li>
+	 * <li>Require-Bundle without upper bound gets [version,nextMajor) not
+	 * [version.qualifier,null)</li>
+	 * </ul>
+	 */
+	@Test
+	public void testDependencyCheck() throws Exception {
+		Verifier verifier = getVerifier("baselinePlugin", true, true);
+		verifier.addCliOption("-f");
+		verifier.addCliOption("check-dependencies/pom.xml");
+		verifier.executeGoals(List.of("clean", "verify"));
+
+		File basedir = new File(verifier.getBasedir());
+		File checkDepsDir = new File(basedir, "check-dependencies");
+
+		// Import-Package with explicit range [1.5.0,2.0.0) should be updated
+		// to raise lower bound because Bundle.adapt(Class) was added in 1.6.0
+		ManifestAssertions.of(manifestOf(checkDepsDir, "import-package-low-range"))
+				.assertPackageLowerBound("org.osgi.framework", "1.6.0",
+						"Lower bound must be 1.6.0 because Bundle.adapt was added in 1.6.0")
+				.assertPackageUpperBound("org.osgi.framework", "2.0.0",
+						"Upper bound should be preserved from original range");
+
+		// Import-Package without version should get a new range [1.6.0,2)
+		ManifestAssertions.of(manifestOf(checkDepsDir, "import-package-unversioned"))
+				.assertPackageLowerBound("org.osgi.framework", "1.6.0",
+						"Lower bound must be 1.6.0 for Bundle.adapt method")
+				.assertPackageUpperBound("org.osgi.framework", "2.0.0",
+						"Upper bound should be next major version");
+
+		// Require-Bundle with range [3.3.0,4.0.0) should have lower bound updated
+		// without qualifier
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-with-range"))
+				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.0",
+						"Lower bound must be 3.5.0 because URIUtil.append was added in 3.5.0")
+				.assertBundleUpperBound("org.eclipse.equinox.common", "4.0.0",
+						"Upper bound should be preserved from original range");
+
+		// Require-Bundle with simple version "3.3.0" (no upper bound) should become
+		// [3.5.0,4) not [3.5.0.qualifier,null)
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-no-upper-bound"))
+				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.0",
+						"Lower bound must be 3.5.0 because URIUtil.append was added in 3.5.0")
+				.assertBundleUpperBound("org.eclipse.equinox.common", "4.0.0",
+						"Upper bound should be next major version, not 'null'");
+	}
+
+	private static File manifestOf(File projectDir, String module) {
+		return new File(projectDir, module + "/META-INF/MANIFEST.MF");
+	}
 }
