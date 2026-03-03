@@ -129,15 +129,21 @@ public class ImportPackageChecker extends DependencyChecker {
 		Map<String, Version> lowestPackageVersion = getLowestVersions();
 		for (String packageName : withError) {
 			Version lowestVersion = lowestPackageVersion.getOrDefault(packageName, Version.emptyVersion);
+			Version stripped = stripQualifier(lowestVersion, packageName);
 			String current = importedPackagesVersion.get(packageName);
 			if (current == null) {
 				packageUpdates.put(packageName,
-						String.format("[%s,%d)", lowestVersion, (lowestVersion.getMajor() + 1)));
+						String.format("[%s,%d)", stripped, (stripped.getMajor() + 1)));
 			} else {
 				VersionRange range = VersionRange.valueOf(current);
 				Version right = range.getRight();
-				packageUpdates.put(packageName,
-						String.format("[%s,%s%c", lowestVersion, right, range.getRightType()));
+				if (right == null) {
+					packageUpdates.put(packageName,
+							String.format("[%s,%d)", stripped, (stripped.getMajor() + 1)));
+				} else {
+					packageUpdates.put(packageName,
+							String.format("[%s,%s%c", stripped, right, range.getRightType()));
+				}
 			}
 		}
 		manifest.updateImportedPackageVersions(packageUpdates);

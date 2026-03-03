@@ -51,7 +51,22 @@ public class MarkdownBuilder {
     }
 
     public static String escape(String item) {
-        return item.replace("@", "<span>@</span>").replace("#", "<span>#</span>");
+        StringBuilder result = new StringBuilder();
+        boolean inCode = false;
+        for (int i = 0; i < item.length(); i++) {
+            char c = item.charAt(i);
+            if (c == '`') {
+                inCode = !inCode;
+                result.append(c);
+            } else if (!inCode && c == '@') {
+                result.append("<span>@</span>");
+            } else if (!inCode && c == '#') {
+                result.append("<span>#</span>");
+            } else {
+                result.append(c);
+            }
+        }
+        return result.toString();
     }
 
     public void write() throws MojoFailureException {
