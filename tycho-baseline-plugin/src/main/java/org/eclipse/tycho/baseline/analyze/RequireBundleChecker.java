@@ -162,15 +162,21 @@ public class RequireBundleChecker extends DependencyChecker {
 		Map<String, Version> lowestBundleVersion = getLowestVersions();
 		for (String bundleName : withError) {
 			Version lowestVersion = lowestBundleVersion.getOrDefault(bundleName, Version.emptyVersion);
+			Version stripped = stripQualifier(lowestVersion, bundleName);
 			String current = requiredBundleVersions.get(bundleName);
 			if (current == null) {
 				bundleUpdates.put(bundleName,
-						String.format("[%s,%d)", lowestVersion, (lowestVersion.getMajor() + 1)));
+						String.format("[%s,%d)", stripped, (stripped.getMajor() + 1)));
 			} else {
 				VersionRange range = VersionRange.valueOf(current);
 				Version right = range.getRight();
-				bundleUpdates.put(bundleName,
-						String.format("[%s,%s%c", lowestVersion, right, range.getRightType()));
+				if (right == null) {
+					bundleUpdates.put(bundleName,
+							String.format("[%s,%d)", stripped, (stripped.getMajor() + 1)));
+				} else {
+					bundleUpdates.put(bundleName,
+							String.format("[%s,%s%c", stripped, right, range.getRightType()));
+				}
 			}
 		}
 		manifest.updateRequiredBundleVersions(bundleUpdates);
