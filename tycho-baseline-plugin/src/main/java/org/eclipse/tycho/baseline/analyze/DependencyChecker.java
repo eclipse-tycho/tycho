@@ -173,6 +173,45 @@ public abstract class DependencyChecker {
 	 */
 	public abstract void reportSuggestions(MarkdownBuilder results, Log log);
 	
+	/**
+	 * Returns a version suitable for use in version ranges by stripping the
+	 * qualifier. If the version has a qualifier and there are broken versions
+	 * with the same {@code major.minor.micro}, this finds the next higher
+	 * {@code major.minor.micro} version from the available versions. If no
+	 * broken versions share the same base, the qualifier is simply removed.
+	 *
+	 * @param version  the version to strip
+	 * @param name     the dependency name to look up available versions
+	 * @return a version without qualifier
+	 */
+	protected Version stripQualifier(Version version, String name) {
+		Version baseVersion = new Version(version.getMajor(), version.getMinor(), version.getMicro());
+		if (version.getQualifier() == null || version.getQualifier().isEmpty()) {
+			return baseVersion;
+		}
+		Set<Version> versions = allVersions.get(name);
+		Version lowest = lowestVersion.get(name);
+		if (versions != null && lowest != null) {
+			// Check if there are broken versions with the same major.minor.micro
+			boolean hasBadWithSameBase = versions.stream()
+					.filter(v -> v.compareTo(lowest) < 0)
+					.anyMatch(v -> v.getMajor() == baseVersion.getMajor()
+							&& v.getMinor() == baseVersion.getMinor()
+							&& v.getMicro() == baseVersion.getMicro());
+			if (hasBadWithSameBase) {
+				for (Version v : versions) {
+					Version vBase = new Version(v.getMajor(), v.getMinor(), v.getMicro());
+					if (vBase.compareTo(baseVersion) > 0) {
+						return vBase;
+					}
+				}
+				// fallback: bump micro
+				return new Version(version.getMajor(), version.getMinor(), version.getMicro() + 1);
+			}
+		}
+		return baseVersion;
+	}
+
 	protected void reportVersionContrainSuggestions(String type, MarkdownBuilder results, Log log) {
 		Set<String> withError = getWithError();
 		if (!withError.isEmpty()) {

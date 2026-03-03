@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Import Package Low Range Test
+Bundle-SymbolicName: tycho.its.test.import.package.low.range
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Import-Package: org.osgi.framework;version="[1.5.0,2.0.0)"

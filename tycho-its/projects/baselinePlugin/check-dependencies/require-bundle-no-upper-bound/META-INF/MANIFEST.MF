@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Require Bundle No Upper Bound Test
+Bundle-SymbolicName: tycho.its.test.require.bundle.no.upper.bound
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.eclipse.equinox.common;bundle-version="3.3.0"
