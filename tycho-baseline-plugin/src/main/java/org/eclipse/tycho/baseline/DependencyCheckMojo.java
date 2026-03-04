@@ -168,6 +168,7 @@ public class DependencyCheckMojo extends AbstractMojo {
 				requireBundleChecker.check(bundleName, bundleVersionStr);
 			}
 		}
+		requireBundleChecker.complete();
 		List<DependencyVersionProblem> dependencyProblems = context.getProblems();
 		if (dependencyProblems.isEmpty()) {
 			return;

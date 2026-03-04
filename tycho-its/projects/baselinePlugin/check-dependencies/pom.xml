@@ -20,6 +20,7 @@
 		<module>import-package-unversioned</module>
 		<module>require-bundle-with-range</module>
 		<module>require-bundle-no-upper-bound</module>
+		<module>require-bundle-split-package</module>
 	</modules>
 	<build>
 		<plugins>

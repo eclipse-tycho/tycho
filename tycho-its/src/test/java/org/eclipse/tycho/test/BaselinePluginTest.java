@@ -148,6 +148,15 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 						"Lower bound must be 3.5.0 because URIUtil.append was added in 3.5.0")
 				.assertBundleUpperBound("org.eclipse.equinox.common", "4.0.0",
 						"Upper bound should be next major version, not 'null'");
+
+		// Require-Bundle with split package: org.eclipse.equinox.common and
+		// org.eclipse.equinox.registry both export org.eclipse.core.runtime.
+		// The checker must not blame common for types from registry.
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-split-package"))
+				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.0",
+						"Lower bound for common must reflect URIUtil.append, not registry types like IConfigurationElement")
+				.assertBundleUpperBound("org.eclipse.equinox.common", "4.0.0",
+						"Upper bound for common should be preserved from original range");
 	}
 
 	private static File manifestOf(File projectDir, String module) {

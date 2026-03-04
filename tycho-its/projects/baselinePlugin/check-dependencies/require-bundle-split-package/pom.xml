@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>tycho-its-project.check-dependencies</groupId>
+		<artifactId>check-dependencies-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>tycho.its.test.require.bundle.split.package</artifactId>
+	<packaging>eclipse-plugin</packaging>
+</project>
