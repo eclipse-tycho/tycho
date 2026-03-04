@@ -13,6 +13,7 @@
 package org.eclipse.tycho.baseline.analyze;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,12 +40,24 @@ import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 
 /**
- * Checker for Require-Bundle dependencies.
+ * Checker for Require-Bundle dependencies. Works in two phases:
+ * <ol>
+ * <li>{@link #check(String, String)} collects all versions and required data
+ * for each required bundle.</li>
+ * <li>{@link #complete()} performs the actual version checking, handling
+ * split-package situations where multiple bundles export the same package.</li>
+ * </ol>
  */
 public class RequireBundleChecker extends DependencyChecker {
 
 	private final Collection<IInstallableUnit> units;
 	private final List<ClassUsage> usages;
+	private final List<BundleCheckData> pendingChecks = new ArrayList<>();
+
+	private record BundleCheckData(String bundleName, String bundleVersionStr, IInstallableUnit unit,
+			Version compiledAgainstVersion, org.eclipse.equinox.p2.metadata.Version matchedBundleVersion,
+			List<ArtifactVersion> versions, Path compiledAgainstArtifact) {
+	}
 
 	/**
 	 * Creates a new Require-Bundle checker.
@@ -60,34 +73,99 @@ public class RequireBundleChecker extends DependencyChecker {
 	}
 
 	/**
-	 * Checks a Require-Bundle dependency.
+	 * Collects version data for a Require-Bundle dependency. The actual version
+	 * checking is deferred to {@link #complete()} to allow split-package detection
+	 * across all required bundles.
 	 * 
 	 * @param bundleName       the symbolic name of the required bundle
 	 * @param bundleVersionStr the version range string
-	 * @throws MojoFailureException if checks failed
+	 * @throws MojoFailureException if data collection fails
 	 */
 	public void check(String bundleName, String bundleVersionStr) throws MojoFailureException {
-		Log log = context.getLog();
 		Optional<IInstallableUnit> bundleProvidingUnit = ArtifactMatcher.findBundle(bundleName, units);
 		if (bundleProvidingUnit.isEmpty()) {
 			return;
 		}
 		IInstallableUnit unit = bundleProvidingUnit.get();
 		org.eclipse.equinox.p2.metadata.Version matchedBundleVersion = unit.getVersion();
+		Version current = null;
 		if (matchedBundleVersion.isOSGiCompatible()) {
-			Version current = new Version(matchedBundleVersion.toString());
+			current = new Version(matchedBundleVersion.toString());
 			allVersions.computeIfAbsent(bundleName, nil -> new TreeSet<>()).add(current);
 			lowestVersion.put(bundleName, current);
 		}
 		VersionRange versionRange = VersionRange.valueOf(bundleVersionStr);
 		List<ArtifactVersion> list = context.getVersionProviders().stream()
 				.flatMap(avp -> avp.getBundleVersions(unit, bundleName, versionRange, context.getProject())).toList();
+		// Find the compiled-against version's artifact
+		Path compiledAgainstArtifact = null;
+		for (ArtifactVersion v : list) {
+			Version version = v.getVersion();
+			if (version != null && current != null && version.equals(current) && v.getArtifact() != null) {
+				compiledAgainstArtifact = v.getArtifact();
+				break;
+			}
+		}
+		pendingChecks.add(new BundleCheckData(bundleName, bundleVersionStr, unit, current, matchedBundleVersion, list,
+				compiledAgainstArtifact));
+	}
+
+	/**
+	 * Performs the actual version checking for all collected bundles. Detects
+	 * split-package situations where the same package is exported by multiple
+	 * required bundles and filters method checks to only include classes that
+	 * actually belong to the respective bundle.
+	 * 
+	 * @throws MojoFailureException if the check encounters fatal problems
+	 */
+	public void complete() throws MojoFailureException {
+		Log log = context.getLog();
+		// Phase 1: Determine exported packages and class names per bundle from
+		// compiled-against versions
+		Map<String, Set<String>> bundleExportedPackages = new HashMap<>();
+		Map<String, Set<String>> bundleClassNames = new HashMap<>();
+		for (BundleCheckData data : pendingChecks) {
+			if (data.compiledAgainstArtifact() != null) {
+				Set<String> exportedPkgs = getExportedPackagesFromJar(data.compiledAgainstArtifact());
+				bundleExportedPackages.put(data.bundleName(), exportedPkgs);
+				ClassCollection cc = context.getClassCollection(data.compiledAgainstArtifact());
+				Set<String> classNames = cc.provides().map(MethodSignature::className).collect(Collectors.toSet());
+				bundleClassNames.put(data.bundleName(), classNames);
+			}
+		}
+		// Phase 2: Identify split packages (exported by multiple required bundles)
+		Map<String, Set<String>> packageToBundles = new HashMap<>();
+		for (var entry : bundleExportedPackages.entrySet()) {
+			for (String pkg : entry.getValue()) {
+				packageToBundles.computeIfAbsent(pkg, k -> new HashSet<>()).add(entry.getKey());
+			}
+		}
+		Set<String> splitPackages = packageToBundles.entrySet().stream().filter(e -> e.getValue().size() > 1)
+				.map(Map.Entry::getKey).collect(Collectors.toSet());
+		if (!splitPackages.isEmpty()) {
+			log.debug("Detected split packages: " + splitPackages);
+		}
+		// Phase 3: Check each bundle's versions with split-package awareness
+		for (BundleCheckData data : pendingChecks) {
+			Set<String> myClassNames = bundleClassNames.getOrDefault(data.bundleName(), Set.of());
+			checkBundle(data, splitPackages, myClassNames);
+		}
+	}
+
+	private void checkBundle(BundleCheckData data, Set<String> splitPackages, Set<String> myClassNames)
+			throws MojoFailureException {
+		Log log = context.getLog();
+		String bundleName = data.bundleName();
+		String bundleVersionStr = data.bundleVersionStr();
+		IInstallableUnit unit = data.unit();
+		org.eclipse.equinox.p2.metadata.Version matchedBundleVersion = data.matchedBundleVersion();
 		if (log.isDebugEnabled()) {
 			log.debug("== Bundle " + bundleName + " " + bundleVersionStr + " is provided by " + unit
-					+ " with version range " + versionRange + ", matching versions: "
-					+ list.stream().map(av -> av.getVersion()).map(String::valueOf).collect(Collectors.joining(", ")));
+					+ " with version range " + VersionRange.valueOf(bundleVersionStr) + ", matching versions: "
+					+ data.versions().stream().map(av -> av.getVersion()).map(String::valueOf)
+							.collect(Collectors.joining(", ")));
 		}
-		for (ArtifactVersion v : list) {
+		for (ArtifactVersion v : data.versions()) {
 			Version version = v.getVersion();
 			if (version == null) {
 				continue;
@@ -100,17 +178,23 @@ public class RequireBundleChecker extends DependencyChecker {
 			if (artifact == null) {
 				continue;
 			}
-			// Determine exported packages for THIS specific version from the JAR manifest
 			Set<String> exportedPackages = getExportedPackagesFromJar(artifact);
 			if (exportedPackages.isEmpty()) {
 				continue;
 			}
-			// Collect methods our code uses from these exported packages
 			Set<MethodSignature> bundleMethods = new TreeSet<>();
 			Map<MethodSignature, Collection<String>> references = new HashMap<>();
 			for (String packageName : exportedPackages) {
-				bundleMethods.addAll(collectMethodsForPackage(usages, packageName));
-				references.putAll(collectReferencesForPackage(usages, packageName));
+				Set<MethodSignature> packageMethods = collectMethodsForPackage(usages, packageName);
+				Map<MethodSignature, Collection<String>> packageRefs = collectReferencesForPackage(usages, packageName);
+				if (splitPackages.contains(packageName)) {
+					// Filter to only methods whose class is in this bundle
+					packageMethods = packageMethods.stream().filter(m -> myClassNames.contains(m.className()))
+							.collect(Collectors.toCollection(TreeSet::new));
+					packageRefs.entrySet().removeIf(e -> !myClassNames.contains(e.getKey().className()));
+				}
+				bundleMethods.addAll(packageMethods);
+				references.putAll(packageRefs);
 			}
 			if (bundleMethods.isEmpty()) {
 				continue;
@@ -121,8 +205,6 @@ public class RequireBundleChecker extends DependencyChecker {
 				}
 			}
 			ClassCollection collection = context.getClassCollection(artifact);
-			// For Require-Bundle, pass null as packageNameFilter since methods can come
-			// from different packages
 			boolean ok = checkMethodsInCollection(collection, bundleMethods, bundleName, null, version, references, v,
 					unit, bundleVersionStr, matchedBundleVersion, "Require-Bundle");
 			if (ok) {
