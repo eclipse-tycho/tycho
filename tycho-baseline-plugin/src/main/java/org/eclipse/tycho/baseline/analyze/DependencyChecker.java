@@ -117,11 +117,46 @@ public abstract class DependencyChecker {
 			String dependencyName, String packageNameFilter, Version version,
 			Map<MethodSignature, Collection<String>> references, ArtifactVersion v, IInstallableUnit unit,
 			String versionStr, org.eclipse.equinox.p2.metadata.Version matchedVersion, String dependencyType) {
+		return checkMethodsInCollections(List.of(collection), methods, dependencyName, packageNameFilter, version,
+				references, v, unit, versionStr, matchedVersion, dependencyType);
+	}
+
+	/**
+	 * Checks if methods are present in any of the given collections and reports
+	 * problems for missing ones. This supports checking against a main bundle's
+	 * classes combined with re-exported bundle classes.
+	 *
+	 * @param collections       the class collections to check (main + re-exported)
+	 * @param methods           the methods to find
+	 * @param dependencyName    the name of the dependency
+	 * @param packageNameFilter optional filter to restrict provided method list
+	 * @param version           the version being checked
+	 * @param references        the references to the methods
+	 * @param v                 the artifact version
+	 * @param unit              the installable unit
+	 * @param versionStr        the version string from the manifest
+	 * @param matchedVersion    the matched version
+	 * @param dependencyType    the type of dependency (e.g., "Require-Bundle")
+	 * @return true if all methods were found
+	 */
+	protected boolean checkMethodsInCollections(List<ClassCollection> collections, Set<MethodSignature> methods,
+			String dependencyName, String packageNameFilter, Version version,
+			Map<MethodSignature, Collection<String>> references, ArtifactVersion v, IInstallableUnit unit,
+			String versionStr, org.eclipse.equinox.p2.metadata.Version matchedVersion, String dependencyType) {
 		boolean ok = true;
-		Set<MethodSignature> set = collection.provides().collect(Collectors.toSet());
+		Set<MethodSignature> set = new HashSet<>();
+		for (ClassCollection cc : collections) {
+			cc.provides().forEach(set::add);
+		}
 		for (MethodSignature mthd : methods) {
 			if (!set.contains(mthd)) {
-				List<MethodSignature> provided = collection.get(mthd.className());
+				List<MethodSignature> provided = null;
+				for (ClassCollection cc : collections) {
+					provided = cc.get(mthd.className());
+					if (provided != null && !provided.isEmpty()) {
+						break;
+					}
+				}
 				if (provided != null && packageNameFilter != null) {
 					provided = provided.stream().filter(ms -> packageNameFilter.equals(ms.packageName())).toList();
 				}

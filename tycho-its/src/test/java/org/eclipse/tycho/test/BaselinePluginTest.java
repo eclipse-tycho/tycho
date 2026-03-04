@@ -157,6 +157,16 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 						"Lower bound for common must reflect URIUtil.append, not registry types like IConfigurationElement")
 				.assertBundleUpperBound("org.eclipse.equinox.common", "4.0.0",
 						"Upper bound for common should be preserved from original range");
+
+		// Require-Bundle with re-export: org.eclipse.core.runtime re-exports
+		// org.eclipse.equinox.common (visibility:=reexport). CoreException lives in
+		// org.eclipse.equinox.common, not in org.eclipse.core.runtime itself.
+		// The checker must not attribute CoreException to org.eclipse.core.runtime.
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-reexport"))
+				.assertBundleLowerBound("org.eclipse.core.runtime", "3.3.0",
+						"Lower bound must stay unchanged because CoreException is from re-exported org.eclipse.equinox.common")
+				.assertBundleUpperBound("org.eclipse.core.runtime", "4.0.0",
+						"Upper bound should be preserved from original range");
 	}
 
 	private static File manifestOf(File projectDir, String module) {
