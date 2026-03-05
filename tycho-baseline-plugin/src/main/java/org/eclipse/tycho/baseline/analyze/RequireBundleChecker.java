@@ -55,6 +55,9 @@ public class RequireBundleChecker extends DependencyChecker {
 	private final Collection<IInstallableUnit> units;
 	private final List<ClassUsage> usages;
 	private final List<BundleCheckData> pendingChecks = new ArrayList<>();
+	private final Map<Path, Set<String>> exportedPackagesCache = new HashMap<>();
+	private final Map<Path, Map<String, String>> reexportCache = new HashMap<>();
+	private final Map<String, Path> lowestArtifactCache = new HashMap<>();
 
 	private record BundleCheckData(String bundleName, String bundleVersionStr, IInstallableUnit unit,
 			Version compiledAgainstVersion, org.eclipse.equinox.p2.metadata.Version matchedBundleVersion,
@@ -128,7 +131,7 @@ public class RequireBundleChecker extends DependencyChecker {
 		Map<String, Set<String>> bundleClassNames = new HashMap<>();
 		for (BundleCheckData data : pendingChecks) {
 			if (data.compiledAgainstArtifact() != null) {
-				Set<String> exportedPkgs = getExportedPackagesFromJar(data.compiledAgainstArtifact());
+				Set<String> exportedPkgs = new HashSet<>(getExportedPackagesFromJar(data.compiledAgainstArtifact()));
 				ClassCollection cc = context.getClassCollection(data.compiledAgainstArtifact());
 				Set<String> classNames = cc.provides().map(MethodSignature::className).collect(Collectors.toSet());
 				// Include re-exported bundles' packages and class names at current
@@ -191,7 +194,7 @@ public class RequireBundleChecker extends DependencyChecker {
 			if (artifact == null) {
 				continue;
 			}
-			Set<String> exportedPackages = getExportedPackagesFromJar(artifact);
+			Set<String> exportedPackages = new HashSet<>(getExportedPackagesFromJar(artifact));
 			if (exportedPackages.isEmpty()) {
 				continue;
 			}
@@ -280,15 +283,19 @@ public class RequireBundleChecker extends DependencyChecker {
 	 * @return the path to the lowest matching artifact, or {@code null}
 	 */
 	private Path findLowestMatchingBundleArtifact(String bundleName, VersionRange range) {
-		Optional<IInstallableUnit> bundleUnit = ArtifactMatcher.findBundle(bundleName, units);
-		if (bundleUnit.isEmpty()) {
-			return null;
-		}
-		IInstallableUnit iu = bundleUnit.get();
-		return context.getVersionProviders().stream()
-				.flatMap(avp -> avp.getBundleVersions(iu, bundleName, range, context.getProject()))
-				.filter(av -> av.getVersion() != null && av.getArtifact() != null)
-				.min(Comparator.comparing(ArtifactVersion::getVersion)).map(ArtifactVersion::getArtifact).orElse(null);
+		String cacheKey = bundleName + ":" + range;
+		return lowestArtifactCache.computeIfAbsent(cacheKey, k -> {
+			Optional<IInstallableUnit> bundleUnit = ArtifactMatcher.findBundle(bundleName, units);
+			if (bundleUnit.isEmpty()) {
+				return null;
+			}
+			IInstallableUnit iu = bundleUnit.get();
+			return context.getVersionProviders().stream()
+					.flatMap(avp -> avp.getBundleVersions(iu, bundleName, range, context.getProject()))
+					.filter(av -> av.getVersion() != null && av.getArtifact() != null)
+					.min(Comparator.comparing(ArtifactVersion::getVersion)).map(ArtifactVersion::getArtifact)
+					.orElse(null);
+		});
 	}
 
 	/**
@@ -317,6 +324,10 @@ public class RequireBundleChecker extends DependencyChecker {
 	}
 
 	private Set<String> getExportedPackagesFromJar(Path jarPath) {
+		return exportedPackagesCache.computeIfAbsent(jarPath, this::readExportedPackagesFromJar);
+	}
+
+	private Set<String> readExportedPackagesFromJar(Path jarPath) {
 		Set<String> packages = new HashSet<>();
 		try (JarFile jar = new JarFile(jarPath.toFile())) {
 			Manifest manifest = jar.getManifest();
@@ -346,6 +357,10 @@ public class RequireBundleChecker extends DependencyChecker {
 	 * @return a map of re-exported bundle names to their version range strings
 	 */
 	private Map<String, String> getReexportedBundlesFromJar(Path jarPath) {
+		return reexportCache.computeIfAbsent(jarPath, this::readReexportedBundlesFromJar);
+	}
+
+	private Map<String, String> readReexportedBundlesFromJar(Path jarPath) {
 		Map<String, String> reexports = new HashMap<>();
 		try (JarFile jar = new JarFile(jarPath.toFile())) {
 			Manifest manifest = jar.getManifest();
