@@ -4,4 +4,4 @@ Bundle-Name: Require Bundle Reexport Test
 Bundle-SymbolicName: tycho.its.test.require.bundle.reexport
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.3.0,4.0.0)"
+Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.34.0,4.0.0)"

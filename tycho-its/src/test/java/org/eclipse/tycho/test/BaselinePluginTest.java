@@ -111,6 +111,7 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testDependencyCheck() throws Exception {
 		Verifier verifier = getVerifier("baselinePlugin", true, true);
+		verifier.getCliOptions().remove("-X");
 		verifier.addCliOption("-f");
 		verifier.addCliOption("check-dependencies/pom.xml");
 		verifier.executeGoals(List.of("clean", "verify"));
@@ -133,7 +134,7 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 				.assertPackageUpperBound("org.osgi.framework", "2.0.0",
 						"Upper bound should be next major version");
 
-		// Require-Bundle with range [3.3.0,4.0.0) should have lower bound updated
+		// Require-Bundle with range [3.4.0,4.0.0) should have lower bound updated
 		// without qualifier
 		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-with-range"))
 				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.0",
@@ -141,7 +142,7 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 				.assertBundleUpperBound("org.eclipse.equinox.common", "4.0.0",
 						"Upper bound should be preserved from original range");
 
-		// Require-Bundle with simple version "3.3.0" (no upper bound) should become
+		// Require-Bundle with simple version "3.4.0" (no upper bound) should become
 		// [3.5.0,4) not [3.5.0.qualifier,null)
 		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-no-upper-bound"))
 				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.0",
@@ -163,7 +164,7 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		// org.eclipse.equinox.common, not in org.eclipse.core.runtime itself.
 		// The checker must not attribute CoreException to org.eclipse.core.runtime.
 		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-reexport"))
-				.assertBundleLowerBound("org.eclipse.core.runtime", "3.3.0",
+				.assertBundleLowerBound("org.eclipse.core.runtime", "3.34.0",
 						"Lower bound must stay unchanged because CoreException is from re-exported org.eclipse.equinox.common")
 				.assertBundleUpperBound("org.eclipse.core.runtime", "4.0.0",
 						"Upper bound should be preserved from original range");
