@@ -22,6 +22,7 @@
 		<module>require-bundle-no-upper-bound</module>
 		<module>require-bundle-split-package</module>
 		<module>require-bundle-reexport</module>
+		<module>require-bundle-correct-range</module>
 	</modules>
 	<build>
 		<plugins>
