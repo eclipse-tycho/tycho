@@ -27,6 +27,7 @@ import org.eclipse.tycho.artifacts.ArtifactVersion;
 import org.eclipse.tycho.core.MarkdownBuilder;
 import org.eclipse.tycho.model.manifest.MutableBundleManifest;
 import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 
 /**
  * Base class for dependency checkers that validates version ranges for
@@ -263,5 +264,21 @@ public abstract class DependencyChecker {
 				results.add(suggestion);
 			}
 		}
+	}
+
+	/**
+	 * Checks whether two version range strings are semantically equivalent using
+	 * OSGi {@link VersionRange} comparison. For example {@code [3.5.0,4)} and
+	 * {@code [3.5.0,4.0.0)} are semantically equal.
+	 *
+	 * @param range1 the first version range string
+	 * @param range2 the second version range string
+	 * @return {@code true} if both ranges represent the same semantic range
+	 */
+	protected static boolean isSameVersionRange(String range1, String range2) {
+		if (range1 == null || range2 == null) {
+			return range1 == range2;
+		}
+		return VersionRange.valueOf(range1).equals(VersionRange.valueOf(range2));
 	}
 }

@@ -168,6 +168,13 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 						"Lower bound must stay unchanged because CoreException is from re-exported org.eclipse.equinox.common")
 				.assertBundleUpperBound("org.eclipse.core.runtime", "4.0.0",
 						"Upper bound should be preserved from original range");
+
+		// Require-Bundle with range [3.20.0,4) where the lower bound is already
+		// correct. The suggested range [3.20.0,4.0.0) is semantically equivalent,
+		// so the manifest must remain untouched (no cosmetic reformatting).
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-correct-range"))
+				.assertBundleRawVersion("org.eclipse.equinox.common", "[3.20.0,4)",
+						"Version range must stay as [3.20.0,4) and not be reformatted to [3.20.0,4.0.0)");
 	}
 
 	private static File manifestOf(File projectDir, String module) {
