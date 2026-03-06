@@ -131,20 +131,24 @@ public class ImportPackageChecker extends DependencyChecker {
 			Version lowestVersion = lowestPackageVersion.getOrDefault(packageName, Version.emptyVersion);
 			Version stripped = stripQualifier(lowestVersion, packageName);
 			String current = importedPackagesVersion.get(packageName);
+			String newRange;
 			if (current == null) {
-				packageUpdates.put(packageName,
-						String.format("[%s,%d)", stripped, (stripped.getMajor() + 1)));
+				newRange = String.format("[%s,%d)", stripped, (stripped.getMajor() + 1));
 			} else {
 				VersionRange range = VersionRange.valueOf(current);
 				Version right = range.getRight();
 				if (right == null) {
-					packageUpdates.put(packageName,
-							String.format("[%s,%d)", stripped, (stripped.getMajor() + 1)));
+					newRange = String.format("[%s,%d)", stripped, (stripped.getMajor() + 1));
 				} else {
-					packageUpdates.put(packageName,
-							String.format("[%s,%s%c", stripped, right, range.getRightType()));
+					newRange = String.format("[%s,%s%c", stripped, right, range.getRightType());
 				}
 			}
+			if (!isSameVersionRange(current, newRange)) {
+				packageUpdates.put(packageName, newRange);
+			}
+		}
+		if (packageUpdates.isEmpty()) {
+			return false;
 		}
 		manifest.updateImportedPackageVersions(packageUpdates);
 		return true;

@@ -39,12 +39,17 @@ public class ManifestAssertions {
 
 	private final Map<String, VersionRange> importPackageRanges;
 	private final Map<String, VersionRange> requireBundleRanges;
+	private final Map<String, String> requireBundleRawVersions;
+	private final Map<String, String> importPackageRawVersions;
 	private final String bundleName;
 
 	private ManifestAssertions(Map<String, VersionRange> importPackageRanges,
-			Map<String, VersionRange> requireBundleRanges, String bundleName) {
+			Map<String, VersionRange> requireBundleRanges, Map<String, String> importPackageRawVersions,
+			Map<String, String> requireBundleRawVersions, String bundleName) {
 		this.importPackageRanges = importPackageRanges;
 		this.requireBundleRanges = requireBundleRanges;
+		this.importPackageRawVersions = importPackageRawVersions;
+		this.requireBundleRawVersions = requireBundleRawVersions;
 		this.bundleName = bundleName;
 	}
 
@@ -70,10 +75,16 @@ public class ManifestAssertions {
 		Map<String, VersionRange> importRanges = parseRanges(
 				attrs.getValue(Constants.IMPORT_PACKAGE), Constants.IMPORT_PACKAGE,
 				Constants.VERSION_ATTRIBUTE);
+		Map<String, String> importRaw = parseRawVersions(
+				attrs.getValue(Constants.IMPORT_PACKAGE), Constants.IMPORT_PACKAGE,
+				Constants.VERSION_ATTRIBUTE);
 		Map<String, VersionRange> requireRanges = parseRanges(
 				attrs.getValue(Constants.REQUIRE_BUNDLE), Constants.REQUIRE_BUNDLE,
 				Constants.BUNDLE_VERSION_ATTRIBUTE);
-		return new ManifestAssertions(importRanges, requireRanges, symbolicName);
+		Map<String, String> requireRaw = parseRawVersions(
+				attrs.getValue(Constants.REQUIRE_BUNDLE), Constants.REQUIRE_BUNDLE,
+				Constants.BUNDLE_VERSION_ATTRIBUTE);
+		return new ManifestAssertions(importRanges, requireRanges, importRaw, requireRaw, symbolicName);
 	}
 
 	/**
@@ -100,6 +111,33 @@ public class ManifestAssertions {
 				String versionStr = element.getAttribute(versionAttr);
 				if (versionStr != null) {
 					result.put(element.getValue(), new VersionRange(versionStr));
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Parses a manifest header into a map from entry name to raw version string.
+	 *
+	 * @param headerValue the raw header value (may be {@code null})
+	 * @param headerName  the header name for {@link ManifestElement#parseHeader}
+	 * @param versionAttr the attribute name holding the version
+	 * @return a map of entry names to their raw version strings
+	 * @throws BundleException if parsing fails
+	 */
+	private static Map<String, String> parseRawVersions(String headerValue, String headerName,
+			String versionAttr) throws BundleException {
+		Map<String, String> result = new HashMap<>();
+		if (headerValue == null || headerValue.isBlank()) {
+			return result;
+		}
+		ManifestElement[] elements = ManifestElement.parseHeader(headerName, headerValue);
+		if (elements != null) {
+			for (ManifestElement element : elements) {
+				String versionStr = element.getAttribute(versionAttr);
+				if (versionStr != null) {
+					result.put(element.getValue(), versionStr);
 				}
 			}
 		}
@@ -189,6 +227,26 @@ public class ManifestAssertions {
 		assertNotNull(message + " [Require-Bundle " + bundleId + "] - upper bound should exist: " + range, right);
 		assertTrue(message + " [Require-Bundle " + bundleId + "] - expected upper bound " + expected
 				+ " but was " + right, right.compareTo(expected) == 0);
+		return this;
+	}
+
+	/**
+	 * Asserts that the raw version string for a {@code Require-Bundle} entry
+	 * exactly matches the expected string. This verifies that the manifest was
+	 * not modified when the existing range is already semantically correct.
+	 *
+	 * @param bundleId        the required bundle symbolic name
+	 * @param expectedRawVersion the expected raw version string (e.g.
+	 *                        {@code "[3.5.0,4)"})
+	 * @param message         assertion context message
+	 * @return this instance for chaining
+	 */
+	public ManifestAssertions assertBundleRawVersion(String bundleId, String expectedRawVersion, String message) {
+		String rawVersion = requireBundleRawVersions.get(bundleId);
+		assertNotNull(message + " - Require-Bundle '" + bundleId + "' should have a version in " + bundleName,
+				rawVersion);
+		assertTrue(message + " [Require-Bundle " + bundleId + "] - expected raw version '" + expectedRawVersion
+				+ "' but was '" + rawVersion + "'", expectedRawVersion.equals(rawVersion));
 		return this;
 	}
 }
