@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2023 SAP SE and others.
+ * Copyright (c) 2018, 2026 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -119,10 +119,10 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 	}
 
 	private void verifySuite(final String projectBasedir) throws Exception {
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "SuiteWithAllTests", "bundle.test.JUnit5Test",
-				"started from test suite");
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.SuiteWithAllTests",
+				"bundle.test.JUnit5Test", "started from test suite");
 		// make sure tests from suite were executed
-		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 1);
+		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.SuiteWithAllTests", 1);
 	}
 
 }
