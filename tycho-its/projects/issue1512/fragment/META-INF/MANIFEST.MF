@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Fragment
+Bundle-SymbolicName: fragment
+Bundle-Version: 0.0.1.qualifier
+Fragment-Host: host
+Automatic-Module-Name: fragment
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Export-Package: fragment.internal; x-internal:=true
