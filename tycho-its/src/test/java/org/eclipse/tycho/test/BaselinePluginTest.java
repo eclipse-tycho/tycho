@@ -175,6 +175,36 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-correct-range"))
 				.assertBundleRawVersion("org.eclipse.equinox.common", "[3.20.0,4)",
 						"Version range must stay as [3.20.0,4) and not be reformatted to [3.20.0,4.0.0)");
+
+		// Require-Bundle directly requiring org.eclipse.swt (an empty host bundle
+		// with Eclipse-ExtensibleAPI: true where real classes live in platform
+		// fragments). The checker must resolve a fragment to find SWT classes
+		// and not report false positives about missing Display/Shell methods.
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-swt-direct"))
+				.assertBundleLowerBound("org.eclipse.swt", "3.132.0",
+						"Lower bound must stay at 3.132.0 because Display.getDefault and Shell exist in all recent SWT versions")
+				.assertBundleUpperBound("org.eclipse.swt", "4.0.0",
+						"Upper bound should be preserved from original range");
+
+		// Require-Bundle requiring org.eclipse.jface which re-exports org.eclipse.swt.
+		// SWT classes are available through the re-export chain but the SWT host JAR
+		// is empty. The checker must resolve the fragment through the reexport and
+		// not report false positives about missing SWT methods.
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-swt-reexport"))
+				.assertBundleLowerBound("org.eclipse.jface", "3.38.0",
+						"Lower bound must stay because SWT methods used (Display/Shell) exist in all SWT versions included by this range")
+				.assertBundleUpperBound("org.eclipse.jface", "4.0.0",
+						"Upper bound should be preserved from original range");
+
+		// Require-Bundle directly requiring org.eclipse.swt with lower bound 3.131.0,
+		// but using Point.clone() which was added in SWT 3.132. The checker must
+		// resolve the SWT fragment, detect that Point.clone() is missing in SWT 3.131,
+		// and bump the lower bound to 3.132.0.
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-swt-bump"))
+				.assertBundleLowerBound("org.eclipse.swt", "3.132.0",
+						"Lower bound must be bumped to 3.132.0 because Point.clone() was added in SWT 3.132")
+				.assertBundleUpperBound("org.eclipse.swt", "4.0.0",
+						"Upper bound should be preserved from original range");
 	}
 
 	private static File manifestOf(File projectDir, String module) {
