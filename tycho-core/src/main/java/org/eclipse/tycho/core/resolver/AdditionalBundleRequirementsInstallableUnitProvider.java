@@ -17,6 +17,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -33,6 +35,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
@@ -77,11 +80,15 @@ public class AdditionalBundleRequirementsInstallableUnitProvider implements Inst
             //"classic" pde project with build properties
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
             BuildProperties buildProperties = buildPropertiesParser.parse(reactorProject);
-            List<IRequirement> additionalBundleRequirements = buildProperties.getAdditionalBundles().stream()
+            Stream<IRequirement> extraClassPath = buildProperties.getJarsExtraClasspath().stream()
+                    .map(TychoConstants.PLATFORM_URL_PATTERN::matcher).filter(Matcher::matches)
+                    .map(m -> MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, m.group(2),
+                            VersionRange.emptyRange, null, true, false));
+            Stream<IRequirement> additionalBundles = buildProperties.getAdditionalBundles().stream()
                     .map(bundleName -> MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
-                            bundleName, VersionRange.emptyRange, null, true, true))
-                    .toList();
-            return InstallableUnitProvider.createIU(additionalBundleRequirements, "additional-bundle-requirements");
+                            bundleName, VersionRange.emptyRange, null, true, false));
+            return InstallableUnitProvider.createIU(Stream.concat(additionalBundles, extraClassPath).distinct(),
+                    "additional-bundle-requirements");
         }
         return Collections.emptyList();
     }
