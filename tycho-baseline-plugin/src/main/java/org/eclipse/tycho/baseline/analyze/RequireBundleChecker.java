@@ -57,7 +57,7 @@ public class RequireBundleChecker extends DependencyChecker {
 	private final List<BundleCheckData> pendingChecks = new ArrayList<>();
 	private final Map<Path, Set<String>> exportedPackagesCache = new HashMap<>();
 	private final Map<Path, Map<String, String>> reexportCache = new HashMap<>();
-	private final Map<String, Path> lowestArtifactCache = new HashMap<>();
+	private final Map<String, ArtifactVersion> lowestArtifactCache = new HashMap<>();
 
 	private record BundleCheckData(String bundleName, String bundleVersionStr, IInstallableUnit unit,
 			Version compiledAgainstVersion, org.eclipse.equinox.p2.metadata.Version matchedBundleVersion,
@@ -138,11 +138,16 @@ public class RequireBundleChecker extends DependencyChecker {
 				// (compiled-against) version for accurate split-package detection
 				Set<String> visited = new HashSet<>();
 				visited.add(data.bundleName());
-				List<Path> reexportArtifacts = resolveReexportChain(data.compiledAgainstArtifact(), visited,
-						this::findCurrentBundleArtifact);
-				for (Path reexportArtifact : reexportArtifacts) {
-					exportedPkgs.addAll(getExportedPackagesFromJar(reexportArtifact));
-					ClassCollection reCC = context.getClassCollection(reexportArtifact);
+				List<ArtifactVersion> reexportArtifacts = resolveReexportChain(data.compiledAgainstArtifact(), visited,
+						this::findCurrentBundleArtifactVersion);
+				for (ArtifactVersion reexportAV : reexportArtifacts) {
+					Path reexportPath = reexportAV.getArtifact();
+					ClassCollection reCC = getClassCollectionWithFragments(reexportAV);
+					if (reCC.provides().findAny().isEmpty()) {
+						log.warn("Skip re-exported "+reexportPath+" because it seem not contain any classes");
+						continue;
+					}
+					exportedPkgs.addAll(getExportedPackagesFromJar(reexportPath));
 					reCC.provides().map(MethodSignature::className).forEach(classNames::add);
 				}
 				bundleExportedPackages.put(data.bundleName(), exportedPkgs);
@@ -201,10 +206,26 @@ public class RequireBundleChecker extends DependencyChecker {
 			// Resolve re-exported bundles for this version and include their packages
 			Set<String> visited = new HashSet<>();
 			visited.add(bundleName);
-			List<Path> reexportArtifacts = resolveReexportChain(artifact, visited,
-					this::findLowestMatchingBundleArtifact);
-			for (Path reexportArtifact : reexportArtifacts) {
-				exportedPackages.addAll(getExportedPackagesFromJar(reexportArtifact));
+			Map<String, String> reexportProvenance = new HashMap<>();
+			List<ArtifactVersion> reexportArtifacts = resolveReexportChain(artifact, visited,
+					this::findLowestMatchingBundleArtifactVersion);
+			List<ArtifactVersion> nonEmptyReexports = new ArrayList<>();
+			for (ArtifactVersion reexportAV : reexportArtifacts) {
+				Path reexportPath = reexportAV.getArtifact();
+				ClassCollection reCC = getClassCollectionWithFragments(reexportAV);
+				if (reCC.provides().findAny().isEmpty()) {
+					continue;
+				}
+				nonEmptyReexports.add(reexportAV);
+				String reexportBundleName = findBundleNameFromJar(reexportPath);
+				for (String pkg : getExportedPackagesFromJar(reexportPath)) {
+					exportedPackages.add(pkg);
+					if (!reexportBundleName.isEmpty()) {
+						reexportProvenance.put(pkg,
+								String.format("re-exported by `%s` from require-bundle `%s`",
+										reexportBundleName, bundleName));
+					}
+				}
 			}
 			Set<MethodSignature> bundleMethods = new TreeSet<>();
 			Map<MethodSignature, Collection<String>> references = new HashMap<>();
@@ -230,12 +251,12 @@ public class RequireBundleChecker extends DependencyChecker {
 			}
 			// Check against combined collection: main bundle + re-exported bundles
 			List<ClassCollection> collections = new ArrayList<>();
-			collections.add(context.getClassCollection(artifact));
-			for (Path reexportArtifact : reexportArtifacts) {
-				collections.add(context.getClassCollection(reexportArtifact));
+			collections.add(getClassCollectionWithFragments(v));
+			for (ArtifactVersion reexportAV : nonEmptyReexports) {
+				collections.add(getClassCollectionWithFragments(reexportAV));
 			}
 			boolean ok = checkMethodsInCollections(collections, bundleMethods, bundleName, null, version, references,
-					v, unit, bundleVersionStr, matchedBundleVersion, "Require-Bundle");
+					v, unit, bundleVersionStr, matchedBundleVersion, "Require-Bundle", reexportProvenance);
 			if (ok) {
 				lowestVersion.merge(bundleName, version, (v1, v2) -> v1.compareTo(v2) > 0 ? v2 : v1);
 			}
@@ -251,12 +272,13 @@ public class RequireBundleChecker extends DependencyChecker {
 	 * @param bundleJarPath  the JAR to read re-exports from
 	 * @param visited        set of already-visited bundle names (for cycle
 	 *                       prevention)
-	 * @param artifactFinder strategy to find a bundle artifact given name and range
-	 * @return list of artifact paths for all transitively re-exported bundles
+	 * @param artifactFinder strategy to find a bundle artifact version given name
+	 *                       and range
+	 * @return list of artifact versions for all transitively re-exported bundles
 	 */
-	private List<Path> resolveReexportChain(Path bundleJarPath, Set<String> visited,
-			BiFunction<String, VersionRange, Path> artifactFinder) {
-		List<Path> result = new ArrayList<>();
+	private List<ArtifactVersion> resolveReexportChain(Path bundleJarPath, Set<String> visited,
+			BiFunction<String, VersionRange, ArtifactVersion> artifactFinder) {
+		List<ArtifactVersion> result = new ArrayList<>();
 		Map<String, String> reexports = getReexportedBundlesFromJar(bundleJarPath);
 		for (Map.Entry<String, String> entry : reexports.entrySet()) {
 			String reexportName = entry.getKey();
@@ -264,10 +286,10 @@ public class RequireBundleChecker extends DependencyChecker {
 				continue;
 			}
 			VersionRange range = VersionRange.valueOf(entry.getValue());
-			Path reexportArtifact = artifactFinder.apply(reexportName, range);
-			if (reexportArtifact != null) {
-				result.add(reexportArtifact);
-				result.addAll(resolveReexportChain(reexportArtifact, visited, artifactFinder));
+			ArtifactVersion reexportAV = artifactFinder.apply(reexportName, range);
+			if (reexportAV != null && reexportAV.getArtifact() != null) {
+				result.add(reexportAV);
+				result.addAll(resolveReexportChain(reexportAV.getArtifact(), visited, artifactFinder));
 			}
 		}
 		return result;
@@ -280,9 +302,9 @@ public class RequireBundleChecker extends DependencyChecker {
 	 *
 	 * @param bundleName the symbolic name of the bundle
 	 * @param range      the version range to match
-	 * @return the path to the lowest matching artifact, or {@code null}
+	 * @return the lowest matching artifact version, or {@code null}
 	 */
-	private Path findLowestMatchingBundleArtifact(String bundleName, VersionRange range) {
+	private ArtifactVersion findLowestMatchingBundleArtifactVersion(String bundleName, VersionRange range) {
 		String cacheKey = bundleName + ":" + range;
 		return lowestArtifactCache.computeIfAbsent(cacheKey, k -> {
 			Optional<IInstallableUnit> bundleUnit = ArtifactMatcher.findBundle(bundleName, units);
@@ -293,21 +315,21 @@ public class RequireBundleChecker extends DependencyChecker {
 			return context.getVersionProviders().stream()
 					.flatMap(avp -> avp.getBundleVersions(iu, bundleName, range, context.getProject()))
 					.filter(av -> av.getVersion() != null && av.getArtifact() != null)
-					.min(Comparator.comparing(ArtifactVersion::getVersion)).map(ArtifactVersion::getArtifact)
+					.min(Comparator.comparing(ArtifactVersion::getVersion))
 					.orElse(null);
 		});
 	}
 
 	/**
-	 * Finds the current (compiled-against / target platform) artifact for a bundle.
-	 * Used during Phase 1 to determine class names for accurate split-package
-	 * detection with re-exported bundles.
+	 * Finds the current (compiled-against / target platform) artifact version for a
+	 * bundle. Used during Phase 1 to determine class names for accurate
+	 * split-package detection with re-exported bundles.
 	 *
 	 * @param bundleName the symbolic name of the bundle
 	 * @param range      the version range (used to filter available versions)
-	 * @return the path to the current version's artifact, or {@code null}
+	 * @return the current version's artifact version, or {@code null}
 	 */
-	private Path findCurrentBundleArtifact(String bundleName, VersionRange range) {
+	private ArtifactVersion findCurrentBundleArtifactVersion(String bundleName, VersionRange range) {
 		Optional<IInstallableUnit> bundleUnit = ArtifactMatcher.findBundle(bundleName, units);
 		if (bundleUnit.isEmpty()) {
 			return null;
@@ -320,11 +342,35 @@ public class RequireBundleChecker extends DependencyChecker {
 		return context.getVersionProviders().stream()
 				.flatMap(avp -> avp.getBundleVersions(iu, bundleName, range, context.getProject()))
 				.filter(av -> av.getVersion() != null && av.getVersion().equals(current) && av.getArtifact() != null)
-				.findFirst().map(ArtifactVersion::getArtifact).orElse(null);
+				.findFirst().orElse(null);
 	}
 
 	private Set<String> getExportedPackagesFromJar(Path jarPath) {
 		return exportedPackagesCache.computeIfAbsent(jarPath, this::readExportedPackagesFromJar);
+	}
+
+	/**
+	 * Reads the {@code Bundle-SymbolicName} from a JAR's manifest.
+	 *
+	 * @param jarPath the JAR file to read
+	 * @return the symbolic name, or an empty string if unavailable
+	 */
+	private String findBundleNameFromJar(Path jarPath) {
+		try (JarFile jar = new JarFile(jarPath.toFile())) {
+			Manifest manifest = jar.getManifest();
+			if (manifest != null) {
+				String bsn = manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+				if (bsn != null) {
+					ManifestElement[] elements = ManifestElement.parseHeader(Constants.BUNDLE_SYMBOLICNAME, bsn);
+					if (elements != null && elements.length > 0) {
+						return elements[0].getValue();
+					}
+				}
+			}
+		} catch (BundleException | java.io.IOException e) {
+			context.getLog().debug("Could not read bundle name from " + jarPath + ": " + e);
+		}
+		return "";
 	}
 
 	private Set<String> readExportedPackagesFromJar(Path jarPath) {
@@ -346,6 +392,60 @@ public class RequireBundleChecker extends DependencyChecker {
 			context.getLog().debug("Could not read exported packages from " + jarPath + ": " + e);
 		}
 		return packages;
+	}
+
+	/**
+	 * Checks whether a JAR's manifest declares {@code Eclipse-ExtensibleAPI: true},
+	 * indicating it is a host bundle that expects fragments to provide classes.
+	 *
+	 * @param jarPath the JAR file to check
+	 * @return {@code true} if the bundle has extensible API
+	 */
+	private boolean isExtensibleAPI(Path jarPath) {
+		try (JarFile jar = new JarFile(jarPath.toFile())) {
+			Manifest manifest = jar.getManifest();
+			if (manifest != null) {
+				return "true".equalsIgnoreCase(manifest.getMainAttributes().getValue("Eclipse-ExtensibleAPI"));
+			}
+		} catch (java.io.IOException e) {
+			context.getLog().debug("Could not read manifest from " + jarPath + ": " + e);
+		}
+		return false;
+	}
+
+	/**
+	 * Gets a {@link ClassCollection} for a bundle artifact version, resolving
+	 * fragment classes when the JAR is an empty host bundle with
+	 * {@code Eclipse-ExtensibleAPI: true}. Uses
+	 * {@link ArtifactVersion#fragments()} to find fragments in the same
+	 * repository where the host was found.
+	 *
+	 * @param av the artifact version to analyze
+	 * @return the class collection (potentially augmented with fragment classes)
+	 */
+	private ClassCollection getClassCollectionWithFragments(ArtifactVersion av) {
+		Path jarPath = av.getArtifact();
+		if (jarPath == null) {
+			return new ClassCollection();
+		}
+		ClassCollection hostCC = context.getClassCollection(jarPath);
+		if (hostCC.provides().findAny().isPresent()) {
+			return hostCC;
+		}
+		// Empty JAR — check if it's an extensible API host
+		if (!isExtensibleAPI(jarPath)) {
+			return hostCC;
+		}
+		// Ask the artifact version for fragments from the same repository
+		ArtifactVersion fragment = av.fragments()
+				.filter(f -> f.getArtifact() != null)
+				.findFirst().orElse(null);
+		if (fragment == null) {
+			context.getLog().debug("No fragment found for extensible API host " + av);
+			return hostCC;
+		}
+		context.getLog().debug("Resolved fragment for " + av + ": " + fragment);
+		return context.getClassCollection(fragment.getArtifact());
 	}
 
 	/**
