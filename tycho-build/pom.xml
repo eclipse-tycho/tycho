@@ -51,7 +51,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.p2.core</artifactId>
-			<version>2.13.200</version>
+			<version>2.13.300</version>
 		</dependency>
 
 		<dependency>
