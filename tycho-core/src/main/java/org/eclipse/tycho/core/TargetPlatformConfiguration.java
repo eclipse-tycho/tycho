@@ -36,6 +36,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.ClasspathDependenciesAction;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
@@ -122,6 +123,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private List<TargetPlatformFilter> filters;
 
     private OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
+
+    private ClasspathDependenciesAction classpathDependenciesAction = ClasspathDependenciesAction.REQUIRE;
 
     private final List<ArtifactKey> extraRequirements = new ArrayList<>();
     private final Set<String> exclusions = new HashSet<>();
@@ -298,6 +301,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void setOptionalResolutionAction(OptionalResolutionAction optionalAction) {
         this.optionalAction = optionalAction;
+    }
+
+    public ClasspathDependenciesAction getClasspathDependenciesAction() {
+        return classpathDependenciesAction;
+    }
+
+    public void setClasspathDependenciesAction(ClasspathDependenciesAction classpathDependenciesAction) {
+        this.classpathDependenciesAction = classpathDependenciesAction;
     }
 
     /**

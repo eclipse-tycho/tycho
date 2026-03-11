@@ -43,7 +43,9 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.BuildPropertiesParser;
+import org.eclipse.tycho.ClasspathDependenciesAction;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.DefaultArtifactKey;
@@ -366,6 +368,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     private void addExtraClasspathEntries(List<ClasspathEntry> classpath, ReactorProject project,
             DependencyArtifacts artifacts) {
+        TargetPlatformConfiguration tpConfig = projectManager
+                .getTargetPlatformConfiguration(project.adapt(MavenProject.class));
+        ClasspathDependenciesAction classpathAction = tpConfig.getClasspathDependenciesAction();
         EclipsePluginProject pdeProject = getEclipsePluginProject(project);
         Collection<BuildOutputJar> outputJars = pdeProject.getOutputJarMap().values();
         for (BuildOutputJar buildOutputJar : outputJars) {
@@ -388,7 +393,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     if (matchingBundle != null) {
                         classpath.add(addBundleToClasspath(matchingBundle, path));
                     } else {
-                        logger.warn("Missing extra classpath entry " + entry.trim());
+                        handleMissingExtraClasspathEntry(entry.trim(), classpathAction);
                     }
                 } else {
                     entry = entry.trim();
@@ -398,7 +403,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         ArtifactKey projectKey = getArtifactKey(project);
                         classpath.add(new DefaultClasspathEntry(project, projectKey, locations, null));
                     } else {
-                        logger.warn("Missing extra classpath entry " + entry);
+                        handleMissingExtraClasspathEntry(entry, classpathAction);
                     }
                 }
             }
@@ -426,6 +431,19 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                             Collections.singletonList(location), null));
                 }
             }
+        }
+    }
+
+    private void handleMissingExtraClasspathEntry(String entry, ClasspathDependenciesAction action) {
+        switch (action) {
+        case IGNORE:
+            break;
+        case OPTIONAL:
+            logger.warn("Missing extra classpath entry " + entry);
+            break;
+        case REQUIRE:
+            throw new BuildFailureException("Missing extra classpath entry " + entry
+                    + ". Configure <classpathDependencies> in target-platform-configuration to 'optional' or 'ignore' if this is expected.");
         }
     }
 
