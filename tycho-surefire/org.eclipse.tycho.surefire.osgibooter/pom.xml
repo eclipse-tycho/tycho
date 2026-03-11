@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.equinox.app</artifactId>
-			<version>1.7.500</version>
+			<version>1.7.600</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.e4.ui.workbench3</artifactId>
-			<version>0.17.600</version>
+			<version>0.18.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
