@@ -34,8 +34,10 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
+import org.eclipse.tycho.ClasspathDependenciesAction;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
@@ -80,10 +82,18 @@ public class AdditionalBundleRequirementsInstallableUnitProvider implements Inst
             //"classic" pde project with build properties
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
             BuildProperties buildProperties = buildPropertiesParser.parse(reactorProject);
-            Stream<IRequirement> extraClassPath = buildProperties.getJarsExtraClasspath().stream()
-                    .map(TychoConstants.PLATFORM_URL_PATTERN::matcher).filter(Matcher::matches)
-                    .map(m -> MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, m.group(2),
-                            VersionRange.emptyRange, null, true, false));
+            TargetPlatformConfiguration tpConfig = projectManager.getTargetPlatformConfiguration(project);
+            ClasspathDependenciesAction classpathAction = tpConfig.getClasspathDependenciesAction();
+            Stream<IRequirement> extraClassPath;
+            if (classpathAction == ClasspathDependenciesAction.IGNORE) {
+                extraClassPath = Stream.empty();
+            } else {
+                boolean optional = classpathAction == ClasspathDependenciesAction.OPTIONAL;
+                extraClassPath = buildProperties.getJarsExtraClasspath().stream()
+                        .map(TychoConstants.PLATFORM_URL_PATTERN::matcher).filter(Matcher::matches)
+                        .map(m -> MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
+                                m.group(2), VersionRange.emptyRange, null, optional, false));
+            }
             Stream<IRequirement> additionalBundles = buildProperties.getAdditionalBundles().stream()
                     .map(bundleName -> MetadataFactory.createRequirement(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
                             bundleName, VersionRange.emptyRange, null, true, false));
