@@ -22,7 +22,7 @@ jobs:
        submodules: 'recursive'
        lfs: true
        repository: 'laeubi/eclipse.platform.releng.aggregator'
-       ref: bp_extra_jars
+       ref: tycho_extraClasspathJars
        fetch-depth: 0
     - name: Set up Java
       uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
