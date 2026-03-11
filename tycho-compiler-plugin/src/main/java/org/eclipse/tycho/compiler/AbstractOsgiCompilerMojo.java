@@ -66,6 +66,7 @@ import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.jdt.internal.compiler.util.CtSym;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.DefaultArtifactKey;
@@ -426,8 +427,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                     this.currentSourceRoots = new ArrayList<String>();
                     for (SourcepathEntry entry : sourcepath) {
                         File sourcesRoot = entry.getSourcesRoot();
-                        File releaseSourceRoot = new File(sourcesRoot.getParentFile(),
-                                sourcesRoot.getName() + release);
+                        File releaseSourceRoot = new File(sourcesRoot.getParentFile(), sourcesRoot.getName() + release);
                         if (releaseSourceRoot.isDirectory()) {
                             this.currentSourceRoots.add(releaseSourceRoot.getAbsolutePath().toString());
                         }
@@ -902,11 +902,15 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
         List<ClasspathEntry> classpath;
         String dependencyScope = getDependencyScope();
-        if (Artifact.SCOPE_TEST.equals(dependencyScope)) {
-            classpath = new ArrayList<>(getBundleProject().getTestClasspath(DefaultReactorProject.adapt(project)));
-        } else {
-            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-            classpath = new ArrayList<>(getBundleProject().getClasspath(reactorProject));
+        try {
+            if (Artifact.SCOPE_TEST.equals(dependencyScope)) {
+                classpath = new ArrayList<>(getBundleProject().getTestClasspath(DefaultReactorProject.adapt(project)));
+            } else {
+                ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+                classpath = new ArrayList<>(getBundleProject().getClasspath(reactorProject));
+            }
+        } catch (BuildFailureException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
         }
         if (extraClasspathElements != null) {
             try {
