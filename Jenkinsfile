@@ -40,7 +40,7 @@ pipeline {
 				branch deployBranch
 			}
 			steps {
-				sh 'mvn --batch-mode -V -ntp deploy -DskipTests -DaltDeploymentRepository=repo.eclipse.org::https://repo.eclipse.org/content/repositories/tycho-snapshots/'
+				sh 'mvn --batch-mode -V -ntp deploy -DskipTests -DaltDeploymentRepository=repo.eclipse.org::https://repo.eclipse.org/content/repositories/tycho-maven2-snapshots/'
 			}
 		}
 	}
