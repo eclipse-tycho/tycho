@@ -27,8 +27,8 @@ import java.util.Dictionary;
 import java.util.List;
 import java.util.jar.JarFile;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.junit.Ignore;
@@ -165,7 +165,7 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 	protected Verifier runDemo(String test, String... xargs) throws Exception {
 		Verifier verifier = super.getVerifier("../../demo/" + test, true, true);
 		for (String xarg : xargs) {
-			verifier.addCliOption(xarg);
+			verifier.addCliArgument(xarg);
 		}
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
