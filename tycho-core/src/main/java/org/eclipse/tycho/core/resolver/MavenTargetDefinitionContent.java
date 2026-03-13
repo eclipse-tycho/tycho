@@ -39,6 +39,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.eclipse.aether.RepositoryException;
+import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.DependencyNode;
@@ -200,7 +201,28 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                     symbolicName = bundleDescription != null ? bundleDescription.getSymbolicName() : null;
                     bundleVersion = bundleDescription != null ? bundleDescription.getVersion().toString() : null;
                     IInstallableUnit unit;
-                    if (symbolicName == null) {
+                    Function<DependencyNode, Properties> instructionsLookup = node -> instructionsMap.getOrDefault(
+                            getKey(node.getArtifact()), instructionsMap.getOrDefault("", defaultProperties));
+
+                    if (location.manifestOverride()) {
+                        String overrideError = OverridePreconditionChecker.checkOverridePreconditions(symbolicName,
+                                instructionsMap, location.getIncludeDependencyDepth(), location.getRoots());
+                        if (overrideError != null) {
+                            throw new TargetDefinitionResolutionException(
+                                    "Artifact " + debugString + " could not be overriden. Reason: " + overrideError);
+                        }
+                        try {
+                            BundleGenerationResult bundleGenerationResult = generateBundle(instructionsLookup,
+                                    mavenArtifact, mavenSession, repositorySystem, collector, syncContextFactory,
+                                    mavenDependency, true);
+                            unit = bundleGenerationResult.unit();
+                            symbolicName = bundleGenerationResult.wrappedArtifact().getWrappedBsn();
+                            bundleVersion = bundleGenerationResult.wrappedArtifact().getWrappedVersion();
+                        } catch (Exception e) {
+                            throw new TargetDefinitionResolutionException("Artifact " + debugString + " of location "
+                                    + location + " could not be wrapped as a bundle", e);
+                        }
+                    } else if (symbolicName == null) { // missing manifest
                         if (location.getMissingManifestStrategy() == MissingManifestStrategy.IGNORE) {
                             logger.info("Ignoring " + debugString
                                     + " as it is not a bundle and MissingManifestStrategy is set to ignore for this location");
@@ -211,56 +233,16 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
                                     + " is not a bundle and MissingManifestStrategy is set to error for this location");
                         }
                         try {
-                            Function<DependencyNode, Properties> instructionsLookup = node -> instructionsMap
-                                    .getOrDefault(getKey(node.getArtifact()),
-                                            instructionsMap.getOrDefault("", defaultProperties));
-                            WrappedBundle wrappedBundle = MavenBundleWrapper.getWrappedArtifact(
-                                    new DefaultArtifact(mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(),
-                                            mavenArtifact.getClassifier(), mavenArtifact.getPackagingType(),
-                                            mavenArtifact.getVersion()),
-                                    instructionsLookup, collector.getEffectiveRepositories(), repositorySystem,
-                                    mavenSession.getRepositorySession(), syncContextFactory);
-                            List<ProcessingMessage> directErrors = wrappedBundle.messages(false)
-                                    .filter(msg -> msg.type() == ProcessingMessage.Type.ERROR).toList();
-                            if (directErrors.isEmpty()) {
-                                wrappedBundle.messages(true).map(ProcessingMessage::message)
-                                        .forEach(msg -> logger.warn(debugString + ": " + msg));
-                            } else {
-                                String error = directErrors.stream().map(ProcessingMessage::message)
-                                        .collect(Collectors.joining(System.lineSeparator()));
-                                String hint = String.format(
-                                        "You can exclude it by adding <exclude>%s</exclude> to your location",
-                                        debugString);
-                                throw new RuntimeException(
-                                        String.format("Dependency %s of %s can not be wrapped: %s%s%s", debugString,
-                                                mavenDependency, error, System.lineSeparator().repeat(2), hint));
-                            }
-                            File file = wrappedBundle.getFile().get().toFile();
-                            BundleDescription description = BundlesAction.createBundleDescription(file);
-                            WrappedArtifact wrappedArtifact = new WrappedArtifact(file, mavenArtifact,
-                                    mavenArtifact.getClassifier(), description.getSymbolicName(),
-                                    description.getVersion().toString(), null);
-                            logger.info(debugString + " is wrapped as a bundle with bundle symbolic name "
-                                    + wrappedArtifact.getWrappedBsn());
-                            logger.info(wrappedArtifact.getReferenceHint());
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("The following manifest was generated for this artifact:\r\n"
-                                        + wrappedArtifact.getGeneratedManifest());
-                            }
-                            // Maven artifact info for wrapped bundles have to be stored in separate fields
-                            Map<String, String> mavenProperties = new HashMap<>();
-                            mavenProperties.put(TychoConstants.PROP_WRAPPED_GROUP_ID, mavenArtifact.getGroupId());
-                            mavenProperties.put(TychoConstants.PROP_WRAPPED_ARTIFACT_ID, mavenArtifact.getArtifactId());
-                            mavenProperties.put(TychoConstants.PROP_WRAPPED_VERSION, mavenArtifact.getVersion());
-                            mavenProperties.put(TychoConstants.PROP_WRAPPED_CLASSIFIER, mavenArtifact.getClassifier());
-                            unit = publish(description, file, new MavenPropertiesAdvice(mavenProperties));
-                            symbolicName = wrappedArtifact.getWrappedBsn();
-                            bundleVersion = wrappedArtifact.getWrappedVersion();
+                            BundleGenerationResult bundleGenerationResult = generateBundle(instructionsLookup,
+                                    mavenArtifact, mavenSession, repositorySystem, collector, syncContextFactory,
+                                    mavenDependency, false);
+                            unit = bundleGenerationResult.unit();
+                            symbolicName = bundleGenerationResult.wrappedArtifact().getWrappedBsn();
+                            bundleVersion = bundleGenerationResult.wrappedArtifact().getWrappedVersion();
                         } catch (Exception e) {
                             throw new TargetDefinitionResolutionException("Artifact " + debugString + " of location "
                                     + location + " could not be wrapped as a bundle", e);
                         }
-
                     } else {
                         unit = publish(bundleDescription, bundleLocation, mavenArtifact);
                     }
@@ -348,6 +330,53 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
             }
         }
         FeaturePublisher.publishFeatures(features, repositoryContent::put, artifactRepository, logger);
+    }
+
+    private BundleGenerationResult generateBundle(Function<DependencyNode, Properties> instructionsLookup,
+            IArtifactFacade mavenArtifact, MavenSession mavenSession, RepositorySystem repositorySystem,
+            MavenDependencyCollector collector, SyncContextFactory syncContextFactory, MavenDependency mavenDependency,
+            boolean overrideManifest) throws Exception {
+
+        String debugString = asDebugString(mavenArtifact);
+        MavenLogger logger = mavenContext.getLogger();
+        WrappedBundle wrappedBundle = MavenBundleWrapper.getWrappedArtifact(
+                new DefaultArtifact(mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(),
+                        mavenArtifact.getClassifier(), mavenArtifact.getPackagingType(), mavenArtifact.getVersion()),
+                instructionsLookup, collector.getEffectiveRepositories(), repositorySystem,
+                mavenSession.getRepositorySession(), syncContextFactory, overrideManifest);
+        List<ProcessingMessage> directErrors = wrappedBundle.messages(false)
+                .filter(msg -> msg.type() == ProcessingMessage.Type.ERROR).toList();
+        if (directErrors.isEmpty()) {
+            wrappedBundle.messages(true).map(ProcessingMessage::message)
+                    .forEach(msg -> logger.warn(debugString + ": " + msg));
+        } else {
+            String error = directErrors.stream().map(ProcessingMessage::message)
+                    .collect(Collectors.joining(System.lineSeparator()));
+            String hint = String.format("You can exclude it by adding <exclude>%s</exclude> to your location",
+                    debugString);
+            throw new RuntimeException(String.format("Dependency %s of %s can not be wrapped: %s%s%s", debugString,
+                    mavenDependency, error, System.lineSeparator().repeat(2), hint));
+        }
+        File file = wrappedBundle.getFile().get().toFile();
+        BundleDescription description = BundlesAction.createBundleDescription(file);
+        WrappedArtifact wrappedArtifact = new WrappedArtifact(file, mavenArtifact, mavenArtifact.getClassifier(),
+                description.getSymbolicName(), description.getVersion().toString(), null);
+        logger.info(
+                debugString + " is wrapped as a bundle with bundle symbolic name " + wrappedArtifact.getWrappedBsn());
+        logger.info(wrappedArtifact.getReferenceHint());
+        if (logger.isDebugEnabled()) {
+            logger.debug("The following manifest was generated for this artifact:\r\n"
+                    + wrappedArtifact.getGeneratedManifest());
+        }
+        // Maven artifact info for wrapped bundles have to be stored in separate fields
+        Map<String, String> mavenProperties = new HashMap<>();
+        mavenProperties.put(TychoConstants.PROP_WRAPPED_GROUP_ID, mavenArtifact.getGroupId());
+        mavenProperties.put(TychoConstants.PROP_WRAPPED_ARTIFACT_ID, mavenArtifact.getArtifactId());
+        mavenProperties.put(TychoConstants.PROP_WRAPPED_VERSION, mavenArtifact.getVersion());
+        mavenProperties.put(TychoConstants.PROP_WRAPPED_CLASSIFIER, mavenArtifact.getClassifier());
+        IInstallableUnit unit = publish(description, file, new MavenPropertiesAdvice(mavenProperties));
+
+        return new BundleGenerationResult(wrappedArtifact, unit);
     }
 
     private List<RemoteRepository> getRepos(MavenSession mavenSession) {
@@ -485,6 +514,10 @@ public class MavenTargetDefinitionContent implements TargetDefinitionContent {
     }
 
     private static record ResolvedMavenArtifacts(Collection<AetherArtifactFacade> facades, Artifact root) {
+
+    }
+
+    record BundleGenerationResult(WrappedArtifact wrappedArtifact, IInstallableUnit unit) {
 
     }
 
