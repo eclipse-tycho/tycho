@@ -16,8 +16,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
-import static org.eclipse.tycho.versions.engine.Versions.eq;
-import static org.eclipse.tycho.versions.engine.Versions.isVersionEquals;
+import static org.eclipse.tycho.helper.VersionTool.eq;
+import static org.eclipse.tycho.helper.VersionTool.isVersionEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,10 +29,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
-import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.Build;
 import org.eclipse.tycho.versions.pom.DependencyManagement;
 import org.eclipse.tycho.versions.pom.GAV;
@@ -109,8 +109,8 @@ public class DefaultPomManipulator extends AbstractMetadataManipulator implement
         // TODO visitor pattern is a better way to implement this
 
         for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
-            String version = Versions.toMavenVersion(change.getVersion());
-            String newVersion = Versions.toMavenVersion(change.getNewVersion());
+            String version = VersionTool.toMavenVersion(change.getVersion());
+            String newVersion = VersionTool.toMavenVersion(change.getNewVersion());
             if (isGavEquals(pom, change)) {
                 List<String> ciFriendlyProperties = PomUtil.getContainedPropertyNames(pom.getRawVersion());
                 if (!ciFriendlyProperties.isEmpty()) {
