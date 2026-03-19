@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
+import org.eclipse.tycho.helper.VersionTool;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 
@@ -41,7 +42,7 @@ public class DefaultVersionRangeUpdateStrategy implements VersionRangeUpdateStra
     }
 
     private Version parseBaseVersion(String version) {
-        String baseVersion = Versions.toBaseVersion(version);
+        String baseVersion = VersionTool.toBaseVersion(version);
         return Version.valueOf(baseVersion);
     }
 
@@ -172,8 +173,8 @@ public class DefaultVersionRangeUpdateStrategy implements VersionRangeUpdateStra
 
         ImportRefVersionConstraint versionConstraintUsingBaseVersion = toBaseVersionConstraint(
                 originalVersionConstraint);
-        String referencedBaseVersion = Versions.toBaseVersion(originalReferencedVersion);
-        String newReferencedBaseVersion = Versions.toBaseVersion(newReferencedVersion);
+        String referencedBaseVersion = VersionTool.toBaseVersion(originalReferencedVersion);
+        String newReferencedBaseVersion = VersionTool.toBaseVersion(newReferencedVersion);
 
         if ((updateMatchingBounds && versionConstraintUsingBaseVersion.getVersion().equals(referencedBaseVersion))
                 || versionConstraintUsingBaseVersion.matches(referencedBaseVersion)
@@ -186,7 +187,7 @@ public class DefaultVersionRangeUpdateStrategy implements VersionRangeUpdateStra
 
     private ImportRefVersionConstraint toBaseVersionConstraint(ImportRefVersionConstraint originalVersionConstraint) {
         if (originalVersionConstraint.getVersion() != null) {
-            return new ImportRefVersionConstraint(Versions.toBaseVersion(originalVersionConstraint.getVersion()),
+            return new ImportRefVersionConstraint(VersionTool.toBaseVersion(originalVersionConstraint.getVersion()),
                     originalVersionConstraint.getMatch());
         } else {
             return originalVersionConstraint;

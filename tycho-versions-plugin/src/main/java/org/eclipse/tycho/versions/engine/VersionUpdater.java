@@ -27,6 +27,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.IU;
 import org.eclipse.tycho.model.ProductConfiguration;
@@ -108,14 +109,14 @@ public abstract class VersionUpdater {
                 continue;
             }
 
-            String pomVersion = Versions.toCanonicalVersion(pom.getVersion());
+            String pomVersion = VersionTool.toCanonicalVersion(pom.getVersion());
 
             VersionAdaptor adaptor = updaters.get(pom.getPackaging());
 
             if (adaptor != null) {
-                String osgiVersion = Versions.toCanonicalVersion(adaptor.getVersion(project, logger));
+                String osgiVersion = VersionTool.toCanonicalVersion(adaptor.getVersion(project, logger));
 
-                if (osgiVersion != null && !Versions.isVersionEquals(pomVersion, osgiVersion)) {
+                if (osgiVersion != null && !VersionTool.isVersionEquals(pomVersion, osgiVersion)) {
                     addVersionChange(engine, pom, osgiVersion);
                 }
             }

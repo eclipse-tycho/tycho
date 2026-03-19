@@ -16,8 +16,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
-import static org.eclipse.tycho.versions.engine.Versions.eq;
-import static org.eclipse.tycho.versions.engine.Versions.isVersionEquals;
+import static org.eclipse.tycho.helper.VersionTool.eq;
+import static org.eclipse.tycho.helper.VersionTool.isVersionEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,11 +27,11 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
-import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.Build;
 import org.eclipse.tycho.versions.pom.DependencyManagement;
 import org.eclipse.tycho.versions.pom.GAV;
@@ -82,8 +82,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
                     versionChangeContext.findMetadataByBasedir(new File(project.getBasedir(), module))
                             .ifPresent(moduleMeta -> {
                                 PomFile modulePom = moduleMeta.getMetadata(PomFile.class);
-                                if (modulePom != null && modulePom.isMutable()
-                                        && POM.equals(modulePom.getPackaging())
+                                if (modulePom != null && modulePom.isMutable() && POM.equals(modulePom.getPackaging())
                                         && isVersionEquals(modulePom.getVersion(), change.getVersion())) {
                                     if (versionChangeContext.addVersionChange(
                                             new PomVersionChange(modulePom, change.getNewVersion()))) {
@@ -110,8 +109,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
         // TODO visitor pattern is a better way to implement this
 
         for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
-            String version = Versions.toMavenVersion(change.getVersion());
-            String newVersion = Versions.toMavenVersion(change.getNewVersion());
+            String version = VersionTool.toMavenVersion(change.getVersion());
+            String newVersion = VersionTool.toMavenVersion(change.getNewVersion());
             if (isGavEquals(pom, change)) {
                 List<String> ciFriendlyProperties = PomUtil.getContainedPropertyNames(pom.getRawVersion());
                 if (!ciFriendlyProperties.isEmpty()) {
@@ -139,8 +138,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
                 }
             } else {
                 GAV parent = pom.getParent();
-                if (parent != null && isGavEquals(parent, change)
-                        && !PomUtil.containsProperties(parent.getVersion())) {
+                if (parent != null && isGavEquals(parent, change) && !PomUtil.containsProperties(parent.getVersion())) {
                     logger.info("  %s//project/parent/version: %s => %s".formatted(pomName, version, newVersion));
                     parent.setVersion(newVersion);
                 }

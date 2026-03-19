@@ -11,24 +11,27 @@
  *    Sonatype Inc. - initial API and implementation
  *    Marco Lehmann-Mörz - issue #2877 - tycho-versions-plugin:bump-versions does not honor SNAPSHOT suffix
  *******************************************************************************/
-package org.eclipse.tycho.versions.engine;
+package org.eclipse.tycho.helper;
 
 import java.io.File;
 
 import org.eclipse.tycho.TychoConstants;
 import org.osgi.framework.Version;
 
-public class Versions {
+public class VersionTool {
+
     public static String toCanonicalVersion(String version) {
         if (version == null) {
             return null;
         }
-
         if (version.endsWith(TychoConstants.SUFFIX_SNAPSHOT)) {
-            return version.substring(0, version.length() - TychoConstants.SUFFIX_SNAPSHOT.length())
-                    + TychoConstants.SUFFIX_QUALIFIER;
+            String unqualifiedVersion = version.substring(0,
+                    version.length() - TychoConstants.SUFFIX_SNAPSHOT.length());
+            // Ensure that valid Maven versions such as 1-SNAPSHOT, 1.0-SNAPSHOT, and 1.0.0-SNAPSHOT all produce a valid OSGi version
+            // by padding missing minor and micro segments with 0.
+            // For all 3 cases it returns 1.0.0.qualifier.
+            return Version.valueOf(unqualifiedVersion) + TychoConstants.SUFFIX_QUALIFIER;
         }
-
         return version;
     }
 
@@ -87,7 +90,7 @@ public class Versions {
 
     public static String validateOsgiVersion(String version, File location) {
         try {
-            Versions.assertIsOsgiVersion(Versions.toCanonicalVersion(version));
+            assertIsOsgiVersion(toCanonicalVersion(version));
         } catch (RuntimeException e) {
             return String.format("Version %s is not valid for %s", version, location);
         }

@@ -24,13 +24,13 @@ import java.util.stream.Stream.Builder;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.TargetFiles;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
-import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.PomFile;
 
 import de.pdark.decentxml.Document;
@@ -76,12 +76,12 @@ public class EclipseTargetFileManipulator extends AbstractMetadataManipulator {
                         String artifactId = coordinates[1];
                         String version = coordinates[2];
                         if (groupId.equals(change.getGroupId()) && artifactId.equals(change.getArtifactId())
-                                && Versions.isVersionEquals(version, change.getVersion())) {
+                                && VersionTool.isVersionEquals(version, change.getVersion())) {
                             Builder<String> builder = Stream.builder();
                             builder.add(MVN_URL);
                             builder.add(groupId);
                             builder.add(artifactId);
-                            builder.add(Versions.toMavenVersion(change.getNewVersion()));
+                            builder.add(VersionTool.toMavenVersion(change.getNewVersion()));
                             for (int i = 3; i < coordinates.length; i++) {
                                 builder.add(coordinates[i]);
                             }

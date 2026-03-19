@@ -23,13 +23,13 @@ import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProductConfigurations;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
-import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.utils.ProductFileFilter;
 
@@ -56,7 +56,7 @@ public class EclipseRepositoryProductFileManipulator extends ProductFileManipula
                 for (Map.Entry<File, ProductConfiguration> entry : getProductConfigurations(project).entrySet()) {
                     if (isSameProject(project, change.getProject())
                             && change.getVersion().equals(entry.getValue().getVersion())) {
-                        String error = Versions.validateOsgiVersion(change.getNewVersion(), entry.getKey());
+                        String error = VersionTool.validateOsgiVersion(change.getNewVersion(), entry.getKey());
                         if (error != null) {
                             errors.add(error);
                         }

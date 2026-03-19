@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.Feature.ImportRef;
 import org.eclipse.tycho.model.Feature.RequiresRef;
@@ -30,7 +31,6 @@ import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.VersionRangeUpdateStrategy;
-import org.eclipse.tycho.versions.engine.Versions;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-feature")
 public class FeatureXmlManipulator extends AbstractMetadataManipulator {
@@ -66,7 +66,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
             for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
                 if (change.getArtifactId().equals(feature.getId())
                         && change.getVersion().equals(feature.getVersion())) {
-                    String error = Versions.validateOsgiVersion(change.getNewVersion(), getFeatureFile(project));
+                    String error = VersionTool.validateOsgiVersion(change.getNewVersion(), getFeatureFile(project));
                     return error != null ? Collections.singleton(error) : null;
                 }
             }
