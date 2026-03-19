@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.ResourceUtil;
@@ -29,9 +29,9 @@ public class EclipseRepoIncludingFeaturePatchTest extends AbstractTychoIntegrati
 	public void testRepsoitoryBuild() throws Exception {
 		Verifier verifier = getVerifier("featurePatch.external/build", false);
 
-		verifier.addCliOption("-Decl342=" + P2Repositories.ECLIPSE_342.toString());
-		verifier.addCliOption("-Decl352=" + P2Repositories.ECLIPSE_352.toString());
-		verifier.addCliOption("-Drepo-with-patch="
+		verifier.addCliArgument("-Decl342=" + P2Repositories.ECLIPSE_342.toString());
+		verifier.addCliArgument("-Decl352=" + P2Repositories.ECLIPSE_352.toString());
+		verifier.addCliArgument("-Drepo-with-patch="
 				+ ResourceUtil.resolveTestResource("projects/featurePatch.external/patchrepo").toURI().toString());
 
 		verifier.executeGoal("verify");
