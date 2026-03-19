@@ -36,6 +36,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.BuildFailureException;
+import org.eclipse.tycho.ClasspathDependenciesAction;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
@@ -65,6 +66,7 @@ public class DefaultTargetPlatformConfigurationReader {
     public static final String REFERENCED_REPOSITORY_MODE = "referencedRepositoryMode";
     public static final String DEPENDENCY_RESOLUTION = "dependency-resolution";
     public static final String OPTIONAL_DEPENDENCIES = "optionalDependencies";
+    public static final String CLASSPATH_DEPENDENCIES = "classpathDependencies";
     public static final String LOCAL_ARTIFACTS = "localArtifacts";
     public static final String LOCAL_ARTIFACTS_PROPERTY = "tycho.localArtifacts";
 
@@ -217,6 +219,7 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         setOptionalDependencies(result, resolverDom);
+        setClasspathDependencies(result, resolverDom);
         setLocalArtifacts(result, resolverDom, mavenSession);
         readExtraRequirements(result, resolverDom);
         readProfileProperties(result, resolverDom);
@@ -260,6 +263,21 @@ public class DefaultTargetPlatformConfigurationReader {
         } else {
             throw new BuildFailureException(
                     "Illegal value of <optionalDependencies> dependency resolution parameter: " + value);
+        }
+    }
+
+    private void setClasspathDependencies(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
+        String value = getStringValue(resolverDom.getChild(CLASSPATH_DEPENDENCIES));
+
+        if (value == null) {
+            return;
+        }
+        try {
+            result.setClasspathDependenciesAction(ClasspathDependenciesAction.valueOf(value.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            throw new BuildFailureException("Illegal value of <" + CLASSPATH_DEPENDENCIES
+                    + "> dependency resolution parameter: " + value + ", allowed values are: "
+                    + Arrays.toString(ClasspathDependenciesAction.values()));
         }
     }
 
