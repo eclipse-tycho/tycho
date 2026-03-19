@@ -17,10 +17,10 @@ import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.testing.TestUtil;
 import org.eclipse.tycho.versions.engine.IllegalVersionChangeException;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
-import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
 
 public class VersionsEngineTest extends AbstractVersionChangeTest {
@@ -280,7 +280,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
 
     public void testWrongSnapshotVersion() throws Exception {
         try {
-            Versions.assertIsOsgiVersion("1.2.3_SNAPSHOT");
+            VersionTool.assertIsOsgiVersion("1.2.3_SNAPSHOT");
             fail("invalid version accepted");
         } catch (NumberFormatException e) {
             // thrown by equinox <3.8M5
@@ -290,7 +290,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
     }
 
     public void testAssertOsgiVersion() {
-        Versions.assertIsOsgiVersion("1.2.3.qualifier");
+        VersionTool.assertIsOsgiVersion("1.2.3.qualifier");
     }
 
     public void testBuildPluginManagement() throws Exception {

@@ -31,9 +31,9 @@ import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
-import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.publisher.TychoMavenPropertiesAdvice;
 import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.publisher.AbstractMetadataGenerator;
@@ -63,7 +63,7 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
         ArrayList<IPublisherAction> actions = new ArrayList<>();
 
         String id = artifact.getArtifactId();
-        String version = toCanonicalVersion(artifact.getVersion());
+        String version = VersionTool.toCanonicalVersion(artifact.getVersion());
         try {
             // generated source bundle is not available at this point in filesystem yet, need to create
             // in-memory BundleDescription instead
@@ -103,17 +103,6 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
         }
 
         return advice;
-    }
-
-    private static String toCanonicalVersion(String version) {
-        if (version == null) {
-            return null;
-        }
-        if (version.endsWith(TychoConstants.SUFFIX_SNAPSHOT)) {
-            return version.substring(0, version.length() - TychoConstants.SUFFIX_SNAPSHOT.length())
-                    + TychoConstants.SUFFIX_QUALIFIER;
-        }
-        return version;
     }
 
     public long createId(String sourceBundleSymbolicName, String version) {

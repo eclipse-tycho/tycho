@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.model.manifest.MutableBundleManifest;
 import org.eclipse.tycho.versions.bundle.MutableBndFile;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
@@ -34,7 +35,6 @@ import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
-import org.eclipse.tycho.versions.engine.Versions;
 import org.osgi.framework.Constants;
 
 @Component(role = MetadataManipulator.class, hint = "bundle-manifest")
@@ -54,7 +54,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         if (isBundle(project)) {
             VersionChange versionChangeForProject = findVersionChangeForProject(project, versionChangeContext);
             if (versionChangeForProject != null) {
-                String error = Versions.validateOsgiVersion(versionChangeForProject.getNewVersion(),
+                String error = VersionTool.validateOsgiVersion(versionChangeForProject.getNewVersion(),
                         getManifestFile(project));
                 return error != null ? Collections.singleton(error) : null;
             }
@@ -100,8 +100,8 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         }
         MutableBundleManifest mf = bundleManifest.get();
         // ignore ".qualifier" literals in package versions
-        String versionToReplace = Versions.toBaseVersion(versionChangeForProject.getVersion());
-        String newVersion = Versions.toBaseVersion(versionChangeForProject.getNewVersion());
+        String versionToReplace = VersionTool.toBaseVersion(versionChangeForProject.getVersion());
+        String newVersion = VersionTool.toBaseVersion(versionChangeForProject.getNewVersion());
 
         Set<PackageVersionChange> packageVersionChanges = new HashSet<>();
         for (Entry<String, String> exportedPackageVersion : mf.getExportedPackagesVersion().entrySet()) {
@@ -194,7 +194,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
                 logger.info("  META-INF/MANIFEST.MF//Fragment-Host//" + mf.getFragmentHostSymbolicName()
                         + ";bundle-version: " + newVersionRange + " => " + newVersionRange);
 
-                mf.setFragmentHostVersion(Versions.toBaseVersion(newVersionRange));
+                mf.setFragmentHostVersion(VersionTool.toBaseVersion(newVersionRange));
             }
         }
     }
