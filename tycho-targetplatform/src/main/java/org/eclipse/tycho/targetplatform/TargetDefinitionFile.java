@@ -168,7 +168,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 			MissingManifestStrategy getMissingManifestStrategy, boolean includeSource,
 			Collection<BNDInstructions> getInstructions, DependencyDepth getIncludeDependencyDepth,
 			Collection<MavenArtifactRepositoryReference> getRepositoryReferences, Element getFeatureTemplate,
-			String label) implements TargetDefinition.MavenGAVLocation {
+			String label, boolean manifestOverride) implements TargetDefinition.MavenGAVLocation {
 
 		MavenLocation {
 			getFeatureTemplate = getFeatureTemplate == null ? null : (Element) getFeatureTemplate.cloneNode(true);
@@ -543,7 +543,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 		return new MavenLocation(parseRoots(dom, globalExcludes), scopes, parseManifestStrategy(dom),
 				Boolean.parseBoolean(dom.getAttribute("includeSource")), parseInstructions(dom),
 				parseDependencyDepth(dom, scope), parseRepositoryReferences(dom), featureTemplate,
-				dom.getAttribute("label"));
+				dom.getAttribute("label"), Boolean.parseBoolean(dom.getAttribute("manifestOverride")));
 	}
 
 	private static IULocation parseIULocation(Element dom) {
