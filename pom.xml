@@ -73,7 +73,7 @@
 		<equinoxVersion>3.24.100</equinoxVersion>
 		<ecjVersion>3.45.0</ecjVersion>
 		<bouncycastleVersion>1.83</bouncycastleVersion>
-		<bnd.version>7.2.1</bnd.version>
+		<bnd.version>7.2.3</bnd.version>
 		<junit.version>6.0.3</junit.version>
 	    <!-- these are referenced from src/main/resources/META-INF/plexus/components.xml -->
 		<resources-plugin.version>3.3.1</resources-plugin.version>
