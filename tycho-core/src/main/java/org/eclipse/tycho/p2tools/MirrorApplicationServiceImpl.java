@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 SAP SE and others.
+ * Copyright (c) 2010, 2026 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -106,6 +106,9 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         final TychoMirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, logger);
         mirrorApp.setSlicingOptions(createSlicingOptions(mirrorOptions));
         mirrorApp.setIgnoreErrors(mirrorOptions.isIgnoreErrors());
+        if (mirrorOptions.getCategoryName() != null && !mirrorOptions.getCategoryName().isBlank()) {
+            mirrorApp.setCategoryName(mirrorOptions.getCategoryName());
+        }
         try {
             // we want to see mirror progress as this is a possibly long-running operation
             mirrorApp.setVerbose(true);
