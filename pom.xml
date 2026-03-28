@@ -607,6 +607,7 @@
 		<module>tycho-bndlib</module>
 		<module>tycho-sbom-plugin</module>
 		<module>tycho-test-plugin</module>
+		<module>tycho-junit-platform-application</module>
 	</modules>
 	<profiles>
 		<profile>
