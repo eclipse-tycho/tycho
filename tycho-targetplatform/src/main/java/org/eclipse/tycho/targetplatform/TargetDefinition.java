@@ -149,6 +149,8 @@ public interface TargetDefinition {
 
 		String getLabel();
 
+		boolean manifestOverride();
+		
 		@Override
 		public default String getTypeDescription() {
 			return TYPE;
