@@ -15,7 +15,7 @@ package org.eclipse.tycho.test.featurePatch;
 import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_342;
 import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_352;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
@@ -25,8 +25,8 @@ public class FeaturePatchTest extends AbstractTychoIntegrationTest {
 	public void testFeaturePatch() throws Exception {
 		Verifier verifier = getVerifier("featurePatch.build", false);
 
-		verifier.addCliOption("-De342-url=" + ECLIPSE_342.toString());
-		verifier.addCliOption("-De352-url=" + ECLIPSE_352.toString());
+		verifier.addCliArgument("-De342-url=" + ECLIPSE_342.toString());
+		verifier.addCliArgument("-De352-url=" + ECLIPSE_352.toString());
 
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
