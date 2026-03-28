@@ -36,7 +36,7 @@ import org.eclipse.tycho.helper.ProjectHelper;
  * <li>one can now run the build again with the incremented version and verify the automatic applied
  * changes</li>
  * </ul>
- * 
+ *
  */
 @Mojo(name = VersionBumpMojo.NAME, threadSafe = true, defaultPhase = LifecyclePhase.VERIFY, requiresProject = true)
 public class VersionBumpMojo extends AbstractMojo {
@@ -47,9 +47,13 @@ public class VersionBumpMojo extends AbstractMojo {
 
     static final int DEFAULT_INCREMENT = 1;
 
+    static final boolean DEFAULT_UPDATE_PACKAGES = false;
+
     static final String NAME = "bump-versions";
 
     static final String PROPERTY_INCREMENT = "tycho." + NAME + ".increment";
+
+    static final String PROPERTY_UPDATE_PACKAGES = "tycho." + NAME + ".updatePackages";
 
     /**
      * Configures the default increment of micro version to use if no version is recommended by the
@@ -57,6 +61,13 @@ public class VersionBumpMojo extends AbstractMojo {
      */
     @Parameter(property = PROPERTY_INCREMENT, defaultValue = DEFAULT_INCREMENT + "")
     private int increment = DEFAULT_INCREMENT;
+
+    /**
+     * Configures whether to update exported packages to the version recommended by the
+     * VersionBumpRequiredException produced by the version check plugin.
+     */
+    @Parameter(property = PROPERTY_UPDATE_PACKAGES, defaultValue = DEFAULT_UPDATE_PACKAGES + "")
+    private boolean updatePackages = DEFAULT_UPDATE_PACKAGES;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -77,6 +88,22 @@ public class VersionBumpMojo extends AbstractMojo {
             }
         }
         return DEFAULT_INCREMENT;
+    }
+
+    public static boolean getUpdatePackages(MavenSession mavenSession, MavenProject project, ProjectHelper projectHelper) {
+        String prop = mavenSession.getUserProperties().getProperty(PROPERTY_UPDATE_PACKAGES);
+        if (prop != null) {
+            return Boolean.parseBoolean(prop);
+        }
+        Xpp3Dom configuration = projectHelper.getPluginConfiguration(GROUP_ID, ARTIFACT_ID, NAME, project,
+                mavenSession);
+        if (configuration != null) {
+            Xpp3Dom child = configuration.getChild("updatePackages");
+            if (child != null) {
+                return Boolean.parseBoolean(child.getValue());
+            }
+        }
+        return DEFAULT_UPDATE_PACKAGES;
     }
 
 }
