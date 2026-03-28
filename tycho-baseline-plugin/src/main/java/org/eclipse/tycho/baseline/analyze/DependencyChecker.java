@@ -144,6 +144,36 @@ public abstract class DependencyChecker {
 			String dependencyName, String packageNameFilter, Version version,
 			Map<MethodSignature, Collection<String>> references, ArtifactVersion v, IInstallableUnit unit,
 			String versionStr, org.eclipse.equinox.p2.metadata.Version matchedVersion, String dependencyType) {
+		return checkMethodsInCollections(collections, methods, dependencyName, packageNameFilter, version, references,
+				v, unit, versionStr, matchedVersion, dependencyType, Map.of());
+	}
+
+	/**
+	 * Checks if methods are present in any of the given collections and reports
+	 * problems for missing ones. This supports checking against a main bundle's
+	 * classes combined with re-exported bundle classes, with optional provenance
+	 * information for re-exported packages.
+	 *
+	 * @param collections         the class collections to check (main + re-exported)
+	 * @param methods             the methods to find
+	 * @param dependencyName      the name of the dependency
+	 * @param packageNameFilter   optional filter to restrict provided method list
+	 * @param version             the version being checked
+	 * @param references          the references to the methods
+	 * @param v                   the artifact version
+	 * @param unit                the installable unit
+	 * @param versionStr          the version string from the manifest
+	 * @param matchedVersion      the matched version
+	 * @param dependencyType      the type of dependency (e.g., "Require-Bundle")
+	 * @param reexportProvenance  map from package name to provenance description
+	 *                            (e.g., "re-exported from `org.eclipse.swt [3.133.0,4.0.0)`")
+	 * @return true if all methods were found
+	 */
+	protected boolean checkMethodsInCollections(List<ClassCollection> collections, Set<MethodSignature> methods,
+			String dependencyName, String packageNameFilter, Version version,
+			Map<MethodSignature, Collection<String>> references, ArtifactVersion v, IInstallableUnit unit,
+			String versionStr, org.eclipse.equinox.p2.metadata.Version matchedVersion, String dependencyType,
+			Map<String, String> reexportProvenance) {
 		boolean ok = true;
 		Set<MethodSignature> set = new HashSet<>();
 		for (ClassCollection cc : collections) {
@@ -170,14 +200,16 @@ public abstract class DependencyChecker {
 						}
 					}
 				}
+				String provenance = reexportProvenance.getOrDefault(mthd.packageName(), "");
+				String provenanceSuffix = provenance.isEmpty() ? "" : " (package `" + mthd.packageName() + "` " + provenance + ")";
 				context.addProblem(new DependencyVersionProblem(dependencyName + "_" + version,
 						String.format(
-								"%s `%s %s` (compiled against `%s` provided by `%s %s`) includes `%s` (provided by `%s`) but this version is missing the method `%s#%s`",
+								"%s `%s %s` (compiled against `%s` provided by `%s %s`) includes `%s` (provided by `%s`) but this version is missing the method `%s#%s`%s",
 								dependencyType, dependencyName, versionStr,
 								matchedVersion != null ? matchedVersion.toString()
 										: org.eclipse.equinox.p2.metadata.Version.emptyVersion.toString(),
 								unit.getId(), unit.getVersion(), version, v.getProvider(), mthd.className(),
-								getMethodRef(mthd)),
+								getMethodRef(mthd), provenanceSuffix),
 						references.get(mthd), provided));
 				ok = false;
 				withError.add(dependencyName);
