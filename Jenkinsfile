@@ -18,7 +18,7 @@ pipeline {
 		label agentLabel
 	}
 	tools {
-		maven 'apache-maven-3.9.9'
+		maven 'apache-maven-latest'
 		jdk 'temurin-jdk21-latest'
 	}
 	environment {
