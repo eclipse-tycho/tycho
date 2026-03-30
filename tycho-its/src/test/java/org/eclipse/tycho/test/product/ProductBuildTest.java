@@ -91,13 +91,13 @@ public class ProductBuildTest extends AbstractTychoIntegrationTest {
 
 	}
 
-	protected void checkPGP(Verifier verifier, String repositoryArtifacts) throws IOException {
+	protected void checkPGP(Verifier verifier, String repositoryArtifacts) {
 		File artifactXml = new File(verifier.getBasedir(), repositoryArtifacts);
 		assertTrue("required artifacts file " + artifactXml.getAbsolutePath() + " not found!", artifactXml.isFile());
 		Document artifactsDocument = Document.of(artifactXml.toPath());
 		Optional<Element> optional = artifactsDocument.root().childElement("artifacts").orElse(null)
-				.childElements("artifact")
-				.filter(element -> element.attribute("id").equals("org.mockito.mockito-core")).findAny();
+				.childElements("artifact").filter(element -> element.attribute("id").equals("org.mockito.mockito-core"))
+				.findAny();
 		assertTrue("artifact org.mockito.mockito-core not found", optional.isPresent());
 		Element element = optional.get();
 		Map<String, String> properties = element.childElement("properties").orElse(null).childElements("property")
