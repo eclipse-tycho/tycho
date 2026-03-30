@@ -16,7 +16,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -153,12 +152,12 @@ public class P2ExtrasPlugin extends AbstractTychoIntegrationTest {
 		assertTrue("test feature should be marked as zipped", hasChildWithZippedAttribute(featureUnitInContentXml));
 	}
 
-	private static Element extractUnitFromContentXml(Path contentXml, String unitName) throws IOException {
+	private static Element extractUnitFromContentXml(Path contentXml, String unitName) {
 		Document document = Document.of(contentXml);
 		Element unitElement = document.root().childElement("units").orElse(null);
 		List<Element> units = unitElement.childElements("unit").toList();
-		Optional<Element> extractedUnit = units.stream()
-				.filter(element -> unitName.equals(element.attribute("id"))).findFirst();
+		Optional<Element> extractedUnit = units.stream().filter(element -> unitName.equals(element.attribute("id")))
+				.findFirst();
 		assertTrue(String.format("Unit with name '%s' not found in content.xml with units: %s", unitName, units),
 				extractedUnit.isPresent());
 		return extractedUnit.get();

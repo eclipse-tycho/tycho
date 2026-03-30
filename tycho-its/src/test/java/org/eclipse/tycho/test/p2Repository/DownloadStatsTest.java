@@ -61,8 +61,7 @@ public class DownloadStatsTest extends AbstractTychoIntegrationTest {
 			Predicate<Element> elementFilter) throws IOException, FileNotFoundException {
 		List<String> downloadStats = new ArrayList<>();
 		try (InputStream stream = artifactJar.getInputStream(artifactJar.getJarEntry("artifacts.xml"))) {
-			downloadStats.addAll(captureDownloadStatsFromArtifactsXml(Document.of(stream),
-					elementFilter));
+			downloadStats.addAll(captureDownloadStatsFromArtifactsXml(Document.of(stream), elementFilter));
 		}
 		return downloadStats;
 	}
@@ -73,9 +72,11 @@ public class DownloadStatsTest extends AbstractTychoIntegrationTest {
 			elementFilter = o -> true;
 		}
 		List<String> downloadStats = new ArrayList<>();
-		for (Element element : document.root().childElement("artifacts").orElse(null).childElements("artifact").toList()) {
+		for (Element element : document.root().childElement("artifacts").orElse(null).childElements("artifact")
+				.toList()) {
 			if (elementFilter.test(element)) {
-				for (Element property : element.childElement("properties").orElse(null).childElements("property").toList()) {
+				for (Element property : element.childElement("properties").orElse(null).childElements("property")
+						.toList()) {
 					if (property.attribute("name").equals("download.stats")) {
 						downloadStats.add(property.attribute("value"));
 					}
@@ -85,8 +86,8 @@ public class DownloadStatsTest extends AbstractTychoIntegrationTest {
 		return downloadStats;
 	}
 
-	public static List<String> captureDownloadStatsFromArtifactsXML(File artifactsXml, Predicate<Element> elementFilter)
-			throws IOException {
+	private static List<String> captureDownloadStatsFromArtifactsXML(File artifactsXml,
+			Predicate<Element> elementFilter) {
 		return captureDownloadStatsFromArtifactsXml(Document.of(artifactsXml.toPath()), elementFilter);
 	}
 }
