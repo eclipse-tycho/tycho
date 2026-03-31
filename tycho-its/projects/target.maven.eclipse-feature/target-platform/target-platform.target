@@ -14,7 +14,7 @@
 			<repositories>
 				<repository>
 					<id>jgit</id>
-					<url>https://repo.eclipse.org/content/groups/jgit/</url>
+					<url>https://repo.eclipse.org/content/repositories/jgit/</url>
 				</repository>
 			</repositories>
 		</location>

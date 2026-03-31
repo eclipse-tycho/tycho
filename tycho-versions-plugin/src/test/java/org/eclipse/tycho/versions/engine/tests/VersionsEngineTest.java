@@ -27,10 +27,10 @@ import java.io.File;
 import javax.inject.Inject;
 
 import org.codehaus.plexus.testing.PlexusTest;
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.testing.TestUtil;
 import org.eclipse.tycho.versions.engine.IllegalVersionChangeException;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
-import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -314,12 +314,19 @@ public class VersionsEngineTest {
 
     @Test
     public void testWrongSnapshotVersion() throws Exception {
-        assertThrows(IllegalArgumentException.class, () -> Versions.assertIsOsgiVersion("1.2.3_SNAPSHOT"));
+        assertThrows(IllegalArgumentException.class, () -> VersionTool.assertIsOsgiVersion("1.2.3_SNAPSHOT"));
+    }
+
+    @Test
+    public void testToCanonicalVersion() throws Exception {
+        assertEquals("1.0.0.qualifier", VersionTool.toCanonicalVersion("1-SNAPSHOT"));
+        assertEquals("1.0.0.qualifier", VersionTool.toCanonicalVersion("1.0-SNAPSHOT"));
+        assertEquals("1.0.0.qualifier", VersionTool.toCanonicalVersion("1.0.0-SNAPSHOT"));
     }
 
     @Test
     public void testAssertOsgiVersion() {
-        Versions.assertIsOsgiVersion("1.2.3.qualifier");
+        VersionTool.assertIsOsgiVersion("1.2.3.qualifier");
     }
 
     @Test

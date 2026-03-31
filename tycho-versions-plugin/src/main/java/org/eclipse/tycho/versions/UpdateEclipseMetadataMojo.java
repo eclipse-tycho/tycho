@@ -29,7 +29,7 @@ import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
  * Update Eclipse/OSGi metadata (MANIFEST.MF, feature.xml, product.xml) version to match
  * corresponding pom.xml.
  */
-@Mojo(name = "update-eclipse-metadata", aggregator = true, requiresDirectInvocation = true, threadSafe = true)
+@Mojo(name = "update-eclipse-metadata", aggregator = true, threadSafe = true)
 public class UpdateEclipseMetadataMojo extends AbstractMojo {
     private static final Object LOCK = new Object();
 

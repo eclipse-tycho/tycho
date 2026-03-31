@@ -13,7 +13,6 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -100,7 +99,7 @@ public class VirtualUnitTest extends AbstractTychoIntegrationTest {
 				clientUnitRequirements.anyMatch(elem -> hostUnitId.equals(elem.attribute("name"))));
 	}
 
-	private static List<Element> getUnits(String baseDir, String filePath) throws IOException {
+	private static List<Element> getUnits(String baseDir, String filePath) {
 		File p2Content = new File(baseDir, filePath);
 		Document doc = Document.of(p2Content.toPath());
 

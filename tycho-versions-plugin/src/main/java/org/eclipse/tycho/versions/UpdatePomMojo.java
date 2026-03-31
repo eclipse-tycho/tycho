@@ -31,7 +31,7 @@ import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
  * 
  * @author igor
  */
-@Mojo(name = "update-pom", aggregator = true, requiresDirectInvocation = true, threadSafe = true)
+@Mojo(name = "update-pom", aggregator = true, threadSafe = true)
 public class UpdatePomMojo extends AbstractMojo {
     private static final Object LOCK = new Object();
 

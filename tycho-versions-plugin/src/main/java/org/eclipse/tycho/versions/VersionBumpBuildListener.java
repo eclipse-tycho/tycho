@@ -28,8 +28,8 @@ import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.build.BuildListener;
 import org.eclipse.tycho.core.exceptions.VersionBumpRequiredException;
 import org.eclipse.tycho.helper.ProjectHelper;
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
-import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.osgi.framework.Version;
@@ -80,7 +80,7 @@ public class VersionBumpBuildListener implements BuildListener {
                             String currentVersion = pomFile.getVersion();
                             Optional<Version> suggestedVersion = vbe.getSuggestedVersion();
                             String newVersion = suggestedVersion.map(String::valueOf)
-                                    .orElseGet(() -> Versions.incrementVersion(currentVersion,
+                                    .orElseGet(() -> VersionTool.incrementVersion(currentVersion,
                                             VersionBumpMojo.getIncrement(session, project, projectHelper)));
                             boolean isSnapshot = currentVersion.endsWith(TychoConstants.SUFFIX_SNAPSHOT);
                             if (isSnapshot && !newVersion.endsWith(TychoConstants.SUFFIX_SNAPSHOT)) {
