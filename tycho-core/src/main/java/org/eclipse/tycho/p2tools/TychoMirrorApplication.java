@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2023 SAP SE and others.
+ * Copyright (c) 2010, 2026 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,11 +19,13 @@ import static java.util.stream.Collectors.mapping;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -41,8 +43,12 @@ import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -73,6 +79,7 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
     private boolean filterProvided;
     private boolean addOnlyProvidingRepoReferences;
     private TargetPlatform targetPlatform;
+    private String categoryName;
     private Logger logger;
 
     public TychoMirrorApplication(IProvisioningAgent agent, DestinationRepositoryDescriptor destination,
@@ -269,6 +276,10 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
                 logger.info("Adding references to the following repositories:");
                 references.stream().map(r -> r.getLocation()).distinct().forEach(loc -> logger.info("  " + loc));
             }
+            if (categoryName != null && !categoryName.isBlank()) {
+                logger.info("Injecting parent category \"" + categoryName + "\" into destination repository");
+                injectParentCategory(categoryName, repository, logger);
+            }
         }
         super.finalizeRepositories();
     }
@@ -405,6 +416,42 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
         return Stream.empty();
     }
 
+    private static void injectParentCategory(String categoryName, IMetadataRepository destRepo, Logger logger) {
+        IQueryResult<IInstallableUnit> allUnits = destRepo.query(QueryUtil.ALL_UNITS, null);
+        List<IRequirement> requirements = new ArrayList<>();
+        for (IInstallableUnit iu : allUnits) {
+            if (Boolean.parseBoolean(iu.getProperty(QueryUtil.PROP_TYPE_CATEGORY))) {
+                VersionRange exactRange = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
+                requirements.add(MetadataFactory.createRequirement(
+                        IInstallableUnit.NAMESPACE_IU_ID,
+                        iu.getId(),
+                        exactRange,
+                        null,
+                        false,
+                        false));
+                logger.info("  Wrapping category: \"" + iu.getProperty(IInstallableUnit.PROP_NAME)
+                        + "\" (" + iu.getId() + ")");
+            }
+        }
+        if (requirements.isEmpty()) {
+            logger.info("No category IUs found to wrap; uparentcategory not created");
+            return;
+        }
+
+        InstallableUnitDescription desc = new InstallableUnitDescription();
+        String id = "tycho.mirroring.category."
+                + categoryName.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9._-]", ".");
+        desc.setId(id);
+        desc.setVersion(Version.createOSGi(1, 0, 0));
+        desc.setProperty(QueryUtil.PROP_TYPE_CATEGORY, Boolean.TRUE.toString());
+        desc.setProperty(IInstallableUnit.PROP_NAME, categoryName);
+        desc.setRequirements(requirements.toArray(IRequirement[]::new));
+        desc.setSingleton(true);
+
+        destRepo.addInstallableUnits(List.of(MetadataFactory.createInstallableUnit(desc)));
+        logger.info("Parent category \"" + categoryName + "\" injected with id '" + id + "'");
+    }
+
     public void setIncludeSources(boolean includeAllSource, TargetPlatform targetPlatform) {
         this.includeAllSource = includeAllSource;
         this.targetPlatform = targetPlatform;
@@ -424,6 +471,10 @@ public class TychoMirrorApplication extends org.eclipse.tycho.p2tools.copiedfrom
 
     public void setAddOnlyProvidingRepoReferences(boolean addOnlyProvidingRepoReferences) {
         this.addOnlyProvidingRepoReferences = addOnlyProvidingRepoReferences;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
 }

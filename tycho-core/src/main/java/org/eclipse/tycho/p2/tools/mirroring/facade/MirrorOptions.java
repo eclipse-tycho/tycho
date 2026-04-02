@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 SAP SE and others.
+ * Copyright (c) 2011, 2026 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,8 @@ public class MirrorOptions {
     private boolean latestVersionOnly = false;
     private Map<String, String> filter = new HashMap<>();
     private boolean ignoreErrors = false;
+    private String categoryName = null;
+    
 
     /**
      * Creates mirror options with default values.
@@ -128,5 +130,13 @@ public class MirrorOptions {
 
     public boolean isIgnoreErrors() {
         return this.ignoreErrors;
+    }
+
+    public void setCategoryName(String categoryName) {
+    	this.categoryName = categoryName;
+    }
+
+    public String getCategoryName() {
+    	return this.categoryName;
     }
 }
