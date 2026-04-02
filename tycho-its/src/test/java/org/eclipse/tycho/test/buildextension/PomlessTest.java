@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
@@ -30,8 +30,8 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testBnd() throws Exception {
 		Verifier verifier = getVerifier("pomless", false, true);
-		verifier.addCliOption("-pl");
-		verifier.addCliOption("bnd");
+		verifier.addCliArgument("-pl");
+		verifier.addCliArgument("bnd");
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "bnd/target/classes/module-info.class");
@@ -41,9 +41,9 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testSourceFolder() throws Exception {
 		Verifier verifier = getVerifier("pomless", false, true);
-		verifier.addCliOption("-pl");
-		verifier.addCliOption("sourcefolder");
-		verifier.addCliOption("-Dpolyglot.dump.pom=generated.pom.xml");
+		verifier.addCliArgument("-pl");
+		verifier.addCliArgument("sourcefolder");
+		verifier.addCliArgument("-Dpolyglot.dump.pom=generated.pom.xml");
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "sourcefolder/generated.pom.xml");

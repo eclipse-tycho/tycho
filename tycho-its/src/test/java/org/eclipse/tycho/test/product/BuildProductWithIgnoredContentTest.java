@@ -19,7 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.io.File;
 import java.util.List;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
@@ -43,7 +43,7 @@ public class BuildProductWithIgnoredContentTest extends AbstractTychoIntegration
 		 * bundles.
 		 */
 		Verifier verifier = getVerifier("product.sourceFile.leftovers", false);
-		verifier.addCliOption("-Dtest-data-repo=" + P2Repositories.ECLIPSE_342.toString());
+		verifier.addCliArgument("-Dtest-data-repo=" + P2Repositories.ECLIPSE_342.toString());
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 

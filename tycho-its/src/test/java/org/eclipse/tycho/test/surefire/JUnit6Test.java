@@ -15,7 +15,7 @@ package org.eclipse.tycho.test.surefire;
 import static org.eclipse.tycho.test.util.SurefireUtil.assertNumberOfSuccessfulTests;
 import static org.eclipse.tycho.test.util.SurefireUtil.assertTestMethodWasSuccessfullyExecuted;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +32,7 @@ public class JUnit6Test extends AbstractTychoIntegrationTest {
 	@Test
 	public void testJUnit6ProviderHint() throws Exception {
 		final Verifier verifier = getVerifier("/tycho-surefire-plugin/junit6/basic", false);
-		verifier.addCliOption("-Dtarget-platform=https:///download.eclipse.org/releases/2025-12");
+		verifier.addCliArgument("-Dtarget-platform=https:///download.eclipse.org/releases/2025-12");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		final String projectBasedir = verifier.getBasedir();

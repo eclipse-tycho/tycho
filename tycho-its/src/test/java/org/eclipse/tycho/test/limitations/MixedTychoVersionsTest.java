@@ -15,8 +15,8 @@ package org.eclipse.tycho.test.limitations;
 
 import static org.junit.Assert.assertThrows;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.version.TychoVersion;
 import org.junit.Test;
