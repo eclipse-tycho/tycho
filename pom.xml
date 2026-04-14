@@ -61,7 +61,7 @@
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
 		<commonsCompressVersion>1.28.0</commonsCompressVersion>
 		<plexusVersion>2.2.0</plexusVersion>
-		<plexusUtilsVersion>3.5.1</plexusUtilsVersion>
+		<plexusUtilsVersion>4.0.3</plexusUtilsVersion>
 		<plexusCompilerVersion>2.16.2</plexusCompilerVersion>
 		<pluginToolsVersion>3.15.2</pluginToolsVersion>
 		<jgit-version>7.6.0.202603022253-r</jgit-version>
@@ -73,7 +73,7 @@
 		<equinoxVersion>3.24.100</equinoxVersion>
 		<ecjVersion>3.45.0</ecjVersion>
 		<bouncycastleVersion>1.83</bouncycastleVersion>
-		<bnd.version>7.2.1</bnd.version>
+		<bnd.version>7.2.3</bnd.version>
 		<junit.version>6.0.3</junit.version>
 	    <!-- these are referenced from src/main/resources/META-INF/plexus/components.xml -->
 		<resources-plugin.version>3.3.1</resources-plugin.version>
@@ -142,6 +142,11 @@
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-utils</artifactId>
 				<version>${plexusUtilsVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-xml</artifactId>
+				<version>3.0.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
