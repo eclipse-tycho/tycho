@@ -21,7 +21,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;

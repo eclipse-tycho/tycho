@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
@@ -71,7 +71,7 @@ public class OfflineModeTest extends AbstractTychoIntegrationTest {
 	private Verifier getVerifierAndSetupServerAndRepo(String basedir, String repoName) throws Exception, IOException {
 		Verifier verifier = getVerifier(basedir, false);
 		String url = server.addServer("test", new File(verifier.getBasedir(), repoName));
-		verifier.addCliOption("-Dp2.repo=" + url);
+		verifier.addCliArgument("-Dp2.repo=" + url);
 
 		File platformFile = new File(verifier.getBasedir(), "platform.target");
 		TargetDefinitionUtil.setRepositoryURLs(platformFile, url);
@@ -79,7 +79,7 @@ public class OfflineModeTest extends AbstractTychoIntegrationTest {
 	}
 
 	private void runAndVerifyOfflineBuild(Verifier verifier) throws VerificationException {
-		verifier.addCliOption("--offline");
+		verifier.addCliArgument("--offline");
 		verifier.setLogFileName("log-offline.txt");
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();

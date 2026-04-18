@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Inf;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class ExtraUnitsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testExtraUnitsDontSpoilDependencyArtifacts() throws Exception {
 		Verifier verifier = getVerifier("/p2Inf.extraUnits", false);
-		verifier.addCliOption("-Dp2.repo=" + ResourceUtil.P2Repositories.ECLIPSE_342);
+		verifier.addCliArgument("-Dp2.repo=" + ResourceUtil.P2Repositories.ECLIPSE_342);
 		verifier.executeGoal("verify");
 
 		/*
