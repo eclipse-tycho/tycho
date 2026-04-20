@@ -50,6 +50,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.transport.ArtifactDownloadProvider;
+import org.eclipse.tycho.transport.DownloadState;
+import org.eclipse.tycho.transport.FileState;
 import org.eclipse.tycho.transport.TransportProtocolHandler;
 
 @Component(role = org.eclipse.equinox.internal.p2.repository.Transport.class, hint = "tycho")
@@ -111,15 +113,22 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 		if (cacheConfig.isInteractive()) {
 			logger.info("Downloading from " + id + ": " + source);
 		}
-		try {
+		try (StreamState streamState = createStream(source, monitor)) {
 			DownloadStatusOutputStream statusOutputStream = new DownloadStatusOutputStream(target,
 					"Download of " + source);
-			stream(source, monitor).transferTo(statusOutputStream);
+			streamState.stream().transferTo(statusOutputStream);
 			DownloadStatus downloadStatus = statusOutputStream.getStatus();
+			boolean fromCache = streamState.fileState().state().isFromCache();
+			if (fromCache) {
+				// cache hits read from disk, keep p2's mirror selection accurate
+				downloadStatus.setTransferRate(0);
+			}
 			if (cacheConfig.isInteractive()) {
+				String suffix = fromCache
+						? " (from cache)"
+						: " at " + FileUtils.byteCountToDisplaySize(downloadStatus.getTransferRate()) + "/s";
 				logger.info("Downloaded from " + id + ": " + source + " ("
-						+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize()) + " at "
-						+ FileUtils.byteCountToDisplaySize(downloadStatus.getTransferRate()) + "/s)");
+						+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize()) + suffix + ")");
 			}
 			return reportStatus(downloadStatus, target);
 		} catch (AuthenticationFailedException e) {
@@ -139,6 +148,11 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 	@Override
 	public InputStream stream(URI toDownload, IProgressMonitor monitor)
 			throws FileNotFoundException, CoreException, AuthenticationFailedException {
+		return createStream(toDownload, monitor).stream();
+	}
+
+	StreamState createStream(URI toDownload, IProgressMonitor monitor)
+			throws FileNotFoundException, CoreException, AuthenticationFailedException {
 		boolean debug = cacheConfig.isDebug();
 		if (debug) {
 			logger.info("Request stream for " + toDownload);
@@ -150,15 +164,16 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 		try {
 			TransportProtocolHandler handler = getHandler(toDownload);
 			if (handler != null) {
-				File cachedFile = handler.getFile(toDownload);
+				FileState cachedFile = handler.getFile(toDownload);
 				if (cachedFile != null) {
 					if (debug) {
 						logger.debug(" --> routed through handler " + handler.getClass().getSimpleName());
 					}
-					return new FileInputStream(cachedFile);
+					return new StreamState(new FileInputStream(cachedFile.file().toFile()), cachedFile);
 				}
 			}
-			return toDownload.toURL().openStream();
+			return new StreamState(toDownload.toURL().openStream(),
+					new FileState(null, DownloadState.DOWNLOADED));
 		} catch (FileNotFoundException e) {
 			if (debug) {
 				logger.info(" --> not found! (" + toDownload + ")");
@@ -243,9 +258,9 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 	public File downloadToFile(URI uri) throws IOException {
 		TransportProtocolHandler handler = getHandler(uri);
 		if (handler != null) {
-			File file = handler.getFile(uri);
+			FileState file = handler.getFile(uri);
 			if (file != null) {
-				return file;
+				return file.file().toFile();
 			}
 		}
 		Path tempFile = Files.createTempFile("tycho", ".tmp");
