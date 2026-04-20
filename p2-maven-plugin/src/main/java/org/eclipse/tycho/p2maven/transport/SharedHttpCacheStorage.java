@@ -41,6 +41,8 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.tycho.ReproducibleUtils;
+import org.eclipse.tycho.transport.DownloadState;
+import org.eclipse.tycho.transport.FileState;
 
 @Component(role = HttpCache.class)
 public class SharedHttpCacheStorage implements HttpCache {
@@ -117,10 +119,11 @@ public class SharedHttpCacheStorage implements HttpCache {
 			}
 
 			@Override
-			public File getCacheFile(HttpTransportFactory transportFactory) throws IOException {
+			public FileState getCacheFile(HttpTransportFactory transportFactory) throws IOException {
 				if (cacheConfig.isOffline()) {
-					return cacheLine.getFile(normalized, transportFactory, SharedHttpCacheStorage::mavenIsOffline,
-							logger);
+					File offlineFile = cacheLine.getFile(normalized, transportFactory,
+							SharedHttpCacheStorage::mavenIsOffline, logger);
+					return new FileState(offlineFile.toPath(), DownloadState.FROM_CACHE);
 				}
 				try {
 					return cacheLine.fetchFile(normalized, transportFactory, logger);
@@ -131,7 +134,8 @@ public class SharedHttpCacheStorage implements HttpCache {
 					if (!cacheConfig.isUpdate() && cacheLine.getResponseCode() > 0) {
 						// if we have something cached, use that ...
 						logger.warn("Request to " + normalized + " failed, trying cache instead");
-						return cacheLine.getFile(normalized, transportFactory, nil -> e, logger);
+						File fallback = cacheLine.getFile(normalized, transportFactory, nil -> e, logger);
+						return new FileState(fallback.toPath(), DownloadState.FROM_CACHE);
 					}
 					throw e;
 				}
@@ -222,11 +226,11 @@ public class SharedHttpCacheStorage implements HttpCache {
 			}
 		}
 
-		public synchronized File fetchFile(URI uri, HttpTransportFactory transportFactory, Logger logger)
+		public synchronized FileState fetchFile(URI uri, HttpTransportFactory transportFactory, Logger logger)
 				throws IOException {
 			boolean exists = file.isFile();
 			if (exists && !mustValidate()) {
-				return file;
+				return new FileState(file.toPath(), DownloadState.FROM_CACHE);
 			}
 			HttpTransport transport = transportFactory.createTransport(uri);
 			Properties lastHeader = getHeader();
@@ -245,7 +249,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 				int code = response.statusCode();
 				if (exists && code == HttpURLConnection.HTTP_NOT_MODIFIED) {
 					updateHeader(response, getResponseCode());
-					return file;
+					return new FileState(file.toPath(), DownloadState.NOT_MODIFIED);
 				}
 				if (isAuthFailure(code)) {
 					throw new AuthenticationFailedException(); // FIXME why is there no constructor to give a cause?
@@ -261,9 +265,9 @@ public class SharedHttpCacheStorage implements HttpCache {
 						// Don't save temporary redirects since they might change later, rendering the
 						// cache entry useless. Save them in the original request URI instead.
 						transferTemporaryRedirect(transportFactory, uri, redirect, logger);
-						return file;
+						return new FileState(file.toPath(), DownloadState.DOWNLOADED);
 					} else {
-						File cachedFile = SharedHttpCacheStorage.this.getCacheEntry(redirect, logger)
+						FileState cached = SharedHttpCacheStorage.this.getCacheEntry(redirect, logger)
 								.getCacheFile(transportFactory);
 						// https://github.com/eclipse-tycho/tycho/issues/2938
 						// Redirect may change extension. P2's SimpleMetadataRepositoryFactory relies on
@@ -272,8 +276,8 @@ public class SharedHttpCacheStorage implements HttpCache {
 						// Once https://github.com/eclipse-equinox/p2/issues/355 is fixed, cachedFile
 						// may be returned directly without copying.
 						response.close(); // early close before doing unrelated file I/O
-						FileUtils.copyFile(cachedFile, file);
-						return file;
+						FileUtils.copyFile(cached.file().toFile(), file);
+						return new FileState(file.toPath(), cached.state());
 					}
 				}
 				if (exists) {
@@ -289,7 +293,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 				}
 				response.close(); // early close before doing file I/O
 				FileUtils.moveFile(tempFile, file);
-				return file;
+				return new FileState(file.toPath(), DownloadState.DOWNLOADED);
 			});
 
 		}
@@ -330,7 +334,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 				}
 				if (isRedirected(code)) {
 					return SharedHttpCacheStorage.this.getCacheEntry(getRedirect(uri, logger), logger)
-							.getCacheFile(transportFactory);
+							.getCacheFile(transportFactory).file().toFile();
 				}
 				if (file.isFile()) {
 					return file;

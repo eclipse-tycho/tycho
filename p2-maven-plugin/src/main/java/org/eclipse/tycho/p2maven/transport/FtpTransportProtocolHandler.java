@@ -27,6 +27,8 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.tycho.MavenRepositorySettings.Credentials;
+import org.eclipse.tycho.transport.DownloadState;
+import org.eclipse.tycho.transport.FileState;
 import org.eclipse.tycho.transport.TransportProtocolHandler;
 
 /**
@@ -74,7 +76,7 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
     }
 
     @Override
-    public File getFile(final URI uri) throws IOException {
+    public FileState getFile(final URI uri) throws IOException {
         final File localFile = getLocalFile(uri);
 
         if (cacheConfig.isOffline()) {
@@ -82,7 +84,7 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
                 throw new IOException("Maven is offline and the requested file does not exist locally: " + uri);
             }
 
-            return localFile;
+            return new FileState(localFile.toPath(), DownloadState.FROM_CACHE);
         }
 
         final FTPClient client = getClient(uri);
@@ -93,7 +95,7 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
             final boolean isRemoteMissing = remoteFile == null;
 
             if (localFile.isFile() && (isRemoteMissing || !mustRefresh(localFile, remoteFile))) {
-                return localFile;
+                return new FileState(localFile.toPath(), DownloadState.FROM_CACHE);
             }
 
             if (isRemoteMissing) {
@@ -120,7 +122,7 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
 
             FileUtils.moveFile(tempFile, localFile);
             localFile.setLastModified(remoteFile.getTimestampInstant().toEpochMilli());
-            return localFile;
+            return new FileState(localFile.toPath(), DownloadState.DOWNLOADED);
         }
     }
 
