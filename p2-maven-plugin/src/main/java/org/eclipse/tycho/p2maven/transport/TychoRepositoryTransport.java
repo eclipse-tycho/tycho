@@ -80,6 +80,9 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 	@Requirement
 	TransportCacheConfig cacheConfig;
 
+	@Requirement
+	HttpCache httpCache;
+
 	@Requirement(role = TransportProtocolHandler.class)
 	Map<String, TransportProtocolHandler> transportProtocolHandlers;
 
@@ -108,18 +111,18 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 			}
 		}
 		String id = "p2"; // TODO we might compute the id from the IRepositoryIdManager based on the URI?
-		if (cacheConfig.isInteractive()) {
-			logger.info("Downloading from " + id + ": " + source);
-		}
 		try {
 			DownloadStatusOutputStream statusOutputStream = new DownloadStatusOutputStream(target,
 					"Download of " + source);
 			stream(source, monitor).transferTo(statusOutputStream);
 			DownloadStatus downloadStatus = statusOutputStream.getStatus();
 			if (cacheConfig.isInteractive()) {
-				logger.info("Downloaded from " + id + ": " + source + " ("
-						+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize()) + " at "
-						+ FileUtils.byteCountToDisplaySize(downloadStatus.getTransferRate()) + "/s)");
+				CacheState state = httpCache.getLastCacheState(source);
+				if (state == CacheState.DOWNLOADED || state == CacheState.UNKNOWN) {
+					logger.info("Downloaded from " + id + ": " + source + " ("
+							+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize()) + " at "
+							+ FileUtils.byteCountToDisplaySize(downloadStatus.getTransferRate()) + "/s)");
+				}
 			}
 			return reportStatus(downloadStatus, target);
 		} catch (AuthenticationFailedException e) {
