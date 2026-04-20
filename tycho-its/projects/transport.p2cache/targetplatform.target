@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde?>
+<target name="transport.p2cache" sequenceNumber="1">
+	<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="false" type="InstallableUnit">
+			<repository id="repoA" location="url"/>
+			<unit id="tycho.its.p2cache.bundle" version="0.0.0"/>
+		</location>
+	</locations>
+</target>

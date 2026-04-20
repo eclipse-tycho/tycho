@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.transport.FileState;
 import org.eclipse.tycho.transport.TransportProtocolHandler;
 
 public class TychoRepositoryTransportCacheManager extends CacheManager {
@@ -43,9 +44,9 @@ public class TychoRepositoryTransportCacheManager extends CacheManager {
 			for (String extension : EXTENSIONS) {
 				URI fileLocation = URIUtil.append(repositoryLocation, prefix + extension);
 				try {
-					File cachedFile = handler.getFile(fileLocation);
+					FileState cachedFile = handler.getFile(fileLocation);
 					if (cachedFile != null) {
-						return cachedFile;
+						return cachedFile.file().toFile();
 					}
 				} catch (FileNotFoundException e) {
 					continue;
@@ -62,10 +63,10 @@ public class TychoRepositoryTransportCacheManager extends CacheManager {
     public File createCacheFromFile(URI remoteFile, IProgressMonitor monitor) throws ProvisionException, IOException {
 		TransportProtocolHandler handler = transport.getHandler(remoteFile);
 		if (handler != null) {
-			File cachedFile = handler.getFile(remoteFile);
+			FileState cachedFile = handler.getFile(remoteFile);
 			if (cachedFile != null) {
 				// no need to cache this twice ...
-				return cachedFile;
+				return cachedFile.file().toFile();
 			}
 		}
         return super.createCacheFromFile(remoteFile, monitor);
