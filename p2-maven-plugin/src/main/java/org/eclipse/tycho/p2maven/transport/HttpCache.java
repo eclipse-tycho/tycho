@@ -21,7 +21,7 @@ public interface HttpCache {
 
 	/**
 	 * Fetches the cache entry for this URI
-	 * 
+	 *
 	 * @param uri
 	 * @return
 	 * @throws FileNotFoundException

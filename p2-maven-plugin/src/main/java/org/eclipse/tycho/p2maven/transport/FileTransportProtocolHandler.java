@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.tycho.transport.DownloadState;
+import org.eclipse.tycho.transport.FileState;
 import org.eclipse.tycho.transport.TransportProtocolHandler;
 
 @Component(role = TransportProtocolHandler.class, hint = "file")
@@ -24,14 +26,14 @@ public class FileTransportProtocolHandler implements TransportProtocolHandler {
 
 	@Override
 	public long getLastModified(URI uri) throws IOException {
-		return getFile(uri).lastModified();
+		return getFile(uri).file().toFile().lastModified();
 	}
 
 
 	@Override
-	public File getFile(URI remoteFile) throws IOException {
+	public FileState getFile(URI remoteFile) throws IOException {
 		try {
-			return new File(remoteFile);
+			return new FileState(new File(remoteFile).toPath(), DownloadState.FROM_CACHE);
 		} catch (IllegalArgumentException e) {
 			throw new IOException("Not a valid file URI: " + remoteFile);
 		}
