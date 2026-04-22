@@ -42,6 +42,31 @@ Tycho complains about missing or invalid p2 metadata.
 2. **Update site refresh**: If using local repositories, ensure they are properly generated
 3. **Clear local cache**: Remove `~/.m2/repository/p2` to force re-download of metadata
 
+## Cached Repository Errors
+
+### Problem
+A build fails with "No repository found" or similar errors even though the repository is now available. This often happens when:
+- A p2 repository was temporarily unavailable during a previous build
+- A repository was recently published or updated
+- Your build previously ran when network connectivity was intermittent
+
+Tycho caches HTTP responses (including error responses like 404 Not Found) to improve build performance. If a repository lookup failed during a previous build, that failure may be cached.
+
+### Solution
+Use the Maven `-U` (or `--update-snapshots`) flag to force Tycho to bypass the cache and re-check all remote repositories:
+
+```bash
+mvn clean verify -U
+```
+
+This is the recommended approach when you suspect cached data is stale.
+
+Alternatively, you can:
+1. **Wait for cache expiration**: By default, cache entries are considered fresh for 60 minutes (configurable via `tycho.p2.transport.min-cache-minutes`)
+2. **Clear the transport cache**: Delete the cache directory located at `~/.m2/repository/.cache/tycho` (or the location specified by `tycho.p2.transport.cache`)
+
+For more details on cache configuration options, see [System Properties](SystemProperties.html#tycho-p2-transport).
+
 ## Platform-Specific Dependencies
 
 ### Problem
