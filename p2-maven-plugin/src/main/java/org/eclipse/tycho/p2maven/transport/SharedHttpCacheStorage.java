@@ -122,8 +122,10 @@ public class SharedHttpCacheStorage implements HttpCache {
 			@Override
 			public File getCacheFile(HttpTransportFactory transportFactory) throws IOException {
 				if (cacheConfig.isOffline()) {
-					return cacheLine.getFile(normalized, transportFactory, SharedHttpCacheStorage::mavenIsOffline,
-							logger);
+					File offlineFile = cacheLine.getFile(normalized, transportFactory,
+							SharedHttpCacheStorage::mavenIsOffline, logger);
+					DownloadStatusOutputStream.reportFromCache();
+					return offlineFile;
 				}
 				try {
 					return cacheLine.fetchFile(normalized, transportFactory, logger);
@@ -134,7 +136,9 @@ public class SharedHttpCacheStorage implements HttpCache {
 					if (!cacheConfig.isUpdate() && cacheLine.getResponseCode() > 0) {
 						// if we have something cached, use that ...
 						logger.warn("Request to " + normalized + " failed, trying cache instead");
-						return cacheLine.getFile(normalized, transportFactory, nil -> e, logger);
+						File fallback = cacheLine.getFile(normalized, transportFactory, nil -> e, logger);
+						DownloadStatusOutputStream.reportFromCache();
+						return fallback;
 					}
 					throw e;
 				}
@@ -229,6 +233,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 				throws IOException {
 			boolean exists = file.isFile();
 			if (exists && !mustValidate()) {
+				DownloadStatusOutputStream.reportFromCache();
 				return file;
 			}
 			HttpTransport transport = transportFactory.createTransport(uri);
@@ -248,6 +253,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 				int code = response.statusCode();
 				if (exists && code == HttpURLConnection.HTTP_NOT_MODIFIED) {
 					updateHeader(response, getResponseCode());
+					DownloadStatusOutputStream.reportFromCache();
 					return file;
 				}
 				if (isAuthFailure(code)) {

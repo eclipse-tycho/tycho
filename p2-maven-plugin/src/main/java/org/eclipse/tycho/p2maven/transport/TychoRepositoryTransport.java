@@ -111,15 +111,18 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 		if (cacheConfig.isInteractive()) {
 			logger.info("Downloading from " + id + ": " + source);
 		}
+		DownloadStatusOutputStream statusOutputStream = new DownloadStatusOutputStream(target,
+				"Download of " + source);
+		statusOutputStream.setAsCurrent();
 		try {
-			DownloadStatusOutputStream statusOutputStream = new DownloadStatusOutputStream(target,
-					"Download of " + source);
 			stream(source, monitor).transferTo(statusOutputStream);
 			DownloadStatus downloadStatus = statusOutputStream.getStatus();
 			if (cacheConfig.isInteractive()) {
+				String suffix = statusOutputStream.isFromCache()
+						? " (from cache)"
+						: " at " + FileUtils.byteCountToDisplaySize(downloadStatus.getTransferRate()) + "/s";
 				logger.info("Downloaded from " + id + ": " + source + " ("
-						+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize()) + " at "
-						+ FileUtils.byteCountToDisplaySize(downloadStatus.getTransferRate()) + "/s)");
+						+ FileUtils.byteCountToDisplaySize(downloadStatus.getFileSize()) + suffix + ")");
 			}
 			return reportStatus(downloadStatus, target);
 		} catch (AuthenticationFailedException e) {
@@ -133,6 +136,8 @@ public class TychoRepositoryTransport extends org.eclipse.equinox.internal.p2.re
 			return reportStatus(Status.error("download from " + source + " failed", e), target);
 		} catch (CoreException e) {
 			return reportStatus(e.getStatus(), target);
+		} finally {
+			DownloadStatusOutputStream.clearCurrent();
 		}
 	}
 
