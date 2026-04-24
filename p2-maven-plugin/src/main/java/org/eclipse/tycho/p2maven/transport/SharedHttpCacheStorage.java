@@ -31,8 +31,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -63,8 +61,6 @@ public class SharedHttpCacheStorage implements HttpCache {
 	TransportCacheConfig cacheConfig;
 
 	private final Map<File, CacheLine> entryCache;
-
-	private final ConcurrentMap<URI, CacheState> lastCacheState = new ConcurrentHashMap<>();
 
 	public SharedHttpCacheStorage() {
 
@@ -128,15 +124,11 @@ public class SharedHttpCacheStorage implements HttpCache {
 				if (cacheConfig.isOffline()) {
 					File offlineFile = cacheLine.getFile(normalized, transportFactory,
 							SharedHttpCacheStorage::mavenIsOffline, logger);
-					lastCacheState.put(normalized, CacheState.FROM_CACHE);
-					if (cacheConfig.isInteractive()) {
-						logger.debug("Fetched from cache: " + normalized);
-					}
+					DownloadStatusOutputStream.reportFromCache();
 					return offlineFile;
 				}
 				try {
-					return cacheLine.fetchFile(normalized, transportFactory, logger,
-							state -> lastCacheState.put(normalized, state));
+					return cacheLine.fetchFile(normalized, transportFactory, logger);
 				} catch (FileNotFoundException | AuthenticationFailedException e) {
 					// for not found and failed authentication we can't do anything useful
 					throw e;
@@ -145,7 +137,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 						// if we have something cached, use that ...
 						logger.warn("Request to " + normalized + " failed, trying cache instead");
 						File fallback = cacheLine.getFile(normalized, transportFactory, nil -> e, logger);
-						lastCacheState.put(normalized, CacheState.FROM_CACHE);
+						DownloadStatusOutputStream.reportFromCache();
 						return fallback;
 					}
 					throw e;
@@ -153,12 +145,6 @@ public class SharedHttpCacheStorage implements HttpCache {
 			}
 
 		};
-	}
-
-	@Override
-	public CacheState getLastCacheState(URI uri) {
-		CacheState state = lastCacheState.get(uri.normalize());
-		return state != null ? state : CacheState.UNKNOWN;
 	}
 
 	private synchronized CacheLine getCacheLine(URI uri) {
@@ -245,18 +231,9 @@ public class SharedHttpCacheStorage implements HttpCache {
 
 		public synchronized File fetchFile(URI uri, HttpTransportFactory transportFactory, Logger logger)
 				throws IOException {
-			return fetchFile(uri, transportFactory, logger, s -> {
-			});
-		}
-
-		public synchronized File fetchFile(URI uri, HttpTransportFactory transportFactory, Logger logger,
-				java.util.function.Consumer<CacheState> stateSink) throws IOException {
 			boolean exists = file.isFile();
 			if (exists && !mustValidate()) {
-				stateSink.accept(CacheState.FROM_CACHE);
-				if (cacheConfig.isInteractive()) {
-					logger.debug("Fetched from cache: " + uri);
-				}
+				DownloadStatusOutputStream.reportFromCache();
 				return file;
 			}
 			HttpTransport transport = transportFactory.createTransport(uri);
@@ -276,10 +253,7 @@ public class SharedHttpCacheStorage implements HttpCache {
 				int code = response.statusCode();
 				if (exists && code == HttpURLConnection.HTTP_NOT_MODIFIED) {
 					updateHeader(response, getResponseCode());
-					stateSink.accept(CacheState.NOT_MODIFIED);
-					if (cacheConfig.isInteractive()) {
-						logger.debug("Up-to-date: " + uri);
-					}
+					DownloadStatusOutputStream.reportFromCache();
 					return file;
 				}
 				if (isAuthFailure(code)) {
@@ -296,7 +270,6 @@ public class SharedHttpCacheStorage implements HttpCache {
 						// Don't save temporary redirects since they might change later, rendering the
 						// cache entry useless. Save them in the original request URI instead.
 						transferTemporaryRedirect(transportFactory, uri, redirect, logger);
-						stateSink.accept(CacheState.DOWNLOADED);
 						return file;
 					} else {
 						File cachedFile = SharedHttpCacheStorage.this.getCacheEntry(redirect, logger)
@@ -309,8 +282,6 @@ public class SharedHttpCacheStorage implements HttpCache {
 						// may be returned directly without copying.
 						response.close(); // early close before doing unrelated file I/O
 						FileUtils.copyFile(cachedFile, file);
-						// State for the original URI mirrors the redirect target.
-						stateSink.accept(SharedHttpCacheStorage.this.getLastCacheState(redirect));
 						return file;
 					}
 				}
@@ -318,9 +289,6 @@ public class SharedHttpCacheStorage implements HttpCache {
 					FileUtils.forceDelete(file);
 				}
 				response.checkResponseCode();
-				if (cacheConfig.isInteractive()) {
-					logger.info("Downloading from " + uri);
-				}
 				tempFile = File.createTempFile("download", ".tmp", file.getParentFile());
 				try (OutputStream os = new BufferedOutputStream(new FileOutputStream(tempFile))) {
 					response.transferTo(os);
@@ -330,7 +298,6 @@ public class SharedHttpCacheStorage implements HttpCache {
 				}
 				response.close(); // early close before doing file I/O
 				FileUtils.moveFile(tempFile, file);
-				stateSink.accept(CacheState.DOWNLOADED);
 				return file;
 			});
 

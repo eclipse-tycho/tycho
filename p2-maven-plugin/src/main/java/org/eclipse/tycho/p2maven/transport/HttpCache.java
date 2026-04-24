@@ -29,15 +29,4 @@ public interface HttpCache {
 	 */
 	CacheEntry getCacheEntry(URI uri, Logger logger) throws FileNotFoundException;
 
-	/**
-	 * Returns the {@link CacheState} of the most recent access to {@code uri},
-	 * i.e. whether the last {@code getCacheFile} / {@code getLastModified} call
-	 * served the file from the cache, only revalidated it, or actually
-	 * downloaded it. Returns {@link CacheState#UNKNOWN} if the URI has not been
-	 * accessed through this cache.
-	 */
-	default CacheState getLastCacheState(URI uri) {
-		return CacheState.UNKNOWN;
-	}
-
 }
