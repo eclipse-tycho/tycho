@@ -289,12 +289,24 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- See MavenDependenciesResolverTest -->
-		<dependency>
-			<groupId>io.takari.aether</groupId>
-			<artifactId>aether-connector-okhttp</artifactId>
-			<version>0.17.8</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+          <groupId>org.apache.maven.resolver</groupId>
+          <artifactId>maven-resolver-connector-basic</artifactId>
+		  <version>1.9.27</version>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.maven.resolver</groupId>
+          <artifactId>maven-resolver-transport-file</artifactId>
+	      <version>1.9.27</version>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+         <groupId>org.apache.maven.resolver</groupId>
+         <artifactId>maven-resolver-transport-http</artifactId>
+	     <version>1.9.27</version>
+         <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>osgi.annotation</artifactId>
