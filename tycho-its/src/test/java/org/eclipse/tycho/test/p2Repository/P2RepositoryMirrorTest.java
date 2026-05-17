@@ -25,7 +25,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.resource.EmptyResource;
 import org.eclipse.jetty.util.resource.Resource;
@@ -75,9 +75,9 @@ public class P2RepositoryMirrorTest extends AbstractTychoIntegrationTest {
 		setMirrors(new File(verifier.getBasedir(), "baseline/mirrors.xml"), mirror1, mirror2);
 
 		// The verifier escapes the 'http://localhost' to 'http:/localhost'
-		verifier.addCliOption("-Dbaseline=" + baseline.replaceAll("//", "////"));
+		verifier.addCliArgument("-Dbaseline=" + baseline.replaceAll("//", "////"));
 		// Force an update of the HttpCache
-		verifier.addCliOption("-U");
+		verifier.addCliArgument("-U");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		verifier.verifyTextInLog("Artifact repository requested retry (attempt [1/3]):");

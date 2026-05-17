@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.cyclonedx.exception.ParseException;
 import org.cyclonedx.model.Bom;
 import org.cyclonedx.model.Dependency;

@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
@@ -68,7 +68,7 @@ public class TargetRestrictionThroughTargetFilesTest extends AbstractTychoIntegr
 	@Test
 	public void testContentAndVersionRestrictionWithSlicer() throws Exception {
 		verifier = getVerifier("target.restriction.targetFile/testProject", false);
-		verifier.addCliOption("-Pwith-slicer-target");
+		verifier.addCliArgument("-Pwith-slicer-target");
 		TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "slicer.target"),
 				new File("projects/target.restriction.targetFile/testProject/trt.targets"));
 
