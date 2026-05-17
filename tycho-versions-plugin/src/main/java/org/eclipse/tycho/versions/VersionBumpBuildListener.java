@@ -26,6 +26,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.build.BuildListener;
+import org.eclipse.tycho.core.exceptions.PackageVersionBumpRequiredException;
 import org.eclipse.tycho.core.exceptions.VersionBumpRequiredException;
 import org.eclipse.tycho.helper.ProjectHelper;
 import org.eclipse.tycho.helper.VersionTool;
@@ -77,22 +78,39 @@ public class VersionBumpBuildListener implements BuildListener {
                         engine.reset();
                         PomFile pomFile = metadataReader.addBasedir(project.getBasedir(), false);
                         if (pomFile != null) {
-                            String currentVersion = pomFile.getVersion();
-                            Optional<Version> suggestedVersion = vbe.getSuggestedVersion();
-                            String newVersion = suggestedVersion.map(String::valueOf)
-                                    .orElseGet(() -> VersionTool.incrementVersion(currentVersion,
-                                            VersionBumpMojo.getIncrement(session, project, projectHelper)));
-                            boolean isSnapshot = currentVersion.endsWith(TychoConstants.SUFFIX_SNAPSHOT);
-                            if (isSnapshot && !newVersion.endsWith(TychoConstants.SUFFIX_SNAPSHOT)) {
-                                newVersion += TychoConstants.SUFFIX_SNAPSHOT;
+                            if (vbe instanceof PackageVersionBumpRequiredException pvbe) {
+                                String newVersion = pvbe.getSuggestedVersion().map(String::valueOf).orElse(null);
+                                if (newVersion != null) {
+                                    String bundleBsn = pomFile.getArtifactId();
+                                    String currentVersion = pvbe.getCurrentPackageVersion() != null
+                                            ? pvbe.getCurrentPackageVersion().toString()
+                                            : null;
+                                    logger.info(project.getId() + " package " + pvbe.getPackageName()
+                                            + " requires a version bump from " + currentVersion + " => " + newVersion);
+                                    engine.setProjects(metadataReader.getProjects());
+                                    engine.addPackageVersionChange(bundleBsn, pvbe.getPackageName(), currentVersion,
+                                            newVersion);
+                                    engine.apply();
+                                    bumped++;
+                                }
+                            } else {
+                                String currentVersion = pomFile.getVersion();
+                                Optional<Version> suggestedVersion = vbe.getSuggestedVersion();
+                                String newVersion = suggestedVersion.map(String::valueOf)
+                                        .orElseGet(() -> VersionTool.incrementVersion(currentVersion,
+                                                VersionBumpMojo.getIncrement(session, project, projectHelper)));
+                                boolean isSnapshot = currentVersion.endsWith(TychoConstants.SUFFIX_SNAPSHOT);
+                                if (isSnapshot && !newVersion.endsWith(TychoConstants.SUFFIX_SNAPSHOT)) {
+                                    newVersion += TychoConstants.SUFFIX_SNAPSHOT;
+                                }
+                                logger.info(project.getId() + " requires a version bump from " + currentVersion
+                                        + " => " + newVersion);
+                                engine.setProjects(metadataReader.getProjects());
+                                engine.setUpdatePackageVersions(false);
+                                engine.addVersionChange(pomFile.getArtifactId(), newVersion);
+                                engine.apply();
+                                bumped++;
                             }
-                            logger.info(project.getId() + " requires a version bump from " + currentVersion + " => "
-                                    + newVersion);
-                            engine.setProjects(metadataReader.getProjects());
-                            engine.setUpdatePackageVersions(false);
-                            engine.addVersionChange(pomFile.getArtifactId(), newVersion);
-                            engine.apply();
-                            bumped++;
                         }
                     } catch (Exception e) {
                         logger.warn("Can't bump versions for project " + project.getId() + ": " + e);
