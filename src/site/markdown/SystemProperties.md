@@ -70,3 +70,5 @@ tycho.p2.transport.bundlepools.shared | true/false | true | query shared bundle 
 tycho.p2.transport.bundlepools.workspace | true/false | true | query Workspace bundle pools for artifacts before downloading them from remote servers
 tycho.p2.transport.mavenmirror.enabled | true/false | true | if enough metadata is supplied in the P2 data, use global configured maven repositories as a possible mirror for P2 artifacts
 tycho.p2.transport.mavenmirror.priority | number | 500 | priority used for maven as a P2 mirror
+tycho.http.transport.retry.count | number | 3 | Maximum number of retries when a transient HTTP server error (502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout) is received; set to 0 to disable retries
+tycho.http.transport.retry.initial-delay | number | 5 | Initial delay in seconds before the first retry on a transient HTTP error; each subsequent retry multiplies this value by the attempt number (linear back-off)
