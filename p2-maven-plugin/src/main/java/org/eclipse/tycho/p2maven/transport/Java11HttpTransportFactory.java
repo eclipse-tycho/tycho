@@ -109,19 +109,41 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 		@Override
 		public <T> T get(ResponseConsumer<T> consumer) throws IOException {
 			try {
-				try {
-					return performGet(consumer, client);
-				} catch (IOException e) {
-					if (isGoaway(e)) {
-						logger.info("Received GOAWAY from server " + uri.getHost() + " will retry download of " + uri
-								+ " with Http/1...");
-						TimeUnit.SECONDS.sleep(1);
-						return performGet(consumer, clientHttp1);
+				IOException lastTransient = null;
+				for (int attempt = 0; attempt <= HTTP_RETRY_COUNT; attempt++) {
+					if (attempt > 0) {
+						long delay = HTTP_RETRY_INITIAL_DELAY_SECONDS * attempt;
+						logger.warn("Received transient HTTP error for " + uri + ", retrying (attempt " + attempt + "/"
+								+ HTTP_RETRY_COUNT + ") in " + delay + " seconds...");
+						TimeUnit.SECONDS.sleep(delay);
 					}
-					throw e;
+					try {
+						return performGetHandlingGoaway(consumer);
+					} catch (TransientHttpException e) {
+						if (attempt < HTTP_RETRY_COUNT) {
+							lastTransient = e;
+						} else {
+							throw e;
+						}
+					}
 				}
+				throw lastTransient;
 			} catch (InterruptedException e) {
 				throw new InterruptedIOException();
+			}
+		}
+
+		private <T> T performGetHandlingGoaway(ResponseConsumer<T> consumer) throws IOException, InterruptedException {
+			try {
+				return performGet(consumer, client);
+			} catch (IOException e) {
+				if (isGoaway(e)) {
+					logger.info("Received GOAWAY from server " + uri.getHost() + " will retry download of " + uri
+							+ " with Http/1...");
+					TimeUnit.SECONDS.sleep(1);
+					return performGet(consumer, clientHttp1);
+				}
+				throw e;
 			}
 		}
 
@@ -129,6 +151,15 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 				throws IOException, InterruptedException {
 			HttpRequest request = builder.GET().timeout(Duration.ofSeconds(TIMEOUT_SECONDS)).build();
 			HttpResponse<InputStream> response = httpClient.send(request, BodyHandlers.ofInputStream());
+			if (isRetryableStatus(response.statusCode())) {
+				// Drain and discard the error body before retrying, to avoid consumer
+				// side-effects (e.g. cache corruption) caused by processing the error response.
+				try (InputStream body = response.body()) {
+					body.transferTo(OutputStream.nullOutputStream());
+				} catch (IOException ignored) {
+				}
+				throw new TransientHttpException(response.statusCode(), response.uri());
+			}
 			try (ResponseImplementation<InputStream> implementation = new ResponseImplementation<>(response) {
 
 				@Override
@@ -170,19 +201,33 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 		@Override
 		public Response head() throws IOException {
 			try {
-				try {
-					return doHead(client);
-				} catch (IOException e) {
-					if (isGoaway(e)) {
-						logger.debug("Received GOAWAY from server " + uri.getHost()
-								+ " will retry with Http/1...");
-						TimeUnit.SECONDS.sleep(1);
-						return doHead(clientHttp1);
-					}
-					throw e;
+				Response response = doHeadHandlingGoaway();
+				for (int attempt = 1; attempt <= HTTP_RETRY_COUNT
+						&& isRetryableStatus(response.statusCode()); attempt++) {
+					response.close();
+					long delay = HTTP_RETRY_INITIAL_DELAY_SECONDS * attempt;
+					logger.warn("Received transient HTTP error for " + uri + ", retrying HEAD (attempt " + attempt + "/"
+							+ HTTP_RETRY_COUNT + ") in " + delay + " seconds...");
+					TimeUnit.SECONDS.sleep(delay);
+					response = doHeadHandlingGoaway();
 				}
+				return response;
 			} catch (InterruptedException e) {
 				throw new InterruptedIOException();
+			}
+		}
+
+		private Response doHeadHandlingGoaway() throws IOException, InterruptedException {
+			try {
+				return doHead(client);
+			} catch (IOException e) {
+				if (isGoaway(e)) {
+					logger.debug("Received GOAWAY from server " + uri.getHost()
+							+ " will retry with Http/1...");
+					TimeUnit.SECONDS.sleep(1);
+					return doHead(clientHttp1);
+				}
+				throw e;
 			}
 		}
 
@@ -281,6 +326,10 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 				.cookieHandler(cookieManager)
 				.proxy(proxySelector).build();
 
+	}
+
+	private static boolean isRetryableStatus(int statusCode) {
+		return statusCode == 502 || statusCode == 503 || statusCode == 504;
 	}
 
 	private static boolean isGoaway(Throwable e) {
