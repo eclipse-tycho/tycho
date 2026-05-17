@@ -38,11 +38,11 @@ import java.util.zip.ZipException;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.MavenArtifactRepository;
+import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -112,7 +112,7 @@ public final class MavenDependencyInjector {
     public static void injectMavenDependencies(MavenProject project, DependencyArtifacts dependencies,
             DependencyArtifacts testDependencies, BundleReader bundleReader,
             Function<ArtifactDescriptor, MavenDependencyDescriptor> descriptorMapping, Logger logger,
-            RepositorySystem repositorySystem, Settings settings, BuildPropertiesParser buildPropertiesParser,
+            BuildPropertiesParser buildPropertiesParser,
             TargetPlatformConfiguration configuration) {
         MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, descriptorMapping,
                 logger);
@@ -160,6 +160,7 @@ public final class MavenDependencyInjector {
                 .map(MavenGAVLocation.class::cast).flatMap(location -> location.getRepositoryReferences().stream())
                 .toList();
         if (repositoryReferences != null && !repositoryReferences.isEmpty()) {
+            // Update legacy ArtifactRepository list
             Map<String, ArtifactRepository> repositoryMap = project.getRemoteArtifactRepositories().stream()
                     .collect(Collectors.toMap(MavenDependencyInjector::getId, Function.identity(), (a, b) -> a,
                             LinkedHashMap::new));
@@ -167,19 +168,18 @@ public final class MavenDependencyInjector {
                 String id = getId(reference);
                 ArtifactRepository artifactRepository = repositoryMap.get(id);
                 if (artifactRepository == null) {
-                    repositoryMap.put(id,
-                            repositorySystem.createArtifactRepository(id, reference.getUrl(), null, null, null));
+                    MavenArtifactRepository newRepo = new MavenArtifactRepository();
+                    newRepo.setId(id);
+                    newRepo.setUrl(reference.getUrl());
+                    newRepo.setLayout(new DefaultRepositoryLayout());
+                    repositoryMap.put(id, newRepo);
                 } else if (!artifactRepository.getUrl().equals(reference.getUrl())) {
                     logger.warn("Target defines an artifact repository with the ID " + id
                             + " but there is already a repository for that ID mapped to a different URL! (target URL = "
                             + reference.getUrl() + ", existing URL = " + artifactRepository.getUrl());
                 }
             }
-            List<ArtifactRepository> artifactRepositories = new ArrayList<>(repositoryMap.values());
-            repositorySystem.injectMirror(artifactRepositories, settings.getMirrors());
-            repositorySystem.injectProxy(artifactRepositories, settings.getProxies());
-            repositorySystem.injectAuthentication(artifactRepositories, settings.getServers());
-            project.setRemoteArtifactRepositories(artifactRepositories);
+            project.setRemoteArtifactRepositories(new ArrayList<>(repositoryMap.values()));
         }
     }
 
