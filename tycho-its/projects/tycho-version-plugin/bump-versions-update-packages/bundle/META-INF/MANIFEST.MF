@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bump Versions Test Bundle
+Bundle-SymbolicName: tycho.its.bump.versions.bundle
+Bundle-Version: 1.0.0
+Export-Package: tycho.its.bump.versions;version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-17
