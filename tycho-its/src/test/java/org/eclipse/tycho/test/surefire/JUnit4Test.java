@@ -51,4 +51,19 @@ public class JUnit4Test extends AbstractTychoIntegrationTest {
 
 	}
 
+	@Test
+	public void testDeprecationWarning() throws Exception {
+
+		// verify that JUnit 4 provider shows deprecation warning
+		Verifier verifier = getVerifier("tycho-surefire-plugin/junit4/bundle.test");
+
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
+		
+		// verify the deprecation warning is logged
+		verifier.verifyTextInLog("The JUnit 4 test framework provider is deprecated");
+		verifier.verifyTextInLog("Please migrate to JUnit 5 or use JUnit Vintage");
+
+	}
+
 }
