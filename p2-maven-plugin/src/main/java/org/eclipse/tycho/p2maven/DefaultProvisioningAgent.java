@@ -16,10 +16,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
@@ -29,26 +31,28 @@ import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.helper.MavenPropertyHelper;
 
-@Component(role = IProvisioningAgent.class)
+@Named
+@Singleton
 public class DefaultProvisioningAgent implements IProvisioningAgent {
 
 	static {
 		MirrorSelector.MIRROR_PARSE_ERROR_LEVEL = IStatus.INFO;
 	}
 
-	@Requirement
+	@Inject
 	private Logger log;
 
-	@Requirement(hint = "connect")
+	@Inject
+	@Named("connect")
 	private EquinoxServiceFactory serviceFactory;
 
-	@Requirement
+	@Inject
 	private PlexusContainer plexusContainer;
 
-	@Requirement
+	@Inject
 	Map<String, IAgentServiceFactory> agentFactories;
 
-	@Requirement
+	@Inject
 	MavenPropertyHelper propertyHelper;
 
 	private Map<String, Supplier<Object>> agentServices = new ConcurrentHashMap<>();
