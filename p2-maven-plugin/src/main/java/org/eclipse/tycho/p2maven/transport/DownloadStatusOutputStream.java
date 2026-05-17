@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
 
 public class DownloadStatusOutputStream extends OutputStream {
+
 	private final long startTime = System.currentTimeMillis();
 	private final OutputStream delegate;
 	private long bytesWritten;
