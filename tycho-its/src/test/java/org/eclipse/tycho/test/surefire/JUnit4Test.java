@@ -16,6 +16,7 @@ import static org.eclipse.tycho.test.util.SurefireUtil.testResultFile;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -36,6 +37,28 @@ public class JUnit4Test extends AbstractTychoIntegrationTest {
 
 		// ensure that JUnit 3 style tests also work -> related to bug 388909
 		assertTrue(testResultFile(verifier.getBasedir(), "bundle.test", "JUnit3Test").exists());
+
+	}
+
+	/**
+	 * On old Equinox, bundles paths are not easily available, requiring heavy
+	 * classpath computation logic in
+	 * org.eclipse.tycho.surefire.osgibooter.OsgiSurefireBooter.
+	 * 
+	 */
+	@Test
+	public void osgibooter_on_old_equinox() throws Exception {
+		Verifier verifier = getVerifier("tycho-surefire-plugin/junit4/tycho-osgibooter-cnfe-repro");
+		File global_repo = new File(verifier.getLocalRepository());
+		// Disturb location of repository in relation to Surefire installation location
+		// to avoid accidental incorrect relative path matching in OsgiSurefireBooter.
+		File fresh_repo = new File(verifier.getBasedir(), "fresh_local_repo");
+		verifier.setLocalRepo(fresh_repo.toString());
+		verifier.setCliOptions(
+				List.of("-Dmy.custom.plugin.repo=" + global_repo.toURI().toString(), "--no-transfer-progress"));
+
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
 	}
 
 	@Test
