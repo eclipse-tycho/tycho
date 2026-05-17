@@ -164,19 +164,19 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         if (versionChangeForProject != null) {
             logger.info("  META-INF/MANIFEST.MF//Bundle-Version: " + versionChangeForProject.getVersion() + " => "
                     + versionChangeForProject.getNewVersion());
-
             mf.setVersion(versionChangeForProject.getNewVersion());
-
-            Map<String, String> exportPackagesNewVersion = new HashMap<>();
-            for (PackageVersionChange packageVersionChange : versionChangeContext.getPackageVersionChanges()) {
-                if (packageVersionChange.getBundleSymbolicName().equals(mf.getSymbolicName())) {
-                    logger.info("  META-INF/MANIFEST.MF//Export-Package//" + packageVersionChange.getPackageName()
-                            + ";version: " + packageVersionChange.getVersion() + " => "
-                            + packageVersionChange.getNewVersion());
-                    exportPackagesNewVersion.put(packageVersionChange.getPackageName(),
-                            packageVersionChange.getNewVersion());
-                }
+        }
+        Map<String, String> exportPackagesNewVersion = new HashMap<>();
+        for (PackageVersionChange packageVersionChange : versionChangeContext.getPackageVersionChanges()) {
+            if (packageVersionChange.getBundleSymbolicName().equals(mf.getSymbolicName())) {
+                logger.info("  META-INF/MANIFEST.MF//Export-Package//" + packageVersionChange.getPackageName()
+                    	+ ";version: " + packageVersionChange.getVersion() + " => "
+                    	+ packageVersionChange.getNewVersion());
+                exportPackagesNewVersion.put(packageVersionChange.getPackageName(),
+                    	packageVersionChange.getNewVersion());
             }
+        }
+        if (!exportPackagesNewVersion.isEmpty()) {
             mf.updateExportedPackageVersions(exportPackagesNewVersion);
         }
     }

@@ -28,6 +28,9 @@ public interface BaselineContext {
 
 	void reportBaselineProblem(String message, Version suggestedVersion) throws MojoFailureException;
 
+	void reportBaselinePackageProblem(String message, String packageName, Version currentPackageVersion,
+			Version suggestedVersion) throws MojoFailureException;
+
 	List<String> getIgnores();
 
 	List<String> getPackages();

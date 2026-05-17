@@ -191,6 +191,7 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 				message.append(projectJar.getVersion());
 				message.append(", baseline version: ");
 				message.append(baselineJar.getVersion());
+				Version projectVersion = getBaseVersion(projectJar.getVersion());
 				Version suggestedVersion;
 				if (bundleInfo.suggestedVersion != null) {
 					message.append(", suggested version: ");
@@ -202,6 +203,19 @@ public class BundleArtifactBaselineComparator implements ArtifactBaselineCompara
 				if (bundleInfo.reason != null && !bundleInfo.reason.isBlank()) {
 					message.append(", ");
 					message.append(bundleInfo.reason);
+				}
+				if (suggestedVersion != null && projectVersion.compareTo(suggestedVersion) >= 0) {
+					// Bundle version is already at or above the suggested bundle version;
+					// the remaining violation is a package-level version mismatch.
+					Info firstPackageMismatch = infos.stream()
+							.filter(info -> info.mismatch && info.suggestedVersion != null).findFirst().orElse(null);
+					if (firstPackageMismatch != null) {
+						Version currentPkgVersion = new Version(firstPackageMismatch.newerVersion.toString());
+						Version suggestedPkgVersion = new Version(firstPackageMismatch.suggestedVersion.toString());
+						context.reportBaselinePackageProblem(message.toString(), firstPackageMismatch.packageName,
+								currentPkgVersion, suggestedPkgVersion);
+						return true;
+					}
 				}
 				context.reportBaselineProblem(message.toString(), suggestedVersion);
 			}
