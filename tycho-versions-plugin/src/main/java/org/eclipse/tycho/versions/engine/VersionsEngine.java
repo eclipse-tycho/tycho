@@ -63,6 +63,8 @@ public class VersionsEngine {
 
     private Set<PomVersionChange> originalVersionChanges = new LinkedHashSet<>();
 
+    private Set<PackageVersionChange> directPackageVersionChanges = new LinkedHashSet<>();
+
     private Set<PropertyChange> propertyChanges = new LinkedHashSet<>();
 
     private boolean updateVersionRangeMatchingBounds;
@@ -112,8 +114,15 @@ public class VersionsEngine {
         originalVersionChanges.add(change);
     }
 
+    public void addPackageVersionChange(String bundleSymbolicName, String packageName, String currentVersion,
+            String newVersion) {
+        directPackageVersionChanges
+                .add(new PackageVersionChange(bundleSymbolicName, packageName, currentVersion, newVersion));
+    }
+
     public void reset() {
         originalVersionChanges.clear();
+        directPackageVersionChanges.clear();
         propertyChanges.clear();
         updateVersionRangeMatchingBounds = false;
         updatePackageVersions = true;
@@ -125,6 +134,9 @@ public class VersionsEngine {
         VersionChangesDescriptor versionChangeContext = new VersionChangesDescriptor(originalVersionChanges,
                 new DefaultVersionRangeUpdateStrategy(isUpdateVersionRangeMatchingBounds()), projects);
         versionChangeContext.setUpdatePackageVersions(updatePackageVersions);
+        if (!directPackageVersionChanges.isEmpty()) {
+            versionChangeContext.addPackageVersionChanges(directPackageVersionChanges);
+        }
 
         // collecting secondary changes
         boolean newChanges = true;
