@@ -18,6 +18,21 @@ public interface HttpTransportFactory {
 
 	static final long TIMEOUT_SECONDS = Long.getLong("tycho.http.transport.timeout", 30);
 
+	/**
+	 * Maximum number of retries for transient HTTP errors (502/503/504) before
+	 * failing. Configurable via system property {@code tycho.http.transport.retry.count}.
+	 */
+	static final int HTTP_RETRY_COUNT = Math.max(0,
+			Integer.getInteger("tycho.http.transport.retry.count", 3));
+
+	/**
+	 * Initial delay in seconds before the first retry on a transient HTTP error.
+	 * Subsequent retries multiply this by the attempt number (linear back-off).
+	 * Configurable via system property {@code tycho.http.transport.retry.initial-delay}.
+	 */
+	static final long HTTP_RETRY_INITIAL_DELAY_SECONDS = Math.max(0L,
+			Long.getLong("tycho.http.transport.retry.initial-delay", 5));
+
 	HttpTransport createTransport(URI uri);
 
 }
