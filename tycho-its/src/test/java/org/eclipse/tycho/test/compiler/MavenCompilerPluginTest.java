@@ -33,6 +33,13 @@ public class MavenCompilerPluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testMavenCompilerPluginModuleWithTests() throws Exception {
+		Verifier verifier = getVerifier("compiler.mavenCompilerPlugin.moduleWithTests", false);
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
 	public void testAdditionalBundles() throws Exception {
 		Verifier verifier = getVerifier("compiler.additional.bundles", true);
 		verifier.executeGoal("compile");
