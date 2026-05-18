@@ -159,7 +159,7 @@ public final class WrappedArtifact extends ArtifactFacadeProxy {
         properties.setProperty("Bundle-Name",
                 "Bundle derived from maven artifact ${mvnGroupId}:${mvnArtifactId}:${mvnVersion}");
         properties.setProperty("Bundle-SymbolicName", prefix + ".${mvnGroupId}.${mvnArtifactId}");
-        properties.setProperty("version", " ${version_cleanup;${mvnVersion}}");
+        properties.setProperty("version", " ${generatedOSGiVersion}");
         properties.setProperty("Bundle-Version", "${version}");
         properties.setProperty("Import-Package", "*;resolution:=optional");
         properties.setProperty("Export-Package", "*;version=\"${version}\";-noimport:=true");
