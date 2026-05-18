@@ -262,7 +262,7 @@ public class MavenDependencyCollector {
 
     private static boolean isVersionRanged(Dependency dependency) {
         String version = dependency.getArtifact().getVersion();
-        return version != null && version.startsWith("(") || version.startsWith("[");
+        return version != null && (version.startsWith("(") || version.startsWith("["));
     }
 
 }
