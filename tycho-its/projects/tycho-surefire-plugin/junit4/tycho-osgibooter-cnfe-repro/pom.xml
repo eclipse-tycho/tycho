@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example</groupId>
+  <artifactId>com.example.test</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>eclipse-test-plugin</packaging>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <tycho.showEclipseLog>true</tycho.showEclipseLog>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>osgi_without_bundle_to_file_adapter_do_not_update_me</id>
+      <layout>p2</layout>
+      <!-- The OsgiSurefireBooter classpath bug is only reproducible on 2021-12 or older before Bundle.adapt(File.class) was implemented.
+           Do not update the URL here to avoid false negatives.
+           See:
+           - https://github.com/eclipse-tycho/tycho/pull/5995
+           - https://github.com/eclipse-equinox/equinox/commit/3889f7ce2d2906ca7d46f341de95ebe865212808
+      -->
+      
+      <url>https://download.eclipse.org/releases/2021-12</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+        <id>dynamic-repo</id>
+        <url>${my.custom.plugin.repo}</url>
+        <snapshots><enabled>true</enabled></snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
