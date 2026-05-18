@@ -326,7 +326,7 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
         try {
             command.execute();
             if (deleteP2Cache) {
-                deleteP2CacheDirectory(destination);
+                deleteP2CacheDirectory(DirectorRuntime.getDestination(destination, env));
             }
         } catch (DirectorCommandException e) {
             IStatus status = StatusTool.findStatus(e);

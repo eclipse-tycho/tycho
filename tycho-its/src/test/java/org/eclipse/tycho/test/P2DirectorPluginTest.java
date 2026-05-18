@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -104,19 +105,22 @@ public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 
 		File basedir = new File(verifier.getBasedir());
-		Path productDir = basedir.toPath().resolve("target/products/test.product/linux/gtk/x86_64");
+		for (String productDirRelative : List.of("target/products/test.product/linux/gtk/x86_64",
+				"target/products/test.product/macosx/cocoa/x86_64/Eclipse.app/Contents/Eclipse")) {
+			Path productDir = basedir.toPath().resolve(productDirRelative);
 
-		// Verify product was created
-		assertTrue("Product directory should exist", Files.exists(productDir));
+			// Verify product was created
+			assertTrue("Product directory should exist: " + productDir, Files.exists(productDir));
 
-		// Verify p2 cache directory was deleted
-		Path cacheDir = productDir.resolve("p2/org.eclipse.equinox.p2.core/cache");
-		assertFalse("P2 cache directory should not exist when deleteP2Cache=true", Files.exists(cacheDir));
+			// Verify p2 cache directory was deleted
+			Path cacheDir = productDir.resolve("p2/org.eclipse.equinox.p2.core/cache");
+			assertFalse("P2 cache directory should not exist when deleteP2Cache=true", Files.exists(cacheDir));
 
-		// Verify that p2 directory itself still exists (just not the cache
-		// subdirectory)
-		Path p2Dir = productDir.resolve("p2");
-		assertTrue("P2 directory should still exist", Files.exists(p2Dir));
+			// Verify that p2 directory itself still exists (just not the cache
+			// subdirectory)
+			Path p2Dir = productDir.resolve("p2");
+			assertTrue("P2 directory should still exist: " + p2Dir, Files.exists(p2Dir));
+		}
 	}
 
 	@Test
@@ -126,14 +130,18 @@ public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 
 		File basedir = new File(verifier.getBasedir());
-		Path productDir = basedir.toPath().resolve("target/products/test.product/linux/gtk/x86_64");
+		for (String productDirRelative : List.of("target/products/test.product/linux/gtk/x86_64",
+				"target/products/test.product/macosx/cocoa/x86_64/Eclipse.app/Contents/Eclipse")) {
+			Path productDir = basedir.toPath().resolve(productDirRelative);
 
-		// Verify product was created
-		assertTrue("Product directory should exist", Files.exists(productDir));
+			// Verify product was created
+			assertTrue("Product directory should exist: " + productDir, Files.exists(productDir));
 
-		// Verify p2 cache directory exists (default behavior - cache should be kept)
-		Path cacheDir = productDir.resolve("p2/org.eclipse.equinox.p2.core/cache");
-		assertTrue("P2 cache directory should exist by default (deleteP2Cache not set)", Files.exists(cacheDir));
+			// Verify p2 cache directory exists (default behavior - cache should be kept)
+			Path cacheDir = productDir.resolve("p2/org.eclipse.equinox.p2.core/cache");
+			assertTrue("P2 cache directory should exist by default (deleteP2Cache not set): " + cacheDir,
+					Files.exists(cacheDir));
+		}
 	}
 
 }
