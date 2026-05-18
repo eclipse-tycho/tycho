@@ -180,7 +180,7 @@ public class MavenBomSupportTest extends AbstractMavenTargetTest {
 				originalOSGiBundle("org.opentest4j", "1.3.0", "org.opentest4j:opentest4j"),
 				// Transitive deps pulled in by cucumber-junit
 				generatedBundle("wrapped.junit.junit", "4.13.2", "junit:junit"),
-				generatedBundle("wrapped.org.hamcrest.hamcrest-core", "1.3", "org.hamcrest:hamcrest-core"),
+				generatedBundle("wrapped.org.hamcrest.hamcrest-core", "1.3.0", "org.hamcrest:hamcrest-core"),
 				// Transitive deps pulled in by cucumber-picocontainer
 				generatedBundle("wrapped.org.picocontainer.picocontainer", "2.15.2", "org.picocontainer:picocontainer"),
 				// Transitive deps pulled in by cucumber-deltaspike
