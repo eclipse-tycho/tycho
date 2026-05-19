@@ -16,7 +16,6 @@ import static org.eclipse.tycho.test.util.SurefireUtil.testResultFile;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -82,8 +81,8 @@ public class JUnit4Test extends AbstractTychoIntegrationTest {
 		File fresh_repo = new File(verifier.getBasedir(), "fresh_local_repo");
 		fresh_repo = new File("/tmp/fresh_dir");
 		verifier.setLocalRepo(fresh_repo.toString());
-		verifier.setCliOptions(
-				List.of("-Dmy.custom.plugin.repo=" + global_repo.toURI().toString(), "--no-transfer-progress"));
+		verifier.addCliOption("-Dmy.custom.plugin.repo=" + global_repo.toURI().toString());
+		verifier.addCliOption("--no-transfer-progress");
 
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
