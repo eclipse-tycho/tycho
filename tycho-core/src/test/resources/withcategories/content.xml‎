@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='withcategories'
+	type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository'
+	version='1'>
+	<properties size='2'>
+		<property name='p2.timestamp' value='1308584189029' />
+		<property name='p2.compressed' value='false' />
+	</properties>
+	<units size='3'>
+		<unit id='org.eclipse.core.runtime' version='3.4.0.v20080512'>
+			<update id='org.eclipse.core.runtime'
+				range='[0.0.0,3.4.0.v20080512)' severity='0' />
+			<properties size='2'>
+				<property name='org.eclipse.equinox.p2.name'
+					value='Core Runtime' />
+				<property name='org.eclipse.equinox.p2.provider'
+					value='Eclipse.org' />
+			</properties>
+			<provides size='2'>
+				<provided namespace='org.eclipse.equinox.p2.iu'
+					name='org.eclipse.core.runtime' version='3.4.0.v20080512' />
+				<provided namespace='osgi.bundle'
+					name='org.eclipse.core.runtime' version='3.4.0.v20080512' />
+			</provides>
+			<touchpoint id='org.eclipse.equinox.p2.none'
+				version='1.0.0' />
+		</unit>
+		<unit id='org.eclipse.example.category.alpha'
+			version='1.0.0.20240101'>
+			<properties size='2'>
+				<property name='org.eclipse.equinox.p2.name'
+					value='Alpha Tools' />
+				<property name='org.eclipse.equinox.p2.type.category'
+					value='true' />
+			</properties>
+			<provides size='1'>
+				<provided namespace='org.eclipse.equinox.p2.iu'
+					name='org.eclipse.example.category.alpha' version='1.0.0.20240101' />
+			</provides>
+			<requires size='1'>
+				<required namespace='org.eclipse.equinox.p2.iu'
+					name='org.eclipse.core.runtime'
+					range='[3.4.0.v20080512,3.4.0.v20080512]' />
+			</requires>
+		</unit>
+		<unit id='org.eclipse.example.category.beta'
+			version='1.0.0.20240101'>
+			<properties size='2'>
+				<property name='org.eclipse.equinox.p2.name'
+					value='Beta Tools' />
+				<property name='org.eclipse.equinox.p2.type.category'
+					value='true' />
+			</properties>
+			<provides size='1'>
+				<provided namespace='org.eclipse.equinox.p2.iu'
+					name='org.eclipse.example.category.beta' version='1.0.0.20240101' />
+			</provides>
+			<requires size='1'>
+				<required namespace='org.eclipse.equinox.p2.iu'
+					name='org.eclipse.core.runtime'
+					range='[3.4.0.v20080512,3.4.0.v20080512]' />
+			</requires>
+		</unit>
+	</units>
+</repository>
