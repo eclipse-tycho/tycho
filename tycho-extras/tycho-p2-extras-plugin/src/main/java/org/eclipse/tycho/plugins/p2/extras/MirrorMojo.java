@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2021 SAP AG and others.
+ * Copyright (c) 2011, 2026 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -217,6 +217,28 @@ public class MirrorMojo extends AbstractMojo {
     @Parameter(defaultValue = "false")
     private boolean ignoreErrors;
 
+    /**
+     * <p>
+     * The name of a synthetic top-level category that will be injected into the destination
+     * repository after mirroring. All category IUs from the mirrored source repositories will
+     * appear as children of this parent entry in Eclipse's "Install New Software" dialog,
+     * rather than each appearing as a separate top-level entry.
+     * </p>
+     * <p>
+     * For example, setting <code>categoryName</code> to <code>Parent Category</code> when mirroring
+     * EGit and TM4E will produce a single "Parent Category" entry that expands to reveal each
+     * tool's own categories, instead of showing them as individual top-level entries.
+     * </p>
+     * <p>
+     * When omitted, the behaviour is unchanged: source categories appear as individual top-level
+     * entries in the destination repository.
+     * </p>
+     *
+     * @since 5.0.3
+     */
+    @Parameter
+    private String categoryName;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         RepositoryReferences sourceDescriptor = null;
@@ -266,6 +288,7 @@ public class MirrorMojo extends AbstractMojo {
         options.setLatestVersionOnly(latestVersionOnly);
         options.getFilter().putAll(filter);
         options.setIgnoreErrors(ignoreErrors);
+        options.setCategoryName(categoryName);
         return options;
     }
 
