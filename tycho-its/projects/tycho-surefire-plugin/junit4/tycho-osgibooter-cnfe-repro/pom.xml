@@ -7,7 +7,6 @@
   <packaging>eclipse-test-plugin</packaging>
 
   <properties>
-    <tycho-version>6.0.0-SNAPSHOT</tycho-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <tycho.showEclipseLog>true</tycho.showEclipseLog>
   </properties>
