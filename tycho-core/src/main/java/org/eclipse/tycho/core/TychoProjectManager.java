@@ -65,6 +65,7 @@ import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
+import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 import org.eclipse.tycho.model.project.EclipseProject;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
@@ -297,7 +298,7 @@ public class TychoProjectManager {
         List<ArtifactDescriptor> dependencies = tychoProject
                 .getDependencyArtifacts(DefaultReactorProject.adapt(project)).getArtifacts();
         for (ArtifactDescriptor descriptor : dependencies) {
-            if (TychoConstants.CLASSIFIER_SOURCES.equals(descriptor.getClassifier())) {
+            if (ArtifactTypeHelper.isSourceBundle(descriptor)) {
                 continue;
             }
             File location = descriptor.fetchArtifact().get();

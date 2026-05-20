@@ -74,6 +74,7 @@ import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
+import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -364,8 +365,14 @@ public class EquinoxResolver implements DependenciesResolver {
         Map<File, ArtifactDescriptor> descriptors = new LinkedHashMap<>();
 
         List<ArtifactDescriptor> list = artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
+        Set<String> requiredSourceBundleIds = ArtifactTypeHelper.collectRequiredSourceBundleIds(list);
 
         for (ArtifactDescriptor artifact : list) {
+            if (ArtifactTypeHelper.isSourceBundle(artifact)
+                    && !requiredSourceBundleIds.contains(artifact.getKey().getId())) {
+                // source bundles are not needed for OSGi resolution unless explicitly referenced
+                continue;
+            }
             File location = artifact.getLocation(true);
             OsgiManifest mf = loadManifest(location, artifact);
             descriptors.put(location, artifact);
