@@ -60,6 +60,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
+import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 
 public final class MavenDependencyInjector {
@@ -117,7 +118,7 @@ public final class MavenDependencyInjector {
         MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, descriptorMapping,
                 logger);
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
-            if (TychoConstants.CLASSIFIER_SOURCES.equals(artifact.getClassifier())) {
+            if (ArtifactTypeHelper.isSourceBundle(artifact)) {
                 //there is no need to struggle with source when we inject dependencies
                 continue;
             }

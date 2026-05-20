@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -71,6 +72,7 @@ import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProjectImpl;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.resolver.P2ResolverFactory;
+import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.model.classpath.JUnitBundle;
 import org.eclipse.tycho.model.classpath.JUnitClasspathContainerEntry;
 import org.eclipse.tycho.model.classpath.LibraryClasspathEntry;
@@ -159,7 +161,13 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             classpath.add(new DefaultClasspathEntry(reactorProject, artifactKey,
                     List.of(new File(project.getBuild().getOutputDirectory())), null));
             List<ArtifactDescriptor> bundles = artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
+            Set<String> requiredSourceBundleIds = ArtifactTypeHelper.collectRequiredSourceBundleIds(bundles);
             for (ArtifactDescriptor bundle : bundles) {
+                if (ArtifactTypeHelper.isSourceBundle(bundle)
+                        && !requiredSourceBundleIds.contains(bundle.getKey().getId())) {
+                    // source bundles are not needed for compilation unless explicitly referenced
+                    continue;
+                }
                 //TODO we might want to compute the access rules based on the manifest exported packages
                 Collection<AccessRule> rules = null;
                 classpath.add(new DefaultClasspathEntry(bundle.getMavenProject(), bundle.getKey(),
