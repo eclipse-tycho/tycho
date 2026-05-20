@@ -17,7 +17,10 @@ import static org.eclipse.tycho.ArtifactType.TYPE_ECLIPSE_FEATURE;
 import static org.eclipse.tycho.ArtifactType.TYPE_ECLIPSE_PLUGIN;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -29,6 +32,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
@@ -155,6 +159,46 @@ public class ArtifactTypeHelper {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns {@code true} if the given artifact descriptor represents a source bundle.
+     * <p>
+     * Source bundles are identified either by their classifier being
+     * {@link TychoConstants#CLASSIFIER_SOURCES}.
+     */
+    public static boolean isSourceBundle(ArtifactDescriptor artifact) {
+        if (artifact == null) {
+            return false;
+        }
+        return TychoConstants.CLASSIFIER_SOURCES.equals(artifact.getClassifier());
+    }
+
+    /**
+     * Scans the p2 IU requirements of all given artifacts and returns the set of bundle symbolic
+     * names that are explicitly required via {@code Require-Bundle} and whose name indicates a
+     * source bundle (i.e. the name ends with {@code .source}).
+     * <p>
+     * This information is used to avoid skipping source bundles that are genuinely needed for
+     * resolution (e.g. a bundle that explicitly declares
+     * {@code Require-Bundle: com.example.plugin.source}).
+     */
+    public static Set<String> collectRequiredSourceBundleIds(Collection<ArtifactDescriptor> artifacts) {
+        Set<String> result = new HashSet<>();
+        for (ArtifactDescriptor artifact : artifacts) {
+            for (IInstallableUnit iu : artifact.getInstallableUnits()) {
+                for (IRequirement req : iu.getRequirements()) {
+                    if (req instanceof IRequiredCapability cap
+                            && BundlesAction.CAPABILITY_NS_OSGI_BUNDLE.equals(cap.getNamespace())) {
+                        String name = cap.getName();
+                        if (name != null && name.endsWith(".source")) {
+                            result.add(name);
+                        }
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     public static ArtifactKey toTychoArtifactKey(IInstallableUnit iu, IArtifactKey p2ArtifactKey) {
