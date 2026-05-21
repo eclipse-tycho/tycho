@@ -5,8 +5,8 @@
       version="1.0.0.qualifier">
 
    <requires>
-      <import feature="org.eclipse.platform" version="4.27.0" match="compatible"/>
-      <import feature="org.eclipse.justj.openjdk.hotspot.jre.full" version="17.0.5" match="compatible"/>
+      <import feature="org.eclipse.platform" version="4.37.0" match="compatible"/>
+      <import feature="org.eclipse.justj.openjdk.hotspot.jre.minimal" version="21.0.9" match="compatible"/>
       <import plugin="org.eclipse.pde.runtime"/>
    </requires>
 

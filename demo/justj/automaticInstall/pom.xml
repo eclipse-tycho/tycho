@@ -8,8 +8,8 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>eclipse-repository</packaging>
 	<properties>
-		<tycho-version>5.0.0-SNAPSHOT</tycho-version>
-		<target-platform>https://download.eclipse.org/releases/2025-06/</target-platform>
+		<tycho-version>5.0.1</tycho-version>
+		<target-platform>https://download.eclipse.org/releases/2025-09/</target-platform>
 	</properties>
 	<repositories>
 		<repository>

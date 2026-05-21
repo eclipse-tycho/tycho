@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +33,7 @@ import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 
 public class KeyStore {
-    private Map<String, PGPPublicKey> keys = new TreeMap<>();
+    private final Map<String, PGPPublicKey> keys = Collections.synchronizedSortedMap(new TreeMap<>());
 
     public static KeyStore create(String... keys) {
         var keyStore = new KeyStore();
@@ -85,7 +86,6 @@ public class KeyStore {
         return out.toString(StandardCharsets.US_ASCII);
     }
 
-    @SuppressWarnings("unchecked")
     private static Set<PGPPublicKey> readKeys(String keys) {
         if (keys == null) {
             return Set.of();

@@ -22,6 +22,7 @@ package org.eclipse.tycho.surefire;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -413,9 +414,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return "%s;%s=\"%s\"".formatted(hostSymbolicName, Constants.BUNDLE_VERSION_ATTRIBUTE, hostVersion);
     }
 
-    protected List<TargetEnvironment> getTestTargetEnvironments() {
+    protected Collection<TargetEnvironment> getTestTargetEnvironments() {
         TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
-        List<TargetEnvironment> targetEnvironments = configuration.getEnvironments();
+        Collection<TargetEnvironment> targetEnvironments = configuration.getEnvironments();
         TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
         for (TargetEnvironment targetEnvironment : targetEnvironments) {
             if (targetEnvironment.equals(runningEnvironment)) {

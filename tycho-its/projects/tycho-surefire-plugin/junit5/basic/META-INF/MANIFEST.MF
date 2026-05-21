@@ -5,6 +5,6 @@ Bundle-SymbolicName: bundle.test.junit5
 Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: org.junit;version="4.12",
- org.junit.jupiter.api;version="5.0",
- org.junit.jupiter.params;version="5.0",
- org.junit.jupiter.params.provider;version="5.0"
+ org.junit.jupiter.api;version="[5.0,6.0)",
+ org.junit.jupiter.params;version="[5.0,6.0)",
+ org.junit.jupiter.params.provider;version="[5.0,6.0)"

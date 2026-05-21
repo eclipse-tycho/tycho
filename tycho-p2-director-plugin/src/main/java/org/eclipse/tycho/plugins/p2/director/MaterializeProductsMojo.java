@@ -13,10 +13,17 @@
 package org.eclipse.tycho.plugins.p2.director;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -168,6 +175,20 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
     @Parameter
     private boolean parallel;
 
+    /**
+     * Delete the p2 cache directory after product installation.
+     * <p>
+     * The p2 cache at <code>&lt;install_dir&gt;/p2/org.eclipse.equinox.p2.core/cache</code>
+     * contains cached copies of artifacts (such as root files) that were installed. While these
+     * files are useful for p2 updates, they can significantly increase the size of product
+     * distributions when root files or other large artifacts are included. Setting this to
+     * <code>true</code> will remove the cache directory after product installation to reduce
+     * distribution size.
+     * </p>
+     */
+    @Parameter(defaultValue = "false")
+    private boolean deleteP2Cache;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         ProductConfig productConfig = getProductConfig();
@@ -192,15 +213,23 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
             }
         }
         if (parallel) {
-            ExecutorService executorService = Executors.newWorkStealingPool();
+            ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
             ExecutorCompletionService<Void> service = new ExecutorCompletionService<>(executorService);
             try {
                 int tasks = 0;
+                Collection<TargetEnvironment> environments = getEnvironments();
                 for (Product product : products) {
-                    for (TargetEnvironment env : getEnvironments()) {
+                    for (TargetEnvironment env : environments) {
                         service.submit(() -> {
-                            buildProduct(director, sources, product, env);
-                            return null;
+                            Thread thread = Thread.currentThread();
+                            String name = thread.getName();
+                            try {
+                                thread.setName("materialize " + product.getId() + " " + env);
+                                buildProduct(director, sources, product, env);
+                                return null;
+                            } finally {
+                                thread.setName(name);
+                            }
                         });
                         tasks++;
                     }
@@ -296,6 +325,9 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
                 + destination.getAbsolutePath() + " using " + command.getProfileProperties());
         try {
             command.execute();
+            if (deleteP2Cache) {
+                deleteP2CacheDirectory(DirectorRuntime.getDestination(destination, env));
+            }
         } catch (DirectorCommandException e) {
             IStatus status = StatusTool.findStatus(e);
             if (status != null) {
@@ -348,5 +380,32 @@ public final class MaterializeProductsMojo extends AbstractProductMojo {
         return ExecutionEnvironmentUtils.getProfileNames(toolchainManager, getSession(), logger).stream()
                 .filter(str -> str.startsWith("JavaSE-"))
                 .filter(profile -> ExecutionEnvironmentUtils.getVersion(profile) >= 11).toList();
+    }
+
+    private void deleteP2CacheDirectory(File destination) {
+        Path cacheDir = destination.toPath().resolve("p2/org.eclipse.equinox.p2.core/cache");
+        if (Files.exists(cacheDir)) {
+            getLog().info("Deleting p2 cache directory: " + cacheDir);
+            try {
+                Files.walkFileTree(cacheDir, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        Files.delete(file);
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                        Files.delete(dir);
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+                getLog().debug("Successfully deleted p2 cache directory");
+            } catch (IOException e) {
+                getLog().warn("Failed to delete p2 cache directory: " + cacheDir, e);
+            }
+        } else {
+            getLog().debug("No p2 cache directory found at: " + cacheDir);
+        }
     }
 }

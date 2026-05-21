@@ -25,7 +25,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.apache.maven.model.Model;
-import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.w3c.dom.Element;
 
 @Named(TychoTargetMapping.PACKAGING)

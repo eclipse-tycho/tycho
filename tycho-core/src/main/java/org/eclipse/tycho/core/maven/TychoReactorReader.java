@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023, 2024 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2025 Christoph Läubrich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,6 @@ import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.internal.MavenWorkspaceReader;
 import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.repository.WorkspaceReader;
 import org.eclipse.aether.repository.WorkspaceRepository;
 import org.eclipse.tycho.PackagingType;
 

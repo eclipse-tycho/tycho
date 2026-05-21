@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Require Bundle SWT Direct Test
+Bundle-SymbolicName: tycho.its.test.require.bundle.swt.direct
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.eclipse.swt;bundle-version="[3.132.0,4.0.0)"

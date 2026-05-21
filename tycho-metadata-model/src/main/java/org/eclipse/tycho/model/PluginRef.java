@@ -14,7 +14,7 @@ package org.eclipse.tycho.model;
 
 import java.util.Objects;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class PluginRef {
     private final Element dom;
@@ -42,47 +42,47 @@ public class PluginRef {
     }
 
     public PluginRef(String name) {
-        this.dom = new Element(name);
+        this.dom = Element.of(name);
     }
 
     public String getId() {
-        return dom.getAttributeValue("id");
+        return dom.attribute("id");
     }
 
     public void setId(String id) {
-        dom.setAttribute("id", id);
+        dom.attribute("id", id);
     }
 
     public String getVersion() {
-        return dom.getAttributeValue("version");
+        return dom.attribute("version");
     }
 
     public void setVersion(String version) {
-        dom.setAttribute("version", version);
+        dom.attribute("version", version);
     }
 
     public String getOs() {
-        return dom.getAttributeValue("os");
+        return dom.attribute("os");
     }
 
     public void setOs(String os) {
-        dom.setAttribute("os", os);
+        dom.attribute("os", os);
     }
 
     public String getWs() {
-        return dom.getAttributeValue("ws");
+        return dom.attribute("ws");
     }
 
     public void setWs(String ws) {
-        dom.setAttribute("ws", ws);
+        dom.attribute("ws", ws);
     }
 
     public String getArch() {
-        return dom.getAttributeValue("arch");
+        return dom.attribute("arch");
     }
 
     public void setArch(String arch) {
-        dom.setAttribute("arch", arch);
+        dom.attribute("arch", arch);
     }
 
     public void removeAttribute(String attributeName) {

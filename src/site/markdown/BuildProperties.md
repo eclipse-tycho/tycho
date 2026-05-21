@@ -10,7 +10,7 @@ If a key is not supported, this may be because:
 * there are other ways to achieve the desired configuration (e.g. using pom.xml)
 * it's a missing feature
 
-In additional to the PDE properties, Tycho supports property expressions like `${project.version}` in `build.properties` values.
+In addition to the PDE properties, Tycho supports property expressions like `${project.version}` in `build.properties` values.
 These expressions are only used in a Tycho build, not when using the Eclipse IDE incremental build.
 
 See the table below for which keys in `build.properties` defined by PDE are supported by Tycho or if not, whether there are alternatives when using Tycho.

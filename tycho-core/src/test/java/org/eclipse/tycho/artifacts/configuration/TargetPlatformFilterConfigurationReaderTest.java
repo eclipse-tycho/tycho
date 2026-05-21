@@ -17,7 +17,8 @@ import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPa
 import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithoutVersion;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,13 +26,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import javax.inject.Inject;
+
 import org.apache.maven.model.Plugin;
-import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
+import org.codehaus.plexus.testing.PlexusTest;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
@@ -40,32 +43,41 @@ import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter.FilterAction;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.version.TychoVersion;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTestCase {
+@PlexusTest
+public class TargetPlatformFilterConfigurationReaderTest {
+
+    @Inject
+    private ProjectBuilder projectBuilder;
 
     private TargetPlatformFilterConfigurationReader subject;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    public void setUp() throws Exception {
         subject = new TargetPlatformFilterConfigurationReader();
     }
 
+    @Test
     public void testMissingTypeException() throws Exception {
         Xpp3Dom filterConfig = getTargetFilters("targetfilter/missing_scope_type/pom.xml");
         assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.parseFilterConfiguration(filterConfig));
     }
 
+    @Test
     public void testMissingIdException() throws Exception {
         Xpp3Dom filterConfig = getTargetFilters("targetfilter/missing_scope_id/pom.xml");
         assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.parseFilterConfiguration(filterConfig));
     }
 
+    @Test
     public void testMissingActionException() throws Exception {
         Xpp3Dom filterConfig = getTargetFilters("targetfilter/missing_action/pom.xml");
         assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.parseFilterConfiguration(filterConfig));
     }
 
+    @Test
     public void testValidRemoveAllFilters() throws Exception {
         Xpp3Dom filterConfig = getTargetFilters("targetfilter/valid_removeAll/pom.xml");
         List<TargetPlatformFilter> filters = subject.parseFilterConfiguration(filterConfig);
@@ -82,11 +94,13 @@ public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTes
                 is(patternWithVersion(CapabilityType.P2_INSTALLABLE_UNIT, "a.jre.javase", "1.7.0")));
     }
 
+    @Test
     public void testDuplicateVersionException() throws Exception {
         Xpp3Dom filterConfig = getTargetFilters("targetfilter/duplicate_scope_version/pom.xml");
         assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.parseFilterConfiguration(filterConfig));
     }
 
+    @Test
     public void testValidRestrictToFilters() throws Exception {
         Xpp3Dom filterConfig = getTargetFilters("targetfilter/valid_restrictTo/pom.xml");
         List<TargetPlatformFilter> filters = subject.parseFilterConfiguration(filterConfig);
@@ -118,6 +132,7 @@ public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTes
         assertThat(filters.get(4).getActionPattern(), is(patternWithVersion(null, null, "1.5.0")));
     }
 
+    @Test
     public void testDuplicateActionException() throws Exception {
         Xpp3Dom filterConfig = getTargetFilters("targetfilter/duplicate_action/pom.xml");
         assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.parseFilterConfiguration(filterConfig));
@@ -141,7 +156,6 @@ public class TargetPlatformFilterConfigurationReaderTest extends AbstractMojoTes
 
     // TODO share this?
     MavenProject buildProjectModel(File pom) throws Exception, ProjectBuildingException {
-        ProjectBuilder projectBuilder = lookup(ProjectBuilder.class);
         List<ProjectBuildingResult> projects = projectBuilder.build(Collections.singletonList(pom), false,
                 projectBuildRequestForUnitTest());
         MavenProject project = projects.get(0).getProject();

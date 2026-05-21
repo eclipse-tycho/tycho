@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -47,7 +47,7 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
     private Logger logger;
 
     @Override
-    public PublisherService createPublisher(ReactorProject project, List<TargetEnvironment> environments) {
+    public PublisherService createPublisher(ReactorProject project, Collection<TargetEnvironment> environments) {
         P2TargetPlatform targetPlatform = targetPlatformService.getTargetPlatform(project)
                 .filter(P2TargetPlatform.class::isInstance).map(P2TargetPlatform.class::cast)
                 .orElseThrow(() -> new IllegalStateException("Target platform is missing"));
@@ -58,7 +58,7 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
     }
 
     @Override
-    public PublishProductTool createProductPublisher(ReactorProject project, List<TargetEnvironment> environments,
+    public PublishProductTool createProductPublisher(ReactorProject project, Collection<TargetEnvironment> environments,
             String buildQualifier, Interpolator interpolator) {
         P2TargetPlatform targetPlatform = targetPlatformService.getTargetPlatform(project)
                 .filter(P2TargetPlatform.class::isInstance).map(P2TargetPlatform.class::cast)
@@ -71,7 +71,7 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
     }
 
     private PublisherActionRunner getPublisherRunnerForProject(P2TargetPlatform targetPlatform,
-            List<TargetEnvironment> environments) {
+            Collection<TargetEnvironment> environments) {
         return new PublisherActionRunner(targetPlatform.getMetadataRepository(), environments, logger);
     }
 

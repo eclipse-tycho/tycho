@@ -29,7 +29,7 @@ import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.model.IU;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 @Named
 @Singleton
@@ -59,19 +59,20 @@ public class DefaultIUXmlTransformer implements IUXmlTransformer {
         Element artifact = iu.getSelfArtifact();
         if (artifact == null)
             return;
-        String currentVersion = artifact.getAttributeValue(IU.VERSION);
-        if (hasQualifier(currentVersion) && iu.getId().equals(artifact.getAttributeValue(IU.ID)))
-            artifact.setAttribute(IU.VERSION, version);
+        String currentVersion = artifact.attribute(IU.VERSION);
+        if (hasQualifier(currentVersion) && iu.getId().equals(artifact.attribute(IU.ID)))
+            artifact.attribute(IU.VERSION, version);
     }
 
     //Replace the qualifier found in the capabilities.
-    public void replaceQualifierInCapabilities(List<Element> providedCapabilities, String qualifier) {
+	@Override
+	public void replaceQualifierInCapabilities(List<Element> providedCapabilities, String qualifier) {
         if (providedCapabilities == null)
             return;
         for (Element capability : providedCapabilities) {
-            String currentVersion = capability.getAttributeValue(IU.VERSION);
+            String currentVersion = capability.attribute(IU.VERSION);
             if (hasQualifier(currentVersion))
-                capability.setAttribute(IU.VERSION, currentVersion.replaceAll("qualifier", qualifier));
+                capability.attribute(IU.VERSION, currentVersion.replaceAll("qualifier", qualifier));
         }
     }
 
@@ -87,26 +88,27 @@ public class DefaultIUXmlTransformer implements IUXmlTransformer {
         if (requirements == null)
             return;
         for (Element req : requirements) {
-            String range = req.getAttributeValue(IU.RANGE);
+            String range = req.attribute(IU.RANGE);
             if (range != null && range.endsWith(TychoConstants.SUFFIX_QUALIFIER)
-                    && IU.P2_IU_NAMESPACE.equals(req.getAttributeValue(IU.NAMESPACE))) {
-                ArtifactKey artifact = resolveRequirementReference(targetPlatform, req.getAttributeValue(IU.NAME),
+                    && IU.P2_IU_NAMESPACE.equals(req.attribute(IU.NAMESPACE))) {
+                ArtifactKey artifact = resolveRequirementReference(targetPlatform, req.attribute(IU.NAME),
                         range, req.toString());
-                req.setAttribute(IU.RANGE, artifact.getVersion());
+                req.attribute(IU.RANGE, artifact.getVersion());
             }
         }
     }
 
-    public void replaceZerosInRequirements(IU iu, TargetPlatform targetPlatform) throws MojoFailureException {
+	@Override
+	public void replaceZerosInRequirements(IU iu, TargetPlatform targetPlatform) throws MojoFailureException {
         List<Element> requirements = iu.getRequiredCapabilites();
         if (requirements == null)
             return;
         for (Element req : requirements) {
-            String range = req.getAttributeValue(IU.RANGE);
-            if ("0.0.0".equals(range) && IU.P2_IU_NAMESPACE.equals(req.getAttributeValue(IU.NAMESPACE))) {
-                ArtifactKey artifact = resolveRequirementReference(targetPlatform, req.getAttributeValue(IU.NAME),
+            String range = req.attribute(IU.RANGE);
+            if ("0.0.0".equals(range) && IU.P2_IU_NAMESPACE.equals(req.attribute(IU.NAMESPACE))) {
+                ArtifactKey artifact = resolveRequirementReference(targetPlatform, req.attribute(IU.NAME),
                         range, req.toString());
-                req.setAttribute(IU.RANGE, artifact.getVersion());
+                req.attribute(IU.RANGE, artifact.getVersion());
             }
         }
     }
@@ -125,9 +127,9 @@ public class DefaultIUXmlTransformer implements IUXmlTransformer {
         List<Element> properties = iu.getProperties();
         if (properties != null) {
             for (Element property : properties) {
-                String key = property.getAttributeValue("name");
+                String key = property.attribute("name");
                 if (MAVEN_GROUP_ID.equals(key) || MAVEN_ARTIFACT_ID.equals(key) || MAVEN_VERSION.equals(key)) {
-                    property.getParent().removeNode(property);
+                    property.parentElement().removeChild(property);
                 }
             }
         }
@@ -137,7 +139,8 @@ public class DefaultIUXmlTransformer implements IUXmlTransformer {
         iu.addProperty(MAVEN_VERSION, project.getVersion());
     }
 
-    public void addSelfCapability(IU iu) {
+	@Override
+	public void addSelfCapability(IU iu) {
         if (iu.getSelfCapabilities().size() == 0)
             return;
         iu.addSelfCapability();

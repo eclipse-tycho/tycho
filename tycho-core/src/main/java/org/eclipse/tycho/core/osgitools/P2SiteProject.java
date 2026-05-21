@@ -24,7 +24,6 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
-import org.eclipse.tycho.core.TychoProject;
 
 @Named(org.eclipse.tycho.ArtifactType.TYPE_P2_MAVEN_REPOSITORY)
 @Singleton

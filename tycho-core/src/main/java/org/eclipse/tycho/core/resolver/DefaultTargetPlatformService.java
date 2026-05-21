@@ -70,9 +70,6 @@ public class DefaultTargetPlatformService implements TargetPlatformService {
     private ReactorRepositoryManager repositoryManager;
 
     @Inject
-    private P2ResolverFactory p2ResolverFactory;
-
-    @Inject
     private TargetPlatformFactory tpFactory;
 
     @Inject

@@ -13,6 +13,7 @@
 package org.eclipse.tycho.artifacts;
 
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 import org.osgi.framework.Version;
 
@@ -23,4 +24,14 @@ public interface ArtifactVersion {
     Version getVersion();
 
     String getProvider();
+
+    /**
+     * Returns fragment artifacts compatible with this bundle version
+     *
+     * @return a stream of artifact versions for compatible fragments, empty if
+     *         this is not a host bundle or no fragments are found
+     */
+    default Stream<ArtifactVersion> fragments() {
+        return Stream.empty();
+    }
 }

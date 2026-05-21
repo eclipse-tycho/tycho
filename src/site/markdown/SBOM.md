@@ -1,4 +1,4 @@
-# Creating SBOMs for Tycho artifacts
+# Creating SBOMs for Eclipse Artifacts
 
 ## What is an SBOM?
 

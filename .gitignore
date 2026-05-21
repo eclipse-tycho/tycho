@@ -26,3 +26,6 @@ requirements.txt
 
 ## Tools downloaded for testing
 actionlint
+# Test cache files
+tycho-core/http/
+tycho-core/https/

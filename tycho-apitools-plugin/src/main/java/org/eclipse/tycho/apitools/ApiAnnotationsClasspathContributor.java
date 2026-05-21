@@ -21,7 +21,6 @@ import org.apache.maven.SessionScoped;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.pde.api.tools.internal.provisional.ApiPlugin;
-import org.eclipse.tycho.classpath.ClasspathContributor;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.AbstractSpecificationClasspathContributor;
 import org.eclipse.tycho.model.project.EclipseProject;

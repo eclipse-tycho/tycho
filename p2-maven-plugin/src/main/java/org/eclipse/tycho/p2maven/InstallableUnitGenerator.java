@@ -40,7 +40,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -102,9 +101,6 @@ public class InstallableUnitGenerator {
 
 	@Inject
 	private InstallableUnitPublisher publisher;
-
-	@Inject
-	private PlexusContainer plexus;
 
 	@Inject
 	ArtifactHandlerManager artifactHandlerManager;

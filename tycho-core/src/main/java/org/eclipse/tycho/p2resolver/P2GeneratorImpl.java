@@ -18,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -254,8 +255,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
     }
 
     @Override
-    protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact, List<TargetEnvironment> environments,
-            OptionalResolutionAction optionalAction) {
+    protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
+            Collection<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
 
         if (!dependenciesOnly && optionalAction != null) {
             throw new IllegalArgumentException();

@@ -27,6 +27,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.ArtifactHandler;
@@ -42,13 +44,9 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
-import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Mojo;
-import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Parameter;
-import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import javax.inject.Inject;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.TychoConstants;

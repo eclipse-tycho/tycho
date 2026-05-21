@@ -66,6 +66,7 @@ import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.jdt.internal.compiler.util.CtSym;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.DefaultArtifactKey;
@@ -97,6 +98,7 @@ import org.eclipse.tycho.model.classpath.JREClasspathEntry;
 import org.eclipse.tycho.model.classpath.M2ClasspathVariable;
 import org.eclipse.tycho.model.classpath.PluginDependenciesClasspathContainer;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
+import org.eclipse.tycho.model.classpath.SourceFolderClasspathEntry;
 import org.osgi.framework.Version;
 
 import copied.org.apache.maven.plugin.AbstractCompilerMojo;
@@ -388,24 +390,51 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         //Check for MR JAR compile
         OsgiManifest manifest = bundleReader.loadManifest(project.getBasedir());
         if (Boolean.parseBoolean(manifest.getValue("Multi-Release"))) {
-            Collection<Integer> releases = getMultiReleases();
-            for (Integer release : releases) {
-                getLog().info("Compiling for release " + release + " ...");
-                this.currentRelease = release;
-                File dotDirectory = getEclipsePluginProject().getDotOutputJar().getOutputDirectory();
-                this.currentOutputDirectory = new File(dotDirectory, VERSIONS_DIRECTORY + "/" + release);
-                this.currentOutputDirectory.mkdirs();
-                this.currentExcludes = List.of();
-                this.currentSourceRoots = new ArrayList<String>();
-                for (SourcepathEntry entry : sourcepath) {
-                    File sourcesRoot = entry.getSourcesRoot();
-                    File releaseSourceRoot = new File(sourcesRoot.getParentFile(), sourcesRoot.getName() + release);
-                    if (releaseSourceRoot.isDirectory()) {
-                        this.currentSourceRoots.add(releaseSourceRoot.getAbsolutePath().toString());
+            // First, try to use classpath entries with release attribute (JDT approach)
+            Collection<ProjectClasspathEntry> classpathEntries = getEclipsePluginProject().getClasspathEntries();
+            Map<Integer, List<SourceFolderClasspathEntry>> multiReleaseSourceFolders = classpathEntries.stream()
+                    .filter(SourceFolderClasspathEntry.class::isInstance).map(SourceFolderClasspathEntry.class::cast)
+                    .filter(entry -> entry.getMultiReleaseVersion().isPresent())
+                    .collect(Collectors.groupingBy(entry -> entry.getMultiReleaseVersion().getAsInt(),
+                            LinkedHashMap::new, Collectors.toList()));
+
+            if (!multiReleaseSourceFolders.isEmpty()) {
+                // Use classpath-based approach with release attribute
+                for (Entry<Integer, List<SourceFolderClasspathEntry>> mrEntry : multiReleaseSourceFolders.entrySet()) {
+                    Integer release = mrEntry.getKey();
+                    getLog().info("Compiling multi-release sources for release " + release + " ...");
+                    this.currentRelease = release;
+                    File dotDirectory = getEclipsePluginProject().getDotOutputJar().getOutputDirectory();
+                    this.currentOutputDirectory = new File(dotDirectory, VERSIONS_DIRECTORY + "/" + release);
+                    this.currentOutputDirectory.mkdirs();
+                    this.currentExcludes = List.of();
+                    this.currentSourceRoots = mrEntry.getValue().stream().map(SourceFolderClasspathEntry::getSourcePath)
+                            .filter(File::isDirectory).map(File::getAbsolutePath).toList();
+                    if (this.currentSourceRoots.size() > 0) {
+                        super.execute();
                     }
                 }
-                if (this.currentSourceRoots.size() > 0) {
-                    super.execute();
+            } else {
+                // Fall back to directory-based approach (legacy)
+                Collection<Integer> releases = getMultiReleases();
+                for (Integer release : releases) {
+                    getLog().info("Compiling for release " + release + " ...");
+                    this.currentRelease = release;
+                    File dotDirectory = getEclipsePluginProject().getDotOutputJar().getOutputDirectory();
+                    this.currentOutputDirectory = new File(dotDirectory, VERSIONS_DIRECTORY + "/" + release);
+                    this.currentOutputDirectory.mkdirs();
+                    this.currentExcludes = List.of();
+                    this.currentSourceRoots = new ArrayList<String>();
+                    for (SourcepathEntry entry : sourcepath) {
+                        File sourcesRoot = entry.getSourcesRoot();
+                        File releaseSourceRoot = new File(sourcesRoot.getParentFile(), sourcesRoot.getName() + release);
+                        if (releaseSourceRoot.isDirectory()) {
+                            this.currentSourceRoots.add(releaseSourceRoot.getAbsolutePath().toString());
+                        }
+                    }
+                    if (this.currentSourceRoots.size() > 0) {
+                        super.execute();
+                    }
                 }
             }
         }
@@ -873,11 +902,15 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
         List<ClasspathEntry> classpath;
         String dependencyScope = getDependencyScope();
-        if (Artifact.SCOPE_TEST.equals(dependencyScope)) {
-            classpath = new ArrayList<>(getBundleProject().getTestClasspath(DefaultReactorProject.adapt(project)));
-        } else {
-            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-            classpath = new ArrayList<>(getBundleProject().getClasspath(reactorProject));
+        try {
+            if (Artifact.SCOPE_TEST.equals(dependencyScope)) {
+                classpath = new ArrayList<>(getBundleProject().getTestClasspath(DefaultReactorProject.adapt(project)));
+            } else {
+                ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+                classpath = new ArrayList<>(getBundleProject().getClasspath(reactorProject));
+            }
+        } catch (BuildFailureException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
         }
         if (extraClasspathElements != null) {
             try {

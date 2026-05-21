@@ -13,6 +13,7 @@
 package org.eclipse.tycho.p2.publisher;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -38,17 +39,17 @@ import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
-import org.eclipse.tycho.helper.StatusTool;
 import org.eclipse.tycho.OptionalResolutionAction;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.helper.StatusTool;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 
 public abstract class AbstractMetadataGenerator {
 
     private IProgressMonitor monitor = new NullProgressMonitor();
 
-    protected DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
+    protected DependencyMetadata generateMetadata(IArtifactFacade artifact, Collection<TargetEnvironment> environments,
             IPublisherInfo publisherInfo, OptionalResolutionAction optionalAction, PublisherOptions options) {
         for (IPublisherAdvice advice : getPublisherAdvice(artifact, options)) {
             publisherInfo.addAdvice(advice);
@@ -59,7 +60,7 @@ public abstract class AbstractMetadataGenerator {
     }
 
     protected abstract List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
-            List<TargetEnvironment> environments, OptionalResolutionAction optionalAction);
+            Collection<TargetEnvironment> environments, OptionalResolutionAction optionalAction);
 
     protected abstract List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact, PublisherOptions options);
 

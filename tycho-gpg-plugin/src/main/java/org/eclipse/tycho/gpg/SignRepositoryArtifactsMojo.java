@@ -54,7 +54,7 @@ import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
  *      "https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_pgp.html">Using
  *      PGP signatures in p2</a>
  */
-@Mojo(name = "sign-p2-artifacts", requiresProject = true, defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
+@Mojo(name = "sign-p2-artifacts", requiresProject = true, defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
     enum PGPKeyBehavior {
         skip, replace, merge

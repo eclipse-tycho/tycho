@@ -34,6 +34,12 @@ public class JrtClasses implements Function<String, Optional<ClassMethods>> {
 	private Path rootPath;
 	private Map<String, Optional<ClassMethods>> cache = new ConcurrentHashMap<>();
 
+	/**
+	 * Creates a new JRT class resolver for the given Java home.
+	 *
+	 * @param javaHome the Java home directory, or {@code null} to use the current
+	 *                 JVM
+	 */
 	public JrtClasses(String javaHome) {
 		try {
 			Map<String, String> map;

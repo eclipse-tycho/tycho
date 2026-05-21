@@ -12,14 +12,28 @@
  *******************************************************************************/
 package org.eclipse.tycho.baseline.analyze;
 
+/**
+ * Represents a method signature consisting of the owning class name, the method
+ * name, and the method descriptor.
+ *
+ * @param className  the fully qualified class name (using '/' separators)
+ * @param methodName the method name
+ * @param signature  the method descriptor
+ */
 public record MethodSignature(String className, String methodName, String signature)
 		implements Comparable<MethodSignature> {
 
+	/**
+	 * @return the package name derived from the class name
+	 */
 	public String packageName() {
 		String cn = className();
 		return DependencyAnalyzer.getPackageName(cn);
 	}
 
+	/**
+	 * @return a unique identifier combining class name, method name, and descriptor
+	 */
 	public String id() {
 		return className() + "#" + methodName() + signature();
 	}
@@ -29,6 +43,9 @@ public record MethodSignature(String className, String methodName, String signat
 		return id().compareTo(o.id());
 	}
 
+	/**
+	 * @return {@code true} if this is a constructor or static initializer
+	 */
 	public boolean isContructor() {
 		return "<clinit>".equals(methodName) || "<init>".equals(methodName);
 	}

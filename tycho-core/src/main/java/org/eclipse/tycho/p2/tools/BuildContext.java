@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.eclipse.tycho.BuildDirectory;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -23,7 +23,7 @@ public class BuildContext {
 
     private final String qualifier;
 
-    private final List<TargetEnvironment> environments;
+    private final Collection<TargetEnvironment> environments;
 
     /**
      * Creates a new <code>BuildContext</code> instance.
@@ -37,7 +37,7 @@ public class BuildContext {
      * @throws IllegalArgumentException
      *             if no target environment has been specified
      */
-    public BuildContext(ReactorProjectIdentities project, String qualifier, List<TargetEnvironment> environments)
+    public BuildContext(ReactorProjectIdentities project, String qualifier, Collection<TargetEnvironment> environments)
             throws IllegalArgumentException {
         if (environments.isEmpty()) {
             throw new IllegalArgumentException("List of target environments must not be empty");
@@ -69,7 +69,7 @@ public class BuildContext {
      * @return the list of {@link TargetEnvironment} to be addressed; never <code>null</code> or
      *         empty
      */
-    public List<TargetEnvironment> getEnvironments() {
+    public Collection<TargetEnvironment> getEnvironments() {
         return environments;
     }
 

@@ -33,7 +33,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.apache.maven.model.Model;
-import org.sonatype.maven.polyglot.mapping.Mapping;
 
 @Named("tycho-aggregator")
 @Singleton

@@ -29,10 +29,8 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 public class DownloadStatsTest extends AbstractTychoIntegrationTest {
 
@@ -63,8 +61,7 @@ public class DownloadStatsTest extends AbstractTychoIntegrationTest {
 			Predicate<Element> elementFilter) throws IOException, FileNotFoundException {
 		List<String> downloadStats = new ArrayList<>();
 		try (InputStream stream = artifactJar.getInputStream(artifactJar.getJarEntry("artifacts.xml"))) {
-			downloadStats.addAll(captureDownloadStatsFromArtifactsXml(new XMLParser().parse(new XMLIOSource(stream)),
-					elementFilter));
+			downloadStats.addAll(captureDownloadStatsFromArtifactsXml(Document.of(stream), elementFilter));
 		}
 		return downloadStats;
 	}
@@ -75,11 +72,13 @@ public class DownloadStatsTest extends AbstractTychoIntegrationTest {
 			elementFilter = o -> true;
 		}
 		List<String> downloadStats = new ArrayList<>();
-		for (Element element : document.getChild("repository").getChild("artifacts").getChildren("artifact")) {
+		for (Element element : document.root().childElement("artifacts").orElse(null).childElements("artifact")
+				.toList()) {
 			if (elementFilter.test(element)) {
-				for (Element property : element.getChild("properties").getChildren("property")) {
-					if (property.getAttributeValue("name").equals("download.stats")) {
-						downloadStats.add(property.getAttributeValue("value"));
+				for (Element property : element.childElement("properties").orElse(null).childElements("property")
+						.toList()) {
+					if (property.attribute("name").equals("download.stats")) {
+						downloadStats.add(property.attribute("value"));
 					}
 				}
 			}
@@ -87,8 +86,8 @@ public class DownloadStatsTest extends AbstractTychoIntegrationTest {
 		return downloadStats;
 	}
 
-	public static List<String> captureDownloadStatsFromArtifactsXML(File artifactsXml, Predicate<Element> elementFilter)
-			throws IOException {
-		return captureDownloadStatsFromArtifactsXml(XMLParser.parse(artifactsXml), elementFilter);
+	private static List<String> captureDownloadStatsFromArtifactsXML(File artifactsXml,
+			Predicate<Element> elementFilter) {
+		return captureDownloadStatsFromArtifactsXml(Document.of(artifactsXml.toPath()), elementFilter);
 	}
 }

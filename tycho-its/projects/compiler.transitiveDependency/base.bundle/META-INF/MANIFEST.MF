@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Base Bundle
+Bundle-SymbolicName: base.bundle
+Bundle-Version: 1.0.0.qualifier
+Export-Package: base.bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-17

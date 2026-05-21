@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -42,7 +42,7 @@ public interface DependencyResolver {
      */
     public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
             TargetPlatform targetPlatform, DependencyResolverConfiguration resolverConfiguration,
-            List<TargetEnvironment> environments);
+            Collection<TargetEnvironment> environments);
 
     public void injectDependenciesIntoMavenModel(MavenProject project, TychoProject projectType,
             DependencyArtifacts resolvedDependencies, DependencyArtifacts testDepedencyArtifacts, Logger logger);

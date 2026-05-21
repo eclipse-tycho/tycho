@@ -22,14 +22,11 @@ import javax.inject.Singleton;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
-import org.eclipse.tycho.MavenRepositorySettings;
 
 @Named("org.eclipse.equinox.internal.p2.repository.Transport")
 @Singleton
 public class TychoRepositoryTransportAgentFactory implements IAgentServiceFactory {
 
-    @Inject
-    private MavenRepositorySettings mavenRepositorySettings;
 	@Inject
 	private Logger logger;
 

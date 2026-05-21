@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Sebastien Arod.
+ * Copyright (c) 2015, 2026 Sebastien Arod.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -16,12 +16,12 @@ import static org.eclipse.tycho.model.Feature.MATCH_COMPATIBLE;
 import static org.eclipse.tycho.model.Feature.MATCH_EQUIVALENT;
 import static org.eclipse.tycho.model.Feature.MATCH_GREATER_OR_EQUAL;
 import static org.eclipse.tycho.model.Feature.MATCH_PERFECT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.eclipse.tycho.versions.engine.DefaultVersionRangeUpdateStrategy;
 import org.eclipse.tycho.versions.engine.ImportRefVersionConstraint;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DefaultVersionRangeUpdateStrategyTest {
 

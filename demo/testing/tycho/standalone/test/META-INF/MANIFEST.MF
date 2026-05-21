@@ -7,6 +7,6 @@ Import-Package: org.eclipse.demo.tycho,
  org.osgi.framework;version="1.10.0",
  org.osgi.util.tracker;version="1.5.3"
 Require-Bundle: org.junit,
- junit-jupiter-api
+ junit-jupiter-api;bundle-version="[5.0,6.0)"
 Automatic-Module-Name: test
 Bundle-RequiredExecutionEnvironment: JavaSE-17

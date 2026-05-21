@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2023 SAP AG and others.
+ * Copyright (c) 2012, 2026 SAP AG and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -40,12 +40,10 @@ public class SurefireUtil {
 
 	public static void assertTestMethodWasSuccessfullyExecuted(String baseDir, String suiteClassSimpleName,
 			String testClassQualifiedName, String methodName) throws Exception {
-		String testClassSimpleName = testClassQualifiedName.substring(testClassQualifiedName.lastIndexOf(".") + 1);
-		assertTestMethodWasSuccessfullyExecuted(baseDir, testClassQualifiedName,
-				String.join(" ", suiteClassSimpleName, testClassSimpleName), methodName, 1);
+		assertTestMethodWasSuccessfullyExecuted(baseDir, suiteClassSimpleName, testClassQualifiedName, methodName, 1);
 	}
 
-	private static void assertTestMethodWasSuccessfullyExecuted(String baseDir, String qualifiedClassName,
+	public static void assertTestMethodWasSuccessfullyExecuted(String baseDir, String qualifiedClassName,
 			String classNameInReport, String methodName, int iterations) throws Exception {
 		// surefire-test-report XML schema:
 		// https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd

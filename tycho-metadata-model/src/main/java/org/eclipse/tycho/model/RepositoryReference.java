@@ -14,7 +14,7 @@ package org.eclipse.tycho.model;
 
 import java.util.Objects;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class RepositoryReference {
     private final Element dom;
@@ -41,31 +41,31 @@ public class RepositoryReference {
     }
 
     public RepositoryReference(String tagname) {
-        this.dom = new Element(tagname);
+        this.dom = Element.of(tagname);
     }
 
     public String getLocation() {
-        return dom.getAttributeValue("location");
+        return dom.attribute("location");
     }
 
     public void setLocation(String location) {
-        dom.setAttribute("location", location);
+        dom.attribute("location", location);
     }
 
     public String getName() {
-        return dom.getAttributeValue("name");
+        return dom.attribute("name");
     }
 
     public void setName(String name) {
-        dom.setAttribute("name", name);
+        dom.attribute("name", name);
     }
 
     public boolean isEnabled() {
-        return Boolean.parseBoolean(dom.getAttributeValue("enabled"));
+        return Boolean.parseBoolean(dom.attribute("enabled"));
     }
 
     public void setEnabled(boolean enabled) {
-        dom.setAttribute("enabled", Boolean.toString(enabled));
+        dom.attribute("enabled", Boolean.toString(enabled));
     }
 
     Element getDom() {

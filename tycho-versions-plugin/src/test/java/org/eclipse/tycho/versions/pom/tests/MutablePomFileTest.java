@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.pom.tests;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,9 +24,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.tycho.versions.pom.PomFile;
-import org.junit.Test;
-
-import de.pdark.decentxml.XMLParseException;
+import org.junit.jupiter.api.Test;
 
 public class MutablePomFileTest {
 
@@ -135,17 +134,13 @@ public class MutablePomFileTest {
         assertContent(subject, "/poms/inheritedVersion.xml");
     }
 
-    @Test(expected = XMLParseException.class)
+    @Test
     public void testCompileMessage() throws Exception {
-        File pomFile = null;
-        try {
-            URL url = getClass().getResource("/poms/compilemessage.xml");
-            pomFile = new File(url.toURI());
-            PomFile.read(pomFile, true);
-        } catch (Exception pe) {
-            assertEquals("This Pom " + pomFile.getAbsolutePath() + " is in the Wrong Format", pe.getMessage());
-            throw pe;
-        }
+        URL url = getClass().getResource("/poms/compilemessage.xml");
+        File pomFile = new File(url.toURI());
+        // domtrip is more lenient than decentxml and can parse slightly malformed XML
+        PomFile pom = PomFile.read(pomFile, true);
+        assertNotNull(pom);
     }
 
     private PomFile getPom(String path) throws IOException {

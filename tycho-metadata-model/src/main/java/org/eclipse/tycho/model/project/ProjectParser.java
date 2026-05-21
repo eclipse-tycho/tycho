@@ -79,9 +79,10 @@ class ProjectParser {
             Map<String, URI> variablesMap = variables.stream()
                     .collect(Collectors.toMap(ProjectVariable::name, ProjectVariable::value));
             NodeList linkNodes = root.getElementsByTagName("link");
-            Set<LinkDescription> links = IntStream.range(0, linkNodes.getLength()).mapToObj(i -> linkNodes.item(i))
+            Collection<LinkDescription> links = IntStream.range(0, linkNodes.getLength()).mapToObj(linkNodes::item)
                     .map(Element.class::cast).map(e -> parseLink(e)).filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
+                    // Maintain order from project-file to allow more specific links to be listed first
+                    .distinct().toList();
 
             return new EclipseProject() {
 
@@ -139,12 +140,8 @@ class ProjectParser {
                         return path;
                     }
                     Path relative = location.relativize(path);
-                    for (LinkDescription link : links) {
-                        if (relative.startsWith(link.name())) {
-                            return resolvePath(link, relative, location, variablesMap);
-                        }
-                    }
-                    return path;
+                    Path resolved = resolveLinks(links, relative, location, variablesMap);
+                    return resolved != null ? resolved : path;
                 }
 
                 @Override
@@ -169,7 +166,23 @@ class ProjectParser {
         return null;
     }
 
-    static Path resolvePath(LinkDescription link, Path path, Path projectLocation, Map<String, URI> variablesMap) {
+    static Path resolveLinks(Collection<LinkDescription> links, Path relative, Path projectLocation,
+            Map<String, URI> variablesMap) {
+        for (LinkDescription link : links) {
+            boolean isFile = link.type() == LinkDescription.FILE;
+
+            if (isFile && relative.equals(link.name())) {
+                return resolvePath(link, projectLocation, variablesMap);
+
+            } else if (!isFile && relative.startsWith(link.name())) {
+                Path target = resolvePath(link, projectLocation, variablesMap);
+                return appendRemaining(target, link.name(), relative);
+            }
+        }
+        return null;
+    }
+
+    private static Path resolvePath(LinkDescription link, Path projectLocation, Map<String, URI> variablesMap) {
         Path linkPath;
         if (link.location() != null) {
             linkPath = link.location();
@@ -190,21 +203,13 @@ class ProjectParser {
         } else {
             return null;
         }
-        if (link.type() == LinkDescription.FILE) {
-            //the path must actually match each others as it is a file!
-            if (path.getNameCount() > 1) {
-                return null;
-            }
-        }
 
         Path result = resolveVariables(linkPath, projectLocation, variablesMap);
         if (result == null) {
             return null;
         }
         result = projectLocation.resolve(result);
-        result = appendRemaining(path, result);
         result = result.normalize();
-
         return result;
     }
 
@@ -300,10 +305,16 @@ class ProjectParser {
 
     private static Path appendRemaining(Path path, Path resolvedPath) {
         int count = path.getNameCount();
-        for (int i = 1; i < count; i++) {
-            resolvedPath = resolvedPath.resolve(path.getName(i));
+        if (count > 1) {
+            resolvedPath = resolvedPath.resolve(path.subpath(1, count));
         }
         return resolvedPath;
+    }
+
+    private static Path appendRemaining(Path path, Path added, Path appendix) {
+        return path != null && added.getNameCount() < appendix.getNameCount()
+                ? path.resolve(appendix.subpath(added.getNameCount(), appendix.getNameCount()))
+                : path;
     }
 
     private static ProjectVariable parseVariable(Element element) {

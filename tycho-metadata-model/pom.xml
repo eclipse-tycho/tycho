@@ -21,8 +21,8 @@
 	<name>Tycho Eclipse Project Metadata Model</name>
 	<dependencies>
 		<dependency>
-			<groupId>de.pdark</groupId>
-			<artifactId>decentxml</artifactId>
+			<groupId>eu.maveniverse.maven.domtrip</groupId>
+			<artifactId>domtrip-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
@@ -56,7 +56,7 @@
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
-			<version>1.19.0</version>
+			<version>1.22.0</version>
 		</dependency>
 	</dependencies>
 </project>

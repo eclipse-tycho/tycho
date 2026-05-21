@@ -10,7 +10,7 @@
 	<artifactId>osgitest</artifactId>
 	<packaging>eclipse-plugin</packaging>
 	<properties>
-		<target-platform>https://download.eclipse.org/eclipse/updates/4.37-I-builds/I20250703-1800</target-platform>
+		<target-platform>https://download.eclipse.org/eclipse/updates/4.37</target-platform>
 		<tycho-version>6.0.0-SNAPSHOT</tycho-version>
 	</properties>
 	<repositories>

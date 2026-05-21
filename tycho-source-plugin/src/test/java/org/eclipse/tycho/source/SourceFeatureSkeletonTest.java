@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2020 Red Hat Inc. and others.
+ * Copyright (c) 2012, 2026 Red Hat Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -13,37 +13,34 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
+import static org.codehaus.plexus.util.ReflectionUtils.setVariableValueInObject;
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.eclipse.tycho.model.Feature;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-@RunWith(JUnit4.class)
-public class SourceFeatureSkeletonTest extends AbstractMojoTestCase {
+public class SourceFeatureSkeletonTest {
 
     private SourceFeatureMojo mojo;
 
     @Before
-    @Override
     public void setUp() throws Exception {
         mojo = new SourceFeatureMojo();
-        setVariableValueToObject(mojo, "logger", new SilentLog());
-        setVariableValueToObject(mojo, "labelSuffix", " Developer Resources");
+        setVariableValueInObject(mojo, "logger", new SilentLog());
+        setVariableValueInObject(mojo, "labelSuffix", " Developer Resources");
     }
 
     @Test
     public void testFeatureWithLabelInPropertiesDefaultSuffix() throws Exception {
         Feature originalFeature = createFeature("/featureWithLabelInProperties.xml");
-        Assert.assertEquals("%label", originalFeature.getLabel());
+        assertEquals("%label", originalFeature.getLabel());
         Properties sourceFeatureProperties = new Properties();
         Properties mergedProps = new Properties();
         mergedProps.setProperty("label", "feature label");
@@ -76,7 +73,7 @@ public class SourceFeatureSkeletonTest extends AbstractMojoTestCase {
     @Test(expected = MojoExecutionException.class)
     public void testFeatureLabelMissingInProperties() throws Exception {
         Feature originalFeature = createFeature("/featureWithLabelInProperties.xml");
-        Assert.assertEquals("%label", originalFeature.getLabel());
+        assertEquals("%label", originalFeature.getLabel());
         Properties emptyProperties = new Properties();
         mojo.createSourceFeatureSkeleton(originalFeature, emptyProperties, emptyProperties);
     }

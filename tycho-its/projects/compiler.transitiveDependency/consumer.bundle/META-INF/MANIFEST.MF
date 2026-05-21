@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Consumer Bundle
+Bundle-SymbolicName: consumer.bundle
+Bundle-Version: 1.0.0.qualifier
+Import-Package: middle.bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-17

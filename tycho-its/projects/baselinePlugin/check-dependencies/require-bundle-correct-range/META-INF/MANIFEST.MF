@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Require Bundle Correct Range Test
+Bundle-SymbolicName: tycho.its.test.require.bundle.correct.range
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.20.0,4)"
