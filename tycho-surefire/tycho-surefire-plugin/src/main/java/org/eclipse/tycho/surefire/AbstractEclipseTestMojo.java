@@ -38,6 +38,9 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.ExecutionException;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
@@ -47,7 +50,6 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.surefire.api.booter.ProviderParameterNames;
@@ -151,18 +153,19 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private String debugOptions;
 
     /**
-     * (junit47 provider with JUnit4.8+ only) Groups/categories for this test (comma-separated).
-     * Only classes/methods/etc decorated with one of the group/category specified here will be
-     * included in test run, if specified. For JUnit, this parameter forces the use of the junit47
-     * provider
+     * (JUnit 4.8+ only) Groups/categories for this test (comma-separated). Only classes/methods/etc
+     * decorated with one of the group/category specified here will be included in test run, if
+     * specified. This parameter requires JUnit 4.8 or higher, as the {@code @Category} annotation
+     * was introduced in JUnit 4.8.
      */
     @Parameter(property = "groups")
     private String groups;
 
     /**
-     * (junit47 provider with JUnit4.8+ only) Excluded groups/categories (comma-separated). Any
-     * methods/classes/etc with one of the groups/categories specified in this list will
-     * specifically not be run. For JUnit, this parameter forces the use of the junit47 provider
+     * (JUnit 4.8+ only) Excluded groups/categories (comma-separated). Any methods/classes/etc with
+     * one of the groups/categories specified in this list will specifically not be run. This
+     * parameter requires JUnit 4.8 or higher, as the {@code @Category} annotation was introduced in
+     * JUnit 4.8.
      */
     @Parameter(property = "excludedGroups")
     private String excludedGroups;
@@ -322,25 +325,26 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     @Parameter(property = "surefire.skipAfterFailureCount", defaultValue = "0")
     private Integer skipAfterFailureCount;
 
-    @Component
+    @Inject
     protected RepositorySystem repositorySystem;
 
-    @Component
+    @Inject
     private ResolutionErrorHandler resolutionErrorHandler;
 
-    @Component(role = TychoProject.class)
+    @Inject
     private Map<String, TychoProject> projectTypes;
 
-    @Component
+    @Inject
     private EquinoxInstallationFactory installationFactory;
 
-    @Component
+    @Inject
     private ProvisionedInstallationBuilderFactory provisionedInstallationBuilderFactory;
 
-    @Component
+    @Inject
     private EquinoxLauncher launcher;
 
-    @Component(hint = "p2")
+    @Inject
+    @Named("p2")
     protected DependencyResolver dependencyResolver;
 
     /**
@@ -375,8 +379,8 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private boolean trimStackTrace;
 
     /**
-     * (JUnit 4.7 provider) Supports values "classes"/"methods"/"both" to run in separate threads,
-     * as controlled by threadCount.
+     * Supports values "classes"/"methods"/"both" to run in separate threads, as controlled by
+     * threadCount.
      *
      * @since 0.16.0
      */
@@ -384,7 +388,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private ParallelMode parallel;
 
     /**
-     * (JUnit 4.7 provider) Indicates that threadCount is per cpu core.
+     * Indicates that threadCount is per cpu core.
      *
      * @since 0.16.0
      */
@@ -392,9 +396,8 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private boolean perCoreThreadCount;
 
     /**
-     * (JUnit 4.7 provider) The attribute thread-count allows you to specify how many threads should
-     * be allocated for this execution. Only makes sense to use in conjunction with the parallel
-     * parameter.
+     * The attribute thread-count allows you to specify how many threads should be allocated for
+     * this execution. Only makes sense to use in conjunction with the parallel parameter.
      *
      * @since 0.16.0
      */
@@ -402,9 +405,9 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private int threadCount = -1;
 
     /**
-     * (JUnit 4.7 provider) Indicates that the thread pool will be unlimited. The parallel parameter
-     * and the actual number of classes/methods will decide. Setting this to "true" effectively
-     * disables perCoreThreadCount and threadCount.
+     * Indicates that the thread pool will be unlimited. The parallel parameter and the actual
+     * number of classes/methods will decide. Setting this to "true" effectively disables
+     * perCoreThreadCount and threadCount.
      *
      * @since 0.16.0
      */
@@ -586,13 +589,13 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     @Parameter(defaultValue = "booterFirst")
     private ClassLoaderOrder classLoaderOrder;
 
-    @Component
+    @Inject
     private ProviderHelper providerHelper;
 
-    @Component
+    @Inject
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    @Component
+    @Inject
     protected InstallableUnitGenerator generator;
 
     /**
@@ -685,8 +688,8 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             workingDir.mkdirs();
             installationBuilder.setWorkingDir(workingDir);
             installationBuilder.setDestination(work);
-            List<TargetEnvironment> list = getTestTargetEnvironments();
-            TargetEnvironment testEnvironment = list.get(0);
+            Collection<TargetEnvironment> list = getTestTargetEnvironments();
+            TargetEnvironment testEnvironment = list.iterator().next();
             installationBuilder.setTargetEnvironment(testEnvironment);
             getLog().info("Provisioning with environment " + testEnvironment + "...");
             return installationBuilder.install();

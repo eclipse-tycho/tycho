@@ -15,7 +15,6 @@ package org.eclipse.tycho.p2resolver;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,7 +85,7 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
     }
 
     @Override
-    public Collection<IInstallableUnit> multiPlatformResolve(List<TargetEnvironment> environments,
+    public Collection<IInstallableUnit> multiPlatformResolve(Collection<TargetEnvironment> environments,
             IProgressMonitor monitor) throws ResolverException {
         if (ignoreFilters) {
             // short cut: properties would ignored for each single resolution, so resolve just once

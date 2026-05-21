@@ -40,7 +40,9 @@ public class JarDirectoryBundlesTest extends AbstractTychoIntegrationTest {
 		// verify the bundle actually makes sense
 		DefaultBundleReader reader = new DefaultBundleReader();
 		OsgiManifest siteBundleManifest = reader.loadManifest(sitePlugins[0]);
-		assertEquals("platform.jar", siteBundleManifest.getBundleClasspath()[0]);
+		// no more nested jar after
+		// https://github.com/eclipse-platform/eclipse.platform/pull/2174
+		assertEquals(".", siteBundleManifest.getBundleClasspath()[0]);
 		assertEquals("org.eclipse.platform", siteBundleManifest.getBundleSymbolicName());
 
 		File[] productPlugins = new File(verifier.getBasedir(), "product/target/repository/plugins")
@@ -49,7 +51,7 @@ public class JarDirectoryBundlesTest extends AbstractTychoIntegrationTest {
 
 		// verify directory actually makes sense
 		OsgiManifest productBundleManifest = reader.loadManifest(productPlugins[0]);
-		assertEquals("platform.jar", productBundleManifest.getBundleClasspath()[0]);
+		assertEquals(".", productBundleManifest.getBundleClasspath()[0]);
 		assertEquals("org.eclipse.platform", productBundleManifest.getBundleSymbolicName());
 
 	}

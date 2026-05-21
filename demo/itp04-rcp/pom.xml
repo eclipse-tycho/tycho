@@ -20,7 +20,7 @@ Contributors:
 	<name>RCP Parent</name>
 
 	<properties>
-		<tycho-version>2.7.3</tycho-version>
+		<tycho-version>5.0.1</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 

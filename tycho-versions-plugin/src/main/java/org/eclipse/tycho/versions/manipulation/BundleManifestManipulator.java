@@ -28,15 +28,14 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.eclipse.tycho.TychoConstants;
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.model.manifest.MutableBundleManifest;
 import org.eclipse.tycho.versions.bundle.MutableBndFile;
-import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PackageVersionChange;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
-import org.eclipse.tycho.versions.engine.Versions;
 import org.osgi.framework.Constants;
 
 @Named("bundle-manifest")
@@ -45,7 +44,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
 
     @Override
     public boolean addMoreChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
-        if (isBundle(project)) {
+        if (isBundle(project) && versionChangeContext.shouldUpdatePackageVersions()) {
             Set<PackageVersionChange> changes = computeExportedPackageChanges(project, versionChangeContext);
             return versionChangeContext.addPackageVersionChanges(changes);
         }
@@ -57,7 +56,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         if (isBundle(project)) {
             VersionChange versionChangeForProject = findVersionChangeForProject(project, versionChangeContext);
             if (versionChangeForProject != null) {
-                String error = Versions.validateOsgiVersion(versionChangeForProject.getNewVersion(),
+                String error = VersionTool.validateOsgiVersion(versionChangeForProject.getNewVersion(),
                         getManifestFile(project));
                 return error != null ? Collections.singleton(error) : null;
             }
@@ -103,8 +102,8 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         }
         MutableBundleManifest mf = bundleManifest.get();
         // ignore ".qualifier" literals in package versions
-        String versionToReplace = Versions.toBaseVersion(versionChangeForProject.getVersion());
-        String newVersion = Versions.toBaseVersion(versionChangeForProject.getNewVersion());
+        String versionToReplace = VersionTool.toBaseVersion(versionChangeForProject.getVersion());
+        String newVersion = VersionTool.toBaseVersion(versionChangeForProject.getNewVersion());
 
         Set<PackageVersionChange> packageVersionChanges = new HashSet<>();
         for (Entry<String, String> exportedPackageVersion : mf.getExportedPackagesVersion().entrySet()) {
@@ -165,19 +164,19 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         if (versionChangeForProject != null) {
             logger.info("  META-INF/MANIFEST.MF//Bundle-Version: " + versionChangeForProject.getVersion() + " => "
                     + versionChangeForProject.getNewVersion());
-
             mf.setVersion(versionChangeForProject.getNewVersion());
-
-            Map<String, String> exportPackagesNewVersion = new HashMap<>();
-            for (PackageVersionChange packageVersionChange : versionChangeContext.getPackageVersionChanges()) {
-                if (packageVersionChange.getBundleSymbolicName().equals(mf.getSymbolicName())) {
-                    logger.info("  META-INF/MANIFEST.MF//Export-Package//" + packageVersionChange.getPackageName()
-                            + ";version: " + packageVersionChange.getVersion() + " => "
-                            + packageVersionChange.getNewVersion());
-                    exportPackagesNewVersion.put(packageVersionChange.getPackageName(),
-                            packageVersionChange.getNewVersion());
-                }
+        }
+        Map<String, String> exportPackagesNewVersion = new HashMap<>();
+        for (PackageVersionChange packageVersionChange : versionChangeContext.getPackageVersionChanges()) {
+            if (packageVersionChange.getBundleSymbolicName().equals(mf.getSymbolicName())) {
+                logger.info("  META-INF/MANIFEST.MF//Export-Package//" + packageVersionChange.getPackageName()
+                    	+ ";version: " + packageVersionChange.getVersion() + " => "
+                    	+ packageVersionChange.getNewVersion());
+                exportPackagesNewVersion.put(packageVersionChange.getPackageName(),
+                    	packageVersionChange.getNewVersion());
             }
+        }
+        if (!exportPackagesNewVersion.isEmpty()) {
             mf.updateExportedPackageVersions(exportPackagesNewVersion);
         }
     }
@@ -197,7 +196,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
                 logger.info("  META-INF/MANIFEST.MF//Fragment-Host//" + mf.getFragmentHostSymbolicName()
                         + ";bundle-version: " + newVersionRange + " => " + newVersionRange);
 
-                mf.setFragmentHostVersion(Versions.toBaseVersion(newVersionRange));
+                mf.setFragmentHostVersion(VersionTool.toBaseVersion(newVersionRange));
             }
         }
     }

@@ -1,4 +1,4 @@
-name: Publish Tycho site-docs
+name: Tycho site-docs
 concurrency: 
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -6,12 +6,21 @@ on:
   push:
     branches: 
       - 'main'
+    paths:
+      - 'src/site/**'
+  pull_request:
+    branches: 
+      - 'main'
+    paths:
+      - 'src/site/**'
+      - .github/workflows/sitedocs.yml
+
 permissions:
   contents: read
 
 jobs:
   build:
-    name: Publish site-docs
+    name: Build site-docs
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -20,19 +29,20 @@ jobs:
       repository-projects: write
     steps:
     - name: Inject slug/short variables
-      uses: rlespinasse/github-slug-action@ac4a3a266833ca6b6086466a921fae9f3c671596 # v5.3.0
+      uses: rlespinasse/github-slug-action@e6f261660910b273384c5c42b17a0217881b217a # v5.6.0
     - name: Checkout tycho code
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
        path: 'tycho'
     - name: Checkout page
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
        path: 'page'
        token: ${{ secrets.TYCHO_SITE_PAT }}
        repository: 'eclipse-tycho/eclipse-tycho.github.io'
     - name: Set up Java
-      uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
       with:
         java-version: 21
         distribution: 'temurin'
@@ -40,20 +50,22 @@ jobs:
     - name: Set up Maven
       uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1 # v5
       with:
-        maven-version: 3.9.11
+        maven-version: 3.9.14
     - name: Build site-doc
       env:
        JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
       run: | 
         mvn -U -V -e -B -ntp clean install site site:stage --file tycho/pom.xml -T1C -DskipTests
     - name: Upload site-doc
-      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
-        name: site-docs-${{ env.GITHUB_REF_NAME }}
+        name: site-docs-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || env.GITHUB_REF_NAME }}
         if-no-files-found: error
         path: |
           ${{ github.workspace }}/tycho/target/staging/**/*.*
-    - run: |
+    - name: Deploy to GitHub Pages
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
         cd ${{ github.workspace }}/page/doc/
         git config user.name "Tycho Bot"
         git config user.email tycho-bot@eclipse.org

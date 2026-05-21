@@ -175,6 +175,40 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
+    public void testSourceBundleShortVersion() throws Exception {
+        tpConfig.addP2Repository(resourceFile("repositories/jre").toURI());
+        String featureId = "org.eclipse.tycho.p2.impl.resolver.test.feature01";
+        projectToResolve = createReactorProject(resourceFile("sourcebundles/feature01"), TYPE_ECLIPSE_FEATURE,
+                featureId);
+
+        File bundle = resourceFile("sourcebundles/bundle01");
+        String bundleId = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
+        String bundleVersion = "1-SNAPSHOT";
+        reactorProjects.add(createReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, bundleId));
+
+        ReactorProjectStub sb = new ReactorProjectStub(bundle, bundleId, bundleId, bundleVersion, TYPE_ECLIPSE_PLUGIN);
+        SourcesBundleDependencyMetadataGenerator metadata = new SourcesBundleDependencyMetadataGenerator();
+        metadata.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
+        DependencyMetadata generateMetadata = metadata.generateMetadata(new ArtifactMock(sb, "source"),
+                getEnvironments(), null, new PublisherOptions());
+        sb.setDependencyMetadata(generateMetadata);
+        reactorProjects.add(sb);
+
+        result = singleEnv(impl.resolveTargetDependencies(getTargetPlatform(false), projectToResolve));
+
+        assertEquals(3, result.getArtifacts().size());
+        List<P2ResolutionResult.Entry> entries = new ArrayList<>(result.getArtifacts());
+        Collections.sort(entries, (entry1, entry2) -> entry1.getId().compareTo(entry2.getId()));
+        assertEquals("org.eclipse.tycho.p2.impl.resolver.test.bundle01", entries.get(0).getId());
+        assertEquals("org.eclipse.tycho.p2.impl.resolver.test.bundle01.source", entries.get(1).getId());
+        assertEquals("1.0.0.qualifier", entries.get(1).getVersion());
+        assertEquals("org.eclipse.tycho.p2.impl.resolver.test.feature01", entries.get(2).getId());
+        assertEquals(bundle, entries.get(0).getLocation(true));
+        assertEquals(bundle, entries.get(1).getLocation(true));
+        assertEquals("sources", entries.get(1).getClassifier());
+    }
+
+    @Test
     public void testEclipseRepository() throws Exception {
         tpConfig.addP2Repository(resourceFile("repositories/e342_2").toURI());
         tpConfig.addP2Repository(resourceFile("repositories/launchers").toURI());

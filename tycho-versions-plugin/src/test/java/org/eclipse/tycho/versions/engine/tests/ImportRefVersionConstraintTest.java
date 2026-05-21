@@ -4,20 +4,22 @@ import static org.eclipse.tycho.model.Feature.MATCH_COMPATIBLE;
 import static org.eclipse.tycho.model.Feature.MATCH_EQUIVALENT;
 import static org.eclipse.tycho.model.Feature.MATCH_GREATER_OR_EQUAL;
 import static org.eclipse.tycho.model.Feature.MATCH_PERFECT;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.eclipse.tycho.versions.engine.ImportRefVersionConstraint;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class ImportRefVersionConstraintTest {
 
-    @Test
-    public void shouldMatchAnythingWhenNullVersion() {
+    @ParameterizedTest
+    @ValueSource(strings = { "0.1.0", "45.0.0" })
+    public void shouldMatchAnythingWhenNullVersion(String value) {
 
         ImportRefVersionConstraint rangeWithoutVersion = new ImportRefVersionConstraint(null, MATCH_PERFECT);
-        assertTrue(rangeWithoutVersion.matches("0.1.0"));
-        assertTrue(rangeWithoutVersion.matches("45.0.0"));
+        assertTrue(rangeWithoutVersion.matches(value));
     }
 
     @Test

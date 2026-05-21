@@ -23,7 +23,6 @@ import javax.inject.Named;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ClasspathEntry;
-import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.VersionRange;
 
 @Named("junit5vintageinternal")

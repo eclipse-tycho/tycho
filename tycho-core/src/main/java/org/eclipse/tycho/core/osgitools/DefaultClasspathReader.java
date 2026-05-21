@@ -27,11 +27,8 @@ import javax.inject.Singleton;
 
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
-import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.MavenArtifactKey;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.model.classpath.ClasspathParser;
-import org.eclipse.tycho.model.classpath.JUnitBundle;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
 import org.eclipse.tycho.model.project.EclipseProject;
 

@@ -16,18 +16,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.attribute.FileTime;
 
+import javax.inject.Inject;
+
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
-import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Mojo;
-import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.Parameter;
-import javax.inject.Inject;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import javax.inject.Inject;
-import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;

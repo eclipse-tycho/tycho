@@ -31,7 +31,7 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class IUXmlTransformerTest {
     private static ArtifactKey junit4InTP;
@@ -95,7 +95,7 @@ public class IUXmlTransformerTest {
 
             @Override
             protected boolean matchesSafely(Element item) {
-                return id.equals(item.getAttributeValue("name")) && version.equals(item.getAttributeValue("range"));
+                return id.equals(item.attribute("name")) && version.equals(item.attribute("range"));
             }
         };
     }
@@ -111,7 +111,7 @@ public class IUXmlTransformerTest {
 
             @Override
             protected boolean matchesSafely(Element item) {
-                return id.equals(item.getAttributeValue("name")) && version.equals(item.getAttributeValue("version"));
+                return id.equals(item.attribute("name")) && version.equals(item.attribute("version"));
             }
         };
     }
@@ -127,7 +127,7 @@ public class IUXmlTransformerTest {
 
             @Override
             protected boolean matchesSafely(Element item) {
-                return id.equals(item.getAttributeValue("id")) && version.equals(item.getAttributeValue("version"));
+                return id.equals(item.attribute("id")) && version.equals(item.attribute("version"));
             }
         };
     }

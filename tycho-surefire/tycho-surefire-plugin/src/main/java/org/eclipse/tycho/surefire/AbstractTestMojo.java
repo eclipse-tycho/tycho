@@ -22,6 +22,7 @@ package org.eclipse.tycho.surefire;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +32,9 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
@@ -39,7 +43,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.surefire.util.DirectoryScanner;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.surefire.api.testset.TestListResolver;
@@ -55,7 +58,6 @@ import org.eclipse.tycho.ResolvedArtifactKey;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.maven.OSGiJavaToolchain;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
@@ -200,16 +202,17 @@ public abstract class AbstractTestMojo extends AbstractMojo {
     @Parameter(property = "session", readonly = true, required = true)
     protected MavenSession session;
 
-    @Component
+    @Inject
     protected TychoProjectManager projectManager;
 
-    @Component
+    @Inject
     protected ToolchainProvider toolchainProvider;
 
-    @Component
+    @Inject
     protected BuildPropertiesParser buildPropertiesParser;
 
-    @Component(role = TychoProject.class, hint = "eclipse-plugin")
+    @Inject
+    @Named("eclipse-plugin")
     protected OsgiBundleProject osgiBundle;
 
     @Parameter(property = "plugin.artifacts")
@@ -411,9 +414,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
         return "%s;%s=\"%s\"".formatted(hostSymbolicName, Constants.BUNDLE_VERSION_ATTRIBUTE, hostVersion);
     }
 
-    protected List<TargetEnvironment> getTestTargetEnvironments() {
+    protected Collection<TargetEnvironment> getTestTargetEnvironments() {
         TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
-        List<TargetEnvironment> targetEnvironments = configuration.getEnvironments();
+        Collection<TargetEnvironment> targetEnvironments = configuration.getEnvironments();
         TargetEnvironment runningEnvironment = TargetEnvironment.getRunningEnvironment();
         for (TargetEnvironment targetEnvironment : targetEnvironments) {
             if (targetEnvironment.equals(runningEnvironment)) {

@@ -30,7 +30,6 @@ import java.util.zip.ZipEntry;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.LegacyLocalRepositoryManager;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.DefaultMavenExecutionResult;
@@ -42,7 +41,9 @@ import org.apache.maven.session.scope.internal.SessionScope;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -279,8 +280,12 @@ public class TychoTargetLocationLoader implements TargetLocationLoader {
                 for (String key : properties.stringPropertyNames()) {
                     session.setSystemProperty(key, properties.getProperty(key));
                 }
-                RepositorySystemSession repositorySystemSession = LegacyLocalRepositoryManager.overlay(localRepository,
-                        session, null);
+                File localRepoDir = new File(tempDir, ".m2/repository");
+                localRepoDir.mkdirs();
+                RepositorySystem repositorySystem = container.lookup(RepositorySystem.class);
+                session.setLocalRepositoryManager(
+                        repositorySystem.newLocalRepositoryManager(session, new LocalRepository(localRepoDir)));
+                RepositorySystemSession repositorySystemSession = session;
                 @SuppressWarnings("deprecation")
                 MavenSession mavenSession = new MavenSession(container, repositorySystemSession, request,
                         new DefaultMavenExecutionResult());

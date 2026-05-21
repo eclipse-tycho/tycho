@@ -34,6 +34,7 @@ public class VersionChangesDescriptor {
 
     private final VersionRangeUpdateStrategy versionRangeUpdateStrategy;
     private Collection<ProjectMetadata> projects;
+    private boolean updatePackageVersions = true;
 
     public VersionChangesDescriptor(Set<PomVersionChange> originalVersionChanges,
             VersionRangeUpdateStrategy versionRangeUpdateStrategy, Collection<ProjectMetadata> projects) {
@@ -82,6 +83,14 @@ public class VersionChangesDescriptor {
 
     public VersionRangeUpdateStrategy getVersionRangeUpdateStrategy() {
         return versionRangeUpdateStrategy;
+    }
+
+    public boolean shouldUpdatePackageVersions() {
+        return updatePackageVersions;
+    }
+
+    public void setUpdatePackageVersions(boolean updatePackageVersions) {
+        this.updatePackageVersions = updatePackageVersions;
     }
 
     public boolean addPackageVersionChanges(Set<PackageVersionChange> changes) {

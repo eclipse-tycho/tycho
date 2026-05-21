@@ -22,7 +22,6 @@ import javax.inject.Singleton;
 
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.IU;
-import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;

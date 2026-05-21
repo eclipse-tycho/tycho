@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="Simple Target Platform" sequenceNumber="1">
+	<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/releases/2023-03"/>
+			<unit id="org.eclipse.platform.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.jdt.feature.group" version="0.0.0"/>
+		</location>
+	</locations>
+</target>

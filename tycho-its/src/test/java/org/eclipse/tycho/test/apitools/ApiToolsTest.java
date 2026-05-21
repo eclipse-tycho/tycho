@@ -27,8 +27,7 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
 
 public class ApiToolsTest extends AbstractTychoIntegrationTest {
 	@Test
@@ -38,8 +37,8 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		File descriptionFile = new File(verifier.getBasedir(), "bundle1/target/.api_description");
 		assertTrue(descriptionFile.getAbsoluteFile() + " not found", descriptionFile.isFile());
-		Document document = XMLParser.parse(descriptionFile);
-		assertEquals("api-bundle-1_0.0.1-SNAPSHOT", document.getRootElement().getAttribute("name").getValue());
+		Document document = Document.of(descriptionFile.toPath());
+		assertEquals("api-bundle-1_0.0.1-SNAPSHOT", document.root().attributeObject("name").value());
 		// TODO enhance project and assert more useful things...
 	}
 
@@ -190,5 +189,16 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyTextInLog("Can't resolve API baseline");
+	}
+
+	@Test
+	public void testBaselineWithReferencesResolution_Default() throws Exception {
+		// This test doesn't expect an api break, the 'api-break' just project fits here
+		Verifier verifier = getVerifier("api-tools/api-break", true, true);
+		File repo = ResourceUtil.resolveTestResource("repositories/api-tools-with-repo-reference");
+		verifier.addCliOption("-DbaselineRepo=" + repo.toURI());
+
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
 	}
 }

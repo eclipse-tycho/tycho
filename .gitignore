@@ -24,6 +24,8 @@ project-units.xml
 requirements.txt
 .DS_Store
 
-## Test cache files
+## Tools downloaded for testing
+actionlint
+# Test cache files
 tycho-core/http/
 tycho-core/https/

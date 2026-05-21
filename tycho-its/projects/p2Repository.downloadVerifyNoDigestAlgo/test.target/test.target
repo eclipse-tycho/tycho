@@ -5,11 +5,11 @@
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
             <unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
-            <repository location="https://download.eclipse.org/releases/2023-03"/>
+            <repository location="https://download.eclipse.org/releases/2025-09"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-            <unit id="org.eclipse.justj.openjdk.hotspot.jre.full.feature.group" version="0.0.0"/>
-            <repository location="https://download.eclipse.org/justj/jres/17/updates/release/17.0.5"/>
+            <unit id="org.eclipse.justj.openjdk.hotspot.jre.minimal.feature.group" version="0.0.0"/>
+            <repository location="https://download.eclipse.org/justj/jres/21/updates/release/21.0.9"/>
         </location>
         <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" missingManifest="error" type="Maven">
             <dependencies>

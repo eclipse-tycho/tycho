@@ -13,6 +13,7 @@
 package org.eclipse.tycho.plugins.p2.director;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
@@ -42,8 +43,8 @@ abstract class AbstractProductMojo extends AbstractMojo {
      * <p>
      * If the project contains more than one product file, you need to choose for which ones you
      * want to create distribution archives. If you choose to install more than one product, you
-     * need to specify the <code>attachId</code> (which becomes a part of the classifier) to make the
-     * classifiers unique. Example:
+     * need to specify the <code>attachId</code> (which becomes a part of the classifier) to make
+     * the classifiers unique. Example:
      * 
      * <pre>
      * &lt;plugin&gt;
@@ -101,9 +102,9 @@ abstract class AbstractProductMojo extends AbstractMojo {
      * <li><code>rootFolder</code> - The path where the installed product shall be stored in the
      * archive, e.g. "eclipse". By default, the product is stored in the archive root.</li>
      * <li><code>rootFolders</code> - OS-specific installation root folders, overriding
-     * <code>rootFolder</code>. Allowed children are <code>&lt;macosx&gt;</code>, <code>&lt;win32&gt;</code>,
-     * <code>&lt;linux&gt;</code> and <code>&lt;freebsd&gt;</code> or any other OS supported by p2. Since
-     * 0.18.0</li>
+     * <code>rootFolder</code>. Allowed children are <code>&lt;macosx&gt;</code>,
+     * <code>&lt;win32&gt;</code>, <code>&lt;linux&gt;</code> and <code>&lt;freebsd&gt;</code> or
+     * any other OS supported by p2. Since 0.18.0</li>
      * </ul>
      * 
      */
@@ -154,7 +155,7 @@ abstract class AbstractProductMojo extends AbstractMojo {
         return null;
     }
 
-    List<TargetEnvironment> getEnvironments() {
+    Collection<TargetEnvironment> getEnvironments() {
         TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         return configuration.getEnvironments();
     }

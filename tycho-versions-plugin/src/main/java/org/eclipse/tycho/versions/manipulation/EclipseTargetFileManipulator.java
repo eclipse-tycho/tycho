@@ -26,17 +26,16 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.helper.VersionTool;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
-import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.TargetFiles;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
-import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.PomFile;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.Element;
 
 @Named("eclipse-target-files")
 @Singleton
@@ -60,16 +59,16 @@ public class EclipseTargetFileManipulator extends AbstractMetadataManipulator {
     }
 
     private void applyChanges(PomVersionChange change, Document document, String fileName) {
-        Element dom = document.getRootElement();
+        Element dom = document.root();
         boolean changed = false;
-        for (Element locations : dom.getChildren("locations")) {
-            List<Element> children = locations.getChildren("location");
+        for (Element locations : dom.childElements("locations").toList()) {
+            List<Element> children = locations.childElements("location").toList();
             for (int j = 0; j < children.size(); j++) {
                 Element location = children.get(j);
-                String locationType = location.getAttributeValue("type");
+                String locationType = location.attribute("type");
                 //TODO probably also update maven target locations?
                 if (TARGET_TYPE.equals(locationType)) {
-                    String uri = location.getAttributeValue(TARGET_TYPE_URI_ATTRIBUTE);
+                    String uri = location.attribute(TARGET_TYPE_URI_ATTRIBUTE);
                     if (uri.startsWith(MVN_URL_PREFIX)) {
                         String[] coordinates = uri.substring(MVN_URL_PREFIX.length()).split(":");
                         if (coordinates.length < 3) {
@@ -79,12 +78,12 @@ public class EclipseTargetFileManipulator extends AbstractMetadataManipulator {
                         String artifactId = coordinates[1];
                         String version = coordinates[2];
                         if (groupId.equals(change.getGroupId()) && artifactId.equals(change.getArtifactId())
-                                && Versions.isVersionEquals(version, change.getVersion())) {
+                                && VersionTool.isVersionEquals(version, change.getVersion())) {
                             Builder<String> builder = Stream.builder();
                             builder.add(MVN_URL);
                             builder.add(groupId);
                             builder.add(artifactId);
-                            builder.add(Versions.toMavenVersion(change.getNewVersion()));
+                            builder.add(VersionTool.toMavenVersion(change.getNewVersion()));
                             for (int i = 3; i < coordinates.length; i++) {
                                 builder.add(coordinates[i]);
                             }
@@ -92,7 +91,7 @@ public class EclipseTargetFileManipulator extends AbstractMetadataManipulator {
                             logger.info("  " + fileName + "//target/locations/location[" + j + "]/@"
                                     + TARGET_TYPE_URI_ATTRIBUTE + ": " + uri + " => " + newUri);
                             changed = true;
-                            location.setAttribute(TARGET_TYPE_URI_ATTRIBUTE, newUri);
+                            location.attribute(TARGET_TYPE_URI_ATTRIBUTE, newUri);
                         }
                     }
                 }
@@ -100,9 +99,9 @@ public class EclipseTargetFileManipulator extends AbstractMetadataManipulator {
         }
         if (changed) {
             try {
-                int sequenceNumber = Integer.parseInt(dom.getAttributeValue(SEQUENCE_NUMBER_ATTRIBUTE));
+                int sequenceNumber = Integer.parseInt(dom.attribute(SEQUENCE_NUMBER_ATTRIBUTE));
                 int nextSequenceNumber = sequenceNumber + 1;
-                dom.setAttribute(SEQUENCE_NUMBER_ATTRIBUTE, String.valueOf(nextSequenceNumber));
+                dom.attribute(SEQUENCE_NUMBER_ATTRIBUTE, String.valueOf(nextSequenceNumber));
                 logger.info("  " + fileName + "//target/@" + SEQUENCE_NUMBER_ATTRIBUTE + ": " + sequenceNumber + " => "
                         + nextSequenceNumber);
             } catch (NumberFormatException e) {

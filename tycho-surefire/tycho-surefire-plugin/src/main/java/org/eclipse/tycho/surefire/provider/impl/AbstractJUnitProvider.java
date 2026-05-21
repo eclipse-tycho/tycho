@@ -35,6 +35,7 @@ public abstract class AbstractJUnitProvider implements TestFrameworkProvider {
         return "junit";
     }
 
+    @Override
     public abstract boolean isEnabled(MavenProject project, List<ClasspathEntry> testBundleClassPath,
             Properties surefireProperties);
 

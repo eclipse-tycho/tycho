@@ -302,6 +302,12 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter(defaultValue = "repository.xml")
     private String repositoryFileName;
 
+    /**
+     * Whether or not to skip assembling the repository. False by default.
+     */
+    @Parameter(property = "p2.repository.assemble.skip", defaultValue = "false")
+    private boolean skip;
+
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
@@ -319,6 +325,9 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (skip) {
+            return;
+        }
         File destination = getAssemblyRepositoryLocation();
         try (var locking = fileLockService.lockVirtually(destination)) {
             destination.mkdirs();

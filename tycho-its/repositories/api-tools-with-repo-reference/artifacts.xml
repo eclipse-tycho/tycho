@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='api-repo' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='1'>
+    <property name='p2.timestamp' value='1768310995236'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='2'>
+    <artifact classifier='osgi.bundle' id='api-bundle-2' version='0.0.1.202601131329'>
+      <properties size='8'>
+        <property name='artifact.size' value='2006'/>
+        <property name='download.size' value='2006'/>
+        <property name='maven-groupId' value='org.eclipse.tycho.tycho-its'/>
+        <property name='maven-artifactId' value='api-bundle-2'/>
+        <property name='maven-version' value='0.0.1-SNAPSHOT'/>
+        <property name='maven-type' value='eclipse-plugin'/>
+        <property name='download.checksum.sha-512' value='f269c121b71d9989af543d5572265ced877fc91ac77512ebe38820ca05707411ac282180fcae5772166c649e0be94234292702351b9b0505fbc66cf11bb5819d'/>
+        <property name='download.checksum.sha-256' value='e1d520feb816025f60c5f8b4ae86c884d3a325935d23acad55553d7d8c8d5ab8'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='api-bundle-1' version='0.0.1.202601131329'>
+      <properties size='8'>
+        <property name='artifact.size' value='2705'/>
+        <property name='download.size' value='2705'/>
+        <property name='maven-groupId' value='org.eclipse.tycho.tycho-its'/>
+        <property name='maven-artifactId' value='api-bundle-1'/>
+        <property name='maven-version' value='0.0.1-SNAPSHOT'/>
+        <property name='maven-type' value='eclipse-plugin'/>
+        <property name='download.checksum.sha-512' value='74abc27f2339bfef8b2713a411c073e5ed1235b7fb85b71126c3f2b6c3b569eafae649a55b187fff5fc75bcf8b386fa06a401aa1627de098a6b813200b24dda9'/>
+        <property name='download.checksum.sha-256' value='5b476cac4ab154bfcd4caeec5462e43047e100b098964e67acf1b4d9b1c6b672'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>

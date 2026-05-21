@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher.facade;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
@@ -31,9 +31,9 @@ public interface PublisherServiceFactory {
      * @return A new {@link PublisherService} instance.
      */
     // TODO separate publishers per artifact type
-    PublisherService createPublisher(ReactorProject project, List<TargetEnvironment> environments);
+    PublisherService createPublisher(ReactorProject project, Collection<TargetEnvironment> environments);
 
-    PublishProductTool createProductPublisher(ReactorProject project, List<TargetEnvironment> environments,
+    PublishProductTool createProductPublisher(ReactorProject project, Collection<TargetEnvironment> environments,
             String buildQualifier, Interpolator interpolator);
 
 }

@@ -15,7 +15,7 @@ package org.eclipse.tycho.versions.pom;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 public class Plugin {
     final Element plugin;
@@ -30,9 +30,9 @@ public class Plugin {
 
     public List<GAV> getDependencies() {
         ArrayList<GAV> result = new ArrayList<>();
-        Element dependencies = plugin.getChild("dependencies");
+        Element dependencies = plugin.childElement("dependencies").orElse(null);
         if (dependencies != null) {
-            for (Element dependency : dependencies.getChildren("dependency")) {
+            for (Element dependency : dependencies.childElements("dependency").toList()) {
                 result.add(new GAV(dependency));
             }
         }
@@ -41,15 +41,15 @@ public class Plugin {
 
     public List<GAV> getTargetArtifacts() {
         ArrayList<GAV> result = new ArrayList<>();
-        Element configuration = plugin.getChild("configuration");
+        Element configuration = plugin.childElement("configuration").orElse(null);
         if (configuration == null) {
             return result;
         }
-        Element target = configuration.getChild("target");
+        Element target = configuration.childElement("target").orElse(null);
         if (target == null) {
             return result;
         }
-        for (Element artifact : target.getChildren("artifact")) {
+        for (Element artifact : target.childElements("artifact").toList()) {
             result.add(new GAV(artifact));
         }
         return result;

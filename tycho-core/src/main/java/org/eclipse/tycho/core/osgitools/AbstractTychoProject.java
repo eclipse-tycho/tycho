@@ -155,7 +155,7 @@ public abstract class AbstractTychoProject implements TychoProject {
         }
 
         // all specified
-        List<TargetEnvironment> environments = configuration.getEnvironments();
+        Collection<TargetEnvironment> environments = configuration.getEnvironments();
         return environments.toArray(new TargetEnvironment[environments.size()]);
     }
 

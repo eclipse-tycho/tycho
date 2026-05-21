@@ -89,7 +89,7 @@ public final class TargetDefinitionResolver {
 
     private final MavenLogger logger;
 
-    private final List<TargetEnvironment> environments;
+    private final Collection<TargetEnvironment> environments;
 
     private final ExecutionEnvironmentResolutionHints executionEnvironment;
 
@@ -99,7 +99,7 @@ public final class TargetDefinitionResolver {
 
     private ReferencedRepositoryMode referencedRepositoryMode;
 
-    public TargetDefinitionResolver(List<TargetEnvironment> environments,
+    public TargetDefinitionResolver(Collection<TargetEnvironment> environments,
             ExecutionEnvironmentResolutionHints executionEnvironment, IncludeSourceMode includeSourceMode,
             ReferencedRepositoryMode referencedRepositoryMode, MavenContext mavenContext,
             MavenTargetLocationFactory mavenDependenciesResolver, TargetDefinitionVariableResolver varResolver) {

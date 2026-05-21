@@ -33,9 +33,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-import de.pdark.decentxml.Document;
-import de.pdark.decentxml.XMLIOSource;
-import de.pdark.decentxml.XMLParser;
+import eu.maveniverse.domtrip.Document;
 
 public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 
@@ -72,9 +70,9 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 		// Test Bug 374349
 		Document sourceFeatureXml = parseFeatureXml(sourceFeature);
 		assertEquals("Wrong label - bug 374349", "%label",
-				sourceFeatureXml.getChild("feature").getAttributeValue("label"));
+				sourceFeatureXml.root().attribute("label"));
 		// Test bug 407706
-		assertNull(sourceFeatureXml.getChild("feature").getAttribute("plugin"));
+		assertNull(sourceFeatureXml.root().attributeObject("plugin"));
 
 		File indirectFeature = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/features/sourcefeature.feature.indirect.source_1.0.0.123abc.jar");
@@ -82,7 +80,7 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 
 		Document indirectFeatureXml = parseFeatureXml(indirectFeature);
 //		// Test bug 407706
-		assertEquals("sourcefeature.bundle", indirectFeatureXml.getChild("feature").getAttributeValue("plugin"));
+		assertEquals("sourcefeature.bundle", indirectFeatureXml.root().attribute("plugin"));
 		File bundle = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/plugins/sourcefeature.bundle.source_1.0.0.123abc.jar");
 		assertTrue("Missing expected file " + bundle, bundle.canRead());
@@ -90,8 +88,8 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 
 	private Document parseFeatureXml(File file) throws IOException {
 		try (ZipFile indirectFeatureZip = new ZipFile(file)) {
-			return new XMLParser().parse(
-					new XMLIOSource(indirectFeatureZip.getInputStream(indirectFeatureZip.getEntry("feature.xml"))));
+			return Document.of(
+					indirectFeatureZip.getInputStream(indirectFeatureZip.getEntry("feature.xml")));
 		}
 	}
 

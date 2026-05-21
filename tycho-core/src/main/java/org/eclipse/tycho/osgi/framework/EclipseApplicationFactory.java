@@ -21,6 +21,7 @@ import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.resolver.P2Resolver;
+import org.eclipse.tycho.core.resolver.shared.ReferencedRepositoryMode;
 
 /**
  * Component that resolves all the bundles that make up an Eclipse Application to run from a given
@@ -34,9 +35,15 @@ public interface EclipseApplicationFactory {
 
     TargetPlatform createTargetPlatform(Collection<MavenRepositoryLocation> locations);
 
+    TargetPlatform createTargetPlatform(Collection<MavenRepositoryLocation> locations,
+            ReferencedRepositoryMode repositoryReferences);
+
     Collection<Path> getApiBaselineBundles(Collection<MavenRepositoryLocation> baselineRepoLocations,
             ArtifactKey artifactKey, Collection<TargetEnvironment> environment)
             throws IllegalArtifactReferenceException;
+
+    Collection<Path> getApiBaselineBundles(TargetPlatform baselineTarget, ArtifactKey artifactKey,
+            Collection<TargetEnvironment> environment) throws IllegalArtifactReferenceException;
 
     P2Resolver createResolver();
 

@@ -30,8 +30,13 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.wagon.Wagon;
 import org.codehaus.mojo.versions.api.ArtifactVersions;
 import org.codehaus.mojo.versions.api.DefaultVersionsHelper;
+import org.codehaus.mojo.versions.api.PomHelper;
 import org.codehaus.mojo.versions.api.VersionRetrievalException;
 import org.codehaus.mojo.versions.api.VersionsHelper;
+import org.codehaus.mojo.versions.rule.RuleService;
+import org.codehaus.mojo.versions.rule.RulesServiceBuilder;
+import org.codehaus.mojo.versions.utils.ArtifactFactory;
+import org.codehaus.mojo.versions.utils.VersionsExpressionEvaluator;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
@@ -43,7 +48,7 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 
-import de.pdark.decentxml.Element;
+import eu.maveniverse.domtrip.Element;
 
 /**
  * Supports updating of maven target locations
@@ -55,6 +60,9 @@ public class MavenLocationUpdater {
     protected ArtifactHandlerManager artifactHandlerManager;
 
     @Inject
+    protected ArtifactFactory artifactFactory;
+
+    @Inject
     protected RepositorySystem repositorySystem;
     @Inject
     protected Map<String, Wagon> wagonMap;
@@ -62,13 +70,14 @@ public class MavenLocationUpdater {
     List<MavenVersionUpdate> update(Element mavenLocation, UpdateTargetMojo context)
             throws VersionRangeResolutionException, ArtifactResolutionException, MojoExecutionException,
             VersionRetrievalException {
-        VersionsHelper helper = getHelper(context);
-        Element dependencies = mavenLocation.getChild("dependencies");
+        DefaultVersionsHelper helper = getHelper(context);
+        Element dependencies = mavenLocation.childElement("dependencies").orElse(null);
+        ArtifactFactory artifactFactory = new ArtifactFactory(artifactHandlerManager);
         List<MavenVersionUpdate> updates = new ArrayList<>();
         if (dependencies != null) {
-            for (Element dependency : dependencies.getChildren("dependency")) {
+            for (Element dependency : dependencies.childElements("dependency").toList()) {
                 Dependency mavenDependency = getDependency(dependency);
-                Artifact dependencyArtifact = helper.createDependencyArtifact(mavenDependency);
+                Artifact dependencyArtifact = artifactFactory.createArtifact(mavenDependency);
                 ArtifactVersions versions = helper.lookupArtifactVersions(dependencyArtifact, false);
                 ArtifactVersion updateVersion = context.getSegments()
                         .map(seg -> versions.getNewestUpdateWithinSegment(Optional.of(seg), false))
@@ -84,7 +93,7 @@ public class MavenLocationUpdater {
                         IInstallableUnit current = getIU(helper, dependencyArtifact);
                         Dependency clone = mavenDependency.clone();
                         clone.setVersion(newVersion);
-                        IInstallableUnit update = getIU(helper, helper.createDependencyArtifact(clone));
+                        IInstallableUnit update = getIU(helper, artifactFactory.createArtifact(clone));
                         updates.add(new MavenVersionUpdate(dependencyArtifact, newVersion, current, update));
                     }
                 }
@@ -110,12 +119,16 @@ public class MavenLocationUpdater {
         return null;
     }
 
-    VersionsHelper getHelper(UpdateTargetMojo context) throws MojoExecutionException {
-        return new DefaultVersionsHelper.Builder().withArtifactHandlerManager(artifactHandlerManager)
-                .withRepositorySystem(repositorySystem).withWagonMap(wagonMap).withServerId("serverId")
+    DefaultVersionsHelper getHelper(UpdateTargetMojo context) throws MojoExecutionException {
+        RuleService ruleService = new RulesServiceBuilder().withWagonMap(wagonMap).withServerId("serverId")
+                .withLog(context.getLog()).withMavenSession(context.getMavenSession())
                 .withRulesUri(context.getMavenRulesUri()).withRuleSet(context.getMavenRuleSet())
-                .withIgnoredVersions(context.getMavenIgnoredVersions()).withLog(context.getLog())
-                .withMavenSession(context.getMavenSession()).withMojoExecution(context.getMojoExecution()).build();
+                .withIgnoredVersions(context.getMavenIgnoredVersions()).build();
+        PomHelper pomHelper = new PomHelper(artifactFactory,
+                new VersionsExpressionEvaluator(context.getMavenSession(), context.getMojoExecution()));
+        return new DefaultVersionsHelper.Builder().withPomHelper(pomHelper).withArtifactFactory(artifactFactory)
+                .withRepositorySystem(repositorySystem).withLog(context.getLog()).withRuleService(ruleService)
+                .withMavenSession(context.getMavenSession()).build();
     }
 
     private static Dependency getDependency(Element dependency) {

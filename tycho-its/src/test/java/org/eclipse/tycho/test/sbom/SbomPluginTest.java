@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.EnvironmentUtil;
 import org.junit.Test;
 
 public class SbomPluginTest extends AbstractTychoIntegrationTest {
@@ -52,8 +53,9 @@ public class SbomPluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	private void verifyCLI(Verifier verifier, String installation) throws VerificationException {
-		verifier.executeGoals(List.of("org.eclipse.tycho:tycho-sbom-plugin:generator", "-Dinstallation=" + installation,
-				"-Dprint.xml"));
+		verifier.executeGoals(List.of(
+				"org.eclipse.tycho:tycho-sbom-plugin:" + EnvironmentUtil.getProperty("tycho-version") + ":generator",
+				"-Dinstallation=" + installation, "-Dprint.xml"));
 		verifyErrorFreeLog(verifier);
 		verifier.verifyTextInLog("<bom "); // not very smart but should make sure we actually run it
 	}

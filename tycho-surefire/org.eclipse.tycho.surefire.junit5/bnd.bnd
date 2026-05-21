@@ -3,11 +3,11 @@
 # Automatic-Module-Name: part from that the content in this bin: undle is only used to bootstrap
 # surefire and we include all we need foro that as it does not comply with OSGi rules.
 Import-Package: \
- org.junit.platform.launcher, \
- org.junit.jupiter.api, \
- org.junit.jupiter.engine, \
- org.junit.platform.suite.api, \
- org.junit.platform.suite.engine;status=INTERNAL, \
+ org.junit.platform.launcher;version="[1,2)", \
+ org.junit.jupiter.api;version="[5,6)", \
+ org.junit.jupiter.engine;version="[5,6)", \
+ org.junit.platform.suite.api;version="[1,2)", \
+ org.junit.platform.suite.engine;status=INTERNAL;version="[1,2)", \
  java.*
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
 # The JUnit Runner is still compatible with Java 1.8, as all included upstream dependencies are.

@@ -218,7 +218,7 @@ public class EquinoxResolver implements DependenciesResolver {
 
         TargetPlatformConfiguration configuration = projectManager.getTargetPlatformConfiguration(project);
         //FIXME formally we should resolve the configuration for ALL declared environments!
-        TargetEnvironment environment = configuration.getEnvironments().get(0);
+        TargetEnvironment environment = configuration.getEnvironments().iterator().next();
         logger.debug("Using TargetEnvironment " + environment.toFilterExpression() + " to create resolver properties");
         Properties properties = computeMergedProperties(project.adapt(MavenProject.class), mavenSession);
         return getPlatformProperties(properties, mavenSession, environment, ee);

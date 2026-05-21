@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Code 9 and others.
+ * Copyright (c) 2008, 2025 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -107,7 +107,6 @@ import org.osgi.resource.Namespace;
  * <li>{@link ITouchpointAdvice}</li>
  * </ul>
  */
-@SuppressWarnings("restriction")
 public class BundlesAction extends AbstractPublisherAction {
 
 	public static final String FILTER_PROPERTY_INSTALL_SOURCE = "org.eclipse.update.install.sources"; //$NON-NLS-1$

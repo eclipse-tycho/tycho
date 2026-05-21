@@ -32,7 +32,7 @@ Example:
 ```xml
 <repository>
    <id>eclipse-indigo</id>
-   <url>http://download.eclipse.org/releases/2023-12</url>
+   <url>https://download.eclipse.org/releases/2023-12</url>
    <layout>p2</layout>
 </repository>
 ```

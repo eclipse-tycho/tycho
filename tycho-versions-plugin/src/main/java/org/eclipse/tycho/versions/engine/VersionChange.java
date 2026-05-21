@@ -15,14 +15,16 @@ package org.eclipse.tycho.versions.engine;
 
 import java.util.Objects;
 
+import org.eclipse.tycho.helper.VersionTool;
+
 public class VersionChange {
 
     private final String version;
     private final String newVersion;
 
     public VersionChange(String version, String newVersion) {
-        this.version = Versions.toCanonicalVersion(version);
-        this.newVersion = Versions.toCanonicalVersion(newVersion);
+        this.version = VersionTool.toCanonicalVersion(version);
+        this.newVersion = VersionTool.toCanonicalVersion(newVersion);
     }
 
     public String getVersion() {

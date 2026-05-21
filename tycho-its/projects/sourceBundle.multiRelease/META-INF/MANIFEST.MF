@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Multi-Release Source Bundle Test
+Bundle-SymbolicName: bundle.multiRelease
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Eclipse Tycho
+Export-Package: tycho.mr.example;version="0.0.1"
+Multi-Release: true
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+Automatic-Module-Name: bundle.multiRelease

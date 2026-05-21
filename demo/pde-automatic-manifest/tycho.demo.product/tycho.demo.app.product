@@ -28,8 +28,6 @@
    <features>
       <feature id="tycho.demo.feature" installMode="root"/>
       <feature id="org.eclipse.e4.rcp" installMode="root"/>
-      <feature id="org.eclipse.emf.ecore" installMode="root"/>
-      <feature id="org.eclipse.emf.common" installMode="root"/>
    </features>
 
    <configurations>
