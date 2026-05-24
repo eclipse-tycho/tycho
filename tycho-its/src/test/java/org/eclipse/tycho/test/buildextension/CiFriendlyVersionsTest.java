@@ -17,6 +17,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.TimeZone;
 import java.util.jar.JarFile;
 
 import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 import org.osgi.framework.Constants;
@@ -115,5 +118,102 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 		try (JarFile jarFile = new JarFile(file)) {
 			assertEquals(expectedVersion, jarFile.getManifest().getMainAttributes().getValue(Constants.BUNDLE_VERSION));
 		}
+	}
+
+	@Test
+	public void testValidateVersionDefaultRevision() throws Exception {
+		Verifier verifier = getVerifier("ci-friendly/validateVersion", false);
+		Path basedir = Path.of(verifier.getBasedir());
+
+		// Pre-build: verify source MANIFEST.MF and feature.xml have 0.0.6.qualifier
+		Path manifest = basedir.resolve("bundles/org.example.bundle/META-INF/MANIFEST.MF");
+		assertTrue("MANIFEST.MF should contain 0.0.6.qualifier",
+				Files.readString(manifest).contains("Bundle-Version: 0.0.6.qualifier"));
+		Path featureXml = basedir.resolve("features/org.example.feature/feature.xml");
+		Feature sourceFeature = Feature.read(featureXml.toFile());
+		assertEquals("0.0.6.qualifier", sourceFeature.getVersion());
+
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+
+		// Post-build: verify built bundle jar has expanded Bundle-Version
+		Path bundleJar = basedir
+				.resolve("bundles/org.example.bundle/target/org.example.bundle-0.0.6-SNAPSHOT.jar");
+		assertTrue("Bundle jar not found: " + bundleJar, Files.isRegularFile(bundleJar));
+		try (JarFile jar = new JarFile(bundleJar.toFile())) {
+			String bundleVersion = jar.getManifest().getMainAttributes().getValue(Constants.BUNDLE_VERSION);
+			assertTrue("Bundle-Version should start with 0.0.6: " + bundleVersion,
+					bundleVersion.startsWith("0.0.6."));
+		}
+
+		// Post-build: verify built feature jar has expanded version
+		Path featureJar = basedir
+				.resolve("features/org.example.feature/target/org.example.feature-0.0.6-SNAPSHOT.jar");
+		assertTrue("Feature jar not found: " + featureJar, Files.isRegularFile(featureJar));
+		Feature builtFeature = Feature.readJar(featureJar.toFile());
+		assertTrue("Feature version should start with 0.0.6: " + builtFeature.getVersion(),
+				builtFeature.getVersion().startsWith("0.0.6."));
+	}
+
+	@Test
+	public void testValidateVersionOverriddenRevisionFeature() throws Exception {
+		Verifier verifier = getVerifier("ci-friendly/validateVersion", false);
+		verifier.addCliOption("-Drevision=0.0.7-SNAPSHOT");
+		verifier.addCliOption("-pl features/org.example.feature -am");
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+
+		Path basedir = Path.of(verifier.getBasedir());
+		Path featureJar = basedir
+				.resolve("features/org.example.feature/target/org.example.feature-0.0.7-SNAPSHOT.jar");
+		assertTrue("Feature jar not found: " + featureJar, Files.isRegularFile(featureJar));
+		Feature builtFeature = Feature.readJar(featureJar.toFile());
+		assertTrue("Feature version should start with 0.0.7: " + builtFeature.getVersion(),
+				builtFeature.getVersion().startsWith("0.0.7."));
+	}
+
+	@Test
+	public void testValidateVersionOverriddenRevisionBundle() throws Exception {
+		Verifier verifier = getVerifier("ci-friendly/validateVersion", false);
+		verifier.addCliOption("-Drevision=0.0.7-SNAPSHOT");
+		verifier.addCliOption("-pl bundles/org.example.bundle -am");
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+
+		Path basedir = Path.of(verifier.getBasedir());
+		Path bundleJar = basedir
+				.resolve("bundles/org.example.bundle/target/org.example.bundle-0.0.7-SNAPSHOT.jar");
+		assertTrue("Bundle jar not found: " + bundleJar, Files.isRegularFile(bundleJar));
+		try (JarFile jar = new JarFile(bundleJar.toFile())) {
+			String bundleVersion = jar.getManifest().getMainAttributes().getValue(Constants.BUNDLE_VERSION);
+			assertTrue("Bundle-Version should start with 0.0.7: " + bundleVersion,
+					bundleVersion.startsWith("0.0.7."));
+		}
+	}
+
+	@Test
+	public void testValidateVersionOverriddenRevisionFullReactor() throws Exception {
+		Verifier verifier = getVerifier("ci-friendly/validateVersion", false);
+		verifier.addCliOption("-Drevision=0.0.7-SNAPSHOT");
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+
+		Path basedir = Path.of(verifier.getBasedir());
+
+		Path bundleJar = basedir
+				.resolve("bundles/org.example.bundle/target/org.example.bundle-0.0.7-SNAPSHOT.jar");
+		assertTrue("Bundle jar not found: " + bundleJar, Files.isRegularFile(bundleJar));
+		try (JarFile jar = new JarFile(bundleJar.toFile())) {
+			String bundleVersion = jar.getManifest().getMainAttributes().getValue(Constants.BUNDLE_VERSION);
+			assertTrue("Bundle-Version should start with 0.0.7: " + bundleVersion,
+					bundleVersion.startsWith("0.0.7."));
+		}
+
+		Path featureJar = basedir
+				.resolve("features/org.example.feature/target/org.example.feature-0.0.7-SNAPSHOT.jar");
+		assertTrue("Feature jar not found: " + featureJar, Files.isRegularFile(featureJar));
+		Feature builtFeature = Feature.readJar(featureJar.toFile());
+		assertTrue("Feature version should start with 0.0.7: " + builtFeature.getVersion(),
+				builtFeature.getVersion().startsWith("0.0.7."));
 	}
 }
