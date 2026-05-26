@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test-mvn-updatesite-targetfile
+Bundle-SymbolicName: test.mvn.updatesite.targetfile
+Bundle-Version: 1.0.0
+Automatic-Module-Name: test.mvn.updatesite.targetfile
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.eclipse.jetty.http
