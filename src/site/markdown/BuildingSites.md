@@ -190,9 +190,18 @@ When adding references automatically, you can filter which ones are included:
 | `createArtifactRepository` | `true` | Create artifact files; set to `false` for a metadata-only repository |
 | `generateOSGiRepository` | `false` | Generate an OSGi Repository alongside the p2 repository |
 
+## Managing Update Sites with the P2 Manager
+
+Once a repository is built it needs to be published and maintained on a public update site.
+The `tycho-p2-extras:p2-manager` goal automates this, including nightly/milestone/release promotion, composite repository generation, and browsable HTML index pages.
+
+See [Managing P2 Update Sites](ManagingP2Sites.html) for full documentation.
+
 ## Further Reading
 
 - [Advanced Category Definitions](CategoryDefinitions.html) — Dynamic categories, p2 query expressions, and IU filtering
 - [Controlling Repository Content](RepositoryContent.html) — Detailed comparison of all inclusion and exclusion options
+- [Managing P2 Update Sites](ManagingP2Sites.html) — Publishing and maintaining public update sites with the P2 Manager
 - [Tycho P2 Repository Plugin Reference](tycho-p2-repository-plugin/plugin-info.html) — Complete reference for all configuration options
+- [P2 Manager Mojo Reference](tycho-extras/tycho-p2-extras-plugin/p2-manager-mojo.html) — Complete reference for all P2 Manager parameters
 - [Packaging Types](PackagingTypes.html) — Information about the `eclipse-repository` packaging type
