@@ -51,12 +51,21 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 import org.eclipse.tycho.p2maven.InstallableUnitSlicer;
 import org.eclipse.tycho.p2maven.ListCompositeArtifactRepository;
 import org.eclipse.tycho.p2maven.SlicingOptions;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
 /**
- * Supports mirroring the computed target platform of the current project, this behaves similar to
- * what PDE offers with its export deployable feature / plug-in and assembles an update site that
- * contains everything this particular project depends on.
+ * Supports mirroring the computed target platform of the current project. For
+ * {@code eclipse-plugin}, {@code eclipse-feature}, and similar Tycho packaging types this behaves
+ * similar to what PDE offers with its export deployable feature / plug-in and assembles an update
+ * site that contains everything this particular project depends on.
+ * <p>
+ * For projects that are purely a target platform definition (i.e., contain a {@code .target} file
+ * and no code artifacts), use {@code &lt;packaging&gt;eclipse-target-definition&lt;/packaging&gt;}. This will
+ * mirror the entire target platform instead of only the project's transitive dependencies. Using a
+ * different packaging type (e.g., the default {@code jar}) with this goal on a target-only project
+ * will produce an empty or incomplete repository because no installable units are published for
+ * that project.
  */
 @Mojo(name = "mirror-target-platform", threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE, defaultPhase = LifecyclePhase.PACKAGE)
 public class MirrorTargetPlatformMojo extends AbstractMojo {
@@ -119,9 +128,18 @@ public class MirrorTargetPlatformMojo extends AbstractMojo {
     @Component
     private InstallableUnitSlicer installableUnitSlicer;
 
+    @Component
+    private TychoProjectManager tychoProjectManager;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        if (tychoProjectManager.getTychoProject(project).isEmpty()) {
+            getLog().info("Project '" + project.getId() + "' (packaging '" + project.getPackaging()
+                    + "') is not a Tycho project, skipping mirror-target-platform."
+                    + " Use <packaging>eclipse-target-definition</packaging> to mirror a target platform.");
+            return;
+        }
         TargetPlatform targetPlatform = platformService.getTargetPlatform(reactorProject).orElse(null);
         if (targetPlatform == null) {
             getLog().info("Project has no target platform, skip execution.");
