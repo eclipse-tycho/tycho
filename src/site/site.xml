@@ -30,7 +30,9 @@
 			<item name="Building P2 Update Sites" href="BuildingSites.html">
 				<item name="Advanced Category Definitions" href="CategoryDefinitions.html" />
 				<item name="Controlling Repository Content" href="RepositoryContent.html" />
+				<item name="Managing P2 Update Sites" href="ManagingP2Sites.html" />
 				<item name="Tycho P2 Repository Plugin" href="tycho-p2-repository-plugin/plugin-info.html" />
+				<item name="P2 Manager Mojo" href="tycho-extras/tycho-p2-extras-plugin/p2-manager-mojo.html" />
 			</item>
 			<item name="Properties">
 				<item name="Build Properties" href="BuildProperties.html" />
