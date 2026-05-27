@@ -94,7 +94,7 @@ The `tycho-sbom:generator` mojo supports the following configuration parameters:
 - **`installations`** (File): Specify a folder where multiple packaged products are located to be analyzed
 - **`installation`** (File): Specify a single installation directory or update-site to analyze
 - **`cache`** (File): Specify a cache location for downloaded metadata. If not specified, Tycho uses its global cache location in the Maven local repository
-- **`central-search`** (boolean, property: `central-search`): If enabled, artifacts are mapped to Maven Central using file hashcodes. When a unique match is found, it's assumed to be the real source even if P2 has not recorded any GAVs
+- **`centralsearch`** (boolean, property: `central-search`): If enabled, artifacts are mapped to Maven Central using file hashcodes. When a unique match is found, it's assumed to be the real source even if P2 has not recorded any GAVs
 - **`advisory`** (boolean, property: `advisory`): If enabled, queries the Open Source Vulnerabilities (OSV) distributed vulnerability database for known vulnerabilities in Open Source components and adds them as external references to the components
 - **`p2sources`** (List of String): A list of URIs that should be used to match against P2 units. These are typically the repositories used during product build
 - **`verbose`** (boolean, property: `sbom.verbose`): Enable verbose logging output from the generator
