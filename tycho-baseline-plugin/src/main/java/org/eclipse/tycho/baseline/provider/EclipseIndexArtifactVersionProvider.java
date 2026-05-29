@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 Christoph Läubrich and others.
+ * Copyright (c) 2025, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -63,15 +63,14 @@ public class EclipseIndexArtifactVersionProvider implements ArtifactVersionProvi
 		Map<Repository, Set<Version>> map = p2Index.lookupCapabilities(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
 				packageName);
 		Map<Version, List<Repository>> found = new HashMap<>();
-		map.entrySet().forEach(entry -> {
-			entry.getValue().stream().filter(v -> v.isOSGiCompatible()).forEach(v -> {
-				found.computeIfAbsent(v, x -> new ArrayList<>()).add(entry.getKey());
-			});
-		});
+		map.entrySet().forEach(entry -> 
+			entry.getValue().stream().filter(v -> v.isOSGiCompatible()).forEach(v -> 
+				found.computeIfAbsent(v, x -> new ArrayList<>()).add(entry.getKey())));
+		keepHighestQualifierPerVersion(found);
 		String id = unit.getId();
-		return found.entrySet().stream().map(entry -> {
-			return new EclipseIndexPackageArtifactVersion(this, entry.getValue(), id, packageName, entry.getKey(), logger);
-		}).filter(eia -> versionRange.includes(eia.getVersion()))
+		return found.entrySet().stream().map(entry -> 
+			new EclipseIndexPackageArtifactVersion(this, entry.getValue(), id, packageName, entry.getKey(), logger)
+		).filter(eia -> versionRange.includes(eia.getVersion()))
 				.sorted(Comparator.comparing(EclipseIndexPackageArtifactVersion::getVersion).reversed())
 				.map(ArtifactVersion.class::cast);
 	}
@@ -82,16 +81,32 @@ public class EclipseIndexArtifactVersionProvider implements ArtifactVersionProvi
 		Map<Repository, Set<Version>> map = p2Index.lookupCapabilities(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE,
 				bundleName);
 		Map<Version, List<Repository>> found = new HashMap<>();
-		map.entrySet().forEach(entry -> {
-			entry.getValue().stream().filter(v -> v.isOSGiCompatible()).forEach(v -> {
-				found.computeIfAbsent(v, x -> new ArrayList<>()).add(entry.getKey());
-			});
-		});
-		return found.entrySet().stream().map(entry -> {
-			return new EclipseIndexBundleArtifactVersion(this, entry.getValue(), bundleName, entry.getKey(), logger);
-		}).filter(eia -> versionRange.includes(eia.getVersion()))
+		map.entrySet().forEach(entry -> 
+			entry.getValue().stream().filter(v -> v.isOSGiCompatible()).forEach(v -> 
+				found.computeIfAbsent(v, x -> new ArrayList<>()).add(entry.getKey())));
+		keepHighestQualifierPerVersion(found);
+		return found.entrySet().stream().map(entry -> 
+			new EclipseIndexBundleArtifactVersion(this, entry.getValue(), bundleName, entry.getKey(), logger)
+		).filter(eia -> versionRange.includes(eia.getVersion()))
 				.sorted(Comparator.comparing(EclipseIndexBundleArtifactVersion::getVersion).reversed())
 				.map(ArtifactVersion.class::cast);
+	}
+
+	/**
+	 * For each {@code major.minor.micro} only the entry with the highest qualifier
+	 * is kept. This is the one that will be installed by p2 if all the p2 repos are
+	 * available thus it makes sense to check against it.
+	 */
+	private static void keepHighestQualifierPerVersion(Map<Version, List<Repository>> found) {
+		Map<String, Version> bestByBase = new HashMap<>();
+		for (Version v : found.keySet()) {
+			String base = v.getSegment(0) + "." + v.getSegment(1) + "." + v.getSegment(2);
+			bestByBase.merge(base, v, (a, b) -> a.compareTo(b) >= 0 ? a : b);
+		}
+		found.keySet().removeIf(v -> {
+			String base = v.getSegment(0) + "." + v.getSegment(1) + "." + v.getSegment(2);
+			return !v.equals(bestByBase.get(base));
+		});
 	}
 
 }
