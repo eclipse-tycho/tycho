@@ -4,9 +4,9 @@ This page describes the noteworthy improvements provided by each release of Ecli
 If you are reading this in the browser, then you can quickly jump to specific versions by using the rightmost button above the headline:
 ![grafik](https://github.com/eclipse-tycho/tycho/assets/406876/7025e8cb-0cdb-4211-8239-fc01867923af)
 
-## 5.0.2
+## 5.0.3
 
-### new `tycho-p2-extras:p2-manager` mojo for managing P2 update sites
+### New `tycho-p2-extras:p2-manager` mojo for managing P2 update sites
 
 The new `tycho-p2-extras:p2-manager` goal provides a convenient way to maintain, update, and manage the integrity of public update sites.
 This mojo wraps the [P2 Manager application from JustJ Tools](https://eclipse.dev/justj/?page=tools) and makes it much easier to use compared to the previous approach using the eclipse-run goal.
@@ -39,6 +39,74 @@ The P2 Manager helps with:
     </executions>
 </plugin>
 ```
+
+### Enhanced `check-dependencies` mojo with Require-Bundle validation
+
+The `tycho-baseline-plugin:check-dependencies` goal now validates `Require-Bundle` dependencies in addition to the existing `Import-Package` checks.
+When comparing against the baseline, Tycho detects type references in your bundle that come from directly required bundles and verifies that the required version ranges are correct.
+
+Several advanced scenarios are handled correctly:
+- **Re-export chains**: When bundle A re-exports bundle B (via `visibility:=reexport`), B's types are included in the version analysis for A.
+- **Split packages**: Packages contributed by multiple bundles are analysed per contributing bundle to avoid false positives.
+- **Fragment hosts**: Types contributed by fragment bundles to their host are resolved and included in the check.
+
+### `categoryName` option for `tycho-p2-extras:mirror`
+
+A new `categoryName` parameter for the `tycho-p2-extras:mirror` goal wraps all mirrored categories under a single synthetic top-level category in the Eclipse "Install New Software" dialog.
+This is useful when mirroring several independent P2 repositories into one destination site, giving users a single named entry that expands to reveal the individual tool categories.
+
+### Features
+
+- Add `classpathDependencies` option to `<dependency-resolution>` in target-platform-configuration controlling how `jars.extra.classpath` entries from `build.properties` are handled: `require` (default, fails on missing entries), `optional` (warn), or `ignore` (skip silently)
+- Add `skipAssembling` parameter to `tycho-p2-repository:assemble-repository` goal to skip repository assembly when the result is not needed (e.g. when building products whose repository is not published)
+- Add transitive `Require-Bundle` dependencies with forbidden access rules to the compiler classpath, mirroring PDE's `RequiredPluginsClasspathContainer` behaviour and ensuring compilation succeeds when types from indirectly required bundles must be resolved
+- Provide `jars.extra.classpath` entries as additional P2 requirements during target platform resolution so that the full dependency graph is resolved consistently
+- Cache generated Eclipse source bundles (wrapped from Maven source JARs) in the local Maven repository to avoid repeated re-wrapping across builds
+- Retry HTTP 502, 503, and 504 errors automatically with configurable linear back-off (defaults: 3 retries, 5 s initial delay); tunable via `-Dtycho.http.transport.retry.count` and `-Dtycho.http.transport.retry.initial-delay`
+- Consider linked preference files in `tycho-ds-plugin` when processing Declarative Services configurations
+
+### Bug Fixes
+
+- Fix `Export-Package` versions not updated during baseline version bump — when a bundle version already satisfies bnd's suggestion, only the affected `Export-Package` version is now updated instead of leaving it stale
+- Fix `ClassNotFoundException` in the OSGi test launcher (osgibooter)
+- Fix source bundle cache to use the Eclipse source bundle symbolic name and version as the cache key instead of the original Maven artifact file name, preventing collisions when the same source JAR is wrapped with different BSN/version combinations
+- Skip manifest update when the suggested version range is semantically identical to the existing one, avoiding cosmetic reformatting such as `[3.5.0,4)` → `[3.5.0,4.0.0)`
+- Fix `materialize-products` `deleteP2Cache` option to correctly locate and delete the P2 cache inside macOS app bundles (`<product>.app/Contents/Eclipse`)
+- Fix `tycho-gpg-plugin` thread safety: mark the plugin as `@ThreadSafe` and synchronise concurrent access to the GPG `KeyStore` in parallel builds
+- Skip source bundles during classpath resolution to avoid unnecessary downloads of `*.source` JARs that are not needed for OSGi resolution or compilation
+
+### Dependency Upgrades
+
+The following notable dependencies have been upgraded:
+
+#### Eclipse Platform
+
+Eclipse Platform and related components have been updated:
+- JDT (ECJ, JDT Core, JDT Launching, JDT Core Manipulation, JDT UI)
+- PDE (PDE Core, PDE API Tools, PDE UI)
+- Equinox (OSGi, P2, Registry, Preferences, etc.)
+- Platform UI (Workbench, IDE, JFace)
+
+#### Build Tools & Libraries
+
+- ASM: 9.9.1 → 9.10
+- BND: 7.2.1 → 7.2.3
+- BouncyCastle: 1.83 → 1.84
+- Apache Commons Codec: 1.21.0 → 1.22.0
+- Apache Commons IO: 2.21.0 → 2.22.0
+- Apache Commons Net: 3.12.0 → 3.13.0
+- Apache Felix SCR: 2.2.14 → 2.2.18
+- Apache Maven: 3.9.12 → 3.9.16
+- CycloneDX Core Java: 12.0.1 → 12.2.0
+- java-diff-utils: 4.16 → 4.17
+- jfiveparse: 1.1.4 → 2.0.0
+- Jetty: 12.1.5 → 12.1.9
+- JGit: 7.5.0 → 7.6.0
+- JUnit: 5.14.2 → 6.1.0
+- Maven Njord Extension: 0.9.3 → 0.9.6
+- Plexus Utils: 3.5.1 → 4.0.3
+
+## 5.0.2
 
 ### Features
 
