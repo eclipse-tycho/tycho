@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.example.feature"
+      label="Example Feature"
+      version="0.0.6.qualifier">
+
+   <description url="https://github.com/eclipse-tycho/tycho">
+      Test feature for CI-friendly version validation.
+   </description>
+
+</feature>
