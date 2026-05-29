@@ -36,7 +36,11 @@ That way you can configure your POM in the following way:
 ```
 
 What will result in the usual `1.0.0-SNAPSHOT` for a regular `mvn clean install`, if you want to do a release, you can now simply call `mvn -Dtycho.buildqualifier.format=yyyyMMddHHmm clean deploy`
-and your artifact will get the `1.0.0-<formatted qualifier>` version when published! This also is supported if you use pomless build.
+and your artifact will get the `1.0.0-<formatted qualifier>` version when published! This also is supported if you use pomless build. To change release version, disable "tycho.strictVersions" check to ignore conflict with MANIFEST.MF and feature.xml:
+
+```
+mvn -Dtycho.buildqualifier.format=yyyyMMddHHmm -DreleaseVersion=2.0.0 -Dtycho.strictVersions=false clean deploy
+```
 
 To use this new feature you need to enable the tycho-build extension with the `.mvn/extensions.xml` file in the root of your project directory:
 
