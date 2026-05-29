@@ -211,7 +211,7 @@ public class OsgiSurefireBooter {
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
                 ConsoleReporter.PLAIN, redirectTestOutputToFile, reportsDir, trimStackTrace, null,
                 new File(reportsDir, "TESTHASH"), false, rerunFailingTestsCount, XSD, StandardCharsets.UTF_8.toString(),
-                false, true, true, getSurefireStatelessReporter(provider, disableXmlReport, null),
+                false, true, true, false, getSurefireStatelessReporter(provider, disableXmlReport, null),
                 getSurefireConsoleOutputReporter(provider), getSurefireStatelessTestsetInfoReporter(provider),
                 new ReporterFactoryOptions());
         ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig,
