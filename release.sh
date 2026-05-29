@@ -63,7 +63,7 @@ mvn njord:list
 echo "Everything is prepared now, please review the release, the prepared docs and updated versions, the repository is staged locally at"
 echo "   $HOME/.njord/tycho-<running number> (see output above)"
 echo "After that, release it with:"
-echo "   mvn njord:publish -Dstore=tycho-<running number> -Dpublisher=sonatype-cp"
+echo "   mvn njord:publish -Dnjord.store=tycho-<running number> -Dnjord.publisher=sonatype-cp"
 echo "Now wait until release became visible on maven central..."
 waitforurl https://repo1.maven.org/maven2/org/eclipse/tycho/tycho-core/${RELEASE_VERSION}/tycho-core-${RELEASE_VERSION}.jar
 echo "You should now push the branch and the documentation after that create the release record for Github here:"
