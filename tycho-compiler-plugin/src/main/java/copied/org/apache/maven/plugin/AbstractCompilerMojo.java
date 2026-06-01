@@ -613,8 +613,8 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
     }
 
     /**
-     * @todo also in ant plugin. This should be resolved at some point so that it does not need to
-     *       be calculated continuously - or should the plugins accept empty source roots as is?
+     * Also used in ant plugin. This should be resolved at some point so that it does not need to
+     * be calculated continuously - or should the plugins accept empty source roots as is?
      */
     protected static List<String> removeEmptyCompileSourceRoots(List<String> compileSourceRootsList) {
         List<String> newCompileSourceRootsList = new ArrayList<>();

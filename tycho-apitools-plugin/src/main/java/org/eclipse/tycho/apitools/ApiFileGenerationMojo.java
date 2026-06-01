@@ -57,33 +57,18 @@ public class ApiFileGenerationMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${project.artifactId}_${project.version}")
 	protected String projectName;
 
-	/**
-	 * @Since 3.1.0
-	 */
 	@Parameter(defaultValue = "false")
 	private boolean allowNonApiProject;
 
-	/**
-	 * @Since 3.1.0
-	 */
 	@Parameter
 	protected String encoding;
 
-	/**
-	 * @Since 3.1.0
-	 */
 	@Parameter
 	protected boolean debug;
 
-	/**
-	 * @Since 3.1.0
-	 */
 	@Parameter
 	protected List<File> extraManifests = List.of();
 
-	/**
-	 * @Since 3.1.0
-	 */
 	@Parameter
 	protected List<File> extraSourceLocations = List.of();
 

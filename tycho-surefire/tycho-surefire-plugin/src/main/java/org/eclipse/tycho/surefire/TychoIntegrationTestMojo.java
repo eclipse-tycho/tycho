@@ -66,7 +66,6 @@ import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
  * <li>test outcome is checked in the <code>verify</code> phase that might fail the build if there
  * are test failures</li>
  * </ol>
- * </p>
  * Summary files are generated according to the default maven-surefire-plugin for integration with
  * tools that already work with maven-surefire-plugin (e.g. CI servers).
  */

@@ -274,7 +274,7 @@ public class ProductConfiguration {
     }
 
     /**
-     * @see org.eclipse.equinox.internal.p2.publisher.eclipse.ProductContentType
+     * @see <a href="https://help.eclipse.org/latest/topic/org.eclipse.pde.doc.user/guide/tools/editors/product_editor/overview.htm">Product Editor</a>
      */
     public enum ProductType {
         BUNDLES, // only bundles are accepted in the product

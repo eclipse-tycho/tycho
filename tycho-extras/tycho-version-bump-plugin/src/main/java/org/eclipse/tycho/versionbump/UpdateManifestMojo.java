@@ -45,7 +45,6 @@ import org.osgi.framework.VersionRange;
  * <pre>
  * mvn tycho-version-bump:update-manifest
  * </pre>
- * </p>
  */
 @Mojo(name = "update-manifest", requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class UpdateManifestMojo extends AbstractUpdateMojo {

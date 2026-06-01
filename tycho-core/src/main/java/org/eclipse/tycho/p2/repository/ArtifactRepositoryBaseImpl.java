@@ -147,7 +147,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
      *
      * <p>
      * This method is called by methods that add entries to the index, i.e. from
-     * {@link #newAddingArtifactSink(IArtifactKey)}.
+     * {@link #newAddingArtifactSink(IArtifactDescriptor)}.
      * </p>
      *
      * @param descriptor

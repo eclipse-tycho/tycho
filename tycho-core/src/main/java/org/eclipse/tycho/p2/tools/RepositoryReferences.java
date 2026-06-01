@@ -46,7 +46,7 @@ public final class RepositoryReferences {
     /**
      * Adds the metadata repository at the given location.
      * 
-     * @param metadataRepositoryLocation
+     * @param metadataRepository
      *            A URL pointing to a p2 metadata repository
      */
     public void addMetadataRepository(URI metadataRepository) {
@@ -77,7 +77,7 @@ public final class RepositoryReferences {
     /**
      * Adds the artifact repository at the given location.
      * 
-     * @param artifactRepositoryLocation
+     * @param artifactRepository
      *            A URL pointing to a p2 artifact repository
      */
     public void addArtifactRepository(URI artifactRepository) {
@@ -87,7 +87,7 @@ public final class RepositoryReferences {
     /**
      * Adds the artifact repository which is stored in memory under the given key.
      * 
-     * @param artifactRepositoryLocation
+     * @param blackboardKey
      *            A key identifying a repository registered on the artifact repository blackboard.
      */
     public void addArtifactRepository(RepositoryBlackboardKey blackboardKey) {

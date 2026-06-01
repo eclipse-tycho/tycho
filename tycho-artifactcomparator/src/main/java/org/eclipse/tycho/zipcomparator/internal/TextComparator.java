@@ -64,12 +64,12 @@ public class TextComparator implements ContentsComparator {
     /**
      * Tests if {@code baseline} and {@code reactor} contain equal text, if line-endings are
      * ignored.
-     * 
-     * @implNote This methods is intended to have the same results as if the entire content of each
-     *           array were read and compared line by line using BufferedReader.readLine(), which
-     *           only returns the line content, without terminators. The actual implementation is
-     *           just more efficient, because it does not create String objects for the entire
-     *           content.
+     * <p>
+     * <b>Implementation note:</b> This method is intended to have the same results as if the entire content of each
+     * array were read and compared line by line using BufferedReader.readLine(), which
+     * only returns the line content, without terminators. The actual implementation is
+     * just more efficient, because it does not create String objects for the entire
+     * content.
      */
     public static boolean isEqualTextIngoreNewLine(byte[] baseline, byte[] reactor) {
         int indexBaseline = 0;

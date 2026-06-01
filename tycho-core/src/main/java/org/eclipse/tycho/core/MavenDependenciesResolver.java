@@ -46,9 +46,11 @@ public interface MavenDependenciesResolver {
      *            the packaging type, might be <code>null</code> in witch case "jar" is assumed
      * @param classifier
      *            the classifier or <code>null</code> if no classifier is desired
-     * @param collection
-     *            optional dependency scope, if given it tries to resolve transitive dependencies of
+     * @param scopes
+     *            optional dependency scopes, if given it tries to resolve transitive dependencies of
      *            the given artifact as well
+     * @param depth
+     *            the depth for transitive resolution
      * @param additionalRepositories
      *            additional repositories to use in the resolve process
      * @return
@@ -69,11 +71,11 @@ public interface MavenDependenciesResolver {
     File getRepositoryRoot();
 
     /**
-     * This reads the given artifactFacade as a maven (pom) model and returns the list of declared
+     * This reads the given artifact as a maven (pom) model and returns the list of declared
      * dependencies.
      *
-     * @param artifactFacade
-     * @return a list of dependencies for this artifactFacade
+     * @param modelFile the model file to load
+     * @return a list of dependencies for this model
      */
     MavenModelFacade loadModel(File modelFile) throws IOException;
 

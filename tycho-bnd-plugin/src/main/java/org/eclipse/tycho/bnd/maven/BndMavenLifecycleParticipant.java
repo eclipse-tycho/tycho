@@ -55,12 +55,12 @@ import biz.aQute.resolve.Bndrun;
  * This component injects information from the BND model into the maven model,
  * currently the following actions are performed:
  * <ul>
- * <li><code>-dependson</code> for any reactor project is mapped to a
- * <code>runtime<code> maven dependency</li>
- * <li><code>-buildpath</code> for any reactor project is mapped to a
- * <code>compile<code> maven dependency</li>
- * <li><code>-testpath</code> for any reactor project is mapped to a
- * <code>test<code> maven dependency</li>
+ * <li>{@code -dependson} for any reactor project is mapped to a
+ * {@code runtime} maven dependency</li>
+ * <li>{@code -buildpath} for any reactor project is mapped to a
+ * {@code compile} maven dependency</li>
+ * <li>{@code -testpath} for any reactor project is mapped to a
+ * {@code test} maven dependency</li>
  * </ul>
  */
 @Component(role = AbstractMavenLifecycleParticipant.class)

@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 /**
- * Creative copy&paste from org.eclipse.equinox.internal.launcher.Constants and
+ * Creative copy&amp;paste from org.eclipse.equinox.internal.launcher.Constants and
  * org.eclipse.equinox.launcher.Main.
  * 
  * @author aniefer

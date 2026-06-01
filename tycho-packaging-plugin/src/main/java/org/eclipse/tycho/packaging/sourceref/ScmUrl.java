@@ -18,7 +18,7 @@ import java.util.Properties;
 import org.apache.maven.plugin.MojoExecutionException;
 
 /**
- * Maven SCM URL as specified by {@linkplain https://maven.apache.org/scm/scm-url-format.html}
+ * Maven SCM URL as specified by <a href="https://maven.apache.org/scm/scm-url-format.html">SCM URL Format</a>
  */
 public class ScmUrl {
 

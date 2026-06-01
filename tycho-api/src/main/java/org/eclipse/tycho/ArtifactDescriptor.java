@@ -78,25 +78,21 @@ public interface ArtifactDescriptor {
     /**
      * ReactorProject corresponding to the artifact or null if the artifact does not come from a
      * reactor project.
-     * 
-     * @TODO should come from separate ReactorArtifactDescriptor
+     * TODO: should come from separate ReactorArtifactDescriptor
      */
     public ReactorProject getMavenProject();
 
     /**
      * Maven artifact classifier. Not null only for classified artifacts coming from a reactor
      * project (eg, sources jar).
-     * 
-     * @TODO should come from separate ReactorArtifactDescriptor
+     * TODO: should come from separate ReactorArtifactDescriptor
      */
     public String getClassifier();
 
     /**
-     * P2 metadata describing the project
-     * 
-     * @TODO should come from separate P2ArtifactDescriptor interface
-     * @TODO this should probably be Map<String,Set<IInstallableUnit>>
-     * @TODO is this dependency-only or final metadata?
+     * P2 metadata describing the project.
+     * TODO: should come from separate P2ArtifactDescriptor interface,
+     * probably be {@code Map<String,Set<IInstallableUnit>>}
      */
     public Collection<IInstallableUnit> getInstallableUnits();
 

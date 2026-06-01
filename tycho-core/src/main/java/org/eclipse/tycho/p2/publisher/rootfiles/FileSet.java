@@ -19,8 +19,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 /**
- * Ant-like file set. Wildcards *, ** and ? are implemented as described on <br/>
- * {@link https://en.wikibooks.org/wiki/Apache_Ant/Fileset }. This is not a complete equivalent
+ * Ant-like file set. Wildcards *, ** and ? are implemented as described on
+ * <a href="https://en.wikibooks.org/wiki/Apache_Ant/Fileset">Apache Ant Fileset</a>.
+ * This is not a complete equivalent
  * implementation of the ant fileset. Only the subset needed for PDE root files is supported.
  */
 public class FileSet extends AbstractFileSet {
@@ -29,7 +30,7 @@ public class FileSet extends AbstractFileSet {
     private String destinationDir;
 
     /**
-     * Equivalent to {@link #FileSet(File, String, boolean)} with useDefaultExludes == true;
+     * Equivalent to {@link #FileSet(File, String, String, boolean)} with useDefaultExludes == true;
      * destinationDir = ""
      */
     public FileSet(File baseDir, String pattern) {

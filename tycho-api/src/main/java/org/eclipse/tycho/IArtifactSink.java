@@ -20,8 +20,6 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
  * Interface for receiving the content of an artifact. In order to support streaming from a remote
  * server where integrity can only be checked after transferring the entire content, there are
  * methods to commit, abort, or retry the write operation.
- * 
- * @see ArtifactSinkFactory
  */
 public interface IArtifactSink {
 

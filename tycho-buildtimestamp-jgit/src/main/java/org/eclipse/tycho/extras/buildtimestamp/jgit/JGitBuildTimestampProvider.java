@@ -53,7 +53,7 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
  * meant to be used for reproducible builds, by default an exception is thrown
  * if <code>git status</code> is not clean (i.e. uncommitted changes are
  * detected).
- * <p/>
+ * <p>
  * If uncommitted changes should be tolerated with a warning, configure
  * 
  * <pre>
@@ -62,10 +62,10 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
  * 
  * In this case, this timestamp provider will delegate to the default timestamp
  * provider which uses the current build timestamp.
- * <p/>
+ * <p>
  * 
  * For additional flexibility, some files can be ignored using gitignore
- * patterns specified in &ltjgit.ignore> element of tycho-packaging-plugin
+ * patterns specified in &lt;jgit.ignore&gt; element of tycho-packaging-plugin
  * configuration block. Like in a .gitignore file each pattern is separated by a
  * newline (unix or windows style) or form-feed.
  * 

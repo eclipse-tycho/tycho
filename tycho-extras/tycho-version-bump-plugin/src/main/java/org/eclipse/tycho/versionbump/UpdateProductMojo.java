@@ -40,7 +40,7 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
 
 /**
- * Quick&dirty way to update .product file to use latest versions of IUs available from specified
+ * Quick&amp;dirty way to update .product file to use latest versions of IUs available from specified
  * metadata repositories.
  */
 @Mojo(name = "update-product")

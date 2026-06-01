@@ -54,7 +54,7 @@ import org.osgi.resource.Capability;
 /**
  * Helper class that computes compile dependencies of a bundle project.
  * 
- * Code below is copy&paste of org.eclipse.pde.internal.core.RequiredPluginsClasspathContainer
+ * Code below is copy&amp;paste of org.eclipse.pde.internal.core.RequiredPluginsClasspathContainer
  * adopted to work outside of Eclipse runtime.
  * 
  * Note that some functionality, namely SecondaryDependencies, ExtraClasspathEntries and
@@ -187,7 +187,6 @@ public class DefaultDependencyComputer implements DependencyComputer {
      * @param module
      *            the ModuleRevision whose dependencies are computed
      * @return the list of dependencies of the module
-     * @see #DependencyComputer(ModuleContainer)
      */
     @Override
     public List<DependencyComputer.DependencyEntry> computeDependencies(ModuleRevision module,
@@ -512,7 +511,7 @@ public class DefaultDependencyComputer implements DependencyComputer {
      * OSGi Core Spec apparently says that framework extension bundles can export additional
      * packaged of the underlying JRE. More specific explanation is provided in [1] and I verified
      * that at least Equinox 3.7.1 does indeed behave like described.
-     * <p/>
+     * <p>
      * There does not seem to be a way to tell which packages exported by a framework extension
      * bundle are supposed to come from JRE and which from the bundle itself, so returned classpath
      * access rules include all packages exported by the framework extension bundles.

@@ -18,12 +18,11 @@ import java.util.List;
 
 /**
  * @author igor
- * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ClasspathEntry {
 
     /**
-     * @noimplement This interface is not intended to be implemented by clients.
+     * Classpath access rule.
      */
     public static interface AccessRule {
         public String getPattern();

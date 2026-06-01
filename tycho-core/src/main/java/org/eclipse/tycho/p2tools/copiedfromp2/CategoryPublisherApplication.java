@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 /**
  * <p>
  * This application categorizes the elements in a repo based on a category definition file. The
- * category definition file is specified with <source>-categoryDefinition</source>
+ * category definition file is specified with {@code -categoryDefinition}
  * </p>
  */
 public class CategoryPublisherApplication extends AbstractPublisherApplication {

@@ -75,7 +75,6 @@ public class DependencyAnalyzer {
 	 *
 	 * @param artifacts        the dependency artifacts to include
 	 * @return a function that resolves class names to their method information
-	 * @throws MojoFailureException if analysis fails
 	 */
 	public Function<String, Optional<ClassMethods>> createDependencyClassResolver(DependencyArtifacts artifacts) {
 		ClassCollection allClassMethods = new ClassCollection();
@@ -98,8 +97,7 @@ public class DependencyAnalyzer {
 	 * @param file the JAR file to analyze
 	 * @param jre  the JRT class resolver to filter out runtime references
 	 * @return a list of class usages found in the JAR
-	 * @throws IOException 
-	 * @throws MojoFailureException if analysis fails
+	 * @throws IOException if reading the JAR file fails
 	 */
 	public static List<ClassUsage> analyzeUsage(File file, JrtClasses jre) throws IOException {
 		List<ClassUsage> usages = new ArrayList<>();

@@ -31,8 +31,8 @@ public class PackageNameMatcher {
      * </p>
      * 
      * @param specs
-     *            The list of package name specifications. For details on specification syntax see
-     *            {@link #compile(String)}.
+     *            The list of package name specifications. A specification may use {@code *} as a
+     *            wildcard to match any sub-package.
      * @return A new matching object.
      * @throws IllegalArgumentException
      *             Thrown if the given argument is <code>null</code> or if any of the strings in the

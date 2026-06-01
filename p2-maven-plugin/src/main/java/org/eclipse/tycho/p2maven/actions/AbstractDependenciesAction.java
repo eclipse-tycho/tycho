@@ -43,22 +43,22 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
 	protected static final String ANY_QUALIFIER = "qualifier";
 
     /**
-     * copy&paste from e3.5.1 org.eclipse.osgi.internal.resolver.StateImpl
+     * copy&amp;paste from e3.5.1 org.eclipse.osgi.internal.resolver.StateImpl
      */
     protected static final String OSGI_OS = "osgi.os";
 
     /**
-     * copy&paste from e3.5.1 org.eclipse.osgi.internal.resolver.StateImpl
+     * copy&amp;paste from e3.5.1 org.eclipse.osgi.internal.resolver.StateImpl
      */
     protected static final String OSGI_WS = "osgi.ws";
 
     /**
-     * copy&paste from e3.5.1 org.eclipse.osgi.internal.resolver.StateImpl
+     * copy&amp;paste from e3.5.1 org.eclipse.osgi.internal.resolver.StateImpl
      */
     protected static final String OSGI_ARCH = "osgi.arch";
 
     /**
-     * copy&paste from e3.5.1 org.eclipse.osgi.internal.resolver.StateImpl
+     * copy&amp;paste from e3.5.1 org.eclipse.osgi.internal.resolver.StateImpl
      */
     protected static final String OSGI_NL = "osgi.nl";
 

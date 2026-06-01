@@ -39,7 +39,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.Constants;
 
 /**
- * Creative copy&paste from org.eclipse.osgi.framework.internal.core.Framework
+ * Creative copy&amp;paste from org.eclipse.osgi.framework.internal.core.Framework
  * 
  * @author eclipse.org
  * @author igor

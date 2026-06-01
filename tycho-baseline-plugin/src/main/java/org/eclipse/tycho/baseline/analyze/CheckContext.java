@@ -47,14 +47,12 @@ public class CheckContext {
 	 * Creates a new check context.
 	 *
 	 * @param dependencyAnalyzer the analyzer for resolving dependency classes
-	 * @param artifacts 
-	 * @param classResolver      resolver for looking up class method information
+	 * @param artifacts          the dependency artifacts
 	 * @param versionProviders   providers for artifact version lookups
 	 * @param project            the Maven project being checked
 	 * @param log                the Maven log for diagnostic output
 	 * @param verbose            whether to include detailed method signatures in
 	 *                           problem reports
-	 * @throws MojoFailureException 
 	 */
 	public CheckContext(DependencyAnalyzer dependencyAnalyzer,
 			DependencyArtifacts artifacts, List<ArtifactVersionProvider> versionProviders,

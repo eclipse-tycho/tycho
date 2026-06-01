@@ -28,7 +28,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.Version;
 
 /**
- * Convenience wrapper around {@link Headers} and {@link ManifestElement} which adds typed getters
+ * Convenience wrapper around {@code Headers} and {@link ManifestElement} which adds typed getters
  * and value caching for commonly used headers. This is a read-only API.
  * 
  */

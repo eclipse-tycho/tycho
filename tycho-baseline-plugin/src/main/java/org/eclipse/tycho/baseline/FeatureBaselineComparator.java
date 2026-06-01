@@ -76,7 +76,7 @@ import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
  * <li>Otherwise, increment the feature's micro number if any contained plug-in
  * or feature increases their micro number, additionally changing properties
  * will be considered a micro change</li>
- * <ul>
+ * </ul>
  */
 @Component(role = ArtifactBaselineComparator.class, hint = ArtifactType.TYPE_ECLIPSE_FEATURE)
 public class FeatureBaselineComparator implements ArtifactBaselineComparator {

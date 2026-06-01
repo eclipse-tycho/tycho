@@ -19,12 +19,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.IArtifactProvider;
+import org.eclipse.tycho.IArtifactSink;
 
 /**
  * Policy for picking the internally used artifact format when obtaining an artifact. Different
  * policies may optimize for network bandwidth or CPU usage.
  * 
- * @see IArtifactProvider#getArtifact(IArtifactKey, OutputStream, IProgressMonitor)
+ * @see IArtifactProvider#getArtifact(IArtifactSink, IProgressMonitor)
  */
 public abstract class ArtifactTransferPolicy {
 
@@ -32,7 +33,7 @@ public abstract class ArtifactTransferPolicy {
      * Sorts a list of artifact formats by the order in which they should be tried to be used for a
      * (non-raw) artifact read operation.
      * 
-     * @param formats
+     * @param artifactDescriptors
      *            the list of raw artifact formats available from a provider
      * @return the list of formats, sorted by preference
      */
