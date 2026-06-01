@@ -20,11 +20,11 @@ import org.eclipse.tycho.SourcepathEntry;
 
 /**
  * Computes and returns Tycho java compiler configuration, i.e. compile or test-compile mojos of
- * org.eclipse.tycho:tycho-compiler-plugin Use {@link Adaptable#getAdapter(Class)} on compile or
- * test-compile mojos to get instance of this intergace
+ * org.eclipse.tycho:tycho-compiler-plugin. Use {@code Adaptable#getAdapter(Class)} on compile or
+ * test-compile mojos to get instance of this interface
  * 
  * @author igor
- * @noimplement This interface is not intended to be implemented by clients.
+ * This interface is not intended to be implemented by clients.
  */
 public interface JavaCompilerConfiguration {
     /**

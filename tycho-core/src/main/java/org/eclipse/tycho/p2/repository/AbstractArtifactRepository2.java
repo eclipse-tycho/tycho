@@ -62,7 +62,7 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
      * 
      * @deprecated This method requires assumptions about the internal artifact layout and may bring
      *             the repository into an inconsistent state. Use
-     *             {@link #newAddingArtifactSink(IArtifactKey)} or
+     *             {@link #newAddingArtifactSink(IArtifactDescriptor)} or
      *             {@link #newAddingRawArtifactSink(IArtifactDescriptor)} instead.
      */
     @Deprecated
@@ -76,7 +76,7 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
      * 
      * @deprecated This method requires assumptions about the internal artifact layout and may bring
      *             the repository into an inconsistent state. Use
-     *             {@link #newAddingArtifactSink(IArtifactKey)} or
+     *             {@link #newAddingArtifactSink(IArtifactDescriptor)} or
      *             {@link #newAddingRawArtifactSink(IArtifactDescriptor)} instead.
      */
     @Deprecated
@@ -91,7 +91,7 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
      * 
      * @deprecated This method requires assumptions about the internal artifact layout and may bring
      *             the repository into an inconsistent state. Use
-     *             {@link #newAddingArtifactSink(IArtifactKey)} or
+     *             {@link #newAddingArtifactSink(IArtifactDescriptor)} or
      *             {@link #newAddingRawArtifactSink(IArtifactDescriptor)} instead.
      */
     @Deprecated
@@ -105,7 +105,7 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
      * 
      * @deprecated This method requires assumptions about the internal artifact layout and may bring
      *             the repository into an inconsistent state. Use
-     *             {@link #newAddingArtifactSink(IArtifactKey)} or
+     *             {@link #newAddingArtifactSink(IArtifactDescriptor)} or
      *             {@link #newAddingRawArtifactSink(IArtifactDescriptor)} instead.
      */
     @Deprecated
@@ -194,8 +194,8 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
      * Returns a new {@link IArtifactSink} instance that adds the received artifact to this
      * repository on {@link IArtifactSink#commitWrite()}.
      * 
-     * @param key
-     *            The artifact key to be added to this repository
+     * @param descriptor
+     *            The artifact descriptor to be added to this repository
      * @throws ProvisionException
      *             if the artifact is already stored in the repository (in canonical format)
      */
@@ -218,7 +218,7 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
      * {@inheritDoc}
      * 
      * @deprecated The commit logic of this method is undocumented and brittle (bug 400442). Use
-     *             {@link #newAddingArtifactSink(IArtifactKey)} or
+     *             {@link #newAddingArtifactSink(IArtifactDescriptor)} or
      *             {@link #newAddingRawArtifactSink(IArtifactDescriptor)} instead.
      */
     @Deprecated

@@ -71,7 +71,6 @@ import org.eclipse.tycho.core.shared.MultiLineLogger;
  * <li>This instance only provides the remote artifacts in certain formats, i.e. only the canonical
  * format.</li>
  * </ul>
- * </p>
  */
 public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
@@ -94,8 +93,8 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
      *            The provider that will be queried by this instance when it is asked for an
      *            artifact which is not (yet) available in the local Maven repository. Typically
      *            this provider is backed by remote p2 repositories.
-     * @param logger
-     *            a logger for progress output
+     * @param context
+     *            the Maven context
      */
     public static MirroringArtifactProvider createInstance(LocalArtifactRepository localArtifactRepository,
             IRawArtifactProvider remoteProviders, MavenContext context) {

@@ -16,13 +16,13 @@ package org.eclipse.tycho;
 import java.io.File;
 
 /**
- * Facade which provides an interface for common properties of a maven {@see Artifact} or
- * {@see MavenProject}. Needed to generate p2 metadata {@see P2Generator} for both reactor projects
+ * Facade which provides an interface for common properties of a maven {@code Artifact} or
+ * {@code MavenProject}. Needed to generate p2 metadata for both reactor projects
  * and binary artifacts. For eclipse-plugin reactor projects, also carries information about the
  * corresponding eclipse source bundle. Implementors should:
  * <ul>
- * <li>provide {@link #hashCode()} and {@link #equals(Object)}</li>
- * <li>provide a description in {@link #toString()}</li>
+ * <li>provide {@code hashCode()} and {@code equals(Object)}</li>
+ * <li>provide a description in {@code toString()}</li>
  * <li>either be abstract or final unmodifiable classes</li>
  * </ul>
  */

@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 /**
  * Represents a p2 metadata repository. Facade only exposes serialized form (content.xml).
  * 
- * @TODO better class name
+ * TODO: better class name
  */
 public interface MetadataSerializable {
 

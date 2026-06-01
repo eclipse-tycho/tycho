@@ -22,9 +22,9 @@ import org.eclipse.osgi.util.ManifestElement;
  * maven SCM URL [2]. Implementations are plexus components which must declare their associated SCM
  * type as role hint and are selected based on the matching type of the given SCM URL.
  * 
- * [1] {@linkplain https://wiki.eclipse.org/PDE/UI/SourceReferences}
+ * [1] <a href="https://wiki.eclipse.org/PDE/UI/SourceReferences">Eclipse-SourceReferences header</a>
  * 
- * [2] {@linkplain https://maven.apache.org/scm/scm-url-format.html}
+ * [2] <a href="https://maven.apache.org/scm/scm-url-format.html">Maven SCM URL Format</a>
  */
 public interface SourceReferencesProvider {
 

@@ -51,7 +51,6 @@ import org.osgi.framework.Version;
  * <li>forceContextQualifier from ${project.baseDir}/build.properties</li>
  * <li>A time stamp in the form YYYYMMDDHHMM (e.g. 200605121600)</li>
  * </ol>
- * </p>
  * <p>
  * The generated qualifier is assigned to <code>buildQualifier</code> project property. The
  * unqualified project version is assigned to <code>unqualifiedVersion</code> project property. The

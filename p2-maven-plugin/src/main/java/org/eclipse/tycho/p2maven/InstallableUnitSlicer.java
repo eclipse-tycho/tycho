@@ -86,12 +86,9 @@ public class InstallableUnitSlicer {
 	 * {@link IInstallableUnit}s in a way that the result contains any unit that
 	 * satisfies a requirement in for rootIus
 	 * 
-	 * @param rootIus     the root {@link InstallableUnit}s to take into account
+	 * @param rootIus     the root {@link IInstallableUnit}s to take into account
 	 * @param avaiableIUs the {@link IQueryable} of all units that could be used for
 	 *                    fulfilling a requirement
-	 * @param contextIUs  context IUs that represent the the profile properties to
-	 *                    consider during resolution, can be empty in which case a
-	 *                    filter is always considered a match
 	 * @return the result of the slicing, be aware that no maximum/minimum
 	 *         constraints or filters are applied as part of this computation
 	 * @throws CoreException if there is any error

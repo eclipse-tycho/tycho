@@ -51,7 +51,7 @@ public class DefaultArtifactKey implements org.eclipse.tycho.ArtifactKey {
     }
 
     /**
-     * @see ProjectType
+     * @see ArtifactType
      */
     @Override
     public String getType() {

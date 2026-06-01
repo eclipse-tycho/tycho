@@ -48,7 +48,7 @@ public interface PublisherService {
     /**
      * Publishes the given OSGi execution environment profile.
      * 
-     * @param profilename
+     * @param profileName
      *            the profile name
      * @throws FacadeException
      *             if a checked exception occurs during publishing
@@ -62,8 +62,8 @@ public interface PublisherService {
     /**
      * Publishes the given OSGi execution environment profile.
      * 
-     * @param profilename
-     *            the profile name
+     * @param ee
+     *            the execution environment
      * @throws FacadeException
      *             if a checked exception occurs during publishing
      * @return handles to the root IUs in the publisher result

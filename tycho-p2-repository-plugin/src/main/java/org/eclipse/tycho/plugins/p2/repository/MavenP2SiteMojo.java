@@ -99,28 +99,26 @@ import org.eclipse.tycho.p2maven.tools.TychoFeaturesAndBundlesPublisherApplicati
  * <b>Please note:</b> Only valid OSGi bundles are included, there is no way to automatically wrap
  * plain jars and they are silently ignored. This is intentional, as the goal of a p2-maven-site is
  * to use exactly the same artifact that is deployed in the maven repository.
- * </p>
  * <p>
  * The produced p2-maven-site can then be consumed by Tycho or PDE targets (m2eclipse is required
  * for this), in the following way: A tycho-repository section:
  *
  * <pre>
-    &lt;repository>
-    &lt;id>my-p2-maven-site</id>
-        &lt;url>mvn:[groupId]:[artifactId]:[version]:zip:p2site</url>
-        &lt;layout>p2</layout>
-    &lt;/repository>
+ *     &lt;repository&gt;
+ *     &lt;id&gt;my-p2-maven-site&lt;/id&gt;
+ *         &lt;url&gt;mvn:[groupId]:[artifactId]:[version]:zip:p2site&lt;/url&gt;
+ *         &lt;layout&gt;p2&lt;/layout&gt;
+ *     &lt;/repository&gt;
  * </pre>
  *
  * A target location of type software-site:
  *
  * <pre>
- *  &lt;location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-        &lt;repository location="mvn:[groupId]:[artifactId]:[version]:zip:p2site"/>
-        -- list desired units here --
-    &lt;/location>
+ *  &lt;location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit"&gt;
+ *     &lt;repository location="mvn:[groupId]:[artifactId]:[version]:zip:p2site"/&gt;
+ *     -- list desired units here --
+ *  &lt;/location&gt;
  * </pre>
- * </p>
  *
  */
 @Mojo(name = "assemble-maven-repository", requiresDependencyResolution = ResolutionScope.COMPILE)

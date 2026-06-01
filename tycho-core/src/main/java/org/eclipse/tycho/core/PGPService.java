@@ -96,7 +96,6 @@ public class PGPService {
      * 
      * @param keyID
      * @param keyServerUrl
-     * @param session
      * @param keyServerRetry
      * @return the public key or <code>null</code> if the server does not provide such a signature
      * @throws IOException

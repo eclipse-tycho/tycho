@@ -54,13 +54,8 @@ public class MavenProjectDependencyProcessor {
 	 * Computes the {@link ProjectDependencyClosure} of the given collection of
 	 * projects.
 	 * 
-	 * @param projects                  the projects to include in the closure
-	 * @param session                   the maven session for this request
-	 * @param profilePropertiesSupplier supplier of context IUs for a project that
-	 *                                  represent the the profile properties to
-	 *                                  consider during resolution, can be empty in
-	 *                                  which case a filter is always considered a
-	 *                                  match
+	 * @param projects the projects to include in the closure
+	 * @param session  the maven session for this request
 	 * @return the computed {@link ProjectDependencyClosure}
 	 * @throws CoreException if computation failed
 	 */
@@ -190,7 +185,7 @@ public class MavenProjectDependencyProcessor {
 		/**
 		 * Check if the given unit is a fragment
 		 * 
-		 * @param installableUnit the unit to check
+		 * @param mavenProject the project to check
 		 * @return <code>true</code> if this is a fragment, <code>false</code> otherwise
 		 */
 		boolean isFragment(MavenProject mavenProject);

@@ -60,7 +60,6 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
  * without an explicit path and relies on the operating system PATH
  * variable</li>
  * </ul>
- * </p>
  *
  * @since 0.20.0
  */

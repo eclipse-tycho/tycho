@@ -73,8 +73,8 @@ import aQute.bnd.version.Version;
  * <li>Find all dependencies of an artifact</li>
  * <li>For each dependency check if it also needs wrapping</li>
  * <li>Depending on the target and used instructions, the wrapping might be different</li>
- * <li><As wrapping a bundle is a hard task we actually want to cache the data as much as
- * possible/li>
+ * <li>As wrapping a bundle is a hard task we actually want to cache the data as much as
+ * possible</li>
  * <li>The code is generic enough so we can have the exact same implementation at Tycho, e.g. we
  * only use maven, BND and java API but nothing from m2e!</li>
  * </ul>

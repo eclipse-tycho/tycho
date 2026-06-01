@@ -55,11 +55,12 @@ import org.osgi.framework.Version;
  * (version moved back, or not correctly bumped since last release).
  *
  * Rules for "illegal" versions are:
+ * <ul>
  * <li>version decreased compared to baseline</li>
  * <li>same fully-qualified version as baseline, but with different binary content</li>
  * <li>same major.minor.micro as baseline, with different qualifier (at least micro should be
  * increased)</li>
- *
+ * </ul>
  * This mojo doesn't allow to use qualifier as a versioning segment and will most likely drive to
  * false-positive errors if your qualifier has means to show versioniterations.
  *

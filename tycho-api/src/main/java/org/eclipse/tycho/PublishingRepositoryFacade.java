@@ -21,8 +21,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 /**
  * Representation of the p2 repositories that receive the artifacts produced by the build.
  * <p>
- * This interface is a subset of
- * {@link org.eclipse.tycho.repository.publishing.PublishingRepository}, limited to methods required
+ * This interface is a subset of the publishing repository, limited to methods required
  * from the Maven class loader.
  */
 public interface PublishingRepositoryFacade {

@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 /**
  * Encapsulates an artifact, i.e. a File, and associated p2 metadata.
  * 
- * @TODO reconcile with IDependencyMetadata, which serves essentially the same purpose
+ * TODO: reconcile with IDependencyMetadata, which serves essentially the same purpose
  */
 public interface IP2Artifact {
     public File getLocation();

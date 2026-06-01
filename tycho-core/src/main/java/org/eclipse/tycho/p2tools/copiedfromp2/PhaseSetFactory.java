@@ -32,7 +32,7 @@ import org.eclipse.equinox.p2.engine.ISizingPhaseSet;
 
 /**
  * @since 2.0
- * @noextend This class is not intended to be subclassed by clients.
+ * This class is not intended to be subclassed by clients.
  */
 public class PhaseSetFactory {
 

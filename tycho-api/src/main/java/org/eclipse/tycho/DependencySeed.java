@@ -37,8 +37,6 @@ public class DependencySeed {
      *            <code>null</code>.
      * @param id
      *            Identifier of the seed unit.
-     * @param version
-     *            Exact version (i.e. qualified) version of the unit.
      * @param installableUnit
      *            The seed unit as IInstallableUnit, which contains the dependency information. May
      *            be <code>null</code>.
@@ -53,8 +51,6 @@ public class DependencySeed {
      *            <code>null</code>.
      * @param id
      *            Identifier of the seed unit.
-     * @param version
-     *            Exact version (i.e. qualified) version of the unit.
      * @param installableUnit
      *            The seed unit as IInstallableUnit, which contains the dependency information. May
      *            be <code>null</code>.

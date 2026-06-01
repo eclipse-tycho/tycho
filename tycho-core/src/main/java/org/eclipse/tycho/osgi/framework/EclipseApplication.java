@@ -161,7 +161,7 @@ public class EclipseApplication {
     /**
      * Adds a product IU
      * 
-     * @param bundleSymbolicName
+     * @param productId
      */
     public synchronized void addProduct(String productId) {
         try {

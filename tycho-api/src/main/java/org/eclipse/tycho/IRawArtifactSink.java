@@ -19,7 +19,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
  * storage format.
  * 
  * @see IArtifactSink
- * @see ArtifactSinkFactory
  */
 public interface IRawArtifactSink extends IArtifactSink {
 

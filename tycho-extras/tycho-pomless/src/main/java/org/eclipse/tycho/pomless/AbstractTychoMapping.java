@@ -235,7 +235,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
     /**
      * Locates the {@link PomReference} for the given folder and the given nameHint
      *
-     * @param folder
+     * @param folderPath
      *            the folder to search
      * @param nameHint
      *            the name hint to use

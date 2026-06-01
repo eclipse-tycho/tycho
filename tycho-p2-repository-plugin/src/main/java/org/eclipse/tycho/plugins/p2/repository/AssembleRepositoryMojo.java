@@ -69,7 +69,6 @@ import aQute.bnd.repository.fileset.FileSetRepository;
  * range, i.e. a range which only matches exactly one version of an artifact, are also considered as
  * inclusions.)</li>
  * </ol>
- * </p>
  * 
  */
 @Mojo(name = "assemble-repository", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)

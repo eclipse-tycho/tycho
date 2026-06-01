@@ -325,8 +325,9 @@ public abstract class AbstractTestMojo extends AbstractMojo {
      * searched</li>
      * </ol>
      * 
+     * @param reactorProject
+     * @param packageImport
      * @param scanResult
-     * @param additionalRequirements
      */
     protected Optional<ResolvedArtifactKey> createTestPluginJar(final ReactorProject reactorProject,
             String packageImport, ScanResult scanResult) throws Exception {

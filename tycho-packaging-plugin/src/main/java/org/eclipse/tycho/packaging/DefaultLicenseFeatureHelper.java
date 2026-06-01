@@ -55,7 +55,7 @@ public class DefaultLicenseFeatureHelper implements LicenseFeatureHelper {
     /**
      * Get the license feature jar for feature (or <code>null</code> if it has no license feature).
      * 
-     * See {@linkplain https://wiki.eclipse.org/Equinox/p2/License_Mechanism }.
+     * See <a href="https://wiki.eclipse.org/Equinox/p2/License_Mechanism">Equinox p2 License Mechanism</a>.
      * 
      * @param feature
      *            original feature

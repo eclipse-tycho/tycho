@@ -204,11 +204,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      *            profile, the handler also reads the full specification from the target platform.
      * @param reactorProjects
      *            may be <code>null</code>
-     * @param pomDependencies
-     *            may be <code>null</code>
-     * 
-     * @see #createTargetPlatform(TargetPlatformConfigurationStub,
-     *      ExecutionEnvironmentConfiguration, List, PomDependencyCollector)
      */
 
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,

@@ -31,8 +31,6 @@ import org.eclipse.tycho.versions.pom.PomFile;
 /**
  * Applies direct and indirect version changes to a set of projects.
  * 
- * @TODO find more specific name that reflects what this class actually does.
- * 
  */
 @Named
 public class VersionsEngine {

@@ -28,7 +28,7 @@ import java.util.List;
  * In case of an custom execution environment, the information required for the build can not be
  * directly computed from the configuration. Therefore, this instance also has a callback to add the
  * missing information as soon as it has been extracted from the target platform.
- * <p>
+ * </p>
  */
 public interface ExecutionEnvironmentConfiguration {
 

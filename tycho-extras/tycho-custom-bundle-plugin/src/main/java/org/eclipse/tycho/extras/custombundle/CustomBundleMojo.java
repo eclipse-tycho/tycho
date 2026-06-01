@@ -52,7 +52,6 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
  * <li>Attach the resulting bundle as an artifact with a custom classifier</li>
  * <li>Update the Bundle-Version in the manifest to match the expanded project version</li>
  * </ul>
- * </p>
  * 
  * <h2>Example Configuration</h2>
  * 

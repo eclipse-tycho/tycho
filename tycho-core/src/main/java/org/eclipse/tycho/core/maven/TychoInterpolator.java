@@ -39,7 +39,6 @@ import org.eclipse.tycho.Interpolator;
  * <li>{@link MavenProject#getBasedir()} for ${basedir}</li>
  * <li>{@link Settings#getLocalRepository()} for ${localRepository}</li>
  * </ul>
- * </p>
  *
  */
 public class TychoInterpolator implements Interpolator {

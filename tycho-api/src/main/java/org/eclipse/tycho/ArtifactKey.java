@@ -15,8 +15,6 @@ package org.eclipse.tycho;
 /**
  * Eclipse/OSGi artifact key. Contains the "coordinates" which identify an artifact in the Eclipse
  * universe.
- * 
- * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ArtifactKey {
 

@@ -29,8 +29,8 @@ import org.eclipse.tycho.helper.ProjectHelper;
  * or similar. It works the following way:
  * <ul>
  * <li>You can either configure this in the pom (e.g. in a profile) with an explicit execution, or
- * specify it on the command line like <code>mvn [other goals and options]
- * org.eclipse.tycho:tycho-versions-plugin:bump-versions</li>
+ * specify it on the command line like {@code mvn [other goals and options]
+ * org.eclipse.tycho:tycho-versions-plugin:bump-versions}</li>
  * <li>if the build fails with a VersionBumpRequiredException the projects version is
  * incremented</li>
  * <li>one can now run the build again with the incremented version and verify the automatic applied

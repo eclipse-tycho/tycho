@@ -105,7 +105,7 @@ public interface TargetDefinition {
 		public boolean includeConfigurePhase();
 		
 		/**
-		 * When {@link FollowRepositoryReferences.Default} the global {@link IncludeSourceMode} should be used instead.
+		 * When {@link FollowRepositoryReferences#DEFAULT} the global {@code IncludeSourceMode} should be used instead.
 		 * @return whether repository references should be used, never null
 		 */
 		public default FollowRepositoryReferences followRepositoryReferences() {

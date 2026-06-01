@@ -29,7 +29,7 @@ import org.eclipse.tycho.TargetEnvironment;
 public interface P2MetadataProvider {
 
     /**
-     * @return Map<String,IDependencyMetadata> classifier to metadata map or <code>null</code>
+     * @return {@code Map<String,IDependencyMetadata>} classifier to metadata map or <code>null</code>
      */
     //TODO consider allowing MavenExecutionException
     public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,

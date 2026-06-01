@@ -217,8 +217,6 @@ public class P2RepositoryManager {
 	 * @param id       the optional id of the repository (e.g. used for
 	 *                 authentication), may be {@code null}
 	 * @return the {@link IArtifactRepository} for the given {@link Repository}
-	 * @throws URISyntaxException if {@link Repository#getUrl()} can not be
-	 *                            converted into an {@link URI}
 	 * @throws ProvisionException if loading the repository failed
 	 */
 	public IArtifactRepository getArtifactRepository(URI location, String id) throws ProvisionException {
@@ -233,8 +231,6 @@ public class P2RepositoryManager {
 	 * @param id       the optional id of the repository (e.g. used for
 	 *                 authentication), may be {@code null}
 	 * @return the {@link IMetadataRepository} for the given {@link Repository}
-	 * @throws URISyntaxException if {@link Repository#getUrl()} can not be
-	 *                            converted into an {@link URI}
 	 * @throws ProvisionException if loading the repository failed
 	 */
 	public IMetadataRepository getMetadataRepository(URI location, String id) throws ProvisionException {
