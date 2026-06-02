@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="mirror-test" sequenceNumber="1">
+  <locations>
+    <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+      <repository location="mvn:org.eclipse.tycho.it:producer:1.0.0:zip:p2site"/>
+      <unit id="org.eclipse.jetty.http" version="0.0.0"/>
+    </location>
+  </locations>
+</target>

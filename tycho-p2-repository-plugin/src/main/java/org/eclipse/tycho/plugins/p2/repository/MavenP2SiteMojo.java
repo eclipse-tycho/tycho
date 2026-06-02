@@ -101,27 +101,50 @@ import org.eclipse.tycho.p2maven.tools.TychoFeaturesAndBundlesPublisherApplicati
  * to use exactly the same artifact that is deployed in the maven repository.
  * </p>
  * <p>
- * The produced p2-maven-site can then be consumed by Tycho or PDE targets (m2eclipse is required
- * for this), in the following way: A tycho-repository section:
+ * The produced p2-maven-site can then be consumed by Tycho or PDE targets in the following ways.
+ * Note that m2eclipse is required for IDE (PDE Target Editor) support.
+ * </p>
+ * <p>
+ * <b>Option 1 – POM {@code <repositories>} section</b> (adds the entire site to the target
+ * platform):
  *
  * <pre>
-    &lt;repository>
-    &lt;id>my-p2-maven-site</id>
-        &lt;url>mvn:[groupId]:[artifactId]:[version]:zip:p2site</url>
-        &lt;layout>p2</layout>
-    &lt;/repository>
- * </pre>
- *
- * A target location of type software-site:
- *
- * <pre>
- *  &lt;location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-        &lt;repository location="mvn:[groupId]:[artifactId]:[version]:zip:p2site"/>
-        -- list desired units here --
-    &lt;/location>
+    &lt;repository&gt;
+        &lt;id&gt;my-p2-maven-site&lt;/id&gt;
+        &lt;url&gt;mvn:[groupId]:[artifactId]:[version]:zip:p2site&lt;/url&gt;
+        &lt;layout&gt;p2&lt;/layout&gt;
+    &lt;/repository&gt;
  * </pre>
  * </p>
+ * <p>
+ * <b>Option 2 – {@code .target} file {@code InstallableUnit} location</b> (recommended; allows
+ * fine-grained unit selection):
  *
+ * <pre>
+ *  &lt;location includeAllPlatforms="false" includeConfigurePhase="true"
+ *            includeMode="planner" includeSource="true" type="InstallableUnit"&gt;
+ *      &lt;repository location="mvn:[groupId]:[artifactId]:[version]:zip:p2site"/&gt;
+ *      &lt;!-- list desired units here --&gt;
+ *  &lt;/location&gt;
+ * </pre>
+ *
+ * The same {@code mvn:} URL scheme works for <em>any</em> zip artifact that contains a valid p2
+ * repository (i.e. {@code content.xml}/{@code content.jar} and {@code artifacts.xml}/
+ * {@code artifacts.jar}), not only for zips produced by this goal. This means you can also consume
+ * a self-contained p2 repository zip that was exported from the Eclipse IDE or built with another
+ * tool, as long as it was deployed to a Maven repository.
+ * </p>
+ * <p>
+ * <b>Important:</b> Do <em>not</em> use {@code &lt;location type="Maven"&gt;} for this purpose.
+ * That location type resolves Maven JARs as plain OSGi bundles and is not intended for consuming p2
+ * repositories.
+ * </p>
+ * <p>
+ * The Maven artifact referenced by a {@code mvn:} URL must be resolvable from the local Maven
+ * repository or from a remote repository configured in the project's {@code <repositories>}
+ * section. The {@code mvn:} URL itself does not carry repository location or authentication
+ * information.
+ * </p>
  */
 @Mojo(name = "assemble-maven-repository", requiresDependencyResolution = ResolutionScope.COMPILE)
 public class MavenP2SiteMojo extends AbstractMojo {
