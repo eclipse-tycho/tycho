@@ -31,12 +31,12 @@ jobs:
     - name: Inject slug/short variables
       uses: rlespinasse/github-slug-action@e6f261660910b273384c5c42b17a0217881b217a # v5.6.0
     - name: Checkout tycho code
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       with:
        path: 'tycho'
     - name: Checkout page
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       with:
        path: 'page'
        token: ${{ secrets.TYCHO_SITE_PAT }}
