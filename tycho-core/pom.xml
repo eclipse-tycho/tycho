@@ -334,7 +334,7 @@
 		<dependency>
 		    <groupId>org.eclipse.pde</groupId>
 		    <artifactId>org.eclipse.pde.core</artifactId>
-		    <version>3.21.200</version>
+		    <version>3.21.300</version>
 		    <scope>test</scope>
 		    <exclusions>
 				<exclusion>
