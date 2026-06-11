@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2maven.transport;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
@@ -21,6 +20,7 @@ import java.util.Objects;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.transport.FileState;
 import org.eclipse.tycho.transport.TransportProtocolHandler;
 
 @Component(role = TransportProtocolHandler.class, hint = "http")
@@ -47,7 +47,7 @@ public class HttpTransportProtocolHandler implements TransportProtocolHandler {
 	}
 
 	@Override
-	public File getFile(URI remoteFile) throws IOException {
+	public FileState getFile(URI remoteFile) throws IOException {
 		return httpCache.getCacheEntry(remoteFile, logger).getCacheFile(getTransportFactory());
 	}
 
