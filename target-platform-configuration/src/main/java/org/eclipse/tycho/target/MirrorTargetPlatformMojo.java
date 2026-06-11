@@ -19,10 +19,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -63,7 +64,7 @@ public class MirrorTargetPlatformMojo extends AbstractMojo {
 
     private static final SiteXMLAction CATEGORY_FACTORY = new SiteXMLAction((URI) null, (String) null);
 
-    @Parameter(property = "project", readonly = true)
+    @Inject
     private MavenProject project;
 
     @Parameter(defaultValue = "${project.build.directory}/target-platform-repository")
@@ -104,19 +105,19 @@ public class MirrorTargetPlatformMojo extends AbstractMojo {
     @Parameter
     private SlicingOptions options;
 
-    @Component
+    @Inject
     private TargetPlatformService platformService;
 
-    @Component
+    @Inject
     private MirrorApplicationService mirrorService;
 
-    @Component
+    @Inject
     private ReactorRepositoryManager repositoryManager;
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
-    @Component
+    @Inject
     private InstallableUnitSlicer installableUnitSlicer;
 
     @Override

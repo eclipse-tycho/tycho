@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -77,10 +79,10 @@ import org.osgi.resource.Namespace;
 @Mojo(defaultPhase = LifecyclePhase.VERIFY, name = "check-dependencies", threadSafe = true, requiresProject = true)
 public class DependencyCheckMojo extends AbstractMojo {
 
-	@Parameter(property = "project", readonly = true)
+	@Inject
 	private MavenProject project;
 
-	@Parameter(property = "session", readonly = true)
+	@Inject
 	private MavenSession session;
 
 	@Parameter(defaultValue = "${project.build.directory}/versionProblems.md", property = "tycho.dependency.check.report")
