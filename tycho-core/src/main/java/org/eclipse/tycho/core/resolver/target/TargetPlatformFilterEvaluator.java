@@ -80,15 +80,18 @@ public class TargetPlatformFilterEvaluator {
     private void applyRemoveAllFilter(TargetPlatformFilter filter, Collection<IInstallableUnit> targetPlatformUnits) {
         ParsedCapabilityPattern scopePattern = parsePattern(filter.getScopePattern(), null);
 
-        // TODO implement debug logging
+        filterLogger.beginEvaluation(filter);
 
         for (Iterator<IInstallableUnit> unitIterator = targetPlatformUnits.iterator(); unitIterator.hasNext();) {
             IInstallableUnit unit = unitIterator.next();
 
             if (matches(unit, scopePattern)) {
                 unitIterator.remove();
+                filterLogger.unitRemoved(unit);
             }
         }
+
+        filterLogger.endEvaluation();
     }
 
     private void applyRestrictionFilter(TargetPlatformFilter filter, Collection<IInstallableUnit> targetPlatformUnits) {
@@ -254,11 +257,13 @@ public class TargetPlatformFilterEvaluator {
         TargetPlatformFilter currentFilter;
         int unitsKept;
         int unitsRemoved;
+        List<IInstallableUnit> removedUnits;
 
         public void beginEvaluation(TargetPlatformFilter filter) {
             currentFilter = filter;
             unitsKept = 0;
             unitsRemoved = 0;
+            removedUnits = new ArrayList<>();
         }
 
         public void unitKept(IInstallableUnit unit) {
@@ -267,15 +272,58 @@ public class TargetPlatformFilterEvaluator {
 
         public void unitRemoved(IInstallableUnit unit) {
             ++unitsRemoved;
+            removedUnits.add(unit);
         }
 
         public void endEvaluation() {
-            if (unitsRemoved > 0 && unitsKept == 0) {
-                logger.warn("Removed all units from the target platform matching {"
-                        + currentFilter.getScopePattern().printMembers()
-                        + "} because none of the units passed the restriction filter {"
-                        + currentFilter.getActionPattern().printMembers() + "}");
+            if (currentFilter.getAction() == TargetPlatformFilter.FilterAction.REMOVE_ALL) {
+                // For REMOVE_ALL filters
+                if (unitsRemoved == 0) {
+                    logger.info("Filter {" + currentFilter.getScopePattern().printMembers()
+                            + "} did not match any units");
+                } else {
+                    logger.info("Removed " + unitsRemoved + " unit(s) matching {"
+                            + currentFilter.getScopePattern().printMembers() + "}: "
+                            + formatRemovedUnits());
+                }
+            } else {
+                // For RESTRICT filters
+                if (unitsRemoved > 0 && unitsKept == 0) {
+                    logger.warn("Removed all units from the target platform matching {"
+                            + currentFilter.getScopePattern().printMembers()
+                            + "} because none of the units passed the restriction filter {"
+                            + currentFilter.getActionPattern().printMembers() + "}");
+                } else if (unitsRemoved == 0 && unitsKept == 0) {
+                    logger.info("Filter {" + currentFilter.getScopePattern().printMembers()
+                            + "} did not match any units");
+                } else if (unitsRemoved > 0) {
+                    logger.info("Removed " + unitsRemoved + " unit(s) matching {"
+                            + currentFilter.getScopePattern().printMembers()
+                            + "} that did not pass restriction filter {"
+                            + currentFilter.getActionPattern().printMembers() + "}: "
+                            + formatRemovedUnits());
+                }
             }
+        }
+
+        private String formatRemovedUnits() {
+            // Limit the number of units shown in the log to avoid overly long messages
+            int maxUnitsToShow = 10;
+            StringBuilder sb = new StringBuilder();
+            int count = 0;
+            for (IInstallableUnit unit : removedUnits) {
+                if (count > 0) {
+                    sb.append(", ");
+                }
+                if (count < maxUnitsToShow) {
+                    sb.append(unit.getId()).append("_").append(unit.getVersion());
+                } else {
+                    sb.append("... and ").append(removedUnits.size() - maxUnitsToShow).append(" more");
+                    break;
+                }
+                count++;
+            }
+            return sb.toString();
         }
     }
 }

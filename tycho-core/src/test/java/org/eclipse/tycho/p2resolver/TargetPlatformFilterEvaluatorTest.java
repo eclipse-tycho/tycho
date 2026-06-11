@@ -217,6 +217,59 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
         subject.filterUnits(workUnits);
     }
 
+    @Test
+    public void testRemoveAllLogsFilteredUnits() throws Exception {
+        TargetPlatformFilter removeAllFilter = removeAllFilter(ALL_MULTIVERSION_BUNDLES);
+        subject = newEvaluator(removeAllFilter);
+
+        subject.filterUnits(workUnits);
+
+        // Verify that the removal was logged
+        logVerifier.expectInfo(allOf(containsString("Removed 2 unit(s)"),
+                containsString("trf.bundle.multiversion")));
+    }
+
+    @Test
+    public void testRemoveAllLogsWhenNoUnitsMatched() throws Exception {
+        CapabilityPattern nonExistentPattern = patternWithVersion(CapabilityType.OSGI_BUNDLE,
+                "non.existent.bundle", null);
+        subject = newEvaluator(removeAllFilter(nonExistentPattern));
+
+        subject.filterUnits(workUnits);
+
+        // Verify that a message was logged indicating no matches
+        logVerifier.expectInfo(allOf(containsString("did not match any units"),
+                containsString("non.existent.bundle")));
+    }
+
+    @Test
+    public void testRestrictLogsFilteredUnits() throws Exception {
+        TargetPlatformFilter versionFilter = restrictionFilter(ALL_MULTIVERSION_BUNDLES,
+                patternWithVersion(null, null, "1.0"));
+        subject = newEvaluator(versionFilter);
+
+        subject.filterUnits(workUnits);
+
+        // Verify that the removal was logged
+        logVerifier.expectInfo(allOf(containsString("Removed 1 unit(s)"),
+                containsString("trf.bundle.multiversion")));
+    }
+
+    @Test
+    public void testRestrictLogsWhenNoUnitsMatched() throws Exception {
+        CapabilityPattern nonExistentPattern = patternWithVersion(CapabilityType.OSGI_BUNDLE,
+                "non.existent.bundle", null);
+        TargetPlatformFilter versionFilter = restrictionFilter(nonExistentPattern,
+                patternWithVersion(null, null, "1.0"));
+        subject = newEvaluator(versionFilter);
+
+        subject.filterUnits(workUnits);
+
+        // Verify that a message was logged indicating no matches
+        logVerifier.expectInfo(allOf(containsString("did not match any units"),
+                containsString("non.existent.bundle")));
+    }
+
     private Collection<String> removedUnits() {
         HashSet<String> result = new HashSet<>();
         for (IInstallableUnit unit : baselineUnits) {
