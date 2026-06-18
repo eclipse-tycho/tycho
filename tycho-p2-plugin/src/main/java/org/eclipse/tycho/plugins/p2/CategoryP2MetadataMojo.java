@@ -26,6 +26,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.internal.repository.tools.XZCompressor;
 import org.eclipse.tycho.p2tools.copiedfromp2.CategoryPublisherApplication;
@@ -51,9 +52,9 @@ public class CategoryP2MetadataMojo extends AbstractP2MetadataMojo {
     protected void addArguments(List<String> arguments) throws IOException, MalformedURLException {
         File location = getUpdateSiteLocation();
         arguments.add("-metadataRepository");
-        arguments.add(location.toURI().toURL().toExternalForm());
+        arguments.add(URIUtil.toUnencodedString(location.toURI()));
         arguments.add("-categoryDefinition");
-        arguments.add(categoryDefinition.toURI().toURL().toExternalForm());
+        arguments.add(URIUtil.toUnencodedString(categoryDefinition.toURI()));
     }
 
     @Override
