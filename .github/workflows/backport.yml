@@ -21,7 +21,7 @@ jobs:
       contents: write
     steps:
       - name: Backport Action
-        uses: sqren/backport-github-action@5740752c403be292c045c06099484d6086644882 # v12.0.1
+        uses: sqren/backport-github-action@8a6c0381851f43f9f1fddc7303f0e9015eb57b62 # v12.0.4
         with:
           github_token: ${{ secrets.TYCHO_SITE_PAT }}
           auto_backport_label_prefix: backport-to-
