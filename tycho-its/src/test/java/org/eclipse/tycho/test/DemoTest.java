@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -150,6 +150,15 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testTychoPublishP2Demo() throws Exception {
 		runDemo("publish-p2");
+	}
+
+	@Test
+	public void testTychoPromoteP2Demo() throws Exception {
+		Verifier verifier = runDemo("promote-p2");
+		String expectedLocation = "promotion/target/updatesite/updates/index.html";
+		Path indexHtml = Path.of(verifier.getBasedir(), expectedLocation);
+		assertTrue("Did not find HTML page for update site at expected location: " + expectedLocation,
+				Files.exists(indexHtml));
 	}
 
 	@Test

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 Christoph Läubrich and others.
+ * Copyright (c) 2025, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -18,19 +18,21 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.maven.model.Repository;
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.MavenRepositoryLocation;
+import org.eclipse.tycho.TargetPlatform;
+import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.osgi.framework.Bundles;
-import org.eclipse.tycho.osgi.framework.DefaultEclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.EclipseApplication;
+import org.eclipse.tycho.osgi.framework.EclipseApplicationFactory;
 import org.eclipse.tycho.osgi.framework.EclipseApplicationManager;
 import org.eclipse.tycho.osgi.framework.EclipseFramework;
 import org.eclipse.tycho.osgi.framework.EclipseWorkspace;
@@ -46,18 +48,28 @@ import org.osgi.framework.BundleException;
  */
 @Mojo(name = "p2-manager", threadSafe = true, requiresProject = false)
 public class P2ManagerMojo extends AbstractMojo {
+	private static final String JUST_TOOLS_NIGHTLY = "https://download.eclipse.org/justj/tools/updates/nightly/latest";
 
-	@Component
+	@Inject
 	private EclipseWorkspaceManager workspaceManager;
 
-	@Component
+	@Inject
 	private EclipseApplicationManager applicationManager;
+
+	@Inject
+	private EclipseApplicationFactory applicationFactory;
 
 	/**
 	 * The repository where the P2 Manager application should be sourced from
 	 */
 	@Parameter
 	private Repository managerRepository;
+
+	/**
+	 * The repository where the Eclipse IDE should be sourced from
+	 */
+	@Parameter
+	private Repository eclipseRepository;
 
 	/**
 	 * Whether to print progress during the activities (opposite of -quiet flag)
@@ -98,7 +110,7 @@ public class P2ManagerMojo extends AbstractMojo {
 	/**
 	 * Relative target folder within the root
 	 */
-	@Parameter(property = "p2manager.relative")
+	@Parameter(property = "p2manager.relative", defaultValue = "updates")
 	private String relative;
 
 	/**
@@ -275,11 +287,14 @@ public class P2ManagerMojo extends AbstractMojo {
 			throw new MojoFailureException("The 'root' parameter must be specified");
 		}
 
-		MavenRepositoryLocation repository = DefaultEclipseApplicationManager.getRepository(managerRepository,
-				URI.create("https://download.eclipse.org/justj/tools/updates/"));
-		EclipseApplication application = applicationManager.getApplication(repository, Bundles.of(), Features.of(),
-				"P2 Manager");
-		application.addFeature("org.eclipse.justj.p2.feature.group");
+		MavenRepositoryLocation eclipseLocation = getEclipseLocation();
+		MavenRepositoryLocation repository = getManagerLocation();
+		TargetPlatform targetPlatform = applicationFactory.createTargetPlatform(
+				List.of(eclipseLocation, repository));
+		EclipseApplication application = applicationManager.getApplication(
+				targetPlatform, Bundles.of(), Features.of(), "P2 Manager");
+		application.addBundle("org.eclipse.justj.p2");
+		application.addBundle("org.apache.felix.scr");
 		EclipseWorkspace<?> workspace = workspaceManager.getWorkspace(repository.getURL(), this);
 
 		List<String> arguments = new ArrayList<>();
@@ -329,9 +344,11 @@ public class P2ManagerMojo extends AbstractMojo {
 		arguments.add("-summary-iu-pattern");
 		arguments.add(summaryIUPattern);
 
+		arguments.add("-relative");
+		arguments.add(relative);
+
 		// Add optional parameters
 		addOptionalParameter(arguments, "-build-url", buildUrl);
-		addOptionalParameter(arguments, "-relative", relative);
 		addOptionalParameter(arguments, "-remote", remote);
 		addOptionalParameter(arguments, "-promote", promote);
 		addOptionalFile(arguments, "-promote-products", promoteProducts);
@@ -395,5 +412,23 @@ public class P2ManagerMojo extends AbstractMojo {
 				}
 			}
 		}
+	}
+
+	private MavenRepositoryLocation getManagerLocation() {
+		if (managerRepository == null) {
+			return new MavenRepositoryLocation(null,
+					URI.create(JUST_TOOLS_NIGHTLY));
+		}
+		return new MavenRepositoryLocation(managerRepository.getId(),
+				managerRepository.getLocation());
+	}
+
+	private MavenRepositoryLocation getEclipseLocation() {
+		if (eclipseRepository == null) {
+			return new MavenRepositoryLocation(null,
+					URI.create(TychoConstants.ECLIPSE_LATEST));
+		}
+		return new MavenRepositoryLocation(eclipseRepository.getId(),
+				eclipseRepository.getLocation());
 	}
 }
