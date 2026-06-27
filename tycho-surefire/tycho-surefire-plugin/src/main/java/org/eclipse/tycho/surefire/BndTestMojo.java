@@ -191,6 +191,13 @@ public class BndTestMojo extends AbstractTestMojo {
     @Parameter(defaultValue = ENGINES_DEFAULT, required = true)
     private String testEngines;
 
+    /**
+     * Set this parameter to suspend the test JVM waiting for a client to open a remote debug
+     * session on the specified port.
+     */
+    @Parameter(property = "debugPort")
+    private int debugPort;
+
     @Component
     private BundleReader bundleReader;
 
@@ -229,6 +236,9 @@ public class BndTestMojo extends AbstractTestMojo {
         properties.setProperty(Constants.RUNTRACE, String.valueOf(trace));
         properties.setProperty(Constants.RUNFW, runfw);
         properties.setProperty(Constants.RUNPROPERTIES, buildRunProperties());
+        if (debugPort > 0) {
+            properties.setProperty("-runjdb", "+localhost:" + debugPort);
+        }
         try {
             ReproducibleUtils.storeProperties(properties, runfile.toPath());
             String javaExecutable = getJavaExecutable();
