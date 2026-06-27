@@ -176,8 +176,20 @@ public class BndTestMojo extends AbstractTestMojo {
     @Parameter(defaultValue = FW_EQUINOX)
     private String runfw = FW_EQUINOX;
 
+    /**
+     * Additional system properties set for the launched test JVM.
+     */
     @Parameter
     private Map<String, String> properties;
+
+    /**
+     * Additional BND instructions appended to the generated {@code test.bndrun} file:
+     * <ul>
+     * <li>https://bnd.bndtools.org/instructions</li>
+     * </ul>
+     */
+    @Parameter
+    private Map<String, String> bndRunProperties = Map.of();
 
     /**
      * Configures the test engines to use, for example:
@@ -239,6 +251,7 @@ public class BndTestMojo extends AbstractTestMojo {
         if (debugPort > 0) {
             properties.setProperty("-runjdb", "+localhost:" + debugPort);
         }
+        bndRunProperties.forEach((key, value) -> properties.setProperty(key.replaceFirst("^_", "-"), value));
         try {
             ReproducibleUtils.storeProperties(properties, runfile.toPath());
             String javaExecutable = getJavaExecutable();
