@@ -213,7 +213,7 @@ public class DefaultTargetPlatformConfigurationReader {
         }
     }
 
-    private void setP2MavenMetadataHandling(TargetPlatformConfiguration result, Xpp3Dom configuration)
+    void setP2MavenMetadataHandling(TargetPlatformConfiguration result, Xpp3Dom configuration)
             throws BuildFailureException {
         String value = getStringValue(configuration.getChild(P2_MAVEN_METADATA_HANDLING));
         if (value == null) {
