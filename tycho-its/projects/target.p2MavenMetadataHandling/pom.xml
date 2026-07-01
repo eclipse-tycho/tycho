@@ -1,0 +1,43 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho-its-project.target.p2MavenMetadataHandling</groupId>
+	<artifactId>tycho.its.p2mavenmetadatahandling</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>eclipse-plugin</packaging>
+
+	<properties>
+		<!-- overridden from the test class -->
+		<p2.repo>https://download.eclipse.org/releases/latest</p2.repo>
+		<handling>validate</handling>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>repo</id>
+			<layout>p2</layout>
+			<url>${p2.repo}</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<executionEnvironment>JavaSE-17</executionEnvironment>
+					<p2MavenMetadataHandling>${handling}</p2MavenMetadataHandling>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
