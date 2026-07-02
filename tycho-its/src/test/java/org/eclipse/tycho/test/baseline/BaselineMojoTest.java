@@ -27,8 +27,8 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.DefaultModelReader;
 import org.apache.maven.model.io.DefaultModelWriter;
@@ -210,9 +210,9 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 		Path projectRoot = Path.of(verifier.getBasedir(), "api-bundle");
 		projectModifier.accept(projectRoot);
 
-		verifier.addCliOption("-Dbaseline-url=" + baselineRepo.toURI());
+		verifier.addCliArgument("-Dbaseline-url=" + baselineRepo.toURI());
 		for (String xarg : xargs) {
-			verifier.addCliOption(xarg);
+			verifier.addCliArgument(xarg);
 		}
 
 		if (compareShouldFail) {
@@ -226,7 +226,7 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 
 	private File buildBaseRepo() throws Exception, VerificationException {
 		Verifier verifier = getBaselineProject("base-repo");
-		verifier.addCliOption("-Dtycho.baseline.skip=true");
+		verifier.addCliArgument("-Dtycho.baseline.skip=true");
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File repoBase = new File(verifier.getBasedir(), "base-repo/site/target/repository");
@@ -240,8 +240,8 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 
 	private Verifier getBaselineProject(String project) throws Exception {
 		Verifier verifier = getVerifier("baseline", false, true);
-		verifier.addCliOption("-f");
-		verifier.addCliOption(project + "/pom.xml");
+		verifier.addCliArgument("-f");
+		verifier.addCliArgument(project + "/pom.xml");
 		return verifier;
 	}
 

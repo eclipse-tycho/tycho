@@ -21,8 +21,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
@@ -78,7 +78,7 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 		// first test to consume from target platform
 		verifyDs(verifier);
 		// now test consume from maven directly
-		verifier.addCliOption("-Pfiltered");
+		verifier.addCliArgument("-Pfiltered");
 		verifyDs(verifier);
 	}
 

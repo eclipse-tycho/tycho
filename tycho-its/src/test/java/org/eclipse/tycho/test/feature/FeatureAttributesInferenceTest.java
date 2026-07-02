@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.XMLTool;
 import org.hamcrest.Matcher;

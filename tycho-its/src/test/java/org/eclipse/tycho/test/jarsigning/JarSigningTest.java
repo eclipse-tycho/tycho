@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.List;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.XMLTool;
 import org.junit.Test;
