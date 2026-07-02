@@ -15,12 +15,13 @@ import java.io.File;
 import java.nio.file.Files;
 
 import org.apache.maven.it.Verifier;
-import org.apache.maven.repository.RepositorySystem;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
 
 public class P2ArtifactMappingToMavenRepoTest extends AbstractTychoIntegrationTest {
+
+	private static final String MAVEN_CENTRAL_URL = "https://repo.maven.apache.org/maven2";
 
 	@Test
 	public void testMapperReferenceMavenCentral() throws Exception {
@@ -32,8 +33,8 @@ public class P2ArtifactMappingToMavenRepoTest extends AbstractTychoIntegrationTe
 		File artifactsXML = new File(repository, "artifacts.xml");
 		assertTrue(
 				artifactsXML.getAbsoluteFile() + " does not contain required line "
-						+ RepositorySystem.DEFAULT_REMOTE_REPO_URL,
+						+ MAVEN_CENTRAL_URL,
 				Files.readAllLines(artifactsXML.toPath()).stream()
-						.anyMatch(line -> line.contains(RepositorySystem.DEFAULT_REMOTE_REPO_URL)));
+						.anyMatch(line -> line.contains(MAVEN_CENTRAL_URL)));
 	}
 }
