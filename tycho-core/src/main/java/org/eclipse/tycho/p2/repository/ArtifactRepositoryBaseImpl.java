@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -439,6 +441,15 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
             // TODO 397355 use a temporary file location in case multiple threads/processes write in parallel
             File artifactFile = internalGetArtifactStorageLocation(newDescriptor);
             artifactFile.getParentFile().mkdirs();
+
+            try {
+                // Close a potential open ZipFileSystem on the target file, in case we are overwriting
+                // an already existing file with different content / checksums.
+                // Mitigation for https://github.com/eclipse-emf/org.eclipse.emf/issues/108
+                FileSystems.getFileSystem(URI.create("jar:file:" + artifactFile.toPath().toUri().getRawPath())).close();
+            } catch (FileSystemNotFoundException | IOException e) {
+                // ignore
+            }
 
             try {
                 currentOutputStream = new BufferedOutputStream(new FileOutputStream(artifactFile));
