@@ -23,10 +23,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -59,10 +60,10 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
 @Mojo(name = "validate-target-platform", defaultPhase = LifecyclePhase.VALIDATE)
 public class TPValidationMojo extends AbstractMojo {
 
-    @Parameter(property = "session", readonly = true)
+    @Inject
     private MavenSession session;
 
-    @Parameter(property = "project")
+    @Inject
     private MavenProject project;
 
     /**
@@ -107,19 +108,19 @@ public class TPValidationMojo extends AbstractMojo {
     @Parameter
     private String executionEnvironment;
 
-    @Component
+    @Inject
     DirectorRuntime director;
 
-    @Component
+    @Inject
     private Logger logger;
 
-    @Component
+    @Inject
     private ToolchainManager toolchainManager;
 
-    @Component
+    @Inject
     private P2ResolverFactory factory;
 
-    @Component
+    @Inject
     private TargetDefinitionVariableResolver varResolver;
 
     public void execute() throws MojoExecutionException {

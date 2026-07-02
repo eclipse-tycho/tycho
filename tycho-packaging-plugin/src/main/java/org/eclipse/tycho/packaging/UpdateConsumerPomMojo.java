@@ -68,16 +68,16 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 
 	private static final String POLYGLOT_POM_TYCHO = ".polyglot.pom.tycho";
 
-	@Parameter(property = "project", readonly = true, required = true)
+	@Inject
 	protected MavenProject project;
 
-	@Parameter(defaultValue = "${session}", readonly = true, required = true)
+	@Inject
 	private MavenSession session;
 
-		@Inject
+	@Inject
 	protected ModelWriter modelWriter;
 
-		@Inject
+	@Inject
 	protected ModelReader modelReader;
 
 	@Inject

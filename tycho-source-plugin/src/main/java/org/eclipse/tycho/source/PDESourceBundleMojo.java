@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 
+import javax.inject.Inject;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Resource;
@@ -54,7 +56,7 @@ import aQute.bnd.osgi.Jar;
 @Mojo(name = "generate-pde-source-header", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class PDESourceBundleMojo extends AbstractMojo {
 
-    @Parameter(property = "project", readonly = true, required = true)
+    @Inject
     protected MavenProject project;
 
     @Parameter(property = "sourceBundleSuffix", defaultValue = ".source")
