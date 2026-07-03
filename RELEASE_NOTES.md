@@ -6,6 +6,12 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 6.0.0 (under development)
 
+### UI test harness no longer requires the IDE application bundle when a custom application is configured
+
+Previously `tycho-surefire-plugin` always added a requirement on the `org.eclipse.ui.ide.application` bundle to the test runtime when `useUIHarness` was enabled, even if a custom `application` was configured.
+This made it impossible to run UI tests against RCP applications whose target platform does not contain the Eclipse IDE bundles.
+The `org.eclipse.ui.ide.application` bundle is now only required if no `application` is configured and the default application `org.eclipse.ui.ide.workbench` is used, otherwise only `org.eclipse.ui.workbench` is required.
+
 ### new `tycho-p2-extras:p2-manager` mojo for managing P2 update sites
 
 The new `tycho-p2-extras:p2-manager` goal provides a convenient way to maintain, update, and manage the integrity of public update sites. This mojo wraps the [P2 Manager application from JustJ Tools](https://eclipse.dev/justj/?page=tools) and makes it much easier to use compared to the previous approach using the eclipse-run goal.
