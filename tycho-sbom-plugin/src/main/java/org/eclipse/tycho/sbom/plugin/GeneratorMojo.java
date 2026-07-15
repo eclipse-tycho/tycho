@@ -121,7 +121,17 @@ public class GeneratorMojo extends AbstractMojo {
 	 */
 	@Parameter(name = "advisory", property = "advisory")
 	private boolean advisory;
-
+	
+	/**
+	 * A list of URI redirections in the form "source->target" (both ending in
+	 * "/") applied to all content lookups performed by the generator — most
+	 * notably the Maven Central artifact verification in setMavenPurl. Useful
+	 * when embedded artifacts are hosted on an internal or third-party Maven
+	 * repository rather than on Maven Central itself.
+	 */
+	@Parameter(name = "content-redirections", property = "content-redirections")
+	private List<String> contentRedirections;
+	
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (installations == null && installation == null) {
@@ -201,6 +211,16 @@ public class GeneratorMojo extends AbstractMojo {
 				}
 				arguments.add(trim);
 			}
+		}
+		if (contentRedirections != null && !contentRedirections.isEmpty()) {
+		    arguments.add("-content-redirections");
+		    for (String s : contentRedirections) {
+		        String trim = s.trim();
+		        if (trim.isEmpty()) {
+		            continue;
+		        }
+		        arguments.add(trim);
+		    }
 		}
 		getLog().info("Calling application with arguments: " + arguments);
 		try (EclipseFramework framework = application.startFramework(workspace, arguments)) {
