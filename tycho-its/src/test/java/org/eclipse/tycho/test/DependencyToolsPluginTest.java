@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.version.TychoVersion;
 import org.junit.Test;
 

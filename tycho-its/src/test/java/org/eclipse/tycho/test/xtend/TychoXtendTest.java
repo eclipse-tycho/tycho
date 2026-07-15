@@ -14,7 +14,7 @@ package org.eclipse.tycho.test.xtend;
 
 import static java.util.Arrays.asList;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 

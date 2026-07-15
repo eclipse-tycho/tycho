@@ -14,8 +14,8 @@ package org.eclipse.tycho.test.compiler;
 
 import static org.junit.Assert.assertThrows;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class TestErrorMessages extends AbstractTychoIntegrationTest {
 	@Test
 	public void testMissingBREEWithPlainProfile() throws Exception {
 		Verifier verifier = getVerifier("compiler.messages/missing-bree", false);
-		verifier.addCliOption("-Pplain");
+		verifier.addCliArgument("-Pplain");
 		assertThrows(VerificationException.class, () -> verifier.executeGoal("compile"));
 		verifier.verifyTextInLog("java17.bundle 1.0.0 requires Execution Environment that matches");
 		verifier.verifyTextInLog("but the current resolution context uses");
@@ -57,7 +57,7 @@ public class TestErrorMessages extends AbstractTychoIntegrationTest {
 	@Test
 	public void testMissingBREEWithJustJProfile() throws Exception {
 		Verifier verifier = getVerifier("compiler.messages/missing-bree", false);
-		verifier.addCliOption("-Pjustj");
+		verifier.addCliArgument("-Pjustj");
 		assertThrows(VerificationException.class, () -> verifier.executeGoal("compile"));
 		verifier.verifyTextInLog(
 				"The following Execution Environments are currently known but are ignored by configuration");

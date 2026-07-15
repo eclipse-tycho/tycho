@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.jar.JarFile;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 import org.osgi.framework.Constants;
@@ -34,7 +34,7 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 	public void testDefaultBuildQualifier() throws Exception {
 		Verifier verifier = getVerifier("ci-friendly/buildqualifier", false, true);
 		// this used the default build qualifier
-		verifier.addCliOption("-Dtycho.buildqualifier.format=yyyy");
+		verifier.addCliArgument("-Dtycho.buildqualifier.format=yyyy");
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		int year = Calendar.getInstance(TimeZone.getTimeZone("UTC")).get(Calendar.YEAR);
@@ -47,8 +47,8 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 	public void testJgitBuildQualifier() throws Exception {
 		Verifier verifier = getVerifier("ci-friendly/buildqualifier", false, true);
 		// this used the default build qualifier
-		verifier.addCliOption("-Dtycho.buildqualifier.provider=jgit");
-		verifier.addCliOption("-Dtycho.buildqualifier.format=yyyyMM");
+		verifier.addCliArgument("-Dtycho.buildqualifier.provider=jgit");
+		verifier.addCliArgument("-Dtycho.buildqualifier.format=yyyyMM");
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
@@ -67,7 +67,7 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 	public void testForcedBuildQualifier() throws Exception {
 		Verifier verifier = getVerifier("ci-friendly/buildqualifier", false, true);
 		// this uses a forced qualifier
-		verifier.addCliOption("-DforceContextQualifier=abc");
+		verifier.addCliArgument("-DforceContextQualifier=abc");
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "bundle/target/bundle-1.0.0.abc.jar");
@@ -89,9 +89,9 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 	public void testMilestoneBuildQualifier() throws Exception {
 		Verifier verifier = getVerifier("ci-friendly/buildqualifier", false, true);
 		// this used the default build qualifier
-		verifier.addCliOption("-Dqualifier=-M1");
-		verifier.addCliOption("-DforceContextQualifier=zzz");
-		verifier.addCliOption("-Dtycho.strictVersions=false");
+		verifier.addCliArgument("-Dqualifier=-M1");
+		verifier.addCliArgument("-DforceContextQualifier=zzz");
+		verifier.addCliArgument("-Dtycho.strictVersions=false");
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "bundle/target/bundle-1.0.0-M1.jar");
@@ -103,7 +103,7 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 	public void testReleaseBuildWithForcedContextQualifier() throws Exception {
 		Verifier verifier = getVerifier("ci-friendly/buildqualifier", false, true);
 		// this uses force context qualifier set to none
-		verifier.addCliOption("-DforceContextQualifier=none");
+		verifier.addCliArgument("-DforceContextQualifier=none");
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "bundle/target/bundle-1.0.0.jar");

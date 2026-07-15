@@ -23,7 +23,7 @@ import java.util.Properties;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import org.apache.maven.it.Verifier;
+import org.apache.maven.shared.verifier.Verifier;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
