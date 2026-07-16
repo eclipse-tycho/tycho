@@ -8,16 +8,15 @@
 	<packaging>eclipse-plugin</packaging>
 
 	<properties>
-		<!-- overridden from the test class -->
-		<p2.repo>https://download.eclipse.org/releases/latest</p2.repo>
+		<!-- p2MavenMetadataHandling mode, overridden from the test class -->
 		<handling>validate</handling>
 	</properties>
 
 	<repositories>
 		<repository>
-			<id>repo</id>
+			<id>platform</id>
 			<layout>p2</layout>
-			<url>${p2.repo}</url>
+			<url>${target-platform}</url>
 		</repository>
 	</repositories>
 
