@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.transport;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
@@ -20,6 +19,14 @@ public interface TransportProtocolHandler {
 
     long getLastModified(URI uri) throws IOException;
 
-    File getFile(URI remoteFile) throws IOException;
+    /**
+     * Resolves the given remote location to a local file and reports how it was
+     * obtained (real download, cache hit, ...) via the returned
+     * {@link FileState}.
+     *
+     * @param remoteFile the location to resolve
+     * @return the resolved {@link FileState}, never {@code null}
+     */
+    FileState getFile(URI remoteFile) throws IOException;
 
 }

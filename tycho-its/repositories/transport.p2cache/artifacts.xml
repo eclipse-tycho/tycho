@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='transport.p2cache - artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='1'>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <mappings size='1'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='1'>
+    <artifact classifier='osgi.bundle' id='tycho.its.p2cache.bundle' version='1.0.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='260'/>
+        <property name='download.size' value='260'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>
