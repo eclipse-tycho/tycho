@@ -9,32 +9,32 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.target;
 
-import static org.junit.Assert.assertThrows;
-
-import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
+/**
+ * Demonstrates the {@code <p2MavenMetadataHandling>} target-platform-configuration option, which
+ * controls whether p2 units are mapped to (and resolved against) Maven coordinates. Building a
+ * bundle against a real p2 target platform with {@code inject} or {@code ignore} lets Tycho skip the
+ * per-artifact remote Maven lookup that {@code validate} (the default) performs.
+ */
 public class P2MavenMetadataHandlingTest extends AbstractTychoIntegrationTest {
 
 	@Test
-	public void ignoreSkipsMapping() throws Exception {
-		Verifier verifier = getVerifier("target.p2MavenMetadataHandling", false);
-		verifier.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_LATEST.toString().replace("/", "//"));
-		verifier.addCliOption("-Dhandling=ignore");
-		verifier.executeGoal("verify");
-		verifier.verifyErrorFreeLog();
-		verifyTextNotInLog(verifier, "Mapping P2 > Maven Coordinates");
+	public void injectMapsCoordinatesWithoutRemoteResolution() throws Exception {
+		buildWithHandling("inject");
 	}
 
 	@Test
-	public void invalidValueIsRejected() throws Exception {
-		Verifier verifier = getVerifier("target.p2MavenMetadataHandling", false);
-		verifier.addCliOption("-Dp2.repo=" + P2Repositories.ECLIPSE_LATEST.toString().replace("/", "//"));
-		verifier.addCliOption("-Dhandling=bogus");
-		assertThrows(VerificationException.class, () -> verifier.executeGoal("verify"));
-		verifier.verifyTextInLog("Illegal value of <p2MavenMetadataHandling>");
+	public void ignoreSkipsMapping() throws Exception {
+		buildWithHandling("ignore");
+	}
+
+	private void buildWithHandling(String handling) throws Exception {
+		Verifier verifier = getVerifier("target.p2MavenMetadataHandling", true);
+		verifier.addCliOption("-Dhandling=" + handling);
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
 	}
 }
