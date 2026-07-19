@@ -9,32 +9,39 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.target;
 
+import java.util.List;
+
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
 /**
- * Demonstrates the {@code <p2MavenMetadataHandling>} target-platform-configuration option, which
- * controls whether p2 units are mapped to (and resolved against) Maven coordinates. Building a
- * bundle against a real p2 target platform with {@code inject} or {@code ignore} lets Tycho skip the
- * per-artifact remote Maven lookup that {@code validate} (the default) performs.
+ * Unmapped p2 units get a synthetic {@code p2.*} groupId, mapped ones get the coordinates from the p2 metadata. Visible in {@code dependency:list}.
  */
 public class P2MavenMetadataHandlingTest extends AbstractTychoIntegrationTest {
 
+	// groupId used when a unit is not mapped, see TychoConstants.P2_GROUPID_PREFIX
+	private static final String UNMAPPED_COORDINATES = "p2.eclipse.plugin:org.eclipse.osgi";
+
 	@Test
-	public void injectMapsCoordinatesWithoutRemoteResolution() throws Exception {
-		buildWithHandling("inject");
+	public void injectMapsUnitsToTheirMavenCoordinates() throws Exception {
+		Verifier verifier = buildWithHandling("inject");
+		// mapped, so the p2 groupId is gone
+		verifyTextNotInLog(verifier, UNMAPPED_COORDINATES);
 	}
 
 	@Test
-	public void ignoreSkipsMapping() throws Exception {
-		buildWithHandling("ignore");
+	public void ignoreKeepsUnitsUnmapped() throws Exception {
+		Verifier verifier = buildWithHandling("ignore");
+		// not mapped, so the p2 groupId stays
+		verifier.verifyTextInLog(UNMAPPED_COORDINATES);
 	}
 
-	private void buildWithHandling(String handling) throws Exception {
+	private Verifier buildWithHandling(String handling) throws Exception {
 		Verifier verifier = getVerifier("target.p2MavenMetadataHandling", true);
 		verifier.addCliOption("-Dhandling=" + handling);
-		verifier.executeGoal("verify");
+		verifier.executeGoals(List.of("verify", "dependency:list"));
 		verifier.verifyErrorFreeLog();
+		return verifier;
 	}
 }
