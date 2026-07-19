@@ -292,9 +292,9 @@ public class DefaultTargetPlatformConfigurationReader {
         try {
             result.setClasspathDependenciesAction(ClasspathDependenciesAction.valueOf(value.toUpperCase()));
         } catch (IllegalArgumentException e) {
-            throw new BuildFailureException(
-                    "Illegal value of <" + CLASSPATH_DEPENDENCIES + "> dependency resolution parameter: " + value
-                            + ", allowed values are: " + Arrays.toString(ClasspathDependenciesAction.values()));
+            throw new BuildFailureException("Illegal value of <" + CLASSPATH_DEPENDENCIES
+                    + "> dependency resolution parameter: " + value + ", allowed values are: "
+                    + Arrays.toString(ClasspathDependenciesAction.values()));
         }
     }
 
