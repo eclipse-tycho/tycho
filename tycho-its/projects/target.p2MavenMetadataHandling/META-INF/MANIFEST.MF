@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: p2MavenMetadataHandling test bundle
-Bundle-SymbolicName: tycho.its.p2mavenmetadatahandling
-Bundle-Version: 0.1.0.qualifier
-Require-Bundle: org.eclipse.osgi
-Automatic-Module-Name: tycho.its.p2mavenmetadatahandling
