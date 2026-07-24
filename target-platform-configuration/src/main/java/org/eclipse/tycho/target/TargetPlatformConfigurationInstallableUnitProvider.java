@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 Christoph Läubrich and others.
+ * Copyright (c) 2022, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,11 +19,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -43,16 +44,14 @@ import org.eclipse.tycho.resolver.InstallableUnitProvider;
  * Provides additional requirements defined in the target platform configuration
  *
  */
-@Component(role = InstallableUnitProvider.class, hint = "target")
+@Named("target")
+@Singleton
 public class TargetPlatformConfigurationInstallableUnitProvider implements InstallableUnitProvider {
 
-    @Requirement
+    @Inject
     private DefaultTargetPlatformConfigurationReader configurationReader;
 
-    @Requirement
-    private Logger logger;
-
-    @Requirement
+    @Inject
     private TychoProjectManager projectManager;
 
     @Override

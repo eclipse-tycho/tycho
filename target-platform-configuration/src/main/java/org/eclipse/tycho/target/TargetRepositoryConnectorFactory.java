@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,14 +12,17 @@
  *******************************************************************************/
 package org.eclipse.tycho.target;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.spi.connector.RepositoryConnector;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.transfer.NoRepositoryConnectorException;
 
-@Component(role = RepositoryConnectorFactory.class, hint = TargetArtifactRepositoryLayout.ID)
+@Named(TargetArtifactRepositoryLayout.ID)
+@Singleton
 public class TargetRepositoryConnectorFactory implements RepositoryConnectorFactory {
 
     @Override
