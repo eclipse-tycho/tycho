@@ -71,11 +71,8 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-component-metadata</artifactId>
-				<configuration>
-					<staticMetadataDirectory>${project.build.directory}/filtered/META-INF/plexus/</staticMetadataDirectory>
-				</configuration>
+				<groupId>org.eclipse.sisu</groupId>
+				<artifactId>sisu-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -90,7 +87,6 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
-				<targetPath>../filtered</targetPath>
 			</resource>
 		</resources>
 	</build>
