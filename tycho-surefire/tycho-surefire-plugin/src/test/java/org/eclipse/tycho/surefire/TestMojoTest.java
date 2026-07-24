@@ -33,6 +33,7 @@ import org.codehaus.plexus.util.ReflectionUtils;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.internal.DefaultEquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
+import org.eclipse.tycho.ArtifactKey;
 import org.junit.Test;
 
 public class TestMojoTest {
@@ -186,6 +187,33 @@ public class TestMojoTest {
         assertEquals("both", providerProperties.get(ProviderParameterNames.PARALLEL_PROP));
         assertEquals("1", providerProperties.get(ProviderParameterNames.THREADCOUNT_PROP));
         assertEquals("true", providerProperties.get("perCoreThreadCount"));
+    }
+
+    @Test
+    public void testHeadlessHarnessDoesNotRequireIdeApplication() throws Exception {
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
+        assertFalse(containsBundle(testMojo.getTestDependencies(), "org.eclipse.ui.ide.application"));
+    }
+
+    @Test
+    public void testUIHarnessWithDefaultApplicationRequiresIdeApplication() throws Exception {
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
+        setParameter(testMojo, "useUIHarness", Boolean.TRUE);
+        assertTrue(containsBundle(testMojo.getTestDependencies(), "org.eclipse.ui.ide.application"));
+    }
+
+    @Test
+    public void testUIHarnessWithCustomApplicationDoesNotRequireIdeApplication() throws Exception {
+        AbstractEclipseTestMojo testMojo = new TestPluginMojo();
+        setParameter(testMojo, "useUIHarness", Boolean.TRUE);
+        setParameter(testMojo, "application", "org.example.custom.application");
+        List<ArtifactKey> dependencies = testMojo.getTestDependencies();
+        assertFalse(containsBundle(dependencies, "org.eclipse.ui.ide.application"));
+        assertTrue(containsBundle(dependencies, "org.eclipse.ui.workbench"));
+    }
+
+    private boolean containsBundle(List<ArtifactKey> dependencies, String bundleId) {
+        return dependencies.stream().anyMatch(key -> bundleId.equals(key.getId()));
     }
 
     public ScanResult createDirectoryAndScanForTests(List<String> includes, List<String> excludes) throws Exception {

@@ -890,7 +890,7 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         return dependencies;
     }
 
-    private List<ArtifactKey> getTestDependencies() {
+    List<ArtifactKey> getTestDependencies() {
         ArrayList<ArtifactKey> result = new ArrayList<>();
 
         // The test harness dependencies must be satisfiable from the external target platform
@@ -898,10 +898,14 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         // where the harness bundles are part of the same reactor (e.g. when building eclipse.platform.ui)
         result.add(newBundleDependency("org.eclipse.osgi"));
         result.add(newBundleDependency(DefaultEquinoxInstallationDescription.EQUINOX_LAUNCHER));
+        result.add(newBundleDependency("org.eclipse.core.runtime"));
         if (useUIHarness) {
-            result.add(newBundleDependency("org.eclipse.ui.ide.application"));
-        } else {
-            result.add(newBundleDependency("org.eclipse.core.runtime"));
+            if (application == null) {
+                // only the default application org.eclipse.ui.ide.workbench needs the IDE bundles
+                result.add(newBundleDependency("org.eclipse.ui.ide.application"));
+            } else {
+                result.add(newBundleDependency("org.eclipse.ui.workbench"));
+            }
         }
 
         return result;
