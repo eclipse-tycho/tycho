@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -19,8 +19,10 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -42,14 +44,15 @@ import org.eclipse.tycho.p2.publisher.DownloadStatsAdvice;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.osgi.framework.BundleException;
 
-@Component(role = DependencyMetadataGenerator.class, hint = DependencyMetadataGenerator.SOURCE_BUNDLE)
+@Named(DependencyMetadataGenerator.SOURCE_BUNDLE)
+@Singleton
 public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGenerator
         implements DependencyMetadataGenerator {
 
-    @Requirement
+    @Inject
     private MavenContext mavenContext;
 
-    @Requirement
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
     @Override

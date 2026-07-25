@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -29,10 +29,12 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -95,7 +97,8 @@ import org.eclipse.tycho.p2maven.actions.ProductFile2;
 import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.osgi.framework.BundleException;
 
-@Component(role = P2Generator.class)
+@Named
+@Singleton
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {
     private static final String[] SUPPORTED_TYPES = { PackagingType.TYPE_ECLIPSE_PLUGIN,
             PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, PackagingType.TYPE_ECLIPSE_FEATURE,
@@ -105,16 +108,16 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
      * Whether we need full p2 metadata (false) or just required capabilities.
      */
     private boolean dependenciesOnly;
-    @Requirement
+    @Inject
     private MavenContext mavenContext;
 
-    @Requirement
+    @Inject
     private BuildPropertiesParser buildPropertiesParser;
 
-    @Requirement
+    @Inject
     BundleReader bundleReader;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
     public P2GeneratorImpl(boolean dependenciesOnly) {
