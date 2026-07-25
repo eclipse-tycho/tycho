@@ -15,6 +15,11 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -22,10 +27,7 @@ import org.apache.commons.net.ftp.FTPCmd;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.tycho.MavenRepositorySettings.Credentials;
 import org.eclipse.tycho.transport.DownloadState;
 import org.eclipse.tycho.transport.FileState;
@@ -36,8 +38,9 @@ import org.eclipse.tycho.transport.TransportProtocolHandler;
  *
  * @author Edoardo Luppi
  */
-@Component(role = TransportProtocolHandler.class, hint = "ftp")
-public class FtpTransportProtocolHandler implements TransportProtocolHandler, Disposable {
+@Named("ftp")
+@Singleton
+public class FtpTransportProtocolHandler implements TransportProtocolHandler {
     private static final int FTP_DEFAULT_PORT = Integer.getInteger("tycho.p2.transport.ftp.port", 21);
 
     /**
@@ -46,13 +49,13 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
      */
     private static final Map<String, FTPClient> CLIENTS = new ConcurrentHashMap<>(8);
 
-    @Requirement
+	@Inject
     private Logger logger;
 
-    @Requirement
+	@Inject
     private TransportCacheConfig cacheConfig;
 
-    @Requirement
+	@Inject
     private MavenAuthenticator authenticator;
 
     @Override
@@ -126,7 +129,7 @@ public class FtpTransportProtocolHandler implements TransportProtocolHandler, Di
         }
     }
 
-    @Override
+    @PreDestroy
     public void dispose() {
         for (final Map.Entry<String, FTPClient> entry : CLIENTS.entrySet()) {
             final FTPClient client = entry.getValue();
