@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -22,18 +22,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.model.Model;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.eclipse.tycho.pomless.NoParentPomFound;
 import org.eclipse.tycho.pomless.ParentModel;
-import org.sonatype.maven.polyglot.mapping.Mapping;
 
 import aQute.bnd.build.Project;
 import aQute.bnd.build.Workspace;
 
-@Component(role = Mapping.class, hint = "bnd-workspace")
+@Named("bnd-workspace")
+@Singleton
 public class BndWorkspaceMapping extends AbstractTychoMapping {
 
 	private Map<String, List<String>> modulesCache = new ConcurrentHashMap<String, List<String>>();
