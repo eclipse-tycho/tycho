@@ -20,15 +20,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.annotation.Priority;
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.cyclonedx.maven.DefaultModelConverter;
-import org.cyclonedx.maven.ModelConverter;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -73,7 +74,9 @@ import org.slf4j.LoggerFactory;
  * &lt;/plugin&gt;
  * </pre>
  */
-@Component(role = ModelConverter.class)
+@Named("default")
+@Singleton
+@Priority(999) // This overrides (replaces) a default component, so it needs a higher priority
 public class TychoModelConverter extends DefaultModelConverter {
 	private static final String KEY_CONTEXT = TychoSBOMConfiguration.class.toString();
 	private static final Logger LOG = LoggerFactory.getLogger(TychoModelConverter.class);
