@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -21,29 +21,31 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.lifecycle.Lifecycle;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.bndlib.JdtProjectBuilder;
 import org.eclipse.tycho.pomless.AbstractTychoMapping;
 import org.eclipse.tycho.pomless.NoParentPomFound;
 import org.eclipse.tycho.pomless.ParentModel;
 import org.eclipse.tycho.version.TychoVersion;
-import org.sonatype.maven.polyglot.mapping.Mapping;
 
 import aQute.bnd.build.Project;
 import aQute.bnd.build.ProjectBuilder;
 import aQute.bnd.build.Workspace;
 
-@Component(role = Mapping.class, hint = "bnd")
+@Named("bnd")
+@Singleton
 public class BndProjectMapping extends AbstractTychoMapping {
 
 	private static final String TYCHO_BND_PLUGIN = "tycho-bnd-plugin";
-	@Requirement(role = Lifecycle.class)
+	@Inject
 	private Map<String, Lifecycle> lifecycles;
 
 	@Override
