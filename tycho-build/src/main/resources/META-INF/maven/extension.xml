@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension>
+  <exportedPackages>
+    <exportedPackage>com.google.inject.*</exportedPackage>
+    <exportedPackage>com.google.inject.binder.*</exportedPackage>
+    <exportedPackage>com.google.inject.matcher.*</exportedPackage>
+    <exportedPackage>com.google.inject.name.*</exportedPackage>
+    <exportedPackage>com.google.inject.spi.*</exportedPackage>
+    <exportedPackage>com.google.inject.util.*</exportedPackage>
+    <exportedPackage>com.google.inject.internal.*</exportedPackage>
+  </exportedPackages>
+</extension>

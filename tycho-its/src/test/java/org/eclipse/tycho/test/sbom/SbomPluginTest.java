@@ -21,9 +21,12 @@ import java.util.List;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.categories.SBOM;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(SBOM.class)
 public class SbomPluginTest extends AbstractTychoIntegrationTest {
 
 	@Test

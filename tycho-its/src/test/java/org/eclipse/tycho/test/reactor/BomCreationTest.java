@@ -30,9 +30,12 @@ import org.cyclonedx.model.Dependency;
 import org.cyclonedx.parsers.Parser;
 import org.cyclonedx.parsers.XmlParser;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.categories.SBOM;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(SBOM.class)
 public class BomCreationTest extends AbstractTychoIntegrationTest {
 	private static Verifier verifier;
 
@@ -43,6 +46,7 @@ public class BomCreationTest extends AbstractTychoIntegrationTest {
 			// CycloneDX is logging an excessive amount of data on DEBUG level.
 			// Way too much for the verifier to handle properly...
 			verifier.getCliOptions().remove("-X");
+			verifier.addCliOption("-Dsisu.debug");
 			verifier.executeGoal("verify");
 			verifyErrorFreeLog(verifier);
 		}

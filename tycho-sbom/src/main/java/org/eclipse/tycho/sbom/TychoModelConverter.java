@@ -21,14 +21,13 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 import org.cyclonedx.maven.DefaultModelConverter;
-import org.cyclonedx.maven.ModelConverter;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -52,14 +51,14 @@ import org.slf4j.LoggerFactory;
 /**
  * Custom implementation of the CycloneDX model converter with support for both
  * Maven and p2 artifacts. The generated PURL is usually of the form:
- * 
+ *
  * <pre>
  * pkg:/p2/&lt;id&gt;@&lt;version&gt;?classifier=&lt;classifier&gt;&amp;location=&lt;download-url&gt;
  * </pre>
- * 
+ *
  * This converter can be used with the {@code cyclonedx-maven-plugin} by adding
  * it as a dependency as follows:
- * 
+ *
  * <pre>
  * &lt;plugin>
  *   &lt;groupId&gt;org.cyclonedx&lt;/groupId&gt;
@@ -73,7 +72,6 @@ import org.slf4j.LoggerFactory;
  * &lt;/plugin&gt;
  * </pre>
  */
-@Component(role = ModelConverter.class)
 public class TychoModelConverter extends DefaultModelConverter {
 	private static final String KEY_CONTEXT = TychoSBOMConfiguration.class.toString();
 	private static final Logger LOG = LoggerFactory.getLogger(TychoModelConverter.class);
@@ -82,10 +80,10 @@ public class TychoModelConverter extends DefaultModelConverter {
 	private P2RepositoryManager repositoryManager;
 
 	@Inject
-	private TychoProjectManager projectManager;
+	private Provider<TychoProjectManager> projectManagerProvider;
 
 	@Inject
-	private TychoReactorReader reactorReader;
+	private Provider<TychoReactorReader> reactorReaderProvider;
 
 	@Inject
 	private LegacySupport legacySupport;
@@ -134,6 +132,7 @@ public class TychoModelConverter extends DefaultModelConverter {
 	private String generatePackageUrl(Artifact artifact, boolean withVersion, boolean withClassifier,
 			Supplier<String> fallback) {
 		TychoSBOMConfiguration sbomConfig = getOrCreateCurrentProjectConfiguration();
+		TychoReactorReader reactorReader = reactorReaderProvider.get();
 		if (sbomConfig.getIncludedPackagingTypes().contains(reactorReader.getPackagingType(artifact))) {
 			ArtifactKey artifactKey = getQualifiedArtifactKey(artifact);
 			IArtifactKey p2artifactKey = ArtifactTypeHelper.toP2ArtifactKey(artifactKey);
@@ -261,7 +260,7 @@ public class TychoModelConverter extends DefaultModelConverter {
 	 */
 	private ArtifactKey getQualifiedArtifactKey(Artifact artifact) {
 		String expandedVersion = artifact.getVersion();
-
+		TychoReactorReader reactorReader = reactorReaderProvider.get();
 		MavenProject mavenProject = reactorReader.getTychoReactorProject(artifact).orElse(null);
 		if (mavenProject != null) {
 			ReactorProject reactorProject = DefaultReactorProject.adapt(mavenProject);
@@ -286,6 +285,7 @@ public class TychoModelConverter extends DefaultModelConverter {
 	 * @return An unmodifiable list of all target repositories.
 	 */
 	private List<Repository> getTargetRepositories(MavenProject currentProject) {
+		TychoProjectManager projectManager = projectManagerProvider.get();
 		TargetPlatformConfiguration targetConfiguration = projectManager.getTargetPlatformConfiguration(currentProject);
 		List<Repository> p2repositories = new ArrayList<>();
 

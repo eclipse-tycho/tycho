@@ -28,7 +28,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.cyclonedx.maven.DefaultProjectDependenciesConverter;
-import org.cyclonedx.maven.ProjectDependenciesConverter;
 import org.cyclonedx.model.Component;
 import org.cyclonedx.model.Dependency;
 import org.cyclonedx.model.Metadata;
@@ -43,7 +42,6 @@ import org.eclipse.tycho.p2.tools.P2DependencyTreeGenerator.DependencyTreeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@org.codehaus.plexus.component.annotations.Component(role = ProjectDependenciesConverter.class)
 public class TychoProjectDependenciesConverter extends DefaultProjectDependenciesConverter {
 	private static final Logger LOG = LoggerFactory.getLogger(TychoProjectDependenciesConverter.class);
 
