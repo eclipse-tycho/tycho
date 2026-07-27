@@ -137,6 +137,8 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
         }
 
         fileSet.setExcludes(allExcludes.toArray(new String[allExcludes.size()]));
+        // the archiver applies its own default excludes independently of the explicit excludes above
+        fileSet.setUsingDefaultExcludes(useDefaultExcludes);
 
         return fileSet;
     }
