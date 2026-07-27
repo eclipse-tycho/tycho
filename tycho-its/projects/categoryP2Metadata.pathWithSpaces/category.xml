@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/category.pathwithspaces_1.0.0.jar" id="category.pathwithspaces" version="1.0.0">
+      <category name="custom"/>
+   </feature>
+   <category-def name="custom" label="Custom Category"/>
+</site>

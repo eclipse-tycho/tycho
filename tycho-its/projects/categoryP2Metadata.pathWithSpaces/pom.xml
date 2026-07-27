@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>tycho-its-project.category.pathWithSpaces</groupId>
+  <artifactId>category.pathwithspaces</artifactId>
+  <version>1.0.0</version>
+  <packaging>eclipse-feature</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <environments>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86_64</arch>
+            </environment>
+          </environments>
+        </configuration>
+        <executions>
+          <execution>
+            <id>inject</id>
+            <goals>
+              <goal>mirror-target-platform</goal>
+            </goals>
+            <configuration>
+              <!-- update site path contains a space to reproduce the double URL-encoding
+                   in category-p2-metadata (space -> %20 -> %2520) -->
+              <destination>${project.build.directory}/site with space</destination>
+              <includeCategories>false</includeCategories>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <executions>
+          <execution>
+            <id>category</id>
+            <goals>
+              <goal>category-p2-metadata</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <target>${project.build.directory}/site with space</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

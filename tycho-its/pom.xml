@@ -241,6 +241,11 @@
 			<artifactId>cyclonedx-core-java</artifactId>
 			<version>13.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>eu.maveniverse.maven.domtrip</groupId>
+			<artifactId>domtrip-core</artifactId>
+			<version>1.2.0</version>
+		</dependency>
 
 		<!-- artifacts to be tested -->
 		<dependency>
