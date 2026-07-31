@@ -139,6 +139,14 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.eclipse.sisu</groupId>
+				<artifactId>org.eclipse.sisu.inject</artifactId>
+				<!-- must be kept in sync with org.eclipse.sisu.plexus, else
+					DefaultPlexusContainer fails with NoSuchMethodError -->
+				<version>${sisu-version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-utils</artifactId>
 				<version>${plexusUtilsVersion}</version>
