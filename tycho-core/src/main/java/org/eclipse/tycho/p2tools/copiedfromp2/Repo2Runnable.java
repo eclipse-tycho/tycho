@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 IBM Corporation and others.
+ * Copyright (c) 2009, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -76,7 +76,6 @@ import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorMani
  *
  * @since 1.0
  */
-@SuppressWarnings("nls")
 public class Repo2Runnable extends AbstractApplication implements IApplication {
 
     public Repo2Runnable(IProvisioningAgent agent) {
