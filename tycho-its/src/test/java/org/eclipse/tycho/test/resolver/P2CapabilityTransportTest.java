@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.resolver;
 
-import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
@@ -30,23 +29,25 @@ import org.junit.Test;
  * 
  * Since consumer.bundle requires the capability provided by provider.bundle, and
  * provider.bundle requires the consumer.bundle itself, the two bundles form a direct
- * dependency cycle. Tycho cannot compute a reactor build order for a cyclic reference,
- * so the build is expected to fail.
+ * dependency cycle that cannot be built as-is. To break the cycle during the reactor
+ * build, consumer.bundle disables the Require-Capability requirement using the profile
+ * property {@code org.eclipse.equinox.p2.disable.require.capability.osgi.implementation}
+ * (see eclipse-equinox/p2#1073, replicated for Tycho's copy of BundlesAction and
+ * additionally applied in Tycho's own OSGi state resolution used for classpath
+ * computation). The published metadata and manifest of consumer.bundle are unaffected,
+ * so the requirement remains active for a real (non-build-time) p2/OSGi runtime.
  * 
  * @see <a href="https://github.com/eclipse-equinox/p2/pull/972">eclipse-equinox/p2#972</a>
  * @see <a href="https://github.com/eclipse-equinox/p2/issues/971">eclipse-equinox/p2#971</a>
+ * @see <a href="https://github.com/eclipse-equinox/p2/pull/1073">eclipse-equinox/p2#1073</a>
  */
 public class P2CapabilityTransportTest extends AbstractTychoIntegrationTest {
 
 	@Test
-	public void testCapabilityProvideRequireCycleFails() throws Exception {
+	public void testCapabilityProvideRequireCycleBroken() throws Exception {
 		Verifier verifier = getVerifier("/p2.capability.transport");
-		try {
-			verifier.executeGoal("verify");
-		} catch (VerificationException expected) {
-			//
-		}
-		verifier.verifyTextInLog("The projects in the reactor contain a cyclic reference");
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
 	}
 
 }

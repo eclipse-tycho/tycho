@@ -75,6 +75,7 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
+import org.eclipse.tycho.p2maven.tmp.BundlesAction;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -392,6 +393,7 @@ public class EquinoxResolver implements DependenciesResolver {
                         reqb.addAll(additionalBundles.stream().map(b -> b + ";resolution:=optional").toList());
                         mf.getHeaders().put(Constants.REQUIRE_BUNDLE, String.join(",", reqb));
                     }
+                    removeDisabledRequireCapabilities(mf, mavenProject);
                     projects.put(location, mf);
                 } else {
                     externalBundles.put(location, mf);
@@ -472,6 +474,49 @@ public class EquinoxResolver implements DependenciesResolver {
             }
         }
         return false;
+    }
+
+    /**
+     * Removes {@code Require-Capability} clauses from the given manifest whose OSGi
+     * namespace is disabled for this project through the profile property
+     * {@link BundlesAction#getFilterPropertyForNamespace(String)}. This allows
+     * breaking direct dependency cycles that would otherwise prevent Tycho from
+     * computing a valid classpath / reactor build order (see
+     * {@link BundlesAction#FILTER_PROPERTY_DISABLE_REQUIRE_CAPABILITY}).
+     */
+    private void removeDisabledRequireCapabilities(OsgiManifest mf, ReactorProject mavenProject) {
+        String value = mf.getValue(Constants.REQUIRE_CAPABILITY);
+        if (value == null || value.isBlank()) {
+            return;
+        }
+        Map<String, String> profileProperties = projectManager.getTargetPlatformConfiguration(mavenProject)
+                .getProfileProperties();
+        if (profileProperties.isEmpty()) {
+            return;
+        }
+        try {
+            ManifestElement[] elements = ManifestElement.parseHeader(Constants.REQUIRE_CAPABILITY, value);
+            List<String> keptClauses = new ArrayList<>();
+            boolean removedAny = false;
+            for (ManifestElement element : elements) {
+                String namespace = element.getValue();
+                String filterProperty = BundlesAction.getFilterPropertyForNamespace(namespace);
+                if ("true".equals(profileProperties.get(filterProperty))) {
+                    removedAny = true;
+                } else {
+                    keptClauses.add(element.toString());
+                }
+            }
+            if (removedAny) {
+                if (keptClauses.isEmpty()) {
+                    mf.getHeaders().remove(Constants.REQUIRE_CAPABILITY);
+                } else {
+                    mf.getHeaders().put(Constants.REQUIRE_CAPABILITY, String.join(",", keptClauses));
+                }
+            }
+        } catch (BundleException e) {
+            // malformed header, let the regular resolution report the problem
+        }
     }
 
     private static String getNormalizedPath(File file) {
