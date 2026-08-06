@@ -1,28 +1,28 @@
 # P2 Capability Transport Test
 
-This integration test validates that Tycho can correctly resolve OSGi bundles that use `Provide-Capability` and `Require-Capability` manifest headers.
+This integration test validates that Tycho correctly detects a direct dependency
+cycle formed between OSGi capabilities (`Provide-Capability` / `Require-Capability`)
+and a regular `Require-Bundle` dependency.
 
 ## Background
 
-This test was created based on [eclipse-equinox/p2#972](https://github.com/eclipse-equinox/p2/pull/972) and [eclipse-equinox/p2#971](https://github.com/eclipse-equinox/p2/issues/971).
+This test replicates the real dependency cycle that was introduced between
+`org.eclipse.equinox.p2.repository` and `org.eclipse.equinox.p2.transport.ecf` by
+[eclipse-equinox/p2#972](https://github.com/eclipse-equinox/p2/pull/972), reported in
+[eclipse-equinox/p2#971](https://github.com/eclipse-equinox/p2/issues/971):
 
-The PR adds OSGi capability headers to p2 bundles to express service dependencies:
-- `org.eclipse.equinox.p2.transport.ecf` provides the Transport service via `Provide-Capability`
-- `org.eclipse.equinox.p2.repository` requires the Transport service via `Require-Capability`
+- `org.eclipse.equinox.p2.transport.ecf` provides the Transport service via
+  `Provide-Capability`, but it also `Require-Bundle`s `org.eclipse.equinox.p2.repository`.
+- `org.eclipse.equinox.p2.repository` requires the Transport service via
+  `Require-Capability`, which is only provided by `org.eclipse.equinox.p2.transport.ecf`.
+
+This forms a direct cycle: repository -> (capability) -> transport.ecf -> (Require-Bundle) -> repository.
 
 ## Test Structure
 
-This test creates two bundles that replicate the capability pattern:
+This test creates two bundles that replicate this exact pattern:
 
-### Provider Bundle
-Simulates `org.eclipse.equinox.p2.transport.ecf` by providing a capability:
-```
-Provide-Capability: osgi.implementation;
-  p2.agent.servicename=org.eclipse.equinox.internal.p2.repository.Transport;
-  version=1.0.0
-```
-
-### Consumer Bundle
+### consumer.bundle
 Simulates `org.eclipse.equinox.p2.repository` by requiring a capability:
 ```
 Require-Capability: osgi.implementation;
@@ -30,15 +30,28 @@ Require-Capability: osgi.implementation;
             (p2.agent.servicename=org.eclipse.equinox.internal.p2.repository.Transport))"
 ```
 
+### provider.bundle
+Simulates `org.eclipse.equinox.p2.transport.ecf` by providing that capability, while
+also depending on `consumer.bundle` via `Require-Bundle`:
+```
+Require-Bundle: consumer.bundle
+Provide-Capability: osgi.implementation;
+  p2.agent.servicename=org.eclipse.equinox.internal.p2.repository.Transport;
+  version=1.0.0
+```
+
 ## What This Tests
 
-1. Tycho's ability to resolve OSGi capability requirements during build
-2. Correct handling of `Provide-Capability` and `Require-Capability` headers
-3. P2 resolution of capability-based bundle dependencies
+Since `consumer.bundle` requires the capability provided by `provider.bundle`, and
+`provider.bundle` requires `consumer.bundle` itself, the two bundles form a direct
+dependency cycle.
+Tycho cannot compute a reactor build order for a cyclic reference between two
+modules, so the build is expected to fail.
 
 ## Expected Behavior
 
-The build should succeed, demonstrating that Tycho's p2 resolver correctly handles capability requirements and matches them with providers.
+The build must fail with an error indicating a cyclic reference between the
+`consumer.bundle` and `provider.bundle` projects.
 
 ## Running the Test
 

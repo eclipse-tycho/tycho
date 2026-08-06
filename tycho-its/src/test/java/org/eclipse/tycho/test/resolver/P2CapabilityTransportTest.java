@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.resolver;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
@@ -21,21 +22,31 @@ import org.junit.Test;
  * This test replicates the scenario from eclipse-equinox/p2 PR #972 where bundles
  * use OSGi capabilities to express service dependencies.
  * 
- * The test creates two bundles:
- * - provider.bundle: Provides a capability for Transport service
- * - consumer.bundle: Requires that capability
+ * The test creates two bundles that form a direct dependency cycle, exactly as it
+ * happens between org.eclipse.equinox.p2.repository and org.eclipse.equinox.p2.transport.ecf:
+ * - consumer.bundle: Requires the Transport capability (like org.eclipse.equinox.p2.repository)
+ * - provider.bundle: Provides that capability, but also Require-Bundle's consumer.bundle
+ *   (like org.eclipse.equinox.p2.transport.ecf, which Require-Bundle's org.eclipse.equinox.p2.repository)
  * 
- * This ensures Tycho can correctly resolve bundles with capability requirements.
+ * Since consumer.bundle requires the capability provided by provider.bundle, and
+ * provider.bundle requires the consumer.bundle itself, the two bundles form a direct
+ * dependency cycle. Tycho cannot compute a reactor build order for a cyclic reference,
+ * so the build is expected to fail.
  * 
  * @see <a href="https://github.com/eclipse-equinox/p2/pull/972">eclipse-equinox/p2#972</a>
+ * @see <a href="https://github.com/eclipse-equinox/p2/issues/971">eclipse-equinox/p2#971</a>
  */
 public class P2CapabilityTransportTest extends AbstractTychoIntegrationTest {
 
 	@Test
-	public void testCapabilityProvideRequire() throws Exception {
+	public void testCapabilityProvideRequireCycleFails() throws Exception {
 		Verifier verifier = getVerifier("/p2.capability.transport");
-		verifier.executeGoal("verify");
-		verifier.verifyErrorFreeLog();
+		try {
+			verifier.executeGoal("verify");
+		} catch (VerificationException expected) {
+			//
+		}
+		verifier.verifyTextInLog("The projects in the reactor contain a cyclic reference");
 	}
 
 }
