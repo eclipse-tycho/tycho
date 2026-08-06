@@ -11,6 +11,7 @@
 	<modules>
 		<module>provider.bundle</module>
 		<module>consumer.bundle</module>
+		<module>client.bundle</module>
 	</modules>
 
 	<build>

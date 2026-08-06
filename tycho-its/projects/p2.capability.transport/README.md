@@ -69,6 +69,27 @@ Provide-Capability: osgi.implementation;
   version=1.0.0
 ```
 
+### client.bundle
+A third bundle that only `Require-Bundle`s `consumer.bundle`:
+```
+Require-Bundle: consumer.bundle
+```
+It does **not** set the `org.eclipse.equinox.p2.disable.require.capability.osgi.implementation`
+profile property itself. Since the disable-filter added by
+[eclipse-equinox/p2#1073](https://github.com/eclipse-equinox/p2/pull/1073) is only
+evaluated against the profile properties of the project *currently being resolved*
+(i.e. it is scoped to `consumer.bundle`'s own build, not to every consumer of
+`consumer.bundle`), resolving `client.bundle`'s dependencies still evaluates
+`consumer.bundle`'s `Require-Capability` requirement as active. As a result,
+`client.bundle` transitively pulls in `provider.bundle` as well as
+`consumer.bundle` directly.
+
+This is verified indirectly using
+`org.eclipse.tycho.extras:tycho-dependency-tools-plugin:list-dependencies`, bound
+to the `validate` phase in `client.bundle/pom.xml`. The resulting
+`client.bundle/target/dependencies-list.txt` is asserted to contain both a
+`consumer.bundle-*.jar` and a `provider.bundle-*.jar` entry.
+
 ## What This Tests
 
 Without the profile property, `consumer.bundle` requires the capability provided
@@ -82,7 +103,10 @@ remains active for a real (non-build-time) p2/OSGi runtime.
 
 ## Expected Behavior
 
-The build succeeds.
+The build succeeds, and `client.bundle`'s resolved dependency list contains both
+`consumer.bundle` and `provider.bundle`, proving that disabling the capability
+requirement is scoped to `consumer.bundle`'s own build and does not affect
+consumers of `consumer.bundle`.
 
 ## Running the Test
 

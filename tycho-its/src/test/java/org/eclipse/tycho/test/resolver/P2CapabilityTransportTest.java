@@ -12,6 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.resolver;
 
+import static org.junit.Assert.assertTrue;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
@@ -37,6 +45,15 @@ import org.junit.Test;
  * computation). The published metadata and manifest of consumer.bundle are unaffected,
  * so the requirement remains active for a real (non-build-time) p2/OSGi runtime.
  * 
+ * A third bundle, client.bundle, only Require-Bundle's consumer.bundle and does not
+ * disable the capability requirement itself. Its dependency resolution therefore still
+ * evaluates consumer.bundle's Require-Capability requirement (the disable-filter is only
+ * scoped to the profile properties of the project being resolved, i.e. consumer.bundle's
+ * own build), so client.bundle transitively pulls in provider.bundle as well. This is
+ * verified indirectly via {@code org.eclipse.tycho.extras:tycho-dependency-tools-plugin:list-dependencies},
+ * asserting that client.bundle's {@code target/dependencies-list.txt} lists both
+ * consumer.bundle and provider.bundle.
+ * 
  * @see <a href="https://github.com/eclipse-equinox/p2/pull/972">eclipse-equinox/p2#972</a>
  * @see <a href="https://github.com/eclipse-equinox/p2/issues/971">eclipse-equinox/p2#971</a>
  * @see <a href="https://github.com/eclipse-equinox/p2/pull/1073">eclipse-equinox/p2#1073</a>
@@ -48,6 +65,22 @@ public class P2CapabilityTransportTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getVerifier("/p2.capability.transport");
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
+
+		File file = new File(verifier.getBasedir(), "client.bundle/target/dependencies-list.txt");
+		assertTrue("dependencies-list.txt was not generated for client.bundle", file.exists());
+		List<String> fileNames = new ArrayList<>();
+		try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				if (!line.isBlank()) {
+					fileNames.add(new File(line).getName());
+				}
+			}
+		}
+		assertTrue("consumer.bundle jar not found in client.bundle dependencies: " + fileNames,
+				fileNames.stream().anyMatch(name -> name.startsWith("consumer.bundle-")));
+		assertTrue("provider.bundle jar not found in client.bundle dependencies: " + fileNames,
+				fileNames.stream().anyMatch(name -> name.startsWith("provider.bundle-")));
 	}
 
 }
