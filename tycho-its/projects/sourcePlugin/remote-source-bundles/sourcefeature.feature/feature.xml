@@ -8,15 +8,15 @@
          id="org.junit"
          download-size="0"
          install-size="0"
-         version="3.8.2.qualifier"
+         version="4.13.2.qualifier"
          unpack="false"/>
 
 
    <plugin
-         id="org.junit"
+         id="org.hamcrest.core"
          download-size="0"
          install-size="0"
-         version="4.8.1.qualifier"
+         version="2.2.0.qualifier"
          unpack="false"/>
 
 </feature>
