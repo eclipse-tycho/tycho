@@ -923,6 +923,12 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         wrapper.setProperty("trimStackTrace", String.valueOf(trimStackTrace));
         wrapper.setProperty("skipAfterFailureCount", String.valueOf(skipAfterFailureCount));
         wrapper.setProperty("rerunFailingTestsCount", String.valueOf(rerunFailingTestsCount));
+        if (test != null && test.contains("#")) {
+            // only a method-qualified filter needs to reach the provider: plain class selection is
+            // already narrowed by the scan, and forwarding it unconditionally would change the
+            // established pattern semantics
+            wrapper.setProperty("requestedTest", test);
+        }
         wrapper.setProperty("printBundles", String.valueOf(printBundles));
         wrapper.setProperty("printWires", String.valueOf(printWires));
         wrapper.setProperty("classLoaderOrder", classLoaderOrder.toString());
