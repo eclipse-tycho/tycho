@@ -104,8 +104,7 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testExtraSourceBundles() throws Exception {
-		Verifier verifier = getVerifier("/sourcePlugin/extra-source-bundles", false, false);
-		verifier.addCliOption("-De342-url=" + ECLIPSE_342.toString());
+		Verifier verifier = getVerifier("/sourcePlugin/extra-source-bundles", true, false);
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(),
@@ -140,15 +139,14 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testRemoteSourceBundles() throws Exception {
-		Verifier verifier = getVerifier("/sourcePlugin/remote-source-bundles", false, false);
-		verifier.addCliOption("-De342-url=" + ECLIPSE_342.toString());
+		Verifier verifier = getVerifier("/sourcePlugin/remote-source-bundles", true, false);
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(),
-				"sourcefeature.repository/target/repository/plugins/org.junit.source_3.8.2.v3_8_2_v20100427-1100.jar");
+				"sourcefeature.repository/target/repository/plugins/org.junit.source_4.13.2.v20240929-1000.jar");
 		assertTrue("Missing expected file " + file.getName(), file.canRead());
 		file = new File(verifier.getBasedir(),
-				"sourcefeature.repository/target/repository/plugins/org.junit.source_4.8.1.v4_8_1_v20100427-1100.jar");
+				"sourcefeature.repository/target/repository/plugins/org.hamcrest.core.source_2.2.0.v20230809-1000.jar");
 		assertTrue("Missing expected file " + file.getName(), file.canRead());
 
 	}
