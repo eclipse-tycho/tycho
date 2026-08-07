@@ -230,10 +230,12 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-api</artifactId>
+				<!-- aligns junit-jupiter-*, junit-platform-* and junit-vintage-* on a single version -->
+				<groupId>org.junit</groupId>
+				<artifactId>junit-bom</artifactId>
 				<version>${junit.version}</version>
-				<scope>test</scope>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
