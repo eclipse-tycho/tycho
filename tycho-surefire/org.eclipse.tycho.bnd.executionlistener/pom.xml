@@ -14,7 +14,6 @@
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>${junit.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
