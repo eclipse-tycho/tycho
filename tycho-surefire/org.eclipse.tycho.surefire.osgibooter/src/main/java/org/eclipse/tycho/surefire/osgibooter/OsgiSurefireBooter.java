@@ -202,8 +202,12 @@ public class OsgiSurefireBooter {
         DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir,
                 Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), runOrder);
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStackTrace);
-        TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir,
-                TestListResolver.getEmptyTestListResolver(), rerunFailingTestsCount);
+        String requestedTest = testProps.getProperty("requestedTest");
+        TestListResolver testListResolver = requestedTest == null || requestedTest.trim().isEmpty()
+                ? TestListResolver.getEmptyTestListResolver()
+                : new TestListResolver(requestedTest);
+        TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir, testListResolver,
+                rerunFailingTestsCount);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
                 new RunOrderParameters(runOrder, null), reporterConfig, null, testRequest,
                 extractProviderProperties(testProps), null, false, Collections.emptyList(), skipAfterFailureCount,

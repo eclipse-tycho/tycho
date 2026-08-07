@@ -26,4 +26,17 @@ public class RunSingleTestTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 	}
+
+	@Test
+	public void testSingleMethod() throws Exception {
+		Verifier verifier = getVerifier("surefire.testSelection");
+
+		// the method suffix must reach the test provider, see
+		// https://github.com/eclipse-tycho/tycho/issues/6217; MixedTest#broken throws, so a dropped
+		// suffix fails the log check
+		verifier.addCliOption("-Dtest=bundle.MixedTest#working");
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("Tests run: 1");
+	}
 }
