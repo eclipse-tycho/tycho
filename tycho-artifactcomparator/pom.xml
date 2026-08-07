@@ -46,8 +46,8 @@
 			<artifactId>plexus-component-annotations</artifactId>
 		</dependency>
 		<dependency>
-			<artifactId>junit</artifactId>
-			<groupId>junit</groupId>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
