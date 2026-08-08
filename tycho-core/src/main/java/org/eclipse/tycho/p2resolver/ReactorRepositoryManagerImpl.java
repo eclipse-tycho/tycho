@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2021 SAP SE and others.
+ * Copyright (c) 2012, 2026 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,9 +15,11 @@ package org.eclipse.tycho.p2resolver;
 
 import java.io.File;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -28,13 +30,14 @@ import org.eclipse.tycho.p2.repository.module.ModuleMetadataRepository;
 import org.eclipse.tycho.p2.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
-@Component(role = ReactorRepositoryManager.class)
+@Named
+@Singleton
 public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
 
-    @Requirement
+    @Inject
     IProvisioningAgent agent;
 
-    @Requirement
+    @Inject
     P2Generator p2generator;
 
     @Override

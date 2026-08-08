@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.core.TychoProject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_TEST_PLUGIN)
+import org.eclipse.tycho.PackagingType;
+
+@Named(PackagingType.TYPE_ECLIPSE_TEST_PLUGIN)
+@Singleton
 public class OsgiTestBundleProject extends OsgiBundleProject {
 }

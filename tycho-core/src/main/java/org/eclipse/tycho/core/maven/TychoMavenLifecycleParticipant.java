@@ -222,7 +222,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 // want to reuse the factory multiple times but make sure the
                 // equinox framework is fully recreated
                 if (factory instanceof org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable disposable) {
-                    disposable.dispose();
+                    disposable.dispose(); //TODO: How to do that with JSR330 annotations? Scan all methods?
                 }
             } catch (ComponentLookupException e) {
                 throw new MavenExecutionException(e.getMessage(), e);

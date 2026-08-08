@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2022 SAP SE and others.
+ * Copyright (c) 2012, 2026 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -25,8 +25,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.TargetEnvironment;
@@ -42,20 +44,21 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
  * redundant computations in the common case where all modules have the same target definition file
  * configured.
  */
-@Component(role = TargetDefinitionResolverService.class)
+@Named
+@Singleton
 public class TargetDefinitionResolverService {
 
     private static final String CACHE_MISS_MESSAGE = "Target definition content cache miss: ";
 
     private ConcurrentMap<ResolutionArguments, CompletableFuture<TargetDefinitionContent>> resolutionCache = new ConcurrentHashMap<>();
 
-    @Requirement
+    @Inject
     private MavenContext mavenContext;
 
-    @Requirement
+    @Inject
     private MavenTargetLocationFactory dependenciesResolver;
 
-    @Requirement
+    @Inject
     private TargetDefinitionVariableResolver varResolver;
 
     // constructor for DS
