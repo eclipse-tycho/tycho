@@ -135,6 +135,7 @@ public class TychoPlexusTestCase {
         protected void customizeContainerConfiguration(ContainerConfiguration configuration) {
             configuration.setAutoWiring(true);
             configuration.setClassPathScanning(PlexusConstants.SCANNING_INDEX);
+            configuration.setJSR250Lifecycle(true);
         }
 
         @Override

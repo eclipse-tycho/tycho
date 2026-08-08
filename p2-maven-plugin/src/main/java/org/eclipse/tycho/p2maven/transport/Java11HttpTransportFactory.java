@@ -39,19 +39,21 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.tycho.p2maven.helper.ProxyHelper;
 import org.eclipse.tycho.p2maven.transport.Response.ResponseConsumer;
 
 /**
  * A transport using Java11 HttpClient
  */
-@Component(role = HttpTransportFactory.class, hint = Java11HttpTransportFactory.HINT)
-public class Java11HttpTransportFactory implements HttpTransportFactory, Initializable {
+@Named(Java11HttpTransportFactory.HINT)
+@Singleton
+public class Java11HttpTransportFactory implements HttpTransportFactory {
 	private static final int MAX_DISCARD = 1024 * 10;
 	private static final byte[] DUMMY_BUFFER = new byte[MAX_DISCARD];
 	private final CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
@@ -67,11 +69,11 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 			ThreadLocal.withInitial(() -> new SimpleDateFormat("EEE MMMd HH:mm:ss yyyy", Locale.ENGLISH)));
 
 	static final String HINT = "Java11Client";
-	@Requirement
+	@Inject
 	ProxyHelper proxyHelper;
-	@Requirement
+	@Inject
 	MavenAuthenticator authenticator;
-	@Requirement
+	@Inject
 	Logger logger;
 
 	private HttpClient client;
@@ -301,8 +303,8 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 		}
 	}
 
-	@Override
-	public void initialize() throws InitializationException {
+	@PostConstruct
+	public void initialize() {
 		ProxySelector proxySelector = new ProxySelector() {
 
 			@Override
