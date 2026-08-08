@@ -19,7 +19,7 @@ import org.eclipse.tycho.p2tools.copiedfromp2.RepositoryDescriptor;
  * Mojo that provides the "repo2runnable" functionality described
  * <a href="https://wiki.eclipse.org/Equinox/p2/Ant_Tasks#Repo2Runnable">here</a>.
  */
-@Mojo(name = "repo-to-runnable")
+@Mojo(name = "repo-to-runnable", requiresProject = false)
 public class Repo2RunnableMojo extends AbstractMojo {
 
     @Component
@@ -60,7 +60,7 @@ public class Repo2RunnableMojo extends AbstractMojo {
         try {
             repo2Runnable.run(null);
         } catch (ProvisionException e) {
-            throw new MojoFailureException(e);
+            throw new MojoExecutionException(e);
         }
     }
 
