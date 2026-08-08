@@ -13,7 +13,10 @@
 package org.eclipse.tycho.p2resolver;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -96,5 +99,36 @@ public class P2MetadataGeneratorImplTest {
                 environments, options);
         assertEquals("org.eclipse.tycho.p2.impl.test.bundle/1.0.0.qualifier",
                 metadata.getArtifactDescriptors().iterator().next().getProperty("download.stats"));
+    }
+
+    @Test
+    public void generateFeatureMetadata() throws Exception {
+        P2GeneratorImpl impl = new P2GeneratorImpl(false);
+        impl.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
+        impl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
+        File location = new File("src/test/resources/generator/feature").getCanonicalFile();
+
+        DependencyMetadata metadata = impl.generateMetadata(new ArtifactMock(location,
+                "org.eclipse.tycho.p2.impl.test", "feature", "1.0.0-SNAPSHOT", PackagingType.TYPE_ECLIPSE_FEATURE),
+                List.of(), new PublisherOptions());
+
+        assertTrue(metadata.getInstallableUnits().stream()
+                .anyMatch(unit -> "org.eclipse.tycho.p2.impl.test.feature.feature.group".equals(unit.getId())));
+    }
+
+    @Test
+    public void reportFeatureLocationWhenMetadataCannotBeRead() throws Exception {
+        P2GeneratorImpl impl = new P2GeneratorImpl(false);
+        impl.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));
+        impl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
+        File location = new File("src/test/resources/generator/bundle").getCanonicalFile();
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> impl.generateMetadata(new ArtifactMock(location, "org.eclipse.tycho.p2.impl.test", "feature",
+                        "1.0.0-SNAPSHOT", PackagingType.TYPE_ECLIPSE_FEATURE), List.of(), new PublisherOptions()));
+
+        assertTrue(exception.getMessage().contains("Unable to read feature metadata"));
+        assertTrue(exception.getMessage().contains(location.getAbsolutePath()));
+        assertFalse(exception.getMessage().contains("Feature.setLocation"));
     }
 }
