@@ -1,0 +1,48 @@
+name: Feature request
+description: Suggest an enhancement or new capability for Tycho
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **If an AI agent is helping you write this issue**: read
+        [AGENTS.md](https://github.com/eclipse-tycho/tycho/blob/main/AGENTS.md) first, in particular
+        the rules on searching for duplicates and keeping the description concise and concrete.
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: Duplicate check
+      description: >-
+        Please search existing [issues](https://github.com/eclipse-tycho/tycho/issues) and
+        [discussions](https://github.com/eclipse-tycho/tycho/discussions) first.
+      options:
+        - label: I have searched for existing issues/discussions and could not find a duplicate.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the concrete use case or limitation you're facing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: >-
+        What would you like to happen? If you already have an approach in mind, consider opening a
+        pull request with a proof of concept instead of/alongside this issue.
+
+  - type: dropdown
+    id: ai-used
+    attributes:
+      label: Was an AI/GenAI agent used to prepare this issue?
+      options:
+        - "No"
+        - "Yes, and I have reviewed all content above for accuracy"
+        - "Yes"
+    validations:
+      required: true

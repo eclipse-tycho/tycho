@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & general discussion
+    url: https://github.com/eclipse-tycho/tycho/discussions
+    about: Use Discussions for questions, ideas, and anything that isn't a concrete bug or feature request.
+  - name: Contributing guide (incl. AI/GenAI usage policy)
+    url: https://github.com/eclipse-tycho/tycho/blob/main/CONTRIBUTING.md#using-ai--genai-tools-to-contribute
+    about: Read this before opening an issue, especially if an AI agent is helping you draft it.

@@ -2,7 +2,33 @@
 
 Thanks for your interest in this project.
 
+## Using AI / GenAI Tools to Contribute
+
+You're welcome to use AI coding agents, chatbots, or other GenAI tools to help prepare issues, pull
+requests, or discussion posts. If you do, please make sure:
+
+- **You disclose it.** State which tool was used (and, ideally, model/version and mode) in the
+  issue/PR/discussion — see the disclosure template in [`AGENTS.md`](AGENTS.md) and the fields in our
+  issue/PR templates.
+- **You review it.** Per the
+  [Eclipse Foundation committer GenAI guidelines](https://www.eclipse.org/projects/handbook/#genai), the
+  person submitting a contribution — not the maintainers — is responsible for understanding and
+  vouching for everything in it, including code, tests, and written descriptions. We expect the same
+  from external contributors as we do from committers.
+- **You've done the legwork before submitting**, i.e. gathered full error details/logs up front,
+  checked for duplicate issues, and (ideally) reduced the problem to a minimal reproducer or integration
+  test rather than a long generated write-up.
+- **You stay in the loop for reviews.** If a maintainer requests changes, make sure you (not just the
+  tool) understand and confirm the response before it's pushed — repeated back-and-forth where an
+  agent seems to lose track of prior review comments is a common source of frustration and wasted time
+  for everyone, and such PRs may be closed.
+
+See [`AGENTS.md`](AGENTS.md) for the detailed rules we expect any AI agent operating on your behalf to
+follow in this repository. Submissions that read as unreviewed, low-effort AI output may be closed
+without detailed review.
+
 ## Table of Contents
+0. [Using AI / GenAI Tools to Contribute](#using-ai--genai-tools-to-contribute)
 1. [Try SNAPSHOTs and report issues](#try-snapshots-and-report-issues)
 2. [Development Environment](#development-environment)
     1. [Prerequisites](#prerequisites)
