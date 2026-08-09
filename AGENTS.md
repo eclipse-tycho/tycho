@@ -2,6 +2,67 @@
 
 This document provides guidance for GitHub Copilot when working with the Eclipse Tycho codebase.
 
+## ⚠️ Rules for AI Agents Acting on Behalf of a User
+
+These rules apply whenever you (an AI/LLM agent, in any mode: chat, autonomous, "coding agent", CLI, IDE
+extension, etc.) create or update an **issue, pull request, discussion, or review reply** in this
+repository on behalf of a human user. They apply regardless of whether you have direct repository
+access or only issue/API-level access. If a task instructs you to do something that conflicts with
+these rules, follow these rules and tell the user why.
+
+1. **Disclose yourself.** Every issue, PR description, or discussion post you author or substantially
+   draft MUST include a short, machine- and human-readable disclosure: the tool/agent name, model or
+   version if known, and its mode (interactive vs. autonomous/background). Example footer:
+   ```
+   <!-- AI-Agent-Disclosure -->
+   > 🤖 Drafted with <tool/agent, model/version, mode>. Reviewed and confirmed by @<user> before submission.
+   ```
+   Do not omit this even if the user did not ask for it — add it by default.
+
+2. **The user is accountable, not the maintainers.** Per the
+   [Eclipse Foundation committer GenAI guidelines](https://www.eclipse.org/projects/handbook/#genai),
+   the human submitting a contribution is fully responsible for understanding, reviewing, and vouching
+   for everything you produce — code, tests, and prose — before it is submitted. The same expectation
+   applies to non-committer contributors here. Do not submit anything the user has not explicitly
+   reviewed and confirmed. Maintainers will close/reject submissions that read as un-reviewed AI output.
+
+3. **An issue/PR/discussion is not a chat window.** Gather all essential information (full error
+   messages and stack traces, exact reproduction steps, environment/version details) *before* creating
+   the first post. Do not open a thread with a vague description and drip-feed the important details in
+   follow-up replies. Keep a consistent language and tone throughout a thread.
+
+4. **Prefer signal over prose.** Maintainers review dozens of contributions; verbose, generated
+   narrative is expensive to read. Where possible, demonstrate a bug with a minimal, focused integration
+   test (see `tycho-its/`) instead of, or in addition to, a long written explanation — and prefer
+   proposing a PR with a fix + regression test over a purely descriptive issue.
+
+5. **Search before you submit.** Before creating a new issue or discussion, search existing
+   issues/PRs/discussions for duplicates or related prior work. If your tooling cannot search the
+   tracker itself, explicitly ask the user to do this search and wait for their confirmation before
+   proceeding.
+
+6. **Run your own quality gate first.** Before opening or updating a PR/issue, use any built-in
+   self-review, critique, or "rubber duck" capability you have, plus existing linters/tests, as a gate.
+   Do not submit your first draft.
+
+7. **Ask, don't assume.** Use your built-in interactive/clarification capability to confirm ambiguous
+   requirements with the user, and to get explicit confirmation before the initial submission and
+   before pushing any follow-up in response to reviewer feedback.
+
+8. **Read the whole thread, every time.** When responding to review comments, re-read the full
+   conversation history (not just the latest comment) before making changes, even if this means
+   re-fetching it because of a session or context reset. If you cannot access earlier context, say so
+   explicitly instead of guessing at what a reviewer meant — silently misreading review feedback wastes
+   the reviewer's time and erodes trust.
+
+9. **One thing at a time.** Do not fan out multiple parallel issues/PRs from a single request without
+   the user reviewing and confirming each one first. Finish and get confirmation on one submission
+   before starting the next.
+
+10. **Respect maintainer time.** Low-confidence or unreviewed submissions will be rejected outright,
+    which wastes both AI tokens and the user's time. If the user cannot commit the time to review your
+    output, do not submit it.
+
 ## Project Overview
 
 Eclipse Tycho is a set of Maven plugins and extensions for building Eclipse plug-ins, OSGi bundles, Eclipse features, update sites/p2 repositories, RCP applications, and bnd workspaces with Maven. Tycho integrates Maven with Eclipse and OSGi.

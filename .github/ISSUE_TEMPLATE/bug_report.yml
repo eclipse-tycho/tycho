@@ -1,0 +1,76 @@
+name: Bug report
+description: Report a reproducible problem with Tycho
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report!
+
+        **If an AI agent is helping you write this issue**: read
+        [AGENTS.md](https://github.com/eclipse-tycho/tycho/blob/main/AGENTS.md) first. In particular,
+        gather *all* details below (including the full stack trace) before submitting — do not open
+        this issue with placeholders and add the important details in a later comment.
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: Duplicate check
+      description: >-
+        Please search existing [issues](https://github.com/eclipse-tycho/tycho/issues) and
+        [discussions](https://github.com/eclipse-tycho/tycho/discussions) first. If you used an AI
+        agent that could not search the tracker itself, do this search yourself before submitting.
+      options:
+        - label: I have searched for existing issues/discussions and could not find a duplicate.
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear, concise description of the problem. Avoid generated filler text.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce / minimal project
+      description: >-
+        Exact steps, and ideally a minimal reproducer project or a link to one. A failing integration
+        test in `tycho-its/` is even better and can be submitted as a PR instead of/alongside this issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Full error output / stack trace
+      description: Paste the complete error message and stack trace, not a summary of it.
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: Tycho version
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment (OS, JDK, Maven version)
+
+  - type: dropdown
+    id: ai-used
+    attributes:
+      label: Was an AI/GenAI agent used to prepare this issue?
+      description: >-
+        See AGENTS.md for the disclosure format we expect. If yes, name the tool/model/mode in the
+        description above and confirm you (the human) have reviewed the content for accuracy.
+      options:
+        - "No"
+        - "Yes, and I have reviewed all content above for accuracy"
+        - "Yes"
+    validations:
+      required: true
