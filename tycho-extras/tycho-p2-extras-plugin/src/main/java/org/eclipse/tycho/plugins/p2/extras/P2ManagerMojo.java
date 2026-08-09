@@ -74,7 +74,7 @@ public class P2ManagerMojo extends AbstractMojo {
     private Repository managerRepository;
 
     /**
-     * The repository from where the Eclipse runtime should be sourced.
+     * The repository from which the Eclipse runtime should be sourced.
      * 
      * <pre>
      * &lt;eclipseRepository>
@@ -387,6 +387,12 @@ public class P2ManagerMojo extends AbstractMojo {
     @Parameter(property = "p2manager.excludes")
     private List<String> excludes;
 
+    /**
+     * The bundle symbolic name of the ECF file transfer provider to be used by the application.
+     */
+    @Parameter(property = "p2manager.ecfProvider", defaultValue = "org.eclipse.ecf.provider.filetransfer.httpclientjava")
+    private String ecfProvider;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (root == null) {
@@ -400,6 +406,7 @@ public class P2ManagerMojo extends AbstractMojo {
                 "P2 Manager");
         application.addBundle("org.eclipse.justj.p2");
         application.addBundle("org.apache.felix.scr");
+        application.addBundle(ecfProvider);
         EclipseWorkspace<?> workspace = workspaceManager.getWorkspace(repository.getURL(), this);
 
         List<String> arguments = new ArrayList<>();
