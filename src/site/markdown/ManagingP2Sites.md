@@ -197,7 +197,10 @@ Download links for each product archive will appear on the generated HTML index 
 | `simrelAlias`              | `false`                           | Create a SimRel-named alias (e.g. `2024-06`) for the current version     |
 | `bree`                     | `false`                           | Generate minimum execution environment details per bundle                |
 | `verbose`                  | `true`                            | Print detailed progress (set to `false` for quiet output)                |
-| `managerRepository`        | JustJ tools update site           | Maven repository from which the P2 Manager application is resolved       |
+| `managerRepository`        | JustJ tools update site           | Repository from which the P2 Manager application is resolved             |
+| `eclipseRepository`        | Eclipse latest release update site| Repository from which the Eclipse runtime is resolved                    |
+| `ecfProvider`              | http Java client provider         | ECF file transfer provider                                               |
+
 
 For the full Mojo reference, see the [P2 Manager Mojo Reference](tycho-extras/tycho-p2-extras-plugin/p2-manager-mojo.html).
 
