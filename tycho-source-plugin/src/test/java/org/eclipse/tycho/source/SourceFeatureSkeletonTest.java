@@ -14,7 +14,8 @@
 package org.eclipse.tycho.source;
 
 import static org.codehaus.plexus.util.ReflectionUtils.setVariableValueInObject;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,14 +24,14 @@ import java.util.Properties;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.eclipse.tycho.model.Feature;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SourceFeatureSkeletonTest {
 
     private SourceFeatureMojo mojo;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         mojo = new SourceFeatureMojo();
         setVariableValueInObject(mojo, "logger", new SilentLog());
@@ -70,12 +71,13 @@ public class SourceFeatureSkeletonTest {
         assertEquals("a hardcoded label Developer Resources", sourceFeature.getLabel());
     }
 
-    @Test(expected = MojoExecutionException.class)
+    @Test
     public void testFeatureLabelMissingInProperties() throws Exception {
         Feature originalFeature = createFeature("/featureWithLabelInProperties.xml");
         assertEquals("%label", originalFeature.getLabel());
         Properties emptyProperties = new Properties();
-        mojo.createSourceFeatureSkeleton(originalFeature, emptyProperties, emptyProperties);
+        assertThrows(MojoExecutionException.class,
+                () -> mojo.createSourceFeatureSkeleton(originalFeature, emptyProperties, emptyProperties));
     }
 
     private Feature createFeature(String fileName) throws IOException {
