@@ -12,8 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +27,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DependencySeed;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ProductConfigTest {
 
@@ -76,19 +77,19 @@ public class ProductConfigTest {
         assertEquals(expected, subject.getProducts());
     }
 
-    @Test(expected = MojoFailureException.class)
+    @Test
     public void testNonExistingExplicitProduct() throws Exception {
         projectSeeds.add(productSeed("product.id.1"));
         projectSeeds.add(productSeed("product.id.2"));
         List<Product> userConfig = Collections.singletonList(new Product("product.id.3"));
 
-        subject = new ProductConfig(userConfig, projectSeeds);
+        assertThrows(MojoFailureException.class, () -> new ProductConfig(userConfig, projectSeeds));
     }
 
-    @Test(expected = MojoFailureException.class)
+    @Test
     public void testProductWithoutId() throws Exception {
         List<Product> userConfig = Collections.singletonList(new Product());
-        subject = new ProductConfig(userConfig, projectSeeds);
+        assertThrows(MojoFailureException.class, () -> new ProductConfig(userConfig, projectSeeds));
     }
 
     @Test

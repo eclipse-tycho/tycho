@@ -18,8 +18,8 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class FilePermissionHelperTest {
 
@@ -27,7 +27,7 @@ public class FilePermissionHelperTest {
     public void testOctalFileMode644() {
         Set<PosixFilePermission> perms = createPermissionSet(PosixFilePermission.OWNER_READ,
                 PosixFilePermission.OWNER_WRITE, PosixFilePermission.GROUP_READ, PosixFilePermission.OTHERS_READ);
-        Assert.assertEquals(0644, FilePermissionHelper.toOctalFileMode(perms));
+        Assertions.assertEquals(0644, FilePermissionHelper.toOctalFileMode(perms));
     }
 
     @Test
@@ -35,7 +35,7 @@ public class FilePermissionHelperTest {
         Set<PosixFilePermission> perms = createPermissionSet(PosixFilePermission.OWNER_READ,
                 PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.GROUP_READ,
                 PosixFilePermission.GROUP_EXECUTE, PosixFilePermission.OTHERS_READ, PosixFilePermission.OTHERS_EXECUTE);
-        Assert.assertEquals(0755, FilePermissionHelper.toOctalFileMode(perms));
+        Assertions.assertEquals(0755, FilePermissionHelper.toOctalFileMode(perms));
     }
 
     private Set<PosixFilePermission> createPermissionSet(PosixFilePermission... perms) {
