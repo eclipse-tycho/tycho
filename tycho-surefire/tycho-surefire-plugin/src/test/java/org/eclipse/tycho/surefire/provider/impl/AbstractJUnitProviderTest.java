@@ -13,8 +13,8 @@
 
 package org.eclipse.tycho.surefire.provider.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +23,8 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public abstract class AbstractJUnitProviderTest {
 
@@ -35,7 +35,7 @@ public abstract class AbstractJUnitProviderTest {
 
     protected abstract AbstractJUnitProvider createJUnitProvider();
 
-    @Before
+    @BeforeEach
     public void setup() {
         junitProvider = createJUnitProvider();
     }
