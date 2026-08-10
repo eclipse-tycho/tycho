@@ -13,11 +13,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.surefire;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -33,7 +33,7 @@ import org.codehaus.plexus.util.ReflectionUtils;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.internal.DefaultEquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestMojoTest {
 
@@ -135,8 +135,8 @@ public class TestMojoTest {
     public void testParallelModeMissingThreadCountParameter() throws Exception {
         AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
-        assertThrows("MojoExecutionException expected since threadCount parameter is missing",
-                MojoExecutionException.class, () -> testMojo.getMergedProviderProperties());
+        assertThrows(MojoExecutionException.class, () -> testMojo.getMergedProviderProperties(),
+                "MojoExecutionException expected since threadCount parameter is missing");
     }
 
     @Test
@@ -144,8 +144,8 @@ public class TestMojoTest {
         AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "threadCount", 1);
-        assertThrows("MojoExecutionException expected since threadCount parameter is missing",
-                MojoExecutionException.class, () -> testMojo.getMergedProviderProperties());
+        assertThrows(MojoExecutionException.class, () -> testMojo.getMergedProviderProperties(),
+                "MojoExecutionException expected since threadCount parameter is missing");
     }
 
     @Test
@@ -168,12 +168,12 @@ public class TestMojoTest {
         assertEquals("true", providerProperties.get("useUnlimitedThreads"));
     }
 
-    @Test(expected = MojoExecutionException.class)
+    @Test
     public void testParallelModeWithPerCoreThreadCountMissingCount() throws Exception {
         AbstractEclipseTestMojo testMojo = new TestPluginMojo();
         setParameter(testMojo, "parallel", ParallelMode.both);
         setParameter(testMojo, "perCoreThreadCount", true);
-        testMojo.getMergedProviderProperties();
+        assertThrows(MojoExecutionException.class, () -> testMojo.getMergedProviderProperties());
     }
 
     @Test
