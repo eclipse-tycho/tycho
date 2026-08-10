@@ -376,6 +376,9 @@ public class EquinoxResolver implements DependenciesResolver {
             File location = artifact.getLocation(true);
             OsgiManifest mf = loadManifest(location, artifact);
             descriptors.put(location, artifact);
+            if (!config.keepRequireCapability) {
+                removeRequireCapabilities(mf);
+            }
             if (isFrameworkImplementation(mf)) {
                 systemBundles.put(location, mf);
             } else {
@@ -472,6 +475,21 @@ public class EquinoxResolver implements DependenciesResolver {
             }
         }
         return false;
+    }
+
+    /**
+     * Removes the {@code Require-Capability} header from the given manifest. Compile classpath
+     * computation ({@link DependencyComputer}) never follows generic capability wires - it only
+     * follows {@code Require-Bundle}, {@code Import-Package} and fragment-host wires - so these
+     * requirements are irrelevant for the classpath. Keeping them around only risks resolution
+     * failures (or artificial cycles) when a generic capability can't be satisfied within the
+     * reactor/target platform being resolved. Note that this does not affect requirements that
+     * Equinox derives independently, such as the {@code osgi.ee} requirement generated from
+     * {@code Bundle-RequiredExecutionEnvironment}, as those are not expressed through the
+     * {@code Require-Capability} header.
+     */
+    private static void removeRequireCapabilities(OsgiManifest mf) {
+        mf.getHeaders().remove(Constants.REQUIRE_CAPABILITY);
     }
 
     private static String getNormalizedPath(File file) {
