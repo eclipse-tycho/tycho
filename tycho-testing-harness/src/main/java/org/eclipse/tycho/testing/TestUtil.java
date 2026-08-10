@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.testing;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -23,7 +21,9 @@ public class TestUtil {
 
     public static File getTestResourceLocation(String name) throws IOException {
         File src = new File(getBasedir(), "src/test/resources/" + name);
-        assertTrue(src.exists());
+        if (!src.exists()) {
+            throw new AssertionError("Test resource does not exist: " + src);
+        }
         return src;
     }
 
