@@ -48,6 +48,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -113,6 +114,43 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final String FILTER_PROPERTY_INSTALL_SOURCE = "org.eclipse.update.install.sources"; //$NON-NLS-1$
 
 	public static final String INSTALL_SOURCE_FILTER = String.format("(%s=true)", FILTER_PROPERTY_INSTALL_SOURCE); //$NON-NLS-1$
+
+	/**
+	 * Prefix for profile properties that disable <code>Require-Capability</code>
+	 * requirements on bundles published by this action. The full property name is
+	 * formed by appending a dot and the OSGi namespace, for example:
+	 * <ul>
+	 * <li><code>org.eclipse.equinox.p2.disable.require.capability.osgi.ee</code>
+	 * disables <code>osgi.ee</code> requirements</li>
+	 * <li><code>org.eclipse.equinox.p2.disable.require.capability.my.cap</code>
+	 * disables <code>my.cap</code> requirements</li>
+	 * </ul>
+	 * When a namespace-specific property is set to <code>"true"</code> on a
+	 * profile, only requirements in that namespace are ignored during
+	 * installation. This can be useful to break cyclic dependencies in build
+	 * scenarios. Requirements are active by default (property absent or not
+	 * equal to <code>"true"</code>).
+	 *
+	 * @see #getFilterPropertyForNamespace(String)
+	 */
+	public static final String FILTER_PROPERTY_DISABLE_REQUIRE_CAPABILITY = "org.eclipse.equinox.p2.disable.require.capability"; //$NON-NLS-1$
+
+	/**
+	 * Returns the profile property name that disables
+	 * <code>Require-Capability</code> requirements in the given OSGi namespace.
+	 * Setting this property to <code>"true"</code> on a profile causes
+	 * requirements in that namespace to be ignored during installation.
+	 *
+	 * @param namespace the OSGi namespace (e.g. {@code "osgi.ee"}, {@code "my.cap"})
+	 * @return the full profile property name for the given namespace
+	 */
+	public static String getFilterPropertyForNamespace(String namespace) {
+		return FILTER_PROPERTY_DISABLE_REQUIRE_CAPABILITY + '.' + namespace;
+	}
+
+	private static IMatchExpression<IInstallableUnit> createRequireCapabilityFilter(String namespace) {
+		return InstallableUnit.parseFilter("(!(" + getFilterPropertyForNamespace(namespace) + "=true))"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
 
 	private static final Collection<Class<?>> SUPPORTED_CLASSES = List.of(Version.class, String.class, Long.class,
 			Integer.class, Short.class, Byte.class, Double.class, Float.class, Boolean.class, Character.class);
@@ -458,8 +496,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		boolean optional = directives.get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE) == Namespace.RESOLUTION_OPTIONAL;
 		boolean greedy = optional ? INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE)) : true;
 
-		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, optional ? 0 : 1, 1,
-				greedy);
+		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter,
+				createRequireCapabilityFilter(namespace), optional ? 0 : 1, 1, greedy);
 		reqsDeps.add(requireCap);
 	}
 
@@ -474,8 +512,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		boolean optional = directives.get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE) == Namespace.RESOLUTION_OPTIONAL;
 		boolean greedy = optional ? INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE)) : true;
 
-		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, optional ? 0 : 1, 1,
-				greedy, bd.getSymbolicName());
+		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter,
+				createRequireCapabilityFilter(namespace), optional ? 0 : 1, 1, greedy, bd.getSymbolicName());
 		reqsDeps.add(requireCap);
 	}
 
