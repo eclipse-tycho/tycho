@@ -13,27 +13,31 @@
 
 package org.eclipse.tycho.packaging.sourceref;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.jar.Manifest;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.testing.PlexusTest;
 import org.eclipse.tycho.packaging.SourceReferences;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SourceReferenceComputerTest extends TychoPlexusTestCase {
+@PlexusTest
+public class SourceReferenceComputerTest {
 
+    @Inject
     private SourceReferenceComputer sourceRefComputer;
+
     private Manifest manifest;
 
-	@Before
-	public void testSetUp() throws Exception {
-        sourceRefComputer = lookup(SourceReferenceComputer.class);
+    @BeforeEach
+    public void testSetUp() {
         manifest = new Manifest();
     }
 
