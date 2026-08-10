@@ -13,12 +13,13 @@
 
 package org.eclipse.tycho.packaging.sourceref;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ScmUrlTest {
 
@@ -45,10 +46,10 @@ public class ScmUrlTest {
         assertEquals(url, gitUrl.getUrl());
     }
 
-    @Test(expected = MojoExecutionException.class)
+    @Test
     public void testInvalidUrl() throws MojoExecutionException {
         String gitScmUrl = "git://git.eclipse.org/gitroot/platform/eclipse.platform.releng.git;path=\"bundles/org.eclipse.releng.tools\";tag=v20111215-1442";
-        new ScmUrl(properties(gitScmUrl));
+        assertThrows(MojoExecutionException.class, () -> new ScmUrl(properties(gitScmUrl)));
     }
 
     private static Properties properties(String scmUrl) {

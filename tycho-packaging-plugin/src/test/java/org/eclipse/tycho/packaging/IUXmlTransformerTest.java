@@ -14,7 +14,7 @@ package org.eclipse.tycho.packaging;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,8 +28,8 @@ import org.eclipse.tycho.testing.TestUtil;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Element;
 
@@ -39,7 +39,7 @@ public class IUXmlTransformerTest {
 
     private IUXmlTransformer subject;
 
-    @BeforeClass
+    @BeforeAll
     public static void initTestResources() throws Exception {
         junit4InTP = new DefaultArtifactKey("eclipse-plugin", "org.junit4", "4.8.1.v20100302");
         hamcrestInTP = new DefaultArtifactKey("eclipse-plugin", "org.hamcrest.core", "1.1.0.v20090501071000");
