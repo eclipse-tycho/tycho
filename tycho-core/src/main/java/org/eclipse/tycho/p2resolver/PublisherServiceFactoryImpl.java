@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 SAP SE and others.
+ * Copyright (c) 2010, 2026 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,8 +14,10 @@ package org.eclipse.tycho.p2resolver;
 
 import java.util.Collection;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.Interpolator;
 import org.eclipse.tycho.ReactorProject;
@@ -32,18 +34,19 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 
-@Component(role = PublisherServiceFactory.class)
+@Named
+@Singleton
 public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
-    @Requirement
+    @Inject
     private MavenContext mavenContext;
-    @Requirement
+    @Inject
     private ReactorRepositoryManager reactorRepoManager;
 
-    @Requirement
+    @Inject
     private TargetPlatformService targetPlatformService;
 
-    @Requirement
+    @Inject
     private Logger logger;
 
     @Override

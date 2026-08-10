@@ -21,12 +21,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.model.classpath.ClasspathParser;
 import org.eclipse.tycho.model.classpath.ProjectClasspathEntry;
@@ -34,7 +34,7 @@ import org.eclipse.tycho.model.project.EclipseProject;
 
 @Named
 @Singleton
-public class DefaultClasspathReader implements ClasspathReader, Disposable {
+public class DefaultClasspathReader implements ClasspathReader {
 
     private Map<String, Collection<ProjectClasspathEntry>> cache = new ConcurrentHashMap<>();
 
@@ -44,7 +44,7 @@ public class DefaultClasspathReader implements ClasspathReader, Disposable {
     @Inject
     TychoProjectManager projectManager;
 
-    @Override
+    @PreDestroy
     public void dispose() {
         cache.clear();
     }
