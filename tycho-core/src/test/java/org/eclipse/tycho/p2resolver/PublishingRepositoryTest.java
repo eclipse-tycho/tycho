@@ -17,13 +17,15 @@ import static org.eclipse.tycho.test.util.ArtifactRepositoryTestUtils.allKeysIn;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -40,24 +42,23 @@ import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class PublishingRepositoryTest extends TychoPlexusTestCase {
 
-    @Rule
-    public TemporaryFolder tempManager = new TemporaryFolder();
+    @TempDir
+    Path tempManager;
 
     private PublishingRepository subject;
 
     // project the publishing repository belongs to
     private ReactorProjectIdentitiesStub project;
 
-    @Before
+    @BeforeEach
     public void initSubject() throws Exception {
-        project = new ReactorProjectIdentitiesStub(tempManager.newFolder("projectDir"));
+        project = new ReactorProjectIdentitiesStub(newFolder("projectDir"));
 
         subject = new PublishingRepositoryImpl(lookup(IProvisioningAgent.class), project);
     }
@@ -134,4 +135,8 @@ public class PublishingRepositoryTest extends TychoPlexusTestCase {
         }
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
+    }
 }

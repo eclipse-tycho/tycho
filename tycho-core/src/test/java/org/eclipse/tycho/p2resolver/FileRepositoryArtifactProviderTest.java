@@ -15,8 +15,8 @@ package org.eclipse.tycho.p2resolver;
 
 import static org.eclipse.tycho.test.util.TestRepositoryContent.BUNDLE_A_KEY;
 import static org.eclipse.tycho.test.util.TestRepositoryContent.REPO_BUNDLE_AB;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
@@ -34,8 +34,8 @@ import org.eclipse.tycho.p2.repository.ArtifactTransferPolicy;
 import org.eclipse.tycho.p2.repository.FileRepositoryArtifactProvider;
 import org.eclipse.tycho.test.util.TestRepositoryContent;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class FileRepositoryArtifactProviderTest extends TychoPlexusTestCase {
 
@@ -43,7 +43,7 @@ public class FileRepositoryArtifactProviderTest extends TychoPlexusTestCase {
 
     private IRawArtifactFileProvider subject;
 
-    @Before
+    @BeforeEach
     public void initContextAndSubject() throws Exception {
         subject = new FileRepositoryArtifactProvider(
                 Arrays.asList(TestRepositoryContent.REPO2_BUNDLE_A, REPO_BUNDLE_AB), TRANSFER_POLICY,

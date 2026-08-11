@@ -12,11 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RepositoryLayoutHelperTest {
     @Test

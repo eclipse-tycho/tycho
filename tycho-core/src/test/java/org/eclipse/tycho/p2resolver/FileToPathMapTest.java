@@ -12,21 +12,21 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 
 import org.eclipse.core.runtime.Path;
 import org.eclipse.tycho.p2.publisher.rootfiles.FileToPathMap;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class FileToPathMapTest {
 
     private FileToPathMap map;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.map = new FileToPathMap();
     }

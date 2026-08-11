@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import java.util.HashSet;
@@ -32,7 +32,7 @@ import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicy;
 import org.eclipse.tycho.p2.repository.LocalArtifactTransferPolicy;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LocalArtifactTransferPolicyTest extends TychoPlexusTestCase {
 

@@ -13,8 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,8 +28,8 @@ import org.eclipse.tycho.core.BuildPropertiesImpl;
 import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.test.util.ArtifactMock;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class FeatureRootAdviceTest {
     static final String GLOBAL_SPEC = "";
@@ -129,29 +130,29 @@ public class FeatureRootAdviceTest {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseBuildPropertiesInvalidConfigs() {
         Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
         buildProperties.put("root.invalid.key", "file:rootfiles/file1.txt");
 
-        createAdvice(buildProperties);
+        assertThrows(IllegalArgumentException.class, () -> createAdvice(buildProperties));
     }
 
-    @Ignore("No check that config specs are valid")
-    @Test(expected = IllegalArgumentException.class)
+    @Disabled("No check that config specs are valid")
+    @Test
     public void testParseBuildPropertiesInvalidConfigs2() {
         Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
         buildProperties.put("root.ws.os.arch", "file:rootfiles/file1.txt");
 
-        createAdvice(buildProperties);
+        assertThrows(IllegalArgumentException.class, () -> createAdvice(buildProperties));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseBuildPropertiesWithTrailingDots() {
         Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
         buildProperties.put("root..", "file:rootfiles/file1.txt");
 
-        createAdvice(buildProperties);
+        assertThrows(IllegalArgumentException.class, () -> createAdvice(buildProperties));
     }
 
     @Test

@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.net.URI;
@@ -20,8 +20,8 @@ import java.util.List;
 
 import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RepositoryReferencesTest {
     private static final File LOCATION_A = new File("a/location");
@@ -35,7 +35,7 @@ public class RepositoryReferencesTest {
 
     RepositoryReferences subject;
 
-    @Before
+    @BeforeEach
     public void initSubject() {
         subject = new RepositoryReferences();
     }

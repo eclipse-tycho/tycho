@@ -12,8 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -32,19 +36,18 @@ import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class FeatureRootfileArtifactRepositoryTest extends TychoPlexusTestCase {
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    Path tempFolder;
 
     @Test
     public void testRepoWithAttachedArtifacts() throws Exception {
         FeatureRootfileArtifactRepository subject = new FeatureRootfileArtifactRepository(createPublisherInfo(true),
-                tempFolder.newFolder("testrootfiles"));
+                newFolder("testrootfiles"));
 
         IArtifactDescriptor artifactDescriptor = createArtifactDescriptor(PublisherHelper.BINARY_ARTIFACT_CLASSIFIER,
                 "org.eclipse.tycho.test.p2");
@@ -54,7 +57,7 @@ public class FeatureRootfileArtifactRepositoryTest extends TychoPlexusTestCase {
         assertAttachedArtifact(subject.getPublishedArtifacts(), 1, "root", "org.eclipse.tycho.test.p2-1.0.0-root.zip");
 
         Set<IArtifactDescriptor> artifactDescriptors = subject.getArtifactDescriptors();
-        Assert.assertEquals(1, artifactDescriptors.size());
+        Assertions.assertEquals(1, artifactDescriptors.size());
 
         IArtifactDescriptor descriptor = artifactDescriptors.iterator().next();
         assertMavenProperties(descriptor, "root");
@@ -63,7 +66,7 @@ public class FeatureRootfileArtifactRepositoryTest extends TychoPlexusTestCase {
     @Test
     public void testRepoWithAttachedArtifactsAndConfigurations() throws Exception {
         FeatureRootfileArtifactRepository subject = new FeatureRootfileArtifactRepository(createPublisherInfo(true),
-                tempFolder.newFolder("testrootfiles"));
+                newFolder("testrootfiles"));
 
         IArtifactDescriptor artifactDescriptor = createArtifactDescriptor(PublisherHelper.BINARY_ARTIFACT_CLASSIFIER,
                 "org.eclipse.tycho.test.p2.win32.win32.x86");
@@ -74,7 +77,7 @@ public class FeatureRootfileArtifactRepositoryTest extends TychoPlexusTestCase {
                 "org.eclipse.tycho.test.p2.win32.win32.x86-1.0.0-root.zip");
 
         Set<IArtifactDescriptor> artifactDescriptors = subject.getArtifactDescriptors();
-        Assert.assertEquals(1, artifactDescriptors.size());
+        Assertions.assertEquals(1, artifactDescriptors.size());
 
         IArtifactDescriptor descriptor = artifactDescriptors.iterator().next();
         assertMavenProperties(descriptor, "root.win32.win32.x86");
@@ -83,7 +86,7 @@ public class FeatureRootfileArtifactRepositoryTest extends TychoPlexusTestCase {
     @Test
     public void testRepoWithoutMavenAdvice() throws Exception {
         FeatureRootfileArtifactRepository subject = new FeatureRootfileArtifactRepository(createPublisherInfo(false),
-                tempFolder.newFolder("testrootfiles"));
+                newFolder("testrootfiles"));
 
         IArtifactDescriptor artifactDescriptor = createArtifactDescriptor(PublisherHelper.BINARY_ARTIFACT_CLASSIFIER,
                 "org.eclipse.tycho.test.p2");
@@ -93,37 +96,37 @@ public class FeatureRootfileArtifactRepositoryTest extends TychoPlexusTestCase {
     @Test
     public void testRepoForNonBinaryArtifacts() throws Exception {
         FeatureRootfileArtifactRepository subject = new FeatureRootfileArtifactRepository(createPublisherInfo(true),
-                tempFolder.newFolder("testrootfiles"));
+                newFolder("testrootfiles"));
 
         IArtifactDescriptor artifactDescriptor = createArtifactDescriptor("non-binary-classifier",
                 "org.eclipse.tycho.test.p2");
         subject.getOutputStream(artifactDescriptor).close();
 
         Map<String, IP2Artifact> attachedArtifacts = subject.getPublishedArtifacts();
-        Assert.assertEquals(0, attachedArtifacts.size());
+        Assertions.assertEquals(0, attachedArtifacts.size());
     }
 
     @Test
     public void testRepoWithInitEmptyAttachedArtifacts() {
         FeatureRootfileArtifactRepository subject = new FeatureRootfileArtifactRepository(null, null);
-        Assert.assertEquals(0, subject.getPublishedArtifacts().size());
+        Assertions.assertEquals(0, subject.getPublishedArtifacts().size());
     }
 
     private void assertMavenProperties(IArtifactDescriptor descriptor, String root) {
-        Assert.assertEquals("artifactGroupId", descriptor.getProperty("maven-groupId"));
-        Assert.assertEquals("artifactId", descriptor.getProperty("maven-artifactId"));
-        Assert.assertEquals("artifactVersion", descriptor.getProperty("maven-version"));
-        Assert.assertEquals(root, descriptor.getProperty("maven-classifier"));
-        Assert.assertEquals("zip", descriptor.getProperty("maven-extension"));
+        Assertions.assertEquals("artifactGroupId", descriptor.getProperty("maven-groupId"));
+        Assertions.assertEquals("artifactId", descriptor.getProperty("maven-artifactId"));
+        Assertions.assertEquals("artifactVersion", descriptor.getProperty("maven-version"));
+        Assertions.assertEquals(root, descriptor.getProperty("maven-classifier"));
+        Assertions.assertEquals("zip", descriptor.getProperty("maven-extension"));
     }
 
     private void assertAttachedArtifact(Map<String, IP2Artifact> attachedArtifacts, int expectedSize,
             String expectedClassifier, String expectedLocationFileName) {
-        Assert.assertEquals(1, attachedArtifacts.size());
+        Assertions.assertEquals(1, attachedArtifacts.size());
 
         IP2Artifact artifactFacade = attachedArtifacts.get(expectedClassifier);
 
-        Assert.assertEquals(artifactFacade.getLocation().getName(), expectedLocationFileName);
+        Assertions.assertEquals(artifactFacade.getLocation().getName(), expectedLocationFileName);
     }
 
     private PublisherInfo createPublisherInfo(boolean addMavenPropertyAdvice) {
@@ -159,4 +162,8 @@ public class FeatureRootfileArtifactRepositoryTest extends TychoPlexusTestCase {
         return new BuildPropertiesImpl(buildProperties);
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempFolder.resolve(path)).toFile();
+    }
 }

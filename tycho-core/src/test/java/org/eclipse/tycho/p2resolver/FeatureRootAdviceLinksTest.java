@@ -20,12 +20,13 @@ import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.callGetDescript
 import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.createAdvice;
 import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.createBuildPropertiesWithDefaultRootFiles;
 import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.createBuildPropertiesWithoutRootKeys;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Properties;
 
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FeatureRootAdviceLinksTest {
     @Test
@@ -77,39 +78,38 @@ public class FeatureRootAdviceLinksTest {
         assertEquals("file1.txt,alias1.txt,dir/file3.txt,alias2.txt,file2.txt,alias3.txt", actualLinks);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testWrongRootfilesLinksKey() throws Exception {
         Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
 
         buildProperties.put("root.link.addedTooMuch", "file1.txt,alias.txt");
-        createAdvice(buildProperties);
+        assertThrows(IllegalArgumentException.class, () -> createAdvice(buildProperties));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGlobalLinkButNoFiles() throws Exception {
         Properties buildProperties = createBuildPropertiesWithoutRootKeys();
         buildProperties.put("root.link", "file1.txt,alias.txt");
 
         IFeatureRootAdvice advice = createAdvice(buildProperties);
-        callGetDescriptorsForAllConfigurations(advice);
+        assertThrows(IllegalArgumentException.class, () -> callGetDescriptorsForAllConfigurations(advice));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSpecificLinkButNoFiles() throws Exception {
         Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
         buildProperties.put("root." + WINDOWS_SPEC_FOR_PROPERTIES_KEY + ".link", "file1.txt,alias.txt");
 
         IFeatureRootAdvice advice = createAdvice(buildProperties);
-        callGetDescriptorsForAllConfigurations(advice);
+        assertThrows(IllegalArgumentException.class, () -> callGetDescriptorsForAllConfigurations(advice));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testLinkValueNotInPairs() throws Exception {
         Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
         buildProperties.put("root.link", "file1.txt,alias1.txt,file2.txt");
 
-        IFeatureRootAdvice advice = createAdvice(buildProperties);
-        callGetDescriptorsForAllConfigurations(advice);
+        assertThrows(IllegalArgumentException.class, () -> createAdvice(buildProperties));
     }
 
 }

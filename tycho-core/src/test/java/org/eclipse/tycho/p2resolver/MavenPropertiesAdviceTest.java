@@ -12,15 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Map;
 
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MavenPropertiesAdviceTest {
 

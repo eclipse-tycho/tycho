@@ -35,10 +35,10 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -61,9 +61,9 @@ import org.eclipse.tycho.test.util.ProbeOutputStream;
 import org.eclipse.tycho.test.util.ProbeRawArtifactSink;
 import org.eclipse.tycho.test.util.TestRepositoryContent;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactProvider> extends TychoPlexusTestCase {
 
@@ -76,19 +76,19 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
 
     protected abstract T createCompositeArtifactProvider(URI... repositoryURLs) throws Exception;
 
-    @Before
+    @BeforeEach
     public void initContextAndSubject() throws Exception {
         subject = createCompositeArtifactProvider(TestRepositoryContent.REPO2_BUNDLE_A,
                 TestRepositoryContent.REPO_BUNDLE_AB);
     }
 
-    @After
+    @AfterEach
     public void checkStreamNotClosed() {
         // none of the tested methods should close the stream
         assertFalse(testOutputStream.isClosed());
     }
 
-    @After
+    @AfterEach
     public void checkStatusAndSinkConsistency() {
         if (testSink != null) {
             testSink.checkConsistencyWithStatus(status);
