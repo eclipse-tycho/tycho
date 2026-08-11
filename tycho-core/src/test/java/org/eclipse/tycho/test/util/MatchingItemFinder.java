@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

@@ -15,7 +15,7 @@ package org.eclipse.tycho.test.util;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,16 +25,16 @@ import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
-import org.junit.Rule;
-import org.junit.rules.Verifier;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
- * Verifier to be used with JUnit's {@link Rule} annotation which provides a {@link MavenLogger}
+ * Extension to be registered with {@code @RegisterExtension} which provides a {@link MavenLogger}
  * instance and performs assertions on the log entries written to that logger. By default, it is
  * expected that no errors are logged. The expectations can be modified (per test) by calling the
  * <code>expect</code> methods on this instance.
  */
-public class LogVerifier extends Verifier {
+public class LogVerifier implements AfterEachCallback {
 
     private static boolean WRITE_TO_CONSOLE = false;
 
@@ -304,11 +304,17 @@ public class LogVerifier extends Verifier {
     }
 
     @Override
-    protected void verify() throws Throwable {
+    public void afterEach(ExtensionContext context) {
         TestRunContext contextAfterTest = currentContext;
 
         // reset configuration and errors/warnings
         currentContext = null;
+
+        // JUnit 4's Verifier only verified when the test itself passed; without this a failing
+        // test would additionally report unexpected log output and hide the real failure
+        if (context.getExecutionException().isPresent()) {
+            return;
+        }
 
         if (contextAfterTest != null) {
             contextAfterTest.checkLoggedErrors();

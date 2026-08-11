@@ -18,6 +18,7 @@ import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_FEATURE;
 import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_PLUGIN;
 import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_REPOSITORY;
 import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_TEST_PLUGIN;
+import static org.eclipse.tycho.core.test.utils.ResourceUtil.resourceFile;
 import static org.eclipse.tycho.test.util.ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HANDLER;
 import static org.eclipse.tycho.test.util.ExecutionEnvironmentTestUtils.customEEResolutionHintProvider;
 import static org.eclipse.tycho.test.util.ExecutionEnvironmentTestUtils.standardEEResolutionHintProvider;
@@ -25,11 +26,11 @@ import static org.eclipse.tycho.test.util.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.matchesRegex;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.net.URI;
@@ -62,13 +63,13 @@ import org.eclipse.tycho.test.util.ReactorProjectStub;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 public class P2ResolverTest extends P2ResolverTestBase {
 
-    @Rule
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     private ReactorProject projectToResolve;
@@ -76,7 +77,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     private static final String LATEST_PLATFORM = "https://download.eclipse.org/eclipse/updates/latest/";
     protected P2Resolver impl;
 
-    @Before
+    @BeforeEach
     public void initDefaultResolver() throws Exception {
 //        org.eclipse.equinox.internal.p2.core.helpers.Tracing.DEBUG_PLANNER_PROJECTOR = true;
         pomDependencies = resolverFactory.newPomDependencyCollector();
@@ -582,7 +583,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     private static void assertContainsUnit(String unitID, Set<?> units) {
-        assertFalse("Unit " + unitID + " not found", getInstallableUnits(unitID, units).isEmpty());
+        assertFalse(getInstallableUnits(unitID, units).isEmpty(), "Unit " + unitID + " not found");
     }
 
     private static List<IInstallableUnit> getInstallableUnits(String unitID, Set<?> units) {

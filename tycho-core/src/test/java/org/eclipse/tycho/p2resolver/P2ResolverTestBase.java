@@ -17,6 +17,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.IDependencyMetadata;
 import org.eclipse.tycho.OptionalResolutionAction;
@@ -32,16 +36,19 @@ import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.test.util.ReactorProjectStub;
 import org.eclipse.tycho.test.util.TestResolverFactory;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class P2ResolverTestBase extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class P2ResolverTestBase {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final String DEFAULT_VERSION = "1.0.0-SNAPSHOT";
     private static final String DEFAULT_GROUP_ID = "test.groupId";
 
-    @Rule
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     private P2GeneratorImpl fullGenerator;
@@ -53,10 +60,10 @@ public class P2ResolverTestBase extends TychoPlexusTestCase {
     protected List<ReactorProject> reactorProjects = new ArrayList<>();
     protected TargetPlatformFactoryImpl tpFactory;
 
-    @Before
+    @BeforeEach
     final public void prepare() throws Exception {
         resolverFactory = new TestResolverFactory(logVerifier.getMavenLogger(), logVerifier.getLogger(),
-                lookup(IProvisioningAgent.class), lookup(MavenTargetLocationFactory.class));
+                container.lookup(IProvisioningAgent.class), container.lookup(MavenTargetLocationFactory.class));
         MockMavenContext mavenContext = new MockMavenContext(null, logVerifier.getLogger());
         fullGenerator = new P2GeneratorImpl(true);
         fullGenerator.setMavenContext(mavenContext);

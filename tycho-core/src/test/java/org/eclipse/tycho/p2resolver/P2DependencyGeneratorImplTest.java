@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,9 +35,9 @@ import org.eclipse.tycho.test.util.ArtifactMock;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 public class P2DependencyGeneratorImplTest {
     private static final String DEFAULT_VERSION = "1.0.0-SNAPSHOT";
@@ -46,10 +46,10 @@ public class P2DependencyGeneratorImplTest {
     private P2GeneratorImpl subject;
     private List<IInstallableUnit> units;
     private List<IArtifactDescriptor> artifacts;
-    @Rule
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
-    @Before
+    @BeforeEach
     public void resetTestSubjectAndResultFields() {
         subject = new P2GeneratorImpl(true);
         subject.setMavenContext(new MockMavenContext(null, logVerifier.getLogger()));

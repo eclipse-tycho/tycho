@@ -15,12 +15,16 @@ package org.eclipse.tycho.p2resolver;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,6 +32,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -52,16 +60,19 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 import org.eclipse.tycho.targetplatform.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class TargetDefinitionResolverTest {
+
+    @Inject
+    protected PlexusContainer container;
     /** Feature including MAIN_BUNDLE and REFERENCED_BUNDLE_V1 */
     static final IVersionedId TARGET_FEATURE = new VersionedId("trt.targetFeature.feature.group", "1.0.0.201108051343");
 
@@ -81,17 +92,17 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
     private static final VersionedId REFERENCED_BUNDLE_INVALID_VERSION = new VersionedId("trt.bundle.referenced",
             INVALID_VERSION_MARKER);
 
-    @Rule
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
-    @Rule
-    public final TemporaryFolder tempManager = new TemporaryFolder();
+    @TempDir
+    Path tempManager;
 
     private TargetDefinitionResolver subject;
 
-    @Before
+    @BeforeEach
     public void initContext() throws Exception {
-        MavenContext mavenCtx = new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger());
+        MavenContext mavenCtx = new MockMavenContext(newFolder("localRepo"), logVerifier.getLogger());
         subject = new TargetDefinitionResolver(defaultEnvironments(),
                 ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, IncludeSourceMode.honor,
                 ReferencedRepositoryMode.ignore, mavenCtx, null,
@@ -107,7 +118,7 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
         String uri = TargetDefinitionResolver
                 .convertRawToUri("file:C:\\ws\\target-testcase\\tycho\\target.references\\target.refs/base.target");
         //check that it has the missing / infront of the protocol
-        assertTrue(uri + " does not start with file:/", uri.startsWith("file:/"));
+        assertTrue(uri.startsWith("file:/"), uri + " does not start with file:/");
         //check that this could be parsed as an URI afterwards
         URI parsed = new URI(uri);
         parsed.toURL();
@@ -117,14 +128,14 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
     @Test
     public void testResolveNoLocations() throws Exception {
         TargetDefinition definition = definitionWith();
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList()));
     }
 
     @Test
     public void testResolveOtherLocationYieldsWarning() throws Exception {
         TargetDefinition definition = definitionWith(new OtherLocationStub(), new LocationStub(TARGET_FEATURE));
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
         logVerifier.expectWarning("Target location type 'OtherLocation' is not supported");
     }
@@ -132,7 +143,7 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
     @Test
     public void testResolveMultipleUnits() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(OPTIONAL_BUNDLE, REFERENCED_BUNDLE_V1));
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
 
@@ -140,7 +151,7 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
     public void testResolveMultipleLocations() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(OPTIONAL_BUNDLE),
                 new LocationStub(REFERENCED_BUNDLE_V1));
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
 
@@ -148,21 +159,21 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
     public void testResolveMultipleRepositories() throws Exception {
         TargetDefinition definition = definitionWith(
                 new LocationStub(TestRepositories.V1_AND_V2, OPTIONAL_BUNDLE, REFERENCED_BUNDLE_V2));
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V2, OPTIONAL_BUNDLE)));
     }
 
     @Test
     public void testResolveNoRepositories() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.NONE));
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList()));
     }
 
     @Test
     public void testResolveIncludesDependencies() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
         assertThat(versionedIdsOf(units), hasItem(REFERENCED_BUNDLE_V1));
     }
@@ -174,29 +185,29 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
         // logVerifier.expectNoWarnings();
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.UNSATISFIED, TARGET_FEATURE),
                 new LocationStub(TestRepositories.V1_AND_V2, MAIN_BUNDLE, REFERENCED_BUNDLE_V1));
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
         assertThat(versionedIdsOf(units), hasItem(REFERENCED_BUNDLE_V1));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test
     public void testMissingUnit() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V2, MAIN_BUNDLE));
-        subject.resolveContentWithExceptions(definition, lookup(IProvisioningAgent.class));
+        assertThrows(TargetDefinitionResolutionException.class, () -> subject.resolveContentWithExceptions(definition, container.lookup(IProvisioningAgent.class)));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test
     public void testUnitOnlyLookedUpInLocation() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V2, MAIN_BUNDLE),
                 new LocationStub(TestRepositories.V1));
-        subject.resolveContentWithExceptions(definition, lookup(IProvisioningAgent.class));
+        assertThrows(TargetDefinitionResolutionException.class, () -> subject.resolveContentWithExceptions(definition, container.lookup(IProvisioningAgent.class)));
     }
 
     @Test
     public void testUnitWithWildcardVersion() throws ProvisionException, ComponentLookupException {
         TargetDefinition definition = definitionWith(
                 new LocationStub(TestRepositories.V1_AND_V2, REFERENCED_BUNDLE_WILDCARD_VERSION));
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V2)));
     }
 
@@ -204,7 +215,7 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
     public void testUnitWithExactVersion() throws ProvisionException, ComponentLookupException {
         TargetDefinition definition = definitionWith(
                 new LocationStub(TestRepositories.V1_AND_V2, REFERENCED_BUNDLE_V1));
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V1)));
     }
 
@@ -212,24 +223,24 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
      * Ideally, the interface should return strongly typed versions. Since this is not possible in
      * the facade, syntax errors in the version attribute can only be detected by the resolver.
      */
-    @Test(expected = TargetDefinitionSyntaxException.class)
+    @Test
     public void testUnitWithWrongVersionYieldsSyntaxException() throws Exception {
         TargetDefinition definition = definitionWith(
                 new LocationStub(TestRepositories.V1_AND_V2, REFERENCED_BUNDLE_INVALID_VERSION));
-        subject.resolveContentWithExceptions(definition, lookup(IProvisioningAgent.class));
+        assertThrows(TargetDefinitionSyntaxException.class, () -> subject.resolveContentWithExceptions(definition, container.lookup(IProvisioningAgent.class)));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test
     public void testInvalidRepository() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.INVALID, TARGET_FEATURE));
-        subject.resolveContentWithExceptions(definition, lookup(IProvisioningAgent.class));
+        assertThrows(TargetDefinitionResolutionException.class, () -> subject.resolveContentWithExceptions(definition, container.lookup(IProvisioningAgent.class)));
     }
 
     @Test
     public void testResolveWithBundleInclusionListYieldsWarning() throws ProvisionException, ComponentLookupException {
         List<Location> noLocations = Collections.emptyList();
         TargetDefinition definition = new TargetDefinitionStub(noLocations, true);
-        subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
 
         // this was bug 373776: the includeBundles tag (which is the selection on the Content tab) was silently ignored
         logVerifier.expectWarning("De-selecting bundles in a target definition file is not supported");
@@ -440,4 +451,8 @@ public class TargetDefinitionResolverTest extends TychoPlexusTestCase {
 
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
+    }
 }

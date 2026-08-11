@@ -13,15 +13,23 @@
 package org.eclipse.tycho.p2tools;
 
 import static org.eclipse.tycho.p2tools.MirrorApplicationServiceTest.sourceRepos;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -34,13 +42,16 @@ import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class MirrorStandaloneParentCategoryTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class MirrorStandaloneParentCategoryTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final String DEFAULT_NAME = "dummy";
     private static final String PARENT_CATEGORY_NAME = "Parent Category";
@@ -49,22 +60,22 @@ public class MirrorStandaloneParentCategoryTest extends TychoPlexusTestCase {
     private DestinationRepositoryDescriptor destinationRepo;
     private MirrorApplicationServiceImpl subject;
 
-    @Rule
-    public final TemporaryFolder tempFolder = new TemporaryFolder();
-    @Rule
+    @TempDir
+    Path tempFolder;
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     private BuildDirectory targetFolder;
 
-    @Before
+    @BeforeEach
     public void initTestContext() throws Exception {
-        IProvisioningAgent agent = lookup(IProvisioningAgent.class);
+        IProvisioningAgent agent = container.lookup(IProvisioningAgent.class);
         agent.getService(IArtifactRepositoryManager.class);
-        destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
+        destinationRepo = new DestinationRepositoryDescriptor(newFolder("dest"), DEFAULT_NAME);
         subject = new MirrorApplicationServiceImpl();
         subject.setAgent(agent);
         subject.setLogger(logVerifier.getLogger());
-        targetFolder = new BuildOutputDirectory(tempFolder.getRoot());
+        targetFolder = new BuildOutputDirectory(tempFolder.toFile());
     }
 
     @Test
@@ -76,7 +87,7 @@ public class MirrorStandaloneParentCategoryTest extends TychoPlexusTestCase {
                 targetFolder);
 
         IInstallableUnit parent = findParentUnit();
-        assertNotNull("Parent category IU was not injected into the destination repository", parent);
+        assertNotNull(parent, "Parent category IU was not injected into the destination repository");
         assertEquals(PARENT_CATEGORY_ID, parent.getId());
         assertEquals(PARENT_CATEGORY_NAME, parent.getProperty(IInstallableUnit.PROP_NAME));
         assertEquals(Boolean.TRUE.toString(), parent.getProperty(QueryUtil.PROP_TYPE_CATEGORY));
@@ -96,11 +107,9 @@ public class MirrorStandaloneParentCategoryTest extends TychoPlexusTestCase {
         Set<String> requiredIds = parent.getRequirements().stream()
                 .map(r -> r.getMatches().getParameters()[0].toString()).collect(Collectors.toSet());
 
-        assertTrue("Parent should require test.category.alpha",
-                requiredIds.contains("org.eclipse.example.category.alpha"));
-        assertTrue("Parent should require test.category.beta",
-                requiredIds.contains("org.eclipse.example.category.beta"));
-        assertEquals("Parent should require exactly the two source categories", 2, requiredIds.size());
+        assertTrue(requiredIds.contains("org.eclipse.example.category.alpha"), "Parent should require test.category.alpha");
+        assertTrue(requiredIds.contains("org.eclipse.example.category.beta"), "Parent should require test.category.beta");
+        assertEquals(2, requiredIds.size(), "Parent should require exactly the two source categories");
     }
 
     @Test
@@ -109,7 +118,7 @@ public class MirrorStandaloneParentCategoryTest extends TychoPlexusTestCase {
                 new MirrorOptions(), targetFolder);
 
         IInstallableUnit parent = findParentUnit();
-        assertTrue("No parent IU should be present when categoryName is not set", parent == null);
+        assertTrue(parent == null, "No parent IU should be present when categoryName is not set");
     }
 
     @Test
@@ -126,7 +135,7 @@ public class MirrorStandaloneParentCategoryTest extends TychoPlexusTestCase {
         IQueryResult<IInstallableUnit> result = openDestinationRepo().query(QueryUtil.createIUQuery(PARENT_CATEGORY_ID),
                 null);
         long count = StreamSupport.stream(result.spliterator(), false).count();
-        assertEquals("Parent category IU must appear exactly once after two mirror runs", 1, count);
+        assertEquals(1, count, "Parent category IU must appear exactly once after two mirror runs");
     }
 
     // --- helpers ---
@@ -138,9 +147,13 @@ public class MirrorStandaloneParentCategoryTest extends TychoPlexusTestCase {
     }
 
     private IMetadataRepository openDestinationRepo() throws Exception {
-        IProvisioningAgent agent = lookup(IProvisioningAgent.class);
+        IProvisioningAgent agent = container.lookup(IProvisioningAgent.class);
         IMetadataRepositoryManager mgr = agent.getService(IMetadataRepositoryManager.class);
         return mgr.loadRepository(destinationRepo.getLocation().toURI(), null);
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempFolder.resolve(path)).toFile();
+    }
 }

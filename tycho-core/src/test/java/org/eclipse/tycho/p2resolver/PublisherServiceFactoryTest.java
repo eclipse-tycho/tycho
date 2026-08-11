@@ -13,13 +13,13 @@
 package org.eclipse.tycho.p2resolver;
 
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PublisherServiceFactoryTest extends MavenServiceStubbingTestBase {
 
     @Test
     public void testThatRequiredServicesAreAvailable() throws Exception {
-        lookup(PublisherServiceFactory.class);
+        container.lookup(PublisherServiceFactory.class);
     }
 
 }
