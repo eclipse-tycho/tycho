@@ -12,12 +12,19 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -29,26 +36,29 @@ import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2maven.repository.DefaultMavenRepositorySettings;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class RemoteAgentMavenMirrorsTest {
 
-    @Rule
-    public final TemporaryFolder tempManager = new TemporaryFolder();
-    @Rule
+    @Inject
+    protected PlexusContainer container;
+
+    @TempDir
+    Path tempManager;
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
-    @Rule
+    @RegisterExtension
     public HttpServer localServer = new HttpServer();
 
     private IProvisioningAgent subject;
 
-    @Before
+    @BeforeEach
     public void initSubject() throws Exception {
-        subject = lookup(IProvisioningAgent.class);
+        subject = container.lookup(IProvisioningAgent.class);
     }
 
     @Test
@@ -86,7 +96,7 @@ public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
         URI mirroredUrl = URI
                 .create(localServer.addServlet("mirrored", ResourceUtil.resourceFile("repositories/e342")));
         String repositoryFallbackId = originalUrl.toString();
-        assertFalse("self-test: fallback ID shall be URL without trailing slash", repositoryFallbackId.endsWith("/"));
+        assertFalse(repositoryFallbackId.endsWith("/"), "self-test: fallback ID shall be URL without trailing slash");
         try {
             prepareMavenMirrorConfiguration(repositoryFallbackId, mirroredUrl);
 
@@ -107,7 +117,7 @@ public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
     }
 
     private File noContent() throws Exception {
-        return tempManager.newFolder("empty");
+        return newFolder("empty");
     }
 
     private Repositories loadRepositories(String id, URI specifiedUrl) throws Exception {
@@ -139,5 +149,9 @@ public class RemoteAgentMavenMirrorsTest extends TychoPlexusTestCase {
         public IArtifactRepository getArtifactRepository() {
             return artifactRepository;
         }
+    }
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
     }
 }

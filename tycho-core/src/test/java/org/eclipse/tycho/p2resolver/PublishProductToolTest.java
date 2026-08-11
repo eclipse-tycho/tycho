@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import static org.eclipse.tycho.core.test.utils.ResourceUtil.resourceFile;
 import static org.eclipse.tycho.test.util.InstallableUnitMatchers.configureTouchpointInstructionThat;
 import static org.eclipse.tycho.test.util.InstallableUnitMatchers.hasSelfCapability;
 import static org.eclipse.tycho.test.util.InstallableUnitMatchers.productUnit;
@@ -27,14 +28,17 @@ import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,6 +48,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -60,32 +68,35 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.targetplatform.P2TargetPlatform;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class PublishProductToolTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class PublishProductToolTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final String QUALIFIER = "20150109";
     private static final String FLAVOR = "tooling";
     private static final List<TargetEnvironment> ENVIRONMENTS = Collections
             .singletonList(new TargetEnvironment("testos", "testws", "testarch"));
 
-    @Rule
+    @RegisterExtension
     public LogVerifier logVerifier = new LogVerifier();
-    @Rule
-    public TemporaryFolder tempManager = new TemporaryFolder();
+    @TempDir
+    Path tempManager;
     private Interpolator interpolatorMock;
 
     private PublishingRepository outputRepository;
     private PublishProductTool subject;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
-        File projectDirectory = tempManager.newFolder("projectDir");
-        outputRepository = new PublishingRepositoryImpl(lookup(IProvisioningAgent.class),
+        File projectDirectory = newFolder("projectDir");
+        outputRepository = new PublishingRepositoryImpl(container.lookup(IProvisioningAgent.class),
                 new ReactorProjectIdentitiesStub(projectDirectory));
 
         interpolatorMock = mock(Interpolator.class);
@@ -304,4 +315,8 @@ public class PublishProductToolTest extends TychoPlexusTestCase {
         return results.getMetadataRepository().query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
+    }
 }

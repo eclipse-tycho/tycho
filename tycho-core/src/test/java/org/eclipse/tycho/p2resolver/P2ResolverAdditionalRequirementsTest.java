@@ -25,10 +25,10 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 public class P2ResolverAdditionalRequirementsTest {
 
@@ -38,12 +38,12 @@ public class P2ResolverAdditionalRequirementsTest {
     private static final String IU_TYPE = ArtifactType.TYPE_INSTALLABLE_UNIT;
     private static final String TARGET_UNIT_ID = "testbundleName";
 
-    @Rule
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     private P2ResolverImpl impl;
 
-    @Before
+    @BeforeEach
     public void initBlankResolver() {
         impl = new P2ResolverImpl(null, null, logVerifier.getMavenLogger(),
                 Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
@@ -73,13 +73,13 @@ public class P2ResolverAdditionalRequirementsTest {
 
     private static void assertIUMatchesRequirements(IInstallableUnit unit, List<IRequirement> requirements) {
         for (IRequirement requirement : requirements) {
-            Assert.assertTrue("IU " + unit + " must match requirement " + requirement, requirement.isMatch(unit));
+            Assertions.assertTrue(requirement.isMatch(unit), "IU " + unit + " must match requirement " + requirement);
         }
     }
 
     private static void assertIUDoesNotMatchRequirements(IInstallableUnit unit, List<IRequirement> requirements) {
         for (IRequirement requirement : requirements) {
-            Assert.assertFalse("IU " + unit + " must not match requirement " + requirement, requirement.isMatch(unit));
+            Assertions.assertFalse(requirement.isMatch(unit), "IU " + unit + " must not match requirement " + requirement);
         }
     }
 
@@ -95,10 +95,8 @@ public class P2ResolverAdditionalRequirementsTest {
 
         IInstallableUnit iu = createIU(arbitraryVersion);
 
-        Assert.assertTrue("Requires version 0.0.0; should be satisfied by any version",
-                additionalRequirements.get(0).isMatch(iu));
-        Assert.assertTrue("Requires version 0.0.0; should be satisfied by any version",
-                additionalRequirements.get(1).isMatch(iu));
+        Assertions.assertTrue(additionalRequirements.get(0).isMatch(iu), "Requires version 0.0.0; should be satisfied by any version");
+        Assertions.assertTrue(additionalRequirements.get(1).isMatch(iu), "Requires version 0.0.0; should be satisfied by any version");
     }
 
     @Test
@@ -114,10 +112,8 @@ public class P2ResolverAdditionalRequirementsTest {
 
         IInstallableUnit iu = createIU(arbitraryVersion);
 
-        Assert.assertTrue("Given version was null; should be satisfied by any version",
-                additionalRequirements.get(0).isMatch(iu));
-        Assert.assertTrue("Given version was null; should be satisfied by any version",
-                additionalRequirements.get(1).isMatch(iu));
+        Assertions.assertTrue(additionalRequirements.get(0).isMatch(iu), "Given version was null; should be satisfied by any version");
+        Assertions.assertTrue(additionalRequirements.get(1).isMatch(iu), "Given version was null; should be satisfied by any version");
     }
 
     @Test
@@ -128,10 +124,8 @@ public class P2ResolverAdditionalRequirementsTest {
         List<IRequirement> additionalRequirements = impl.getAdditionalRequirements();
         String matchingVersion = "2.5.8";
         IInstallableUnit iu = createIU(matchingVersion);
-        Assert.assertTrue("version range " + range + " should be satisfied by " + matchingVersion,
-                additionalRequirements.get(0).isMatch(iu));
-        Assert.assertTrue("version range " + range + " should be satisfied by " + matchingVersion,
-                additionalRequirements.get(1).isMatch(iu));
+        Assertions.assertTrue(additionalRequirements.get(0).isMatch(iu), "version range " + range + " should be satisfied by " + matchingVersion);
+        Assertions.assertTrue(additionalRequirements.get(1).isMatch(iu), "version range " + range + " should be satisfied by " + matchingVersion);
     }
 
     private static IInstallableUnit createIU(String version) {

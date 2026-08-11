@@ -12,12 +12,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.eclipse.tycho.core.test.utils.ResourceUtil.resourceFile;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -44,35 +52,38 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.test.util.InstallableUnitUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class PublisherServiceTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class PublisherServiceTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final String DEFAULT_QUALIFIER = "1.2.3.testqual";
     private static final List<TargetEnvironment> DEFAULT_ENVIRONMENTS = Collections
             .singletonList(new TargetEnvironment("testos", "testws", "testarch"));
 
-    @Rule
+    @RegisterExtension
     public LogVerifier logVerifier = new LogVerifier();
-    @Rule
-    public TemporaryFolder tempManager = new TemporaryFolder();
+    @TempDir
+    Path tempManager;
     private PublishingRepository outputRepository;
     private PublisherService subject;
 
-    @Before
+    @BeforeEach
     public void initSubject() throws Exception {
-        File projectDirectory = tempManager.newFolder("projectDir");
+        File projectDirectory = newFolder("projectDir");
 
         LinkedHashSet<IInstallableUnit> installableUnits = new LinkedHashSet<>();
         installableUnits.add(InstallableUnitUtil.createFeatureIU("org.eclipse.example.original_feature", "1.0.0"));
         IMetadataRepository context = new ImmutableInMemoryMetadataRepository(installableUnits, true);
 
         // TODO these publishers don't produce artifacts, so we could run without file system
-        outputRepository = new PublishingRepositoryImpl(lookup(IProvisioningAgent.class),
+        outputRepository = new PublishingRepositoryImpl(container.lookup(IProvisioningAgent.class),
                 new ReactorProjectIdentitiesStub(projectDirectory));
         PublisherActionRunner publisherRunner = new PublisherActionRunner(context, DEFAULT_ENVIRONMENTS,
                 logVerifier.getLogger());
@@ -112,8 +123,7 @@ public class PublisherServiceTest extends TychoPlexusTestCase {
                 }
             }
         }
-        assertTrue("did not find capability for package javax.activation with custom version " + version_1_1_1,
-                customJavaxActivationVersionFound);
+        assertTrue(customJavaxActivationVersionFound, "did not find capability for package javax.activation with custom version " + version_1_1_1);
         assertTrue(unitsById(seeds).keySet().contains("config.a.jre.virgo"));
     }
 
@@ -136,4 +146,8 @@ public class PublisherServiceTest extends TychoPlexusTestCase {
         return result;
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
+    }
 }

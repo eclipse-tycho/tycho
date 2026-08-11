@@ -13,17 +13,25 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.bagEquals;
 import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.definitionWith;
 import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.versionedIdList;
 import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.versionedIdsOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
@@ -42,12 +50,15 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class TargetDefinitionResolverWithPlatformSpecificUnitsTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
+
+    @Inject
+    protected PlexusContainer container;
     private static final IVersionedId LAUNCHER_FEATURE = new VersionedId("org.eclipse.equinox.executable.feature.group",
             "3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu");
     private static final IVersionedId LAUNCHER_FEATURE_JAR = new VersionedId(
@@ -63,9 +74,9 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest extends Tycho
 
     private static TargetDefinition targetDefinition;
 
-    @Rule
-    public final TemporaryFolder tempManager = new TemporaryFolder();
-    @Rule
+    @TempDir
+    Path tempManager;
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     private TargetDefinitionResolver subject;
@@ -75,7 +86,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest extends Tycho
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
         subject = createResolver(Collections.singletonList(new TargetEnvironment(null, null, null)));
 
-        TargetDefinitionContent units = subject.resolveContent(targetDefinition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition, container.lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(units),
                 bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE)));
@@ -87,7 +98,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest extends Tycho
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
         subject = createResolver(Collections.singletonList(environment));
 
-        TargetDefinitionContent units = subject.resolveContent(targetDefinition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition, container.lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(units), bagEquals(
                 versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_LINUX)));
@@ -100,7 +111,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest extends Tycho
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
         subject = createResolver(environments);
 
-        TargetDefinitionContent units = subject.resolveContent(targetDefinition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition, container.lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR,
                 LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_LINUX, LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
@@ -112,7 +123,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest extends Tycho
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER));
         subject = createResolver(Collections.singletonList(environment));
 
-        TargetDefinitionContent units = subject.resolveContent(targetDefinition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition, container.lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(units), bagEquals(
                 versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_LINUX)));
@@ -125,7 +136,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest extends Tycho
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER));
         subject = createResolver(environments);
 
-        TargetDefinitionContent units = subject.resolveContent(targetDefinition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition, container.lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR,
                 LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
@@ -137,24 +148,24 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest extends Tycho
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, true));
         subject = createResolver(Collections.singletonList(environment));
 
-        TargetDefinitionContent units = subject.resolveContent(targetDefinition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition, container.lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR,
                 LAUNCHER_BUNDLE, LAUNCHER_BUNDLE_LINUX, LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test
     public void testConflictingIncludeAllEnvironments() throws Exception {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, true),
                 new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, false));
         subject = createResolver(Collections.singletonList(new TargetEnvironment(null, null, null)));
 
-        subject.resolveContentWithExceptions(targetDefinition, lookup(IProvisioningAgent.class));
+        assertThrows(TargetDefinitionResolutionException.class, () -> subject.resolveContentWithExceptions(targetDefinition, container.lookup(IProvisioningAgent.class)));
     }
 
     private TargetDefinitionResolver createResolver(List<TargetEnvironment> environments)
             throws ProvisionException, IOException {
-        MavenContext mavenCtx = new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger());
+        MavenContext mavenCtx = new MockMavenContext(newFolder("localRepo"), logVerifier.getLogger());
         return new TargetDefinitionResolver(environments, ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS,
                 IncludeSourceMode.honor, ReferencedRepositoryMode.ignore, mavenCtx, null,
                 new DefaultTargetDefinitionVariableResolver(mavenCtx, logVerifier.getLogger()));
@@ -210,4 +221,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest extends Tycho
         }
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
+    }
 }

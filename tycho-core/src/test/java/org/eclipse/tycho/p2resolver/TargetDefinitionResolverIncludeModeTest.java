@@ -13,6 +13,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.MAIN_BUNDLE;
 import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.OPTIONAL_BUNDLE;
 import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.REFERENCED_BUNDLE_V1;
@@ -27,6 +33,10 @@ import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
@@ -41,24 +51,27 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class TargetDefinitionResolverIncludeModeTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class TargetDefinitionResolverIncludeModeTest {
 
-    @Rule
+    @Inject
+    protected PlexusContainer container;
+
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     private TargetDefinitionResolver subject;
-    @Rule
-    public final TemporaryFolder tempManager = new TemporaryFolder();
+    @TempDir
+    Path tempManager;
 
-    @Before
+    @BeforeEach
     public void initSubject() throws Exception {
-        MavenContext mavenCtx = new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger());
+        MavenContext mavenCtx = new MockMavenContext(newFolder("localRepo"), logVerifier.getLogger());
         subject = new TargetDefinitionResolver(defaultEnvironments(),
                 ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, IncludeSourceMode.honor,
                 ReferencedRepositoryMode.ignore, mavenCtx, null,
@@ -69,36 +82,36 @@ public class TargetDefinitionResolverIncludeModeTest extends TychoPlexusTestCase
     public void testResolveWithPlanner() throws Exception {
         TargetDefinition definition = definitionWith(
                 new PlannerLocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units),
                 bagEquals(versionedIdList(TARGET_FEATURE, MAIN_BUNDLE, REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
 
-    @Test(expected = ResolverException.class)
+    @Test
     public void testUnsatisfiedDependencyWithPlannerFails() throws Exception {
         // ignore logged errors
         logVerifier.expectError(any(String.class));
 
         TargetDefinition definition = definitionWith(
                 new PlannerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
-        subject.resolveContentWithExceptions(definition, lookup(IProvisioningAgent.class));
+        assertThrows(ResolverException.class, () -> subject.resolveContentWithExceptions(definition, container.lookup(IProvisioningAgent.class)));
     }
 
-    @Test(expected = ResolverException.class)
+    @Test
     public void testUnsatisfiedInclusionWithPlannerFails() throws Exception {
         // ignore logged errors
         logVerifier.expectError(any(String.class));
 
         TargetDefinition definition = definitionWith(
                 new PlannerLocationStub(TestRepositories.UNSATISFIED, TARGET_FEATURE));
-        subject.resolveContentWithExceptions(definition, lookup(IProvisioningAgent.class));
+        assertThrows(ResolverException.class, () -> subject.resolveContentWithExceptions(definition, container.lookup(IProvisioningAgent.class)));
     }
 
     @Test
     public void testResolveWithSlicer() throws Exception {
         TargetDefinition definition = definitionWith(
                 new SlicerLocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units),
                 bagEquals(versionedIdList(TARGET_FEATURE, MAIN_BUNDLE, REFERENCED_BUNDLE_V1)));
     }
@@ -111,7 +124,7 @@ public class TargetDefinitionResolverIncludeModeTest extends TychoPlexusTestCase
         // expectWarningMissingDependency(MAIN_BUNDLE, REFERENCED_BUNDLE_V1);
         expectNoErrors();
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
-        TargetDefinitionContent units = subject.resolveContent(definition, lookup(IProvisioningAgent.class));
+        TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(MAIN_BUNDLE)));
     }
 
@@ -121,14 +134,14 @@ public class TargetDefinitionResolverIncludeModeTest extends TychoPlexusTestCase
         expectNoErrors();
         TargetDefinition definition = definitionWith(
                 new SlicerLocationStub(TestRepositories.UNSATISFIED, TARGET_FEATURE));
-        subject.resolveContentWithExceptions(definition, lookup(IProvisioningAgent.class));
+        subject.resolveContentWithExceptions(definition, container.lookup(IProvisioningAgent.class));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test
     public void testResolveConflictingIncludeMode() throws Exception {
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.V1, MAIN_BUNDLE),
                 new PlannerLocationStub(TestRepositories.V2));
-        subject.resolveContentWithExceptions(definition, lookup(IProvisioningAgent.class));
+        assertThrows(TargetDefinitionResolutionException.class, () -> subject.resolveContentWithExceptions(definition, container.lookup(IProvisioningAgent.class)));
     }
 
     private void expectWarningMissingDependency(IVersionedId from, IVersionedId to) {
@@ -163,5 +176,9 @@ public class TargetDefinitionResolverIncludeModeTest extends TychoPlexusTestCase
         public IncludeMode getIncludeMode() {
             return IncludeMode.SLICER;
         }
+    }
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
     }
 }

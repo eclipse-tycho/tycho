@@ -19,11 +19,20 @@ import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.versione
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
@@ -40,41 +49,44 @@ import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinitionResolutionException;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class TargetDefinitionResolverIncludeSourceTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final IVersionedId BUNDLE_WITH_SOURCES = new VersionedId("simple.bundle", "1.0.0.201407081200");
     private static final IVersionedId SOURCE_BUNDLE = new VersionedId("simple.bundle.source", "1.0.0.201407081200");
     private static final IVersionedId NOSOURCE_BUNDLE = new VersionedId("nosource.bundle", "1.0.0");
 
-    @Rule
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
-    @Rule
-    public final TemporaryFolder tempManager = new TemporaryFolder();
+    @TempDir
+    Path tempManager;
 
     private TargetDefinitionResolver subject;
 
-    @Before
+    @BeforeEach
     public void initSubject() throws Exception {
-        MavenContext mavenCtx = new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger());
+        MavenContext mavenCtx = new MockMavenContext(newFolder("localRepo"), logVerifier.getLogger());
         subject = new TargetDefinitionResolver(defaultEnvironments(),
                 ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, IncludeSourceMode.honor,
                 ReferencedRepositoryMode.ignore, mavenCtx, null,
                 new DefaultTargetDefinitionVariableResolver(mavenCtx, logVerifier.getLogger()));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test
     public void testConflictingIncludeSourceLocations() throws Exception {
         TargetDefinition definition = definitionWith(
                 new WithSourceLocationStub(null, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES),
                 new WithoutSourceLocationStub(null, TestRepositories.SOURCES));
-        subject.resolveContentWithExceptions(definition, lookup(IProvisioningAgent.class));
+        assertThrows(TargetDefinitionResolutionException.class, () -> subject.resolveContentWithExceptions(definition, container.lookup(IProvisioningAgent.class)));
     }
 
     @Test
@@ -83,7 +95,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
                 new WithSourceLocationStub(IncludeMode.SLICER, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
 
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
-                lookup(IProvisioningAgent.class));
+                container.lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
@@ -96,7 +108,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
                 new WithSourceLocationStub(IncludeMode.PLANNER, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
 
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
-                lookup(IProvisioningAgent.class));
+                container.lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
@@ -114,7 +126,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
                 new WithoutSourceLocationStub(IncludeMode.SLICER, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
 
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
-                lookup(IProvisioningAgent.class));
+                container.lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
         assertEquals(1, getResultSet(content).size());
@@ -126,7 +138,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
                 new WithoutSourceLocationStub(IncludeMode.PLANNER, TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
 
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
-                lookup(IProvisioningAgent.class));
+                container.lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
         assertEquals(1, getResultSet(content).size());
@@ -138,7 +150,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
                 TestRepositories.SOURCES, BUNDLE_WITH_SOURCES, NOSOURCE_BUNDLE));
 
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
-                lookup(IProvisioningAgent.class));
+                container.lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
@@ -152,7 +164,7 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
                 TestRepositories.SOURCES, BUNDLE_WITH_SOURCES, NOSOURCE_BUNDLE));
 
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
-                lookup(IProvisioningAgent.class));
+                container.lookup(IProvisioningAgent.class));
 
         assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
@@ -199,5 +211,9 @@ public class TargetDefinitionResolverIncludeSourceTest extends TychoPlexusTestCa
         public IncludeMode getIncludeMode() {
             return this.includeMode;
         }
+    }
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
     }
 }

@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.removeAllFilter;
 import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.restrictionFilter;
 import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithVersion;
@@ -30,6 +31,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -42,20 +47,23 @@ import org.eclipse.tycho.targetplatform.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
-public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class TargetPlatformFilterEvaluatorTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final CapabilityPattern ALL_MULTIVERSION_BUNDLES = patternWithVersion(CapabilityType.OSGI_BUNDLE,
             "trf.bundle.multiversion", null);
 
-    @Rule
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     private static Set<IInstallableUnit> baselineUnits;
@@ -63,14 +71,14 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
 
     private TargetPlatformFilterEvaluator subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         baselineUnits = loadTestUnits();
         workUnits = new LinkedHashSet<>(baselineUnits);
     }
 
     private Set<IInstallableUnit> loadTestUnits() throws Exception {
-        IMetadataRepositoryManager metadataManager = lookup(IProvisioningAgent.class)
+        IMetadataRepositoryManager metadataManager = container.lookup(IProvisioningAgent.class)
                 .getService(IMetadataRepositoryManager.class);
         File testDataFile = ResourceUtil.resourceFile("targetfiltering/content.xml");
         IMetadataRepository testDataRepository = metadataManager.loadRepository(testDataFile.getParentFile().toURI(),
@@ -199,22 +207,22 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
                 .expectWarning(allOf(containsString("Removed all units"), containsString("trf.bundle.multiversion")));
     }
 
-    @Test(expected = TargetPlatformFilterSyntaxException.class)
+    @Test
     public void testNonParsableVersion() throws Exception {
         TargetPlatformFilter invalidFilter = restrictionFilter(ALL_MULTIVERSION_BUNDLES,
                 patternWithVersion(null, null, "1.a"));
         subject = newEvaluator(invalidFilter);
 
-        subject.filterUnits(workUnits);
+        assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.filterUnits(workUnits));
     }
 
-    @Test(expected = TargetPlatformFilterSyntaxException.class)
+    @Test
     public void testNonParsableVersionRange() throws Exception {
         TargetPlatformFilter invalidFilter = restrictionFilter(ALL_MULTIVERSION_BUNDLES,
                 patternWithVersionRange(null, null, "[1.0.0,")); // "[1.0.0," is invalid; "1.0.0" is the range from 1 to infinity
         subject = newEvaluator(invalidFilter);
 
-        subject.filterUnits(workUnits);
+        assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.filterUnits(workUnits));
     }
 
     private Collection<String> removedUnits() {

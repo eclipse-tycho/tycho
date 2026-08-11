@@ -14,10 +14,10 @@ package org.eclipse.tycho.p2resolver;
 
 import static org.eclipse.tycho.test.util.InstallableUnitMatchers.hasGAV;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -44,12 +44,12 @@ import org.eclipse.tycho.test.util.ArtifactMock;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 public class P2GeneratorImplTest {
 
-    @Rule
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     @Test
@@ -119,7 +119,7 @@ public class P2GeneratorImplTest {
         List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
         IRequiredCapability requirement = getReqCap(requirements, PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
                 "org.osgi.framework");
-        assertNotNull("org.osgi.framework", requirement);
+        assertNotNull(requirement, "org.osgi.framework");
         assertTrue(requirement.isGreedy());
         assertEquals(1, requirement.getMin());
         assertEquals(1, requirement.getMax());

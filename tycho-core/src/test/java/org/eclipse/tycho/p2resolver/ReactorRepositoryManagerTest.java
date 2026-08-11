@@ -13,42 +13,51 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertNotNull;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 import org.eclipse.tycho.test.util.ReactorProjectStub;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class ReactorRepositoryManagerTest extends MavenServiceStubbingTestBase {
 
     private ReactorRepositoryManager subject;
-    @Rule
-    public final TemporaryFolder tempManager = new TemporaryFolder();
+    @TempDir
+    Path tempManager;
 
     private PomDependencyCollector pomDependencyCollector;
 
-    @Before
+    @BeforeEach
     public void setUpContext() throws Exception {
         pomDependencyCollector = new PomDependencyCollectorImpl(logVerifier.getLogger(),
-                new ReactorProjectStub(tempManager.newFolder(), "test"), getProvisioningAgent());
+                new ReactorProjectStub(newFolder("temp"), "test"), getProvisioningAgent());
     }
 
     @Test
     public void testReactorRepositoryManagerServiceAvailability() throws Exception {
-        subject = lookup(ReactorRepositoryManager.class);
+        subject = container.lookup(ReactorRepositoryManager.class);
 
         assertNotNull(subject);
     }
 
     @Test
     public void testReactorRepositoryManagerFacadeServiceAvailability() throws Exception {
-        subject = lookup(ReactorRepositoryManager.class);
+        subject = container.lookup(ReactorRepositoryManager.class);
 
         assertNotNull(subject);
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
+    }
 }

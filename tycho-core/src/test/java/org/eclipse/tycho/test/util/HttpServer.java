@@ -26,9 +26,11 @@ import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
-public class HttpServer extends ExternalResource {
+public class HttpServer implements BeforeEachCallback, AfterEachCallback {
     static final int BIND_ATTEMPTS = 20;
     static final Random rnd = new Random();
 
@@ -50,12 +52,12 @@ public class HttpServer extends ExternalResource {
     }
 
     @Override
-    protected void before() throws Throwable {
+    public void beforeEach(ExtensionContext context) throws Exception {
         runningServer = startServer();
     }
 
     @Override
-    protected void after() {
+    public void afterEach(ExtensionContext context) {
         try {
             stop();
         } catch (Exception e) {
@@ -142,7 +144,7 @@ public class HttpServer extends ExternalResource {
 
     private void checkRunning() {
         if (runningServer == null) {
-            throw new IllegalStateException("HttpServer instance is not running. Did you forget the @Rule annotation?");
+            throw new IllegalStateException("HttpServer instance is not running. Did you forget the @RegisterExtension annotation?");
         }
     }
 

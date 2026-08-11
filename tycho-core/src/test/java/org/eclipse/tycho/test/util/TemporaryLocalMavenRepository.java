@@ -14,36 +14,51 @@ package org.eclipse.tycho.test.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2resolver.LocalRepositoryP2IndicesImpl;
-import org.junit.Rule;
-import org.junit.rules.ExternalResource;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
- * JUnit {@link Rule} that can provide a {@link LocalArtifactRepository} for a temporary local Maven
+ * Extension that can provide a {@link LocalArtifactRepository} for a temporary local Maven
  * repository directory, or other objects needed for testing an {@link LocalArtifactRepository}
  * instance.
  */
-public class TemporaryLocalMavenRepository extends ExternalResource {
+public class TemporaryLocalMavenRepository implements BeforeEachCallback, AfterEachCallback {
 
+    // not registered as an extension, only used to hand a Logger to the MockMavenContext below
     public LogVerifier logVerifier = new LogVerifier();
-    private final TemporaryFolder tempManager = new TemporaryFolder();
+    private Path tempRoot;
     private File repoRoot;
     private LocalRepositoryP2IndicesImpl repoIndex;
     private LocalArtifactRepository repo;
 
     @Override
-    protected void before() throws Throwable {
-        tempManager.create();
+    public void beforeEach(ExtensionContext context) throws Exception {
+        tempRoot = Files.createTempDirectory("tycho-local-maven-repo");
     }
 
     @Override
-    protected void after() {
-        tempManager.delete();
+    public void afterEach(ExtensionContext context) throws Exception {
+        repo = null;
+        repoIndex = null;
+        repoRoot = null;
+        if (tempRoot != null) {
+            try (Stream<Path> paths = Files.walk(tempRoot)) {
+                paths.sorted(Comparator.reverseOrder()).forEach(path -> path.toFile().delete());
+            } finally {
+                tempRoot = null;
+            }
+        }
     }
 
     public void initContentFromResourceFolder(File resourceFolder) throws IOException {
@@ -53,9 +68,9 @@ public class TemporaryLocalMavenRepository extends ExternalResource {
     public File getLocalRepositoryRoot() {
         if (repoRoot == null) {
             try {
-                repoRoot = tempManager.newFolder("repository");
+                repoRoot = Files.createDirectories(tempRoot.resolve("repository")).toFile();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedIOException(e);
             }
         }
         return repoRoot;
