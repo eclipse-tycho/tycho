@@ -19,9 +19,9 @@ import static org.eclipse.tycho.test.util.TestRepositoryContent.BUNDLE_A_FILES;
 import static org.eclipse.tycho.test.util.TestRepositoryContent.BUNDLE_A_KEY;
 import static org.eclipse.tycho.test.util.TestRepositoryContent.REPO_BUNDLE_AB;
 import static org.eclipse.tycho.test.util.TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 
@@ -34,8 +34,8 @@ import org.eclipse.tycho.p2.repository.ProviderOnlyArtifactRepository;
 import org.eclipse.tycho.test.util.ProbeOutputStream;
 import org.eclipse.tycho.test.util.TestRepositoryContent;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 public class ProviderOnlyArtifactRepositoryTest extends TychoPlexusTestCase {
 
@@ -45,7 +45,7 @@ public class ProviderOnlyArtifactRepositoryTest extends TychoPlexusTestCase {
 
     private ProviderOnlyArtifactRepository subject;
 
-    @After
+    @AfterEach
     public void checkStreamNotClosed() {
         // none of the tested methods should close the stream
         assertFalse(testOutputStream.isClosed());

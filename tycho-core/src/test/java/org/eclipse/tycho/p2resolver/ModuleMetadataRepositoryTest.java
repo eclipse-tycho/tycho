@@ -14,9 +14,12 @@ package org.eclipse.tycho.p2resolver;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,10 +39,9 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.repository.module.ModuleMetadataRepository;
 import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class ModuleMetadataRepositoryTest extends TychoPlexusTestCase {
 
@@ -48,12 +50,12 @@ public class ModuleMetadataRepositoryTest extends TychoPlexusTestCase {
 
     private static File moduleDir;
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    Path tempFolder;
 
     private IMetadataRepository subject;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception {
         moduleDir = ResourceUtil.resourceFile("repositories/module/basic/target");
     }
@@ -76,7 +78,7 @@ public class ModuleMetadataRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void testCreateRepository() throws Exception {
-        File targetFolder = tempFolder.newFolder("target");
+        File targetFolder = newFolder("target");
 
         subject = new ModuleMetadataRepository(null, targetFolder);
 
@@ -85,7 +87,7 @@ public class ModuleMetadataRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void testUpdateRepository() throws Exception {
-        File targetFolder = tempFolder.newFolder("target");
+        File targetFolder = newFolder("target");
 
         subject = new ModuleMetadataRepository(null, targetFolder);
         subject.addInstallableUnits(createIUs(BUNDLE_UNIT));
@@ -95,7 +97,7 @@ public class ModuleMetadataRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void testPersistEmptyRepository() throws Exception {
-        File targetFolder = tempFolder.newFolder("target");
+        File targetFolder = newFolder("target");
 
         subject = new ModuleMetadataRepository(null, targetFolder);
 
@@ -105,7 +107,7 @@ public class ModuleMetadataRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void testPersistModifiedRepository() throws Exception {
-        File targetFolder = tempFolder.newFolder("target");
+        File targetFolder = newFolder("target");
 
         subject = new ModuleMetadataRepository(null, targetFolder);
         subject.addInstallableUnits(createIUs(SOURCE_UNIT));
@@ -141,5 +143,9 @@ public class ModuleMetadataRepositoryTest extends TychoPlexusTestCase {
         IMetadataRepositoryManager repoManager = lookup(IProvisioningAgent.class)
                 .getService(IMetadataRepositoryManager.class);
         return repoManager.loadRepository(location.toURI(), null);
+    }
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempFolder.resolve(path)).toFile();
     }
 }

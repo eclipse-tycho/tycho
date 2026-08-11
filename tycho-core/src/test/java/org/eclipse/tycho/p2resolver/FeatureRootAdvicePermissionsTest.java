@@ -20,7 +20,8 @@ import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.callGetDescript
 import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.createAdvice;
 import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.createBuildPropertiesWithDefaultRootFiles;
 import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.createBuildPropertiesWithoutRootKeys;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,8 +31,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class FeatureRootAdvicePermissionsTest {
 
@@ -83,44 +84,44 @@ public class FeatureRootAdvicePermissionsTest {
         assertPermissionEntry("file2.txt", "755", list.get(2));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGlobalPermissionsChmodMissing() throws Exception {
         Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
         buildProperties.put("root.permissions", "file1.txt");
-        createAdvice(buildProperties).getDescriptor(GLOBAL_SPEC);
+        assertThrows(IllegalArgumentException.class, () -> createAdvice(buildProperties).getDescriptor(GLOBAL_SPEC));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSpecificPermissionsChmodMissing() throws Exception {
         Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
         buildProperties.put("root." + WINDOWS_SPEC_FOR_PROPERTIES_KEY + ".permissions", "rootfiles/file1.txt");
-        createAdvice(buildProperties).getDescriptor(GLOBAL_SPEC);
+        assertThrows(IllegalArgumentException.class, () -> createAdvice(buildProperties).getDescriptor(GLOBAL_SPEC));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGlobalPermissionsButNoFiles() throws Exception {
         Properties buildProperties = createBuildPropertiesWithoutRootKeys();
         buildProperties.put("root.permissions.644", "file2.txt");
 
         IFeatureRootAdvice advice = createAdvice(buildProperties);
-        callGetDescriptorsForAllConfigurations(advice);
+        assertThrows(IllegalArgumentException.class, () -> callGetDescriptorsForAllConfigurations(advice));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSpecificPermissionsButNoFiles() throws Exception {
         Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
         buildProperties.put("root." + LINUX_SPEC_FOR_PROPERTIES_KEY + ".permissions.644", "file2.txt");
 
         IFeatureRootAdvice advice = createAdvice(buildProperties);
-        callGetDescriptorsForAllConfigurations(advice);
+        assertThrows(IllegalArgumentException.class, () -> callGetDescriptorsForAllConfigurations(advice));
     }
 
-    @Ignore
-    @Test(expected = IllegalArgumentException.class)
+    @Disabled
+    @Test
     public void testPermissionsChmodInvalidValue() throws Exception {
         Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
         buildProperties.put("root.permissions.og-rwx", "file1.txt");
-        createAdvice(buildProperties).getDescriptor(GLOBAL_SPEC);
+        assertThrows(IllegalArgumentException.class, () -> createAdvice(buildProperties).getDescriptor(GLOBAL_SPEC));
     }
 
     private static List<String[]> createAdviceAndGetPermissions(Properties buildProperties, String configSpec) {

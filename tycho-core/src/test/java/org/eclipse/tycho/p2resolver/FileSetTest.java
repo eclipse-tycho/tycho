@@ -18,84 +18,84 @@ import java.io.File;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.tycho.p2.publisher.rootfiles.FileSet;
 import org.eclipse.tycho.p2.publisher.rootfiles.FileToPathMap;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class FileSetTest {
 
     @Test
     public void testDoubleStar() {
         FileSet doubleStarAtEnd = new FileSet(null, "test/**");
-        Assert.assertTrue(doubleStarAtEnd.matches(new Path("test/me/foo.txt")));
-        Assert.assertFalse(doubleStarAtEnd.matches(new Path("me/foo.txt")));
+        Assertions.assertTrue(doubleStarAtEnd.matches(new Path("test/me/foo.txt")));
+        Assertions.assertFalse(doubleStarAtEnd.matches(new Path("me/foo.txt")));
 
         FileSet doubleStarWithSlashAtEnd = new FileSet(null, "test/**/");
-        Assert.assertTrue(doubleStarWithSlashAtEnd.matches(new Path("test/me/foo.txt")));
-        Assert.assertFalse(doubleStarWithSlashAtEnd.matches(new Path("me/foo.txt")));
+        Assertions.assertTrue(doubleStarWithSlashAtEnd.matches(new Path("test/me/foo.txt")));
+        Assertions.assertFalse(doubleStarWithSlashAtEnd.matches(new Path("me/foo.txt")));
 
         FileSet doubleStarAtBeginning = new FileSet(null, "**/FILE");
-        Assert.assertTrue(doubleStarAtBeginning.matches(new Path("test/me/FILE")));
+        Assertions.assertTrue(doubleStarAtBeginning.matches(new Path("test/me/FILE")));
 
         FileSet doubleStarAtBeginningAndEnd = new FileSet(null, "**/DIR/**");
-        Assert.assertTrue(doubleStarAtBeginningAndEnd.matches(new Path("test/me/DIR/bar/test.txt")));
-        Assert.assertFalse(doubleStarAtBeginningAndEnd.matches(new Path("test/me/foobar/test.txt")));
-        Assert.assertFalse(doubleStarAtBeginningAndEnd.matches(new Path("test/me/DIR")));
+        Assertions.assertTrue(doubleStarAtBeginningAndEnd.matches(new Path("test/me/DIR/bar/test.txt")));
+        Assertions.assertFalse(doubleStarAtBeginningAndEnd.matches(new Path("test/me/foobar/test.txt")));
+        Assertions.assertFalse(doubleStarAtBeginningAndEnd.matches(new Path("test/me/DIR")));
     }
 
     @Test
     public void testSingleStar() {
         FileSet starAtBeginning = new FileSet(null, "*.txt");
-        Assert.assertTrue(starAtBeginning.matches(new Path("foo.txt")));
+        Assertions.assertTrue(starAtBeginning.matches(new Path("foo.txt")));
 
         FileSet starAtEnd = new FileSet(null, "bar*");
-        Assert.assertTrue(starAtEnd.matches(new Path("barfoo")));
-        Assert.assertFalse(starAtEnd.matches(new Path("foobar")));
+        Assertions.assertTrue(starAtEnd.matches(new Path("barfoo")));
+        Assertions.assertFalse(starAtEnd.matches(new Path("foobar")));
 
         FileSet starInMiddle = new FileSet(null, "bar*foo");
-        Assert.assertTrue(starInMiddle.matches(new Path("bar_test_foo")));
-        Assert.assertFalse(starInMiddle.matches(new Path("bar_test_fooX")));
+        Assertions.assertTrue(starInMiddle.matches(new Path("bar_test_foo")));
+        Assertions.assertFalse(starInMiddle.matches(new Path("bar_test_fooX")));
     }
 
     @Test
     public void testQuestionMark() {
         FileSet questionMarkPattern = new FileSet(null, "foo?.txt");
-        Assert.assertTrue(questionMarkPattern.matches(new Path("fooX.txt")));
-        Assert.assertFalse(questionMarkPattern.matches(new Path("fooXY.txt")));
-        Assert.assertFalse(questionMarkPattern.matches(new Path("XfooY.txt")));
+        Assertions.assertTrue(questionMarkPattern.matches(new Path("fooX.txt")));
+        Assertions.assertFalse(questionMarkPattern.matches(new Path("fooXY.txt")));
+        Assertions.assertFalse(questionMarkPattern.matches(new Path("XfooY.txt")));
     }
 
     @Test
     public void testCombined() {
         FileSet recursiveTxtPattern = new FileSet(null, "**/*.txt");
-        Assert.assertTrue(recursiveTxtPattern.matches(new Path("tmp/foo.txt")));
-        Assert.assertTrue(recursiveTxtPattern.matches(new Path("foo.txt")));
-        Assert.assertFalse(recursiveTxtPattern.matches(new Path("foo.txt_")));
+        Assertions.assertTrue(recursiveTxtPattern.matches(new Path("tmp/foo.txt")));
+        Assertions.assertTrue(recursiveTxtPattern.matches(new Path("foo.txt")));
+        Assertions.assertFalse(recursiveTxtPattern.matches(new Path("foo.txt_")));
         FileSet recursiveFilePrefixPattern = new FileSet(null, "**/prefix*");
-        Assert.assertTrue(recursiveFilePrefixPattern.matches(new Path("tmp/prefixfoo.txt")));
+        Assertions.assertTrue(recursiveFilePrefixPattern.matches(new Path("tmp/prefixfoo.txt")));
     }
 
     @Test
     public void testDefaultExcludes() {
         FileSet recursiveFileSet = new FileSet(null, "test/**");
-        Assert.assertTrue(recursiveFileSet.matches(new Path("test/me/foo.txt")));
-        Assert.assertFalse(recursiveFileSet.matches(new Path("test/CVS/foo.txt")));
-        Assert.assertFalse(recursiveFileSet.matches(new Path("test/.git/foo.txt")));
-        Assert.assertFalse(recursiveFileSet.matches(new Path("test/.svn/foo.txt")));
-        Assert.assertFalse(recursiveFileSet.matches(new Path("test/me/.svn")));
+        Assertions.assertTrue(recursiveFileSet.matches(new Path("test/me/foo.txt")));
+        Assertions.assertFalse(recursiveFileSet.matches(new Path("test/CVS/foo.txt")));
+        Assertions.assertFalse(recursiveFileSet.matches(new Path("test/.git/foo.txt")));
+        Assertions.assertFalse(recursiveFileSet.matches(new Path("test/.svn/foo.txt")));
+        Assertions.assertFalse(recursiveFileSet.matches(new Path("test/me/.svn")));
     }
 
     @Test
     public void testNoDefaultExcludes() {
         FileSet recursiveFileSet = new FileSet(null, "test/**", "", false);
-        Assert.assertTrue(recursiveFileSet.matches(new Path("test/CVS/foo.txt")));
-        Assert.assertTrue(recursiveFileSet.matches(new Path("test/.git/foo.txt")));
-        Assert.assertTrue(recursiveFileSet.matches(new Path("test/.svn/foo.txt")));
+        Assertions.assertTrue(recursiveFileSet.matches(new Path("test/CVS/foo.txt")));
+        Assertions.assertTrue(recursiveFileSet.matches(new Path("test/.git/foo.txt")));
+        Assertions.assertTrue(recursiveFileSet.matches(new Path("test/.svn/foo.txt")));
     }
 
     @Test
     public void testScan() {
         FileSet txtFileset = new FileSet(new File("src/test/resources/rootfiles"), "**/*.txt");
         FileToPathMap result = txtFileset.scan();
-        Assert.assertEquals(4, result.keySet().size());
+        Assertions.assertEquals(4, result.keySet().size());
     }
 }
