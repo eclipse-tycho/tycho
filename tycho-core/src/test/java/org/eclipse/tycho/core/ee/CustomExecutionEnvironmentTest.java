@@ -16,9 +16,9 @@ import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +28,7 @@ import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.SystemCapability;
 import org.eclipse.tycho.SystemCapability.Type;
 import org.hamcrest.CoreMatchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.osgi.framework.Constants;
 
 @SuppressWarnings("deprecation")

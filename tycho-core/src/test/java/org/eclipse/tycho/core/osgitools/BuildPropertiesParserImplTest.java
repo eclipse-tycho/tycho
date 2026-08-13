@@ -24,9 +24,9 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.testing.TestUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class BuildPropertiesParserImplTest {
 
@@ -36,7 +36,7 @@ public class BuildPropertiesParserImplTest {
     private MavenProject project1;
     private MavenProject project2;
 
-    @Before
+    @BeforeEach
     public void setup() throws IllegalArgumentException, IllegalAccessException {
         legacySupport = mock(LegacySupport.class);
         mavenSession = mock(MavenSession.class);
@@ -56,13 +56,13 @@ public class BuildPropertiesParserImplTest {
     public void testReadPropertiesFileWithExistingFile() throws IOException {
         File baseDir = TestUtil.getBasedir("buildproperties");
         Properties properties = BuildPropertiesParserImpl.readProperties(new File(baseDir, "build.properties"), null);
-        Assert.assertEquals(3, properties.size());
+        Assertions.assertEquals(3, properties.size());
     }
 
     @Test
     public void testReadPropertiesWithNonExistingFile() {
         Properties properties = BuildPropertiesParserImpl.readProperties(new File("MISSING_FILE"), null);
-        Assert.assertEquals(0, properties.size());
+        Assertions.assertEquals(0, properties.size());
     }
 
     @Test

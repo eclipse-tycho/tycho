@@ -25,8 +25,8 @@ import java.util.List;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.director.shared.AbstractDirectorApplicationCommand;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DirectorApplicationCommandTest {
 
@@ -46,7 +46,7 @@ public class DirectorApplicationCommandTest {
 
     private AbstractDirectorApplicationCommandForTesting subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new AbstractDirectorApplicationCommandForTesting();
     }

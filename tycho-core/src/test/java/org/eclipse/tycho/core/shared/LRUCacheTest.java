@@ -13,12 +13,12 @@
 
 package org.eclipse.tycho.core.shared;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 
 import org.eclipse.tycho.core.LRUCache;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LRUCacheTest {
 

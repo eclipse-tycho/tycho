@@ -12,14 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.shared;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.Map;
 
 import org.eclipse.tycho.TargetEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TargetEnvironmentTest {
     private static final String OS = "macosx";
@@ -28,7 +28,7 @@ public class TargetEnvironmentTest {
 
     private TargetEnvironment subject;
 
-    @Before
+    @BeforeEach
     public void initSubject() {
         subject = new TargetEnvironment(OS, WS, ARCH);
     }

@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.maven.plugin.testing.SilentLog;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class StandardExecutionEnvironmentTest {
 
@@ -48,7 +48,7 @@ public class StandardExecutionEnvironmentTest {
     private StandardExecutionEnvironment javaSECompact2Environment;
     private StandardExecutionEnvironment javaSECompact3Environment;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         javaSECompact1Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact1-1.8", null, null,
                 new SilentLog());

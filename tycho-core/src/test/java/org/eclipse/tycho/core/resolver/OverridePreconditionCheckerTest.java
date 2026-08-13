@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,7 +24,7 @@ import java.util.Properties;
 import org.eclipse.tycho.IArtifactFacade;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenDependency;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation.DependencyDepth;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class OverridePreconditionCheckerTest {
 
@@ -129,9 +130,10 @@ public class OverridePreconditionCheckerTest {
         assertNull(result);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNullInstructionsMapThrows() {
-        OverridePreconditionChecker.checkOverridePreconditions(ORIGINAL, null, DependencyDepth.NONE, ROOTS);
+        assertThrows(NullPointerException.class, () -> OverridePreconditionChecker
+                .checkOverridePreconditions(ORIGINAL, null, DependencyDepth.NONE, ROOTS));
     }
 
     private static Map<String, Properties> singleInstruction(String symbolicName) {

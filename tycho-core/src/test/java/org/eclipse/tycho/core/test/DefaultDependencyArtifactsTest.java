@@ -27,8 +27,8 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class DefaultDependencyArtifactsTest {
 
@@ -57,28 +57,28 @@ public class DefaultDependencyArtifactsTest {
         addArtifact(tp, type, id, "5.6.7.zzz");
 
         // 0.0.0 or null match the latest version
-        Assert.assertEquals("5.6.7.zzz", tp.getArtifact(type, id, null).getKey().getVersion());
-        Assert.assertEquals("5.6.7.zzz", tp.getArtifact(type, id, "0.0.0").getKey().getVersion());
+        Assertions.assertEquals("5.6.7.zzz", tp.getArtifact(type, id, null).getKey().getVersion());
+        Assertions.assertEquals("5.6.7.zzz", tp.getArtifact(type, id, "0.0.0").getKey().getVersion());
 
         // 1.2.3 matches the latest qualifier
-        Assert.assertEquals("1.1.0", tp.getArtifact(type, id, "1.1.0").getKey().getVersion());
-        Assert.assertEquals("1.2.3.zzz", tp.getArtifact(type, id, "1.2.3").getKey().getVersion());
+        Assertions.assertEquals("1.1.0", tp.getArtifact(type, id, "1.1.0").getKey().getVersion());
+        Assertions.assertEquals("1.2.3.zzz", tp.getArtifact(type, id, "1.2.3").getKey().getVersion());
 
         // 1.2.3.qualifier matches the latest qualifier
-        Assert.assertEquals("1.1.0", tp.getArtifact(type, id, "1.1.0.qualifier").getKey().getVersion());
-        Assert.assertEquals("1.2.3.zzz", tp.getArtifact(type, id, "1.2.3.qualifier").getKey().getVersion());
+        Assertions.assertEquals("1.1.0", tp.getArtifact(type, id, "1.1.0.qualifier").getKey().getVersion());
+        Assertions.assertEquals("1.2.3.zzz", tp.getArtifact(type, id, "1.2.3.qualifier").getKey().getVersion());
 
         // anything else matches just that exact version
-        Assert.assertEquals("1.2.3.bbb", tp.getArtifact(type, id, "1.2.3.bbb").getKey().getVersion());
+        Assertions.assertEquals("1.2.3.bbb", tp.getArtifact(type, id, "1.2.3.bbb").getKey().getVersion());
 
         // does not match anything
-        Assert.assertNull(tp.getArtifact(type, id, "0.0.0.qualifier"));
-        Assert.assertNull(tp.getArtifact(type, id, "1.0.0"));
-        Assert.assertNull(tp.getArtifact(type, id, "1.0.0.qualifier"));
-        Assert.assertNull(tp.getArtifact(type, id, "1.2.0"));
-        Assert.assertNull(tp.getArtifact(type, id, "1.2.0.qualifier"));
-        Assert.assertNull(tp.getArtifact(type, id, "9.9.9"));
-        Assert.assertNull(tp.getArtifact(type, id, "9.9.9.qualifier"));
+        Assertions.assertNull(tp.getArtifact(type, id, "0.0.0.qualifier"));
+        Assertions.assertNull(tp.getArtifact(type, id, "1.0.0"));
+        Assertions.assertNull(tp.getArtifact(type, id, "1.0.0.qualifier"));
+        Assertions.assertNull(tp.getArtifact(type, id, "1.2.0"));
+        Assertions.assertNull(tp.getArtifact(type, id, "1.2.0.qualifier"));
+        Assertions.assertNull(tp.getArtifact(type, id, "9.9.9"));
+        Assertions.assertNull(tp.getArtifact(type, id, "9.9.9.qualifier"));
     }
 
     private void addArtifact(DefaultDependencyArtifacts tp, String type, String id, String version) {
@@ -96,7 +96,7 @@ public class DefaultDependencyArtifactsTest {
         tp.addArtifactFile(key, location, Set.of(unit("a")));
         tp.addArtifactFile(key, location, Set.of(unit("a")));
 
-        Assert.assertEquals(1, tp.getArtifacts().size());
+        Assertions.assertEquals(1, tp.getArtifacts().size());
     }
 
     @Test
@@ -132,12 +132,12 @@ public class DefaultDependencyArtifactsTest {
 
         List<ArtifactDescriptor> artifacts = tp.getArtifacts();
 
-        Assert.assertEquals(1, artifacts.size());
+        Assertions.assertEquals(1, artifacts.size());
 
         Collection<IInstallableUnit> units = artifacts.get(0).getInstallableUnits();
-        Assert.assertEquals(2, units.size());
-        Assert.assertTrue(units.contains(unit("a")));
-        Assert.assertTrue(units.contains(unit("b")));
+        Assertions.assertEquals(2, units.size());
+        Assertions.assertTrue(units.contains(unit("a")));
+        Assertions.assertTrue(units.contains(unit("b")));
     }
 
     @Test
@@ -150,7 +150,7 @@ public class DefaultDependencyArtifactsTest {
         tp.addArtifactFile(key, location, Set.of(unit("a")));
         tp.addNonReactorUnits(Set.of(unit("b")));
 
-        Assert.assertEquals(Set.of(unit("a"), unit("b")), tp.getInstallableUnits());
+        Assertions.assertEquals(Set.of(unit("a"), unit("b")), tp.getInstallableUnits());
     }
 
 }

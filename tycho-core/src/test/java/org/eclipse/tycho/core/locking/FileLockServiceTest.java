@@ -13,10 +13,10 @@
 
 package org.eclipse.tycho.core.locking;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,18 +29,17 @@ import java.nio.file.StandardOpenOption;
 import java.util.Random;
 
 import org.eclipse.tycho.LockTimeoutException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class FileLockServiceTest {
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    Path tempFolder;
     private FileLockServiceImpl subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new FileLockServiceImpl();
     }
@@ -61,7 +60,7 @@ public class FileLockServiceTest {
 
     @Test
     public void testLockDirectory() throws IOException {
-        File testDir = tempFolder.newFolder("test");
+        File testDir = Files.createDirectory(tempFolder.resolve("test")).toFile();
         Path lockFile = getLockMarkerFile(testDir);
         try (var locked = subject.lock(testDir)) {
             assertTrue(isLocked(testDir));
@@ -87,11 +86,10 @@ public class FileLockServiceTest {
     @Test
     public void testLockReentranceDifferentLocker() throws IOException {
         final File testFile = newTestFile();
-        assertThrows("lock already held by same VM but could be acquired a second time", LockTimeoutException.class,
-                () -> {
-                    subject.lock(testFile);
-                    subject.lock(testFile, 0L);
-                });
+        assertThrows(LockTimeoutException.class, () -> {
+            subject.lock(testFile);
+            subject.lock(testFile, 0L);
+        }, "lock already held by same VM but could be acquired a second time");
     }
 
     @Test
@@ -99,8 +97,8 @@ public class FileLockServiceTest {
         File testFile = newTestFile();
         LockProcess lockProcess = new LockProcess(testFile, 200L);
         lockProcess.lockFileInForkedProcess();
-        assertThrows("lock already held by other VM but could be acquired a second time", LockTimeoutException.class,
-                () -> subject.lock(testFile, 0L));
+        assertThrows(LockTimeoutException.class, () -> subject.lock(testFile, 0L),
+                "lock already held by other VM but could be acquired a second time");
         lockProcess.cleanup();
     }
 
@@ -131,7 +129,7 @@ public class FileLockServiceTest {
 
     @Test
     public void testURLEncoding() throws IOException {
-        File testFile = new File(tempFolder.getRoot(), "file with spaces" + new Random().nextInt());
+        File testFile = new File(tempFolder.toFile(), "file with spaces" + new Random().nextInt());
         File markerFile = new File(testFile.getAbsolutePath() + ".tycholock");
         assertFalse(markerFile.isFile());
         try (var locked = subject.lock(testFile)) {
@@ -140,8 +138,7 @@ public class FileLockServiceTest {
     }
 
     private File newTestFile() throws IOException {
-        File testFile = tempFolder.newFile("testfile-" + new Random().nextInt());
-        return testFile;
+        return Files.createFile(tempFolder.resolve("testfile-" + new Random().nextInt())).toFile();
     }
 
     private Path getLockMarkerFile(File file) {
