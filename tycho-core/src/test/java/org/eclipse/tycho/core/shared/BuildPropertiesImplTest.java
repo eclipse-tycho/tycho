@@ -13,9 +13,9 @@
 
 package org.eclipse.tycho.core.shared;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.tycho.core.BuildPropertiesImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BuildPropertiesImplTest {
 
@@ -110,7 +110,7 @@ public class BuildPropertiesImplTest {
         BuildPropertiesImpl buildProperties2 = new BuildPropertiesImpl(reverseSortedProperties);
         List<String> sourceFolderKeys1 = new ArrayList<>(buildProperties1.getJarToSourceFolderMap().keySet());
         List<String> sourceFolderKeys2 = new ArrayList<>(buildProperties2.getJarToSourceFolderMap().keySet());
-        assertEquals("keyset iteration order must be stable.", sourceFolderKeys1, sourceFolderKeys2);
+        assertEquals(sourceFolderKeys1, sourceFolderKeys2, "keyset iteration order must be stable.");
     }
 
     @Test

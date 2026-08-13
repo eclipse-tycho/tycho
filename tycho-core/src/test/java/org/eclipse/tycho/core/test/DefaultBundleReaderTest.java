@@ -12,40 +12,45 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+
+import javax.inject.Inject;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class DefaultBundleReaderTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class DefaultBundleReaderTest {
+
+    @Inject
+    private BundleReader bundleReader;
 
     private File cacheDir;
 
-    private DefaultBundleReader bundleReader;
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         cacheDir = File.createTempFile("cache", "");
         cacheDir.delete();
         cacheDir.mkdirs();
-        bundleReader = (DefaultBundleReader) lookup(BundleReader.class);
-        bundleReader.setCacheLocation(cacheDir);
+        ((DefaultBundleReader) bundleReader).setCacheLocation(cacheDir);
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception {
         FileUtils.deleteDirectory(cacheDir);
     }
@@ -54,7 +59,7 @@ public class DefaultBundleReaderTest extends TychoPlexusTestCase {
     public void testExtractDirClasspathEntries() throws Exception {
         File bundleWithNestedDirClasspath = getTestJar();
         File libDirectory = bundleReader.getEntry(bundleWithNestedDirClasspath, "lib/");
-        assertTrue("directory classpath entry lib/ not extracted", libDirectory.isDirectory());
+        assertTrue(libDirectory.isDirectory(), "directory classpath entry lib/ not extracted");
         assertTrue(new File(libDirectory, "log4j.properties").isFile());
         assertTrue(new File(libDirectory, "subdir/test.txt").isFile());
     }
@@ -63,7 +68,7 @@ public class DefaultBundleReaderTest extends TychoPlexusTestCase {
     public void testEntryMissingTrailingSlash() throws Exception {
         File bundleWithNestedDirClasspath = getTestJar();
         File libDirectory = bundleReader.getEntry(bundleWithNestedDirClasspath, "lib");
-        assertTrue("directory classpath entry lib/ not extracted", libDirectory.isDirectory());
+        assertTrue(libDirectory.isDirectory(), "directory classpath entry lib/ not extracted");
         assertTrue(new File(libDirectory, "log4j.properties").isFile());
         assertTrue(new File(libDirectory, "subdir/test.txt").isFile());
     }

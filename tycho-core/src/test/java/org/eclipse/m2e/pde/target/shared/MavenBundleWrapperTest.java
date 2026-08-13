@@ -12,43 +12,44 @@
  *******************************************************************************/
 package org.eclipse.m2e.pde.target.shared;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Tests for {@link MavenBundleWrapper} functionality.
  */
 public class MavenBundleWrapperTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path temporaryFolder;
 
     @Test
     public void testGetEclipseSourceBundle_createsNewBundle() throws Exception {
         // Create a source JAR file
-        File sourceFile = temporaryFolder.newFile("test-source.jar");
+        File sourceFile = newFile("test-source.jar");
         createSourceJar(sourceFile);
 
         Manifest manifest = new Manifest();
         File result = MavenBundleWrapper.getEclipseSourceBundle(sourceFile, manifest, "com.example.bundle", "1.0.0");
 
         assertNotNull(result);
-        assertTrue("Eclipse source bundle should exist", result.exists());
+        assertTrue(result.exists(), "Eclipse source bundle should exist");
         assertEquals("com.example.bundle.source_1.0.0.jar", result.getName());
         assertEquals(sourceFile.getParentFile(), result.getParentFile());
 
@@ -66,7 +67,7 @@ public class MavenBundleWrapperTest {
     @Test
     public void testGetEclipseSourceBundle_returnsCache() throws Exception {
         // Create a source JAR file
-        File sourceFile = temporaryFolder.newFile("cached-source.jar");
+        File sourceFile = newFile("cached-source.jar");
         createSourceJar(sourceFile);
 
         Manifest manifest1 = new Manifest();
@@ -83,14 +84,14 @@ public class MavenBundleWrapperTest {
         File result2 = MavenBundleWrapper.getEclipseSourceBundle(sourceFile, manifest2, "com.example.bundle", "1.0.0");
 
         assertEquals(result1.getAbsolutePath(), result2.getAbsolutePath());
-        assertEquals("Cache should be reused, modification time should be unchanged", firstModTime,
-                result2.lastModified());
+        assertEquals(firstModTime, result2.lastModified(),
+                "Cache should be reused, modification time should be unchanged");
     }
 
     @Test
     public void testGetEclipseSourceBundle_regeneratesWhenSourceChanged() throws Exception {
         // Create a source JAR file
-        File sourceFile = temporaryFolder.newFile("changing-source.jar");
+        File sourceFile = newFile("changing-source.jar");
         createSourceJar(sourceFile);
 
         Manifest manifest1 = new Manifest();
@@ -109,13 +110,13 @@ public class MavenBundleWrapperTest {
 
         assertEquals(result1.getAbsolutePath(), result2.getAbsolutePath());
         // The file should be regenerated (different size due to different content)
-        assertTrue("Regenerated bundle should have different size", result2.length() != firstSize);
+        assertTrue(result2.length() != firstSize, "Regenerated bundle should have different size");
     }
 
     @Test
     public void testGetEclipseSourceBundle_differentBSNCreatesSeparateCache() throws Exception {
         // Create a source JAR file
-        File sourceFile = temporaryFolder.newFile("artifact-source.jar");
+        File sourceFile = newFile("artifact-source.jar");
         createSourceJar(sourceFile);
 
         // Wrap the same source with different BSN/version
@@ -126,8 +127,8 @@ public class MavenBundleWrapperTest {
         File result2 = MavenBundleWrapper.getEclipseSourceBundle(sourceFile, manifest2, "com.other.bundle", "2.0.0");
 
         // Should be different files
-        assertFalse("Different BSN/version should produce different cache files",
-                result1.getAbsolutePath().equals(result2.getAbsolutePath()));
+        assertFalse(result1.getAbsolutePath().equals(result2.getAbsolutePath()),
+                "Different BSN/version should produce different cache files");
         assertEquals("com.example.bundle.source_1.0.0.jar", result1.getName());
         assertEquals("com.other.bundle.source_2.0.0.jar", result2.getName());
 
@@ -146,37 +147,41 @@ public class MavenBundleWrapperTest {
 
     @Test
     public void testIsOutdated_returnsTrueForMissingCache() throws Exception {
-        File sourceFile = temporaryFolder.newFile("source.jar");
-        File cacheFile = new File(temporaryFolder.getRoot(), "cache.jar");
+        File sourceFile = newFile("source.jar");
+        File cacheFile = new File(temporaryFolder.toFile(), "cache.jar");
 
-        assertTrue("Missing cache file should be outdated",
-                MavenBundleWrapper.isOutdated(cacheFile.toPath(), sourceFile.toPath()));
+        assertTrue(MavenBundleWrapper.isOutdated(cacheFile.toPath(), sourceFile.toPath()),
+                "Missing cache file should be outdated");
     }
 
     @Test
     public void testIsOutdated_returnsFalseForUpToDateCache() throws Exception {
-        File sourceFile = temporaryFolder.newFile("source.jar");
-        File cacheFile = temporaryFolder.newFile("cache.jar");
+        File sourceFile = newFile("source.jar");
+        File cacheFile = newFile("cache.jar");
 
         // Set cache to be same timestamp as source
         cacheFile.setLastModified(sourceFile.lastModified());
 
-        assertFalse("Cache with same timestamp should not be outdated",
-                MavenBundleWrapper.isOutdated(cacheFile.toPath(), sourceFile.toPath()));
+        assertFalse(MavenBundleWrapper.isOutdated(cacheFile.toPath(), sourceFile.toPath()),
+                "Cache with same timestamp should not be outdated");
     }
 
     @Test
     public void testIsOutdated_returnsTrueWhenSourceNewer() throws Exception {
-        File sourceFile = temporaryFolder.newFile("source.jar");
-        File cacheFile = temporaryFolder.newFile("cache.jar");
+        File sourceFile = newFile("source.jar");
+        File cacheFile = newFile("cache.jar");
 
         // Set source to be newer than cache
         Thread.sleep(100);
         sourceFile.setLastModified(System.currentTimeMillis());
         cacheFile.setLastModified(sourceFile.lastModified() - 1000);
 
-        assertTrue("Cache should be outdated when source is newer",
-                MavenBundleWrapper.isOutdated(cacheFile.toPath(), sourceFile.toPath()));
+        assertTrue(MavenBundleWrapper.isOutdated(cacheFile.toPath(), sourceFile.toPath()),
+                "Cache should be outdated when source is newer");
+    }
+
+    private File newFile(String name) throws IOException {
+        return Files.createFile(temporaryFolder.resolve(name)).toFile();
     }
 
     private void createSourceJar(File file) throws IOException {

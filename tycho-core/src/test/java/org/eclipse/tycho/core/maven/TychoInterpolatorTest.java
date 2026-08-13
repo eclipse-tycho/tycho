@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -22,8 +22,8 @@ import java.util.Properties;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TychoInterpolatorTest {
 
@@ -31,7 +31,7 @@ public class TychoInterpolatorTest {
     private TychoInterpolator interpolator;
     private MavenProject project;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MavenSession session = mock(MavenSession.class);
         project = mock(MavenProject.class);
