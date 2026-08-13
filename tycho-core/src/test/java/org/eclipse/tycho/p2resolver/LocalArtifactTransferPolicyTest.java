@@ -20,6 +20,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -31,10 +34,15 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicy;
 import org.eclipse.tycho.p2.repository.LocalArtifactTransferPolicy;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class LocalArtifactTransferPolicyTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class LocalArtifactTransferPolicyTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     static final IArtifactKey DEFAULT_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.osgi",
             Version.parseVersion("3.4.3.R34x_v20081215-1030"));
@@ -44,7 +52,7 @@ public class LocalArtifactTransferPolicyTest extends TychoPlexusTestCase {
     @Test
     public void testPreferredOrder() throws Exception {
         IArtifactDescriptor[] descriptors = loadDescriptorsFromRepository("packedCanonicalAndOther",
-                lookup(IProvisioningAgent.class));
+                container.lookup(IProvisioningAgent.class));
 
         List<IArtifactDescriptor> result = subject.sortFormatsByPreference(descriptors);
 

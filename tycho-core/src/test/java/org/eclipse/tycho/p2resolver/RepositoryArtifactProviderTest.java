@@ -61,7 +61,7 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
     @Override
     protected IRawArtifactProvider createCompositeArtifactProvider(URI... repositoryURLs) throws Exception {
         return new RepositoryArtifactProvider(Arrays.asList(repositoryURLs), TRANSFER_POLICY,
-                lookup(IProvisioningAgent.class));
+                container.lookup(IProvisioningAgent.class));
     }
 
     @Test

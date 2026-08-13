@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -38,12 +41,17 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.repository.module.ModuleMetadataRepository;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
-public class ModuleMetadataRepositoryTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class ModuleMetadataRepositoryTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final IVersionedId BUNDLE_UNIT = new VersionedId("bundle", "1.2.3.201011101425");
     private static final IVersionedId SOURCE_UNIT = new VersionedId("bundle.source", "1.2.3.TAGNAME");
@@ -140,7 +148,7 @@ public class ModuleMetadataRepositoryTest extends TychoPlexusTestCase {
 
     private IMetadataRepository loadRepositoryViaAgent(File location)
             throws ProvisionException, ComponentLookupException {
-        IMetadataRepositoryManager repoManager = lookup(IProvisioningAgent.class)
+        IMetadataRepositoryManager repoManager = container.lookup(IProvisioningAgent.class)
                 .getService(IMetadataRepositoryManager.class);
         return repoManager.loadRepository(location.toURI(), null);
     }

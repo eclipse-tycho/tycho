@@ -35,12 +35,15 @@ import org.eclipse.tycho.core.publisher.FeatureRootfileArtifactRepository;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2maven.advices.MavenPropertiesAdvice;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
-public class FeatureRootfileArtifactRepositoryTest extends TychoPlexusTestCase {
+// the extension starts the embedded framework, without which PublisherHelper finds no extension registry
+@ExtendWith(TychoPlexusExtension.class)
+public class FeatureRootfileArtifactRepositoryTest {
     @TempDir
     Path tempFolder;
 

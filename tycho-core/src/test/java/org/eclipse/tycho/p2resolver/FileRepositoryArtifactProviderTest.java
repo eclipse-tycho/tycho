@@ -24,6 +24,9 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 
+import javax.inject.Inject;
+
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -33,11 +36,16 @@ import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicy;
 import org.eclipse.tycho.p2.repository.FileRepositoryArtifactProvider;
 import org.eclipse.tycho.test.util.TestRepositoryContent;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class FileRepositoryArtifactProviderTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class FileRepositoryArtifactProviderTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final ArtifactTransferPolicy TRANSFER_POLICY = ArtifactTransferPolicies.forLocalArtifacts();
 
@@ -47,7 +55,7 @@ public class FileRepositoryArtifactProviderTest extends TychoPlexusTestCase {
     public void initContextAndSubject() throws Exception {
         subject = new FileRepositoryArtifactProvider(
                 Arrays.asList(TestRepositoryContent.REPO2_BUNDLE_A, REPO_BUNDLE_AB), TRANSFER_POLICY,
-                lookup(IProvisioningAgent.class));
+                container.lookup(IProvisioningAgent.class));
     }
 
     @Test

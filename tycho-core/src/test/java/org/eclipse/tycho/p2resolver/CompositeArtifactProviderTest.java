@@ -45,7 +45,7 @@ public class CompositeArtifactProviderTest extends CompositeArtifactProviderTest
         IRawArtifactFileProvider[] components = new IRawArtifactFileProvider[repositoryURLs.length];
         for (int ix = 0; ix < repositoryURLs.length; ix++) {
             components[ix] = new FileRepositoryArtifactProvider(Collections.singletonList(repositoryURLs[ix]),
-                    TRANSFER_POLICY, lookup(IProvisioningAgent.class));
+                    TRANSFER_POLICY, container.lookup(IProvisioningAgent.class));
         }
         return components;
     }

@@ -44,6 +44,9 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -60,12 +63,17 @@ import org.eclipse.tycho.test.util.ProbeArtifactSink;
 import org.eclipse.tycho.test.util.ProbeOutputStream;
 import org.eclipse.tycho.test.util.ProbeRawArtifactSink;
 import org.eclipse.tycho.test.util.TestRepositoryContent;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactProvider> extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactProvider> {
+
+    @Inject
+    protected PlexusContainer container;
 
     protected ProbeArtifactSink testSink;
     protected ProbeRawArtifactSink rawTestSink;
