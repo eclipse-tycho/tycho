@@ -15,29 +15,28 @@ package org.eclipse.m2e.pde.target.tests;
 import java.util.List;
 
 import org.eclipse.pde.core.target.ITargetLocation;
-import org.junit.Assume;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test that the generated features contain the expected content
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass(name = "includeSource={0}")
+@MethodSource("dependencyConfigurations")
 public class MavenFeatureTest extends AbstractMavenTargetTest {
     @Parameter(0)
     public Boolean includeSource;
 
-    @Parameters(name = "includeSource={0}")
     public static List<Boolean> dependencyConfigurations() {
         return List.of(false, true);
     }
 
     @Test
-    @Ignore("FIXME: a wrong bundle (slf4j.api) is included instead of its source")
+    @Disabled("FIXME: a wrong bundle (slf4j.api) is included instead of its source")
     public void testLocationContentFeatureGeneration() throws Exception {
         ITargetLocation target = resolveMavenTarget(String.format(
                 """
@@ -91,7 +90,7 @@ public class MavenFeatureTest extends AbstractMavenTargetTest {
     }
 
     @Test
-    @Ignore("FIXME: this is missing a pom unit?")
+    @Disabled("FIXME: this is missing a pom unit?")
     public void testPomArtifactFeatureGeneration() throws Exception {
         ITargetLocation target = resolveMavenTarget(String.format(
                 """
@@ -132,7 +131,7 @@ public class MavenFeatureTest extends AbstractMavenTargetTest {
     public void testFeatureArtifact() throws Exception {
         // TODO: For real feature artifacts, which don't have a source-artifact, a
         // source feature is not generated (yet).
-        Assume.assumeFalse(includeSource);
+        Assumptions.assumeFalse(includeSource);
         ITargetLocation target = resolveMavenTarget(String.format(
                 """
                         <location includeDependencyDepth="infinite" includeDependencyScopes="compile" includeSource="%s" missingManifest="error" type="Maven">

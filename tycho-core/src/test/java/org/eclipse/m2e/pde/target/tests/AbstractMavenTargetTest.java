@@ -12,13 +12,14 @@
  *******************************************************************************/
 package org.eclipse.m2e.pde.target.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,22 +48,21 @@ import org.eclipse.pde.core.target.ITargetLocation;
 import org.eclipse.pde.core.target.NameVersionDescriptor;
 import org.eclipse.pde.core.target.TargetBundle;
 import org.eclipse.pde.core.target.TargetFeature;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 public abstract class AbstractMavenTargetTest {
     static final String SOURCE_BUNDLE_SUFFIX = ".source";
     static final TargetBundle[] EMPTY = {};
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path temporaryFolder;
 
     private static ServiceLoader<TargetLocationLoader> LOCATION_LOADER = ServiceLoader.load(TargetLocationLoader.class,
             AbstractMavenTargetTest.class.getClassLoader());
     private static TargetLocationLoader loader;
 
     ITargetLocation resolveMavenTarget(String targetXML) throws Exception {
-        return getLoader().resolveMavenTarget(targetXML, temporaryFolder.newFolder());
+        return getLoader().resolveMavenTarget(targetXML, Files.createTempDirectory(temporaryFolder, "target").toFile());
     }
 
     private static TargetLocationLoader getLoader() {
@@ -97,14 +97,15 @@ public abstract class AbstractMavenTargetTest {
                 T targetUnit = matchingUnits.get(0);
                 allElements.remove(targetUnit);
 
-                assertEquals("Unexpected 'original' state of " + targetUnit, expectedUnit.isOriginal(),
-                        isOriginalArtifact(expectedUnit, targetUnit, getLocation));
-                assertEquals("Unexpected 'isSource' state of " + targetUnit, expectedUnit.isSourceBundle(),
-                        isSourceUnit.test(targetUnit));
+                assertEquals(expectedUnit.isOriginal(),
+                        isOriginalArtifact(expectedUnit, targetUnit, getLocation),
+                        "Unexpected 'original' state of " + targetUnit);
+                assertEquals(expectedUnit.isSourceBundle(), isSourceUnit.test(targetUnit),
+                        "Unexpected 'isSource' state of " + targetUnit);
                 if (expectedUnit.isSourceBundle()) {
                     String expectedSourceTarget = expectedUnit.id().substring(0,
                             expectedUnit.id().length() - SOURCE_BUNDLE_SUFFIX.length());
-                    assertEquals("Source target id", expectedSourceTarget, getSourceTarget.apply(targetUnit));
+                    assertEquals(expectedSourceTarget, getSourceTarget.apply(targetUnit), "Source target id");
                 } else {
                     assertNull(getSourceTarget.apply(targetUnit));
                 }
