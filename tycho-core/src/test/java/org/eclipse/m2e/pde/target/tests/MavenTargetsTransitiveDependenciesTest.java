@@ -12,19 +12,19 @@
  *******************************************************************************/
 package org.eclipse.m2e.pde.target.tests;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.pde.core.target.ITargetLocation;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
+@ParameterizedClass(name = "includeDependencyDepth={0} - includeDependencyScopes={1} - includeSource={2}")
+@MethodSource("dependencyConfigurations")
 public class MavenTargetsTransitiveDependenciesTest extends AbstractMavenTargetTest {
 
 	@Parameter(0)
@@ -36,7 +36,6 @@ public class MavenTargetsTransitiveDependenciesTest extends AbstractMavenTargetT
 	@Parameter(3)
 	public List<ExpectedBundle> expectedBundles;
 
-	@Parameters(name = "includeDependencyDepth={0} - includeDependencyScopes={1} - includeSource={2}")
 	public static Collection<Object[]> dependencyConfigurations() {
 		return List.of(//
 				new Object[] { "none", "", "false", List.of( //
