@@ -30,6 +30,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+import javax.inject.Inject;
+
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -44,12 +47,17 @@ import org.eclipse.tycho.IArtifactSink;
 import org.eclipse.tycho.WriteSessionContext;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.repository.module.ModuleArtifactRepository;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
-public class ModuleArtifactRepositoryTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class ModuleArtifactRepositoryTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final IArtifactKey BUNDLE_ARTIFACT_KEY = new ArtifactKey("osgi.bundle", "bundle",
             Version.parseVersion("1.2.3.201011101425"));
@@ -215,7 +223,7 @@ public class ModuleArtifactRepositoryTest extends TychoPlexusTestCase {
 
     private IArtifactRepository loadRepositoryViaAgent(File location)
             throws ProvisionException, ComponentLookupException {
-        IArtifactRepositoryManager repoManager = lookup(IProvisioningAgent.class)
+        IArtifactRepositoryManager repoManager = container.lookup(IProvisioningAgent.class)
                 .getService(IArtifactRepositoryManager.class);
         return repoManager.loadRepository(location.toURI(), null);
     }

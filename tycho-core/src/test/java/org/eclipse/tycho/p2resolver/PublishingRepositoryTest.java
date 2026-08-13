@@ -28,6 +28,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -41,12 +44,17 @@ import org.eclipse.tycho.WriteSessionContext.ClassifierAndExtension;
 import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
-public class PublishingRepositoryTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class PublishingRepositoryTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     @TempDir
     Path tempManager;
@@ -60,7 +68,7 @@ public class PublishingRepositoryTest extends TychoPlexusTestCase {
     public void initSubject() throws Exception {
         project = new ReactorProjectIdentitiesStub(newFolder("projectDir"));
 
-        subject = new PublishingRepositoryImpl(lookup(IProvisioningAgent.class), project);
+        subject = new PublishingRepositoryImpl(container.lookup(IProvisioningAgent.class), project);
     }
 
     @Test

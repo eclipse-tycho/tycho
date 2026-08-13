@@ -25,6 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 
+import javax.inject.Inject;
+
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.IRawArtifactFileProvider;
@@ -33,11 +36,16 @@ import org.eclipse.tycho.p2.repository.FileRepositoryArtifactProvider;
 import org.eclipse.tycho.p2.repository.ProviderOnlyArtifactRepository;
 import org.eclipse.tycho.test.util.ProbeOutputStream;
 import org.eclipse.tycho.test.util.TestRepositoryContent;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class ProviderOnlyArtifactRepositoryTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class ProviderOnlyArtifactRepositoryTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     // test (legacy) methods of IArtifactRepository that are not in IRawArtifactProvider
 
@@ -86,7 +94,7 @@ public class ProviderOnlyArtifactRepositoryTest extends TychoPlexusTestCase {
 
     private ProviderOnlyArtifactRepository createProviderOnlyArtifactRepositoryDelegatingTo(URI... delegatedContent)
             throws Exception {
-        IProvisioningAgent p2Agent = lookup(IProvisioningAgent.class);
+        IProvisioningAgent p2Agent = container.lookup(IProvisioningAgent.class);
         IRawArtifactFileProvider artifactProvider = new FileRepositoryArtifactProvider(asList(delegatedContent),
                 ArtifactTransferPolicies.forLocalArtifacts(), p2Agent);
 
