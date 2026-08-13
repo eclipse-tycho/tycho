@@ -38,7 +38,12 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.testing.stubs.StubArtifactRepository;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.apache.maven.session.scope.internal.SessionScope;
+import org.codehaus.plexus.ContainerConfiguration;
+import org.codehaus.plexus.DefaultContainerConfiguration;
+import org.codehaus.plexus.DefaultPlexusContainer;
+import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainer;
+import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -64,7 +69,6 @@ import org.eclipse.tycho.targetplatform.TargetDefinition.Location;
 import org.eclipse.tycho.targetplatform.TargetDefinition.MavenGAVLocation;
 import org.eclipse.tycho.targetplatform.TargetDefinitionContent;
 import org.eclipse.tycho.targetplatform.TargetDefinitionFile;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
 
 public class TychoTargetLocationLoader implements TargetLocationLoader {
 
@@ -249,52 +253,50 @@ public class TychoTargetLocationLoader implements TargetLocationLoader {
         };
     }
 
-    private static final class ContainerFactory extends TychoPlexusTestCase {
+    private static final class ContainerFactory {
 
-        private boolean init;
+        public PlexusContainer createContainer(File tempDir)
+                throws PlexusContainerException, ComponentLookupException {
+            ContainerConfiguration configuration = new DefaultContainerConfiguration().setName("target-location")
+                    .setAutoWiring(true).setClassPathScanning(PlexusConstants.SCANNING_INDEX);
+            PlexusContainer container = new DefaultPlexusContainer(configuration);
+            LegacySupport legacySupport = container.lookup(LegacySupport.class);
+            @SuppressWarnings("deprecation")
+            ArtifactRepository localRepository = new StubArtifactRepository(
+                    new File(tempDir, ".m2/repository").getAbsolutePath()) {
+                DefaultRepositoryLayout layout = new DefaultRepositoryLayout();
 
-        public PlexusContainer createContainer(File tempDir) throws ComponentLookupException {
-            PlexusContainer container = super.getContainer();
-            if (!init) {
-                init = true;
-                LegacySupport legacySupport = lookup(LegacySupport.class);
-                @SuppressWarnings("deprecation")
-                ArtifactRepository localRepository = new StubArtifactRepository(
-                        new File(tempDir, ".m2/repository").getAbsolutePath()) {
-                    DefaultRepositoryLayout layout = new DefaultRepositoryLayout();
-
-                    @Override
-                    public String pathOf(Artifact artifact) {
-                        return layout.pathOf(artifact);
-                    }
-                };
-                DefaultMavenExecutionRequest request = new DefaultMavenExecutionRequest();
-                Properties properties = System.getProperties();
-                request.setUserProperties(properties);
-                request.setLocalRepository(localRepository);
-                request.setGoals(List.of());
-                request.setBaseDirectory(new File(tempDir, "build"));
-                request.setStartTime(new Date());
-
-                DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
-                for (String key : properties.stringPropertyNames()) {
-                    session.setSystemProperty(key, properties.getProperty(key));
+                @Override
+                public String pathOf(Artifact artifact) {
+                    return layout.pathOf(artifact);
                 }
-                File localRepoDir = new File(tempDir, ".m2/repository");
-                localRepoDir.mkdirs();
-                RepositorySystem repositorySystem = container.lookup(RepositorySystem.class);
-                session.setLocalRepositoryManager(
-                        repositorySystem.newLocalRepositoryManager(session, new LocalRepository(localRepoDir)));
-                RepositorySystemSession repositorySystemSession = session;
-                @SuppressWarnings("deprecation")
-                MavenSession mavenSession = new MavenSession(container, repositorySystemSession, request,
-                        new DefaultMavenExecutionResult());
-                SessionScope sessionScope = container.lookup(SessionScope.class);
-                mavenSession.setProjects(Collections.emptyList());
-                sessionScope.enter();
-                sessionScope.seed(MavenSession.class, mavenSession);
-                legacySupport.setSession(mavenSession);
+            };
+            DefaultMavenExecutionRequest request = new DefaultMavenExecutionRequest();
+            Properties properties = System.getProperties();
+            request.setUserProperties(properties);
+            request.setLocalRepository(localRepository);
+            request.setGoals(List.of());
+            request.setBaseDirectory(new File(tempDir, "build"));
+            request.setStartTime(new Date());
+
+            DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
+            for (String key : properties.stringPropertyNames()) {
+                session.setSystemProperty(key, properties.getProperty(key));
             }
+            File localRepoDir = new File(tempDir, ".m2/repository");
+            localRepoDir.mkdirs();
+            RepositorySystem repositorySystem = container.lookup(RepositorySystem.class);
+            session.setLocalRepositoryManager(
+                    repositorySystem.newLocalRepositoryManager(session, new LocalRepository(localRepoDir)));
+            RepositorySystemSession repositorySystemSession = session;
+            @SuppressWarnings("deprecation")
+            MavenSession mavenSession = new MavenSession(container, repositorySystemSession, request,
+                    new DefaultMavenExecutionResult());
+            SessionScope sessionScope = container.lookup(SessionScope.class);
+            mavenSession.setProjects(Collections.emptyList());
+            sessionScope.enter();
+            sessionScope.seed(MavenSession.class, mavenSession);
+            legacySupport.setSession(mavenSession);
             return container;
         }
     }

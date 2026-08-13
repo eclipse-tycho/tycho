@@ -224,6 +224,7 @@
 				<version>3.13.0</version>
 			</dependency>
 			<dependency>
+				<!-- only tycho-its still has JUnit 4 tests, everything else uses JUnit Jupiter -->
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>4.13.2</version>
