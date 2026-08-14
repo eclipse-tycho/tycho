@@ -14,8 +14,8 @@ import java.io.File;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PomDependencyWrapTest extends AbstractTychoIntegrationTest {
 
@@ -30,9 +30,9 @@ public class PomDependencyWrapTest extends AbstractTychoIntegrationTest {
         String testProjectRoot = verifier.getBasedir();
         P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(testProjectRoot, "repository"));
 
-        Assert.assertTrue(p2Repo.getAllUnitIds().stream().anyMatch("org.bundle"::equals));
-        Assert.assertTrue(p2Repo.getAllUnitIds().stream().anyMatch(id -> id.contains("undertow")));
-        Assert.assertTrue(
+        Assertions.assertTrue(p2Repo.getAllUnitIds().stream().anyMatch("org.bundle"::equals));
+        Assertions.assertTrue(p2Repo.getAllUnitIds().stream().anyMatch(id -> id.contains("undertow")));
+        Assertions.assertTrue(
                 p2Repo.getAllProvidedPackages().stream().anyMatch(packageName -> packageName.contains("io.undertow")));
     }
 }

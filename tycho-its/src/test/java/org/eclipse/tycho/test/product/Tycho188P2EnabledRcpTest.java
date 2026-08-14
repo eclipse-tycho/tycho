@@ -16,8 +16,8 @@ import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -36,12 +36,11 @@ import org.eclipse.tycho.test.util.ArchiveContentUtil;
 import org.eclipse.tycho.test.util.EclipseInstallationTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.theories.DataPoints;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
+
 
 /**
  * Integration test for building and installing Eclipse RCP (Rich Client Platform) products with P2 enabled.
@@ -57,7 +56,7 @@ import org.junit.runner.RunWith;
  * <li>Validating product artifacts and attachments for different target environments</li>
  * </ul>
  * <p>
- * The test uses JUnit's Theories framework to test multiple target environments (Windows/Linux, different architectures).
+ * The test is parameterized over multiple target environments (Windows/Linux, different architectures).
  * It covers several product scenarios:
  * <ul>
  * <li><b>main.product.id</b>: Standard product with local features</li>
@@ -68,7 +67,6 @@ import org.junit.runner.RunWith;
  * 
  * @see org.eclipse.tycho.test.AbstractTychoIntegrationTest
  */
-@RunWith(Theories.class)
 public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
 	private static final String MODULE = "eclipse-repository";
@@ -82,13 +80,12 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 			new Product("extra.product.id", "extra", "rootfolder", true, false, false),
 			new Product("repoonly.product.id", false));
 
-	@DataPoints
 	public static final TargetEnvironment[] TEST_ENVIRONMENTS = new TargetEnvironment[] {
 			new TargetEnvironment("win32", "win32", "x86_64"), new TargetEnvironment("linux", "gtk", "x86_64") };
 
 	private static Verifier verifier;
 
-	@BeforeClass
+	@BeforeAll
 	public static void buildProduct() throws Exception {
 		verifier = new Tycho188P2EnabledRcpTest().getVerifier("product.installation", false);
 
@@ -168,7 +165,8 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 		verifier.verifyTextInLog("Installing pi.root-level-installed-feature");
 	}
 
-	@Theory
+	@ParameterizedTest
+	@FieldSource("TEST_ENVIRONMENTS")
 	public void testRootLevelFeaturesAreInstalledInRightProducts(TargetEnvironment env) {
 		File basedir = new File(verifier.getBasedir(), MODULE);
 
@@ -207,7 +205,7 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 					.getParentFile();
 			File installedProductArchive = new File(artifactDirectory,
 					ARTIFACT_ID + '-' + VERSION + product.getAttachIdSegment() + "-" + toOsWsArch(env, ".") + ".zip");
-			assertTrue("Product archive not found at: " + installedProductArchive, installedProductArchive.exists());
+			assertTrue(installedProductArchive.exists(), "Product archive not found at: " + installedProductArchive);
 
 			if (product.hasBundlePool()) {
 				for (TargetEnvironment subEnv : TEST_ENVIRONMENTS) {
@@ -231,13 +229,12 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
 		Properties configIni = openPropertiesFromZip(installedProductArchive, rootFolder + "configuration/config.ini");
 		String bundleConfiguration = configIni.getProperty("osgi.bundles");
-		assertTrue("Installation is not configured to use the simpleconfigurator",
-				bundleConfiguration.startsWith("reference:file:org.eclipse.equinox.simpleconfigurator"));
+		assertTrue(bundleConfiguration.startsWith("reference:file:org.eclipse.equinox.simpleconfigurator"),
+				"Installation is not configured to use the simpleconfigurator");
 		// TODO all these assertions should be in the test method directly
 		String expectedProfileName = env.getOs().equals("linux") ? "ProfileNameForLinux"
 				: "ConfiguredDefaultProfileName";
-		assertEquals("eclipse.p2.profile in config.ini", expectedProfileName,
-				configIni.getProperty("eclipse.p2.profile"));
+		assertEquals(expectedProfileName, configIni.getProperty("eclipse.p2.profile"), "eclipse.p2.profile in config.ini");
 
 		Set<String> archiveFiles = ArchiveContentUtil.getFilesInZip(installedProductArchive);
 		if (!rootFolder.isEmpty()) {
@@ -282,7 +279,7 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 				files.add(fileName);
 			}
 		}
-		assertEquals(files.toString(), expectedArtifacts, zipArtifacts);
+		assertEquals(expectedArtifacts, zipArtifacts, files.toString());
 	}
 
 	public static Properties openPropertiesFromZip(File zipFile, String propertyFile) throws Exception {

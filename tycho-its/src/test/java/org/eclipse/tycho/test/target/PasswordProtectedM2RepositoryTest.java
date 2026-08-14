@@ -20,22 +20,22 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PasswordProtectedM2RepositoryTest extends AbstractTychoIntegrationTest {
 
 	private HttpServer server;
 	private String m2RepoUrl;
 
-	@Before
+	@BeforeEach
 	public void startServer() throws Exception {
 		server = HttpServer.startServer("test-user", "test-password");
 		m2RepoUrl = server.addServer("foo", ResourceUtil.resolveTestResource("repositories/m2"));
 	}
 
-	@After
+	@AfterEach
 	public void stopServer() throws Exception {
 		server.stop();
 	}

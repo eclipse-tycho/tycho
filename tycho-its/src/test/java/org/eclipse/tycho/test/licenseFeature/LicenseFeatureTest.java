@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.licenseFeature;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,8 +26,8 @@ import java.util.zip.ZipFile;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 // tests the license feature support (bug 368985)
 public class LicenseFeatureTest extends AbstractTychoIntegrationTest {
@@ -51,8 +51,8 @@ public class LicenseFeatureTest extends AbstractTychoIntegrationTest {
 
 		try (ZipFile zip = new ZipFile(feature)) {
 
-			Assert.assertNotNull(zip.getEntry("file1.txt"));
-			Assert.assertNotNull(zip.getEntry("file2.txt"));
+			Assertions.assertNotNull(zip.getEntry("file1.txt"));
+			Assertions.assertNotNull(zip.getEntry("file2.txt"));
 
 			Properties p = new Properties();
 

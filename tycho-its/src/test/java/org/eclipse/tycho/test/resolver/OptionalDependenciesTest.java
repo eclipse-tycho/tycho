@@ -14,7 +14,7 @@ package org.eclipse.tycho.test.resolver;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 // tests that optional dependencies are put on the compile class path (bug 351842)
 public class OptionalDependenciesTest extends AbstractTychoIntegrationTest {

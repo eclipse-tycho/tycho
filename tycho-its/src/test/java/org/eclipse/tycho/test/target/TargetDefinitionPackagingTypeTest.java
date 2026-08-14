@@ -20,8 +20,8 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TargetDefinitionPackagingTypeTest extends AbstractTychoIntegrationTest {
 
@@ -33,7 +33,7 @@ public class TargetDefinitionPackagingTypeTest extends AbstractTychoIntegrationT
 	private Verifier verifier;
 	private File targetDefinitionFile;
 
-	@Before
+	@BeforeEach
 	public void prepare() throws Exception {
 		verifier = getVerifier("target.packagingType", false);
 		// make sure target is not installed already

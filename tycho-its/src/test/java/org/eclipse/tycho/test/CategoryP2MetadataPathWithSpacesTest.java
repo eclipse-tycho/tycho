@@ -14,8 +14,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Element;
@@ -36,10 +36,10 @@ public class CategoryP2MetadataPathWithSpacesTest extends AbstractTychoIntegrati
 		verifier.verifyErrorFreeLog();
 
 		File site = new File(verifier.getBasedir(), "target/site with space");
-		Assert.assertTrue(site.getAbsolutePath() + " is not a directory!", site.isDirectory());
+		Assertions.assertTrue(site.isDirectory(), site.getAbsolutePath() + " is not a directory!");
 
 		File content = new File(site, "content.jar");
-		Assert.assertTrue(content.getAbsolutePath() + " is not a file!", content.isFile());
+		Assertions.assertTrue(content.isFile(), content.getAbsolutePath() + " is not a file!");
 
 		boolean found = false;
 		Document document;
@@ -58,7 +58,7 @@ public class CategoryP2MetadataPathWithSpacesTest extends AbstractTychoIntegrati
 			}
 		}
 
-		Assert.assertTrue("Custom category is missing: " + content.getAbsolutePath(), found);
+		Assertions.assertTrue(found, "Custom category is missing: " + content.getAbsolutePath());
 	}
 
 }

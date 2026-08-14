@@ -12,12 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.limitations;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NonUniqueBasedirsTest extends AbstractTychoIntegrationTest {
 

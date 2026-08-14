@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.target;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,20 +25,20 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class OfflineModeTest extends AbstractTychoIntegrationTest {
 
 	private HttpServer server;
 
-	@Before
+	@BeforeEach
 	public void startServer() throws Exception {
 		server = HttpServer.startServer();
 	}
 
-	@After
+	@AfterEach
 	public void stopServer() throws Exception {
 		server.stop();
 	}
@@ -84,7 +84,7 @@ public class OfflineModeTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 		Set<String> urls = new LinkedHashSet<>(server.getAccessedUrls("test"));
-		assertTrue(urls.toString(), urls.isEmpty());
+		assertTrue(urls.isEmpty(), urls.toString());
 	}
 
 	private void runAndVerifyOnlineBuild(Verifier verifier) throws VerificationException {

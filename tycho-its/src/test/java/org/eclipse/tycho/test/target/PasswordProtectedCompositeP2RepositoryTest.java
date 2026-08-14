@@ -20,9 +20,9 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PasswordProtectedCompositeP2RepositoryTest extends AbstractTychoIntegrationTest {
 
@@ -35,7 +35,7 @@ public class PasswordProtectedCompositeP2RepositoryTest extends AbstractTychoInt
 	private HttpServer authMirror;
 	private String p2AuthMirrorUrl;
 
-	@Before
+	@BeforeEach
 	public void startServer() throws Exception {
 		server = HttpServer.startServer("test-user", "test-password");
 		p2RepoUrl = server.addServer("foo", ResourceUtil.resolveTestResource("repositories/issue_2331_reproducer"))
@@ -50,7 +50,7 @@ public class PasswordProtectedCompositeP2RepositoryTest extends AbstractTychoInt
 				ResourceUtil.resolveTestResource("repositories/issue_2331_reproducer")) + "/bundles";
 	}
 
-	@After
+	@AfterEach
 	public void stopServer() throws Exception {
 		authMirror.stop();
 		mirror.stop();

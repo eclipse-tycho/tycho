@@ -17,8 +17,8 @@ import java.util.jar.JarFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class Tycho449SrcIncludesExcludesTest extends AbstractTychoIntegrationTest {
 
@@ -29,11 +29,11 @@ public class Tycho449SrcIncludesExcludesTest extends AbstractTychoIntegrationTes
 		verifier.verifyErrorFreeLog();
 		try (JarFile sourceJar = new JarFile(
 				new File(verifier.getBasedir(), "target/TestSourceIncludesExcludes-1.0.0-SNAPSHOT-sources.jar"))) {
-			Assert.assertNull(sourceJar.getEntry("resourceFolder/.hidden/toBeExcluded.txt"));
-			Assert.assertNull(sourceJar.getEntry("resourceFolder/.svn/"));
-			Assert.assertNotNull(sourceJar.getEntry("resourceFolder/test.txt"));
-			Assert.assertNotNull(sourceJar.getEntry("resource.txt"));
-			Assert.assertNotNull(sourceJar.getEntry("additionalResource.txt"));
+			Assertions.assertNull(sourceJar.getEntry("resourceFolder/.hidden/toBeExcluded.txt"));
+			Assertions.assertNull(sourceJar.getEntry("resourceFolder/.svn/"));
+			Assertions.assertNotNull(sourceJar.getEntry("resourceFolder/test.txt"));
+			Assertions.assertNotNull(sourceJar.getEntry("resource.txt"));
+			Assertions.assertNotNull(sourceJar.getEntry("additionalResource.txt"));
 		}
 	}
 

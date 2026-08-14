@@ -15,7 +15,7 @@ package org.eclipse.tycho.test.target;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TargetPlatformFilteringIntegrationTest extends AbstractTychoIntegrationTest {
 

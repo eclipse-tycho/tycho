@@ -10,8 +10,8 @@
 package org.eclipse.tycho.test.p2Repository;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -20,7 +20,7 @@ import java.nio.file.Paths;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
 
@@ -52,14 +52,13 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
 		verifyRepositoryExits(verifier, "site/");
 		String artifacts = Files.readString(Paths.get(verifier.getBasedir(), "site/target/repository/artifacts.xml"),
 				StandardCharsets.UTF_8);
-		assertTrue("artifact to deploy is missing", artifacts.contains("id='org.eclipse.tycho.it.deployme'"));
-		assertFalse("artifact is deployed but should't", artifacts.contains("id='org.eclipse.tycho.it.ignoreme'"));
-		assertFalse("artifact is deployed but should't",
-				artifacts.contains("id='org.eclipse.tycho.it.ignoreme-property'"));
-		assertFalse("There should be no plugins folder!",
-				new File(verifier.getBasedir(), "site/target/repository/plugins/").exists());
-		assertFalse("There should be no features folder!",
-				new File(verifier.getBasedir(), "site/target/repository/features/").exists());
+		assertTrue(artifacts.contains("id='org.eclipse.tycho.it.deployme'"), "artifact to deploy is missing");
+		assertFalse(artifacts.contains("id='org.eclipse.tycho.it.ignoreme'"), "artifact is deployed but should't");
+		assertFalse(artifacts.contains("id='org.eclipse.tycho.it.ignoreme-property'"), "artifact is deployed but should't");
+		assertFalse(new File(verifier.getBasedir(), "site/target/repository/plugins/").exists(),
+				"There should be no plugins folder!");
+		assertFalse(new File(verifier.getBasedir(), "site/target/repository/features/").exists(),
+				"There should be no features folder!");
 	}
 
 	@Test
@@ -72,10 +71,10 @@ public class MavenP2SiteTest extends AbstractTychoIntegrationTest {
 
 	protected void verifyRepositoryExits(Verifier verifier, String subdir) {
 		File artifacts = new File(verifier.getBasedir(), subdir + "target/repository/artifacts.xml");
-		assertTrue(artifacts.getAbsolutePath() + " is missing", artifacts.exists());
+		assertTrue(artifacts.exists(), artifacts.getAbsolutePath() + " is missing");
 		File content = new File(verifier.getBasedir(), subdir + "target/repository/content.xml");
-		assertTrue(content.getAbsolutePath() + " is missing", content.exists());
+		assertTrue(content.exists(), content.getAbsolutePath() + " is missing");
 		File site = new File(verifier.getBasedir(), subdir + "target/p2-site.zip");
-		assertTrue(site.getAbsolutePath() + " is missing", site.exists());
+		assertTrue(site.exists(), site.getAbsolutePath() + " is missing");
 	}
 }

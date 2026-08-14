@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -23,7 +23,7 @@ import java.util.Optional;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Element;
@@ -147,9 +147,9 @@ public class P2ExtrasPlugin extends AbstractTychoIntegrationTest {
 
 		Path contentXml = Path.of(verifier.getBasedir()).resolve("target/repository").resolve("content.xml");
 		Element pluginUnitInContentXml = extractUnitFromContentXml(contentXml, pluginId);
-		assertFalse("test plugin should not be marked as zipped", hasChildWithZippedAttribute(pluginUnitInContentXml));
+		assertFalse(hasChildWithZippedAttribute(pluginUnitInContentXml), "test plugin should not be marked as zipped");
 		Element featureUnitInContentXml = extractUnitFromContentXml(contentXml, featureId);
-		assertTrue("test feature should be marked as zipped", hasChildWithZippedAttribute(featureUnitInContentXml));
+		assertTrue(hasChildWithZippedAttribute(featureUnitInContentXml), "test feature should be marked as zipped");
 	}
 
 	private static Element extractUnitFromContentXml(Path contentXml, String unitName) {
@@ -158,8 +158,8 @@ public class P2ExtrasPlugin extends AbstractTychoIntegrationTest {
 		List<Element> units = unitElement.childElements("unit").toList();
 		Optional<Element> extractedUnit = units.stream().filter(element -> unitName.equals(element.attribute("id")))
 				.findFirst();
-		assertTrue(String.format("Unit with name '%s' not found in content.xml with units: %s", unitName, units),
-				extractedUnit.isPresent());
+		assertTrue(extractedUnit.isPresent(),
+				String.format("Unit with name '%s' not found in content.xml with units: %s", unitName, units));
 		return extractedUnit.get();
 	}
 

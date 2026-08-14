@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,8 +26,8 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Element;
@@ -96,19 +96,19 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		for (File file : listFiles) {
 			if (file.getName().startsWith(prefix)) {
 				if (file.getName().endsWith(".qualifier.jar")) {
-					Assert.fail("replacement of build qualifier missing in file " + file + ", name: " + file.getName());
+					Assertions.fail("replacement of build qualifier missing in file " + file + ", name: " + file.getName());
 				}
 				return;
 			}
 		}
-		Assert.fail("Missing entry " + prefix + "* in assembled repository directory " + dir);
+		Assertions.fail("Missing entry " + prefix + "* in assembled repository directory " + dir);
 	}
 
 	static void assertFeatureIU(Document contentXml, File assembledRepoDir, String featureId, String... requiredIus) {
 		String featureIuId = featureId + ".feature.group";
 		Set<Element> featureIus = findIU(contentXml, featureIuId);
-		assertEquals("Feature iu with id = '" + featureIuId + "' does not occur exactly once in content.xml", 1,
-				featureIus.size());
+		assertEquals(1, featureIus.size(),
+				"Feature iu with id = '" + featureIuId + "' does not occur exactly once in content.xml");
 
 		Element featureIu = featureIus.iterator().next();
 
@@ -121,12 +121,11 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
 	static void assertCategoryIU(Document contentXml, String categoryIuId, String featureIuId) {
 		Set<Element> categoryIus = findIU(contentXml, categoryIuId);
-		assertEquals("Unique category iu not found", 1, categoryIus.size());
+		assertEquals(1, categoryIus.size(), "Unique category iu not found");
 		Element categoryIu = categoryIus.iterator().next();
 
-		assertTrue("IU not typed as category",
-				iuHasProperty(categoryIu, "org.eclipse.equinox.p2.type.category", "true"));
-		assertTrue("Category name missing", iuHasProperty(categoryIu, "org.eclipse.equinox.p2.name", "A Category"));
+		assertTrue(iuHasProperty(categoryIu, "org.eclipse.equinox.p2.type.category", "true"), "IU not typed as category");
+		assertTrue(iuHasProperty(categoryIu, "org.eclipse.equinox.p2.name", "A Category"), "Category name missing");
 		assertTrue(iuHasAllRequirements(categoryIu, featureIuId));
 	}
 
@@ -136,29 +135,29 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		File mainWinConfigProductDir = new File(targetDir, "products/main.product.id/win32/win32/x86_64");
 		File rootFile = new File(mainWinConfigProductDir, relRootFilePath);
 
-		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(rootFile.exists(), getFileNotExistsInDirMsg(relRootFilePath, rootFile));
 
 		File mainLinuxConfigProductDir = new File(targetDir, "products/main.product.id/linux/gtk/x86_64");
 		rootFile = new File(mainLinuxConfigProductDir, relRootFilePath);
 
-		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(rootFile.exists(), getFileNotExistsInDirMsg(relRootFilePath, rootFile));
 	}
 
 	static void assertConfigIndependentRootFiles(File mainProductDir) {
 		String relRootFilePath = "rootFile.txt";
 		File rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(rootFile.exists(), getFileNotExistsInDirMsg(relRootFilePath, rootFile));
 
 		relRootFilePath = "file5.txt";
 		rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(rootFile.exists(), getFileNotExistsInDirMsg(relRootFilePath, rootFile));
 
 		relRootFilePath = "dir/file6.txt";
 		rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(rootFile.exists(), getFileNotExistsInDirMsg(relRootFilePath, rootFile));
 	}
 
 	static void assertInstalledLinuxConfigRootFile(File targetDir) {
@@ -166,12 +165,12 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		String relRootFilePath = "file1.txt";
 		File rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(rootFile.exists(), getFileNotExistsInDirMsg(relRootFilePath, rootFile));
 
 		relRootFilePath = "dir/file2.txt";
 		rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(rootFile.exists(), getFileNotExistsInDirMsg(relRootFilePath, rootFile));
 
 		// without config specified root files => included all config specific products
 		assertConfigIndependentRootFiles(mainProductDir);
@@ -182,22 +181,22 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		String relRootFilePath = "file1.txt";
 		File rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(rootFile.exists(), getFileNotExistsInDirMsg(relRootFilePath, rootFile));
 
 		relRootFilePath = "file2.txt";
 		rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(rootFile.exists(), getFileNotExistsInDirMsg(relRootFilePath, rootFile));
 
 		relRootFilePath = "dir1/file3.txt";
 		rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(rootFile.exists(), getFileNotExistsInDirMsg(relRootFilePath, rootFile));
 
 		relRootFilePath = "dir1/dir2/file4.txt";
 		rootFile = new File(mainProductDir, relRootFilePath);
 
-		assertTrue(getFileNotExistsInDirMsg(relRootFilePath, rootFile), rootFile.exists());
+		assertTrue(rootFile.exists(), getFileNotExistsInDirMsg(relRootFilePath, rootFile));
 
 		// without config specified root files => included all config specific products
 		assertConfigIndependentRootFiles(mainProductDir);
@@ -208,29 +207,25 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 		String featureIuId = featureId + ".feature.group";
 		Set<Element> featureIus = findIU(contentXml, featureIuId);
 
-		assertEquals("Feature iu with id = '" + featureIuId + "' does not occur exactly once in content.xml", 1,
-				featureIus.size());
+		assertEquals(1, featureIus.size(),
+				"Feature iu with id = '" + featureIuId + "' does not occur exactly once in content.xml");
 
 		Element featureIu = featureIus.iterator().next();
 		String rootWinConfigFeatureIuId = featureId + "_root.win32.win32.x86_64";
 
-		assertTrue(
-				"Verifying content.xml failed because feature iu with id = '" + featureIuId
-						+ "' does not contain required root iu with id = '" + rootWinConfigFeatureIuId + "'",
-				iuHasAllRequirements(featureIu, rootWinConfigFeatureIuId));
+		assertTrue(iuHasAllRequirements(featureIu, rootWinConfigFeatureIuId), "Verifying content.xml failed because feature iu with id = '" + featureIuId
+						+ "' does not contain required root iu with id = '" + rootWinConfigFeatureIuId + "'");
 
 		String rootLinuxConfigFeatureIuId = featureId + "_root.gtk.linux.x86_64";
 
-		assertTrue(
-				"Verifying content.xml failed because feature iu with id = '" + featureIuId
-						+ "' does not contain required root iu with id = '" + rootLinuxConfigFeatureIuId + "'",
-				iuHasAllRequirements(featureIu, rootLinuxConfigFeatureIuId));
+		assertTrue(iuHasAllRequirements(featureIu, rootLinuxConfigFeatureIuId), "Verifying content.xml failed because feature iu with id = '" + featureIuId
+						+ "' does not contain required root iu with id = '" + rootLinuxConfigFeatureIuId + "'");
 
 		String featureIuRootId = featureId + "_root";
 		Set<Element> featureRootIus = findIU(contentXml, featureIuRootId);
 
-		assertEquals("Feature root iu with id = '" + featureIuRootId + "' does not occur exactly once in content.xml",
-				1, featureRootIus.size());
+		assertEquals(1, featureRootIus.size(),
+				"Feature root iu with id = '" + featureIuRootId + "' does not occur exactly once in content.xml");
 	}
 
 	static void assertRootIuPermissionsMetaData(Document contentXml) {
@@ -239,16 +234,16 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
 		String expectedTouchpointDataInstruction = "chmod(targetDir:${installFolder}, targetFile:file5.txt, permissions:755);";
 
-		assertTrue("Expected chmod touchpointData instruction '" + expectedTouchpointDataInstruction + "' not found.",
-				iuHasTouchpointDataInstruction(featureRootIus.iterator().next(), expectedTouchpointDataInstruction));
+		assertTrue(iuHasTouchpointDataInstruction(featureRootIus.iterator().next(), expectedTouchpointDataInstruction),
+				"Expected chmod touchpointData instruction '" + expectedTouchpointDataInstruction + "' not found.");
 		// permission defined in build.properties: root.linux.gtk.x86_64.permissions.555
 		// = **/*.so
 		Element linuxRootIu = findIU(contentXml, "prf.feature_root.gtk.linux.x86_64").iterator().next();
 
 		String chmod555Instruction = "chmod(targetDir:${installFolder}, targetFile:dir/test.so, permissions:555);";
 
-		assertTrue("Expected chmod touchpointData instruction '" + chmod555Instruction + "' not found.",
-				iuHasTouchpointDataInstruction(linuxRootIu, chmod555Instruction));
+		assertTrue(iuHasTouchpointDataInstruction(linuxRootIu, chmod555Instruction),
+				"Expected chmod touchpointData instruction '" + chmod555Instruction + "' not found.");
 	}
 
 	static void assertRootIuLinksMetaData(Document contentXml) {
@@ -258,11 +253,9 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
 		String expectedGlobalTouchpointDataInstruction = "ln(linkTarget:dir/file6.txt,targetDir:${installFolder},linkName:alias_file6.txt);";
 
-		assertTrue(
-				"Expected link (ln) touchpointData instruction '" + expectedGlobalTouchpointDataInstruction
-						+ "' not found.",
-				iuHasTouchpointDataInstruction(globalFeatureRootIus.iterator().next(),
-						expectedGlobalTouchpointDataInstruction));
+		assertTrue(iuHasTouchpointDataInstruction(globalFeatureRootIus.iterator().next(),
+						expectedGlobalTouchpointDataInstruction), "Expected link (ln) touchpointData instruction '" + expectedGlobalTouchpointDataInstruction
+						+ "' not found.");
 
 		// specific link defined in build.properties: root.linux.gtk.x86_64.link =
 		// file1.txt,alias_file1.txt
@@ -270,18 +263,16 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
 		String expectedSpecificTouchpointDataInstruction = "ln(linkTarget:file1.txt,targetDir:${installFolder},linkName:alias_file1.txt);";
 
-		assertTrue(
-				"Expected link (ln) touchpointData instruction '" + expectedSpecificTouchpointDataInstruction
-						+ "' not found.",
-				iuHasTouchpointDataInstruction(specificRootfeatureIus.iterator().next(),
-						expectedSpecificTouchpointDataInstruction));
+		assertTrue(iuHasTouchpointDataInstruction(specificRootfeatureIus.iterator().next(),
+						expectedSpecificTouchpointDataInstruction), "Expected link (ln) touchpointData instruction '" + expectedSpecificTouchpointDataInstruction
+						+ "' not found.");
 	}
 
 	private static Document openMetadataRepositoryDocument(File repositoryTargetDirectory)
 			throws IOException, ZipException {
 
 		File contentJar = new File(repositoryTargetDirectory, "content.jar");
-		assertTrue("content.jar not found \n" + contentJar.getAbsolutePath(), contentJar.isFile());
+		assertTrue(contentJar.isFile(), "content.jar not found \n" + contentJar.getAbsolutePath());
 
 		return openXmlFromZip(contentJar, "content.xml");
 	}

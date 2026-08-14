@@ -12,13 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.TYCHO0209tychoRepositoryRoundtrip;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
 

@@ -10,8 +10,8 @@
  */
 package org.eclipse.tycho.test.pgp;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ import org.eclipse.tycho.gpg.BouncyCastleSigner;
 import org.eclipse.tycho.gpg.KeyStore;
 import org.eclipse.tycho.gpg.SignatureStore;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tukaani.xz.XZInputStream;
 
 public class TestPGPSigning extends AbstractTychoIntegrationTest {
@@ -526,7 +526,7 @@ public class TestPGPSigning extends AbstractTychoIntegrationTest {
 				var key = properties.get("pgp.publicKeys");
 				var signature = properties.get("pgp.signatures");
 				if (signature != null) {
-					assertNotNull("A key is expected when there is a signature.", key);
+					assertNotNull(key, "A key is expected when there is a signature.");
 					var fingerprints = verifyArtifactSignature(repository, id, version, classifier, key, signature);
 					data.signedIUs.put(id, fingerprints);
 				} else {

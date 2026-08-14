@@ -20,8 +20,8 @@ import java.util.Date;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * This test uses a project that contains 3 plugins (2 eclipse-plugins and one maven plugin). The
@@ -47,10 +47,9 @@ public class DefaultBuildTimestampProviderTest extends AbstractTychoIntegrationT
         String plugin1Manifest = Files.readString(Paths.get(baseDir.getAbsolutePath(), "plugin01/target/MANIFEST.MF"));
         String plugin2Manifest = Files.readString(Paths.get(baseDir.getAbsolutePath(), "plugin02/target/MANIFEST.MF"));
         String expectedBundleVersion = "Bundle-Version: 1.0.0." + format.format(buildTimestamp);
-        Assert.assertTrue(
-                "Expected Bundle-Version in MANIFEST: '" + expectedBundleVersion + "'\nbut was\n" + plugin1Manifest,
-                plugin1Manifest.contains(expectedBundleVersion));
-        Assert.assertTrue(plugin2Manifest.contains(expectedBundleVersion));
+        Assertions.assertTrue(plugin1Manifest.contains(expectedBundleVersion),
+        		"Expected Bundle-Version in MANIFEST: '" + expectedBundleVersion + "'\nbut was\n" + plugin1Manifest);
+        Assertions.assertTrue(plugin2Manifest.contains(expectedBundleVersion));
     }
 
 }

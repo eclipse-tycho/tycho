@@ -21,14 +21,14 @@ import java.util.List;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class Java17ResolutionTest extends AbstractTychoIntegrationTest {
 
 	private static File buildResult;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUp() throws Exception {
 		Verifier verifier = new Java17ResolutionTest().getVerifier("eeProfile.java17", false);
 		verifier.executeGoal("verify");

@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.symlinks;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -20,8 +20,8 @@ import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class SymbolicLinkTest extends AbstractTychoIntegrationTest {
 
@@ -30,7 +30,7 @@ public class SymbolicLinkTest extends AbstractTychoIntegrationTest {
 
 	private static Verifier verifier;
 
-	@BeforeClass
+	@BeforeAll
 	public static void checkLinkCreation() throws Exception {
 		SymbolicLinkTest instance = new SymbolicLinkTest();
 

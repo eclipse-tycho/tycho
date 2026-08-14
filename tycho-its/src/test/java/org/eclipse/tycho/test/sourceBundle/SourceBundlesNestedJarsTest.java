@@ -13,9 +13,9 @@
 package org.eclipse.tycho.test.sourceBundle;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.HashSet;
@@ -24,7 +24,7 @@ import java.util.jar.JarFile;
 import org.apache.maven.it.Verifier;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SourceBundlesNestedJarsTest extends AbstractTychoIntegrationTest {
 

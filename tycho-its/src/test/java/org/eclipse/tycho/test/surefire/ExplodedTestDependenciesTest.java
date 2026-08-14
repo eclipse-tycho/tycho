@@ -16,8 +16,8 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ExplodedTestDependenciesTest extends AbstractTychoIntegrationTest {
 
@@ -32,7 +32,7 @@ public class ExplodedTestDependenciesTest extends AbstractTychoIntegrationTest {
 		// jars are accessible as file URLs
 		File antHome = new File(v01.getBasedir(),
 				"tycho340.test/target/work/plugins/org.apache.ant_1.10.17.v20260410-1000");
-		Assert.assertTrue(antHome.isDirectory());
+		Assertions.assertTrue(antHome.isDirectory());
 	}
 
 }

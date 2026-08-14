@@ -10,7 +10,7 @@
 package org.eclipse.tycho.test.p2Inf;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Element;
@@ -59,10 +59,10 @@ public class VirtualUnitTest extends AbstractTychoIntegrationTest {
 
 		Stream<Element> hostUnitRequirements = findRequirements(hostUnit);
 
-		assertTrue("Host IU " + hostUnitId + " not found", hostUnit.isPresent());
-		assertTrue("Configure IU " + configureUnitId + " not found", configureUnit.isPresent());
-		assertTrue("Requirement of IU " + configureUnitId + " not found in IU " + hostUnitId,
-				hostUnitRequirements.anyMatch(elem -> configureUnitId.equals(elem.attribute("name"))));
+		assertTrue(hostUnit.isPresent(), "Host IU " + hostUnitId + " not found");
+		assertTrue(configureUnit.isPresent(), "Configure IU " + configureUnitId + " not found");
+		assertTrue(hostUnitRequirements.anyMatch(elem -> configureUnitId.equals(elem.attribute("name"))),
+				"Requirement of IU " + configureUnitId + " not found in IU " + hostUnitId);
 	}
 
 	@Test
@@ -81,10 +81,10 @@ public class VirtualUnitTest extends AbstractTychoIntegrationTest {
 
 		Stream<Element> hostUnitRequirements = findRequirements(hostUnit);
 
-		assertTrue("Host IU " + hostUnitId + " not found", hostUnit.isPresent());
-		assertTrue("Configure IU " + configureUnitId + " not found", configureUnit.isPresent());
-		assertTrue("Requirement of IU " + configureUnitId + " not found in IU " + hostUnitId,
-				hostUnitRequirements.anyMatch(elem -> configureUnitId.equals(elem.attribute("name"))));
+		assertTrue(hostUnit.isPresent(), "Host IU " + hostUnitId + " not found");
+		assertTrue(configureUnit.isPresent(), "Configure IU " + configureUnitId + " not found");
+		assertTrue(hostUnitRequirements.anyMatch(elem -> configureUnitId.equals(elem.attribute("name"))),
+				"Requirement of IU " + configureUnitId + " not found in IU " + hostUnitId);
 
 		// Client bundle assertions
 		String clientUnitId = "pvumb.bundle2";
@@ -94,9 +94,9 @@ public class VirtualUnitTest extends AbstractTychoIntegrationTest {
 
 		Stream<Element> clientUnitRequirements = findRequirements(clientUnit);
 
-		assertTrue("Client IU " + clientUnitId + " not found", clientUnit.isPresent());
-		assertTrue("Requirement of IU " + hostUnitId + " not found in IU " + clientUnitId,
-				clientUnitRequirements.anyMatch(elem -> hostUnitId.equals(elem.attribute("name"))));
+		assertTrue(clientUnit.isPresent(), "Client IU " + clientUnitId + " not found");
+		assertTrue(clientUnitRequirements.anyMatch(elem -> hostUnitId.equals(elem.attribute("name"))),
+				"Requirement of IU " + hostUnitId + " not found in IU " + clientUnitId);
 	}
 
 	private static List<Element> getUnits(String baseDir, String filePath) {

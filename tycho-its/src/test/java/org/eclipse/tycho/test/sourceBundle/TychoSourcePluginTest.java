@@ -13,9 +13,9 @@
 package org.eclipse.tycho.test.sourceBundle;
 
 import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_342;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Document;
 
@@ -47,43 +47,40 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 				"sourcefeature.repository/target/repository/features/sourcefeature.feature_1.0.0.123abc.jar");
 		File sourceFeature = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/features/sourcefeature.feature.source_1.0.0.123abc.jar");
-		assertTrue("Missing expected file " + feature, feature.canRead());
-		assertTrue("Missing expected file " + sourceFeature, sourceFeature.canRead());
+		assertTrue(feature.canRead(), "Missing expected file " + feature);
+		assertTrue(sourceFeature.canRead(), "Missing expected file " + sourceFeature);
 
 		try (ZipFile featureZip = new ZipFile(feature); ZipFile sourceFeatureZip = new ZipFile(sourceFeature)) {
-			assertTrue("Missing expected file featrue.properties in " + feature,
-					findEntry(featureZip, "feature.properties").isPresent());
+			assertTrue(findEntry(featureZip, "feature.properties").isPresent(),
+					"Missing expected file featrue.properties in " + feature);
 
-			assertTrue("Content of sourceTemplateFeature not included",
-					findEntry(sourceFeatureZip, "feature.properties").isPresent());
+			assertTrue(findEntry(sourceFeatureZip, "feature.properties").isPresent(),
+					"Content of sourceTemplateFeature not included");
 
 			// Test for bug 552066
-			assertTrue("license.html not found in " + feature, findEntry(featureZip, "license.html").isPresent());
-			assertTrue("bin-only.txt not found in " + feature, findEntry(featureZip, "bin-only.txt").isPresent());
-			assertTrue("src-only.txt found in " + feature, findEntry(featureZip, "src-only.txt").isEmpty());
-			assertTrue("license.html not found in " + sourceFeature,
-					findEntry(sourceFeatureZip, "license.html").isPresent());
-			assertTrue("bin-only.txt found in " + sourceFeature, findEntry(sourceFeatureZip, "bin-only.txt").isEmpty());
-			assertTrue("src-only.txt not found in " + sourceFeature,
-					findEntry(sourceFeatureZip, "src-only.txt").isPresent());
+			assertTrue(findEntry(featureZip, "license.html").isPresent(), "license.html not found in " + feature);
+			assertTrue(findEntry(featureZip, "bin-only.txt").isPresent(), "bin-only.txt not found in " + feature);
+			assertTrue(findEntry(featureZip, "src-only.txt").isEmpty(), "src-only.txt found in " + feature);
+			assertTrue(findEntry(sourceFeatureZip, "license.html").isPresent(), "license.html not found in " + sourceFeature);
+			assertTrue(findEntry(sourceFeatureZip, "bin-only.txt").isEmpty(), "bin-only.txt found in " + sourceFeature);
+			assertTrue(findEntry(sourceFeatureZip, "src-only.txt").isPresent(), "src-only.txt not found in " + sourceFeature);
 		}
 		// Test Bug 374349
 		Document sourceFeatureXml = parseFeatureXml(sourceFeature);
-		assertEquals("Wrong label - bug 374349", "%label",
-				sourceFeatureXml.root().attribute("label"));
+		assertEquals("%label", sourceFeatureXml.root().attribute("label"), "Wrong label - bug 374349");
 		// Test bug 407706
 		assertNull(sourceFeatureXml.root().attributeObject("plugin"));
 
 		File indirectFeature = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/features/sourcefeature.feature.indirect.source_1.0.0.123abc.jar");
-		assertTrue("Missing expected file " + indirectFeature, indirectFeature.canRead());
+		assertTrue(indirectFeature.canRead(), "Missing expected file " + indirectFeature);
 
 		Document indirectFeatureXml = parseFeatureXml(indirectFeature);
 //		// Test bug 407706
 		assertEquals("sourcefeature.bundle", indirectFeatureXml.root().attribute("plugin"));
 		File bundle = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/plugins/sourcefeature.bundle.source_1.0.0.123abc.jar");
-		assertTrue("Missing expected file " + bundle, bundle.canRead());
+		assertTrue(bundle.canRead(), "Missing expected file " + bundle);
 	}
 
 	private Document parseFeatureXml(File file) throws IOException {
@@ -107,7 +104,7 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/plugins/extra.sourcefeature.bundle_1.0.0.123abc.jar");
-		assertTrue("Missing expected file", file.canRead());
+		assertTrue(file.canRead(), "Missing expected file");
 	}
 
 	@Test
@@ -117,12 +114,12 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		File sourceFeature = new File(verifier.getBasedir(), "feature/target/feature-1.0.0-sources-feature.jar");
-		assertTrue("Missing expected file " + sourceFeature, sourceFeature.canRead());
+		assertTrue(sourceFeature.canRead(), "Missing expected file " + sourceFeature);
 		ZipFile featureZip = new ZipFile(sourceFeature);
-		assertTrue("feature.properties not found in " + sourceFeature,
-				findEntry(featureZip, "feature.properties").isPresent());
+		assertTrue(findEntry(featureZip, "feature.properties").isPresent(),
+				"feature.properties not found in " + sourceFeature);
 		// test for bug 403950
-		assertTrue("license.html not found in " + sourceFeature, findEntry(featureZip, "license.html").isPresent());
+		assertTrue(findEntry(featureZip, "license.html").isPresent(), "license.html not found in " + sourceFeature);
 		// test bug 395773
 		Properties actual = new Properties();
 		actual.load(featureZip.getInputStream(featureZip.getEntry("feature.properties")));
@@ -142,10 +139,10 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/plugins/org.junit.source_4.13.2.v20240929-1000.jar");
-		assertTrue("Missing expected file " + file.getName(), file.canRead());
+		assertTrue(file.canRead(), "Missing expected file " + file.getName());
 		file = new File(verifier.getBasedir(),
 				"sourcefeature.repository/target/repository/plugins/org.hamcrest.core.source_2.2.0.v20230809-1000.jar");
-		assertTrue("Missing expected file " + file.getName(), file.canRead());
+		assertTrue(file.canRead(), "Missing expected file " + file.getName());
 
 	}
 }

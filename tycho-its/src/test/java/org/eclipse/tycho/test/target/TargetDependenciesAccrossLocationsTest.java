@@ -1,6 +1,6 @@
 package org.eclipse.tycho.test.target;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +14,9 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 public class TargetDependenciesAccrossLocationsTest extends AbstractTychoIntegrationTest {
@@ -25,7 +25,7 @@ public class TargetDependenciesAccrossLocationsTest extends AbstractTychoIntegra
 	private String repoAUrl;
 	private String repoBUrl;
 
-	@Before
+	@BeforeEach
 	public void startServer() throws Exception {
 		server = HttpServer.startServer();
 		repoAUrl = server.addServer("repoA",
@@ -34,7 +34,7 @@ public class TargetDependenciesAccrossLocationsTest extends AbstractTychoIntegra
 				ResourceUtil.resolveTestResource("repositories/target.dependenciesAcrossLocations/repoB"));
 	}
 
-	@After
+	@AfterEach
 	public void stopServer() throws Exception {
 		if (server != null) {
 			server.stop();

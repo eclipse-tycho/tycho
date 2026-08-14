@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.TYCHO502sourceBundleQualifier;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Tycho502SourceBundleQualifierTest extends AbstractTychoIntegrationTest {
 

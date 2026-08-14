@@ -12,12 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.sourceBundle;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AutoNoSourceBundleTest extends AbstractTychoIntegrationTest {
 
@@ -27,8 +27,8 @@ public class AutoNoSourceBundleTest extends AbstractTychoIntegrationTest {
 		// missing source bundles (see bug 367637)
 
 		Verifier verifier = getVerifier("/sourceBundle.autoSkip", false);
-		assertThrows("Reference to a missing source bundle did not fail the build", VerificationException.class,
-				() -> verifier.executeGoal("verify"));
+		assertThrows(VerificationException.class, () -> verifier.executeGoal("verify"),
+				"Reference to a missing source bundle did not fail the build");
 		verifier.verifyTextInLog(
 				"feature.feature.group 1.0.0.qualifier requires 'org.eclipse.equinox.p2.iu; bundle.source 0.0.0' but it could not be found");
 	}

@@ -13,10 +13,10 @@
 package org.eclipse.tycho.test.versionsplugin;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,7 +38,7 @@ import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.version.TychoVersion;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
@@ -79,7 +79,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 		MavenXpp3Reader pomReader = new MavenXpp3Reader();
 		Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), "pom.xml")));
-		assertEquals("<version> in pom.xml has not been changed!", expectedNewVersion, pomModel.getVersion());
+		assertEquals(expectedNewVersion, pomModel.getVersion(), "<version> in pom.xml has not been changed!");
 	}
 
 	@Test
@@ -93,9 +93,8 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 		verifier.verifyErrorFreeLog();
 		String targetContent = Files.readString(new File(verifier.getBasedir(), "including/including.target").toPath());
-		assertTrue("Actual Target content = " + targetContent,
-				targetContent.contains("mvn:org.tycho.its:other:" + expectedNewVersion + ":target")
-						&& targetContent.contains("sequenceNumber=\"12\""));
+		assertTrue(targetContent.contains("mvn:org.tycho.its:other:" + expectedNewVersion + ":target")
+						&& targetContent.contains("sequenceNumber=\"12\""), "Actual Target content = " + targetContent);
 	}
 
 	@Test
@@ -111,8 +110,8 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		Properties properties = new Properties();
 		properties.load(Files.newInputStream(new File(verifier.getBasedir(), "bundle/pde.bnd").toPath()));
 		String versionProperty = properties.getProperty("Bundle-Version");
-		assertNotNull("Bundle-Version is null", versionProperty);
-		assertEquals("Bundle-Version is not as expected!", expectedNewVersion, versionProperty);
+		assertNotNull(versionProperty, "Bundle-Version is null");
+		assertEquals(expectedNewVersion, versionProperty, "Bundle-Version is not as expected!");
 	}
 
 	@Test
@@ -131,19 +130,18 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 			MavenXpp3Reader pomReader = new MavenXpp3Reader();
 			Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), pom)));
 			if (bundlePom.equals(pom)) {
-				assertNull("child should inherit version from parent", pomModel.getVersion());
+				assertNull(pomModel.getVersion(), "child should inherit version from parent");
 				Parent parent = pomModel.getParent();
-				assertNotNull("project > parent is null", parent);
-				assertEquals("project > parent > version in " + pom + " has not been changed!", expectedNewVersion,
-						parent.getVersion());
+				assertNotNull(parent, "project > parent is null");
+				assertEquals(expectedNewVersion, parent.getVersion(),
+						"project > parent > version in " + pom + " has not been changed!");
 			} else {
-				assertEquals("project > version in " + pom + " has not been changed!", expectedNewVersion,
-						pomModel.getVersion());
+				assertEquals(expectedNewVersion, pomModel.getVersion(), "project > version in " + pom + " has not been changed!");
 			}
 		}
 		Manifest manifest = getManifest(verifier, "bundle");
-		assertEquals("version in manifest was not updated!", expectedNewVersion,
-				manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+		assertEquals(expectedNewVersion, manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION),
+				"version in manifest was not updated!");
 	}
 
 	@Test
@@ -170,19 +168,19 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 			Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), pom)));
 			Parent parent = pomModel.getParent();
 
-			assertEquals("project > version in " + pom + " is not as expected!", expectation.expectedVersion(),
-					pomModel.getVersion());
+			assertEquals(expectation.expectedVersion(), pomModel.getVersion(),
+					"project > version in " + pom + " is not as expected!");
 			if (expectation.expectedParentVersion() == null) {
-				assertNull("project > parent in " + pom + " should be null", parent);
+				assertNull(parent, "project > parent in " + pom + " should be null");
 			} else {
-				assertEquals("project > parent > version in " + pom + " is not as expected!",
-						expectation.expectedParentVersion(), parent.getVersion());
+				assertEquals(expectation.expectedParentVersion(), parent.getVersion(),
+						"project > parent > version in " + pom + " is not as expected!");
 			}
 		}
-		assertEquals("version in manifest p/m1 is not as expected!", "1.0.1",
-				getManifest(verifier, "p/m1").getMainAttributes().getValue(Constants.BUNDLE_VERSION));
-		assertEquals("version in manifest q/m2 is not as expected!", "2.0.0",
-				getManifest(verifier, "q/m2").getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+		assertEquals("1.0.1", getManifest(verifier, "p/m1").getMainAttributes().getValue(Constants.BUNDLE_VERSION),
+				"version in manifest p/m1 is not as expected!");
+		assertEquals("2.0.0", getManifest(verifier, "q/m2").getMainAttributes().getValue(Constants.BUNDLE_VERSION),
+				"version in manifest q/m2 is not as expected!");
 	}
 
 	@Test
@@ -203,35 +201,35 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + VERSION + ":set-version");
 		{// check the package itself is updated
 			Manifest provider = getManifest(verifier, "provider.bundle");
-			assertEquals("version in manifest was not updated for provider bundle!", expectedNewOSGiVersion,
-					provider.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertEquals(expectedNewOSGiVersion, provider.getMainAttributes().getValue(Constants.BUNDLE_VERSION),
+					"version in manifest was not updated for provider bundle!");
 			assertVersion(provider, expectedPackageVersion, Constants.EXPORT_PACKAGE);
 		}
 		{// check open range is updated
 			Manifest consumerOpen = getManifest(verifier, "consumer.open");
-			assertEquals("version in manifest was not updated for open consumer bundle!", expectedNewOSGiVersion,
-					consumerOpen.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertEquals(expectedNewOSGiVersion, consumerOpen.getMainAttributes().getValue(Constants.BUNDLE_VERSION),
+					"version in manifest was not updated for open consumer bundle!");
 			assertVersion(consumerOpen, expectedPackageVersion, Constants.IMPORT_PACKAGE);
 			assertVersion(consumerOpen, expectedPackageVersion, Constants.REQUIRE_BUNDLE);
 		}
 		{// check wide version range is updated
 			Manifest consumerWide = getManifest(verifier, "consumer.wide");
-			assertEquals("version in manifest was not updated for wide consumer bundle!", expectedNewOSGiVersion,
-					consumerWide.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertEquals(expectedNewOSGiVersion, consumerWide.getMainAttributes().getValue(Constants.BUNDLE_VERSION),
+					"version in manifest was not updated for wide consumer bundle!");
 			assertVersionRange(consumerWide, expectedWideVersionRange, Constants.IMPORT_PACKAGE);
 			assertVersionRange(consumerWide, expectedWideVersionRange, Constants.REQUIRE_BUNDLE);
 		}
 		{// check narrow version range is updated
 			Manifest consumerNarrow = getManifest(verifier, "consumer.narrow");
-			assertEquals("version in manifest was not updated for narrow consumer bundle!", expectedNewOSGiVersion,
-					consumerNarrow.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertEquals(expectedNewOSGiVersion, consumerNarrow.getMainAttributes().getValue(Constants.BUNDLE_VERSION),
+					"version in manifest was not updated for narrow consumer bundle!");
 			assertVersionRange(consumerNarrow, expectedNarrowVersionRange, Constants.IMPORT_PACKAGE);
 			assertVersionRange(consumerNarrow, expectedNarrowVersionRange, Constants.REQUIRE_BUNDLE);
 		}
 		{// check micro version range is updated
 			Manifest consumerNarrow = getManifest(verifier, "consumer.micro");
-			assertEquals("version in manifest was not updated for micro consumer bundle!", expectedNewOSGiVersion,
-					consumerNarrow.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertEquals(expectedNewOSGiVersion, consumerNarrow.getMainAttributes().getValue(Constants.BUNDLE_VERSION),
+					"version in manifest was not updated for micro consumer bundle!");
 			assertVersionRange(consumerNarrow, expectedMicroVersionRange, Constants.IMPORT_PACKAGE);
 			assertVersionRange(consumerNarrow, expectedMicroVersionRange, Constants.REQUIRE_BUNDLE);
 		}
@@ -250,18 +248,18 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		{// check the pom.xml is updated
 			MavenXpp3Reader pomReader = new MavenXpp3Reader();
 			Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), "pom.xml")));
-			assertEquals("<version> in pom.xml has not been changed!", expectedNewMavenVersion, pomModel.getVersion());
+			assertEquals(expectedNewMavenVersion, pomModel.getVersion(), "<version> in pom.xml has not been changed!");
 		}
 		{// check require-Bundle is updated
 			Manifest consumerBundle = getManifest(verifier, "consumer.bundle");
-			assertEquals("version in manifest was not updated for consumer.bundle!", expectedNewOSGiVersion,
-					consumerBundle.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertEquals(expectedNewOSGiVersion, consumerBundle.getMainAttributes().getValue(Constants.BUNDLE_VERSION),
+					"version in manifest was not updated for consumer.bundle!");
 			assertVersionRange(consumerBundle, expectedUpperBoundVersion, Constants.REQUIRE_BUNDLE);
 		}
 		{// check Import-Package is updated
 			Manifest consumerPackage = getManifest(verifier, "consumer.package");
-			assertEquals("version in manifest was not updated for consumer.package!", expectedNewOSGiVersion,
-					consumerPackage.getMainAttributes().getValue(Constants.BUNDLE_VERSION));
+			assertEquals(expectedNewOSGiVersion, consumerPackage.getMainAttributes().getValue(Constants.BUNDLE_VERSION),
+					"version in manifest was not updated for consumer.package!");
 			assertVersionRange(consumerPackage, expectedUpperBoundVersion, Constants.IMPORT_PACKAGE);
 		}
 	}
@@ -283,8 +281,8 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		Properties properties = new Properties();
 		properties.load(Files.newInputStream(new File(verifier.getBasedir(), "pde.bnd").toPath()));
 		String versionProperty = properties.getProperty("Bundle-Version");
-		assertNotNull("Bundle-Version is null", versionProperty);
-		assertEquals("Bundle-Version is not as expected!", expectedNewVersion, versionProperty);
+		assertNotNull(versionProperty, "Bundle-Version is null");
+		assertEquals(expectedNewVersion, versionProperty, "Bundle-Version is not as expected!");
 	}
 
 	/**
@@ -307,7 +305,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		MavenXpp3Reader pomReader = new MavenXpp3Reader();
 		Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), POM_NAME)));
-		assertEquals("<version> in pom.xml has not been changed!", MANIFEST_VERSION, pomModel.getVersion());
+		assertEquals(MANIFEST_VERSION, pomModel.getVersion(), "<version> in pom.xml has not been changed!");
 	}
 
 	/**
@@ -330,7 +328,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		MavenXpp3Reader pomReader = new MavenXpp3Reader();
 		Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), POM_NAME)));
-		assertEquals("<version> in pom.xml has not been changed!", MANIFEST_VERSION, pomModel.getVersion());
+		assertEquals(MANIFEST_VERSION, pomModel.getVersion(), "<version> in pom.xml has not been changed!");
 	}
 
 	/**
@@ -354,7 +352,7 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		MavenXpp3Reader pomReader = new MavenXpp3Reader();
 		Model pomModel = pomReader.read(new FileReader(new File(verifier.getBasedir(), POM_NAME)));
-		assertEquals("<version> in foo.bar.pom.xml has not been changed!", MANIFEST_VERSION, pomModel.getVersion());
+		assertEquals(MANIFEST_VERSION, pomModel.getVersion(), "<version> in foo.bar.pom.xml has not been changed!");
 	}
 
 	/**
@@ -383,14 +381,13 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 		Model pomCustom = pomReader.read(new FileReader(file(verifier, "customPomName", "customPomName.xml")));
 		Model pomDeepNest = pomReader.read(new FileReader(file(verifier, "deepNest", "a", "b", "deepNest.xml")));
 
-		assertEquals("<version> in defaultPomNameA/pom.xml has not been changed!", MANIFEST_VERSION,
-				pomImplicit.getVersion());
-		assertEquals("<version> in defaultPomNameB/pom.xml has not been changed!", MANIFEST_VERSION,
-				pomDefault.getVersion());
-		assertEquals("<version> in customPomName/customPomName.xml has not been changed!", MANIFEST_VERSION,
-				pomCustom.getVersion());
-		assertEquals("<version> in deepNest/a/b/deepNest.xml has not been changed!", MANIFEST_VERSION,
-				pomDeepNest.getVersion());
+		assertEquals(MANIFEST_VERSION, pomImplicit.getVersion(),
+				"<version> in defaultPomNameA/pom.xml has not been changed!");
+		assertEquals(MANIFEST_VERSION, pomDefault.getVersion(), "<version> in defaultPomNameB/pom.xml has not been changed!");
+		assertEquals(MANIFEST_VERSION, pomCustom.getVersion(),
+				"<version> in customPomName/customPomName.xml has not been changed!");
+		assertEquals(MANIFEST_VERSION, pomDeepNest.getVersion(),
+				"<version> in deepNest/a/b/deepNest.xml has not been changed!");
 
 	}
 
@@ -420,24 +417,24 @@ public class TychoVersionsPluginTest extends AbstractTychoIntegrationTest {
 
 	private static void assertVersionRange(Manifest manifest, String versionRange, String header) {
 		String value = manifest.getMainAttributes().getValue(header);
-		assertNotNull("Header " + header + " not found", value);
+		assertNotNull(value, "Header " + header + " not found");
 		Matcher matcher = VERSION_PATTERN.matcher(value);
-		assertTrue("no version found on " + value, matcher.find());
+		assertTrue(matcher.find(), "no version found on " + value);
 		VersionRange expected = VersionRange.valueOf(versionRange);
 		VersionRange actual = VersionRange.valueOf(matcher.group(1));
-		assertTrue(header + " " + value + ": expected version range = " + expected + " but actual version range = "
-				+ actual, expected.equals(actual));
+		assertTrue(expected.equals(actual),
+				header + " " + value + ": expected version range = " + expected + " but actual version range = " + actual);
 	}
 
 	private static void assertVersion(Manifest manifest, String version, String header) {
 		String value = manifest.getMainAttributes().getValue(header);
-		assertNotNull("Header " + header + " not found", value);
+		assertNotNull(value, "Header " + header + " not found");
 		Matcher matcher = VERSION_PATTERN.matcher(value);
-		assertTrue("no version found on " + value, matcher.find());
+		assertTrue(matcher.find(), "no version found on " + value);
 		Version expected = Version.valueOf(version);
 		Version actual = Version.valueOf(matcher.group(1));
-		assertTrue(header + " " + value + ": expected version = " + expected + " but actual version = " + actual,
-				expected.equals(actual));
+		assertTrue(expected.equals(actual),
+				header + " " + value + ": expected version = " + expected + " but actual version = " + actual);
 	}
 
 }

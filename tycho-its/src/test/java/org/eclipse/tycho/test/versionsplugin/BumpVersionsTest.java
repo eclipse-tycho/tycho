@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.versionsplugin;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -24,8 +24,8 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Integration tests for the bump-versions mojo from tycho-versions-plugin.
@@ -37,7 +37,7 @@ public class BumpVersionsTest extends AbstractTychoIntegrationTest {
 
 	private static File baselineRepo = null;
 
-	@Before
+	@BeforeEach
 	public void buildBaselineRepository() throws Exception {
 		if (baselineRepo == null) {
 			Verifier verifier = getVerifier(PROJECT, false, true);
@@ -45,8 +45,7 @@ public class BumpVersionsTest extends AbstractTychoIntegrationTest {
 			verifier.executeGoals(List.of("clean", "package"));
 			verifier.verifyErrorFreeLog();
 			File repoDir = new File(verifier.getBasedir(), "repo/target/repository");
-			assertTrue("Baseline p2 repository was not created at: " + repoDir.getAbsolutePath(),
-					repoDir.isDirectory());
+			assertTrue(repoDir.isDirectory(), "Baseline p2 repository was not created at: " + repoDir.getAbsolutePath());
 			baselineRepo = new File("target/projects", getClass().getSimpleName() + "/baselineRepo").getAbsoluteFile();
 			if (baselineRepo.isDirectory()) {
 				FileUtils.deleteDirectory(baselineRepo);
@@ -90,20 +89,20 @@ public class BumpVersionsTest extends AbstractTychoIntegrationTest {
 		// Read MANIFEST.MF before run 2 overwrites the log
 		String manifestAfterRun1 = Files.readString(bundleDir.resolve("META-INF/MANIFEST.MF"));
 
-		assertTrue("Bundle version should be bumped to 2.0.0 after run 1:\n" + manifestAfterRun1,
-				manifestAfterRun1.contains("Bundle-Version: 2.0.0"));
-		assertTrue("Export-Package version should still be 1.0.0 after run 1:\n" + manifestAfterRun1,
-				manifestAfterRun1.contains("Export-Package: tycho.its.bump.versions;version=\"1.0.0\""));
+		assertTrue(manifestAfterRun1.contains("Bundle-Version: 2.0.0"),
+				"Bundle version should be bumped to 2.0.0 after run 1:\n" + manifestAfterRun1);
+		assertTrue(manifestAfterRun1.contains("Export-Package: tycho.its.bump.versions;version=\"1.0.0\""),
+				"Export-Package version should still be 1.0.0 after run 1:\n" + manifestAfterRun1);
 
 		// === Run 2: Export-Package version bumped to match the bundle ===
 		assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("verify")));
 
 		String manifestAfterRun2 = Files.readString(bundleDir.resolve("META-INF/MANIFEST.MF"));
 
-		assertTrue("Bundle version should remain 2.0.0 after run 2:\n" + manifestAfterRun2,
-				manifestAfterRun2.contains("Bundle-Version: 2.0.0"));
-		assertTrue("Export-Package version should be bumped to 2.0.0 after run 2:\n" + manifestAfterRun2,
-				manifestAfterRun2.contains("Export-Package: tycho.its.bump.versions;version=\"2.0.0\""));
+		assertTrue(manifestAfterRun2.contains("Bundle-Version: 2.0.0"),
+				"Bundle version should remain 2.0.0 after run 2:\n" + manifestAfterRun2);
+		assertTrue(manifestAfterRun2.contains("Export-Package: tycho.its.bump.versions;version=\"2.0.0\""),
+				"Export-Package version should be bumped to 2.0.0 after run 2:\n" + manifestAfterRun2);
 
 		// === Run 3: both versions consistent, build must succeed ===
 		verifier.executeGoals(List.of("verify"));

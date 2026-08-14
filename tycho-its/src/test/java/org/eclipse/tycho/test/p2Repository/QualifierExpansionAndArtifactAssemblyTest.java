@@ -15,7 +15,7 @@ package org.eclipse.tycho.test.p2Repository;
 import static org.eclipse.tycho.test.util.P2RepositoryTool.withIdAndVersion;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -26,8 +26,8 @@ import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IdAndVersion;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoIntegrationTest {
 
@@ -47,7 +47,7 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
 	private static Verifier verifier;
 	private static P2RepositoryTool p2Repository;
 
-	@BeforeClass
+	@BeforeAll
 	public static void executeBuild() throws Exception {
 		verifier = new QualifierExpansionAndArtifactAssemblyTest().getVerifier("p2Repository.reactor", false);
 		verifier.addCliOption("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());

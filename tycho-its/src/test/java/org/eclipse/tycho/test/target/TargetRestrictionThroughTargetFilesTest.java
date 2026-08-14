@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.target;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
@@ -21,7 +21,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TargetRestrictionThroughTargetFilesTest extends AbstractTychoIntegrationTest {
 

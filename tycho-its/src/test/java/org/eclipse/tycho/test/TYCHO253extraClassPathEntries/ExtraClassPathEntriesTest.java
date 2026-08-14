@@ -14,7 +14,7 @@ package org.eclipse.tycho.test.TYCHO253extraClassPathEntries;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ExtraClassPathEntriesTest extends AbstractTychoIntegrationTest {
 

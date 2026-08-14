@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -17,7 +17,7 @@ import java.nio.file.Files;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class P2ArtifactMappingToMavenRepoTest extends AbstractTychoIntegrationTest {
 
@@ -31,10 +31,7 @@ public class P2ArtifactMappingToMavenRepoTest extends AbstractTychoIntegrationTe
 		verifier.verifyErrorFreeLog();
 		File repository = new File(verifier.getBasedir(), "target/repository");
 		File artifactsXML = new File(repository, "artifacts.xml");
-		assertTrue(
-				artifactsXML.getAbsoluteFile() + " does not contain required line "
-						+ MAVEN_CENTRAL_URL,
-				Files.readAllLines(artifactsXML.toPath()).stream()
-						.anyMatch(line -> line.contains(MAVEN_CENTRAL_URL)));
+		assertTrue(Files.readAllLines(artifactsXML.toPath()).stream() .anyMatch(line -> line.contains(MAVEN_CENTRAL_URL)),
+				artifactsXML.getAbsoluteFile() + " does not contain required line " + MAVEN_CENTRAL_URL);
 	}
 }

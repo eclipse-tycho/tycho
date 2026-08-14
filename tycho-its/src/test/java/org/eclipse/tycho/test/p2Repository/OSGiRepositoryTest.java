@@ -10,13 +10,13 @@
 package org.eclipse.tycho.test.p2Repository;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class OSGiRepositoryTest extends AbstractTychoIntegrationTest {
 
@@ -26,7 +26,7 @@ public class OSGiRepositoryTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(asList("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 		File repoFile = new File(verifier.getBasedir(), "site/target/repository/repository.xml.gz");
-		assertTrue("repo file " + repoFile + " not found!", repoFile.exists());
+		assertTrue(repoFile.exists(), "repo file " + repoFile + " not found!");
 		// TODO assert some things about the content
 	}
 

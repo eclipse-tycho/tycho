@@ -18,8 +18,8 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Element;
@@ -33,10 +33,10 @@ public class RepositoryCategoriesTest extends AbstractTychoIntegrationTest {
 		v01.verifyErrorFreeLog();
 
 		File site = new File(v01.getBasedir(), "target/site");
-		Assert.assertTrue(site.isDirectory());
+		Assertions.assertTrue(site.isDirectory());
 
 		File content = new File(site, "content.jar");
-		Assert.assertTrue(content.getAbsolutePath() + " is not a file!", content.isFile());
+		Assertions.assertTrue(content.isFile(), content.getAbsolutePath() + " is not a file!");
 
 		boolean found = false;
 
@@ -56,7 +56,7 @@ public class RepositoryCategoriesTest extends AbstractTychoIntegrationTest {
 			}
 		}
 
-		Assert.assertTrue("Custom category is missing: " + content.getAbsolutePath(), found);
+		Assertions.assertTrue(found, "Custom category is missing: " + content.getAbsolutePath());
 	}
 
 }

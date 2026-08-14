@@ -9,15 +9,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.resolver;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class ResolverTests extends AbstractTychoIntegrationTest {
 
@@ -103,8 +103,8 @@ public class ResolverTests extends AbstractTychoIntegrationTest {
 				startLine = line.endsWith("Resolved fragments:");
 			}
 		}
-		assertTrue("Start line not found!", startLine);
-		assertTrue("Highest version was not found", highestVersionFound);
+		assertTrue(startLine, "Start line not found!");
+		assertTrue(highestVersionFound, "Highest version was not found");
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class ResolverTests extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	// Due to technical reasons, the Maven artifact is rebundled during the
 	// target-platform phase.
 	// Therefore dependency:tree lists it as 'wrapped.com.squareup.okhttp3.okhttp'
