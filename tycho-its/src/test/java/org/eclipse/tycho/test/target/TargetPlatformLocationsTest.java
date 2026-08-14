@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.target;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +33,9 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 
@@ -45,11 +45,10 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		// check that there are no warnings
-		assertThrows("Warning about missing digest algorithm was printed to the log", VerificationException.class,
-				() -> {
+		assertThrows(VerificationException.class, () -> {
 					verifier.verifyTextInLog(
 							"No digest algorithm is available to verify download of osgi.bundle,org.apache.velocity");
-				});
+				}, "Warning about missing digest algorithm was printed to the log");
 	}
 
 	@Test
@@ -65,8 +64,8 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-DoutputAbsoluteArtifactFilename=true");
 		verifier.executeGoal("dependency:list");
 		verifier.verifyErrorFreeLog();
-		assertFalse("Location for Maven deps should not resolve to cache",
-				Files.readString(Path.of(verifier.getBasedir(), verifier.getLogFileName())).contains("p2/osgi"));
+		assertFalse(Files.readString(Path.of(verifier.getBasedir(), verifier.getLogFileName())).contains("p2/osgi"),
+				"Location for Maven deps should not resolve to cache");
 	}
 
 	@Test
@@ -87,7 +86,7 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	@Ignore(value = "This test is flaky on the buildserver")
+	@Disabled(value = "This test is flaky on the buildserver")
 	public void testMavenLocationRepositories() throws Exception {
 		Verifier verifier = getVerifier("target.mavenRepos", false, true);
 		verifier.executeGoal("verify");
@@ -110,7 +109,7 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 				"target.test/plugins/osgi.annotation.bundle_0.0.1/META-INF/MANIFEST.MF");
 		DefaultBundleReader reader = new DefaultBundleReader();
 		OsgiManifest annotBundleManifest = reader.loadManifest(annotBundleManifestFile);
-		Assert.assertEquals("tycho.test.package", annotBundleManifest.getValue("Export-Package"));
+		Assertions.assertEquals("tycho.test.package", annotBundleManifest.getValue("Export-Package"));
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 
@@ -119,8 +118,8 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 		Files.write(annotBundleManifestFile.toPath(), out, StandardOpenOption.WRITE,
 				StandardOpenOption.TRUNCATE_EXISTING);
 
-		assertThrows("Reference to the not exported package did not fail the build", VerificationException.class,
-				() -> verifier.executeGoal("verify"));
+		assertThrows(VerificationException.class, () -> verifier.executeGoal("verify"),
+				"Reference to the not exported package did not fail the build");
 		verifier.verifyTextInLog(
 				" Missing requirement: test.bundle 0.0.1.qualifier requires 'java.package; tycho.test.package 0.0.0' but it could not be found");
 	}
@@ -141,19 +140,19 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 					.findFirst();
 			sourceFeature.ifPresentOrElse(it -> {
 				Xpp3Dom[] requirements = it.getChild("requires").getChildren("required");
-				Assert.assertNotEquals("Expecting requirements for org.apache.commons.io.feature.source.feature.group",
-						0, requirements.length);
+				Assertions.assertNotEquals(0, requirements.length,
+						"Expecting requirements for org.apache.commons.io.feature.source.feature.group");
 				Optional<String> badRequirement = Stream.of(requirements)
 						.map(requirement -> requirement.getAttribute("name")).filter(name -> name == null
 								|| !name.endsWith(".source") && !name.endsWith(".source.feature.jar"))
 						.findFirst();
-				badRequirement.ifPresent(name -> Assert
+				badRequirement.ifPresent(name -> Assertions
 						.fail("All requirements are expected to be source requirements, but found '" + name + "'"));
 			}, () -> {
-				Assert.fail("Expecting to find source feature org.apache.commons.io.feature.source.feature.group");
+				Assertions.fail("Expecting to find source feature org.apache.commons.io.feature.source.feature.group");
 			});
 		} catch (IOException | XmlPullParserException e) {
-			Assert.fail("Expecting to find valid XML content at " + targetPlatformRepository);
+			Assertions.fail("Expecting to find valid XML content at " + targetPlatformRepository);
 		}
 	}
 
@@ -197,8 +196,8 @@ public class TargetPlatformLocationsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testMavenRewriteManifestNoInstruction() throws Exception {
 		Verifier verifier = getVerifier("target.maven-rewriteManifest-noInstruction", false, true);
-		assertThrows("Verification did not fail even if bnd instruction was missing.", VerificationException.class,
-				() -> verifier.executeGoal("verify"));
+		assertThrows(VerificationException.class, () -> verifier.executeGoal("verify"),
+				"Verification did not fail even if bnd instruction was missing.");
 		verifier.verifyTextInLog(
 				"Reason: The location must contain exactly one bnd instruction which must contain a symbolic name that differs from the original one.");
 	}

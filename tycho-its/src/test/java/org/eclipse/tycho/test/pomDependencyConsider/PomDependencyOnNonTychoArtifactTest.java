@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.pomDependencyConsider;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.util.jar.JarFile;
@@ -20,8 +20,8 @@ import java.util.jar.JarFile;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PomDependencyOnNonTychoArtifactTest extends AbstractTychoIntegrationTest {
 	private static final String POM_DEPENDENCY_BUNDLE_ID = "com.google.gson";
@@ -43,11 +43,11 @@ public class PomDependencyOnNonTychoArtifactTest extends AbstractTychoIntegratio
 		// this was bug TYCHO-570: the build passed, but the POM dependency bundle was
 		// missing
 		File expectedBundle = p2Repo.getBundleArtifact(POM_DEPENDENCY_BUNDLE_ID, POM_DEPENDENCY_BUNDLE_VERSION);
-		Assert.assertTrue(expectedBundle.isFile());
+		Assertions.assertTrue(expectedBundle.isFile());
 		// bug 368596 assert that pom dependency with classifier works
 		File sourceBundle = p2Repo.getBundleArtifact(POM_DEPENDENCY_CLASSIFIER_BUNDLE_ID,
 				POM_DEPENDENCY_CLASSIFIER_BUNDLE_VERSION);
-		Assert.assertTrue(sourceBundle.isFile());
+		Assertions.assertTrue(sourceBundle.isFile());
 		try (JarFile jarFile = new JarFile(sourceBundle)) {
 			String sourceBundleSymbolicName = jarFile.getManifest().getMainAttributes().getValue("Bundle-SymbolicName");
 			assertEquals(POM_DEPENDENCY_CLASSIFIER_BUNDLE_ID, sourceBundleSymbolicName);

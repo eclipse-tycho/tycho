@@ -23,8 +23,8 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests that the build artifacts produced by Tycho are reproducible.
@@ -79,7 +79,7 @@ public class ReproducibleBuildTest extends AbstractTychoIntegrationTest {
 			final var entries = zip.entries();
 			while (entries.hasMoreElements()) {
 				final ZipEntry entry = entries.nextElement();
-				Assert.assertEquals(EXPECTED_TIMESTAMP_INSTANT, entry.getLastModifiedTime().toInstant());
+				Assertions.assertEquals(EXPECTED_TIMESTAMP_INSTANT, entry.getLastModifiedTime().toInstant());
 			}
 		}
 	}
@@ -96,7 +96,7 @@ public class ReproducibleBuildTest extends AbstractTychoIntegrationTest {
 		try (FileSystem fileSystem = FileSystems.newFileSystem(Path.of(file))) {
 			final Path manifest = fileSystem.getPath("META-INF/MANIFEST.MF");
 			final List<String> lines = Files.readAllLines(manifest);
-			Assert.assertTrue(lines.stream().anyMatch(l -> l.equals("Bundle-Version: 1.0.0.202301010000")));
+			Assertions.assertTrue(lines.stream().anyMatch(l -> l.equals("Bundle-Version: 1.0.0.202301010000")));
 		}
 	}
 
@@ -110,7 +110,7 @@ public class ReproducibleBuildTest extends AbstractTychoIntegrationTest {
 		try (FileSystem fileSystem = FileSystems.newFileSystem(Path.of(file))) {
 			final Path propFile = fileSystem.getPath("OSGI-INF/l10n/bundle-src.properties");
 			final String content = Files.readString(propFile, StandardCharsets.ISO_8859_1);
-			Assert.assertEquals("bundleName=Reproducible-bundle Source\n" + "bundleVendor=unknown\n", content);
+			Assertions.assertEquals("bundleName=Reproducible-bundle Source\n" + "bundleVendor=unknown\n", content);
 		}
 	}
 }

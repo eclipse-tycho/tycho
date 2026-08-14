@@ -26,7 +26,7 @@ import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 // TODO make this a unit test?
 public class BuildProductWithIgnoredContentTest extends AbstractTychoIntegrationTest {

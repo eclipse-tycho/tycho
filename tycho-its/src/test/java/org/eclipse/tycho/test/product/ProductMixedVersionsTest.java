@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -22,7 +22,7 @@ import java.util.Arrays;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ProductMixedVersionsTest extends AbstractTychoIntegrationTest {
 	@Test
@@ -37,9 +37,9 @@ public class ProductMixedVersionsTest extends AbstractTychoIntegrationTest {
 		for (String bundleInfo : Files.readAllLines(bundleInfoFiles[0].toPath(), StandardCharsets.UTF_8)) {
 			String[] parts = bundleInfo.split(",");
 			if (parts.length == 5 && "org.apache.activemq.activemq-core".equals(parts[0])) {
-				assertEquals("Version of activemq bundle does not match", "5.2.0", parts[1]);
-				assertEquals("Start level of activemq bundle does not match", "3", parts[3]);
-				assertEquals("Autostart of activemq bundle does not match", "true", parts[4]);
+				assertEquals("5.2.0", parts[1], "Version of activemq bundle does not match");
+				assertEquals("3", parts[3], "Start level of activemq bundle does not match");
+				assertEquals("true", parts[4], "Autostart of activemq bundle does not match");
 			}
 			return;
 		}

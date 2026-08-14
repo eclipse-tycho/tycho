@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.featurePatch;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
@@ -21,7 +21,7 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EclipseRepoIncludingFeaturePatchTest extends AbstractTychoIntegrationTest {
 

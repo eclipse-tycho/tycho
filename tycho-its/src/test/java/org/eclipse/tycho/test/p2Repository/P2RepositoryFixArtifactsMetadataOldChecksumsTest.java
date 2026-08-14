@@ -10,9 +10,9 @@
 package org.eclipse.tycho.test.p2Repository;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -27,7 +27,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tukaani.xz.XZInputStream;
 
 /**
@@ -67,7 +67,7 @@ public class P2RepositoryFixArtifactsMetadataOldChecksumsTest extends AbstractTy
 		for(String checksumKey : checksumsThatMustNotBePresent) {
 			String checksumValue = artifactProperties.get(checksumKey);
 
-			assertNull("Property '" + checksumKey + "' is present in artifacts metadata", checksumValue);
+			assertNull(checksumValue, "Property '" + checksumKey + "' is present in artifacts metadata");
 		}
 	}
 

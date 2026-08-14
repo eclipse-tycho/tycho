@@ -11,7 +11,7 @@ package org.eclipse.tycho.test.p2Repository;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -25,7 +25,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class IncludeAllSourcesTest extends AbstractTychoIntegrationTest {
 

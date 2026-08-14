@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.licenseFeature;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
@@ -20,7 +20,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.version.TychoVersion;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 // tests that license feature references are updated by the versions-plugin (bug 424945)
 // TODO make this a unit test

@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.reactor;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -30,13 +30,13 @@ import org.cyclonedx.model.Dependency;
 import org.cyclonedx.parsers.Parser;
 import org.cyclonedx.parsers.XmlParser;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class BomCreationTest extends AbstractTychoIntegrationTest {
 	private static Verifier verifier;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		if (verifier == null) {
 			verifier = getVerifier("sbom", false);

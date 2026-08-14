@@ -14,7 +14,7 @@ package org.eclipse.tycho.test;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.version.TychoVersion;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DependencyToolsPluginTest extends AbstractTychoIntegrationTest {
 

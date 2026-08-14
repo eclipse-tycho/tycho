@@ -1,7 +1,7 @@
 package org.eclipse.tycho.test.packaging;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,16 +12,16 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 // tests the support for reproducible artifacts (bug 362883 - "do not generate new artifact unless there is a change")
 public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest {
 
 	private static File baselineRepo;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupClass() throws IOException {
 		baselineRepo = new File("projects/packaging.reproducibleArtifacts/baseline/repository").getCanonicalFile();
 	}
@@ -37,7 +37,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
 	}
 
 	private void assertReactorContents(File repository, String path) throws IOException {
-		Assert.assertFalse(isBaselineContents(repository, path));
+		Assertions.assertFalse(isBaselineContents(repository, path));
 	}
 
 	private boolean isBaselineContents(File repository, String path) throws IOException {

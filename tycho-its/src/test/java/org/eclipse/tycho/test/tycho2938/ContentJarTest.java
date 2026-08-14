@@ -30,26 +30,25 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.xml.sax.SAXException;
 
 public class ContentJarTest extends AbstractTychoIntegrationTest {
 	private HttpServer server;
 	private static final String TARGET_FEATURE_PATH = "/features/issue_2938_reproducer_1.0.0.202310211419.jar";
-	@Rule
-	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+	@TempDir
+	Path temporaryFolder;
 	private Verifier verifier;
 	private String mainRepoUrl;
 
-	@Before
+	@BeforeEach
 	public void startServer() throws Exception {
 		server = HttpServer.startServer();
-		File repositoryRoot = temporaryFolder.getRoot();
+		File repositoryRoot = temporaryFolder.toFile();
 		this.mainRepoUrl = server.addServer("repoA", repositoryRoot);
 		File originalResource = ResourceUtil.resolveTestResource("repositories/content_jar");
 		FileUtils.copyDirectory(originalResource, repositoryRoot);
@@ -57,7 +56,7 @@ public class ContentJarTest extends AbstractTychoIntegrationTest {
 		verifier.deleteArtifacts("p2.org.eclipse.update.feature", "issue_2938_reproducer", "1.0.0.202310211419");
 	}
 
-	@After
+	@AfterEach
 	public void stopServer() throws Exception {
 		if (server != null) {
 			server.stop();
@@ -85,14 +84,14 @@ public class ContentJarTest extends AbstractTychoIntegrationTest {
 	public void redirectToBadLocation() throws Exception {
 		String redirectedUrl = server.addRedirect("repoB", originalPath -> mainRepoUrl + originalPath + "_invalid");
 		configureRepositoryInTargetDefinition(redirectedUrl);
-		Assert.assertThrows(VerificationException.class, () -> verifier.executeGoal("package"));
+		Assertions.assertThrows(VerificationException.class, () -> verifier.executeGoal("package"));
 		verifier.verifyTextInLog("Unable to read repository at " + redirectedUrl);
 		assertVisited("/content.jar_invalid");
 	}
 
 	@Test
 	public void redirectToMangledLocations() throws Exception {
-		File repositoryRoot = temporaryFolder.getRoot();
+		File repositoryRoot = temporaryFolder.toFile();
 		mangleFileNames(repositoryRoot.toPath());
 
 		// https://github.com/eclipse-tycho/tycho/issues/2938
@@ -108,8 +107,8 @@ public class ContentJarTest extends AbstractTychoIntegrationTest {
 
 	private void assertVisited(String path) {
 		List<String> accessedUrls = server.getAccessedUrls("repoA");
-		Assert.assertTrue(String.format("Path %s should be visited, %s were visited instead", path, accessedUrls),
-				accessedUrls.contains(path));
+		Assertions.assertTrue(accessedUrls.contains(path),
+				String.format("Path %s should be visited, %s were visited instead", path, accessedUrls));
 	}
 
 	private void mangleFileNames(Path repositoryRoot) throws IOException {

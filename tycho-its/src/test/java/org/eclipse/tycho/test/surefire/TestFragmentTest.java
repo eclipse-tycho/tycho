@@ -16,8 +16,8 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestFragmentTest extends AbstractTychoIntegrationTest {
 
@@ -29,6 +29,6 @@ public class TestFragmentTest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
 
         File testReport = new File(verifier.getBasedir(), "p1.test/target/surefire-reports/TEST-p1.test.ATest.xml");
-        Assert.assertTrue(testReport.exists());
+        Assertions.assertTrue(testReport.exists());
     }
 }

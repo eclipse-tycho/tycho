@@ -19,8 +19,8 @@ import java.util.jar.Manifest;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TYCHO285EclipseSourceBundlesTest extends AbstractTychoIntegrationTest {
     @Test
@@ -30,16 +30,16 @@ public class TYCHO285EclipseSourceBundlesTest extends AbstractTychoIntegrationTe
         verifier.verifyErrorFreeLog();
 
         File sourceJarFile = new File(verifier.getBasedir(), "target/bundle-1.2.3-SNAPSHOT-sources.jar");
-        Assert.assertTrue(sourceJarFile.exists());
+        Assertions.assertTrue(sourceJarFile.exists());
 
         try (JarFile jar = new JarFile(sourceJarFile)) {
             Manifest manifest = jar.getManifest();
-            Assert.assertNotNull(manifest);
+            Assertions.assertNotNull(manifest);
             Attributes mainAttributes = manifest.getMainAttributes();
 
-            Assert.assertEquals("bundle.source", mainAttributes.getValue("Bundle-SymbolicName"));
-            Assert.assertEquals("1.2.3.TAGNAME", mainAttributes.getValue("Bundle-Version"));
-            Assert.assertEquals("bundle;version=\"1.2.3.TAGNAME\";roots:=\".\"",
+            Assertions.assertEquals("bundle.source", mainAttributes.getValue("Bundle-SymbolicName"));
+            Assertions.assertEquals("1.2.3.TAGNAME", mainAttributes.getValue("Bundle-Version"));
+            Assertions.assertEquals("bundle;version=\"1.2.3.TAGNAME\";roots:=\".\"",
                     mainAttributes.getValue("Eclipse-SourceBundle"));
         }
     }

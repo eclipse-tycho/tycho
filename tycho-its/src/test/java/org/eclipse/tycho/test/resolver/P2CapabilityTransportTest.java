@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.resolver;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for OSGi capability resolution with Provide-Capability and Require-Capability.
@@ -67,7 +67,7 @@ public class P2CapabilityTransportTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 
 		File file = new File(verifier.getBasedir(), "client.bundle/target/dependencies-list.txt");
-		assertTrue("dependencies-list.txt was not generated for client.bundle", file.exists());
+		assertTrue(file.exists(), "dependencies-list.txt was not generated for client.bundle");
 		List<String> fileNames = new ArrayList<>();
 		try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
 			String line;
@@ -77,10 +77,10 @@ public class P2CapabilityTransportTest extends AbstractTychoIntegrationTest {
 				}
 			}
 		}
-		assertTrue("consumer.bundle jar not found in client.bundle dependencies: " + fileNames,
-				fileNames.stream().anyMatch(name -> name.startsWith("consumer.bundle-")));
-		assertTrue("provider.bundle jar not found in client.bundle dependencies: " + fileNames,
-				fileNames.stream().anyMatch(name -> name.startsWith("provider.bundle-")));
+		assertTrue(fileNames.stream().anyMatch(name -> name.startsWith("consumer.bundle-")),
+				"consumer.bundle jar not found in client.bundle dependencies: " + fileNames);
+		assertTrue(fileNames.stream().anyMatch(name -> name.startsWith("provider.bundle-")),
+				"provider.bundle jar not found in client.bundle dependencies: " + fileNames);
 	}
 
 }

@@ -1,8 +1,8 @@
 package org.eclipse.tycho.test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -12,7 +12,7 @@ import java.util.List;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.TargetEnvironment;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 
@@ -110,16 +110,16 @@ public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 			Path productDir = basedir.toPath().resolve(productDirRelative);
 
 			// Verify product was created
-			assertTrue("Product directory should exist: " + productDir, Files.exists(productDir));
+			assertTrue(Files.exists(productDir), "Product directory should exist: " + productDir);
 
 			// Verify p2 cache directory was deleted
 			Path cacheDir = productDir.resolve("p2/org.eclipse.equinox.p2.core/cache");
-			assertFalse("P2 cache directory should not exist when deleteP2Cache=true", Files.exists(cacheDir));
+			assertFalse(Files.exists(cacheDir), "P2 cache directory should not exist when deleteP2Cache=true");
 
 			// Verify that p2 directory itself still exists (just not the cache
 			// subdirectory)
 			Path p2Dir = productDir.resolve("p2");
-			assertTrue("P2 directory should still exist: " + p2Dir, Files.exists(p2Dir));
+			assertTrue(Files.exists(p2Dir), "P2 directory should still exist: " + p2Dir);
 		}
 	}
 
@@ -135,12 +135,12 @@ public class P2DirectorPluginTest extends AbstractTychoIntegrationTest {
 			Path productDir = basedir.toPath().resolve(productDirRelative);
 
 			// Verify product was created
-			assertTrue("Product directory should exist: " + productDir, Files.exists(productDir));
+			assertTrue(Files.exists(productDir), "Product directory should exist: " + productDir);
 
 			// Verify p2 cache directory exists (default behavior - cache should be kept)
 			Path cacheDir = productDir.resolve("p2/org.eclipse.equinox.p2.core/cache");
-			assertTrue("P2 cache directory should exist by default (deleteP2Cache not set): " + cacheDir,
-					Files.exists(cacheDir));
+			assertTrue(Files.exists(cacheDir),
+					"P2 cache directory should exist by default (deleteP2Cache not set): " + cacheDir);
 		}
 	}
 

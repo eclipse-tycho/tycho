@@ -12,14 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.TYCHO109product;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Tycho109ProductExportTest extends AbstractTychoIntegrationTest {
 
@@ -34,18 +34,18 @@ public class Tycho109ProductExportTest extends AbstractTychoIntegrationTest {
 		File output = new File(basedir, "HeadlessProduct/target/repository");
 		File outputBinary = new File(output, "binary");
 
-		assertTrue("Exported product folder not found\n" + output.getAbsolutePath(), output.isDirectory());
+		assertTrue(output.isDirectory(), "Exported product folder not found\n" + output.getAbsolutePath());
 		File launcher = new File(outputBinary, "HeadlessProduct.executable.gtk.linux.x86_64_1.0.0");
-		assertTrue("Launcher not found\n" + launcher, launcher.isFile());
+		assertTrue(launcher.isFile(), "Launcher not found\n" + launcher);
 
 		File plugins = new File(output, "plugins");
-		assertTrue("Plugins folder not found", plugins.isDirectory());
+		assertTrue(plugins.isDirectory(), "Plugins folder not found");
 
 		File headlessPlugin = new File(plugins, "HeadlessPlugin_1.0.0.jar");
-		assertTrue("Plugin should be unpacked", headlessPlugin.isFile());
+		assertTrue(headlessPlugin.isFile(), "Plugin should be unpacked");
 
 		File features = new File(output, "features");
-		assertTrue("Features folder not found", features.isDirectory());
+		assertTrue(features.isDirectory(), "Features folder not found");
 	}
 
 	@Test

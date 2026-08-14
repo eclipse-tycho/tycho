@@ -21,16 +21,16 @@ import java.util.List;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("unless java 18 jvm is aviable to tycho build")
+@Disabled("unless java 18 jvm is aviable to tycho build")
 public class Java18ResolutionTest extends AbstractTychoIntegrationTest {
 
 	private static File buildResult;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUp() throws Exception {
 		Verifier verifier = new Java18ResolutionTest().getVerifier("eeProfile.java18", false);
 		verifier.executeGoal("verify");

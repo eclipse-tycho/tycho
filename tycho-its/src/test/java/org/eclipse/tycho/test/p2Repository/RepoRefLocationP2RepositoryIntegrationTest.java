@@ -18,8 +18,8 @@ import static org.eclipse.equinox.p2.repository.IRepository.TYPE_ARTIFACT;
 import static org.eclipse.equinox.p2.repository.IRepository.TYPE_METADATA;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.List;
@@ -32,7 +32,7 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.RepositoryReference;
 import org.eclipse.tycho.test.util.ResourceUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoIntegrationTest {
 
@@ -78,8 +78,8 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 				"/p2Repository.repositoryRef.filter.providing", c -> {
 				});
 
-		assertEquals(allRepositoryReferences.stream().map(rr -> rr.uri()).collect(Collectors.joining(", ")), 4,
-				allRepositoryReferences.size());
+		assertEquals(4, allRepositoryReferences.size(),
+				allRepositoryReferences.stream().map(rr -> rr.uri()).collect(Collectors.joining(", ")));
 		assertThat(allRepositoryReferences, containsInAnyOrder( //
 				new RepositoryReference("https://download.eclipse.org/eclipse/updates/4.29", TYPE_ARTIFACT, ENABLED),
 				new RepositoryReference("https://download.eclipse.org/eclipse/updates/4.29", TYPE_METADATA, ENABLED),

@@ -12,9 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.HashSet;
@@ -27,7 +27,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -59,10 +59,10 @@ public class P2RepositoryMirrorCategoryTest extends AbstractTychoIntegrationTest
 
 		String parentExpr = "repository/units/unit[@id='" + PARENT_CATEGORY_ID + "']";
 		Node parent = (Node) xpath.evaluate(parentExpr, content, XPathConstants.NODE);
-		assertNotNull("Parent category IU was not injected into the mirrored repository", parent);
+		assertNotNull(parent, "Parent category IU was not injected into the mirrored repository");
 
-		assertEquals("Parent IU must be marked as a category", "true", xpath.evaluate(
-				parentExpr + "/properties/property[@name='org.eclipse.equinox.p2.type.category']/@value", content));
+		assertEquals("true", xpath.evaluate(
+				parentExpr + "/properties/property[@name='org.eclipse.equinox.p2.type.category']/@value", content), "Parent IU must be marked as a category");
 
 		NodeList requiredNames = (NodeList) xpath.evaluate(parentExpr + "/requires/required/@name", content,
 				XPathConstants.NODESET);
@@ -71,8 +71,8 @@ public class P2RepositoryMirrorCategoryTest extends AbstractTychoIntegrationTest
 			requiredIds.add(requiredNames.item(i).getNodeValue());
 		}
 
-		assertTrue("Parent should wrap category alpha", requiredIds.contains("org.eclipse.example.category.alpha"));
-		assertTrue("Parent should wrap category beta", requiredIds.contains("org.eclipse.example.category.beta"));
-		assertEquals("Parent should wrap exactly the two source categories", 2, requiredIds.size());
+		assertTrue(requiredIds.contains("org.eclipse.example.category.alpha"), "Parent should wrap category alpha");
+		assertTrue(requiredIds.contains("org.eclipse.example.category.beta"), "Parent should wrap category beta");
+		assertEquals(2, requiredIds.size(), "Parent should wrap exactly the two source categories");
 	}
 }

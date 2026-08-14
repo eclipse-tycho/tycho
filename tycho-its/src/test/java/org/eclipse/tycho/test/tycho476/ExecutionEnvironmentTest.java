@@ -18,8 +18,8 @@ import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ExecutionEnvironmentTest extends AbstractTychoIntegrationTest {
 
@@ -31,10 +31,10 @@ public class ExecutionEnvironmentTest extends AbstractTychoIntegrationTest {
 		// is configured indirectly via Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 		verifier.verifyErrorFreeLog();
 		File classFile = new File(verifier.getBasedir(), "target/classes/TestRunnable.class");
-		Assert.assertTrue(classFile.canRead());
+		Assertions.assertTrue(classFile.canRead());
 		JavaClass javaClass = new ClassParser(classFile.getAbsolutePath()).parse();
 		// bytecode major level 61 == target 17
-		Assert.assertEquals(61, javaClass.getMajor());
+		Assertions.assertEquals(61, javaClass.getMajor());
 	}
 
 }

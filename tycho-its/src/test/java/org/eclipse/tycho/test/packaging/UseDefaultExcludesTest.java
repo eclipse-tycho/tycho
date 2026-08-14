@@ -13,35 +13,32 @@
 
 package org.eclipse.tycho.test.packaging;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import java.util.jar.JarFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class UseDefaultExcludesTest extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testDefaultExcludesRemoveGitignoreByDefault() throws Exception {
 		try (JarFile jarFile = buildAndGetPluginJar("enabled")) {
-			assertNotNull("testdata/file.txt is missing from " + jarFile.getName(),
-					jarFile.getEntry("testdata/file.txt"));
-			assertNull("testdata/.gitignore should have been excluded from " + jarFile.getName(),
-					jarFile.getEntry("testdata/.gitignore"));
+			assertNotNull(jarFile.getEntry("testdata/file.txt"), "testdata/file.txt is missing from " + jarFile.getName());
+			assertNull(jarFile.getEntry("testdata/.gitignore"),
+					"testdata/.gitignore should have been excluded from " + jarFile.getName());
 		}
 	}
 
 	@Test
 	public void testDisabledDefaultExcludesKeepGitignore() throws Exception {
 		try (JarFile jarFile = buildAndGetPluginJar("disabled")) {
-			assertNotNull("testdata/file.txt is missing from " + jarFile.getName(),
-					jarFile.getEntry("testdata/file.txt"));
-			assertNotNull("testdata/.gitignore is missing from " + jarFile.getName(),
-					jarFile.getEntry("testdata/.gitignore"));
+			assertNotNull(jarFile.getEntry("testdata/file.txt"), "testdata/file.txt is missing from " + jarFile.getName());
+			assertNotNull(jarFile.getEntry("testdata/.gitignore"), "testdata/.gitignore is missing from " + jarFile.getName());
 		}
 	}
 

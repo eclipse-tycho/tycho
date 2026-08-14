@@ -12,9 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.TYCHO192sourceBundles;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -31,7 +31,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.XMLTool;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.osgi.framework.Constants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -54,14 +54,14 @@ public class Tycho192SourceBundleTest extends AbstractTychoIntegrationTest {
 		Document p2ContentDOM = XMLTool.parseXMLDocument(p2Content);
 		Element sourceBundleUnitNode = (Element) XMLTool.getFirstMatchingNode(p2ContentDOM,
 				"/units/unit[@id = 'helloworld.source']");
-		assertNotNull("unit with id 'helloworld.source' not found", sourceBundleUnitNode);
+		assertNotNull(sourceBundleUnitNode, "unit with id 'helloworld.source' not found");
 		assertHasMavenClassifierProperty(sourceBundleUnitNode);
 	}
 
 	private void assertHasMavenClassifierProperty(Element node) throws XPathExpressionException {
 		Element classifierNode = (Element) XMLTool.getFirstMatchingNode(node,
 				"properties/property[@name = 'maven-classifier']");
-		assertNotNull("property node with name 'maven-classifier' not found", classifierNode);
+		assertNotNull(classifierNode, "property node with name 'maven-classifier' not found");
 		assertEquals("sources", classifierNode.getAttribute("value"));
 	}
 
@@ -70,7 +70,7 @@ public class Tycho192SourceBundleTest extends AbstractTychoIntegrationTest {
 		Document p2ArtifactsDOM = XMLTool.parseXMLDocument(p2Artifacts);
 		Element sourceBundleArtifactNode = (Element) XMLTool.getFirstMatchingNode(p2ArtifactsDOM,
 				"/artifacts/artifact[@id = 'helloworld.source']");
-		assertNotNull("artifact with id 'helloworld.source' not found", sourceBundleArtifactNode);
+		assertNotNull(sourceBundleArtifactNode, "artifact with id 'helloworld.source' not found");
 		assertHasMavenClassifierProperty(sourceBundleArtifactNode);
 	}
 

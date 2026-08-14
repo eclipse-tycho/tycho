@@ -12,15 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.reactor.makeBehaviour;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test Maven reactor make behaviors
@@ -41,7 +41,7 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 
 	private Verifier verifier;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		verifier = getVerifier("reactor.makeBehaviour", false, true);
 		verifier.addCliOption("-T1C");
@@ -137,8 +137,8 @@ public class MavenReactorMakeOptionsTest extends AbstractTychoIntegrationTest {
 	@Test
 	public void testSingleProjectNoOptionFails() throws Exception {
 		verifier.addCliOption("-pl feature1");
-		assertThrows("Build should fail due to missing reactor dependency", VerificationException.class,
-				() -> verifier.executeGoals(List.of("clean", "verify")));
+		assertThrows(VerificationException.class, () -> verifier.executeGoals(List.of("clean", "verify")),
+				"Build should fail due to missing reactor dependency");
 		verifier.verifyTextInLog(
 				"Missing requirement: feature1.feature.group 1.0.0.qualifier requires 'org.eclipse.equinox.p2.iu; bundle1 0.0.0' but it could not be found");
 	}

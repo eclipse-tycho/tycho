@@ -16,7 +16,7 @@ package org.eclipse.tycho.test.p2Repository;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -26,8 +26,8 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
 import org.eclipse.tycho.test.util.ResourceUtil;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTest {
 
@@ -36,7 +36,7 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 	private static Verifier verifier;
 	private static P2RepositoryTool p2Repo;
 
-	@BeforeClass
+	@BeforeAll
 	public static void executeBuild() throws Exception {
 		verifier = new BasicP2RepositoryIntegrationTest().getVerifier("/p2Repository");
 		verifier.executeGoal("verify");

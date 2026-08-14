@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.blankOrNullString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.util.List;
@@ -29,8 +29,8 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.XMLTool;
 import org.hamcrest.Matcher;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -49,7 +49,7 @@ public class FeatureAttributesInferenceTest extends AbstractTychoIntegrationTest
 				"feature.attributes.inference.test-1.0.0-sources-feature.jar")[0];
 
 		List<Element> pluginNodes = getPluginElements(featureJar);
-		Assert.assertEquals(3, pluginNodes.size());
+		Assertions.assertEquals(3, pluginNodes.size());
 
 		// Check the feature.xml in the feature-jar
 		assertAttributesOnlyElementWith(Map.of(//
@@ -69,7 +69,7 @@ public class FeatureAttributesInferenceTest extends AbstractTychoIntegrationTest
 
 		// Check the feature.xml in the source-feature-jar
 		List<Element> pluginSourceNodes = getPluginElements(featureSourceJar);
-		Assert.assertEquals(3, pluginSourceNodes.size());
+		Assertions.assertEquals(3, pluginSourceNodes.size());
 
 		assertAttributesOnlyElementWith(Map.of(//
 				"id", equalTo("junit-jupiter-api.source"), //

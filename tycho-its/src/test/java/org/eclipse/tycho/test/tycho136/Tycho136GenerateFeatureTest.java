@@ -14,11 +14,11 @@ package org.eclipse.tycho.test.tycho136;
 
 import java.io.File;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Tycho136GenerateFeatureTest extends AbstractTychoIntegrationTest {
 
@@ -31,9 +31,9 @@ public class Tycho136GenerateFeatureTest extends AbstractTychoIntegrationTest {
 
         File basedir = new File(verifier.getBasedir());
         File featureSource = new File(basedir, "SiteA/target/site/features/FeatureA.source_1.0.0.jar");
-        Assert.assertTrue("Site should generate FeatureA.source", featureSource.exists());
+        Assertions.assertTrue(featureSource.exists(), "Site should generate FeatureA.source");
 
         File featurePlugin = new File(basedir, "SiteA/target/site/plugins/FeatureA.source_1.0.0.jar");
-        Assert.assertTrue("Site should generate FeatureA.source Plugin", featurePlugin.exists());
+        Assertions.assertTrue(featurePlugin.exists(), "Site should generate FeatureA.source Plugin");
     }
 }
