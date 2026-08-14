@@ -49,12 +49,15 @@ import org.eclipse.pde.core.target.NameVersionDescriptor;
 import org.eclipse.pde.core.target.TargetBundle;
 import org.eclipse.pde.core.target.TargetFeature;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.io.TempDirDeletionStrategy;
 
 public abstract class AbstractMavenTargetTest {
     static final String SOURCE_BUNDLE_SUFFIX = ".source";
     static final TargetBundle[] EMPTY = {};
 
-    @TempDir
+    // the resolution under test keeps files of the temporary repository open, which stops
+    // Windows from deleting them, and the TemporaryFolder rule used to ignore that as well
+    @TempDir(deletionStrategy = TempDirDeletionStrategy.IgnoreFailures.class)
     Path temporaryFolder;
 
     private static ServiceLoader<TargetLocationLoader> LOCATION_LOADER = ServiceLoader.load(TargetLocationLoader.class,
