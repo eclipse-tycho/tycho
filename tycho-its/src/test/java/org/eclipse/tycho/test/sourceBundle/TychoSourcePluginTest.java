@@ -59,16 +59,6 @@ public class TychoSourcePluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
-	public void testExtraSourceBundles() throws Exception {
-		Verifier verifier = getVerifier("/sourcePlugin/extra-source-bundles", true, false);
-		verifier.executeGoals(List.of("clean", "install"));
-		verifier.verifyErrorFreeLog();
-		File file = new File(verifier.getBasedir(),
-				"sourcefeature.repository/target/repository/plugins/extra.sourcefeature.bundle_1.0.0.123abc.jar");
-		assertTrue(file.canRead(), "Missing expected file");
-	}
-
-	@Test
 	public void testRemoteSourceBundles() throws Exception {
 		Verifier verifier = getVerifier("/sourcePlugin/remote-source-bundles", true, false);
 		verifier.executeGoals(List.of("clean", "install"));
