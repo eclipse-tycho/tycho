@@ -37,6 +37,10 @@ public class JUnit4Test extends AbstractTychoIntegrationTest {
 		// ensure that JUnit 3 style tests also work -> related to bug 388909
 		assertTrue(testResultFile(verifier.getBasedir(), "bundle.test", "JUnit3Test").exists());
 
+		// selecting the JUnit 4 provider must warn about its deprecation
+		verifier.verifyTextInLog("[WARNING] The JUnit 4 test framework provider is deprecated");
+		verifier.verifyTextInLog("Please migrate to JUnit 5 or use JUnit Vintage");
+
 	}
 
 	/**
