@@ -186,8 +186,6 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                         // and unknown ones. Need to find something smarter to map artifact with actual file.
                         if (id.endsWith("source")) {
                             reactorFile = reactorProject.getArtifact("sources");
-                        } else if (id.endsWith("source.feature.jar")) {
-                            reactorFile = reactorProject.getArtifact("sources-feature");
                         } else if (id.endsWith("_root")) {
                             reactorFile = reactorProject.getArtifact("root");
                         } else {
