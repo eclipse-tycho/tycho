@@ -4,6 +4,64 @@ This page describes the noteworthy improvements provided by each release of Ecli
 If you are reading this in the browser, then you can quickly jump to specific versions by using the rightmost button above the headline:
 ![grafik](https://github.com/eclipse-tycho/tycho/assets/406876/7025e8cb-0cdb-4211-8239-fc01867923af)
 
+## 5.0.4
+
+### Features
+
+- Add support for `Require-Capability` filtering: a new `disable-require-capability` profile property lets you break P2 capability/`Require-Bundle` resolution cycles by stripping `Require-Capability` from the resolver state
+- `tycho-p2-extras:mirror` and related P2 Manager tooling gains an `ecfProvider` parameter to select the file transfer provider used to fetch content, defaulting to `org.eclipse.ecf.provider.filetransfer.httpclientjava`
+- Add generic bnd-run properties parameter and a `debugPort` parameter to the `bnd-test` mojo
+- Add a `content-redirections` parameter to `tycho-p2-extras:mirror` (fixes [#6155](https://github.com/eclipse-tycho/tycho/issues/6155))
+- Add capability to override an existing manifest in bundles via a new attribute on the Maven target location
+- Distinguish cache hits from real downloads in the p2 transport log, so warm-cache builds no longer look like they are re-downloading everything and real network activity remains visible in CI logs
+- Deduplicate versions by major.minor.micro in the baseline `EclipseIndexArtifactVersionProvider`, significantly speeding up baseline checks against indices (e.g. Orbit) that contain many qualifier-only builds of the same bundle (e.g. `org.eclipse.swt`)
+- `ECLIPSE_LATEST` now resolves to the 2026-06 Eclipse release
+
+### Bug Fixes
+
+- Fix `tycho-p2-extras:p2-manager` (`P2ManagerMojo`) failing to start: the default JustJ tools repository URL was invalid, and the mojo now supports customizable `managerRepository` and `eclipseRepository` properties along with a default for the `relative` parameter
+- Fix double URL-encoding of paths with spaces in `category-p2-metadata`, which previously caused the P2 publisher to fail with `ProvisionException: Error reading update site` for update sites containing spaces
+- Fix exclusion of Plexus defaults on `useDefaultExcludes` ([#6196](https://github.com/eclipse-tycho/tycho/issues/6196))
+- Fix BOM dependency expansion in Maven target locations, including a version range resolution failure in tests and an operator precedence NPE in `MavenDependencyCollector.isVersionRanged()`; wrapped bundle versions are now normalized to 3-part OSGi format so raw `Bundle-Version` matches the P2-normalized version used in IUs and generated feature plugin references
+- Port m2e changes for BOM dependencies in m2e target locations
+- Add missing version ranges to the implicit imports of `tycho.surefire.junit5`, preventing JUnit 6+ bundles from being pulled into the test runtime just because a test project depends on JUnit 5 packages/bundles
+
+### Dependency Upgrades
+
+The following notable dependencies have been upgraded:
+
+#### Eclipse Platform
+
+Eclipse Platform and related components have been updated to the 2026-06 release train, including:
+- JDT (ECJ 3.45.0 → 3.46.0, JDT Core, JDT Launching, JDT Core Manipulation, JDT UI)
+- PDE (PDE Core 3.21.200 → 3.21.300, PDE API Tools 1.3.1100 → 1.3.1200, PDE UI 3.16.400 → 3.16.500)
+- Equinox (OSGi 3.24.100 → 3.24.200, Common, Concurrent, Frameworkadmin, Simpleconfigurator Manipulator)
+- Platform UI (Workbench, IDE 3.23.0 → 3.23.100, JFace 3.39.0 → 3.39.100, LTK Core Refactoring)
+- Help Base: 4.6.0 → 4.6.100
+
+#### Build Tools & Libraries
+
+- ASM: 9.10 → 9.10.1
+- BND: 7.2.3 → 7.3.0
+- BouncyCastle: 1.84 → 1.85
+- Apache Commons Codec: 1.22.0 → 1.22.1
+- Apache Maven Dependency Plugin, Jar Plugin (3.5.0 → 3.5.1), Resolver Transport File
+- CycloneDX Core Java: 12.2.0 → 13.1.0
+- CycloneDX Maven Plugin: 2.9.1 → 2.9.3
+- domtrip-core: 1.2.0 → 1.6.0
+- JGit: 7.6.0 → 7.7.1
+- JUnit: 6.1.0 → 6.1.3 (now imported via `junit-bom`)
+- Jetty: 12.1.9 → 12.1.12
+- jfiveparse: 2.0.0 → 2.1.0
+- Maven Njord Extension: 0.9.6 → 0.9.10
+- Sisu: 1.0.0 → 1.1.0
+- Takari Smart Builder: 1.1.0 → 1.1.1
+- Takari Polyglot Common: 0.8.1 → 0.8.2
+- xmlunit-core: 2.11.0 → 2.13.0
+- JaCoCo Maven Plugin: 0.8.14 → 0.8.15
+- Plexus Archiver: 4.11.0 → 4.12.0
+- Surefire: 3.5.5 → 3.5.6
+
 ## 5.0.3
 
 ### New `tycho-p2-extras:p2-manager` mojo for managing P2 update sites
