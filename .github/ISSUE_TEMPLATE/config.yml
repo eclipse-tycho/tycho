@@ -6,3 +6,6 @@ contact_links:
   - name: Contributing guide (incl. AI/GenAI usage policy)
     url: https://github.com/eclipse-tycho/tycho/blob/main/CONTRIBUTING.md#using-ai--genai-tools-to-contribute
     about: Read this before opening an issue, especially if an AI agent is helping you draft it.
+  - name: Professional / commercial support
+    url: https://github.com/eclipse-tycho/tycho#getting-support
+    about: This is a community project without guaranteed response times. If you need dedicated help or priority handling, see companies offering commercial support for Tycho.
