@@ -193,7 +193,7 @@ See [target-platform-configuration dependency-resolution](../target-platform-con
 
 See [target-platform-configuration pomDependencies](../target-platform-configuration/target-platform-configuration-mojo.html#pomDependencies).
 
-For an example, see the POM of this [demo project](https://github.com/eclipse-tycho/tycho/tree/master/demo/itp02/build02).
+For an example, see the POM of this [demo project](https://github.com/eclipse-tycho/tycho/tree/main/demo/itp02/build02).
 
 ## Effective content of the target platform
 
