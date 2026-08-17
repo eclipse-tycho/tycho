@@ -64,9 +64,9 @@ When Maven starts, the `tycho-build` extension is loaded before the build begins
 
 You can find working examples of projects using the `tycho-build` extension in the Tycho repository:
 
-- [BND Workspace Demo](https://github.com/eclipse-tycho/tycho/tree/master/demo/bnd-workspace)
-- [Mixed BND and PDE Workspace Demo](https://github.com/eclipse-tycho/tycho/tree/master/demo/bnd-pde-workspace)
-- [PDE Structured Build Demo](https://github.com/eclipse-tycho/tycho/tree/master/demo/pde-automatic-manifest)
+- [BND Workspace Demo](https://github.com/eclipse-tycho/tycho/tree/main/demo/bnd-workspace)
+- [Mixed BND and PDE Workspace Demo](https://github.com/eclipse-tycho/tycho/tree/main/demo/bnd-pde-workspace)
+- [PDE Structured Build Demo](https://github.com/eclipse-tycho/tycho/tree/main/demo/pde-automatic-manifest)
 
 ## Migration from tycho-pomless
 

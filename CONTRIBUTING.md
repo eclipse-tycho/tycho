@@ -73,14 +73,14 @@ This can be accomplished by adding the following snippet to your (parent) pom.xm
 ```
 Make sure you have set the property for the Tycho version (e.g. `tycho-version`) to `<version-under-development>-SNAPSHOT` in the project being built.
 
-For documentation of the most recent snapshot build, see the [Snapshot Tycho Site](https://tycho.eclipseprojects.io/doc/master/index.html).
+For documentation of the most recent snapshot build, see the [Snapshot Tycho Site](https://tycho.eclipseprojects.io/doc/main/index.html).
 
 If you identify an issue, please try to reduce the case to the minimal project and steps to reproduce, and then report the bug with details to reproduce
 and the minimal reproducer project to Tycho's [issue tracker](https://github.com/eclipse-tycho/tycho/issues).
 
 ## Development environment
 
-[![Create Eclipse Development Environment for Tycho](https://download.eclipse.org/oomph/www/setups/svg/tycho.svg)](https://www.eclipse.org/setups/installer/?url=https://raw.githubusercontent.com/eclipse-tycho/tycho/master/setup/TychoDevelopmentConfiguration.setup&show=true "Click to open Eclipse-Installer Auto Launch or drag into your running installer")
+[![Create Eclipse Development Environment for Tycho](https://download.eclipse.org/oomph/www/setups/svg/tycho.svg)](https://www.eclipse.org/setups/installer/?url=https://raw.githubusercontent.com/eclipse-tycho/tycho/main/setup/TychoDevelopmentConfiguration.setup&show=true "Click to open Eclipse-Installer Auto Launch or drag into your running installer")
 
 &nbsp;&nbsp;&nbsp;or just&nbsp;&nbsp;&nbsp;
 
@@ -174,10 +174,10 @@ Alternatively, e.g. if you are only interested in modifying an integration test 
 
 ### Writing Tycho Integration Tests
 
-The tycho integration tests are located in the [tycho-its](https://github.com/eclipse-tycho/tycho/tree/master/tycho-its) subfolder of the repository. Creating a new integration test usually includes the following steps:
+The tycho integration tests are located in the [tycho-its](https://github.com/eclipse-tycho/tycho/tree/main/tycho-its) subfolder of the repository. Creating a new integration test usually includes the following steps:
 
-1. Create a new folder in the [projects](https://github.com/eclipse-tycho/tycho/tree/master/tycho-its/projects) directory (see below for a good naming, but this could be improved as part of the review so don't worry about choosing an intermediate name first). Usually, you want to use `${tycho-version}` as a placeholder in your pom so the execution picks up the current tycho version
-2. Check if there is already a suitable test class available or simply create your own in the [test](https://github.com/eclipse-tycho/tycho/tree/master/tycho-its/src/test/java/org/eclipse/tycho/test/) directory (again the name could be improved later on if required). The usual pattern for a self-contained test case that fails the build is:
+1. Create a new folder in the [projects](https://github.com/eclipse-tycho/tycho/tree/main/tycho-its/projects) directory (see below for a good naming, but this could be improved as part of the review so don't worry about choosing an intermediate name first). Usually, you want to use `${tycho-version}` as a placeholder in your pom so the execution picks up the current tycho version
+2. Check if there is already a suitable test class available or simply create your own in the [test](https://github.com/eclipse-tycho/tycho/tree/main/tycho-its/src/test/java/org/eclipse/tycho/test/) directory (again the name could be improved later on if required). The usual pattern for a self-contained test case that fails the build is:
 ```java
 @Test
 public void test() throws Exception {

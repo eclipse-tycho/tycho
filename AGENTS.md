@@ -1,6 +1,6 @@
-# Copilot Instructions for Eclipse Tycho
+# Agent Instructions for Eclipse Tycho
 
-This document provides guidance for GitHub Copilot when working with the Eclipse Tycho codebase.
+This document provides guidance for AI coding agents (GitHub Copilot and others) when working with the Eclipse Tycho codebase.
 
 ## ⚠️ Rules for AI Agents Acting on Behalf of a User
 
@@ -110,26 +110,29 @@ mvn clean install -T1C -DskipTests
 
 **Format:**
 ```
-Bug: <issue-number> <Short description>
+<Short description>
 
 <Detailed explanation of changes>
 <Motivation and reasoning>
 ```
 
 **Important:**
-- Start with `Bug: <number>` to enable Eclipse genie bot cross-linking
 - Keep first line concise and descriptive
+- Reference the issue number (e.g., `Fixes #1234` or `Refs #1234`) in the body if the commit
+  relates to a GitHub issue, so GitHub links them automatically
 - Add detailed explanation after a blank line
 - Make small, self-contained commits
 - Separate refactoring commits from functional changes
 
 **Example:**
 ```
-Bug: 1234 Fix ClassNotFoundException in tycho-compiler-plugin
+Fix ClassNotFoundException in tycho-compiler-plugin
 
 The compiler plugin was not correctly handling classpath entries when
 processing split packages. This change adds proper validation and 
 fallback handling for ambiguous package cases.
+
+Fixes #1234
 ```
 
 ## Testing
@@ -148,6 +151,9 @@ fallback handling for ambiguous package cases.
 - Run specific test method: `mvn clean verify -f tycho-its/pom.xml -Dtest=MyTestClass#myTest`
 
 ### Writing Integration Tests
+> See the [`tycho-its` skill](./.agents/skills/tycho-its/SKILL.md) for detailed, up-to-date
+> guidance on writing, running, and debugging integration tests.
+
 1. Create project folder in `tycho-its/projects/` with descriptive name
 2. Use `${tycho-version}` placeholder in pom.xml files
 3. Create or add to existing test class in `tycho-its/src/test/java/org/eclipse/tycho/test/`
@@ -169,9 +175,9 @@ public void test() throws Exception {
 
 ## Pull Request Guidelines
 
-- Create branch from `master` with descriptive name
+- Create branch from `main` with descriptive name
 - Use format like `issue_<number>_<description>` or `<component>-<fix-description>`
-- Even small bug fixes should branch from master (backporting handled separately)
+- Even small bug fixes should branch from `main` (backporting handled separately)
 - Include integration tests when possible
 - Ensure all tests pass before submitting
 

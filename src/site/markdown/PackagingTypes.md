@@ -20,10 +20,10 @@ The lifecycle bindings (i.e. which Maven plugins are executed in which Maven pha
 </plugin>
 ```
 
-All bindings are defined in <https://github.com/eclipse-tycho/tycho/blob/master/tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml>.
+All bindings are defined in <https://github.com/eclipse-tycho/tycho/blob/main/tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml>.
 Only the `default` lifecycle has custom bindings, i.e. the [`clean` and `site` lifecycles](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html#lifecycle-reference) behave as for every other packaging.
 
-The according artifact handlers (i.e. the mapping from the packaging type to a specific extension) are provided by `p2-maven-plugin` in <https://github.com/eclipse-tycho/tycho/tree/master/p2-maven-plugin/src/main/java/org/eclipse/tycho/p2maven/repository>. When referencing one of the packaging types as Maven dependency it needs to be loaded with extensions as well:
+The according artifact handlers (i.e. the mapping from the packaging type to a specific extension) are provided by `p2-maven-plugin` in <https://github.com/eclipse-tycho/tycho/tree/main/p2-maven-plugin/src/main/java/org/eclipse/tycho/p2maven/repository>. When referencing one of the packaging types as Maven dependency it needs to be loaded with extensions as well:
 
 ```xml
 <plugin>
