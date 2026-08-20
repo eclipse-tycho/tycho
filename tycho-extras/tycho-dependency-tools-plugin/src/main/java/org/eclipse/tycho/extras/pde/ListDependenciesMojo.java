@@ -43,7 +43,9 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.helper.PluginRealmHelper;
 
 /**
- * Builds a .target file describing the dependencies for current project. It differs from
+ * Writes a plain text file listing the absolute filesystem locations of all dependencies (and, for
+ * OSGi bundle projects, any additional classpath entries contributed by
+ * {@link ClasspathContributor}s) of the current project, one location per line. It differs from
  * <code>maven-dependency-plugin:list</code> in the fact that it does return location to bundles,
  * and not to nested jars (in case bundle contain some).
  */
@@ -55,6 +57,12 @@ public class ListDependenciesMojo extends AbstractMojo {
 
     @Parameter(property = "skip")
     private boolean skip;
+
+    /**
+     * The file the list of dependency locations is written to, one absolute path per line.
+     */
+    @Parameter(property = "tycho.dependencies.list.outputFile", defaultValue = "${project.build.directory}/dependencies-list.txt")
+    private File outputFile;
 
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
@@ -74,7 +82,6 @@ public class ListDependenciesMojo extends AbstractMojo {
             getLog().info("Execution was skipped");
             return;
         }
-        File outputFile = new File(project.getBuild().getDirectory(), "dependencies-list.txt");
         try {
             outputFile.getParentFile().mkdirs();
             outputFile.createNewFile();
