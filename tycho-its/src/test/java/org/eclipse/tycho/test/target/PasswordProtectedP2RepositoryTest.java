@@ -13,29 +13,38 @@
 package org.eclipse.tycho.test.target;
 
 import java.io.File;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationTest {
 
-	private HttpServer server;
-	private String p2RepoUrl;
+	private static HttpServer server;
+	private static String p2RepoUrl;
 
-	private HttpServer mirror;
-	private String p2MirrorUrl;
+	private static HttpServer mirror;
+	private static String p2MirrorUrl;
 
-	private HttpServer authMirror;
-	private String p2AuthMirrorUrl;
+	private static HttpServer authMirror;
+	private static String p2AuthMirrorUrl;
 
-	@BeforeEach
-	public void startServer() throws Exception {
+	@BeforeAll
+	static void startServer() throws Exception {
 		server = HttpServer.startServer("test-user", "test-password");
 		p2RepoUrl = server.addServer("foo", ResourceUtil.resolveTestResource("repositories/e342"));
 
@@ -46,8 +55,8 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
 		p2AuthMirrorUrl = authMirror.addServer("bar", ResourceUtil.resolveTestResource("repositories/e342"));
 	}
 
-	@AfterEach
-	public void stopServer() throws Exception {
+	@AfterAll
+	static void stopServer() throws Exception {
 		authMirror.stop();
 		mirror.stop();
 		server.stop();
@@ -103,6 +112,35 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
 		File platformFile = new File(verifier.getBasedir(), "platform.target");
 		TargetDefinitionUtil.setRepositoryURLs(platformFile, p2RepoUrl);
 		verifier.addCliOption("-P=target-definition");
+		verifier.executeGoal("package");
+		verifier.verifyErrorFreeLog();
+	}
+
+	private static Stream<String> supportedURLBasedServerIds() {
+		URI serverURI = URI.create(p2RepoUrl);
+		String authority = serverURI.getAuthority();
+		List<String> pathSegments = Arrays.stream(serverURI.getPath().split("/")).filter(s -> !s.isEmpty()).toList();
+		List<String> paths = IntStream.rangeClosed(0, pathSegments.size())
+				.mapToObj(i -> String.join("/", pathSegments.subList(0, i))).map(p -> p.isEmpty() ? "" : ("/" + p))
+				.toList();
+
+		return Stream.of(serverURI.getScheme() + "://", "")
+				.flatMap(scheme -> paths.stream().map(p -> scheme + authority + p));
+	}
+
+	@ParameterizedTest
+	@MethodSource("supportedURLBasedServerIds")
+	public void testTargetDefinitionWithoutLocationID(String serverId) throws Exception {
+		Verifier verifier = createVerifier("settings-repository-id.xml");
+
+		File platformFile = new File(verifier.getBasedir(), "platform-without-repository-id.target");
+		TargetDefinitionUtil.setRepositoryURLs(platformFile, p2RepoUrl);
+		Path settingsFile = Path.of(verifier.getBasedir(), "settings-repository-id.xml");
+		Files.writeString(settingsFile, Files.readString(settingsFile).replace("[serverId]", serverId));
+		verifier.getCliOptions().removeIf(o -> o.startsWith("-s ") || o.startsWith("--settings"));
+		verifier.addCliOption("--settings " + settingsFile);
+
+		verifier.addCliOption("-P=target-definition-without-repository-id");
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 	}
