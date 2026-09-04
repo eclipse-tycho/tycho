@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle
+Bundle-SymbolicName: bundle
+Bundle-Version: 0.0.1.qualifier
+Automatic-Module-Name: bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: host
