@@ -42,6 +42,7 @@ import org.osgi.framework.VersionRange;
 
 import aQute.bnd.osgi.Jar;
 
+@Disabled("Disabled for incompatibility with Maven 4")
 public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
 
     @Test

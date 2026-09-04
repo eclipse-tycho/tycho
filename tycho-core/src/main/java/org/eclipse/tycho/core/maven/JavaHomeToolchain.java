@@ -15,8 +15,11 @@ package org.eclipse.tycho.core.maven;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.toolchain.java.JavaToolchain;
 import org.eclipse.tycho.TargetEnvironment;
 
@@ -52,8 +55,26 @@ final class JavaHomeToolchain implements JavaToolchain {
         return null;
     }
 
+    @Override
     public String getJavaHome() {
         return javaHome.toString();
+    }
+
+    @Override
+    public ArtifactVersion getJavaVersion() {
+        Path release = javaHome.resolve("release");
+        if (Files.isRegularFile(release)) {
+            Properties properties = new Properties();
+            try (var reader = Files.newBufferedReader(release)) {
+                properties.load(reader);
+                String javaVersion = properties.getProperty("JAVA_VERSION");
+                if (javaVersion != null) {
+                    return new DefaultArtifactVersion(javaVersion.replace("\"", ""));
+                }
+            } catch (IOException e) {
+            }
+        }
+        return null;
     }
 
     @Override
