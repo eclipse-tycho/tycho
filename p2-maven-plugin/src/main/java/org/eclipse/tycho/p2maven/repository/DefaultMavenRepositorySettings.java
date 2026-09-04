@@ -14,11 +14,15 @@
 package org.eclipse.tycho.p2maven.repository;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.maven.RepositoryUtils;
@@ -101,7 +105,14 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
             return null;
         }
 		Server serverSettings = settings.getServer(location.getId());
-
+		if (serverSettings == null) {
+			URI url = location.getURL();
+			Map<String, Server> servers = settings.getServers().stream() // more efficient for many id lookups
+					.collect(Collectors.toMap(Server::getId, s -> s, (s1, s2) -> s1));
+			serverSettings = Stream.concat(Stream.of(url), parentPathURLs(url)) //
+					.map(URI::toString).map(u -> u.startsWith("//") ? u.substring(2) : u) //
+					.map(servers::get).filter(Objects::nonNull).findFirst().orElse(null);
+		}
         if (serverSettings != null) {
             SettingsDecryptionResult result = decrypter.decryptAndLogProblems(serverSettings);
             Server decryptedServer = result.getServer();
@@ -110,6 +121,28 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
         }
         return null;
     }
+
+	public Stream<URI> parentPathURLs(URI uri) {
+		String originalPath = uri.getPath();
+		if (originalPath == null || originalPath.isEmpty()) {
+			return Stream.empty();
+		}
+		List<String> pathSegments = Arrays.asList(originalPath.split("/")); // Keep leading slash
+		List<URI> uris = IntStream.range(0, pathSegments.size())
+				.mapToObj(removed -> String.join("/", pathSegments.subList(0, pathSegments.size() - removed)))
+				.map(path -> derive(uri, uri.getScheme(), path)).filter(Objects::nonNull).toList();
+		return Stream.concat(uris.stream(),
+				uris.stream().map(u -> derive(u, null, u.getPath())).filter(Objects::nonNull));
+	}
+
+	private URI derive(URI uri, String scheme, String path) {
+		try {
+			return new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(), path, null, null);
+		} catch (Exception e) {
+			logger.warn("Failed to create derived URI from " + uri, e);
+			return null; // ignore erroneous URIs
+		}
+	}
 
     public Mirror getTychoMirror(ArtifactRepository repository, List<Mirror> mirrors) {
         // if we find a mirror the default way (the maven way) we will use that mirror

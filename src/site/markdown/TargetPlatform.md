@@ -178,6 +178,53 @@ Since Tycho 0.17.0, it is also possible to configure multiple target files by sp
 
 Note: Eclipse PDE supports activating multiple target files at once using reference target locations (see [PDE reference target locations](https://eclipse.dev/eclipse/news/4.23/pde.html#pde-editor-include)).
 
+#### Authentication for p2 Repositories
+
+To access p2-repositories that require basic authentication, add a `<server>` entry in the `settings.xml` that specifies the required `username` and `password`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
+	<servers>
+		<server>
+			<id>my_id</id>
+			<username>my_username</username>
+			<password>my_password</password>
+		</server>
+	</servers>
+</settings>
+```
+
+When accessing a p2 repository, Tycho will check if there is a `<server>` entry with matching ID and use these credentials.
+The ID of a p2 repository can be specified explicitly, e.g. when adding a repository in the POM or in a `.target` file by setting the `id` attribute for a `repository` element:
+```xml
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+	<repository location="https://my.company.com/repo/foo/" id="my_id"/>
+	...
+```
+
+But the `id` attribute is not considered by PDE and therefore can be removed by some editors, which makes using explicit IDs cumbersome.
+If no `id` is specified for a `repository` in a `.target` file, the repository's `location` URL is used as ID.
+First, a `server` with `id` equal to the repository `location` is searched.
+If none is found, a `server` is searched for each parent path of the `location` URL (without trailing slash).
+Last, that search is repeated with the _scheme_ part of the `location` URL being removed.
+
+In the example above, each of the following server IDs would match the specified repository location (and is searched for in that order):
+1. `https://my.company.com/repo/foo`
+2. `https://my.company.com/repo`
+3. `https://my.company.com`
+4. `my.company.com/repo/foo`
+5. `my.company.com/repo`
+6. `my.company.com`
+
+IDs corresponding to more specific locations are preferred.
+Using a location's parent path as `id` allows to use one `server` specification for multiple repositories under the same parent.
+
+To prevent storing passwords as plain text in files, see also Maven's [Settings#Servers](https://maven.apache.org/settings.html#servers) reference
+and its guide about [Password Encryption](https://maven.apache.org/guides/mini/guide-encryption.html).
+Furthermore consider the ability to supply passwords via environment variables, by using e.g. `<password>${env.MY_PASSWORD}</password>`, for CI pipelines.
+
 #### Tycho's interpretation of target definition files
 
 Note: Tycho's interpretation of the target definition file format differs from the PDE in the following aspects:
