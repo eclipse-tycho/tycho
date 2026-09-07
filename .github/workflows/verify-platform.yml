@@ -31,11 +31,13 @@ jobs:
             11
             17
             21
+            25
         mvn-toolchain-id: |
             JavaSE-1.8
             JavaSE-11
             JavaSE-17
             JavaSE-21
+            JavaSE-25
         distribution: 'temurin'
     - name: Cache local Maven repository
       uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
@@ -60,7 +62,7 @@ jobs:
         clean install
     - name: Run Platform Build
       env:
-       JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
+       JAVA_HOME: ${{ env.JAVA_HOME_25_X64 }}
       working-directory: 'aggregator'
       run: >- 
         mvn -U -V -e -B -ntp
