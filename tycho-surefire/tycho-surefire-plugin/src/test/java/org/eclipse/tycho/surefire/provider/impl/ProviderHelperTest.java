@@ -16,6 +16,7 @@ package org.eclipse.tycho.surefire.provider.impl;
 import static java.util.Collections.emptyList;
 import static org.eclipse.tycho.surefire.provider.impl.AbstractJUnitProviderTest.classPath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
@@ -54,6 +55,10 @@ public class ProviderHelperTest {
                 .selectProvider(null, classPath("org.junit:3.8.2", "org.junit4:4.8.1"), providerProperties, null)
                 .provider();
         assertEquals(JUnit4Provider.class, provider.getClass());
+        // JUnit 4 tests are executed by the JUnit Platform provider using the vintage engine
+        assertEquals("org.apache.maven.surefire.junitplatform.JUnitPlatformProvider",
+                provider.getSurefireProviderClassName());
+        assertEquals("true", provider.getProviderSpecificProperties().getProperty("junit.vintage.engine.detected"));
     }
 
     @Test
@@ -74,8 +79,12 @@ public class ProviderHelperTest {
     @Test
     public void testSelectTestNG() throws Exception {
         TestFrameworkProvider provider = providerHelper
-                .selectProvider(null, classPath("org.testng:6.9.12"), new Properties(), null).provider();
+                .selectProvider(null, classPath("org.testng:7.5.1"), new Properties(), null).provider();
         assertEquals(TestNGProvider.class, provider.getClass());
+        // TestNG tests are executed by the JUnit Platform provider using the TestNG engine
+        assertEquals("org.apache.maven.surefire.junitplatform.JUnitPlatformProvider",
+                provider.getSurefireProviderClassName());
+        assertNotNull(provider.getProviderSpecificProperties().getProperty("testng.version"));
     }
 
     @Test

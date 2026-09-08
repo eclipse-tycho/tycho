@@ -19,8 +19,11 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -50,7 +54,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.surefire.api.booter.ProviderParameterNames;
 import org.apache.maven.surefire.api.util.ScanResult;
-import org.apache.maven.surefire.booter.BooterConstants;
 import org.apache.maven.surefire.booter.PropertiesWrapper;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
@@ -93,6 +96,7 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
+import org.eclipse.tycho.p2tools.MetadataSerializable;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
 import org.eclipse.tycho.surefire.provider.impl.ProviderHelper;
 import org.eclipse.tycho.surefire.provider.impl.ProviderSelection;
@@ -154,19 +158,19 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     private String debugOptions;
 
     /**
-     * (JUnit 4.8+ only) Groups/categories for this test (comma-separated). Only classes/methods/etc
-     * decorated with one of the group/category specified here will be included in test run, if
-     * specified. This parameter requires JUnit 4.8 or higher, as the {@code @Category} annotation
-     * was introduced in JUnit 4.8.
+     * Groups/categories/tags for this test (comma-separated). Only classes/methods/etc decorated
+     * with one of the groups specified here will be included in the test run, if specified.
+     * Depending on the test framework this refers to JUnit 4 categories ({@code @Category}), JUnit
+     * 5 tags ({@code @Tag}) or TestNG groups.
      */
     @Parameter(property = "groups")
     private String groups;
 
     /**
-     * (JUnit 4.8+ only) Excluded groups/categories (comma-separated). Any methods/classes/etc with
-     * one of the groups/categories specified in this list will specifically not be run. This
-     * parameter requires JUnit 4.8 or higher, as the {@code @Category} annotation was introduced in
-     * JUnit 4.8.
+     * Excluded groups/categories/tags (comma-separated). Any methods/classes/etc with one of the
+     * groups specified in this list will specifically not be run. Depending on the test framework
+     * this refers to JUnit 4 categories ({@code @Category}), JUnit 5 tags ({@code @Tag}) or TestNG
+     * groups.
      */
     @Parameter(property = "excludedGroups")
     private String excludedGroups;
@@ -348,10 +352,10 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     /**
      * Normally, Tycho will automatically determine the test framework provider based on the test
      * project's classpath. This options forces the use of a test framework provider implementation
-     * with the given role hint. Tycho comes with providers such as
-     * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;,&quot;junit5&quot;, or
-     * &quot;junit59&quot;. Note that when specifying a providerHint, you have to make sure the
-     * provider is actually available in the dependencies of tycho-surefire-plugin.
+     * with the given role hint. Tycho comes with providers such as &quot;junit4&quot;,
+     * &quot;junit5&quot;, &quot;junit5vintage&quot;, &quot;junit6&quot;, or &quot;testng&quot;.
+     * Note that when specifying a providerHint, you have to make sure the provider is actually
+     * available in the dependencies of tycho-surefire-plugin.
      *
      * @since 0.16.0
      */
@@ -596,20 +600,18 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
     @Inject
     protected InstallableUnitGenerator generator;
 
+    @Inject
+    private MetadataSerializable metadataSerializer;
+
     /**
-     * Only supported by the TestNG test provider. The values specified are passed to TestNG as test
-     * suite files. The suite files will overwrite the {@link #includes} and {@link #excludes}
-     * patterns. The path to the suite file(s) could be relative (test bundle classpath) or an
-     * absolute path to xml files outside the test bundle.
+     * TestNG suite files are not supported anymore. TestNG tests are executed via the TestNG
+     * Engine for the JUnit Platform that discovers test classes using the {@link #includes} and
+     * {@link #excludes} patterns; suite files specified here are ignored.
      *
-     * <pre>
-     * &lt;configuration&gt;
-     *   &lt;suiteXmlFiles&gt;
-     *     &lt;suiteXmlFile&gt;myTestSuite.xml&lt;/suiteXmlFile&gt;
-     *   &lt;/suiteXmlFiles&gt;
-     * &lt;/configuration&gt;
-     * </pre>
+     * @deprecated has no effect anymore, use {@link #includes}, {@link #excludes} or
+     *             {@link #test} instead
      */
+    @Deprecated
     @Parameter
     private List<String> suiteXmlFiles;
 
@@ -676,6 +678,10 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             }
             RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(project, session,
                     RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
+            // the test framework bundles might require additional units (e.g. the JUnit Platform and
+            // the JUnit Vintage engine for JUnit 4 tests) that are not part of the plain dependencies
+            // of the test bundle, so make them available to the director as well
+            sources.addMetadataRepository(createTestRuntimeMetadataRepository(testHarnessArtifacts));
             if (repositories != null) {
                 for (Repository repository : repositories) {
                     String url = repository.getUrl();
@@ -709,6 +715,48 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * @return the package requirements of the given test framework bundles, these must be
+     *         satisfied by the test runtime in addition to the dependencies of the test bundle
+     */
+    private Collection<IRequirement> getTestFrameworkPackageRequirements(Set<Artifact> testFrameworkBundles) {
+        Collection<IRequirement> testRequiredPackages = new ArrayList<>();
+        for (Artifact artifact : testFrameworkBundles) {
+            generator.getInstallableUnits(artifact).stream().flatMap(iu -> iu.getRequirements().stream())
+                    .filter(req -> {
+                        if (req instanceof IRequiredCapability reqcap) {
+                            if (PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(reqcap.getNamespace())) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }).forEach(testRequiredPackages::add);
+        }
+        return testRequiredPackages;
+    }
+
+    /**
+     * Resolves the test runtime including the requirements of the given test framework bundles
+     * and writes the metadata of the result into a p2 metadata repository that can be used as an
+     * additional source when provisioning the test runtime with the p2 director.
+     */
+    private File createTestRuntimeMetadataRepository(Set<Artifact> testFrameworkBundles)
+            throws MojoExecutionException {
+        DependencyArtifacts testRuntimeArtifacts = resolveDependencies(
+                getTestFrameworkPackageRequirements(testFrameworkBundles));
+        // ensure artifacts are available locally
+        testRuntimeArtifacts.getArtifacts().forEach(artifact -> artifact.getLocation(true));
+        File repositoryLocation = new File(project.getBuild().getDirectory(), "testRuntimeRepository");
+        repositoryLocation.mkdirs();
+        try (OutputStream stream = new BufferedOutputStream(
+                new FileOutputStream(new File(repositoryLocation, "content.xml")))) {
+            metadataSerializer.serialize(stream, new HashSet<>(testRuntimeArtifacts.getInstallableUnits()));
+        } catch (IOException e) {
+            throw new MojoExecutionException("I/O exception while writing the test runtime metadata to disk", e);
+        }
+        return repositoryLocation;
     }
 
     private List<String> getIUsToInstall(Set<Artifact> testHarnessArtifacts) {
@@ -758,20 +806,9 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         getLog().info(String.format("Selected test framework %s (%s) with provider %s %s", provider.getType(),
                 provider.getVersion(), selection.hint(), provider.getVersionRange()));
         warnIfDeprecatedProvider(selection);
-        Collection<IRequirement> testRequiredPackages = new ArrayList<>();
         Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
-        for (Artifact artifact : testFrameworkBundles) {
-            generator.getInstallableUnits(artifact).stream().flatMap(iu -> iu.getRequirements().stream())
-                    .filter(req -> {
-                        if (req instanceof IRequiredCapability reqcap) {
-                            if (PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(reqcap.getNamespace())) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }).forEach(testRequiredPackages::add);
-        }
-        DependencyArtifacts testRuntimeArtifacts = resolveDependencies(testRequiredPackages);
+        DependencyArtifacts testRuntimeArtifacts = resolveDependencies(
+                getTestFrameworkPackageRequirements(testFrameworkBundles));
 
         work.mkdirs();
 
@@ -949,7 +986,10 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         }
         wrapper.setProperty("testprovider", provider.getSurefireProviderClassName());
         getLog().debug("Using test framework provider: " + provider.getClass().getName());
-        wrapper.addList(suiteXmlFiles, BooterConstants.TEST_SUITE_XML_FILES);
+        if (suiteXmlFiles != null && !suiteXmlFiles.isEmpty()) {
+            getLog().warn("The parameter suiteXmlFiles is not supported anymore and will be ignored, "
+                    + "TestNG tests are discovered using the includes/excludes patterns instead.");
+        }
         return wrapper;
     }
 
@@ -977,10 +1017,10 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
                     String.valueOf(useUnlimitedThreads));
         }
         if (groups != null) {
-            result.put(ProviderParameterNames.TESTNG_GROUPS_PROP, groups);
+            result.put(ProviderParameterNames.GROUPS_PROP, groups);
         }
         if (excludedGroups != null) {
-            result.put(ProviderParameterNames.TESTNG_EXCLUDEDGROUPS_PROP, excludedGroups);
+            result.put(ProviderParameterNames.EXCLUDEDGROUPS_PROP, excludedGroups);
         }
         return result;
     }
