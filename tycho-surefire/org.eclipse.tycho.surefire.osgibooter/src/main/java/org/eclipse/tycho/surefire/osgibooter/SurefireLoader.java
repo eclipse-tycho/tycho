@@ -39,13 +39,6 @@ class SurefireLoader extends URLClassLoader implements BundleReference {
 
     @Override
     protected java.lang.Class<?> findClass(String name) throws ClassNotFoundException {
-        if ("org.apache.maven.surefire.testng.utils.GroupMatcherMethodSelector".equals(name)) {
-            //Surefire TestNGExecutor uses reflection to load this class and then calls reflective a static method to set the groups
-            //TestNG itself then later uses classforname, so this specific class must *always* be loaded from
-            //the OSGi loaders and never from our surefirebooter
-            //as reflection is used this will not lead to class-space problems
-            return delegate.loadClass(name);
-        }
         try {
             return super.findClass(name);
         } catch (ClassNotFoundException e) {

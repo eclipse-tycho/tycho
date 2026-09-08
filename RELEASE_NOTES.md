@@ -6,6 +6,23 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 6.0.0 (under development)
 
+### Surefire 3.6.0: JUnit 4 and TestNG tests are executed via the JUnit Platform
+
+Tycho now uses Maven Surefire 3.6.0 which has removed its dedicated JUnit 3, JUnit 4 and TestNG providers in favour of one
+unified [JUnit Platform provider](https://maven.apache.org/surefire/maven-surefire-plugin/whats-new-3-6-0.html).
+Tycho follows this change, which has the following consequences for `eclipse-test-plugin` projects and `tycho-surefire-plugin`:
+
+- JUnit 4 (and JUnit 3 style) tests are now executed by the JUnit Platform using the JUnit Vintage engine.
+  The target platform must therefore provide the JUnit Platform (`org.junit.platform.launcher`) and the JUnit Vintage engine
+  (`org.junit.vintage.engine`, version 5.x), as it is the case for all recent Eclipse releases. JUnit 4.12 or higher is required.
+- TestNG tests are now executed by the JUnit Platform using the [TestNG Engine for the JUnit Platform](https://github.com/junit-team/testng-engine).
+  The target platform must therefore provide the JUnit Platform (`org.junit.platform.launcher`). TestNG 6.14.3 or higher is required,
+  it must be available as bundle `org.testng` (e.g. TestNG 7.x from Maven Central) as before.
+- The `suiteXmlFiles` parameter of `tycho-surefire-plugin` is not supported anymore and is ignored (with a warning), TestNG test classes
+  are discovered using the `includes`/`excludes` patterns instead.
+- The `groups` and `excludedGroups` parameters now refer to JUnit 4 categories, JUnit 5 tags or TestNG groups depending on the
+  selected test framework provider.
+
 ### new `tycho-p2-extras:p2-manager` mojo for managing P2 update sites
 
 The new `tycho-p2-extras:p2-manager` goal provides a convenient way to maintain, update, and manage the integrity of public update sites. This mojo wraps the [P2 Manager application from JustJ Tools](https://eclipse.dev/justj/?page=tools) and makes it much easier to use compared to the previous approach using the eclipse-run goal.

@@ -95,6 +95,11 @@
 						<it.cliOptions>${it.cliOptions}</it.cliOptions>
 					</systemPropertyVariables>
 					<forkCount>${itest-forkcount}</forkCount>
+					<!-- the TestNG provider fragment (transitive dependency of tycho-surefire-plugin) registers
+					     a JUnit Platform TestEngine that requires TestNG on the test classpath, which is not desired here -->
+					<classpathDependencyExcludes>
+						<classpathDependencyExclude>org.eclipse.tycho:org.eclipse.tycho.surefire.testng</classpathDependencyExclude>
+					</classpathDependencyExcludes>
 					<!-- see https://maven.apache.org/surefire/maven-surefire-plugin/examples/junit-platform.html#surefire-extensions-and-reports-configuration-for-displayname -->
 					<statelessTestsetReporter
 						implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">

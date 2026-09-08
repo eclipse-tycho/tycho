@@ -19,7 +19,7 @@
 	</parent>
 	<artifactId>org.eclipse.tycho.surefire.junit4</artifactId>
 	<packaging>jar</packaging>
-	<name>Tycho Surefire OSGi JUnit 4.x Runner</name>
+	<name>Tycho Surefire OSGi JUnit 4.x Runner (JUnit Vintage)</name>
 	<build>
 		<plugins>
 			<plugin>
@@ -30,30 +30,11 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<configuration>
+					<excludes>META-INF/**</excludes>
 					<artifactItems>
 						<artifactItem>
 							<groupId>org.apache.maven.surefire</groupId>
-							<artifactId>common-junit4</artifactId>
-							<version>${surefire-version}</version>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.apache.maven.surefire</groupId>
-							<artifactId>surefire-junit47</artifactId>
-							<version>${surefire-version}</version>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.apache.maven.surefire</groupId>
-							<artifactId>common-junit48</artifactId>
-							<version>${surefire-version}</version>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.apache.maven.surefire</groupId>
-							<artifactId>surefire-grouper</artifactId>
-							<version>${surefire-version}</version>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.apache.maven.surefire</groupId>
-							<artifactId>common-junit3</artifactId>
+							<artifactId>surefire-junit-platform</artifactId>
 							<version>${surefire-version}</version>
 						</artifactItem>
 					</artifactItems>

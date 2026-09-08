@@ -36,7 +36,10 @@ public class TestNGBundleTest extends AbstractTychoIntegrationTest {
 		assertTrue(testResultFile(verifier.getBasedir() + File.separator + "bundle.testGroups", "bundle.test",
 				"GroupsTest").exists());
 
-		assertTrue(testResultFile(verifier.getBasedir() + File.separator + "bundle.testSuites", "TestSuite").exists());
+		// suite xml files are not supported anymore, the tests are discovered by scanning instead
+		assertTrue(testResultFile(verifier.getBasedir() + File.separator + "bundle.testSuites", "bundle.test",
+				"SuitesTest").exists());
+		verifier.verifyTextInLog("The parameter suiteXmlFiles is not supported anymore");
 
 	}
 

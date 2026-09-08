@@ -1,7 +1,26 @@
+# TestNG tests are executed by the JUnit Platform provider of surefire using the embedded
+# TestNG Engine for the JUnit Platform (https://github.com/junit-team/testng-engine).
+# We only import some packages here to create a requirement on them so that they become part of
+# the test runtime, the rest of the content in this bundle is only used to bootstrap surefire and
+# does not comply with OSGi rules.
+# TestNG does not export its packages with a version (e.g. 7.5.1) so we use the bundle version instead.
+# The JUnit Platform packages are the ones referenced by the embedded TestNG engine, they must be
+# imported here so that the providing bundles are wired to the host and can be used for class loading.
 Import-Package: \
-	org.testng, \
-	org.testng.xml, \
-	java.*
-Export-Package: org.apache.maven.surefire.testng.utils
+ org.junit.platform.launcher;version="[1,2)", \
+ org.junit.platform.engine;version="[1,2)", \
+ org.junit.platform.engine.discovery;version="[1,2)", \
+ org.junit.platform.engine.reporting;version="[1,2)", \
+ org.junit.platform.engine.support.descriptor;version="[1,2)", \
+ org.junit.platform.engine.support.discovery;version="[1,2)", \
+ org.junit.platform.commons.support;version="[1,2)", \
+ org.testng;bundle-version="[6.14.3,8)", \
+ org.testng.annotations;bundle-version="[6.14.3,8)", \
+ org.testng.internal;bundle-version="[6.14.3,8)", \
+ org.testng.internal.annotations;bundle-version="[6.14.3,8)", \
+ org.testng.xml;bundle-version="[6.14.3,8)", \
+ java.*
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 -removeheaders: Tool, Bnd-*, Created-By, Private-Package
+-fixupmessages "Classes found in the wrong directory"; is:=warning

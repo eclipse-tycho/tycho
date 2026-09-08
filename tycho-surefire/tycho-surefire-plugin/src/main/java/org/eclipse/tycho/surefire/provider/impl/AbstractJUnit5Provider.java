@@ -22,6 +22,8 @@ import org.osgi.framework.VersionRange;
 
 abstract class AbstractJUnit5Provider extends AbstractJUnitProvider {
 
+    static final String JUNIT_PLATFORM_PROVIDER = "org.apache.maven.surefire.junitplatform.JUnitPlatformProvider";
+
     private static final Version VERSION = Version.parseVersion("5");
 
     private static final Set<String> JUNIT5_BUNDLES = Set.of("org.junit.jupiter.api", "junit-jupiter-api");
@@ -33,7 +35,7 @@ abstract class AbstractJUnit5Provider extends AbstractJUnitProvider {
 
     @Override
     public String getSurefireProviderClassName() {
-        return "org.apache.maven.surefire.junitplatform.JUnitPlatformProvider";
+        return JUNIT_PLATFORM_PROVIDER;
     }
 
     static boolean isJUnit5(MavenProject project, List<ClasspathEntry> testBundleClassPath, VersionRange versionRange) {

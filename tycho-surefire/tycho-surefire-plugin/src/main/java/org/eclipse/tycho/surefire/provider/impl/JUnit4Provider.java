@@ -27,6 +27,12 @@ import org.eclipse.tycho.ClasspathEntry;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 
+/**
+ * Provider for test bundles that only depend on JUnit 4 (and possibly JUnit 3 style tests). Since
+ * Surefire 3.6.0 there is no dedicated JUnit 4 provider anymore, so the tests are executed by the
+ * JUnit Platform provider using the JUnit Vintage engine, which must therefore be available in the
+ * target platform.
+ */
 @Named("junit4")
 public class JUnit4Provider extends AbstractJUnitProvider {
 
@@ -36,7 +42,16 @@ public class JUnit4Provider extends AbstractJUnitProvider {
 
     @Override
     public String getSurefireProviderClassName() {
-        return "org.apache.maven.surefire.junitcore.JUnitCoreProvider";
+        return AbstractJUnit5Provider.JUNIT_PLATFORM_PROVIDER;
+    }
+
+    @Override
+    public Properties getProviderSpecificProperties() {
+        Properties properties = new Properties();
+        // Tells the JUnit Platform provider that groups/excludedGroups refer to JUnit 4 categories
+        // and not to JUnit Platform tags (ProviderParameterNames.JUNIT_VINTAGE_DETECTED)
+        properties.setProperty("junit.vintage.engine.detected", "true");
+        return properties;
     }
 
     @Override

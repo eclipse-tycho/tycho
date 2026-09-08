@@ -59,12 +59,10 @@ import org.apache.maven.surefire.api.testset.DirectoryScannerParameters;
 import org.apache.maven.surefire.api.testset.RunOrderParameters;
 import org.apache.maven.surefire.api.testset.TestListResolver;
 import org.apache.maven.surefire.api.testset.TestRequest;
-import org.apache.maven.surefire.booter.BooterConstants;
 import org.apache.maven.surefire.booter.ClassLoaderConfiguration;
 import org.apache.maven.surefire.booter.ClasspathConfiguration;
 import org.apache.maven.surefire.booter.ForkedBooter;
 import org.apache.maven.surefire.booter.ProcessCheckerType;
-import org.apache.maven.surefire.booter.PropertiesWrapper;
 import org.apache.maven.surefire.booter.ProviderConfiguration;
 import org.apache.maven.surefire.booter.ProviderFactory;
 import org.apache.maven.surefire.booter.StartupConfiguration;
@@ -175,12 +173,6 @@ public class OsgiSurefireBooter {
         boolean trimStackTrace = Boolean.parseBoolean(testProps.getProperty("trimStackTrace", "false"));
         int skipAfterFailureCount = Integer.parseInt(testProps.getProperty("skipAfterFailureCount", "0"));
         int rerunFailingTestsCount = Integer.parseInt(testProps.getProperty("rerunFailingTestsCount", "0"));
-        Map<String, String> propertiesMap = new HashMap<>();
-        for (String key : testProps.stringPropertyNames()) {
-            propertiesMap.put(key, testProps.getProperty(key));
-        }
-        PropertiesWrapper wrapper = new PropertiesWrapper(propertiesMap);
-        List<String> suiteXmlFiles = wrapper.getStringList(BooterConstants.TEST_SUITE_XML_FILES);
 
         String timeoutParameter = getArgumentValue(args, "-timeout");
         if (timeoutParameter != null) {
@@ -206,8 +198,7 @@ public class OsgiSurefireBooter {
         TestListResolver testListResolver = requestedTest == null || requestedTest.trim().isEmpty()
                 ? TestListResolver.getEmptyTestListResolver()
                 : new TestListResolver(requestedTest);
-        TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir, testListResolver,
-                rerunFailingTestsCount);
+        TestRequest testRequest = new TestRequest(testClassesDir, testListResolver, rerunFailingTestsCount);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
                 new RunOrderParameters(runOrder, null), reporterConfig, null, testRequest,
                 extractProviderProperties(testProps), null, false, Collections.emptyList(), skipAfterFailureCount,

@@ -33,6 +33,13 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!-- the TestNG provider fragment registers a JUnit Platform TestEngine that
+					     requires TestNG on the test classpath, which is not desired here -->
+					<classpathDependencyExcludes>
+						<classpathDependencyExclude>org.eclipse.tycho:org.eclipse.tycho.surefire.testng</classpathDependencyExclude>
+					</classpathDependencyExcludes>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
