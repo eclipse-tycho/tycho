@@ -14,7 +14,7 @@ Tycho follows this change, which has the following consequences for `eclipse-tes
 
 - JUnit 4 (and JUnit 3 style) tests are now executed by the JUnit Platform using the JUnit Vintage engine.
   The target platform must therefore provide the JUnit Platform (`org.junit.platform.launcher`) and the JUnit Vintage engine
-  (`org.junit.vintage.engine`, version 5.x), as it is the case for all recent Eclipse releases. JUnit 4.12 or higher is required.
+  (`org.junit.vintage.engine`, version 5.x), as it is the case for all Eclipse releases since a long time. JUnit 4.12 or higher is required.
 - TestNG tests are now executed by the JUnit Platform using the [TestNG Engine for the JUnit Platform](https://github.com/junit-team/testng-engine).
   The target platform must therefore provide the JUnit Platform (`org.junit.platform.launcher`). TestNG 6.14.3 or higher is required,
   it must be available as bundle `org.testng` (e.g. TestNG 7.x from Maven Central) as before.

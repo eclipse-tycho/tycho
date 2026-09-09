@@ -18,8 +18,9 @@ Import-Package: \
  org.testng.annotations;bundle-version="[6.14.3,8)", \
  org.testng.internal;bundle-version="[6.14.3,8)", \
  org.testng.internal.annotations;bundle-version="[6.14.3,8)", \
- org.testng.xml;bundle-version="[6.14.3,8)", \
- java.*
+ org.testng.xml;bundle-version="[6.14.3,8)"
+# Java packages are not imported on purpose as this must work with custom (minimal) EE profiles.
+-noimportjava: true
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 -removeheaders: Tool, Bnd-*, Created-By, Private-Package

@@ -63,7 +63,9 @@ import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
@@ -681,7 +683,10 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             // the test framework bundles might require additional units (e.g. the JUnit Platform and
             // the JUnit Vintage engine for JUnit 4 tests) that are not part of the plain dependencies
             // of the test bundle, so make them available to the director as well
-            sources.addMetadataRepository(createTestRuntimeMetadataRepository(testHarnessArtifacts));
+            Collection<IRequirement> testFrameworkRequirements = getTestFrameworkPackageRequirements(
+                    testHarnessArtifacts);
+            DependencyArtifacts testRuntimeArtifacts = resolveDependencies(testFrameworkRequirements);
+            sources.addMetadataRepository(createTestRuntimeMetadataRepository(testRuntimeArtifacts));
             if (repositories != null) {
                 for (Repository repository : repositories) {
                     String url = repository.getUrl();
@@ -696,7 +701,16 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
             installationBuilder.addMetadataRepositories(sources.getMetadataRepositories());
             installationBuilder.addArtifactRepositories(sources.getArtifactRepositories());
             installationBuilder.setProfileName(profileName);
-            installationBuilder.addIUsToBeInstalled(getIUsToInstall(testHarnessArtifacts));
+            List<String> iusToInstall = getIUsToInstall(testHarnessArtifacts);
+            // the units satisfying the requirements of the test framework bundles must be installed
+            // explicitly as the director does not necessarily follow optional requirements
+            for (IInstallableUnit iu : testRuntimeArtifacts.getInstallableUnits()) {
+                if (!iusToInstall.contains(iu.getId())
+                        && testFrameworkRequirements.stream().anyMatch(req -> req.isMatch(iu))) {
+                    iusToInstall.add(iu.getId());
+                }
+            }
+            installationBuilder.addIUsToBeInstalled(iusToInstall);
             File workingDir = new File(project.getBuild().getDirectory(), "p2temp");
             workingDir.mkdirs();
             installationBuilder.setWorkingDir(workingDir);
@@ -725,27 +739,29 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         Collection<IRequirement> testRequiredPackages = new ArrayList<>();
         for (Artifact artifact : testFrameworkBundles) {
             generator.getInstallableUnits(artifact).stream().flatMap(iu -> iu.getRequirements().stream())
-                    .filter(req -> {
-                        if (req instanceof IRequiredCapability reqcap) {
-                            if (PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(reqcap.getNamespace())) {
-                                return true;
-                            }
+                    .filter(IRequiredCapability.class::isInstance).map(IRequiredCapability.class::cast)
+                    .filter(reqcap -> PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(reqcap.getNamespace()))
+                    .map(reqcap -> {
+                        if (reqcap.getMin() == 0) {
+                            // an optional import of a test framework bundle is only optional at the
+                            // OSGi level (e.g. because the exporter uses mandatory attributes that
+                            // can't be expressed in a single import), the package is still required
+                            // in the test runtime
+                            return MetadataFactory.createRequirement(reqcap.getNamespace(), reqcap.getName(),
+                                    reqcap.getRange(), reqcap.getFilter(), 1, reqcap.getMax(), true);
                         }
-                        return false;
+                        return reqcap;
                     }).forEach(testRequiredPackages::add);
         }
         return testRequiredPackages;
     }
 
     /**
-     * Resolves the test runtime including the requirements of the given test framework bundles
-     * and writes the metadata of the result into a p2 metadata repository that can be used as an
-     * additional source when provisioning the test runtime with the p2 director.
+     * Writes the metadata of the given resolved test runtime into a p2 metadata repository that
+     * can be used as an additional source when provisioning the test runtime with the p2 director.
      */
-    private File createTestRuntimeMetadataRepository(Set<Artifact> testFrameworkBundles)
+    private File createTestRuntimeMetadataRepository(DependencyArtifacts testRuntimeArtifacts)
             throws MojoExecutionException {
-        DependencyArtifacts testRuntimeArtifacts = resolveDependencies(
-                getTestFrameworkPackageRequirements(testFrameworkBundles));
         // ensure artifacts are available locally
         testRuntimeArtifacts.getArtifacts().forEach(artifact -> artifact.getLocation(true));
         File repositoryLocation = new File(project.getBuild().getDirectory(), "testRuntimeRepository");
