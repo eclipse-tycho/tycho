@@ -2,13 +2,18 @@
 # We only import some of the junit packages here to create a requirement on them so that they become
 # part of the test runtime, the rest of the content in this bundle is only used to bootstrap surefire
 # and does not comply with OSGi rules.
-# The vintage engine package is intentionally imported without the 'status' attribute so that this
-# works with the Orbit repackaged bundles as well as with the ones from Maven Central (5.12+).
+# The vintage engine package is imported without the 'status' attribute so that this works with the
+# Orbit repackaged bundles as well as with the ones from Maven Central since 5.12. Older ones from
+# Maven Central export the package with a mandatory 'status=INTERNAL' attribute that can't be matched
+# by the same import, therefore the static import is optional and a dynamic import with the attribute
+# is used as a fallback for those (the engine class is loaded through the host bundle).
+# Java packages are not imported on purpose as this must work with custom (minimal) EE profiles.
 Import-Package: \
  org.junit.platform.launcher;version="[1,2)", \
- org.junit.vintage.engine;version="[5,6)", \
- org.junit;version="[4.12,5)", \
- java.*
+ org.junit.vintage.engine;version="[5,6)";resolution:=optional, \
+ org.junit;version="[4.12,5)"
+DynamicImport-Package: org.junit.vintage.engine;status=INTERNAL;version="[5,6)"
+-noimportjava: true
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
 # The JUnit Runner is still compatible with Java 1.8, as all included upstream dependencies are.
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
