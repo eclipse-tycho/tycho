@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>tycho-its-project.surefire.bndRunProperties</groupId>
+	<artifactId>tycho.its.surefire.bndrunproperties</artifactId>
+	<version>1.0.0</version>
+	<packaging>eclipse-plugin</packaging>
+
+	<properties>
+		<!-- Simulates a shared parent configuration that declares a bndRunProperties instruction
+		     with a blank/placeholder default value, meant to be overridden by a specific module.
+		     A blank value must not cause a NullPointerException in the bnd-test goal. -->
+		<its.bndRunProperties.runsystemcapabilities></its.bndRunProperties.runsystemcapabilities>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>5.14.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<pomDependencies>consider</pomDependencies>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>bnd-test</goal>
+							<goal>verify</goal>
+						</goals>
+						<configuration>
+							<runfw>org.apache.felix.framework</runfw>
+							<printTests>false</printTests>
+							<bndRunProperties>
+								<_runsystemcapabilities>${its.bndRunProperties.runsystemcapabilities}</_runsystemcapabilities>
+							</bndRunProperties>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
