@@ -83,11 +83,6 @@
 			<classifier>tests</classifier>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.bcel</groupId>
-			<artifactId>bcel</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 		    <groupId>org.codehaus.plexus</groupId>
 		    <artifactId>plexus-compiler-javac</artifactId>
 		    <version>${plexusCompilerVersion}</version>
