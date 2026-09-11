@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.tycho476;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 
-import org.apache.bcel.classfile.ClassParser;
-import org.apache.bcel.classfile.JavaClass;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.jupiter.api.Assertions;
@@ -32,9 +32,16 @@ public class ExecutionEnvironmentTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		File classFile = new File(verifier.getBasedir(), "target/classes/TestRunnable.class");
 		Assertions.assertTrue(classFile.canRead());
-		JavaClass javaClass = new ClassParser(classFile.getAbsolutePath()).parse();
 		// bytecode major level 61 == target 17
-		Assertions.assertEquals(61, javaClass.getMajor());
+		Assertions.assertEquals(61, readClassFileMajorVersion(classFile));
+	}
+
+	private static int readClassFileMajorVersion(File classFile) throws Exception {
+		try (DataInputStream in = new DataInputStream(new FileInputStream(classFile))) {
+			Assertions.assertEquals(0xCAFEBABE, in.readInt(), "not a class file: " + classFile);
+			in.readUnsignedShort(); // minor version
+			return in.readUnsignedShort();
+		}
 	}
 
 }
