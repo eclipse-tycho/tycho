@@ -137,16 +137,16 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		// Require-Bundle with range [3.4.0,4.0.0) should have lower bound updated
 		// without qualifier
 		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-with-range"))
-				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.0",
-						"Lower bound must be 3.5.0 because URIUtil.append was added in 3.5.0")
+				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.1",
+						"Lower bound must be 3.5.1 because URIUtil.append was added in 3.5.0")
 				.assertBundleUpperBound("org.eclipse.equinox.common", "4.0.0",
 						"Upper bound should be preserved from original range");
 
 		// Require-Bundle with simple version "3.4.0" (no upper bound) should become
 		// [3.5.0,4) not [3.5.0.qualifier,null)
 		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-no-upper-bound"))
-				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.0",
-						"Lower bound must be 3.5.0 because URIUtil.append was added in 3.5.0")
+				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.1",
+						"Lower bound must be 3.5.1 because URIUtil.append was added in 3.5.0")
 				.assertBundleUpperBound("org.eclipse.equinox.common", "4.0.0",
 						"Upper bound should be next major version, not 'null'");
 
@@ -154,7 +154,7 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		// org.eclipse.equinox.registry both export org.eclipse.core.runtime.
 		// The checker must not blame common for types from registry.
 		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-split-package"))
-				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.0",
+				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.1",
 						"Lower bound for common must reflect URIUtil.append, not registry types like IConfigurationElement")
 				.assertBundleUpperBound("org.eclipse.equinox.common", "4.0.0",
 						"Upper bound for common should be preserved from original range");
