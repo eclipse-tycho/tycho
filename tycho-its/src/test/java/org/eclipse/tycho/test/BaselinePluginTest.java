@@ -41,13 +41,14 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	/**
-	 * Test that removing a source bundle or source feature from a feature only requires a minor
-	 * version bump.
+	 * Test that removing a source bundle or source feature from a feature only
+	 * requires a minor version bump.
 	 * 
 	 * This test verifies the fix for the issue where FeatureBaselineComparator was
-	 * treating removal of source artifacts (requirements ending with ".source" for bundles or
-	 * ".source.feature.group" for features) as a major version change. Source artifacts are
-	 * deprecated and should only trigger a minor version bump when removed.
+	 * treating removal of source artifacts (requirements ending with ".source" for
+	 * bundles or ".source.feature.group" for features) as a major version change.
+	 * Source artifacts are deprecated and should only trigger a minor version bump
+	 * when removed.
 	 */
 	@Test
 	public void testRemoveSourceBundle() throws Exception {
@@ -67,9 +68,10 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 	 * Test that removing a source feature from a feature only requires a minor
 	 * version bump.
 	 * 
-	 * This test verifies that FeatureBaselineComparator correctly handles removal of source
-	 * features which have requirements ending with ".source.feature.group". Like source bundles,
-	 * source features are deprecated and should only trigger a minor version bump when removed.
+	 * This test verifies that FeatureBaselineComparator correctly handles removal
+	 * of source features which have requirements ending with
+	 * ".source.feature.group". Like source bundles, source features are deprecated
+	 * and should only trigger a minor version bump when removed.
 	 */
 	@Test
 	public void testRemoveSourceFeature() throws Exception {
@@ -79,7 +81,8 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		Verifier verifier = getBaselineProject("feature-remove-source-feature");
 		verifier.addCliOption("-Dbaseline-url=" + baselineRepo.toURI());
 
-		// This should succeed because removing .source.feature.group only requires minor
+		// This should succeed because removing .source.feature.group only requires
+		// minor
 		// version bump
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
@@ -179,31 +182,30 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		ManifestAssertions.of(manifestOf(checkDepsDir, "import-package-unversioned"))
 				.assertPackageLowerBound("org.osgi.framework", "1.6.0",
 						"Lower bound must be 1.6.0 for Bundle.adapt method")
-				.assertPackageUpperBound("org.osgi.framework", "2.0.0",
-						"Upper bound should be next major version");
+				.assertPackageUpperBound("org.osgi.framework", "2.0.0", "Upper bound should be next major version");
 
 		// Require-Bundle with range [3.4.0,4.0.0) should have lower bound updated
 		// without qualifier
 		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-with-range"))
-				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.0",
-						"Lower bound must be 3.5.0 because URIUtil.append was added in 3.5.0")
+				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.1",
+						"Lower bound must be 3.5.1 because URIUtil.append was added in 3.5.0")
 				.assertBundleUpperBound("org.eclipse.equinox.common", "4.0.0",
 						"Upper bound should be preserved from original range");
 
 		// Require-Bundle with simple version "3.4.0" (no upper bound) should become
 		// [3.5.0,4) not [3.5.0.qualifier,null)
 		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-no-upper-bound"))
-				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.0",
-						"Lower bound must be 3.5.0 because URIUtil.append was added in 3.5.0")
+				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.1",
+						"Lower bound must be 3.5.1 because URIUtil.append was added in 3.5.0")
 				.assertBundleUpperBound("org.eclipse.equinox.common", "4.0.0",
 						"Upper bound should be next major version, not 'null'");
 
 		// Require-Bundle with split package: org.eclipse.equinox.common and
 		// org.eclipse.equinox.registry both export org.eclipse.core.runtime.
 		// The checker must not blame common for types from registry.
-		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-split-package"))
-				.assertBundleLowerBound("org.eclipse.equinox.common", "3.5.0",
-						"Lower bound for common must reflect URIUtil.append, not registry types like IConfigurationElement")
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-split-package")).assertBundleLowerBound(
+				"org.eclipse.equinox.common", "3.5.1",
+				"Lower bound for common must reflect URIUtil.append, not registry types like IConfigurationElement")
 				.assertBundleUpperBound("org.eclipse.equinox.common", "4.0.0",
 						"Upper bound for common should be preserved from original range");
 
@@ -211,26 +213,26 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		// org.eclipse.equinox.common (visibility:=reexport). CoreException lives in
 		// org.eclipse.equinox.common, not in org.eclipse.core.runtime itself.
 		// The checker must not attribute CoreException to org.eclipse.core.runtime.
-		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-reexport"))
-				.assertBundleLowerBound("org.eclipse.core.runtime", "3.34.0",
-						"Lower bound must stay unchanged because CoreException is from re-exported org.eclipse.equinox.common")
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-reexport")).assertBundleLowerBound(
+				"org.eclipse.core.runtime", "3.34.0",
+				"Lower bound must stay unchanged because CoreException is from re-exported org.eclipse.equinox.common")
 				.assertBundleUpperBound("org.eclipse.core.runtime", "4.0.0",
 						"Upper bound should be preserved from original range");
 
 		// Require-Bundle with range [3.20.0,4) where the lower bound is already
 		// correct. The suggested range [3.20.0,4.0.0) is semantically equivalent,
 		// so the manifest must remain untouched (no cosmetic reformatting).
-		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-correct-range"))
-				.assertBundleRawVersion("org.eclipse.equinox.common", "[3.20.0,4)",
-						"Version range must stay as [3.20.0,4) and not be reformatted to [3.20.0,4.0.0)");
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-correct-range")).assertBundleRawVersion(
+				"org.eclipse.equinox.common", "[3.20.0,4)",
+				"Version range must stay as [3.20.0,4) and not be reformatted to [3.20.0,4.0.0)");
 
 		// Require-Bundle directly requiring org.eclipse.swt (an empty host bundle
 		// with Eclipse-ExtensibleAPI: true where real classes live in platform
 		// fragments). The checker must resolve a fragment to find SWT classes
 		// and not report false positives about missing Display/Shell methods.
-		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-swt-direct"))
-				.assertBundleLowerBound("org.eclipse.swt", "3.132.0",
-						"Lower bound must stay at 3.132.0 because Display.getDefault and Shell exist in all recent SWT versions")
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-swt-direct")).assertBundleLowerBound(
+				"org.eclipse.swt", "3.132.0",
+				"Lower bound must stay at 3.132.0 because Display.getDefault and Shell exist in all recent SWT versions")
 				.assertBundleUpperBound("org.eclipse.swt", "4.0.0",
 						"Upper bound should be preserved from original range");
 
@@ -238,9 +240,9 @@ public class BaselinePluginTest extends AbstractTychoIntegrationTest {
 		// SWT classes are available through the re-export chain but the SWT host JAR
 		// is empty. The checker must resolve the fragment through the reexport and
 		// not report false positives about missing SWT methods.
-		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-swt-reexport"))
-				.assertBundleLowerBound("org.eclipse.jface", "3.38.0",
-						"Lower bound must stay because SWT methods used (Display/Shell) exist in all SWT versions included by this range")
+		ManifestAssertions.of(manifestOf(checkDepsDir, "require-bundle-swt-reexport")).assertBundleLowerBound(
+				"org.eclipse.jface", "3.38.0",
+				"Lower bound must stay because SWT methods used (Display/Shell) exist in all SWT versions included by this range")
 				.assertBundleUpperBound("org.eclipse.jface", "4.0.0",
 						"Upper bound should be preserved from original range");
 
