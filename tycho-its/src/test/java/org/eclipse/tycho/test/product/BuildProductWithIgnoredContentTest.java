@@ -12,9 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -24,8 +24,6 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
 // TODO make this a unit test?
@@ -50,17 +48,14 @@ public class BuildProductWithIgnoredContentTest extends AbstractTychoIntegration
 		// check product IU
 		P2RepositoryTool p2Repository = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
 		IU product = p2Repository.getUniqueIU("psl.product");
-		assertThat(product.getRequiredIds(), not(hasItem(BUNDLE_IN_PRODUCT_FILE)));
-		assertThat(product.getRequiredIds(), hasItem(FEATURE_IN_PRODUCT_FILE));
+		List<String> requiredIds = product.getRequiredIds();
+		assertFalse(requiredIds.contains(BUNDLE_IN_PRODUCT_FILE), requiredIds.toString());
+		assertTrue(requiredIds.contains(FEATURE_IN_PRODUCT_FILE), requiredIds.toString());
 
 		// verify that IUs included in product exist
 		List<String> inclusionIds = product.getInclusionIds();
-		assertThat(inclusionIds.size(), not(0));
-		assertThat(p2Repository.getAllUnitIds(), hasItems(inclusionIds));
-	}
-
-	@SuppressWarnings("unchecked")
-	private static <T> Matcher<Iterable<T>> hasItems(List<T> list) {
-		return CoreMatchers.hasItems((T[]) list.toArray());
+		assertNotEquals(0, inclusionIds.size());
+		List<String> allUnitIds = p2Repository.getAllUnitIds();
+		assertTrue(allUnitIds.containsAll(inclusionIds), allUnitIds.toString());
 	}
 }

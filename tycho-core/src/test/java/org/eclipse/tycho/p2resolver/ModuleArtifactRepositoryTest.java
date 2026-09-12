@@ -13,8 +13,6 @@
 package org.eclipse.tycho.p2resolver;
 
 import static org.eclipse.tycho.test.util.ArtifactRepositoryTestUtils.allKeysIn;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -114,8 +112,8 @@ public class ModuleArtifactRepositoryTest {
         ProvisionException e = assertThrows(ProvisionException.class,
                 () -> loadRepositoryViaAgent(corruptRepository));
         assertEquals(ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
-        assertThat(e.getStatus().getMessage(), containsString("Error while reading repository"));
-        assertThat(e.getStatus().getMessage(), containsString("Maven coordinate properties are missing"));
+        assertTrue(e.getStatus().getMessage().contains("Error while reading repository"), e.getStatus().getMessage());
+        assertTrue(e.getStatus().getMessage().contains("Maven coordinate properties are missing"), e.getStatus().getMessage());
     }
 
     @Test

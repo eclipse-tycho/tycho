@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -72,16 +70,16 @@ public class ModuleMetadataRepositoryTest {
     public void testLoadRepository() throws Exception {
         subject = new ModuleMetadataRepository(null, moduleDir);
 
-        assertThat(unitsIn(subject), hasItem(BUNDLE_UNIT));
-        assertThat(unitsIn(subject), hasItem(SOURCE_UNIT));
+        assertTrue(unitsIn(subject).contains(BUNDLE_UNIT), unitsIn(subject).toString());
+        assertTrue(unitsIn(subject).contains(SOURCE_UNIT), unitsIn(subject).toString());
     }
 
     @Test
     public void testLoadRepositoryWithFactory() throws Exception {
         subject = loadRepositoryViaAgent(moduleDir);
 
-        assertThat(unitsIn(subject), hasItem(BUNDLE_UNIT));
-        assertThat(unitsIn(subject), hasItem(SOURCE_UNIT));
+        assertTrue(unitsIn(subject).contains(BUNDLE_UNIT), unitsIn(subject).toString());
+        assertTrue(unitsIn(subject).contains(SOURCE_UNIT), unitsIn(subject).toString());
     }
 
     @Test
@@ -100,7 +98,7 @@ public class ModuleMetadataRepositoryTest {
         subject = new ModuleMetadataRepository(null, targetFolder);
         subject.addInstallableUnits(createIUs(BUNDLE_UNIT));
 
-        assertThat(unitsIn(subject), hasItem(BUNDLE_UNIT));
+        assertTrue(unitsIn(subject).contains(BUNDLE_UNIT), unitsIn(subject).toString());
     }
 
     @Test
@@ -121,7 +119,7 @@ public class ModuleMetadataRepositoryTest {
         subject.addInstallableUnits(createIUs(SOURCE_UNIT));
 
         IMetadataRepository result = loadRepositoryViaAgent(targetFolder);
-        assertThat(unitsIn(result), hasItem(SOURCE_UNIT));
+        assertTrue(unitsIn(result).contains(SOURCE_UNIT), unitsIn(result).toString());
     }
 
     private static List<IVersionedId> unitsIn(IMetadataRepository repo) {

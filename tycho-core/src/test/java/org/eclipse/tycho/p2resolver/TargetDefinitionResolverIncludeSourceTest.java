@@ -16,11 +16,10 @@ package org.eclipse.tycho.p2resolver;
 import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.defaultEnvironments;
 import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.definitionWith;
 import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.versionedIdsOf;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,8 +96,8 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
                 container.lookup(IProvisioningAgent.class));
 
-        assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
-        assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
+        assertTrue(versionedIdsOf(content).contains(BUNDLE_WITH_SOURCES), versionedIdsOf(content).toString());
+        assertTrue(versionedIdsOf(content).contains(SOURCE_BUNDLE), versionedIdsOf(content).toString());
         assertEquals(2, getResultSet(content).size());
     }
 
@@ -110,8 +109,8 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
                 container.lookup(IProvisioningAgent.class));
 
-        assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
-        assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
+        assertTrue(versionedIdsOf(content).contains(BUNDLE_WITH_SOURCES), versionedIdsOf(content).toString());
+        assertTrue(versionedIdsOf(content).contains(SOURCE_BUNDLE), versionedIdsOf(content).toString());
         assertEquals(2, getResultSet(content).size());
     }
 
@@ -128,7 +127,7 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
                 container.lookup(IProvisioningAgent.class));
 
-        assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
+        assertFalse(versionedIdsOf(content).contains(SOURCE_BUNDLE), versionedIdsOf(content).toString());
         assertEquals(1, getResultSet(content).size());
     }
 
@@ -140,7 +139,7 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
                 container.lookup(IProvisioningAgent.class));
 
-        assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
+        assertFalse(versionedIdsOf(content).contains(SOURCE_BUNDLE), versionedIdsOf(content).toString());
         assertEquals(1, getResultSet(content).size());
     }
 
@@ -152,9 +151,9 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
                 container.lookup(IProvisioningAgent.class));
 
-        assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
-        assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
-        assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
+        assertTrue(versionedIdsOf(content).contains(NOSOURCE_BUNDLE), versionedIdsOf(content).toString());
+        assertTrue(versionedIdsOf(content).contains(BUNDLE_WITH_SOURCES), versionedIdsOf(content).toString());
+        assertTrue(versionedIdsOf(content).contains(SOURCE_BUNDLE), versionedIdsOf(content).toString());
         assertEquals(3, getResultSet(content).size());
     }
 
@@ -166,9 +165,9 @@ public class TargetDefinitionResolverIncludeSourceTest {
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
                 container.lookup(IProvisioningAgent.class));
 
-        assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
-        assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
-        assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
+        assertTrue(versionedIdsOf(content).contains(NOSOURCE_BUNDLE), versionedIdsOf(content).toString());
+        assertTrue(versionedIdsOf(content).contains(BUNDLE_WITH_SOURCES), versionedIdsOf(content).toString());
+        assertTrue(versionedIdsOf(content).contains(SOURCE_BUNDLE), versionedIdsOf(content).toString());
         assertEquals(3, getResultSet(content).size());
     }
 

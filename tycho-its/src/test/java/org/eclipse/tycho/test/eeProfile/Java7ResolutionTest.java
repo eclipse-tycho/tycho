@@ -12,8 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.eeProfile;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -54,7 +53,7 @@ public class Java7ResolutionTest extends AbstractTychoIntegrationTest {
 		 * client may have been unable to install the bundle from the repository.
 		 */
 		List<String> availablePackages = bundleOnlyRepo.getAllProvidedPackages();
-		assertThat(availablePackages, hasItem("java.nio.file"));
+		assertTrue(availablePackages.contains("java.nio.file"), availablePackages.toString());
 	}
 
 	@Test

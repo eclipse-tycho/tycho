@@ -12,8 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.eclipserun;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.matchesRegex;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,10 +30,10 @@ public class EclipseRunBundleStartLevelTest extends AbstractTychoIntegrationTest
 		verifier.verifyErrorFreeLog();
 		String config = Files
 				.readString(Path.of(verifier.getBasedir(), "target", "eclipserun-work", "configuration", "config.ini"));
-		assertThat("org.apache.ant should be auto-started at level 4", config,
-				matchesRegex("(?s).*org\\.apache\\.ant_1\\.10\\.12\\.v20211102-1452(\\.jar)?@4\\\\:start.*"));
-		assertThat("osgi.bundles.defaultStartLevel should be 5", config,
-				matchesRegex("(?s).*osgi.bundles.defaultStartLevel=5.*"));
+		assertTrue(config.matches("(?s).*org\\.apache\\.ant_1\\.10\\.12\\.v20211102-1452(\\.jar)?@4\\\\:start.*"),
+				"org.apache.ant should be auto-started at level 4: " + config);
+		assertTrue(config.matches("(?s).*osgi.bundles.defaultStartLevel=5.*"),
+				"osgi.bundles.defaultStartLevel should be 5: " + config);
 	}
 
 }

@@ -12,11 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -114,7 +113,7 @@ public class StatusToolTest {
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Root message", null);
 
         // use case should not occur -> just make sure that it wouldn't throw an exception
-        assertThat(StatusTool.toLogMessage(status), containsString("Root message"));
-        assertThat(StatusTool.collectProblems(status), containsString("Root message"));
+        assertTrue(StatusTool.toLogMessage(status).contains("Root message"), StatusTool.toLogMessage(status));
+        assertTrue(StatusTool.collectProblems(status).contains("Root message"), StatusTool.collectProblems(status));
     }
 }

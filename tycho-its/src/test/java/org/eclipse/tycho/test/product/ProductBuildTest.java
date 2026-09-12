@@ -9,8 +9,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -147,10 +145,11 @@ public class ProductBuildTest extends AbstractTychoIntegrationTest {
 		List<String> prefLines = Files.readAllLines(path);
 		for (UpdateSiteReference reference : expectedReferences) {
 			String preferencePrefix = "repositories/" + reference.uri.replace(":", "\\:").replace("/", "_");
-			assertThat(prefLines, hasItem(preferencePrefix + "/uri=" + reference.uri.replace(":", "\\:")));
-			assertThat(prefLines, hasItem(preferencePrefix + "/enabled=" + reference.enabled));
+			assertTrue(prefLines.contains(preferencePrefix + "/uri=" + reference.uri.replace(":", "\\:")),
+					prefLines.toString());
+			assertTrue(prefLines.contains(preferencePrefix + "/enabled=" + reference.enabled), prefLines.toString());
 			if (reference.name != null) {
-				assertThat(prefLines, hasItem(preferencePrefix + "/nickname=" + reference.name));
+				assertTrue(prefLines.contains(preferencePrefix + "/nickname=" + reference.name), prefLines.toString());
 			} else {
 				assertFalse(prefLines.stream().anyMatch(l -> l.startsWith(preferencePrefix + "/nickname=")));
 			}

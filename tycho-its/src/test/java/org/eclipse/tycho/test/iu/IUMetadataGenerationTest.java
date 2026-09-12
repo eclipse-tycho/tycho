@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.iu;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -46,12 +44,15 @@ public class IUMetadataGenerationTest extends AbstractTychoIntegrationTest {
 		IU finalIU = repo.getUniqueIU("iua.artifact");
 
 		// Here we check that the final IU contained in the repo has the right shape
-		assertThat(finalIU.getProvidedCapabilities(), hasItem("org.eclipse.equinox.p2.iu/iua.artifact/1.0.0"));
+		List<String> providedCapabilities = finalIU.getProvidedCapabilities();
+		assertTrue(providedCapabilities.contains("org.eclipse.equinox.p2.iu/iua.artifact/1.0.0"),
+				providedCapabilities.toString());
 		List<String> properties = finalIU.getProperties();
-		assertThat(properties, hasItem("maven-groupId=" + "tycho-its-project.iu.artifact"));
-		assertThat(properties, hasItem("maven-artifactId=" + "iua.artifact"));
-		assertThat(properties, hasItem("maven-version=" + finalIU.getVersion()));
-		assertThat(finalIU.getArtifacts(), hasItem("binary/iua.artifact/1.0.0"));
+		assertTrue(properties.contains("maven-groupId=" + "tycho-its-project.iu.artifact"), properties.toString());
+		assertTrue(properties.contains("maven-artifactId=" + "iua.artifact"), properties.toString());
+		assertTrue(properties.contains("maven-version=" + finalIU.getVersion()), properties.toString());
+		List<String> artifacts = finalIU.getArtifacts();
+		assertTrue(artifacts.contains("binary/iua.artifact/1.0.0"), artifacts.toString());
 
 		// check that the artifact is here
 		assertTrue(repo.getBinaryArtifact("iua.artifact", "1.0.0").isFile());
@@ -61,7 +62,9 @@ public class IUMetadataGenerationTest extends AbstractTychoIntegrationTest {
 	public void testIUWithoutArtifact() throws Exception {
 		IU finalIU = repo.getUniqueIU("iua.noartifact");
 
-		assertThat(finalIU.getProvidedCapabilities(), hasItem("org.eclipse.equinox.p2.iu/iua.noartifact/1.0.0"));
+		List<String> providedCapabilities = finalIU.getProvidedCapabilities();
+		assertTrue(providedCapabilities.contains("org.eclipse.equinox.p2.iu/iua.noartifact/1.0.0"),
+				providedCapabilities.toString());
 		assertTrue(finalIU.getArtifacts().isEmpty());
 		assertFalse(repo.getBinaryArtifact("iua.noartifact", "1.0.0").isFile());
 	}

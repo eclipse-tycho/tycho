@@ -12,10 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
@@ -38,11 +36,13 @@ public class ReferenceBetweenProductsTest extends AbstractTychoIntegrationTest {
 		// verify that product IUs were create by full publisher and not the
 		// dependency-only publisher
 		P2RepositoryTool.IU referencingProduct = repository.getUniqueIU("product.crossreference.extending-product");
-		assertThat(referencingProduct.getVersion(), not(containsString("qualifier")));
-		assertThat(referencingProduct.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
+		assertFalse(referencingProduct.getVersion().contains("qualifier"), referencingProduct.getVersion());
+		assertTrue(referencingProduct.getProperties().contains("org.eclipse.equinox.p2.type.product=true"),
+				referencingProduct.getProperties().toString());
 
 		P2RepositoryTool.IU referencedProduct = repository.getUniqueIU("product.crossreference.product");
-		assertThat(referencedProduct.getVersion(), not(containsString("qualifier")));
-		assertThat(referencedProduct.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
+		assertFalse(referencedProduct.getVersion().contains("qualifier"), referencedProduct.getVersion());
+		assertTrue(referencedProduct.getProperties().contains("org.eclipse.equinox.p2.type.product=true"),
+				referencedProduct.getProperties().toString());
 	}
 }
