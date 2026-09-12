@@ -15,8 +15,6 @@ package org.eclipse.tycho.artifacts.configuration;
 import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithVersion;
 import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithVersionRange;
 import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithoutVersion;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -86,12 +84,12 @@ public class TargetPlatformFilterConfigurationReaderTest {
             assertEquals(FilterAction.REMOVE_ALL, filter.getAction());
         }
 
-        assertThat(filters.get(0).getScopePattern(), is(patternWithoutVersion(CapabilityType.OSGI_BUNDLE,
-                "org.eclipse.equinox.servletbridge.extensionbundle")));
-        assertThat(filters.get(1).getScopePattern(),
-                is(patternWithVersionRange(CapabilityType.OSGI_BUNDLE, "org.eclipse.equinox.app", "[3.6.0,3.6.1)")));
-        assertThat(filters.get(2).getScopePattern(),
-                is(patternWithVersion(CapabilityType.P2_INSTALLABLE_UNIT, "a.jre.javase", "1.7.0")));
+        assertEquals(patternWithoutVersion(CapabilityType.OSGI_BUNDLE,
+                "org.eclipse.equinox.servletbridge.extensionbundle"), filters.get(0).getScopePattern());
+        assertEquals(patternWithVersionRange(CapabilityType.OSGI_BUNDLE, "org.eclipse.equinox.app", "[3.6.0,3.6.1)"),
+                filters.get(1).getScopePattern());
+        assertEquals(patternWithVersion(CapabilityType.P2_INSTALLABLE_UNIT, "a.jre.javase", "1.7.0"),
+                filters.get(2).getScopePattern());
     }
 
     @Test
@@ -106,30 +104,30 @@ public class TargetPlatformFilterConfigurationReaderTest {
         List<TargetPlatformFilter> filters = subject.parseFilterConfiguration(filterConfig);
 
         for (TargetPlatformFilter filter : filters) {
-            assertThat(filter.getAction(), is(FilterAction.RESTRICT));
+            assertEquals(FilterAction.RESTRICT, filter.getAction());
         }
 
-        assertThat(filters.get(0).getScopePattern(),
-                is(patternWithoutVersion(CapabilityType.OSGI_BUNDLE, "org.eclipse.osgi")));
-        assertThat(filters.get(0).getActionPattern(), is(patternWithVersionRange(null, null, "[3.6,3.7)")));
+        assertEquals(patternWithoutVersion(CapabilityType.OSGI_BUNDLE, "org.eclipse.osgi"),
+                filters.get(0).getScopePattern());
+        assertEquals(patternWithVersionRange(null, null, "[3.6,3.7)"), filters.get(0).getActionPattern());
 
-        assertThat(filters.get(1).getScopePattern(),
-                is(patternWithoutVersion(CapabilityType.OSGI_BUNDLE, "org.eclipse.osgi")));
-        assertThat(filters.get(1).getActionPattern(),
-                is(patternWithVersionRange(CapabilityType.OSGI_BUNDLE, "org.eclipse.osgi", "[3.6,3.7)")));
+        assertEquals(patternWithoutVersion(CapabilityType.OSGI_BUNDLE, "org.eclipse.osgi"),
+                filters.get(1).getScopePattern());
+        assertEquals(patternWithVersionRange(CapabilityType.OSGI_BUNDLE, "org.eclipse.osgi", "[3.6,3.7)"),
+                filters.get(1).getActionPattern());
 
-        assertThat(filters.get(2).getScopePattern(),
-                is(patternWithoutVersion(CapabilityType.JAVA_PACKAGE, "javax.persistence")));
-        assertThat(filters.get(2).getActionPattern(),
-                is(patternWithVersionRange(CapabilityType.OSGI_BUNDLE, "javax.persistence", "2.0")));
+        assertEquals(patternWithoutVersion(CapabilityType.JAVA_PACKAGE, "javax.persistence"),
+                filters.get(2).getScopePattern());
+        assertEquals(patternWithVersionRange(CapabilityType.OSGI_BUNDLE, "javax.persistence", "2.0"),
+                filters.get(2).getActionPattern());
 
-        assertThat(filters.get(3).getScopePattern(),
-                is(patternWithVersionRange(CapabilityType.OSGI_BUNDLE, "org.eclipse.equinox.app", "[3.6.0,3.7.0)")));
-        assertThat(filters.get(3).getActionPattern(), is(patternWithVersion(null, null, "3.6.2.v00000000")));
+        assertEquals(patternWithVersionRange(CapabilityType.OSGI_BUNDLE, "org.eclipse.equinox.app", "[3.6.0,3.7.0)"),
+                filters.get(3).getScopePattern());
+        assertEquals(patternWithVersion(null, null, "3.6.2.v00000000"), filters.get(3).getActionPattern());
 
-        assertThat(filters.get(4).getScopePattern(),
-                is(patternWithoutVersion(CapabilityType.P2_INSTALLABLE_UNIT, "a.jre.javase")));
-        assertThat(filters.get(4).getActionPattern(), is(patternWithVersion(null, null, "1.5.0")));
+        assertEquals(patternWithoutVersion(CapabilityType.P2_INSTALLABLE_UNIT, "a.jre.javase"),
+                filters.get(4).getScopePattern());
+        assertEquals(patternWithVersion(null, null, "1.5.0"), filters.get(4).getActionPattern());
     }
 
     @Test

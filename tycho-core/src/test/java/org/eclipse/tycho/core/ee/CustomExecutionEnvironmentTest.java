@@ -12,10 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
-import static org.hamcrest.CoreMatchers.any;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +23,6 @@ import java.util.List;
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.SystemCapability;
 import org.eclipse.tycho.SystemCapability.Type;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.osgi.framework.Constants;
 
@@ -52,7 +47,7 @@ public class CustomExecutionEnvironmentTest {
         assertEquals("name", customExecutionEnvironment.getProfileName());
         assertNull(customExecutionEnvironment.getCompilerSourceLevelDefault());
         assertNull(customExecutionEnvironment.getCompilerTargetLevelDefault());
-        assertTrue(customExecutionEnvironment.getSystemPackages().isEmpty()); // explicitly specify template parameter to work around bug present 1.6.0_37 
+        assertTrue(customExecutionEnvironment.getSystemPackages().isEmpty());
         assertProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME, "name");
     }
 
@@ -60,8 +55,7 @@ public class CustomExecutionEnvironmentTest {
     public void testProvidedSystemPackageNoVersion() throws Exception {
         createExecutionEnvironment(PACKAGE_JAVA_LANG);
 
-        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList(),
-                hasItem("java.lang"));
+        assertTrue(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList().contains("java.lang"));
         assertEquals(2, customExecutionEnvironment.getProfileProperties().size());
         assertProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, "java.lang");
     }
@@ -70,8 +64,7 @@ public class CustomExecutionEnvironmentTest {
     public void testProvidedSystemPackageWithVersion() throws Exception {
         createExecutionEnvironment(PACKAGE_JAVAX_ACTIVATION_1_1);
 
-        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList(),
-                hasItem("javax.activation"));
+        assertTrue(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList().contains("javax.activation"));
         assertEquals(2, customExecutionEnvironment.getProfileProperties().size());
         assertProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, "javax.activation;version=\"1.1\"");
     }
@@ -80,10 +73,8 @@ public class CustomExecutionEnvironmentTest {
     public void testTwoProvidedSystemPackages() throws Exception {
         createExecutionEnvironment(PACKAGE_JAVA_LANG, PACKAGE_JAVAX_ACTIVATION_1_1);
 
-        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList(),
-                hasItem("java.lang"));
-        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList(),
-                hasItem("javax.activation"));
+        assertTrue(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList().contains("java.lang"));
+        assertTrue(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList().contains("javax.activation"));
         assertEquals(2, customExecutionEnvironment.getProfileProperties().size());
         assertProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, "java.lang,javax.activation;version=\"1.1\"");
     }
@@ -92,8 +83,7 @@ public class CustomExecutionEnvironmentTest {
     public void testOsgiEeCapability() throws Exception {
         createExecutionEnvironment(OSGI_JAVASE_1_6);
 
-        assertThat(customExecutionEnvironment.getSystemPackages().stream().map(entry -> entry.packageName).toList(),
-                not(CoreMatchers.<String> hasItem(any(String.class)))); // explicitly specify template parameter to work around bug present 1.6.0_37 
+        assertTrue(customExecutionEnvironment.getSystemPackages().isEmpty());
         assertEquals(3, customExecutionEnvironment.getProfileProperties().size());
         assertProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES, "osgi.ee; osgi.ee=\"JavaSE\"; version:Version=\"1.6\"");
         assertProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "JavaSE-1.6");

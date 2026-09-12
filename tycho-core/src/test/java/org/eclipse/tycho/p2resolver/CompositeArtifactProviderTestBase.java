@@ -169,7 +169,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
         status = subject.getArtifact(testSink, null);
 
         assertThat(status, is(warningStatus()));
-        assertThat(status.getMessage(), containsString("Some attempts to read"));
+        assertTrue(status.getMessage().contains("Some attempts to read"), status.getMessage());
         assertThat(asList(status.getChildren()), hasItem(errorStatus()));
         assertThat(asList(status.getChildren()), hasItem(okStatus()));
         assertEquals(BUNDLE_A_FILES, testSink.getFilesInZip());
@@ -184,7 +184,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
 
         assertFalse(testSink.writeIsCommitted());
         assertThat(status, is(errorStatus()));
-        assertThat(status.getMessage(), containsString("All attempts to read"));
+        assertTrue(status.getMessage().contains("All attempts to read"), status.getMessage());
         assertThat(asList(status.getChildren()), hasItem(errorStatus()));
     }
 
@@ -197,7 +197,7 @@ public abstract class CompositeArtifactProviderTestBase<T extends IRawArtifactPr
 
         // first read attempt fails -> operation fails
         assertThat(status, is(errorStatus()));
-        assertThat(status.getMessage(), containsString("An error occurred while transferring artifact")); // original message from p2 as top-level status
+        assertTrue(status.getMessage().contains("An error occurred while transferring artifact"), status.getMessage()); // original message from p2 as top-level status
     }
 
     @Test

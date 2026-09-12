@@ -13,13 +13,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -52,18 +51,22 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 
 	@Test
 	public void testIncludedIUById() throws Exception {
-		assertThat(p2Repo.getAllUnitIds(), hasItem("org.apache.felix.gogo.runtime"));
+		List<String> allUnitIds = p2Repo.getAllUnitIds();
+		assertTrue(allUnitIds.contains("org.apache.felix.gogo.runtime"), allUnitIds.toString());
 
 		IU categoryIU = p2Repo.getUniqueIU("Test Category");
-		assertThat(categoryIU.getRequiredIds(), hasItem("org.apache.felix.gogo.runtime"));
+		List<String> requiredIds = categoryIU.getRequiredIds();
+		assertTrue(requiredIds.contains("org.apache.felix.gogo.runtime"), requiredIds.toString());
 	}
 
 	@Test
 	public void testIncludeIUViaMatchQuery() throws Exception {
-		assertThat(p2Repo.getAllUnitIds(), hasItem("jakarta.annotation-api"));
+		List<String> allUnitIds = p2Repo.getAllUnitIds();
+		assertTrue(allUnitIds.contains("jakarta.annotation-api"), allUnitIds.toString());
 
 		IU categoryIU = p2Repo.getUniqueIU("Test Category");
-		assertThat(categoryIU.getRequiredIds(), hasItem("jakarta.annotation-api"));
+		List<String> requiredIds = categoryIU.getRequiredIds();
+		assertTrue(requiredIds.contains("jakarta.annotation-api"), requiredIds.toString());
 	}
 
 	@Test
@@ -78,7 +81,7 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
 		assertTrue(new File(repository, "index.html").isFile());
 		File aboutFile = new File(repository, "about/about.html");
 		assertTrue(aboutFile.isFile());
-		assertThat(Files.readString(aboutFile.toPath()).trim(), equalTo("About testrepo"));
+		assertEquals("About testrepo", Files.readString(aboutFile.toPath()).trim());
 	}
 
 	@Test

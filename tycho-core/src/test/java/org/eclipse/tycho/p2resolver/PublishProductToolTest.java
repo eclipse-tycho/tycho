@@ -22,9 +22,7 @@ import static org.eclipse.tycho.test.util.InstallableUnitMatchers.unitWithId;
 import static org.eclipse.tycho.test.util.InstallableUnitUtil.createBundleIU;
 import static org.eclipse.tycho.test.util.InstallableUnitUtil.createFeatureIU;
 import static org.eclipse.tycho.test.util.MatchingItemFinder.getUnique;
-import static org.hamcrest.CoreMatchers.both;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -127,15 +125,16 @@ public class PublishProductToolTest {
         DependencySeed seed = seeds.iterator().next();
 
         Set<IInstallableUnit> publishedUnits = outputRepository.getInstallableUnits();
-        assertThat(publishedUnits, hasItem(seed.getInstallableUnit()));
+        assertTrue(publishedUnits.contains(seed.getInstallableUnit()), publishedUnits.toString());
 
         // test for launcher artifact
         Map<String, File> artifactLocations = outputRepository.getArtifactLocations();
         // TODO 348586 drop productUid from classifier
         String executableClassifier = "productUid.executable.testws.testos.testarch";
-        assertThat(artifactLocations.keySet(), hasItem(executableClassifier));
+        assertTrue(artifactLocations.keySet().contains(executableClassifier), artifactLocations.toString());
         assertTrue(artifactLocations.get(executableClassifier).isFile());
-        assertThat(artifactLocations.get(executableClassifier).toString(), endsWith(".zip"));
+        assertTrue(artifactLocations.get(executableClassifier).toString().endsWith(".zip"),
+                artifactLocations.get(executableClassifier).toString());
     }
 
     @Test
@@ -179,8 +178,8 @@ public class PublishProductToolTest {
 
         BuildFailureException e = assertThrows(BuildFailureException.class,
                 () -> subject.publishProduct(productDefinition, null, FLAVOR, null));
-        assertThat(e.getMessage(),
-                both(containsString("inclusionsWithVersionSyntaxError.product")).and(containsString("nonOSGi")));
+        assertTrue(e.getMessage().contains("inclusionsWithVersionSyntaxError.product"), e.getMessage());
+        assertTrue(e.getMessage().contains("nonOSGi"), e.getMessage());
     }
 
     @Test

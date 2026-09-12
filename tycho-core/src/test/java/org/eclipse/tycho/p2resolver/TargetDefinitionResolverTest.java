@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -136,7 +135,7 @@ public class TargetDefinitionResolverTest {
     public void testResolveOtherLocationYieldsWarning() throws Exception {
         TargetDefinition definition = definitionWith(new OtherLocationStub(), new LocationStub(TARGET_FEATURE));
         TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
-        assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
+        assertTrue(versionedIdsOf(units).contains(MAIN_BUNDLE), versionedIdsOf(units).toString());
         logVerifier.expectWarning("Target location type 'OtherLocation' is not supported");
     }
 
@@ -174,8 +173,8 @@ public class TargetDefinitionResolverTest {
     public void testResolveIncludesDependencies() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
         TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
-        assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
-        assertThat(versionedIdsOf(units), hasItem(REFERENCED_BUNDLE_V1));
+        assertTrue(versionedIdsOf(units).contains(MAIN_BUNDLE), versionedIdsOf(units).toString());
+        assertTrue(versionedIdsOf(units).contains(REFERENCED_BUNDLE_V1), versionedIdsOf(units).toString());
     }
 
     @Test
@@ -186,8 +185,8 @@ public class TargetDefinitionResolverTest {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.UNSATISFIED, TARGET_FEATURE),
                 new LocationStub(TestRepositories.V1_AND_V2, MAIN_BUNDLE, REFERENCED_BUNDLE_V1));
         TargetDefinitionContent units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class));
-        assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
-        assertThat(versionedIdsOf(units), hasItem(REFERENCED_BUNDLE_V1));
+        assertTrue(versionedIdsOf(units).contains(MAIN_BUNDLE), versionedIdsOf(units).toString());
+        assertTrue(versionedIdsOf(units).contains(REFERENCED_BUNDLE_V1), versionedIdsOf(units).toString());
     }
 
     @Test

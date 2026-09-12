@@ -14,9 +14,6 @@ package org.eclipse.tycho.p2resolver;
 
 import static org.eclipse.tycho.p2resolver.ModuleArtifactRepositoryTest.writeAndClose;
 import static org.eclipse.tycho.test.util.ArtifactRepositoryTestUtils.allKeysIn;
-import static org.hamcrest.CoreMatchers.endsWith;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -77,27 +74,27 @@ public class PublishingRepositoryTest {
         insertTestArtifact(subject);
 
         Map<String, File> artifacts = subject.getArtifactLocations();
-        assertThat(artifacts.keySet(), hasItem(AttachedTestArtifact.classifier));
-        assertThat(artifacts.keySet(), hasItem("p2metadata"));
-        assertThat(artifacts.keySet(), hasItem("p2artifacts"));
+        assertTrue(artifacts.keySet().contains(AttachedTestArtifact.classifier), artifacts.keySet().toString());
+        assertTrue(artifacts.keySet().contains("p2metadata"), artifacts.keySet().toString());
+        assertTrue(artifacts.keySet().contains("p2artifacts"), artifacts.keySet().toString());
 
         for (File artifactFile : artifacts.values()) {
             assertTrue(artifactFile.isFile());
         }
 
         // file name extension is used when attaching the artifacts
-        assertThat(artifacts.get(AttachedTestArtifact.classifier).toString(),
-                endsWith(AttachedTestArtifact.fileExtension));
-        assertThat(artifacts.get("p2metadata").toString(), endsWith(".xml"));
-        assertThat(artifacts.get("p2artifacts").toString(), endsWith(".xml"));
+        assertTrue(artifacts.get(AttachedTestArtifact.classifier).toString().endsWith(AttachedTestArtifact.fileExtension),
+                artifacts.get(AttachedTestArtifact.classifier).toString());
+        assertTrue(artifacts.get("p2metadata").toString().endsWith(".xml"), artifacts.get("p2metadata").toString());
+        assertTrue(artifacts.get("p2artifacts").toString().endsWith(".xml"), artifacts.get("p2artifacts").toString());
     }
 
     @Test
     public void testArtifactsMapWithOnlyMetafiles() throws Exception {
         // although there is no published content, the meta-files shall still be there
         Map<String, File> artifacts = subject.getArtifactLocations();
-        assertThat(artifacts.keySet(), hasItem("p2metadata"));
-        assertThat(artifacts.keySet(), hasItem("p2artifacts"));
+        assertTrue(artifacts.keySet().contains("p2metadata"), artifacts.keySet().toString());
+        assertTrue(artifacts.keySet().contains("p2artifacts"), artifacts.keySet().toString());
 
         for (File artifactFile : artifacts.values()) {
             assertTrue(artifactFile.isFile());
@@ -110,7 +107,7 @@ public class PublishingRepositoryTest {
         insertTestArtifact(subject);
 
         IArtifactRepository artifactRepo = subject.getArtifactRepository();
-        assertThat(allKeysIn(artifactRepo), hasItem(AttachedTestArtifact.key));
+        assertTrue(allKeysIn(artifactRepo).contains(AttachedTestArtifact.key), allKeysIn(artifactRepo).toString());
 
         IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(AttachedTestArtifact.key);
         assertEquals(1, descriptors.length);

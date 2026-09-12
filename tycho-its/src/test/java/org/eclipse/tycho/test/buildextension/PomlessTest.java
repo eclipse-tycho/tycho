@@ -1,8 +1,5 @@
 package org.eclipse.tycho.test.buildextension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -91,7 +88,7 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 		assertPackagingTypeData("tests", projectData, //
 				"tests", "pom");
 
-		assertThat(projectData, is(aMapWithSize(0))); // Ensure no more projects are found
+		assertTrue(projectData.isEmpty(), projectData.toString()); // Ensure no more projects are found
 	}
 
 	private static void assertPackagingTypeData(String path, Map<Path, ModelData> projectData, String artifactId,
@@ -162,7 +159,7 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 				"bundles-enhanced-pomless:bundles-with-enhanced-parents:1.2.0:pom", "Aggregator 3 pomless",
 				"aggregator3-pomless");
 
-		assertThat(projectData, is(aMapWithSize(0))); // Ensure no more projects are found
+		assertTrue(projectData.isEmpty(), projectData.toString()); // Ensure no more projects are found
 	}
 
 	private static void assertProjectData(String path, Map<Path, ModelData> projectData, String expectedGAV,

@@ -16,13 +16,11 @@ package org.eclipse.tycho.p2resolver;
 import static org.eclipse.tycho.test.util.ProbeArtifactSink.newArtifactSinkFor;
 import static org.eclipse.tycho.test.util.ProbeRawArtifactSink.newRawArtifactSinkFor;
 import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -166,8 +164,8 @@ public class LocalArtifactRepositoryP2APITest {
     public void testGetDescriptors() {
         List<IArtifactDescriptor> result = Arrays.asList(subject.getArtifactDescriptors(ARTIFACT_A_KEY));
 
-        assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_1));
-        assertThat(result, not(hasItem(ARTIFACT_A_DESCRIPTOR_2)));
+        assertTrue(result.contains(ARTIFACT_A_DESCRIPTOR_1), result.toString());
+        assertFalse(result.contains(ARTIFACT_A_DESCRIPTOR_2), result.toString());
         assertEquals(1, result.size());
     }
 
@@ -183,8 +181,8 @@ public class LocalArtifactRepositoryP2APITest {
     public void testQueryKeys() {
         Set<IArtifactKey> result = allKeysIn(subject);
 
-        assertThat(result, hasItem(ARTIFACT_A_KEY));
-        assertThat(result, hasItem(ARTIFACT_B_KEY));
+        assertTrue(result.contains(ARTIFACT_A_KEY), result.toString());
+        assertTrue(result.contains(ARTIFACT_B_KEY), result.toString());
         assertEquals(ORIGINAL_KEYS, result);
     }
 
@@ -192,9 +190,9 @@ public class LocalArtifactRepositoryP2APITest {
     public void testQueryDescriptors() {
         Set<IArtifactDescriptor> result = allDescriptorsIn(subject);
 
-        assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_1));
-        assertThat(result, not(hasItem(ARTIFACT_A_DESCRIPTOR_2)));
-        assertThat(result, hasItem(ARTIFACT_B_DESCRIPTOR));
+        assertTrue(result.contains(ARTIFACT_A_DESCRIPTOR_1), result.toString());
+        assertFalse(result.contains(ARTIFACT_A_DESCRIPTOR_2), result.toString());
+        assertTrue(result.contains(ARTIFACT_B_DESCRIPTOR), result.toString());
         assertEquals(ORIGINAL_DESCRIPTORS, result);
     }
 
@@ -276,7 +274,7 @@ public class LocalArtifactRepositoryP2APITest {
     public void testGetArtifactFile() {
         File result = subject.getArtifactFile(ARTIFACT_A_KEY);
 
-        assertThat(result, is(artifactLocationOf(ARTIFACT_A_KEY, ".jar")));
+        assertEquals(artifactLocationOf(ARTIFACT_A_KEY, ".jar"), result);
     }
 
     @Test
@@ -290,7 +288,7 @@ public class LocalArtifactRepositoryP2APITest {
     public void testGetRawArtifactFile() {
         File result = subject.getArtifactFile(ARTIFACT_B_CANONICAL);
 
-        assertThat(result, is(artifactLocationOf(ARTIFACT_B_KEY, ".jar")));
+        assertEquals(artifactLocationOf(ARTIFACT_B_KEY, ".jar"), result);
     }
 
     @Test
@@ -473,7 +471,7 @@ public class LocalArtifactRepositoryP2APITest {
             expectedException = e;
         }
 
-        assertThat(expectedException, is(instanceOf(ProvisionException.class)));
+        assertInstanceOf(ProvisionException.class, expectedException);
         assertEquals(ProvisionException.ARTIFACT_EXISTS, expectedException.getStatus().getCode());
     }
 
@@ -534,7 +532,7 @@ public class LocalArtifactRepositoryP2APITest {
             expectedException = e;
         }
 
-        assertThat(expectedException, is(instanceOf(ProvisionException.class)));
+        assertInstanceOf(ProvisionException.class, expectedException);
         assertEquals(ProvisionException.ARTIFACT_EXISTS, expectedException.getStatus().getCode());
     }
 
@@ -598,8 +596,8 @@ public class LocalArtifactRepositoryP2APITest {
     }
 
     private void assertTotal(int keyDiff, int descriptorDiff) {
-        assertThat(allKeysIn(subject).size(), is(ORIGINAL_KEYS.size() + keyDiff));
-        assertThat(allDescriptorsIn(subject).size(), is(ORIGINAL_DESCRIPTORS.size() + descriptorDiff));
+        assertEquals(ORIGINAL_KEYS.size() + keyDiff, allKeysIn(subject).size());
+        assertEquals(ORIGINAL_DESCRIPTORS.size() + descriptorDiff, allDescriptorsIn(subject).size());
     }
 
     private static Set<IArtifactKey> allKeysIn(LocalArtifactRepository repository) {

@@ -12,14 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.target;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -82,8 +81,9 @@ public class TargetVariableResolutionTest extends AbstractTychoIntegrationTest {
 		// artifact + metadata
 		assertEquals(2, allRepositoryReferences.size());
 		final String REPO = baseurl + "/repo";
-		assertThat(allRepositoryReferences,
-				containsInAnyOrder(new RepositoryReference(REPO, IRepository.TYPE_ARTIFACT, IRepository.ENABLED),
-						new RepositoryReference(REPO, IRepository.TYPE_METADATA, IRepository.ENABLED)));
+		assertEquals(
+				Set.of(new RepositoryReference(REPO, IRepository.TYPE_ARTIFACT, IRepository.ENABLED),
+						new RepositoryReference(REPO, IRepository.TYPE_METADATA, IRepository.ENABLED)),
+				Set.copyOf(allRepositoryReferences));
 	}
 }

@@ -16,13 +16,12 @@ import static org.eclipse.equinox.p2.repository.IRepository.ENABLED;
 import static org.eclipse.equinox.p2.repository.IRepository.NONE;
 import static org.eclipse.equinox.p2.repository.IRepository.TYPE_ARTIFACT;
 import static org.eclipse.equinox.p2.repository.IRepository.TYPE_METADATA;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -44,11 +43,12 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 						+ ResourceUtil.P2Repositories.ECLIPSE_LATEST.toString().replace("/", "//")));
 
 		assertEquals(4, allRepositoryReferences.size());
-		assertThat(allRepositoryReferences,
-				containsInAnyOrder(new RepositoryReference("http://some.where", TYPE_ARTIFACT, NONE),
+		assertEquals(
+				Set.of(new RepositoryReference("http://some.where", TYPE_ARTIFACT, NONE),
 						new RepositoryReference("http://some.where", TYPE_METADATA, NONE),
 						new RepositoryReference("http://some.where.else", TYPE_ARTIFACT, ENABLED),
-						new RepositoryReference("http://some.where.else", TYPE_METADATA, ENABLED)));
+						new RepositoryReference("http://some.where.else", TYPE_METADATA, ENABLED)),
+				Set.copyOf(allRepositoryReferences));
 	}
 
 	@Test
@@ -61,11 +61,12 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 				"/p2Repository.repositoryRef.filter", c -> {
 				});
 		assertEquals(4, allRepositoryReferences.size());
-		assertThat(allRepositoryReferences, containsInAnyOrder( //
+		assertEquals(Set.of( //
 				new RepositoryReference("https://download.eclipse.org/tm4e/releases/0.8.1", TYPE_ARTIFACT, ENABLED),
 				new RepositoryReference("https://download.eclipse.org/tm4e/releases/0.8.1", TYPE_METADATA, ENABLED),
 				new RepositoryReference("https://some.where/from/category", TYPE_ARTIFACT, ENABLED),
-				new RepositoryReference("https://some.where/from/category", TYPE_METADATA, ENABLED)));
+				new RepositoryReference("https://some.where/from/category", TYPE_METADATA, ENABLED)),
+				Set.copyOf(allRepositoryReferences));
 	}
 
 	@Test
@@ -80,11 +81,12 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
 
 		assertEquals(4, allRepositoryReferences.size(),
 				allRepositoryReferences.stream().map(rr -> rr.uri()).collect(Collectors.joining(", ")));
-		assertThat(allRepositoryReferences, containsInAnyOrder( //
+		assertEquals(Set.of( //
 				new RepositoryReference("https://download.eclipse.org/eclipse/updates/4.29", TYPE_ARTIFACT, ENABLED),
 				new RepositoryReference("https://download.eclipse.org/eclipse/updates/4.29", TYPE_METADATA, ENABLED),
 				new RepositoryReference("https://download.eclipse.org/cbi/updates/license", TYPE_ARTIFACT, ENABLED),
-				new RepositoryReference("https://download.eclipse.org/cbi/updates/license", TYPE_METADATA, ENABLED)));
+				new RepositoryReference("https://download.eclipse.org/cbi/updates/license", TYPE_METADATA, ENABLED)),
+				Set.copyOf(allRepositoryReferences));
 	}
 
 	@Test

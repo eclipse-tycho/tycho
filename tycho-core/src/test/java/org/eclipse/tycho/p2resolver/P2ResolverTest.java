@@ -563,7 +563,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
                 selectedEntry = entry;
             }
         }
-        assertThat(availableClassifiers, hasItem(classifier));
+        assertTrue(availableClassifiers.contains(classifier), availableClassifiers.toString());
         return selectedEntry;
     }
 
