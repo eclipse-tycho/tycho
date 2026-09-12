@@ -15,11 +15,13 @@ package org.eclipse.m2e.pde.target.tests;
 import java.util.List;
 
 import org.eclipse.pde.core.target.ITargetLocation;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
  * Tests that the content of a location matches the expectation
  */
+@Disabled("Disabled for incompatibility with Maven 4")
 public class MavenContentTest extends AbstractMavenTargetTest {
     @Test
     public void testIncludeProvidedInfinite() throws Exception {

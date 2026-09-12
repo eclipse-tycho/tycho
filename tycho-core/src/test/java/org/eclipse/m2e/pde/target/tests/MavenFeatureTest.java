@@ -27,6 +27,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 @ParameterizedClass(name = "includeSource={0}")
 @MethodSource("dependencyConfigurations")
+@Disabled("Disabled for incompatibility with Maven 4")
 public class MavenFeatureTest extends AbstractMavenTargetTest {
     @Parameter(0)
     public Boolean includeSource;

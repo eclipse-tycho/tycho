@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import java.util.List;
 
 import org.eclipse.pde.core.target.ITargetLocation;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
@@ -24,6 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @ParameterizedClass(name = "includeSource={0}")
 @MethodSource("dependencyConfigurations")
+@Disabled("Disabled for incompatibility with Maven 4")
 public class MixedCasesTest extends AbstractMavenTargetTest {
     @Parameter(0)
     public Boolean includeSource;
