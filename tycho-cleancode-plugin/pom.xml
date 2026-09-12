@@ -89,7 +89,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.ui.ide</artifactId>
-			<version>3.23.100</version>
+			<version>3.23.200</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
