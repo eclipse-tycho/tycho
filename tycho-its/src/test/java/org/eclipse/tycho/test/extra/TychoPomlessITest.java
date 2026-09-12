@@ -58,6 +58,19 @@ public class TychoPomlessITest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testPomlessNestedBuildExtension() throws Exception {
+		// modules are nested deeper than the default parent lookup ('..') can resolve,
+		// the parent is given as an absolute path in .mvn/maven.config instead
+		Verifier verifier = getVerifier("extra/testpomless-nested", false);
+		verifier.executeGoals(asList("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+		File baseDir = new File(verifier.getBasedir());
+		assertThat(new File(baseDir, "submodule-a/bundle1/target/pomless.bundle-0.1.0-SNAPSHOT.jar"), isFile());
+		assertThat(new File(baseDir, "submodule-a/bundle1.tests/target/pomless.bundle.tests-1.0.1.jar"), isFile());
+		assertThat(new File(baseDir, "submodule-b/feature/target/pomless.feature-1.0.0-SNAPSHOT.jar"), isFile());
+	}
+
+	@Test
 	public void testPomlessStructuredBuildExtension() throws Exception {
 		Verifier verifier = getVerifier("extra/testpomless-structured", false);
 		verifier.executeGoals(asList("clean", "verify"));
