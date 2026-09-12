@@ -14,11 +14,18 @@ package org.eclipse.tycho.buildversion;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.ResolverStyle;
+import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,21 +49,30 @@ public class DefaultTimestampFinder implements TimestampFinder {
 	Logger logger;
 
 
-    private static Map<SimpleDateFormat, Pattern> defaultPatterns() {
-        Map<SimpleDateFormat, Pattern> result = new LinkedHashMap<>();
-        result.put(utcFormat("yyyyMMddHHmm"), Pattern.compile("([0-9]{12})"));
-        result.put(utcFormat("yyyyMMdd-HHmm"), Pattern.compile("([0-9]{8})-([0-9]{4})"));
-        result.put(utcFormat("yyyyMMdd"), Pattern.compile("([0-9]{8})"));
+    private static Map<DateTimeFormatter, Pattern> defaultPatterns() {
+        Map<DateTimeFormatter, Pattern> result = new LinkedHashMap<>();
+        result.put(utcFormat("uuuuMMddHHmm"), Pattern.compile("([0-9]{12})"));
+        result.put(utcFormat("uuuuMMdd-HHmm"), Pattern.compile("([0-9]{8})-([0-9]{4})"));
+        result.put(utcFormat("uuuuMMdd"), Pattern.compile("([0-9]{8})"));
         return result;
     }
 
-    private static SimpleDateFormat utcFormat(String pattern) {
-        SimpleDateFormat format = new SimpleDateFormat(pattern);
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return format;
+    /**
+     * Creates an immutable, and therefore thread safe, formatter for the given pattern. The pattern
+     * uses {@code uuuu} rather than {@code yyyy} to parse a proleptic year, so that no era is
+     * required. Missing time fields default to midnight, and parsing is lenient to keep the
+     * behavior of the previously used {@link SimpleDateFormat}.
+     */
+    private static DateTimeFormatter utcFormat(String pattern) {
+        return new DateTimeFormatterBuilder().appendPattern(pattern)
+                .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+                .toFormatter(Locale.ROOT)
+                .withResolverStyle(ResolverStyle.LENIENT)
+                .withZone(ZoneOffset.UTC);
     }
 
-    private final Map<SimpleDateFormat, Pattern> datePatternsByRegularExpressions;
+    private final Map<DateTimeFormatter, Pattern> datePatternsByRegularExpressions;
 
     public DefaultTimestampFinder() {
         datePatternsByRegularExpressions = defaultPatterns();
@@ -97,7 +113,7 @@ public class DefaultTimestampFinder implements TimestampFinder {
 
 	@Override
     public Date findInString(String string) {
-        for (Entry<SimpleDateFormat, Pattern> e : datePatternsByRegularExpressions.entrySet()) {
+        for (Entry<DateTimeFormatter, Pattern> e : datePatternsByRegularExpressions.entrySet()) {
             Matcher matcher = e.getValue().matcher(string);
             if (matcher.find()) {
                 String group = matcher.group();
@@ -109,12 +125,11 @@ public class DefaultTimestampFinder implements TimestampFinder {
         return null;
     }
 
-    private Date parseTimestamp(String timestampString, SimpleDateFormat format) {
-        ParsePosition pos = new ParsePosition(0);
-        Date timestamp = format.parse(timestampString, pos);
-        if (timestamp != null && pos.getIndex() == timestampString.length()) {
-            return timestamp;
+    private Date parseTimestamp(String timestampString, DateTimeFormatter format) {
+        try {
+            return Date.from(Instant.from(format.parse(timestampString)));
+        } catch (DateTimeException e) {
+            return null;
         }
-        return null;
     }
 }
