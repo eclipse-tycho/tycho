@@ -252,7 +252,7 @@ public class BndTestMojo extends AbstractTestMojo {
         if (debugPort > 0) {
             properties.setProperty("-runjdb", "+localhost:" + debugPort);
         }
-        bndRunProperties.forEach((key, value) -> properties.setProperty(key.replaceFirst("^_", "-"), value));
+        addBndRunProperties(properties, bndRunProperties);
         try {
             ReproducibleUtils.storeProperties(properties, runfile.toPath());
             String javaExecutable = getJavaExecutable();
@@ -352,6 +352,22 @@ public class BndTestMojo extends AbstractTestMojo {
             throw new MojoExecutionException("executing test container failed!", e);
         }
 
+    }
+
+    /**
+     * Applies the {@code bndRunProperties} to the given bnd-run {@link Properties}, translating the
+     * leading underscore used to escape Maven's instruction-key syntax (e.g. {@code _runpath} &rarr;
+     * {@code -runpath}). Entries with a blank value are skipped: a shared parent configuration may
+     * declare a property with an empty/placeholder default that is meant to be overridden per-module
+     * (e.g. via {@code build.properties}), and Maven/Plexus represents such blank Map values as
+     * {@code null}, which would otherwise NPE in {@link Properties#setProperty(String, String)}.
+     */
+    static void addBndRunProperties(Properties properties, Map<String, String> bndRunProperties) {
+        bndRunProperties.forEach((key, value) -> {
+            if (value != null && !value.isBlank()) {
+                properties.setProperty(key.replaceFirst("^_", "-"), value);
+            }
+        });
     }
 
     private String buildRunProperties() {
