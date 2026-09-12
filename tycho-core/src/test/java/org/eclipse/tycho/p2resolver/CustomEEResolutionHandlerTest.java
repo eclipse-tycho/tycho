@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -74,11 +72,11 @@ public class CustomEEResolutionHandlerTest {
         List<SystemCapability> result = eeConfigurationCapture.capturedSystemCapabilities;
 
         assertNotNull(result);
-        assertThat(result, hasItem(new SystemCapability(Type.JAVA_PACKAGE, "javax.activation", "0.0.0")));
-        assertThat(result, hasItem(new SystemCapability(Type.JAVA_PACKAGE, "javax.activation", "1.1.1")));
-        assertThat(result, hasItem(new SystemCapability(Type.OSGI_EE, "OSGi/Minimum", "1.0.0")));
-        assertThat(result, hasItem(new SystemCapability(Type.OSGI_EE, "JavaSE", "1.4.0")));
-        assertThat(result, hasItem(new SystemCapability(Type.OSGI_EE, "JavaSE", "1.5.0")));
+        assertTrue(result.contains(new SystemCapability(Type.JAVA_PACKAGE, "javax.activation", "0.0.0")), result.toString());
+        assertTrue(result.contains(new SystemCapability(Type.JAVA_PACKAGE, "javax.activation", "1.1.1")), result.toString());
+        assertTrue(result.contains(new SystemCapability(Type.OSGI_EE, "OSGi/Minimum", "1.0.0")), result.toString());
+        assertTrue(result.contains(new SystemCapability(Type.OSGI_EE, "JavaSE", "1.4.0")), result.toString());
+        assertTrue(result.contains(new SystemCapability(Type.OSGI_EE, "JavaSE", "1.5.0")), result.toString());
         assertEquals(5, result.size());
     }
 

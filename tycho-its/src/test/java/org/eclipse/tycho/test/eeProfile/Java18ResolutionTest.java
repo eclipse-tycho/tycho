@@ -12,8 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.eeProfile;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -44,7 +43,7 @@ public class Java18ResolutionTest extends AbstractTychoIntegrationTest {
 		P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
 		List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
 		// we expect java 18
-		assertThat(jreUnitVersions, hasItem("18.0.0"));
+		assertTrue(jreUnitVersions.contains("18.0.0"), jreUnitVersions.toString());
 	}
 
 }

@@ -12,11 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
-import static org.hamcrest.CoreMatchers.endsWith;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -151,10 +148,11 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
 		// ... although there is no unfiltered dependency from the product IU.
 		var unfilteredRequiredIds = p2Repository.getUniqueIU("main.product.id").getUnfilteredRequiredIds();
-		assertThat(unfilteredRequiredIds, not(hasItem("pi.root-level-installed-feature.feature.group")));
+		assertFalse(unfilteredRequiredIds.contains("pi.root-level-installed-feature.feature.group"),
+				unfilteredRequiredIds.toString());
 
 		// There are the expected unfiltered requirement such as this one.
-		assertThat(unfilteredRequiredIds, hasItem("pi.example.feature.feature.group"));
+		assertTrue(unfilteredRequiredIds.contains("pi.example.feature.feature.group"), unfilteredRequiredIds.toString());
 	}
 
 	@Test
@@ -175,18 +173,21 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 		EclipseInstallationTool otherProduct = EclipseInstallationTool.forInstallationInEclipseRepositoryTarget(basedir,
 				"extra.product.id", env, "rootfolder");
 
-		assertThat(rootFeatureProduct.getInstalledFeatureIds(), hasItem("pi.root-level-installed-feature"));
-		assertThat(otherProduct.getInstalledFeatureIds(), not(hasItem("pi.root-level-installed-feature")));
+		List<String> rootFeatureIds = rootFeatureProduct.getInstalledFeatureIds();
+		assertTrue(rootFeatureIds.contains("pi.root-level-installed-feature"), rootFeatureIds.toString());
+		List<String> otherFeatureIds = otherProduct.getInstalledFeatureIds();
+		assertFalse(otherFeatureIds.contains("pi.root-level-installed-feature"), otherFeatureIds.toString());
 	}
 
 	static private void assertProductIUs(P2RepositoryTool p2Repository, Product product, TargetEnvironment env)
 			throws Exception {
 		IU productIU = p2Repository.getUniqueIU(product.unitId);
-		assertThat(productIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
+		List<String> properties = productIU.getProperties();
+		assertTrue(properties.contains("org.eclipse.equinox.p2.type.product=true"), properties.toString());
 		if (product.p2InfProperty) {
-			assertThat(productIU.getProperties(), hasItem("p2.inf.added-property=true"));
+			assertTrue(properties.contains("p2.inf.added-property=true"), properties.toString());
 		} else {
-			assertThat(productIU.getProperties(), not(hasItem("p2.inf.added-property=true")));
+			assertFalse(properties.contains("p2.inf.added-property=true"), properties.toString());
 		}
 
 		/*
@@ -195,7 +196,8 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 		 * would not be generated.
 		 */
 		String simpleConfiguratorIU = "tooling" + env.toConfigSpec() + "org.eclipse.equinox.simpleconfigurator";
-		assertThat(p2Repository.getAllUnitIds(), hasItem(simpleConfiguratorIU));
+		List<String> allUnitIds = p2Repository.getAllUnitIds();
+		assertTrue(allUnitIds.contains(simpleConfiguratorIU), allUnitIds.toString());
 	}
 
 	static private void assertProductArtifacts(Verifier verifier, Product product, TargetEnvironment env)
@@ -238,11 +240,11 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
 		Set<String> archiveFiles = ArchiveContentUtil.getFilesInZip(installedProductArchive);
 		if (!rootFolder.isEmpty()) {
-			assertThat(archiveFiles, hasItem(rootFolder));
+			assertTrue(archiveFiles.contains(rootFolder), archiveFiles.toString());
 		}
-		assertThat(archiveFiles, hasItem(rootFolder + "configuration/config.ini"));
+		assertTrue(archiveFiles.contains(rootFolder + "configuration/config.ini"), archiveFiles.toString());
 		if (product.hasBundlePool()) {
-			assertThat(archiveFiles, hasItem("pool/"));
+			assertTrue(archiveFiles.contains("pool/"), archiveFiles.toString());
 		}
 
 		if (product.hasLocalFeature()) {
@@ -258,7 +260,7 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 	private static void assertContainsEntry(File file, String prefix) throws Exception {
 		for (String archiveFile : ArchiveContentUtil.getFilesInZip(file)) {
 			if (archiveFile.startsWith(prefix)) {
-				assertThat(archiveFile, not(endsWith("qualifier")));
+				assertFalse(archiveFile.endsWith("qualifier"), archiveFile);
 			}
 		}
 	}

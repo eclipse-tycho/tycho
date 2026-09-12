@@ -23,12 +23,11 @@ import static org.eclipse.tycho.test.util.TestRepositoryContent.BUNDLE_A_KEY;
 import static org.eclipse.tycho.test.util.TestRepositoryContent.BUNDLE_B_KEY;
 import static org.eclipse.tycho.test.util.TestRepositoryContent.REPO_BUNDLE_A_CORRUPT;
 import static org.eclipse.tycho.test.util.TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT;
-import static org.hamcrest.CoreMatchers.both;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -71,8 +70,8 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         subject = createCompositeArtifactProvider(locationWithoutArtifactRepository);
 
         Exception e = assertThrows(Exception.class, () -> subject.query(ANY_ARTIFACT_KEY_QUERY, null));
-        assertThat(e.getMessage(),
-                both(containsString("Load repository from url")).and(containsString("nonRepoLocation")));
+        assertTrue(e.getMessage().contains("Load repository from url"), e.getMessage());
+        assertTrue(e.getMessage().contains("nonRepoLocation"), e.getMessage());
     }
 
     @Test
@@ -87,8 +86,8 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         if (string.endsWith("/")) {
             string = string.substring(0, string.length() - 1);
         }
-        assertThat(status.getMessage(),
-                both(containsString("An error occurred while transferring artifact")).and(containsString(string)));
+        assertTrue(status.getMessage().contains("An error occurred while transferring artifact"), status.getMessage());
+        assertTrue(status.getMessage().contains(string), status.getMessage());
         assertFalse(testSink.writeIsCommitted());
     }
 
@@ -104,8 +103,8 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         if (string.endsWith("/")) {
             string = string.substring(0, string.length() - 1);
         }
-        assertThat(status.getMessage(),
-                both(containsString("An error occurred while transferring artifact")).and(containsString(string)));
+        assertTrue(status.getMessage().contains("An error occurred while transferring artifact"), status.getMessage());
+        assertTrue(status.getMessage().contains(string), status.getMessage());
         assertFalse(rawTestSink.writeIsCommitted());
     }
 
@@ -136,8 +135,8 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         status = subject.getArtifact(testSink, null);
 
         assertThat(status, is(warningStatus()));
-        assertThat(status.toString(), containsString("mirror 1"));
-        assertThat(status.toString(), containsString("mirror 2"));
+        assertTrue(status.toString().contains("mirror 1"), status.toString());
+        assertTrue(status.toString().contains("mirror 2"), status.toString());
     }
 
     @Test

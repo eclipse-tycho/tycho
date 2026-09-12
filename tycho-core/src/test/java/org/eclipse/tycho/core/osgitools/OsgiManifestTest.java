@@ -1,10 +1,9 @@
 package org.eclipse.tycho.core.osgitools;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -31,8 +30,7 @@ public class OsgiManifestTest {
     public void testMissingSymbolicName() throws Exception {
         OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
                 () -> parseManifest("noBsn.mf"));
-        assertThat(e.getMessage(), containsString("Bundle-SymbolicName header is required"));
-
+        assertTrue(e.getMessage().contains("Bundle-SymbolicName header is required"), e.getMessage());
     }
 
     @Test
@@ -44,23 +42,24 @@ public class OsgiManifestTest {
     public void testInvalidVersion() throws Exception {
         OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
                 () -> parseManifest("invalidVersion.mf"));
-        assertThat(e.getMessage(),
-                containsString("Invalid Manifest header \"Bundle-Version\": 1.0.0.%invalidQualifier"));
+        assertTrue(e.getMessage().contains("Invalid Manifest header \"Bundle-Version\": 1.0.0.%invalidQualifier"),
+                e.getMessage());
     }
 
     @Test
     public void testDuplicateImport() throws Exception {
         OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
                 () -> parseManifest("duplicateImport.mf"));
-        assertThat(e.getMessage(), containsString(
-                "Invalid manifest header Import-Package: \"org.w3c.dom\" : Cannot import a package more than once \"org.w3c.dom\""));
+        assertTrue(e.getMessage().contains(
+                "Invalid manifest header Import-Package: \"org.w3c.dom\" : Cannot import a package more than once \"org.w3c.dom\""),
+                e.getMessage());
     }
 
     @Test
     public void testInvalidVersionQualifier() throws Exception {
         OsgiManifestParserException e = assertThrows(OsgiManifestParserException.class,
                 () -> parseManifest("invalidVersionQualifier.mf"));
-        assertThat(e.getMessage(), containsString("Invalid Manifest header \"Bundle-Version\""));
+        assertTrue(e.getMessage().contains("Invalid Manifest header \"Bundle-Version\""), e.getMessage());
     }
 
     @Test

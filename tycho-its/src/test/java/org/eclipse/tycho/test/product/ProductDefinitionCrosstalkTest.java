@@ -12,11 +12,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -45,11 +45,13 @@ public class ProductDefinitionCrosstalkTest extends AbstractTychoIntegrationTest
 		// this was bug 346532: one of the product IUs also required the bundle only
 		// contained in the other product
 		P2RepositoryTool.IU productA = repository.getUniqueIU("product-a");
-		assertThat(productA.getRequiredIds(), hasItem(BUNDLE_ONLY_IN_PRODUCT_A));
-		assertThat(productA.getRequiredIds(), not(hasItem(BUNDLE_ONLY_IN_PRODUCT_B)));
+		List<String> requiredIdsA = productA.getRequiredIds();
+		assertTrue(requiredIdsA.contains(BUNDLE_ONLY_IN_PRODUCT_A), requiredIdsA.toString());
+		assertFalse(requiredIdsA.contains(BUNDLE_ONLY_IN_PRODUCT_B), requiredIdsA.toString());
 
 		P2RepositoryTool.IU productB = repository.getUniqueIU("product-b");
-		assertThat(productB.getRequiredIds(), not(hasItem(BUNDLE_ONLY_IN_PRODUCT_A)));
-		assertThat(productB.getRequiredIds(), hasItem(BUNDLE_ONLY_IN_PRODUCT_B));
+		List<String> requiredIdsB = productB.getRequiredIds();
+		assertFalse(requiredIdsB.contains(BUNDLE_ONLY_IN_PRODUCT_A), requiredIdsB.toString());
+		assertTrue(requiredIdsB.contains(BUNDLE_ONLY_IN_PRODUCT_B), requiredIdsB.toString());
 	}
 }

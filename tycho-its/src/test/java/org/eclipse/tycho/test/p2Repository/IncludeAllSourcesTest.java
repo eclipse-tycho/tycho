@@ -9,11 +9,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -45,7 +44,7 @@ public class IncludeAllSourcesTest extends AbstractTychoIntegrationTest {
 			p2Repo.getUniqueIU("org.apache.commons.commons-io.source");
 		});
 		// test inclusion of sources for multiple version of the main/source artifact
-		assertThat(p2Repo.getUnitVersions("org.opentest4j.source"), containsInAnyOrder("1.2.0", "1.3.0"));
+		assertEquals(List.of("1.2.0", "1.3.0"), p2Repo.getUnitVersions("org.opentest4j.source").stream().sorted().toList());
 	}
 
 	@Test
