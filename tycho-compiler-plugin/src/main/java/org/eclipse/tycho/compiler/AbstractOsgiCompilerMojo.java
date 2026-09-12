@@ -822,19 +822,28 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private void configureJavaHome(CompilerConfiguration compilerConfiguration) throws MojoExecutionException {
         if (useJDK == JDKUsage.BREE) {
-            ExecutionEnvironment[] brees = getBREE();
-            String toolchainId;
-            if (brees.length > 0) {
-                toolchainId = brees[0].getProfileName();
-            } else {
-                getLog().warn(
-                        "useJDK=BREE configured, but no BREE is set in bundle. Fail back to currently running execution environment ("
-                                + getTargetExecutionEnvironment().getProfileName() + ").");
-                toolchainId = getTargetExecutionEnvironment().getProfileName();
+            // Mirror the precedence used by getSourceLevel()/getTargetLevel(): build.properties'
+            // jre.compilation.profile takes precedence over a manifest BREE, and only if neither is
+            // present do we fall back to the reactor-wide target-platform execution environment. That
+            // reactor-wide EE is unrelated to this bundle's own compiler compliance level and can be a
+            // much newer EE than what the bundle is actually compiled for; using it here can silently
+            // leak newer JDK API onto the older bytecode the bundle is compiled for.
+            String toolchainId = getEclipsePluginProject().getBuildProperties().getJreCompilationProfile();
+            if (toolchainId == null) {
+                ExecutionEnvironment[] brees = getBREE();
+                if (brees.length > 0) {
+                    toolchainId = brees[0].getProfileName();
+                } else {
+                    getLog().warn(
+                            "useJDK=BREE configured, but no BREE is set in bundle. Fail back to currently running execution environment ("
+                                    + getTargetExecutionEnvironment().getProfileName() + ").");
+                    toolchainId = getTargetExecutionEnvironment().getProfileName();
+                }
             }
-            OSGiJavaToolchain osgiToolchain = toolchainProvider.getToolchain(useJDK, toolchainId)
+            String effectiveToolchainId = toolchainId;
+            OSGiJavaToolchain osgiToolchain = toolchainProvider.getToolchain(useJDK, effectiveToolchainId)
                     .orElseThrow(() -> new MojoExecutionException(
-                            "useJDK = BREE configured, but no toolchain of type 'jdk' with id '" + toolchainId
+                            "useJDK = BREE configured, but no toolchain of type 'jdk' with id '" + effectiveToolchainId
                                     + "' found. See https://maven.apache.org/guides/mini/guide-using-toolchains.html"));
             addCompilerCustomArgument(compilerConfiguration, "use.java.home", osgiToolchain.getJavaHome());
             configureBootClassPath(compilerConfiguration, osgiToolchain);
