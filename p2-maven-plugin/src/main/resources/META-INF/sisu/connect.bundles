@@ -25,7 +25,9 @@ org.eclipse.equinox.p2.repository.tools,true
 
 # Things we currently must share because of interdependencies
 org.eclipse.osgi.compatibility.state
+org.eclipse.core.contenttype
 org.eclipse.core.jobs
+org.eclipse.core.runtime
 org.eclipse.equinox.app
 org.eclipse.equinox.concurrent
 org.eclipse.equinox.frameworkadmin
