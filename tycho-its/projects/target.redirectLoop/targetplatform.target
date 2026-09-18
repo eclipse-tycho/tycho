@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde?>
+<target name="target.redirectLoop" sequenceNumber="1">
+    <locations>
+        <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
+            <repository location="http://example.com/"/>
+            <unit id="redirect.loop.test.placeholder.feature.group" version="0.0.0"/>
+        </location>
+    </locations>
+</target>
