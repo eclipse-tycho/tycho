@@ -27,4 +27,11 @@ public class CycleTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 	}
 
+	@Test
+	public void testCapabilityProvideRequire() throws Exception {
+		Verifier verifier = getVerifier("reactor.capability.cycle");
+		verifier.executeGoal("verify");
+		verifier.verifyErrorFreeLog();
+	}
+
 }
