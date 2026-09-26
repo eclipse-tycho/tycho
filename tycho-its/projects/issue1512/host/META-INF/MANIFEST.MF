@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Host
+Bundle-SymbolicName: host
+Bundle-Version: 0.0.1.qualifier
+Automatic-Module-Name: host
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Eclipse-ExtensibleAPI: true
