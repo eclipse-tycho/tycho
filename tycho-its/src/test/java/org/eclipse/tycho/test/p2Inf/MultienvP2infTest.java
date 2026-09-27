@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipFile;
 
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.jupiter.api.Test;
 

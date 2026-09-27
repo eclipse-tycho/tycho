@@ -14,7 +14,7 @@ package org.eclipse.tycho.test.TYCHO0383dotQualifierMatching;
 
 import java.io.File;
 
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.jupiter.api.Test;
