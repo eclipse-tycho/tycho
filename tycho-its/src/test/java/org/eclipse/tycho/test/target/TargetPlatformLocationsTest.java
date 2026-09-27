@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.VerificationException;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;

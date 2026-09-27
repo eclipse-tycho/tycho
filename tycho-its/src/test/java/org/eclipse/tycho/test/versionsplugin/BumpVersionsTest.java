@@ -20,8 +20,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.VerificationException;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
