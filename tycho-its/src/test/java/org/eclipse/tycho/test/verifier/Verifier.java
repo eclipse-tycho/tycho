@@ -12,11 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.verifier;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +48,16 @@ import org.junit.Assert;
 public class Verifier {
 
 	private static final String DEFAULT_LOG_FILENAME = "log.txt";
+
+	/**
+	 * Upper bound for one forked build, in minutes, overridable with {@code -Dit.timeoutMinutes}. A
+	 * build that runs longer is killed and fails its test with the end of its log, instead of
+	 * holding the whole CI job until the job's own limit.
+	 */
+	private static final long DEFAULT_TIMEOUT_MINUTES = 30;
+
+	/** How much of the log a timeout failure quotes. */
+	private static final int LOG_TAIL_LINES = 200;
 
 	private final String basedir;
 
@@ -248,27 +262,91 @@ public class Verifier {
 		env.put("MAVEN_TERMINATE_CMD", "on");
 
 		File logFile = new File(basedir, logFileName);
+		Duration timeout = Duration.ofMinutes(Long.getLong("it.timeoutMinutes", DEFAULT_TIMEOUT_MINUTES));
+		ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+		ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
 
-		try (ForkedMavenExecutor executor = new ForkedMavenExecutor(Path.of(mavenHome))) {
+		// The output goes to the log file as it arrives, as with maven-verifier 1.8.0, so a build that
+		// stalls or times out still leaves its log behind.
+		try (OutputStream log = new FileOutputStream(logFile);
+				ForkedMavenExecutor executor = new ForkedMavenExecutor(Path.of(mavenHome))) {
 			ExecutorRequest request = ExecutorRequest.mavenBuilder().cwd(Path.of(basedir)).arguments(arguments)
-					.environmentVariables(env).grabOutputAsString(true).build();
+					.environmentVariables(env).stdOut(new TeeOutputStream(stdOut, log))
+					.stdErr(new TeeOutputStream(stdErr, log)).executionTimeout(timeout).build();
 
-			ExecutorResult result = executor.execute(request);
+			ExecutorResult result;
+			try {
+				result = executor.execute(request);
+			} catch (ExecutorException e) {
+				lastStdOut = stdOut.toString(StandardCharsets.UTF_8);
+				lastStdErr = stdErr.toString(StandardCharsets.UTF_8);
+				throw new VerificationException("Failed to execute Maven (timeout " + timeout.toMinutes()
+						+ " min, see -Dit.timeoutMinutes): " + e.getMessage() + "; command line = \n" + mavenHome
+						+ "/bin/mvn " + String.join(" ", arguments) + "\nlast " + LOG_TAIL_LINES + " lines of "
+						+ logFile + ":\n" + tail(logFile), e);
+			}
 
-			lastStdOut = result.stdOutString().orElse("");
-			lastStdErr = result.stdErrString().orElse("");
-			String log = lastStdOut + lastStdErr;
-			Files.writeString(logFile.toPath(), log, StandardCharsets.UTF_8);
+			lastStdOut = stdOut.toString(StandardCharsets.UTF_8);
+			lastStdErr = stdErr.toString(StandardCharsets.UTF_8);
 
 			if (!result.success()) {
 				throw new VerificationException("Exit code was non-zero: "
 						+ result.exitCode().map(String::valueOf).orElse("unknown") + "; command line and log = \n"
-						+ mavenHome + "/bin/mvn " + String.join(" ", arguments) + "\n" + log);
+						+ mavenHome + "/bin/mvn " + String.join(" ", arguments) + "\n" + lastStdOut + lastStdErr);
 			}
 		} catch (ExecutorException e) {
 			throw new VerificationException("Failed to execute Maven: " + e.getMessage(), e);
 		} catch (IOException e) {
 			throw new VerificationException(e);
+		}
+	}
+
+	private static String tail(File file) {
+		try {
+			List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+			return String.join("\n", lines.subList(Math.max(0, lines.size() - LOG_TAIL_LINES), lines.size()));
+		} catch (IOException e) {
+			return "(log not readable: " + e.getMessage() + ")";
+		}
+	}
+
+	/**
+	 * Copies the output of one stream both to its own buffer and to the shared log. The forked
+	 * executor closes the streams it is given (apache/maven-executor#45), so closing this one leaves
+	 * the shared log open; the verifier closes the log itself.
+	 */
+	private static final class TeeOutputStream extends OutputStream {
+		private final OutputStream buffer;
+		private final OutputStream log;
+
+		TeeOutputStream(OutputStream buffer, OutputStream log) {
+			this.buffer = buffer;
+			this.log = log;
+		}
+
+		@Override
+		public void write(int b) throws IOException {
+			write(new byte[] { (byte) b }, 0, 1);
+		}
+
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			buffer.write(b, off, len);
+			synchronized (log) {
+				log.write(b, off, len);
+			}
+		}
+
+		@Override
+		public void flush() throws IOException {
+			synchronized (log) {
+				log.flush();
+			}
+		}
+
+		@Override
+		public void close() {
+			// leaves the shared log open, see the class comment
 		}
 	}
 
