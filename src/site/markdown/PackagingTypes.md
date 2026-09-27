@@ -13,7 +13,7 @@ The lifecycle bindings (i.e. which Maven plugins are executed in which Maven pha
 
 ```xml
 <plugin>
-   <groupId>org.apache.tycho</groupId>
+   <groupId>org.eclipse.tycho</groupId>
    <artifactId>tycho-maven-plugin</artifactId>
    <version>${project.version}</version>
    <extensions>true</extensions>
@@ -27,7 +27,7 @@ The according artifact handlers (i.e. the mapping from the packaging type to a s
 
 ```xml
 <plugin>
-   <groupId>org.apache.tycho</groupId>
+   <groupId>org.eclipse.tycho</groupId>
    <artifactId>p2-maven-plugin</artifactId>
    <version>${project.version}</version>
    <extensions>true</extensions>
