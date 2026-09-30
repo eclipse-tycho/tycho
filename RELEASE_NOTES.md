@@ -28,6 +28,116 @@ plus supplemental manifests under `META-INF/versions/N/`), this approach allows 
 takes precedence over the automatic directory-name based detection whenever such classpath attributes are present.
 See the new `multi-release-jar-classpath` demo project for a complete example.
 
+### JUnit 6 provider support
+
+Tycho now offers a `org.eclipse.tycho.surefire.junit6` bundle so `eclipse-test-plugin` projects can be run
+using JUnit 6's `org.junit.platform.engine.TestEngine` service, alongside the already supported JUnit 3/4/5
+providers used by `tycho-surefire-plugin`.
+
+### New mojos to modify an existing P2 repository's metadata and composite children
+
+`tycho-p2-repository-plugin` gained two new mojos that operate directly on the metadata of an already
+assembled (and potentially remote) P2 repository, without requiring a full re-publish:
+
+- `modify-repository-properties` sets the repository name and adds/removes arbitrary repository properties.
+- `modify-composite-repository` adds/removes children of a composite repository and can enforce a maximum
+  number of children (oldest children are dropped first), optionally validating that added children exist.
+
+Both mojos can modify only the `artifact` or only the `metadata` part of a repository, and can write the
+result to a different location than the source repository, e.g. to stage changes before copying them back
+to a remote server.
+
+```xml
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-p2-repository-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>modify-composite-repository</goal>
+            </goals>
+            <configuration>
+                <repository>
+                    <url>file:${project.build.directory}/composite-repository</url>
+                </repository>
+                <childrenToAdd>
+                    <childToAdd>nightly/${maven.build.timestamp}</childToAdd>
+                </childrenToAdd>
+                <childCountLimit>10</childCountLimit>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+### New `tycho-cleancode:manifest` mojo to automate PDE's "Organize Manifest" cleanups
+
+PDE offers a way to clean up bundle manifests (compute `uses` directives, remove unused dependencies and
+unused `bundle-localization` keys), but this has to be triggered manually by a developer inside the IDE.
+The new `tycho-cleancode:manifest` mojo runs these same cleanups as part of a Maven build and writes a
+Markdown report of the applied changes, making it easy to keep manifests tidy automatically or as part of CI.
+
+```xml
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>tycho-cleancode-plugin</artifactId>
+    <version>${tycho-version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>manifest</goal>
+            </goals>
+            <configuration>
+                <calculateUses>true</calculateUses>
+                <removeUnusedDependencies>true</removeUnusedDependencies>
+                <removeUnusedKeys>true</removeUnusedKeys>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+### PDE OSGi Testing Framework integration
+
+When a project's JDT JUnit 4 or JUnit 5 classpath container is used, Tycho now automatically adds the
+matching [OSGi Testing Support](https://enroute.osgi.org/services/org.osgi.test.html) bundles
+(`org.osgi.test.common`, `org.osgi.test.junit4`/`org.osgi.test.junit5` and their transitive AssertJ/Byte
+Buddy dependencies) to the test classpath - just like PDE does in the IDE. This removes the need to
+manually list these bundles when writing OSGi-aware tests with the JUnit container.
+See the new `testing/tycho/osgitest` demo project for a complete example.
+
+### New `classpathDependencies` target platform configuration option
+
+The new `<classpathDependencies>` option under `<dependency-resolution>` in `target-platform-configuration`
+controls how missing `jars.extra.classpath` entries (declared in `build.properties`) are handled during
+target platform resolution and classpath construction:
+
+```xml
+<plugin>
+    <groupId>org.eclipse.tycho</groupId>
+    <artifactId>target-platform-configuration</artifactId>
+    <version>${tycho-version}</version>
+    <configuration>
+        <dependency-resolution>
+            <classpathDependencies>optional</classpathDependencies>
+        </dependency-resolution>
+    </configuration>
+</plugin>
+```
+
+- `require` (default): a missing extra classpath entry fails the build.
+- `optional`: a missing entry only prints a warning (previous default behaviour).
+- `ignore`: missing entries are silently skipped.
+
+### New `categoryName` parameter for `tycho-p2-extras:mirror`
+
+The `mirror` goal now supports an optional `categoryName` parameter that injects a synthetic top-level
+category into the destination repository, under which all category IUs from the mirrored source
+repositories are grouped. This is useful when mirroring several independent repositories (e.g. multiple
+tools) into a single site, so users see one combined entry instead of many unrelated top-level categories
+in the "Install New Software" dialog.
+
 ### Surefire 3.6.0: JUnit 4 and TestNG tests are executed via the JUnit Platform
 
 Tycho now uses Maven Surefire 3.6.0 which has removed its dedicated JUnit 3, JUnit 4 and TestNG providers in favour of one
