@@ -6,6 +6,28 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 6.0.0 (under development)
 
+### Multi-Release JAR compilation using JDT's `release` classpath attribute
+
+Tycho now natively supports the [JDT multi-release JAR compilation feature](https://eclipse.dev/eclipse/markdown/?f=news/4.38/jdt.md#multi-release-jar-compilation-support)
+introduced in Eclipse 4.38.
+If a project has a `Multi-Release: true` header in its `MANIFEST.MF` and its checked-in `.classpath` file contains
+source folders marked with a `release` attribute, Tycho compiles each of those source folders against the given
+release and places the resulting classes in `META-INF/versions/<release>/` of the built JAR - matching what the
+JDT compiler already does inside the IDE.
+
+```xml
+<classpathentry kind="src" path="src9">
+    <attributes>
+        <attribute name="release" value="9"/>
+    </attributes>
+</classpathentry>
+```
+
+Unlike the previous, purely convention-based support (which required fixed source folder names such as `src9`/`src11`
+plus supplemental manifests under `META-INF/versions/N/`), this approach allows arbitrary source folder names and
+takes precedence over the automatic directory-name based detection whenever such classpath attributes are present.
+See the new `multi-release-jar-classpath` demo project for a complete example.
+
 ### Surefire 3.6.0: JUnit 4 and TestNG tests are executed via the JUnit Platform
 
 Tycho now uses Maven Surefire 3.6.0 which has removed its dedicated JUnit 3, JUnit 4 and TestNG providers in favour of one
