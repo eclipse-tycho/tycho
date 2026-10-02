@@ -15,7 +15,7 @@ package org.eclipse.tycho.test.featurePatch;
 import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_342;
 import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_352;
 
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.jupiter.api.Test;
 
