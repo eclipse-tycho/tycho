@@ -12,11 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.verifier;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,8 +57,17 @@ public class Verifier {
 	 */
 	private static final long DEFAULT_TIMEOUT_MINUTES = 30;
 
-	/** How much of the log a timeout failure quotes. */
+	/** How much of the log a failure quotes, at most. */
 	private static final int LOG_TAIL_LINES = 200;
+
+	/** How much of the end of the log is read for the quote, so a huge log is never read whole. */
+	private static final int LOG_TAIL_BYTES = 64 * 1024;
+
+	/**
+	 * Makes the forked Maven write its output in UTF-8, which the tests read the log as. Otherwise it is
+	 * the platform encoding of a pipe, for example windows-1252.
+	 */
+	private static final String UTF8_OUTPUT = "-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8";
 
 	private final String basedir;
 
@@ -76,10 +86,6 @@ public class Verifier {
 	private final Map<String, String> environmentVariables = new LinkedHashMap<>();
 
 	private final Properties verifierProperties = new Properties();
-
-	private String lastStdOut = "";
-
-	private String lastStdErr = "";
 
 	public Verifier(String basedir) throws VerificationException {
 		this.basedir = basedir;
@@ -218,15 +224,15 @@ public class Verifier {
 		// intentionally empty
 	}
 
-	/** Prints the standard output and error of the last run, as maven-verifier 1.8.0 did. */
+	/**
+	 * Prints the end of the last run's log. maven-verifier 1.8.0 printed its captured streams here, which
+	 * stayed empty for a forked build because its output went to the log file only.
+	 */
 	public void displayStreamBuffers() {
-		if (!lastStdOut.isBlank()) {
-			System.out.println("----- Standard Out -----");
-			System.out.println(lastStdOut);
-		}
-		if (!lastStdErr.isBlank()) {
-			System.out.println("----- Standard Error -----");
-			System.out.println(lastStdErr);
+		File logFile = new File(basedir, logFileName);
+		if (logFile.isFile()) {
+			System.out.println("----- End of " + logFile + " -----");
+			System.out.println(tail(logFile));
 		}
 	}
 
@@ -260,39 +266,38 @@ public class Verifier {
 		}
 		env.putIfAbsent("JAVA_HOME", System.getProperty("java.home"));
 		env.put("MAVEN_TERMINATE_CMD", "on");
+		String mavenOpts = env.containsKey("MAVEN_OPTS") ? env.get("MAVEN_OPTS") : System.getenv("MAVEN_OPTS");
+		env.put("MAVEN_OPTS", withUtf8Output(mavenOpts));
 
 		File logFile = new File(basedir, logFileName);
 		Duration timeout = Duration.ofMinutes(Long.getLong("it.timeoutMinutes", DEFAULT_TIMEOUT_MINUTES));
-		ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
-		ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
 
-		// The output goes to the log file as it arrives, as with maven-verifier 1.8.0, so a build that
-		// stalls or times out still leaves its log behind.
+		// The output goes only to the log file, as it arrives, as with maven-verifier 1.8.0: a build that
+		// stalls or times out still leaves its log behind, and a build with a lot of output does not have
+		// to fit into the heap of the test JVM.
 		try (OutputStream log = new FileOutputStream(logFile);
 				ForkedMavenExecutor executor = new ForkedMavenExecutor(Path.of(mavenHome))) {
+			OutputStream shared = new SharedLogOutputStream(log);
 			ExecutorRequest request = ExecutorRequest.mavenBuilder().cwd(Path.of(basedir)).arguments(arguments)
-					.environmentVariables(env).stdOut(new TeeOutputStream(stdOut, log))
-					.stdErr(new TeeOutputStream(stdErr, log)).executionTimeout(timeout).build();
+					.environmentVariables(env).stdOut(shared).stdErr(shared).executionTimeout(timeout).build();
 
 			ExecutorResult result;
 			try {
 				result = executor.execute(request);
 			} catch (ExecutorException e) {
-				lastStdOut = stdOut.toString(StandardCharsets.UTF_8);
-				lastStdErr = stdErr.toString(StandardCharsets.UTF_8);
+				log.flush();
 				throw new VerificationException("Failed to execute Maven (timeout " + timeout.toMinutes()
 						+ " min, see -Dit.timeoutMinutes): " + e.getMessage() + "; command line = \n" + mavenHome
 						+ "/bin/mvn " + String.join(" ", arguments) + "\nlast " + LOG_TAIL_LINES + " lines of "
 						+ logFile + ":\n" + tail(logFile), e);
 			}
 
-			lastStdOut = stdOut.toString(StandardCharsets.UTF_8);
-			lastStdErr = stdErr.toString(StandardCharsets.UTF_8);
-
 			if (!result.success()) {
+				log.flush();
 				throw new VerificationException("Exit code was non-zero: "
-						+ result.exitCode().map(String::valueOf).orElse("unknown") + "; command line and log = \n"
-						+ mavenHome + "/bin/mvn " + String.join(" ", arguments) + "\n" + lastStdOut + lastStdErr);
+						+ result.exitCode().map(String::valueOf).orElse("unknown") + "; command line = \n" + mavenHome
+						+ "/bin/mvn " + String.join(" ", arguments) + "\nlast " + LOG_TAIL_LINES + " lines of "
+						+ logFile + ":\n" + tail(logFile));
 			}
 		} catch (ExecutorException e) {
 			throw new VerificationException("Failed to execute Maven: " + e.getMessage(), e);
@@ -301,9 +306,24 @@ public class Verifier {
 		}
 	}
 
-	private static String tail(File file) {
-		try {
-			List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+	/**
+	 * The last {@value #LOG_TAIL_LINES} lines of the file, read from at most its last
+	 * {@value #LOG_TAIL_BYTES} bytes. Bytes that are not UTF-8 become replacement characters.
+	 */
+	static String tail(File file) {
+		try (SeekableByteChannel channel = Files.newByteChannel(file.toPath())) {
+			long start = Math.max(0, channel.size() - LOG_TAIL_BYTES);
+			ByteBuffer buffer = ByteBuffer.allocate((int) (channel.size() - start));
+			channel.position(start);
+			while (buffer.hasRemaining() && channel.read(buffer) >= 0) {
+				// read until the buffer is full
+			}
+			String text = new String(buffer.array(), 0, buffer.position(), StandardCharsets.UTF_8);
+			List<String> lines = text.lines().toList();
+			if (start > 0 && !lines.isEmpty()) {
+				// the first line was cut
+				lines = lines.subList(1, lines.size());
+			}
 			return String.join("\n", lines.subList(Math.max(0, lines.size() - LOG_TAIL_LINES), lines.size()));
 		} catch (IOException e) {
 			return "(log not readable: " + e.getMessage() + ")";
@@ -311,16 +331,21 @@ public class Verifier {
 	}
 
 	/**
-	 * Copies the output of one stream both to its own buffer and to the shared log. The forked
-	 * executor closes the streams it is given (apache/maven-executor#45), so closing this one leaves
-	 * the shared log open; the verifier closes the log itself.
+	 * Adds {@link #UTF8_OUTPUT} to the given {@code MAVEN_OPTS}, which may be {@code null}.
 	 */
-	private static final class TeeOutputStream extends OutputStream {
-		private final OutputStream buffer;
+	static String withUtf8Output(String mavenOpts) {
+		return mavenOpts == null || mavenOpts.isBlank() ? UTF8_OUTPUT : mavenOpts + " " + UTF8_OUTPUT;
+	}
+
+	/**
+	 * The log that standard output and standard error share. The forked executor closes the streams
+	 * it is given (apache/maven-executor#45), so closing this one leaves the log open; the verifier
+	 * closes the log itself.
+	 */
+	private static final class SharedLogOutputStream extends OutputStream {
 		private final OutputStream log;
 
-		TeeOutputStream(OutputStream buffer, OutputStream log) {
-			this.buffer = buffer;
+		SharedLogOutputStream(OutputStream log) {
 			this.log = log;
 		}
 
@@ -331,7 +356,6 @@ public class Verifier {
 
 		@Override
 		public void write(byte[] b, int off, int len) throws IOException {
-			buffer.write(b, off, len);
 			synchronized (log) {
 				log.write(b, off, len);
 			}
