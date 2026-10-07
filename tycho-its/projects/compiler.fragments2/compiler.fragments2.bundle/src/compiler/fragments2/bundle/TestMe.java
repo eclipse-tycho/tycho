@@ -17,10 +17,12 @@ import tycho.test.host.HostClassInFragment;
 
 public class TestMe {
 	public static void main(String[] args) {
+		//this class resides in the tycho.test.host plugin and is therefore also reachable in tycho build
 		HostClass hc = new HostClass(22);
 		hc.add(33);
 		System.out.println(hc.getCount());
 		
+		//this class resides in the tycho.test.host.fragment plugin and is therefore not reachable in tycho build
 		HostClassInFragment hcif = new HostClassInFragment(22);
 		hcif.add(33);
 		System.out.println(hcif.getCount());
