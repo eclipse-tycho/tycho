@@ -140,7 +140,7 @@ public final class MavenDependencyInjector {
             dependency.setScope(Artifact.SCOPE_SYSTEM);
             dependency.setGroupId(project.getGroupId());
             dependency.setArtifactId(project.getArtifactId() + ".jars.extra.classpath");
-            dependency.setClassifier(extra);
+            dependency.setClassifier(toClassifier(extra));
             File file = new File(reactorProject.getBasedir(), extra);
             if (!file.exists()) {
                 //create empty dummy file to make maven think this dependency is already resolved?!
@@ -182,6 +182,16 @@ public final class MavenDependencyInjector {
             }
             project.setRemoteArtifactRepositories(new ArrayList<>(repositoryMap.values()));
         }
+    }
+
+    /**
+     * Maven Resolver 2.x rejects path separators in classifiers, so they are replaced in the
+     * (relative) path of a nested jar, e.g. <code>lib/foo.jar</code> becomes
+     * <code>lib_foo.jar</code>. The classifier only keeps the coordinates of the nested jars of a
+     * bundle distinct, the file itself is provided through <code>systemPath</code>.
+     */
+    private static String toClassifier(String path) {
+        return path.replace('/', '_').replace('\\', '_');
     }
 
     private static String getId(MavenArtifactRepositoryReference reference) {
@@ -285,7 +295,7 @@ public final class MavenDependencyInjector {
                             if (nestedJarOrDir.isFile()) {
                                 Dependency nestedJarDependency = createP2Dependency(artifact, nestedJarOrDir,
                                         Artifact.SCOPE_SYSTEM);
-                                nestedJarDependency.setClassifier(classpathElement);
+                                nestedJarDependency.setClassifier(toClassifier(classpathElement));
                                 result.add(nestedJarDependency);
                             } else if (nestedJarOrDir.isDirectory()) {
                                 // system-scoped dependencies on directories are not supported
@@ -398,7 +408,7 @@ public final class MavenDependencyInjector {
                     if (jar.isFile()) {
                         Dependency systemScopeDependency = createScopedDependency(artifact,
                                 artifact.getMavenProject().getGroupId(), jar, Artifact.SCOPE_SYSTEM);
-                        systemScopeDependency.setClassifier(classpathElement);
+                        systemScopeDependency.setClassifier(toClassifier(classpathElement));
                         result.add(systemScopeDependency);
                     } else {
                         logger.debug("Dependency from " + project.getBasedir() + " to nested classpath entry "
