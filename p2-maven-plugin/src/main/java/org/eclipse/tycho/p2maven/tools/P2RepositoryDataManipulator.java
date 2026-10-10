@@ -210,7 +210,7 @@ public class P2RepositoryDataManipulator {
 					}, modification, CompositeMetadataRepository.PI_REPOSITORY_TYPE,
 					CompositeMetadataRepositoryFactory.CONTENT_FILENAME);
 		}
-		createP2Index(repository.outputLocation(), repository.isMetadata(), repository.isArtifact());
+		createP2Index(resolveOutputLocation(repository), repository.isMetadata(), repository.isArtifact());
 	}
 
 	private <T, M extends IRepositoryManager<T>, R extends ICompositeRepository<T>> void modifyOutputCompositeRepository(
@@ -234,15 +234,7 @@ public class P2RepositoryDataManipulator {
 				throw e;
 			}
 		}
-		Path outputLocation = descriptor.outputLocation();
-		if (outputLocation == null) {
-			try {
-				outputLocation = Path.of(repository.getURL());
-			} catch (Exception e) {
-				throw new IllegalStateException(
-						"Repository is not modifable and no output location is defined: " + repository.getURL(), e);
-			}
-		}
+		Path outputLocation = resolveOutputLocation(descriptor);
 
 		modification.accept(state);
 
@@ -252,6 +244,24 @@ public class P2RepositoryDataManipulator {
 			state.getProperties().put(IRepository.PROP_COMPRESSED, Boolean.toString(compress));
 			new CompositeRepositoryIO().write(state, output, piRepositoryType);
 		}
+	}
+
+	private static Path resolveOutputLocation(ModifiedRepositoryDescriptor descriptor) {
+		Path outputLocation = descriptor.outputLocation();
+		if (outputLocation == null) {
+			// In-place edit (createDescriptor signals this with a null outputLocation) --
+			// modifyCompositeRepository's own call to createP2Index needs the same
+			// resolved path that modifyOutputCompositeRepository already computes below,
+			// so both call sites share this fallback rather than duplicating it (gh-6251).
+			MavenRepositoryLocation repository = descriptor.repository();
+			try {
+				outputLocation = Path.of(repository.getURL());
+			} catch (Exception e) {
+				throw new IllegalStateException(
+						"Repository is not modifable and no output location is defined: " + repository.getURL(), e);
+			}
+		}
+		return outputLocation;
 	}
 
 	private static OutputStream createCompositeFileOutputStream(Path directory, String filename, boolean compress)
