@@ -27,8 +27,8 @@ import java.util.Dictionary;
 import java.util.List;
 import java.util.jar.JarFile;
 
-import org.apache.maven.it.VerificationException;
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.VerificationException;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.junit.jupiter.api.Disabled;
