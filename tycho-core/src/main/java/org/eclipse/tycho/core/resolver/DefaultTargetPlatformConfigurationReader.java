@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2024 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,10 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
@@ -43,6 +47,7 @@ import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurationReader;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.InjectP2MavenMetadataHandling;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.LocalArtifactHandling;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
@@ -55,15 +60,12 @@ import org.eclipse.tycho.targetplatform.TargetPlatformArtifactResolver;
 import org.eclipse.tycho.targetplatform.TargetResolveException;
 import org.osgi.framework.Filter;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-
 @Named
 @Singleton
 public class DefaultTargetPlatformConfigurationReader {
     public static final String TARGET_DEFINITION_INCLUDE_SOURCE = "targetDefinitionIncludeSource";
     public static final String REFERENCED_REPOSITORY_MODE = "referencedRepositoryMode";
+    public static final String P2_MAVEN_METADATA_HANDLING = "p2MavenMetadataHandling";
     public static final String DEPENDENCY_RESOLUTION = "dependency-resolution";
     public static final String OPTIONAL_DEPENDENCIES = "optionalDependencies";
     public static final String CLASSPATH_DEPENDENCIES = "classpathDependencies";
@@ -144,6 +146,7 @@ public class DefaultTargetPlatformConfigurationReader {
 
                 setTargetDefinitionIncludeSources(result, configuration);
                 setReferencedRepositoryMode(result, configuration);
+                setP2MavenMetadataHandling(result, configuration);
             }
         }
         //consider items set in the pom repositories
@@ -206,6 +209,20 @@ public class DefaultTargetPlatformConfigurationReader {
             result.setReferencedRepositoryMode(ReferencedRepositoryMode.valueOf(value));
         } catch (IllegalArgumentException e) {
             throw new BuildFailureException("Illegal value of <" + REFERENCED_REPOSITORY_MODE
+                    + "> target platform configuration parameter: " + value, e);
+        }
+    }
+
+    private void setP2MavenMetadataHandling(TargetPlatformConfiguration result, Xpp3Dom configuration)
+            throws BuildFailureException {
+        String value = getStringValue(configuration.getChild(P2_MAVEN_METADATA_HANDLING));
+        if (value == null) {
+            return;
+        }
+        try {
+            result.setP2MavenMetadataHandling(InjectP2MavenMetadataHandling.valueOf(value));
+        } catch (IllegalArgumentException e) {
+            throw new BuildFailureException("Illegal value of <" + P2_MAVEN_METADATA_HANDLING
                     + "> target platform configuration parameter: " + value, e);
         }
     }
