@@ -1,10 +1,7 @@
 package org.eclipse.tycho.test.buildextension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -23,7 +20,7 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.io.DefaultModelReader;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PomlessTest extends AbstractTychoIntegrationTest {
 
@@ -35,7 +32,7 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "bnd/target/classes/module-info.class");
-		assertTrue("module-info.class is not generated!", file.isFile());
+		assertTrue(file.isFile(), "module-info.class is not generated!");
 	}
 
 	@Test
@@ -47,7 +44,7 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "sourcefolder/generated.pom.xml");
-		assertTrue("generated.pom.xml is not generated!", file.isFile());
+		assertTrue(file.isFile(), "generated.pom.xml is not generated!");
 		Model model = new DefaultModelReader().read(file, Map.of());
 		Build build = model.getBuild();
 		assertNotNull(build);
@@ -62,7 +59,7 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 		PluginExecution execution = executions.get(0);
 		assertTrue(execution.getGoals().contains("add-source"));
 		String config = String.valueOf(execution.getConfiguration());
-		assertTrue(file + "->" + config, config.contains("<source>src2</source>"));
+		assertTrue(config.contains("<source>src2</source>"), file + "->" + config);
 	}
 
 	@Test
@@ -91,7 +88,7 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 		assertPackagingTypeData("tests", projectData, //
 				"tests", "pom");
 
-		assertThat(projectData, is(aMapWithSize(0))); // Ensure no more projects are found
+		assertTrue(projectData.isEmpty(), projectData.toString()); // Ensure no more projects are found
 	}
 
 	private static void assertPackagingTypeData(String path, Map<Path, ModelData> projectData, String artifactId,
@@ -162,7 +159,7 @@ public class PomlessTest extends AbstractTychoIntegrationTest {
 				"bundles-enhanced-pomless:bundles-with-enhanced-parents:1.2.0:pom", "Aggregator 3 pomless",
 				"aggregator3-pomless");
 
-		assertThat(projectData, is(aMapWithSize(0))); // Ensure no more projects are found
+		assertTrue(projectData.isEmpty(), projectData.toString()); // Ensure no more projects are found
 	}
 
 	private static void assertProjectData(String path, Map<Path, ModelData> projectData, String expectedGAV,

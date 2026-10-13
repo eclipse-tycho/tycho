@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.sourceBundle;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Integration test for multi-release JAR source bundle support.
@@ -44,22 +44,21 @@ public class MultiReleaseSourceBundleTest extends AbstractTychoIntegrationTest {
         
         File sourceBundle = new File(verifier.getBasedir(), 
                 "target/bundle.multiRelease-1.0.0-SNAPSHOT-sources.jar");
-        assertTrue("Missing expected source bundle: " + sourceBundle, sourceBundle.exists());
+        assertTrue(sourceBundle.exists(), "Missing expected source bundle: " + sourceBundle);
         
         try (ZipFile zip = new ZipFile(sourceBundle)) {
             // Verify base source files are included
-            assertTrue("Base source Main.java not found", 
-                    findEntry(zip, "tycho/mr/example/Main.java").isPresent());
-            assertTrue("Base source HttpClient.java not found", 
-                    findEntry(zip, "tycho/mr/example/HttpClient.java").isPresent());
+            assertTrue(findEntry(zip, "tycho/mr/example/Main.java").isPresent(), "Base source Main.java not found");
+            assertTrue(findEntry(zip, "tycho/mr/example/HttpClient.java").isPresent(),
+            		"Base source HttpClient.java not found");
             
             // Verify multi-release source files for Java 9 are included
-            assertTrue("Multi-release source for Java 9 not found", 
-                    findEntry(zip, "META-INF/versions/9/tycho/mr/example/HttpClient.java").isPresent());
+            assertTrue(findEntry(zip, "META-INF/versions/9/tycho/mr/example/HttpClient.java").isPresent(),
+            		"Multi-release source for Java 9 not found");
             
             // Verify multi-release source files for Java 11 are included
-            assertTrue("Multi-release source for Java 11 not found", 
-                    findEntry(zip, "META-INF/versions/11/tycho/mr/example/HttpClient.java").isPresent());
+            assertTrue(findEntry(zip, "META-INF/versions/11/tycho/mr/example/HttpClient.java").isPresent(),
+            		"Multi-release source for Java 11 not found");
         }
     }
     

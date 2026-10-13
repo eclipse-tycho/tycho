@@ -43,6 +43,50 @@ Background: In a normal (i.e. non-Tycho) Maven project, one can configure Maven 
 Tycho can use p2 repositories for resolving OSGi dependencies.
 The p2 repositories need to be marked with layout=p2. (The normal Maven dependency resolution ignores repositories with layout=p2.)
 
+### Using a p2 repository deployed to a Maven repository
+
+Tycho supports the `mvn:` URL scheme to reference a p2 repository that has been packaged as a zip and deployed to a Maven repository.
+This works for any zip artifact that contains a valid p2 repository (i.e. `content.xml`/`content.jar` and `artifacts.xml`/`artifacts.jar`), regardless of how the zip was produced.
+
+The URL format is:
+
+```
+mvn:groupId:artifactId:version:zip:classifier
+```
+
+There are two ways to use such a Maven-deployed p2 zip.
+
+**Option 1 – POM `<repositories>` section (adds the whole site to the target platform):**
+
+```xml
+<repository>
+   <id>my-p2-site</id>
+   <url>mvn:com.example:target-platform:1.0.0:zip:p2site</url>
+   <layout>p2</layout>
+</repository>
+```
+
+**Option 2 – `.target` file `InstallableUnit` location (recommended; allows fine-grained unit selection):**
+
+```xml
+<location includeAllPlatforms="false" includeConfigurePhase="true"
+          includeMode="planner" includeSource="true" type="InstallableUnit">
+   <repository location="mvn:com.example:target-platform:1.0.0:zip:p2site"/>
+   <unit id="com.example.mybundle" version="0.0.0"/>
+</location>
+```
+
+**Important notes:**
+
+- The Maven artifact (`groupId:artifactId:version:zip:classifier`) must be resolvable from the local Maven repository or from a remote repository configured in the project's `<repositories>` section of the POM.
+The `mvn:` URL itself does **not** carry repository authentication or location information.
+- In Eclipse IDE, `mvn:` URLs in `.target` files require [m2e](https://eclipse.dev/m2e/) to be installed.
+- Do **not** use `<location type="Maven">` for this use case.
+`type="Maven"` resolves Maven JARs as plain OSGi bundles; it is not intended for consuming p2 repositories.
+
+Tycho's `assemble-maven-repository` goal (from `tycho-p2-repository-plugin`) produces exactly this kind of Maven-deployable p2 zip.
+See the [assemble-maven-repository mojo reference](tycho-p2-repository-plugin/assemble-maven-repository-mojo.html) for details on producing such a site.
+
 ### Target files
 
 The PDE target definition file format (`*.target`) allows to select a subset of units (bundles, features, etc.).
@@ -134,6 +178,53 @@ Since Tycho 0.17.0, it is also possible to configure multiple target files by sp
 
 Note: Eclipse PDE supports activating multiple target files at once using reference target locations (see [PDE reference target locations](https://eclipse.dev/eclipse/news/4.23/pde.html#pde-editor-include)).
 
+#### Authentication for p2 Repositories
+
+To access p2-repositories that require basic authentication, add a `<server>` entry in the `settings.xml` that specifies the required `username` and `password`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
+	<servers>
+		<server>
+			<id>my_id</id>
+			<username>my_username</username>
+			<password>my_password</password>
+		</server>
+	</servers>
+</settings>
+```
+
+When accessing a p2 repository, Tycho will check if there is a `<server>` entry with matching ID and use these credentials.
+The ID of a p2 repository can be specified explicitly, e.g. when adding a repository in the POM or in a `.target` file by setting the `id` attribute for a `repository` element:
+```xml
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+	<repository location="https://my.company.com/repo/foo/" id="my_id"/>
+	...
+```
+
+But the `id` attribute is not considered by PDE and therefore can be removed by some editors, which makes using explicit IDs cumbersome.
+If no `id` is specified for a `repository` in a `.target` file, the repository's `location` URL is used as ID.
+First, a `server` with `id` equal to the repository `location` is searched.
+If none is found, a `server` is searched for each parent path of the `location` URL (without trailing slash).
+Last, that search is repeated with the _scheme_ part of the `location` URL being removed.
+
+In the example above, each of the following server IDs would match the specified repository location (and is searched for in that order):
+1. `https://my.company.com/repo/foo`
+2. `https://my.company.com/repo`
+3. `https://my.company.com`
+4. `my.company.com/repo/foo`
+5. `my.company.com/repo`
+6. `my.company.com`
+
+IDs corresponding to more specific locations are preferred.
+Using a location's parent path as `id` allows to use one `server` specification for multiple repositories under the same parent.
+
+To prevent storing passwords as plain text in files, see also Maven's [Settings#Servers](https://maven.apache.org/settings.html#servers) reference
+and its guide about [Password Encryption](https://maven.apache.org/guides/mini/guide-encryption.html).
+Furthermore consider the ability to supply passwords via environment variables, by using e.g. `<password>${env.MY_PASSWORD}</password>`, for CI pipelines.
+
 #### Tycho's interpretation of target definition files
 
 Note: Tycho's interpretation of the target definition file format differs from the PDE in the following aspects:
@@ -149,7 +240,7 @@ See [target-platform-configuration dependency-resolution](../target-platform-con
 
 See [target-platform-configuration pomDependencies](../target-platform-configuration/target-platform-configuration-mojo.html#pomDependencies).
 
-For an example, see the POM of this [demo project](https://github.com/eclipse-tycho/tycho/tree/master/demo/itp02/build02).
+For an example, see the POM of this [demo project](https://github.com/eclipse-tycho/tycho/tree/main/demo/itp02/build02).
 
 ## Effective content of the target platform
 

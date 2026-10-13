@@ -33,6 +33,13 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!-- the TestNG provider fragment registers a JUnit Platform TestEngine that
+					     requires TestNG on the test classpath, which is not desired here -->
+					<classpathDependencyExcludes>
+						<classpathDependencyExclude>org.eclipse.tycho:org.eclipse.tycho.surefire.testng</classpathDependencyExclude>
+					</classpathDependencyExcludes>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -188,8 +195,10 @@
 			<version>${surefire-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
+			<!-- the vintage provider artifacts declare a TestEngine that surefire only
+			     provisions when JUnit 4 is on the test classpath -->
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

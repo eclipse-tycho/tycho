@@ -1,7 +1,5 @@
 package org.eclipse.tycho.test.util;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -15,7 +13,6 @@ import java.util.stream.Stream;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.junit.Assert;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -106,7 +103,8 @@ public class P2RepositoryTool {
         List<IdAndVersion> units = getAllUnits().stream().filter(except.negate()).toList();
         int size = units.size();
         if (size != expected) {
-            fail("Expected " + expected + " units but " + size + " units where found: " + System.lineSeparator()
+            throw new AssertionError("Expected " + expected + " units but " + size + " units where found: "
+                    + System.lineSeparator()
                     + units.stream().map(String::valueOf).collect(Collectors.joining(System.lineSeparator())));
         }
     }
@@ -115,7 +113,8 @@ public class P2RepositoryTool {
         List<File> bundles = getBundles().toList();
         int size = bundles.size();
         if (size != expected) {
-            fail("Expected " + expected + " bundles but " + size + " bundles where found: " + System.lineSeparator()
+            throw new AssertionError("Expected " + expected + " bundles but " + size + " bundles where found: "
+                    + System.lineSeparator()
                     + bundles.stream().map(File::getName).collect(Collectors.joining(System.lineSeparator())));
         }
     }
@@ -124,7 +123,8 @@ public class P2RepositoryTool {
         List<File> features = getFeatures().toList();
         int size = features.size();
         if (size != expected) {
-            fail("Expected " + expected + " features but " + size + " features where found: " + System.lineSeparator()
+            throw new AssertionError("Expected " + expected + " features but " + size + " features where found: "
+                    + System.lineSeparator()
                     + features.stream().map(File::getName).collect(Collectors.joining(System.lineSeparator())));
         }
 
@@ -166,14 +166,11 @@ public class P2RepositoryTool {
         List<Node> nodes = getNodes(contentXml, "/repository/units/unit[@id='" + unitId + "']");
 
         if (nodes.isEmpty())
-            Assert.fail("Could not find IU with id '" + unitId + "' from " + metadataFile);
+            throw new AssertionError("Could not find IU with id '" + unitId + "' from " + metadataFile);
         else if (nodes.size() == 1)
             return new IU(nodes.get(0));
         else
-            Assert.fail("Found more than one IU with id '" + unitId + "'");
-
-        // this point is never reached
-        throw new RuntimeException();
+            throw new AssertionError("Found more than one IU with id '" + unitId + "'");
     }
 
     /**
@@ -189,14 +186,11 @@ public class P2RepositoryTool {
                 "/repository/units/unit[@id='" + unitId + "' and @version='" + version + "']");
 
         if (nodes.isEmpty())
-            Assert.fail("Could not find IU with id '" + unitId + "' and version '" + version + "'");
+            throw new AssertionError("Could not find IU with id '" + unitId + "' and version '" + version + "'");
         else if (nodes.size() == 1)
             return new IU(nodes.get(0));
         else
-            Assert.fail("Found more than one IU with id '" + unitId + "' and version '" + version + "'");
-
-        // this point is never reached
-        throw new RuntimeException();
+            throw new AssertionError("Found more than one IU with id '" + unitId + "' and version '" + version + "'");
     }
 
     public List<String> getAllProvidedPackages() throws Exception {

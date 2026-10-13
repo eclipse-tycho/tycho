@@ -12,6 +12,8 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.failsafe.VerifyMojo;
@@ -27,7 +29,7 @@ import org.eclipse.tycho.PackagingType;
 @Mojo(name = "verify", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class TychoVerifyMojo extends VerifyMojo {
 
-    @Parameter(property = "project", readonly = true)
+    @Inject
     protected MavenProject project;
 
     @Parameter(property = "tycho.verify-test.packaging", defaultValue = PackagingType.TYPE_ECLIPSE_PLUGIN)

@@ -21,11 +21,18 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -42,23 +49,26 @@ import org.eclipse.tycho.targetplatform.TargetDefinition;
 import org.eclipse.tycho.targetplatform.TargetDefinition.Repository;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class TargetDefinitionResolverExecutionEnvironmentTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class TargetDefinitionResolverExecutionEnvironmentTest {
 
-    @Rule
+    @Inject
+    protected PlexusContainer container;
+
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     private TargetDefinitionResolver subject;
-    @Rule
-    public final TemporaryFolder tempManager = new TemporaryFolder();
+    @TempDir
+    Path tempManager;
 
     private TargetDefinitionResolver targetResolverForEE(String executionEnvironmentName, String... systemPackages)
             throws ProvisionException, IOException {
-        MavenContext mavenCtx = new MockMavenContext(tempManager.newFolder("localRepo"), logVerifier.getLogger());
+        MavenContext mavenCtx = new MockMavenContext(newFolder("localRepo"), logVerifier.getLogger());
         return new TargetDefinitionResolver(defaultEnvironments(),
                 new StandardEEResolutionHints(new ExecutionEnvironmentStub(executionEnvironmentName, systemPackages)),
                 IncludeSourceMode.honor, ReferencedRepositoryMode.ignore, mavenCtx, null,
@@ -70,7 +80,7 @@ public class TargetDefinitionResolverExecutionEnvironmentTest extends TychoPlexu
         subject = targetResolverForEE("CDC-1.0/Foundation-1.0");
 
         TargetDefinition definition = definitionWith(new AlternatePackageProviderLocationStub());
-        Collection<IInstallableUnit> units = subject.resolveContent(definition, lookup(IProvisioningAgent.class))
+        Collection<IInstallableUnit> units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class))
                 .query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
 
         // expect that resolver included a bundle providing org.w3c.dom (here javax.xml)...
@@ -84,7 +94,7 @@ public class TargetDefinitionResolverExecutionEnvironmentTest extends TychoPlexu
         subject = targetResolverForEE("JavaSE-1.7", "org.w3c.dom");
 
         TargetDefinition definition = definitionWith(new AlternatePackageProviderLocationStub());
-        Collection<IInstallableUnit> units = subject.resolveContent(definition, lookup(IProvisioningAgent.class))
+        Collection<IInstallableUnit> units = subject.resolveContent(definition, container.lookup(IProvisioningAgent.class))
                 .query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
 
         // expect that resolver did not included a bundle providing org.w3c.dom...
@@ -113,4 +123,8 @@ public class TargetDefinitionResolverExecutionEnvironmentTest extends TychoPlexu
 
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
+    }
 }

@@ -3,8 +3,4 @@
       id="feature.consumingsourcefeature"
       version="1.0.0.qualifier">
 
-   <includes
-         id="sourcefeature.feature.source"
-         version="0.0.0"/>
-
 </feature>

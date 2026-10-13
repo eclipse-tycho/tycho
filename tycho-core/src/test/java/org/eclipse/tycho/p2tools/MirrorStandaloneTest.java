@@ -15,13 +15,21 @@ package org.eclipse.tycho.p2tools;
 
 import static org.eclipse.tycho.p2tools.MirrorApplicationServiceTest.repoFile;
 import static org.eclipse.tycho.p2tools.MirrorApplicationServiceTest.sourceRepos;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.BuildDirectory;
@@ -32,35 +40,38 @@ import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.IUDescription;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class MirrorStandaloneTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class MirrorStandaloneTest {
+
+    @Inject
+    protected PlexusContainer container;
     private static final String DEFAULT_NAME = "dummy";
 
     private DestinationRepositoryDescriptor destinationRepo;
 
     private MirrorApplicationServiceImpl subject;
 
-    @Rule
-    public final TemporaryFolder tempFolder = new TemporaryFolder();
-    @Rule
+    @TempDir
+    Path tempFolder;
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     private BuildDirectory targetFolder;
 
-    @Before
+    @BeforeEach
     public void initTestContext() throws Exception {
-        IProvisioningAgent agent = lookup(IProvisioningAgent.class);
+        IProvisioningAgent agent = container.lookup(IProvisioningAgent.class);
         agent.getService(IArtifactRepositoryManager.class);
-        destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
+        destinationRepo = new DestinationRepositoryDescriptor(newFolder("dest"), DEFAULT_NAME);
         subject = new MirrorApplicationServiceImpl();
         subject.setAgent(agent);
         subject.setLogger(logVerifier.getLogger());
-        targetFolder = new BuildOutputDirectory(tempFolder.getRoot());
+        targetFolder = new BuildOutputDirectory(tempFolder.toFile());
     }
 
     @Test
@@ -120,11 +131,9 @@ public class MirrorStandaloneTest extends TychoPlexusTestCase {
         assertEquals(1, runtimeBundles.length);
     }
 
-    @Test(expected = FacadeException.class)
+    @Test
     public void testMirrorNotExisting() throws Exception {
-        subject.mirrorStandalone(e342PlusFragmentsRepo(), destinationRepo,
-                Collections.singletonList(new IUDescription("org.eclipse.core.runtime", "10.0.0")), new MirrorOptions(),
-                targetFolder);
+        assertThrows(FacadeException.class, () -> subject.mirrorStandalone(e342PlusFragmentsRepo(), destinationRepo, Collections.singletonList(new IUDescription("org.eclipse.core.runtime", "10.0.0")), new MirrorOptions(), targetFolder));
     }
 
     @Test
@@ -137,11 +146,9 @@ public class MirrorStandaloneTest extends TychoPlexusTestCase {
 
     }
 
-    @Test(expected = FacadeException.class)
+    @Test
     public void testNotIgnoringErrorsShouldThrowException() throws FacadeException {
-        subject.mirrorStandalone(sourceRepos("invalid/wrong_checksum"), destinationRepo,
-                Collections.singletonList(new IUDescription("jarsigning", "0.0.1.201109191414")), new MirrorOptions(),
-                targetFolder);
+        assertThrows(FacadeException.class, () -> subject.mirrorStandalone(sourceRepos("invalid/wrong_checksum"), destinationRepo, Collections.singletonList(new IUDescription("jarsigning", "0.0.1.201109191414")), new MirrorOptions(), targetFolder));
     }
 
     @Test
@@ -155,5 +162,9 @@ public class MirrorStandaloneTest extends TychoPlexusTestCase {
 
     private RepositoryReferences e342PlusFragmentsRepo() {
         return sourceRepos("e342", "fragments");
+    }
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempFolder.resolve(path)).toFile();
     }
 }

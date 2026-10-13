@@ -4,6 +4,8 @@
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.sdk.feature.group" version="0.0.0"/>
 <unit id="org.junit"/>
+<unit id="junit-platform-launcher"/>
+<unit id="junit-vintage-engine"/>
 <unit id="jakarta.annotation-api"/>
 <repository location="https://download.eclipse.org/releases/2025-06"/>
 </location>

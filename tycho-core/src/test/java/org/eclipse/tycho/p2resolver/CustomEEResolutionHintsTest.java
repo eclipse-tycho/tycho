@@ -14,9 +14,10 @@
 package org.eclipse.tycho.p2resolver;
 
 import static org.eclipse.tycho.core.test.utils.ResourceUtil.resourceFile;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Set;
 
@@ -28,7 +29,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.ee.impl.CustomEEResolutionHints;
 import org.eclipse.tycho.core.ee.impl.InvalidEENameException;
 import org.eclipse.tycho.test.util.InstallableUnitUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CustomEEResolutionHintsTest {
 
@@ -56,14 +57,14 @@ public class CustomEEResolutionHintsTest {
         assertFalse(subject.isEESpecificationUnit(CUSTOM_PROFILE_IU_OTHER_VERSION));
     }
 
-    @Test(expected = InvalidEENameException.class)
+    @Test
     public void testProfileNameWithoutVersion() {
-        subject = new CustomEEResolutionHints("Virgo/Java6");
+        assertThrows(InvalidEENameException.class, () -> subject = new CustomEEResolutionHints("Virgo/Java6"));
     }
 
-    @Test(expected = InvalidEENameException.class)
+    @Test
     public void testProfileNameWithInvalidVersion() {
-        subject = new CustomEEResolutionHints("Virgo/Java-1.6a");
+        assertThrows(InvalidEENameException.class, () -> subject = new CustomEEResolutionHints("Virgo/Java-1.6a"));
     }
 
     @Test

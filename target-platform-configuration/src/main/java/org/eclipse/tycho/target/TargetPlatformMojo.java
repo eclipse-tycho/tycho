@@ -13,12 +13,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.target;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatformService;
@@ -30,10 +30,10 @@ public class TargetPlatformMojo extends AbstractMojo {
     private static final String TARGET_PLATFORM_MOJO_EXECUTED = "TargetPlatformMojo.executed";
 
     // TODO site doc (including steps & parameters handled in afterProjectsRead?)
-    @Parameter(property = "project", readonly = true)
+    @Inject
     private MavenProject project;
 
-    @Component
+    @Inject
     private TargetPlatformService platformService;
 
     @Override

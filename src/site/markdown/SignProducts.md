@@ -127,7 +127,7 @@ Now we need to package them as zip files again and place them at the location wh
 
 ## Result
 
-You will now end up with a product for windows that only have `eclipse.exe` (or whatever your launcher name was) without the corresponding `eclipsec.exe`, you can find the example [here](https://github.com/eclipse-tycho/tycho/tree/master/demo/custom-signing-product).
+You will now end up with a product for windows that only have `eclipse.exe` (or whatever your launcher name was) without the corresponding `eclipsec.exe`, you can find the example [here](https://github.com/eclipse-tycho/tycho/tree/main/demo/custom-signing-product).
 
 ## Implementation Details
 

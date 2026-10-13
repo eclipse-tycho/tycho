@@ -15,10 +15,10 @@ package org.eclipse.tycho.p2resolver;
 import static org.eclipse.tycho.test.util.InstallableUnitUtil.createBundleIU;
 import static org.eclipse.tycho.test.util.InstallableUnitUtil.createFeatureIU;
 import static org.eclipse.tycho.test.util.InstallableUnitUtil.createProductIU;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -30,8 +30,8 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.TargetPlatform;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TargetPlatformTest {
 
@@ -40,7 +40,7 @@ public class TargetPlatformTest {
     private TargetPlatform subject;
     private LinkedHashSet<IInstallableUnit> candidateIUs;
 
-    @Before
+    @BeforeEach
     public void initDefaultTestData() {
         candidateIUs = createSet(createBundleIU("some.bundle", "1.1.0"), createBundleIU("some.bundle", "1.1.0.v2013"),
                 createBundleIU("some.bundle", "1.1.0.v2014"), createBundleIU("some.bundle", "1.2.0"),

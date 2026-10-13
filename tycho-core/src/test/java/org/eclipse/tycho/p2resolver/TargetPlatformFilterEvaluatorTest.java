@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.removeAllFilter;
 import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.restrictionFilter;
 import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithVersion;
@@ -19,8 +22,6 @@ import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPa
 import static org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern.patternWithoutVersion;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.util.Collection;
@@ -30,6 +31,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -42,20 +47,20 @@ import org.eclipse.tycho.targetplatform.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.targetplatform.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
-public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class TargetPlatformFilterEvaluatorTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final CapabilityPattern ALL_MULTIVERSION_BUNDLES = patternWithVersion(CapabilityType.OSGI_BUNDLE,
             "trf.bundle.multiversion", null);
 
-    @Rule
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     private static Set<IInstallableUnit> baselineUnits;
@@ -63,14 +68,14 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
 
     private TargetPlatformFilterEvaluator subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         baselineUnits = loadTestUnits();
         workUnits = new LinkedHashSet<>(baselineUnits);
     }
 
     private Set<IInstallableUnit> loadTestUnits() throws Exception {
-        IMetadataRepositoryManager metadataManager = lookup(IProvisioningAgent.class)
+        IMetadataRepositoryManager metadataManager = container.lookup(IProvisioningAgent.class)
                 .getService(IMetadataRepositoryManager.class);
         File testDataFile = ResourceUtil.resourceFile("targetfiltering/content.xml");
         IMetadataRepository testDataRepository = metadataManager.loadRepository(testDataFile.getParentFile().toURI(),
@@ -93,7 +98,7 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
 
         subject.filterUnits(workUnits);
 
-        assertThat(removedUnits(), hasSize(0));
+        assertEquals(0, removedUnits().size(), removedUnits().toString());
     }
 
     @Test
@@ -103,9 +108,9 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
 
         subject.filterUnits(workUnits);
 
-        assertThat(removedUnits(), hasItem("trf.bundle.multiversion_1.0.0"));
-        assertThat(removedUnits(), hasItem("trf.bundle.multiversion_2.0.0"));
-        assertThat(removedUnits(), hasSize(2));
+        assertTrue(removedUnits().contains("trf.bundle.multiversion_1.0.0"), removedUnits().toString());
+        assertTrue(removedUnits().contains("trf.bundle.multiversion_2.0.0"), removedUnits().toString());
+        assertEquals(2, removedUnits().size(), removedUnits().toString());
     }
 
     @Test
@@ -116,8 +121,8 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
 
         subject.filterUnits(workUnits);
 
-        assertThat(removedUnits(), hasItem("main.product.id_0.0.1.201112271438"));
-        assertThat(removedUnits(), hasSize(1));
+        assertTrue(removedUnits().contains("main.product.id_0.0.1.201112271438"), removedUnits().toString());
+        assertEquals(1, removedUnits().size(), removedUnits().toString());
     }
 
     @Test
@@ -128,7 +133,7 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
 
         subject.filterUnits(workUnits);
 
-        assertThat(removedUnits(), hasSize(0));
+        assertEquals(0, removedUnits().size(), removedUnits().toString());
     }
 
     @Test
@@ -139,8 +144,8 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
 
         subject.filterUnits(workUnits);
 
-        assertThat(removedUnits(), hasItem("trf.bundle.multiversion_2.0.0"));
-        assertThat(removedUnits(), hasSize(1));
+        assertTrue(removedUnits().contains("trf.bundle.multiversion_2.0.0"), removedUnits().toString());
+        assertEquals(1, removedUnits().size(), removedUnits().toString());
     }
 
     @Test
@@ -151,8 +156,8 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
 
         subject.filterUnits(workUnits);
 
-        assertThat(removedUnits(), hasItem("trf.bundle.multiversion_2.0.0"));
-        assertThat(removedUnits(), hasSize(1));
+        assertTrue(removedUnits().contains("trf.bundle.multiversion_2.0.0"), removedUnits().toString());
+        assertEquals(1, removedUnits().size(), removedUnits().toString());
     }
 
     @Test
@@ -164,8 +169,8 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
 
         subject.filterUnits(workUnits);
 
-        assertThat(removedUnits(), hasItem("com.springsource.javax.persistence_1.0.0"));
-        assertThat(removedUnits(), hasSize(1));
+        assertTrue(removedUnits().contains("com.springsource.javax.persistence_1.0.0"), removedUnits().toString());
+        assertEquals(1, removedUnits().size(), removedUnits().toString());
     }
 
     @Test
@@ -177,8 +182,8 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
 
         subject.filterUnits(workUnits);
 
-        assertThat(removedUnits(), hasItem("javax.persistence_2.0.3.v201010191057")); // provides *a* package in version 1.0.0, but not the package javax.persistence
-        assertThat(removedUnits(), hasSize(1));
+        assertTrue(removedUnits().contains("javax.persistence_2.0.3.v201010191057"), removedUnits().toString()); // provides *a* package in version 1.0.0, but not the package javax.persistence
+        assertEquals(1, removedUnits().size(), removedUnits().toString());
     }
 
     @Test
@@ -190,31 +195,31 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
         subject.filterUnits(workUnits);
 
         // 3.0.0 doesn't exist, so all applicable units shall be removed...
-        assertThat(removedUnits(), hasItem("trf.bundle.multiversion_1.0.0"));
-        assertThat(removedUnits(), hasItem("trf.bundle.multiversion_2.0.0"));
-        assertThat(removedUnits(), hasSize(2));
+        assertTrue(removedUnits().contains("trf.bundle.multiversion_1.0.0"), removedUnits().toString());
+        assertTrue(removedUnits().contains("trf.bundle.multiversion_2.0.0"), removedUnits().toString());
+        assertEquals(2, removedUnits().size(), removedUnits().toString());
 
         // ... but this yields a warning
         logVerifier
                 .expectWarning(allOf(containsString("Removed all units"), containsString("trf.bundle.multiversion")));
     }
 
-    @Test(expected = TargetPlatformFilterSyntaxException.class)
+    @Test
     public void testNonParsableVersion() throws Exception {
         TargetPlatformFilter invalidFilter = restrictionFilter(ALL_MULTIVERSION_BUNDLES,
                 patternWithVersion(null, null, "1.a"));
         subject = newEvaluator(invalidFilter);
 
-        subject.filterUnits(workUnits);
+        assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.filterUnits(workUnits));
     }
 
-    @Test(expected = TargetPlatformFilterSyntaxException.class)
+    @Test
     public void testNonParsableVersionRange() throws Exception {
         TargetPlatformFilter invalidFilter = restrictionFilter(ALL_MULTIVERSION_BUNDLES,
                 patternWithVersionRange(null, null, "[1.0.0,")); // "[1.0.0," is invalid; "1.0.0" is the range from 1 to infinity
         subject = newEvaluator(invalidFilter);
 
-        subject.filterUnits(workUnits);
+        assertThrows(TargetPlatformFilterSyntaxException.class, () -> subject.filterUnits(workUnits));
     }
 
     private Collection<String> removedUnits() {
@@ -225,20 +230,6 @@ public class TargetPlatformFilterEvaluatorTest extends TychoPlexusTestCase {
             }
         }
         return result;
-    }
-
-    static Matcher<Collection<?>> hasSize(final int expectedSize) {
-        return new TypeSafeMatcher<>() {
-            @Override
-            public boolean matchesSafely(Collection<?> collection) {
-                return expectedSize == collection.size();
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("a collection of size ").appendValue(expectedSize);
-            }
-        };
     }
 
 }

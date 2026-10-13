@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 Christoph Läubrich and others.
+ * Copyright (c) 2025, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,6 @@ import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.apache.maven.plugin.MojoFailureException;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DependencyArtifacts;

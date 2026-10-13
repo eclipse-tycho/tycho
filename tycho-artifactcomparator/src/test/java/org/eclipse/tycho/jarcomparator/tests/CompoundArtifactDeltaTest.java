@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.jarcomparator.tests;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -20,7 +20,7 @@ import java.util.TreeMap;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.zipcomparator.internal.CompoundArtifactDelta;
 import org.eclipse.tycho.zipcomparator.internal.SimpleArtifactDelta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CompoundArtifactDeltaTest {
 

@@ -17,23 +17,22 @@ import java.util.stream.Stream;
 
 import org.eclipse.pde.core.target.ITargetLocation;
 import org.eclipse.pde.core.target.NameVersionDescriptor;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Tests that the m2e PDE target correctly handles Maven BOM (Bill of Materials)
  * artifacts, including resolution of coordinates inherited from parent POMs.
  */
-@RunWith(Parameterized.class)
+@ParameterizedClass(name = "includeSource={0}")
+@MethodSource("configurations")
 public class MavenBomSupportTest extends AbstractMavenTargetTest {
 
 	@Parameter(0)
 	public Boolean includeSource;
 
-	@Parameters(name = "includeSource={0}")
 	public static List<Boolean> configurations() {
 		return List.of(false, true);
 	}

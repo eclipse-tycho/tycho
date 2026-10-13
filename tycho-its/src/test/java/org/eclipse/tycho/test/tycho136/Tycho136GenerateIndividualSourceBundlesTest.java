@@ -14,11 +14,11 @@ package org.eclipse.tycho.test.tycho136;
 
 import java.io.File;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Tycho136GenerateIndividualSourceBundlesTest extends AbstractTychoIntegrationTest {
 
@@ -31,10 +31,10 @@ public class Tycho136GenerateIndividualSourceBundlesTest extends AbstractTychoIn
 
         File basedir = new File(verifier.getBasedir());
         File sourceFeature = new File(basedir, "SiteC/target/site/features/FeatureC.source_1.0.0.jar");
-        Assert.assertTrue("Site should generate FeatureC.source", sourceFeature.exists());
+        Assertions.assertTrue(sourceFeature.exists(), "Site should generate FeatureC.source");
         File sourcePluginC = new File(basedir, "SiteC/target/site/plugins/PluginC.source_1.0.0.jar");
-        Assert.assertTrue("Site should generate PluginC.source", sourcePluginC.exists());
+        Assertions.assertTrue(sourcePluginC.exists(), "Site should generate PluginC.source");
         File sourcePluginCExtra = new File(basedir, "SiteC/target/site/plugins/PluginC.Extra.source_1.0.0.jar");
-        Assert.assertTrue("Site should generate PluginC.Extra.source", sourcePluginCExtra.exists());
+        Assertions.assertTrue(sourcePluginCExtra.exists(), "Site should generate PluginC.Extra.source");
     }
 }

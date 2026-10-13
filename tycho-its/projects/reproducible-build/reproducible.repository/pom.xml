@@ -27,6 +27,9 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<includeAllSources>true</includeAllSources>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>

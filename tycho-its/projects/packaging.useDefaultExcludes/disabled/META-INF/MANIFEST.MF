@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Use Default Excludes Disabled
+Bundle-SymbolicName: useDefaultExcludes.disabled
+Bundle-Version: 1.0.0.qualifier

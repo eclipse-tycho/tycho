@@ -26,6 +26,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -91,19 +94,20 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     /**
      * The Maven Project Object
      */
-    @Parameter(property = "project", readonly = true, required = true)
+    @Inject
     protected MavenProject project;
 
     /**
      * The Maven Session Object
      */
-    @Parameter(property = "session", readonly = true)
+    @Inject
     protected MavenSession session;
 
     /**
      * The Jar archiver.
      */
-    @Component(role = Archiver.class, hint = "jar")
+    @Inject
+    @Named("jar")
     private JarArchiver jarArchiver;
 
     /**

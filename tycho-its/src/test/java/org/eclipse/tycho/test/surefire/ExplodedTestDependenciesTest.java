@@ -16,8 +16,8 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ExplodedTestDependenciesTest extends AbstractTychoIntegrationTest {
 
@@ -31,8 +31,8 @@ public class ExplodedTestDependenciesTest extends AbstractTychoIntegrationTest {
 		// TODO this is only an indirect test; it should test that the bundles nested
 		// jars are accessible as file URLs
 		File antHome = new File(v01.getBasedir(),
-				"tycho340.test/target/work/plugins/org.apache.ant_1.10.15.v20240901-1000");
-		Assert.assertTrue(antHome.isDirectory());
+				"tycho340.test/target/work/plugins/org.apache.ant_1.10.17.v20260410-1000");
+		Assertions.assertTrue(antHome.isDirectory());
 	}
 
 }

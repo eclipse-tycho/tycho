@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 // tests the various use cases of extraRequirements (bug 363331)
 public class ExtraCompilerRequirementsTest extends AbstractTychoIntegrationTest {

@@ -12,13 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.eeProfile;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 // tests that the dependency resolver resolves for the configured execution environment (bug 364095)
 public class DependencyResolverEETest extends AbstractTychoIntegrationTest {

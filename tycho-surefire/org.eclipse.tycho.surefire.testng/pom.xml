@@ -14,7 +14,7 @@
 	</parent>
 	<artifactId>org.eclipse.tycho.surefire.testng</artifactId>
 	<packaging>jar</packaging>
-	<name>Tycho Surefire OSGi TestNG Runner</name>
+	<name>Tycho Surefire OSGi TestNG Runner (JUnit Platform)</name>
 	<build>
 		<plugins>
 			<plugin>
@@ -25,21 +25,17 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<configuration>
+					<excludes>META-INF/**</excludes>
 					<artifactItems>
 						<artifactItem>
 							<groupId>org.apache.maven.surefire</groupId>
-							<artifactId>surefire-testng-utils</artifactId>
+							<artifactId>surefire-junit-platform</artifactId>
 							<version>${surefire-version}</version>
 						</artifactItem>
 						<artifactItem>
-							<groupId>org.apache.maven.surefire</groupId>
-							<artifactId>surefire-testng</artifactId>
-							<version>${surefire-version}</version>
-						</artifactItem>
-						<artifactItem>
-							<groupId>org.apache.maven.surefire</groupId>
-							<artifactId>surefire-grouper</artifactId>
-							<version>${surefire-version}</version>
+							<groupId>org.junit.support</groupId>
+							<artifactId>testng-engine</artifactId>
+							<version>${testng-engine-version}</version>
 						</artifactItem>
 					</artifactItems>
 				</configuration>

@@ -13,17 +13,17 @@
 
 package org.eclipse.tycho.test.compiler;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class RequireJREPackagesImportTest extends AbstractTychoIntegrationTest {
 
-	@Ignore("TODO bug 514471 check if we can re-enable strict access rules for JDK packages")
+	@Disabled("TODO bug 514471 check if we can re-enable strict access rules for JDK packages")
 	@Test
 	public void testStrictImportJREPackages() throws Exception {
 		Verifier verifier = getVerifier("compiler.requireJREPackageImports", false);

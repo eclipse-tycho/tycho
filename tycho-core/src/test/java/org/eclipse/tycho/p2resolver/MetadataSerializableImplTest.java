@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -24,6 +24,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -33,17 +36,22 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.p2tools.MetadataSerializableImpl;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Test;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class MetadataSerializableImplTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class MetadataSerializableImplTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private IProvisioningAgent agent;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        agent = lookup(IProvisioningAgent.class);
+        agent = container.lookup(IProvisioningAgent.class);
     }
 
     @Test

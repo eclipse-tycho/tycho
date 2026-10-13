@@ -59,12 +59,12 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.help.base</artifactId>
-			<version>4.6.100</version>
+			<version>4.6.200</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.pde</groupId>
 			<artifactId>org.eclipse.pde.core</artifactId>
-			<version>3.21.300</version>
+			<version>3.21.400</version>
 		</dependency>
 	</dependencies>
 	<build>

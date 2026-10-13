@@ -12,9 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,8 +25,8 @@ import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.eclipse.tycho.BuildFailureException;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.SystemCapability;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ExecutionEnvironmentConfigurationTest {
 
@@ -40,7 +41,7 @@ public class ExecutionEnvironmentConfigurationTest {
 
     ExecutionEnvironmentConfiguration subject;
 
-    @Before
+    @BeforeEach
     public void initSubject() {
         subject = new ExecutionEnvironmentConfigurationImpl(logger, false, null, null);
     }
@@ -92,46 +93,50 @@ public class ExecutionEnvironmentConfigurationTest {
         assertEquals(CUSTOM_PROFILE, subject.getFullSpecification().getProfileName());
     }
 
-    @Test(expected = BuildFailureException.class)
+    @Test
     public void testMustNotIgnoreEEWhenUsingCustomProfile() {
         subject = new ExecutionEnvironmentConfigurationImpl(logger, true, null, null);
         subject.setProfileConfiguration(CUSTOM_PROFILE, DUMMY_ORIGIN);
 
-        subject.isCustomProfile();
+        assertThrows(BuildFailureException.class, () -> subject.isCustomProfile());
     }
 
     // BEGIN fail fast if methods are called in unexpected order
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void disallowSetProfileConfigurationAfterGetters() {
         subject.setProfileConfiguration(STANDARD_PROFILE, DUMMY_ORIGIN);
         subject.getFullSpecification();
-        subject.setProfileConfiguration(OTHER_STANDARD_PROFILE, DUMMY_ORIGIN);
+        assertThrows(IllegalStateException.class,
+                () -> subject.setProfileConfiguration(OTHER_STANDARD_PROFILE, DUMMY_ORIGIN));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void disallowOverrideProfileConfigurationAfterGetters() {
         subject.setProfileConfiguration(STANDARD_PROFILE, DUMMY_ORIGIN);
         subject.getFullSpecification();
-        subject.overrideProfileConfiguration(OTHER_STANDARD_PROFILE, DUMMY_ORIGIN);
+        assertThrows(IllegalStateException.class,
+                () -> subject.overrideProfileConfiguration(OTHER_STANDARD_PROFILE, DUMMY_ORIGIN));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void disallowSetCustomProfileSpecificationForStandardProfiles() throws Exception {
         subject.setProfileConfiguration(STANDARD_PROFILE, DUMMY_ORIGIN);
-        subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC);
+        assertThrows(IllegalStateException.class,
+                () -> subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void disallowMultipleSetCustomProfileSpecification() throws Exception {
         subject.setProfileConfiguration(CUSTOM_PROFILE, DUMMY_ORIGIN);
         subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC);
-        subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC);
+        assertThrows(IllegalStateException.class,
+                () -> subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testGetMissingFullSpecificationForCustomProfile() {
         subject.setProfileConfiguration(CUSTOM_PROFILE, DUMMY_ORIGIN);
-        subject.getFullSpecification();
+        assertThrows(IllegalStateException.class, () -> subject.getFullSpecification());
     }
 }

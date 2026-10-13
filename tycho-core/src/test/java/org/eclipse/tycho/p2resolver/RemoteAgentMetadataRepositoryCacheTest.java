@@ -12,50 +12,61 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Tests for verifying the caching behavior of the RemoteAgent's metadata repository manager.
  */
-public class RemoteAgentMetadataRepositoryCacheTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class RemoteAgentMetadataRepositoryCacheTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final String HTTP_REPO_PATH = "e342";
 
-    @Rule
-    public TemporaryFolder tempManager = new TemporaryFolder();
-    @Rule
+    @TempDir
+    Path tempManager;
+    @RegisterExtension
     public LogVerifier logVerifier = new LogVerifier();
 
-    @Rule
+    @RegisterExtension
     public final HttpServer localServer = new HttpServer();
     private URI localHttpRepo;
 
-    @Before
+    @BeforeEach
     public void startHttpServer() throws Exception {
         localHttpRepo = URI
                 .create(localServer.addServlet(HTTP_REPO_PATH, new File("src/test/resources/repositories/e342")));
     }
 
-    @Before
+    @BeforeEach
     public void initLocalMavenRepository() throws Exception {
-        tempManager.newFolder("m2-repo");
+        newFolder("m2-repo");
     }
 
     @Test
@@ -93,13 +104,13 @@ public class RemoteAgentMetadataRepositoryCacheTest extends TychoPlexusTestCase 
         assertNotNull(repo);
     }
 
-    @Test(expected = ProvisionException.class)
+    @Test
     public void testOnlineLoadingFailsFastIfNoSourceAvailable() throws Exception {
         // server unavailable and no cache entry
         localServer.stop();
 
         IProvisioningAgent onlineAgent = newOnlineAgent();
-        loadHttpRepository(onlineAgent);
+        assertThrows(ProvisionException.class, () -> loadHttpRepository(onlineAgent));
     }
 
     @Test
@@ -117,11 +128,11 @@ public class RemoteAgentMetadataRepositoryCacheTest extends TychoPlexusTestCase 
     }
 
     private IProvisioningAgent newOnlineAgent() throws Exception {
-        return lookup(IProvisioningAgent.class);
+        return container.lookup(IProvisioningAgent.class);
     }
 
     private IProvisioningAgent newOfflineAgent() throws Exception {
-        return lookup(IProvisioningAgent.class);
+        return container.lookup(IProvisioningAgent.class);
     }
 
     private IMetadataRepository loadHttpRepository(IProvisioningAgent onlineAgent) throws ProvisionException {
@@ -130,4 +141,8 @@ public class RemoteAgentMetadataRepositoryCacheTest extends TychoPlexusTestCase 
         return repo;
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
+    }
 }

@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class Issue697Test extends AbstractTychoIntegrationTest {
 
 	@Test
-	@Ignore
+	@Disabled
 	public void test() throws Exception {
 		Verifier verifier = getVerifier("issue697");
 

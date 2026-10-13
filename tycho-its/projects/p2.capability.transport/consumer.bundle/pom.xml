@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>consumer.bundle</artifactId>
+	<packaging>eclipse-plugin</packaging>
+
+	<parent>
+		<groupId>tycho-its-project.p2.capability</groupId>
+		<artifactId>transport</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<!-- Break the direct dependency cycle formed between the
+						osgi.implementation Require-Capability (towards provider.bundle) and
+						provider.bundle's Require-Bundle (towards consumer.bundle) by disabling
+						this Require-Capability requirement during the reactor build only. -->
+					<dependency-resolution>
+						<profileProperties>
+							<org.eclipse.equinox.p2.disable.require.capability.osgi.implementation>true</org.eclipse.equinox.p2.disable.require.capability.osgi.implementation>
+						</profileProperties>
+					</dependency-resolution>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

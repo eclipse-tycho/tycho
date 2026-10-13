@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2020 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -347,7 +347,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
             out.println(helpString);
         }
 
-        @SuppressWarnings("nls")
         void appendHelpDocumentation(PrintStream out) {
             out.print("<dt>");
             out.print(identifiers[0]);
@@ -365,7 +364,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
             out.println("</dd>");
         }
 
-        @SuppressWarnings("nls")
         private String escape(String string) {
             return string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
         }

@@ -27,15 +27,15 @@ import org.eclipse.aether.repository.MirrorSelector;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.tycho.p2maven.repository.DefaultMavenRepositorySettings;
 import org.eclipse.tycho.p2maven.repository.P2ArtifactRepositoryLayout;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TychoMirrorSelectorTest {
 
     private DefaultMavenRepositorySettings selector;
 
-    @Before
+    @BeforeEach
     public void setup() {
         MirrorSelector ms = mock(MirrorSelector.class);
         RepositorySystemSession repo = mock(RepositorySystemSession.class);
@@ -58,7 +58,7 @@ public class TychoMirrorSelectorTest {
                 "https://download.eclipse.org/eclipse/update/4.6");
         Mirror mirrorWithMatchingMirrorOfIds = createMirror("myId", "http://foo.bar", "neon-repo-with-id");
         Mirror selectedMirror = selector.getTychoMirror(repository, Arrays.asList(mirrorWithMatchingMirrorOfIds));
-        Assert.assertEquals(mirrorWithMatchingMirrorOfIds.getId(), selectedMirror.getId());
+        Assertions.assertEquals(mirrorWithMatchingMirrorOfIds.getId(), selectedMirror.getId());
     }
 
     @Test
@@ -69,8 +69,8 @@ public class TychoMirrorSelectorTest {
         Mirror prefixMatchingMirror2 = createMirror("myId2", "http://foo1.bar1", "http://abc.vxz");
         Mirror selectedMirror = selector.getTychoMirror(repository,
                 Arrays.asList(prefixMatchingMirror1, prefixMatchingMirror2));
-        Assert.assertNotNull(selectedMirror);
-        Assert.assertEquals("http://foo.bar/eclipse/update/4.6", selectedMirror.getUrl());
+        Assertions.assertNotNull(selectedMirror);
+        Assertions.assertEquals("http://foo.bar/eclipse/update/4.6", selectedMirror.getUrl());
     }
 
     private ArtifactRepository createArtifactRepository(String id, String url) {

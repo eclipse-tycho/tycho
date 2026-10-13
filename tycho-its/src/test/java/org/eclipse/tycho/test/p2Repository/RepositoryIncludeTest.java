@@ -12,14 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RepositoryIncludeTest extends AbstractTychoIntegrationTest {
 
@@ -32,7 +32,7 @@ public class RepositoryIncludeTest extends AbstractTychoIntegrationTest {
 				.forEclipseRepositoryModule(new File(verifier.getBasedir(), "repository"));
 		p2Repo.getUniqueIU("bundle");
 		p2Repo.assertNumberOfUnits(1, u -> u.id().equals("a.jre.javase") || u.id().endsWith(".test.category"));
-		assertTrue("Bundle artifact not found!", p2Repo.findBundleArtifact("bundle").isPresent());
+		assertTrue(p2Repo.findBundleArtifact("bundle").isPresent(), "Bundle artifact not found!");
 		p2Repo.assertNumberOfBundles(1);
 		p2Repo.assertNumberOfFeatures(0);
 	}

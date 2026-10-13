@@ -9,4 +9,4 @@ Import-Package: org.eclipse.demo.tycho,
 Require-Bundle: org.junit,
  junit-jupiter-api;bundle-version="[5.0,6.0)"
 Automatic-Module-Name: test
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21

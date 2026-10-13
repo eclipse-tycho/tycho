@@ -17,7 +17,7 @@ import java.io.File;
 import org.apache.maven.it.Verifier;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PomDependencyConsiderExtraClasspathTest extends AbstractTychoIntegrationTest {
     @Test

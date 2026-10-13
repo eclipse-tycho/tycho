@@ -9,9 +9,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -25,7 +25,7 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Element;
@@ -60,8 +60,8 @@ public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "install"));
 		verifier.verifyErrorFreeLog();
 		for (String bundle : bundles) {
-			VerificationException e = assertThrows(bundle + " is fetched twice!", VerificationException.class,
-					() -> verifier.verifyTextInLog("Writing P2 metadata for osgi.bundle," + bundle));
+			VerificationException e = assertThrows(VerificationException.class, () -> verifier.verifyTextInLog("Writing P2 metadata for osgi.bundle," + bundle),
+					bundle + " is fetched twice!");
 			assertTrue(e.getMessage().contains("Text not found"));
 		}
 	}
@@ -78,7 +78,7 @@ public class P2RepositoryDownloadTest extends AbstractTychoIntegrationTest {
 	}
 
 	private void verifyHasChecksum(File artifactXml) {
-		assertTrue("required artifact file " + artifactXml.getAbsolutePath() + " not found!", artifactXml.exists());
+		assertTrue(artifactXml.exists(), "required artifact file " + artifactXml.getAbsolutePath() + " not found!");
 		Document artifactsDocument = Document.of(artifactXml.toPath());
 		for (Element artifact : artifactsDocument.root().childElements("artifact").toList()) {
 			Map<String, String> map = artifact.childElement("properties").orElse(null).childElements("property")

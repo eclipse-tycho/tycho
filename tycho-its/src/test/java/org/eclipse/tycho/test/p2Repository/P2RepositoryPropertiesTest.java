@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.Collections;
@@ -27,7 +27,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Element;
@@ -54,7 +54,7 @@ public class P2RepositoryPropertiesTest extends AbstractTychoIntegrationTest {
 				expected.remove(propertyName);
 			}
 		});
-		assertEquals("Missing properties in artifact repository", Collections.emptyMap(), expected);
+		assertEquals(Collections.emptyMap(), expected, "Missing properties in artifact repository");
 
 	}
 
@@ -69,7 +69,7 @@ public class P2RepositoryPropertiesTest extends AbstractTychoIntegrationTest {
 		Optional<Element> optional = artifactsDocument.root().childElement("artifacts").orElse(null)
 				.childElements("artifact")
 				.filter(element -> element.attribute("id").equals("org.objenesis")).findAny();
-		assertTrue("artifact org.objenesis not found", optional.isPresent());
+		assertTrue(optional.isPresent(), "artifact org.objenesis not found");
 		Element element = optional.get();
 		Map<String, String> properties = element.childElement("properties").orElse(null).childElements("property")
 				.collect(Collectors.toMap(e -> e.attribute("name"), e -> e.attribute("value")));

@@ -20,8 +20,8 @@ import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.versions.pom.PomFile;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class SetVersionPomlessITest extends AbstractTychoIntegrationTest {
 
@@ -35,17 +35,17 @@ public class SetVersionPomlessITest extends AbstractTychoIntegrationTest {
 		File baseDir = new File(verifier.getBasedir());
 
 		PomFile rootPom = PomFile.read(new File(baseDir, "pom.xml"), false);
-		Assert.assertEquals(newVersion, rootPom.getVersion());
+		Assertions.assertEquals(newVersion, rootPom.getVersion());
 
 		DefaultBundleReader reader = new DefaultBundleReader();
 		OsgiManifest bundleManifest = reader.loadManifest(new File(baseDir, "bundle1/META-INF/MANIFEST.MF"));
-		Assert.assertEquals(newVersion, bundleManifest.getBundleVersion());
+		Assertions.assertEquals(newVersion, bundleManifest.getBundleVersion());
 
 		OsgiManifest testBundleManifest = reader.loadManifest(new File(baseDir, "bundle1.tests/META-INF/MANIFEST.MF"));
-		Assert.assertEquals(newVersion, testBundleManifest.getBundleVersion());
+		Assertions.assertEquals(newVersion, testBundleManifest.getBundleVersion());
 
 		Feature feature = Feature.read(new File(baseDir, "feature/feature.xml"));
-		Assert.assertEquals(newVersion, feature.getVersion());
+		Assertions.assertEquals(newVersion, feature.getVersion());
 	}
 
 }

@@ -15,35 +15,37 @@ package org.eclipse.tycho.surefire.provider.impl;
 
 import static java.util.Collections.emptyList;
 import static org.eclipse.tycho.surefire.provider.impl.AbstractJUnitProviderTest.classPath;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
+import org.codehaus.plexus.testing.PlexusTest;
 import org.eclipse.tycho.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 
-public class ProviderHelperTest extends TychoPlexusTestCase {
+@PlexusTest
+public class ProviderHelperTest {
 
+    @Inject
+    private PlexusContainer container;
+
+    @Inject
     private ProviderHelper providerHelper;
-
-    @Before
-    public void setUpTest() throws Exception {
-        this.providerHelper = lookup(ProviderHelper.class);
-    }
 
     @Test
     public void testSelectJunit47() throws Exception {
@@ -53,6 +55,10 @@ public class ProviderHelperTest extends TychoPlexusTestCase {
                 .selectProvider(null, classPath("org.junit:3.8.2", "org.junit4:4.8.1"), providerProperties, null)
                 .provider();
         assertEquals(JUnit4Provider.class, provider.getClass());
+        // JUnit 4 tests are executed by the JUnit Platform provider using the vintage engine
+        assertEquals("org.apache.maven.surefire.junitplatform.JUnitPlatformProvider",
+                provider.getSurefireProviderClassName());
+        assertEquals("true", provider.getProviderSpecificProperties().getProperty("junit.vintage.engine.detected"));
     }
 
     @Test
@@ -73,8 +79,12 @@ public class ProviderHelperTest extends TychoPlexusTestCase {
     @Test
     public void testSelectTestNG() throws Exception {
         TestFrameworkProvider provider = providerHelper
-                .selectProvider(null, classPath("org.testng:6.9.12"), new Properties(), null).provider();
+                .selectProvider(null, classPath("org.testng:7.5.1"), new Properties(), null).provider();
         assertEquals(TestNGProvider.class, provider.getClass());
+        // TestNG tests are executed by the JUnit Platform provider using the TestNG engine
+        assertEquals("org.apache.maven.surefire.junitplatform.JUnitPlatformProvider",
+                provider.getSurefireProviderClassName());
+        assertNotNull(provider.getProviderSpecificProperties().getProperty("testng.version"));
     }
 
     @Test
@@ -129,7 +139,6 @@ public class ProviderHelperTest extends TychoPlexusTestCase {
                 return VersionRange.valueOf("1.0");
             }
         };
-        PlexusContainer container = getContainer();
         container.addComponent(anotherProvider, TestFrameworkProvider.class, "another_test_fwk");
         ProviderHelper providerSelector = container.lookup(ProviderHelper.class);
         try {

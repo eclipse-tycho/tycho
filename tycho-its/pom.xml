@@ -95,6 +95,11 @@
 						<it.cliOptions>${it.cliOptions}</it.cliOptions>
 					</systemPropertyVariables>
 					<forkCount>${itest-forkcount}</forkCount>
+					<!-- the TestNG provider fragment (transitive dependency of tycho-surefire-plugin) registers
+					     a JUnit Platform TestEngine that requires TestNG on the test classpath, which is not desired here -->
+					<classpathDependencyExcludes>
+						<classpathDependencyExclude>org.eclipse.tycho:org.eclipse.tycho.surefire.testng</classpathDependencyExclude>
+					</classpathDependencyExcludes>
 					<!-- see https://maven.apache.org/surefire/maven-surefire-plugin/examples/junit-platform.html#surefire-extensions-and-reports-configuration-for-displayname -->
 					<statelessTestsetReporter
 						implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
@@ -174,25 +179,26 @@
 			<artifactId>tycho-testing-harness</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>${junit.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
-			<version>${junit.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-suite-engine</artifactId>
-			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -201,15 +207,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.bcel</groupId>
-			<artifactId>bcel</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.jface</artifactId>
-			<version>3.39.100</version>
+			<version>3.40.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -243,7 +243,7 @@
 		<dependency>
 			<groupId>org.cyclonedx</groupId>
 			<artifactId>cyclonedx-core-java</artifactId>
-			<version>12.2.0</version>
+			<version>13.2.0</version>
 		</dependency>
 
 		<!-- artifacts to be tested -->

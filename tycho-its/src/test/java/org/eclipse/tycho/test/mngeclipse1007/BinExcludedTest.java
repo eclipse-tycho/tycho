@@ -17,8 +17,8 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class BinExcludedTest extends AbstractTychoIntegrationTest {
 
@@ -30,9 +30,9 @@ public class BinExcludedTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 
 		try (ZipFile zip = new ZipFile(new File(verifier.getBasedir(), "target/MNGECLIPSE1007-1.0.0.jar"))) {
-			Assert.assertNotNull(zip.getEntry("files/included.txt"));
-			Assert.assertNull(zip.getEntry("files/excluded.txt"));
-			Assert.assertNull(zip.getEntry("Makefile"));
+			Assertions.assertNotNull(zip.getEntry("files/included.txt"));
+			Assertions.assertNull(zip.getEntry("files/excluded.txt"));
+			Assertions.assertNull(zip.getEntry("Makefile"));
 		}
 	}
 

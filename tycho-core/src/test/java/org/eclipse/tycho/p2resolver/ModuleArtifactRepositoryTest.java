@@ -13,11 +13,10 @@
 package org.eclipse.tycho.p2resolver;
 
 import static org.eclipse.tycho.test.util.ArtifactRepositoryTestUtils.allKeysIn;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,8 +24,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
+import javax.inject.Inject;
+
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -41,13 +45,17 @@ import org.eclipse.tycho.IArtifactSink;
 import org.eclipse.tycho.WriteSessionContext;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.repository.module.ModuleArtifactRepository;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 
-public class ModuleArtifactRepositoryTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class ModuleArtifactRepositoryTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final IArtifactKey BUNDLE_ARTIFACT_KEY = new ArtifactKey("osgi.bundle", "bundle",
             Version.parseVersion("1.2.3.201011101425"));
@@ -66,12 +74,12 @@ public class ModuleArtifactRepositoryTest extends TychoPlexusTestCase {
 
     private static File existingModuleDir;
 
-    @Rule
-    public TemporaryFolder tempManager = new TemporaryFolder();
+    @TempDir
+    Path tempManager;
 
     private ModuleArtifactRepository subject;
 
-    @BeforeClass
+    @BeforeAll
     public static void initBasicRepository() throws Exception {
         // this folder contains a ModuleArtifactRepository with BUNDLE_ARTIFACT_KEY and SOURCE_ARTIFACT_KEY ...
         existingModuleDir = ResourceUtil.resourceFile("repositories/module/basic/target");
@@ -95,32 +103,29 @@ public class ModuleArtifactRepositoryTest extends TychoPlexusTestCase {
         assertEquals(1, subject.getArtifactDescriptors(SOURCE_ARTIFACT_KEY).length);
     }
 
-    @Test(expected = ProvisionException.class)
+    @Test
     public void testLoadRepositoryWithMissingGAVProperties() throws Exception {
         // repository with a missing groupId in one of the descriptors -> loading should fail
         File corruptRepository = ResourceUtil.resourceFile("repositories/module/missingGAV/target");
         generateDefaultRepositoryArtifacts(corruptRepository);
 
-        try {
-            subject = (ModuleArtifactRepository) loadRepositoryViaAgent(corruptRepository);
-        } catch (ProvisionException e) {
-            assertEquals(ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
-            assertThat(e.getStatus().getMessage(), containsString("Error while reading repository"));
-            assertThat(e.getStatus().getMessage(), containsString("Maven coordinate properties are missing"));
-            throw e;
-        }
+        ProvisionException e = assertThrows(ProvisionException.class,
+                () -> loadRepositoryViaAgent(corruptRepository));
+        assertEquals(ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
+        assertTrue(e.getStatus().getMessage().contains("Error while reading repository"), e.getStatus().getMessage());
+        assertTrue(e.getStatus().getMessage().contains("Maven coordinate properties are missing"), e.getStatus().getMessage());
     }
 
     @Test
     public void testCreateRepository() throws Exception {
-        subject = ModuleArtifactRepository.createInstance(null, tempManager.newFolder("targetDir"));
+        subject = ModuleArtifactRepository.createInstance(null, newFolder("targetDir"));
 
         assertTrue(allKeysIn(subject).isEmpty());
     }
 
     @Test
     public void testWriteToRepository() throws Exception {
-        subject = ModuleArtifactRepository.createInstance(null, tempManager.newFolder("targetDir"));
+        subject = ModuleArtifactRepository.createInstance(null, newFolder("targetDir"));
         subject.setGAV("", "", ""); // TODO this should not be necessary
 
         IArtifactSink sink = subject.newAddingArtifactSink(BINARY_ARTIFACT_KEY, new WriteSessionStub());
@@ -133,7 +138,7 @@ public class ModuleArtifactRepositoryTest extends TychoPlexusTestCase {
     @SuppressWarnings("deprecation")
     @Test
     public void testWriteToRepositoryViaStream() throws Exception {
-        subject = ModuleArtifactRepository.createInstance(null, tempManager.newFolder("targetDir"));
+        subject = ModuleArtifactRepository.createInstance(null, newFolder("targetDir"));
 
         OutputStream outputStream = subject.getOutputStream(newDescriptor(BINARY_ARTIFACT_KEY));
         writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
@@ -143,7 +148,7 @@ public class ModuleArtifactRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void testPersistEmptyRepository() throws Exception {
-        File repoDir = tempManager.newFolder("targetDir");
+        File repoDir = newFolder("targetDir");
         subject = ModuleArtifactRepository.createInstance(null, repoDir);
 
         IArtifactRepository result = loadRepositoryViaAgent(repoDir);
@@ -152,7 +157,7 @@ public class ModuleArtifactRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void testPersistRepository() throws Exception {
-        File repoDir = tempManager.newFolder("targetDir");
+        File repoDir = newFolder("targetDir");
         subject = ModuleArtifactRepository.createInstance(null, repoDir);
 
         // TODO write via sink
@@ -178,7 +183,7 @@ public class ModuleArtifactRepositoryTest extends TychoPlexusTestCase {
     @Test
     public void testRemovingWithOtherDescriptorType() throws Exception {
         // existingModuleDir points to the original source files -> use temporary repository instead so that we don't edit source files
-        subject = ModuleArtifactRepository.createInstance(null, tempManager.newFolder("targetDir"));
+        subject = ModuleArtifactRepository.createInstance(null, newFolder("targetDir"));
         // TODO write via sink
         OutputStream outputStream = subject.getOutputStream(newDescriptor(BINARY_ARTIFACT_KEY));
         writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
@@ -216,7 +221,7 @@ public class ModuleArtifactRepositoryTest extends TychoPlexusTestCase {
 
     private IArtifactRepository loadRepositoryViaAgent(File location)
             throws ProvisionException, ComponentLookupException {
-        IArtifactRepositoryManager repoManager = lookup(IProvisioningAgent.class)
+        IArtifactRepositoryManager repoManager = container.lookup(IProvisioningAgent.class)
                 .getService(IArtifactRepositoryManager.class);
         return repoManager.loadRepository(location.toURI(), null);
     }
@@ -251,5 +256,9 @@ public class ModuleArtifactRepositoryTest extends TychoPlexusTestCase {
         public ClassifierAndExtension getClassifierAndExtensionForNewKey(IArtifactKey key) {
             return new ClassifierAndExtension(key.getId(), "jar");
         }
+    }
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
     }
 }

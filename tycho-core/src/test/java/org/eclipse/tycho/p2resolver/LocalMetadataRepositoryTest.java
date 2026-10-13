@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -41,11 +44,17 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.test.util.NoopFileLockService;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class LocalMetadataRepositoryTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class LocalMetadataRepositoryTest {
+
+    @Inject
+    protected PlexusContainer container;
+
     private IProgressMonitor monitor = new NullProgressMonitor();
 
     @Test
@@ -54,11 +63,11 @@ public class LocalMetadataRepositoryTest extends TychoPlexusTestCase {
         createRepository(location);
 
         IMetadataRepository repository = loadRepository(location);
-        Assert.assertNotNull(repository);
+        Assertions.assertNotNull(repository);
     }
 
     protected IMetadataRepository loadRepository(File location) throws ProvisionException, ComponentLookupException {
-        return new LocalMetadataRepository(lookup(IProvisioningAgent.class), location.toURI(),
+        return new LocalMetadataRepository(container.lookup(IProvisioningAgent.class), location.toURI(),
                 createMetadataIndex(location),
                 new LocalRepositoryReader(new MockMavenContext(location, mock(MavenLogger.class))));
     }
@@ -75,7 +84,8 @@ public class LocalMetadataRepositoryTest extends TychoPlexusTestCase {
         metadataFile.delete();
         metadataFile.getParentFile().mkdirs();
         TychoRepositoryIndex metadataIndex = createMetadataIndex(location);
-        return new LocalMetadataRepository(lookup(IProvisioningAgent.class), location.toURI(), metadataIndex, null);
+        return new LocalMetadataRepository(container.lookup(IProvisioningAgent.class), location.toURI(),
+                metadataIndex, null);
     }
 
     @Test
@@ -107,14 +117,14 @@ public class LocalMetadataRepositoryTest extends TychoPlexusTestCase {
 
         IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.ALL_UNITS, monitor);
         ArrayList<IInstallableUnit> allius = new ArrayList<>(result.toSet());
-        Assert.assertEquals(2, allius.size());
+        Assertions.assertEquals(2, allius.size());
 
         // as of e3.5.2 Collector uses HashSet internally and does not guarantee collected results order
         // 3.6 IQueryResult, too, is backed by HashSet. makes no sense.
-        // Assert.assertEquals( iu.getId(), allius.get( 0 ).getId() );
+        // Assertions.assertEquals( iu.getId(), allius.get( 0 ).getId() );
 
         Set<IInstallableUnit> ius = repository.getGAVs().get(RepositoryLayoutHelper.getGAV(iu.getProperties()));
-        Assert.assertEquals(1, ius.size());
+        Assertions.assertEquals(1, ius.size());
     }
 
     @Test
@@ -134,7 +144,7 @@ public class LocalMetadataRepositoryTest extends TychoPlexusTestCase {
 
         // check: the artifact is in the index
         TychoRepositoryIndex metaIndex = createMetadataIndex(location);
-        Assert.assertFalse(metaIndex.getProjectGAVs().isEmpty());
+        Assertions.assertFalse(metaIndex.getProjectGAVs().isEmpty());
 
         // delete artifact from file system
         deleteDir(new File(location, "group"));
@@ -143,7 +153,7 @@ public class LocalMetadataRepositoryTest extends TychoPlexusTestCase {
         repository = (LocalMetadataRepository) loadRepository(location);
         repository.save();
         metaIndex = createMetadataIndex(location);
-        Assert.assertTrue(metaIndex.getProjectGAVs().isEmpty());
+        Assertions.assertTrue(metaIndex.getProjectGAVs().isEmpty());
 
     }
 

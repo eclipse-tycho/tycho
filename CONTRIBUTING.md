@@ -2,7 +2,33 @@
 
 Thanks for your interest in this project.
 
+## Using AI / GenAI Tools to Contribute
+
+You're welcome to use AI coding agents, chatbots, or other GenAI tools to help prepare issues, pull
+requests, or discussion posts. If you do, please make sure:
+
+- **You disclose it.** State which tool was used (and, ideally, model/version and mode) in the
+  issue/PR/discussion — see the disclosure template in [`AGENTS.md`](AGENTS.md) and the fields in our
+  issue/PR templates.
+- **You review it.** Per the
+  [Eclipse Foundation committer GenAI guidelines](https://www.eclipse.org/projects/handbook/#genai), the
+  person submitting a contribution — not the maintainers — is responsible for understanding and
+  vouching for everything in it, including code, tests, and written descriptions. We expect the same
+  from external contributors as we do from committers.
+- **You've done the legwork before submitting**, i.e. gathered full error details/logs up front,
+  checked for duplicate issues, and (ideally) reduced the problem to a minimal reproducer or integration
+  test rather than a long generated write-up.
+- **You stay in the loop for reviews.** If a maintainer requests changes, make sure you (not just the
+  tool) understand and confirm the response before it's pushed — repeated back-and-forth where an
+  agent seems to lose track of prior review comments is a common source of frustration and wasted time
+  for everyone, and such PRs may be closed.
+
+See [`AGENTS.md`](AGENTS.md) for the detailed rules we expect any AI agent operating on your behalf to
+follow in this repository. Submissions that read as unreviewed, low-effort AI output may be closed
+without detailed review.
+
 ## Table of Contents
+0. [Using AI / GenAI Tools to Contribute](#using-ai--genai-tools-to-contribute)
 1. [Try SNAPSHOTs and report issues](#try-snapshots-and-report-issues)
 2. [Development Environment](#development-environment)
     1. [Prerequisites](#prerequisites)
@@ -47,14 +73,14 @@ This can be accomplished by adding the following snippet to your (parent) pom.xm
 ```
 Make sure you have set the property for the Tycho version (e.g. `tycho-version`) to `<version-under-development>-SNAPSHOT` in the project being built.
 
-For documentation of the most recent snapshot build, see the [Snapshot Tycho Site](https://tycho.eclipseprojects.io/doc/master/index.html).
+For documentation of the most recent snapshot build, see the [Snapshot Tycho Site](https://tycho.eclipseprojects.io/doc/main/index.html).
 
 If you identify an issue, please try to reduce the case to the minimal project and steps to reproduce, and then report the bug with details to reproduce
 and the minimal reproducer project to Tycho's [issue tracker](https://github.com/eclipse-tycho/tycho/issues).
 
 ## Development environment
 
-[![Create Eclipse Development Environment for Tycho](https://download.eclipse.org/oomph/www/setups/svg/tycho.svg)](https://www.eclipse.org/setups/installer/?url=https://raw.githubusercontent.com/eclipse-tycho/tycho/master/setup/TychoDevelopmentConfiguration.setup&show=true "Click to open Eclipse-Installer Auto Launch or drag into your running installer")
+[![Create Eclipse Development Environment for Tycho](https://download.eclipse.org/oomph/www/setups/svg/tycho.svg)](https://www.eclipse.org/setups/installer/?url=https://raw.githubusercontent.com/eclipse-tycho/tycho/main/setup/TychoDevelopmentConfiguration.setup&show=true "Click to open Eclipse-Installer Auto Launch or drag into your running installer")
 
 &nbsp;&nbsp;&nbsp;or just&nbsp;&nbsp;&nbsp;
 
@@ -148,10 +174,10 @@ Alternatively, e.g. if you are only interested in modifying an integration test 
 
 ### Writing Tycho Integration Tests
 
-The tycho integration tests are located in the [tycho-its](https://github.com/eclipse-tycho/tycho/tree/master/tycho-its) subfolder of the repository. Creating a new integration test usually includes the following steps:
+The tycho integration tests are located in the [tycho-its](https://github.com/eclipse-tycho/tycho/tree/main/tycho-its) subfolder of the repository. Creating a new integration test usually includes the following steps:
 
-1. Create a new folder in the [projects](https://github.com/eclipse-tycho/tycho/tree/master/tycho-its/projects) directory (see below for a good naming, but this could be improved as part of the review so don't worry about choosing an intermediate name first). Usually, you want to use `${tycho-version}` as a placeholder in your pom so the execution picks up the current tycho version
-2. Check if there is already a suitable test class available or simply create your own in the [test](https://github.com/eclipse-tycho/tycho/tree/master/tycho-its/src/test/java/org/eclipse/tycho/test/) directory (again the name could be improved later on if required). The usual pattern for a self-contained test case that fails the build is:
+1. Create a new folder in the [projects](https://github.com/eclipse-tycho/tycho/tree/main/tycho-its/projects) directory (see below for a good naming, but this could be improved as part of the review so don't worry about choosing an intermediate name first). Usually, you want to use `${tycho-version}` as a placeholder in your pom so the execution picks up the current tycho version
+2. Check if there is already a suitable test class available or simply create your own in the [test](https://github.com/eclipse-tycho/tycho/tree/main/tycho-its/src/test/java/org/eclipse/tycho/test/) directory (again the name could be improved later on if required). The usual pattern for a self-contained test case that fails the build is:
 ```java
 @Test
 public void test() throws Exception {

@@ -12,36 +12,46 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class RemoteAgentCompositeLoadingTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class RemoteAgentCompositeLoadingTest {
 
-    @Rule
-    public final TemporaryFolder tempManager = new TemporaryFolder();
-    @Rule
+    @Inject
+    protected PlexusContainer container;
+
+    @TempDir
+    Path tempManager;
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     private IProvisioningAgent subject;
 
-    @Before
+    @BeforeEach
     public void initSubject() throws Exception {
-        tempManager.newFolder("localRepo");
-        subject = lookup(IProvisioningAgent.class);
+        newFolder("localRepo");
+        subject = container.lookup(IProvisioningAgent.class);
     }
 
     @Test
@@ -57,4 +67,8 @@ public class RemoteAgentCompositeLoadingTest extends TychoPlexusTestCase {
         assertEquals(ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
+    }
 }

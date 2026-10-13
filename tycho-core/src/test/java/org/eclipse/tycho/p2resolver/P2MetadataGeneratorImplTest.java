@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,13 +30,13 @@ import org.eclipse.tycho.test.util.ArtifactMock;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.MockMavenContext;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 public class P2MetadataGeneratorImplTest {
 
-    @Rule
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     @Test
@@ -56,21 +56,21 @@ public class P2MetadataGeneratorImplTest {
         List<IInstallableUnit> units = new ArrayList<>(metadata.getInstallableUnits());
         List<IArtifactDescriptor> artifacts = new ArrayList<>(metadata.getArtifactDescriptors());
 
-        Assert.assertEquals(1, units.size());
+        Assertions.assertEquals(1, units.size());
         IInstallableUnit unit = units.iterator().next();
 
-        Assert.assertEquals("org.eclipse.tycho.p2.impl.test.bundle", unit.getId());
-        Assert.assertEquals("1.0.0.qualifier", unit.getVersion().toString());
-        Assert.assertEquals(4, unit.getRequirements().size());
+        Assertions.assertEquals("org.eclipse.tycho.p2.impl.test.bundle", unit.getId());
+        Assertions.assertEquals("1.0.0.qualifier", unit.getVersion().toString());
+        Assertions.assertEquals(4, unit.getRequirements().size());
 
-        Assert.assertEquals(1, artifacts.size());
+        Assertions.assertEquals(1, artifacts.size());
         IArtifactDescriptor ad = artifacts.iterator().next();
-        Assert.assertEquals("org.eclipse.tycho.p2.impl.test.bundle", ad.getArtifactKey().getId());
-        Assert.assertEquals("1.0.0.qualifier", ad.getArtifactKey().getVersion().toString());
+        Assertions.assertEquals("org.eclipse.tycho.p2.impl.test.bundle", ad.getArtifactKey().getId());
+        Assertions.assertEquals("1.0.0.qualifier", ad.getArtifactKey().getVersion().toString());
 
-        Assert.assertEquals(groupId, ad.getProperties().get(TychoConstants.PROP_GROUP_ID));
-        Assert.assertEquals(artifactId, ad.getProperties().get(TychoConstants.PROP_ARTIFACT_ID));
-        Assert.assertEquals(version, ad.getProperties().get(TychoConstants.PROP_VERSION));
+        Assertions.assertEquals(groupId, ad.getProperties().get(TychoConstants.PROP_GROUP_ID));
+        Assertions.assertEquals(artifactId, ad.getProperties().get(TychoConstants.PROP_ARTIFACT_ID));
+        Assertions.assertEquals(version, ad.getProperties().get(TychoConstants.PROP_VERSION));
     }
 
     @Test

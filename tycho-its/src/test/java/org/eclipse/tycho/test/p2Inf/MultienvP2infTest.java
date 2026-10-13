@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Inf;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.InputStream;
@@ -23,7 +23,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Element;
@@ -51,7 +51,7 @@ public class MultienvP2infTest extends AbstractTychoIntegrationTest {
 		}
 
 		// disabled due to a limitation of BundlesAction
-		// Assert.assertTrue(ids.contains("tychotest.bundle.macosx"));
+		// Assertions.assertTrue(ids.contains("tychotest.bundle.macosx"));
 
 		assertTrue(ids.contains("tychotest.feature.macosx"));
 		assertTrue(ids.contains("tychotest.product.macosx"));

@@ -6,18 +6,11 @@
 	<artifactId>source-feature-parent</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-
-
-	<properties>
-		<e342-repo>https://download.eclipse.org/releases/helios</e342-repo>
-	</properties>
-
-
 	<repositories>
 		<repository>
 			<id>eclipse</id>
 			<layout>p2</layout>
-			<url>${e342-repo}</url>
+			<url>${target-platform}</url>
 		</repository>
 	</repositories>
 

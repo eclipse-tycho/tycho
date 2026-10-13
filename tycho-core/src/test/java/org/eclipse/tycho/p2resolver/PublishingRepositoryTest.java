@@ -14,18 +14,20 @@ package org.eclipse.tycho.p2resolver;
 
 import static org.eclipse.tycho.p2resolver.ModuleArtifactRepositoryTest.writeAndClose;
 import static org.eclipse.tycho.test.util.ArtifactRepositoryTestUtils.allKeysIn;
-import static org.hamcrest.CoreMatchers.endsWith;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -39,27 +41,31 @@ import org.eclipse.tycho.WriteSessionContext.ClassifierAndExtension;
 import org.eclipse.tycho.p2.repository.PublishingRepository;
 import org.eclipse.tycho.p2.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 
-public class PublishingRepositoryTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class PublishingRepositoryTest {
 
-    @Rule
-    public TemporaryFolder tempManager = new TemporaryFolder();
+    @Inject
+    protected PlexusContainer container;
+
+    @TempDir
+    Path tempManager;
 
     private PublishingRepository subject;
 
     // project the publishing repository belongs to
     private ReactorProjectIdentitiesStub project;
 
-    @Before
+    @BeforeEach
     public void initSubject() throws Exception {
-        project = new ReactorProjectIdentitiesStub(tempManager.newFolder("projectDir"));
+        project = new ReactorProjectIdentitiesStub(newFolder("projectDir"));
 
-        subject = new PublishingRepositoryImpl(lookup(IProvisioningAgent.class), project);
+        subject = new PublishingRepositoryImpl(container.lookup(IProvisioningAgent.class), project);
     }
 
     @Test
@@ -68,27 +74,27 @@ public class PublishingRepositoryTest extends TychoPlexusTestCase {
         insertTestArtifact(subject);
 
         Map<String, File> artifacts = subject.getArtifactLocations();
-        assertThat(artifacts.keySet(), hasItem(AttachedTestArtifact.classifier));
-        assertThat(artifacts.keySet(), hasItem("p2metadata"));
-        assertThat(artifacts.keySet(), hasItem("p2artifacts"));
+        assertTrue(artifacts.keySet().contains(AttachedTestArtifact.classifier), artifacts.keySet().toString());
+        assertTrue(artifacts.keySet().contains("p2metadata"), artifacts.keySet().toString());
+        assertTrue(artifacts.keySet().contains("p2artifacts"), artifacts.keySet().toString());
 
         for (File artifactFile : artifacts.values()) {
             assertTrue(artifactFile.isFile());
         }
 
         // file name extension is used when attaching the artifacts
-        assertThat(artifacts.get(AttachedTestArtifact.classifier).toString(),
-                endsWith(AttachedTestArtifact.fileExtension));
-        assertThat(artifacts.get("p2metadata").toString(), endsWith(".xml"));
-        assertThat(artifacts.get("p2artifacts").toString(), endsWith(".xml"));
+        assertTrue(artifacts.get(AttachedTestArtifact.classifier).toString().endsWith(AttachedTestArtifact.fileExtension),
+                artifacts.get(AttachedTestArtifact.classifier).toString());
+        assertTrue(artifacts.get("p2metadata").toString().endsWith(".xml"), artifacts.get("p2metadata").toString());
+        assertTrue(artifacts.get("p2artifacts").toString().endsWith(".xml"), artifacts.get("p2artifacts").toString());
     }
 
     @Test
     public void testArtifactsMapWithOnlyMetafiles() throws Exception {
         // although there is no published content, the meta-files shall still be there
         Map<String, File> artifacts = subject.getArtifactLocations();
-        assertThat(artifacts.keySet(), hasItem("p2metadata"));
-        assertThat(artifacts.keySet(), hasItem("p2artifacts"));
+        assertTrue(artifacts.keySet().contains("p2metadata"), artifacts.keySet().toString());
+        assertTrue(artifacts.keySet().contains("p2artifacts"), artifacts.keySet().toString());
 
         for (File artifactFile : artifacts.values()) {
             assertTrue(artifactFile.isFile());
@@ -101,7 +107,7 @@ public class PublishingRepositoryTest extends TychoPlexusTestCase {
         insertTestArtifact(subject);
 
         IArtifactRepository artifactRepo = subject.getArtifactRepository();
-        assertThat(allKeysIn(artifactRepo), hasItem(AttachedTestArtifact.key));
+        assertTrue(allKeysIn(artifactRepo).contains(AttachedTestArtifact.key), allKeysIn(artifactRepo).toString());
 
         IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(AttachedTestArtifact.key);
         assertEquals(1, descriptors.length);
@@ -134,4 +140,8 @@ public class PublishingRepositoryTest extends TychoPlexusTestCase {
         }
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
+    }
 }

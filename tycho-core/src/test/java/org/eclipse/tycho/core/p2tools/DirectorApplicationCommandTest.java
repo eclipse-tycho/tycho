@@ -13,9 +13,9 @@
 package org.eclipse.tycho.core.p2tools;
 
 import static org.eclipse.tycho.test.util.TychoMatchers.hasSequence;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.net.URI;
@@ -25,8 +25,8 @@ import java.util.List;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.director.shared.AbstractDirectorApplicationCommand;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DirectorApplicationCommandTest {
 
@@ -46,7 +46,7 @@ public class DirectorApplicationCommandTest {
 
     private AbstractDirectorApplicationCommandForTesting subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new AbstractDirectorApplicationCommandForTesting();
     }
@@ -78,7 +78,7 @@ public class DirectorApplicationCommandTest {
 
         assertThat(result, hasSequence("-destination", dest.toString()));
 
-        assertThat(result, hasItem("-roaming"));
+        assertTrue(result.contains("-roaming"), result.toString());
     }
 
     @Test
@@ -87,9 +87,9 @@ public class DirectorApplicationCommandTest {
 
         List<String> result = subject.getDirectorApplicationArguments();
 
-        assertThat(result, not(hasItem(PARAM_OS)));
-        assertThat(result, not(hasItem(PARAM_WS)));
-        assertThat(result, not(hasItem(PARAM_ARCH)));
+        assertFalse(result.contains(PARAM_OS), result.toString());
+        assertFalse(result.contains(PARAM_WS), result.toString());
+        assertFalse(result.contains(PARAM_ARCH), result.toString());
     }
 
     private void addRequiredArguments() {

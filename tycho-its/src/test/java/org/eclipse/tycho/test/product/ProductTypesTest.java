@@ -18,14 +18,14 @@ import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ProductTypesTest extends AbstractTychoIntegrationTest {
 
 	private static Verifier testBuildVerifier;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupBeforeClass() throws Exception {
 		testBuildVerifier = new ProductTypesTest().getVerifier("product.types", false);
 		testBuildVerifier.executeGoals(List.of("clean", "verify"));

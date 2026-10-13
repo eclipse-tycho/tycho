@@ -42,7 +42,7 @@ import org.eclipse.tycho.model.project.EclipseProject;
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.PROCESS_CLASSES, threadSafe = true)
 public class ApiFileGenerationMojo extends AbstractMojo {
 
-	@Parameter(property = "project", readonly = true)
+	@Inject
 	protected MavenProject project;
 
 	@Parameter(defaultValue = "${project.build.directory}")

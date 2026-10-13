@@ -13,10 +13,10 @@
 
 package org.eclipse.tycho.packaging;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import org.codehaus.plexus.logging.AbstractLogger;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.BuildPropertiesImpl;
 import org.eclipse.tycho.testing.TestUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class IncludeValidationHelperTest {
 
@@ -129,7 +129,7 @@ public class IncludeValidationHelperTest {
     }
 
     private void assertStringContains(String expected, String actual) {
-        assertTrue("String '" + expected + "' not found in '" + actual + "'", actual.contains(expected));
+        assertTrue(actual.contains(expected), "String '" + expected + "' not found in '" + actual + "'");
     }
 
     private MavenProject createMockProject() throws IOException {

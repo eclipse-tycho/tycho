@@ -16,11 +16,11 @@ import static org.eclipse.tycho.test.util.ArtifactRepositoryTestUtils.ANY_ARTIFA
 import static org.eclipse.tycho.test.util.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
 import static org.eclipse.tycho.test.util.ProbeArtifactSink.newArtifactSinkFor;
 import static org.eclipse.tycho.test.util.ProbeRawArtifactSink.newRawArtifactSinkFor;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
@@ -28,6 +28,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -47,13 +51,16 @@ import org.eclipse.tycho.test.util.ProbeArtifactSink;
 import org.eclipse.tycho.test.util.ProbeRawArtifactSink;
 import org.eclipse.tycho.test.util.TemporaryLocalMavenRepository;
 import org.eclipse.tycho.test.util.TestRepositoryContent;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
-public class MirroringArtifactProviderTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class MirroringArtifactProviderTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     // remote bundles
     private static final IArtifactKey BUNDLE_A_KEY = TestRepositoryContent.BUNDLE_A_KEY;
@@ -70,10 +77,10 @@ public class MirroringArtifactProviderTest extends TychoPlexusTestCase {
     // not available bundle
     private static final IArtifactKey OTHER_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
 
-    @Rule
+    @RegisterExtension
     public LogVerifier logVerifier = new LogVerifier();
 
-    @Rule
+    @RegisterExtension
     public TemporaryLocalMavenRepository localRepositoryManager = new TemporaryLocalMavenRepository();
     private File localRepositoryRoot;
     private LocalArtifactRepository localRepository;
@@ -84,11 +91,11 @@ public class MirroringArtifactProviderTest extends TychoPlexusTestCase {
     private MirroringArtifactProvider subject;
     private IStatus status;
 
-    @Before
+    @BeforeEach
     public void initSubject() throws Exception {
         RepositoryArtifactProvider remoteProvider = new RepositoryArtifactProvider(
                 Collections.singletonList(TestRepositoryContent.REPO_BUNDLE_AB),
-                ArtifactTransferPolicies.forLocalArtifacts(), lookup(IProvisioningAgent.class));
+                ArtifactTransferPolicies.forLocalArtifacts(), container.lookup(IProvisioningAgent.class));
 
         // initialize local repository content (see BUNDLE_L_KEY)
         localRepositoryRoot = localRepositoryManager.getLocalRepositoryRoot();
@@ -99,12 +106,12 @@ public class MirroringArtifactProviderTest extends TychoPlexusTestCase {
                 new MockMavenContext(null, logVerifier.getLogger()));
     }
 
-    @Before
+    @BeforeEach
     public void expectNoWarningsInLog() throws Exception {
         logVerifier.expectNoWarnings();
     }
 
-    @After
+    @AfterEach
     public void checkStatusAndSinkConsistency() {
         if (testSink != null) {
             testSink.checkConsistencyWithStatus(status);

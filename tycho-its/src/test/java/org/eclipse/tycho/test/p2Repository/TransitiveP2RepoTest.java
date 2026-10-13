@@ -13,15 +13,15 @@
 package org.eclipse.tycho.test.p2Repository;
 
 import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_352;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class TransitiveP2RepoTest extends AbstractTychoIntegrationTest {
 
@@ -31,7 +31,7 @@ public class TransitiveP2RepoTest extends AbstractTychoIntegrationTest {
 
 	private static Verifier verifier;
 
-	@BeforeClass
+	@BeforeAll
 	public static void buildFeatureAndBundlesAndRepos() throws Exception {
 		verifier = new TransitiveP2RepoTest().getVerifier("p2Repository.transitive", false);
 		verifier.addCliOption("-Dp2.repo=" + ECLIPSE_352.toString());

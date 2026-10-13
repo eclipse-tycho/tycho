@@ -13,13 +13,13 @@
 package org.eclipse.tycho.test.surefire;
 
 import static org.eclipse.tycho.test.util.SurefireUtil.testResultFile;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JUnit4Test extends AbstractTychoIntegrationTest {
 
@@ -36,6 +36,10 @@ public class JUnit4Test extends AbstractTychoIntegrationTest {
 
 		// ensure that JUnit 3 style tests also work -> related to bug 388909
 		assertTrue(testResultFile(verifier.getBasedir(), "bundle.test", "JUnit3Test").exists());
+
+		// selecting the JUnit 4 provider must warn about its deprecation
+		verifier.verifyTextInLog("[WARNING] The JUnit 4 test framework provider is deprecated");
+		verifier.verifyTextInLog("Please migrate to JUnit 5 or use JUnit Vintage");
 
 	}
 
@@ -97,7 +101,7 @@ public class JUnit4Test extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
 		File testResultFile = testResultFile(verifier.getBasedir(), "contextclassloader.test", "JUnit4Test");
-		assertTrue("Test Result File" + testResultFile + " is missing", testResultFile.exists());
+		assertTrue(testResultFile.exists(), "Test Result File" + testResultFile + " is missing");
 
 	}
 

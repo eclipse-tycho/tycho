@@ -13,11 +13,11 @@
 package org.eclipse.m2e.pde.target.tests;
 
 import static org.eclipse.osgi.util.ManifestElement.parseHeader;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.net.URI;
@@ -33,8 +33,8 @@ import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.pde.core.target.ITargetLocation;
 import org.eclipse.pde.core.target.TargetBundle;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
@@ -162,15 +162,15 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
             File file = new File(bundleInfo.getLocation());
             try (Jar jar = new Jar(file)) {
                 Set<String> resources = jar.getResources().keySet();
-                assertTrue("Conditional package org.apache.commons.* not included.",
-                        resources.stream().anyMatch(s -> s.startsWith("org/apache/commons/")));
+                assertTrue(resources.stream().anyMatch(s -> s.startsWith("org/apache/commons/")),
+                        "Conditional package org.apache.commons.* not included.");
             }
             ;
         }
     }
 
     @Test
-    @Ignore("due to https://gitlab.eclipse.org/eclipsefdn/helpdesk/-/issues/5987")
+    @Disabled("due to https://gitlab.eclipse.org/eclipsefdn/helpdesk/-/issues/5987")
     public void testSourceWithSignature() throws Exception {
         ITargetLocation target = resolveMavenTarget(
                 """
@@ -200,7 +200,7 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
                 assertValidSignature(targetBundle);
             }
         }
-        assertTrue("No source bundle generated!", sourcesFound);
+        assertTrue(sourcesFound, "No source bundle generated!");
     }
 
     @Test
@@ -225,9 +225,9 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
             for (TargetBundle targetBundle : bundles) {
                 URI location = targetBundle.getBundleInfo().getLocation();
                 assertTrue(
+                        location.toString().endsWith("org/ehcache/ehcache/3.10.0/ehcache-3.10.0-jakarta.jar"),
                         "bundle with classifier was not correctly fetched width deepth = " + deepth + " location = "
-                                + location,
-                        location.toString().endsWith("org/ehcache/ehcache/3.10.0/ehcache-3.10.0-jakarta.jar"));
+                                + location);
             }
         }
     }
@@ -251,7 +251,7 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
         for (TargetBundle targetBundle : allBundles) {
             assertValidSignature(targetBundle);
         }
-        assertTrue("No bundle generated!", allBundles.length > 0);
+        assertTrue(allBundles.length > 0, "No bundle generated!");
     }
 
     @Test
@@ -269,7 +269,7 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
                 </location>
                 """);
         IStatus targetStatus = getTargetStatus(target);
-        assertEquals(String.valueOf(targetStatus), IStatus.ERROR, targetStatus.getSeverity());
+        assertEquals(IStatus.ERROR, targetStatus.getSeverity(), String.valueOf(targetStatus));
     }
 
     @Test
@@ -291,7 +291,7 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
     }
 
     @Test
-    @Ignore("FIXME: we do not report the error here")
+    @Disabled("FIXME: we do not report the error here")
     public void testNonOSGiArtifact_missingArtifactError() throws Exception {
         ITargetLocation target = resolveMavenTarget("""
                 <location includeDependencyDepth="none" includeSource="true" missingManifest="error" type="Maven">
@@ -306,7 +306,7 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
                 </location>
                 """);
         IStatus targetStatus = target.getStatus();
-        assertEquals(String.valueOf(targetStatus), IStatus.ERROR, targetStatus.getSeverity());
+        assertEquals(IStatus.ERROR, targetStatus.getSeverity(), String.valueOf(targetStatus));
 
         assertEquals(1, targetStatus.getChildren().length);
         String notABundleErrorMessage = "com.google.errorprone:error_prone_annotations:jar:2.18.0 is not a bundle";
@@ -502,7 +502,7 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
         Optional<TargetBundle> luceneAnalysisCommon = Arrays.stream(target.getBundles()).filter(
                 tb -> tb.getBundleInfo().getSymbolicName().equals("wrapped.org.apache.lucene.lucene-analysis-common"))
                 .findFirst();
-        assertTrue("lucene-analysis-common bundle not found in target state", luceneAnalysisCommon.isPresent());
+        assertTrue(luceneAnalysisCommon.isPresent(), "lucene-analysis-common bundle not found in target state");
         Attributes manifest = getManifestMainAttributes(luceneAnalysisCommon.get());
         ManifestElement[] importHeader = parseHeader(Constants.IMPORT_PACKAGE,
                 manifest.getValue(Constants.IMPORT_PACKAGE));
@@ -512,8 +512,8 @@ public class OSGiMetadataGenerationTest extends AbstractMavenTargetTest {
                 String attribute = element.getAttribute(Constants.VERSION_ATTRIBUTE);
                 assertNotNull("Package " + value + " has no version attribute: " + element, attribute);
                 VersionRange versionRange = VersionRange.valueOf(attribute);
-                assertEquals("Unexpected version range " + versionRange + " on package " + value + ": " + element, 0,
-                        versionRange.getLeft().compareTo(Version.valueOf("9.5.0")));
+                assertEquals(0, versionRange.getLeft().compareTo(Version.valueOf("9.5.0")),
+                        "Unexpected version range " + versionRange + " on package " + value + ": " + element);
             }
         }
     }

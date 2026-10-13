@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.sbom;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,7 +22,7 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SbomPluginTest extends AbstractTychoIntegrationTest {
 
@@ -33,8 +33,8 @@ public class SbomPluginTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "verify"));
 		verifier.verifyErrorFreeLog();
 		Path basedir = Path.of(verifier.getBasedir());
-		assertTrue("sbom.xml is missing!", Files.isRegularFile(basedir.resolve("target/sbom-simple-product.xml")));
-		assertTrue("sbom.json is missing!", Files.isRegularFile(basedir.resolve("target/sbom-simple-product.json")));
+		assertTrue(Files.isRegularFile(basedir.resolve("target/sbom-simple-product.xml")), "sbom.xml is missing!");
+		assertTrue(Files.isRegularFile(basedir.resolve("target/sbom-simple-product.json")), "sbom.json is missing!");
 	}
 
 	@Test

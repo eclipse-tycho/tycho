@@ -22,8 +22,9 @@ import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.WINDOWS_SPEC_FO
 import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.createAdvice;
 import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.createBuildPropertiesWithDefaultRootFiles;
 import static org.eclipse.tycho.p2resolver.FeatureRootAdviceTest.createBuildPropertiesWithoutRootKeys;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.util.Properties;
@@ -33,7 +34,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.tycho.p2.publisher.rootfiles.FileToPathMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FeatureRootAdviceFilesTest {
 
@@ -179,7 +180,7 @@ public class FeatureRootAdviceFilesTest {
     private static void assertRootFileEntry(FileToPathMap winFilesMap, String expectedPathInSources,
             String expectedPathInInstallation) {
         IPath actualPathInInstallation = winFilesMap.get(getResourceFile(expectedPathInSources));
-        assertFalse("File not included as root file: " + expectedPathInSources, actualPathInInstallation == null);
+        assertNotNull(actualPathInInstallation, "File not included as root file: " + expectedPathInSources);
         assertFalse(actualPathInInstallation.isAbsolute());
         assertEquals(new Path(expectedPathInInstallation), actualPathInInstallation);
     }

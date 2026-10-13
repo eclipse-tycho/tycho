@@ -16,7 +16,7 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 // regression test for TYCHO-380
 // TODO is this case really tested? The target platform only a single JUnit version!

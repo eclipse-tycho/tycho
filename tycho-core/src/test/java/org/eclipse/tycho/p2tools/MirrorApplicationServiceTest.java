@@ -14,9 +14,13 @@ package org.eclipse.tycho.p2tools;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Path;
+import java.nio.file.Files;
+import java.io.IOException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,6 +32,10 @@ import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -46,16 +54,19 @@ import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.publisher.DependencySeedUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class MirrorApplicationServiceTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     // feature containing org.eclipse.core.runtime 3.4
     private static final String SIMPLE_FEATURE = "org.eclipse.example.original_feature";
@@ -75,18 +86,18 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
 
     private MirrorApplicationServiceImpl subject;
 
-    @Rule
-    public final TemporaryFolder tempFolder = new TemporaryFolder();
-    @Rule
+    @TempDir
+    Path tempFolder;
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
-    @Before
+    @BeforeEach
     public void initTestContext() throws Exception {
-        IProvisioningAgent agent = lookup(IProvisioningAgent.class);
+        IProvisioningAgent agent = container.lookup(IProvisioningAgent.class);
         agent.getService(IArtifactRepositoryManager.class);
-        destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
+        destinationRepo = new DestinationRepositoryDescriptor(newFolder("dest"), DEFAULT_NAME);
 
-        File projectFolder = tempFolder.getRoot();
+        File projectFolder = tempFolder.toFile();
         ReactorProjectIdentities currentProject = new ReactorProjectIdentitiesStub(projectFolder);
         context = new BuildContext(currentProject, DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
@@ -95,13 +106,12 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
         subject.setLogger(logVerifier.getLogger());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testMirrorNothing() throws Exception {
         // make sure that this unsupported case is detected; the mirror application would just mirror everything
         Collection<DependencySeed> noSeeds = Collections.emptyList();
 
-        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, noSeeds, context, false, false, false,
-                false, false, false, null);
+        assertThrows(IllegalArgumentException.class, () -> subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, noSeeds, context, false, false, false, false, false, false, null));
     }
 
     @Test
@@ -120,7 +130,7 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
         extraArtifactRepositoryProperties.put("p2.statsURI", "http://some.where");
         extraArtifactRepositoryProperties.put("p2.mirrorsURL", "http://some.where.else");
         extraArtifactRepositoryProperties.put("foo", "bar");
-        destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest2"), DEFAULT_NAME, false, false,
+        destinationRepo = new DestinationRepositoryDescriptor(newFolder("dest2"), DEFAULT_NAME, false, false,
                 false, false, true, extraArtifactRepositoryProperties, Collections.emptyList(),
                 Collections.emptyList());
         subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false,
@@ -140,8 +150,7 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
                 extraArtifactRepositoryProperties.remove(propertyName);
             }
         }
-        assertEquals("Artifact repository is missing extra properties", Collections.emptyMap(),
-                extraArtifactRepositoryProperties);
+        assertEquals(Collections.emptyMap(), extraArtifactRepositoryProperties, "Artifact repository is missing extra properties");
     }
 
     @Test
@@ -228,4 +237,8 @@ public class MirrorApplicationServiceTest extends TychoPlexusTestCase {
         return new File(repo.getLocation(), path);
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempFolder.resolve(path)).toFile();
+    }
 }

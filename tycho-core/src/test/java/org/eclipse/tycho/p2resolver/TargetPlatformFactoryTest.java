@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
+import static org.eclipse.tycho.core.test.utils.ResourceUtil.resourceFile;
 import static org.eclipse.tycho.p2resolver.ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HANDLER;
 import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.MAIN_BUNDLE;
 import static org.eclipse.tycho.p2resolver.TargetDefinitionResolverTest.REFERENCED_BUNDLE_V1;
@@ -23,11 +24,14 @@ import static org.eclipse.tycho.test.util.InstallableUnitMatchers.unitWithIdAndV
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +43,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
@@ -72,25 +80,28 @@ import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.eclipse.tycho.test.util.ReactorProjectStub;
 import org.eclipse.tycho.test.util.TestResolverFactory;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class TargetPlatformFactoryTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final ReactorProjectIdentities DUMMY_PROJECT = new ReactorProjectIdentitiesStub("dummy-artifact");
 
     // the joint artifact provider is tested in integration
     private static final List<IRawArtifactFileProvider> REACTOR_ARTIFACTS = Collections.emptyList();
 
-    @Rule
+    @RegisterExtension
     public LogVerifier logVerifier = new LogVerifier();
 
-    @Rule
-    public final TemporaryFolder tempManager = new TemporaryFolder();
+    @TempDir
+    Path tempManager;
 
     private TargetPlatformConfigurationStub tpConfig;
 
@@ -100,17 +111,17 @@ public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
 
     private Path localM2Repo;
 
-    @Before
+    @BeforeEach
     public void setUpSubjectAndContext() throws Exception {
         TestResolverFactory testResolverFactory = new TestResolverFactory(logVerifier.getMavenLogger(),
-                logVerifier.getLogger(), lookup(IProvisioningAgent.class), lookup(MavenTargetLocationFactory.class));
+                logVerifier.getLogger(), container.lookup(IProvisioningAgent.class), container.lookup(MavenTargetLocationFactory.class));
         subject = testResolverFactory.getTargetPlatformFactoryImpl();
         localM2Repo = testResolverFactory.mavenContext.getLocalRepositoryRoot().getAbsoluteFile().toPath();
 
         tpConfig = new TargetPlatformConfigurationStub();
         tpConfig.setEnvironments(Collections.singletonList(new TargetEnvironment(null, null, null))); // dummy value for target file resolution
         pomDependencyCollector = new PomDependencyCollectorImpl(logVerifier.getLogger(),
-                new ReactorProjectStub(tempManager.newFolder(), "test"), lookup(IProvisioningAgent.class));
+                new ReactorProjectStub(newFolder("temp"), "test"), container.lookup(IProvisioningAgent.class));
     }
 
     @Test
@@ -259,7 +270,7 @@ public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
     @Test
     public void testIncludeLocalMavenRepo() throws Exception {
         TestResolverFactory factory = new TestResolverFactory(logVerifier.getMavenLogger(), logVerifier.getLogger(),
-                lookup(IProvisioningAgent.class), lookup(MavenTargetLocationFactory.class));
+                container.lookup(IProvisioningAgent.class), container.lookup(MavenTargetLocationFactory.class));
         LocalMetadataRepository localMetadataRepo = factory.getLocalMetadataRepository();
         // add one IU to local repo
         localMetadataRepo.addInstallableUnit(InstallableUnitUtil.createIU("locallyInstalledIU", "1.0.0"),
@@ -287,16 +298,16 @@ public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
         assertThat(tp.getInstallableUnits(), hasItem(unitWithIdAndVersion(REFERENCED_BUNDLE_V2)));
     }
 
-    @Test(expected = DuplicateReactorIUsException.class)
+    @Test
     public void testDuplicateReactorUnits() throws Exception {
         List<ReactorProject> reactorProjects = new ArrayList<>();
         reactorProjects.add(createReactorProject("project1", "unit.a", "unit.b"));
         reactorProjects.add(createReactorProject("project2", "unit.b", null));
-        subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects);
+        assertThrows(DuplicateReactorIUsException.class, () -> subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects));
     }
 
     @Test
-    @Ignore("This test don't work because maven provides a 'not real' local repo to the test")
+    @Disabled("This test don't work because maven provides a 'not real' local repo to the test")
     public void testMavenArtifactsInTargetDefinitionResolveToMavenPath() throws Exception {
         File targetDefinition = resourceFile("targetresolver/mavenDep.target");
         tpConfig.addTargetDefinition(TargetDefinitionFile.read(targetDefinition));
@@ -362,4 +373,8 @@ public class TargetPlatformFactoryTest extends TychoPlexusTestCase {
         }
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
+    }
 }

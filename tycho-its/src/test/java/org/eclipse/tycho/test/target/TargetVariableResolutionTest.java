@@ -12,14 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.target;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -28,15 +27,15 @@ import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.RepositoryReference;
 import org.eclipse.tycho.test.util.ResourceUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TargetVariableResolutionTest extends AbstractTychoIntegrationTest {
 	private HttpServer server;
 	private String baseurl;
 
-	@Before
+	@BeforeEach
 	public void startServer() throws Exception {
 		server = HttpServer.startServer();
 		server.addServer("repo", ResourceUtil.resolveTestResource("repositories/javax.xml"));
@@ -46,7 +45,7 @@ public class TargetVariableResolutionTest extends AbstractTychoIntegrationTest {
 				: urlWithContextPath;
 	}
 
-	@After
+	@AfterEach
 	public void stopServer() throws Exception {
 		server.stop();
 	}
@@ -82,8 +81,9 @@ public class TargetVariableResolutionTest extends AbstractTychoIntegrationTest {
 		// artifact + metadata
 		assertEquals(2, allRepositoryReferences.size());
 		final String REPO = baseurl + "/repo";
-		assertThat(allRepositoryReferences,
-				containsInAnyOrder(new RepositoryReference(REPO, IRepository.TYPE_ARTIFACT, IRepository.ENABLED),
-						new RepositoryReference(REPO, IRepository.TYPE_METADATA, IRepository.ENABLED)));
+		assertEquals(
+				Set.of(new RepositoryReference(REPO, IRepository.TYPE_ARTIFACT, IRepository.ENABLED),
+						new RepositoryReference(REPO, IRepository.TYPE_METADATA, IRepository.ENABLED)),
+				Set.copyOf(allRepositoryReferences));
 	}
 }

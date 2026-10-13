@@ -3,9 +3,9 @@ package org.eclipse.tycho.test.p2Repository;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockftpserver.core.command.Command;
 import org.mockftpserver.core.command.StaticReplyCommandHandler;
 import org.mockftpserver.core.session.Session;
@@ -33,7 +33,7 @@ public class P2RepositoryFtpHandlerTest extends AbstractTychoIntegrationTest {
     private String repositoryUrl;
     private FakeFtpServer ftpServer;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         repoDir = new File(getBasedir(TEST_BASEDIR), "repository");
         startFtpServer();
@@ -47,7 +47,7 @@ public class P2RepositoryFtpHandlerTest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         ftpServer.stop();
     }

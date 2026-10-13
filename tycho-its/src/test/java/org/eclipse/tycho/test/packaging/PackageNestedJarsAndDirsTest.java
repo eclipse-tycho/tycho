@@ -13,10 +13,10 @@
 
 package org.eclipse.tycho.test.packaging;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.InputStream;
@@ -26,7 +26,7 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PackageNestedJarsAndDirsTest extends AbstractTychoIntegrationTest {
 
@@ -60,16 +60,15 @@ public class PackageNestedJarsAndDirsTest extends AbstractTychoIntegrationTest {
 						break;
 					}
 				}
-				assertTrue(internal1ClassName + " not found in nested jar " + internal1Jar, found);
+				assertTrue(found, internal1ClassName + " not found in nested jar " + internal1Jar);
 			}
 		}
 	}
 
 	private ZipEntry assertFileEntryExists(String entry, JarFile jarFile) {
 		ZipEntry jarEntry = jarFile.getEntry(entry);
-		assertNotNull("entry '" + entry + " does not exist in " + jarFile.getName(), jarEntry);
-		assertFalse("entry '" + entry + " exists in " + jarFile.getName() + " but is a directory",
-				jarEntry.isDirectory());
+		assertNotNull(jarEntry, "entry '" + entry + " does not exist in " + jarFile.getName());
+		assertFalse(jarEntry.isDirectory(), "entry '" + entry + " exists in " + jarFile.getName() + " but is a directory");
 		return jarEntry;
 	}
 

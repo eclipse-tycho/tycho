@@ -39,6 +39,8 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -118,7 +120,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private static final String PREFS_FILE_PATH = ".settings" + File.separator + "org.eclipse.jdt.core.prefs";
 
-    @Parameter(property = "project", readonly = true)
+    @Inject
     protected MavenProject project;
 
     /**
@@ -133,7 +135,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Parameter
     private Dependency[] extraClasspathElements;
 
-    @Parameter(property = "session", readonly = true)
+    @Inject
     private MavenSession session;
 
     /**
@@ -187,7 +189,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Parameter(defaultValue = "SYSTEM")
     private JDKUsage useJDK;
 
-    @Component
+    @Inject
     private ToolchainManagerPrivate toolChainManager;
 
     /**
@@ -266,7 +268,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
-    @Component
+    @Inject
     private BundleReader bundleReader;
 
     /**
@@ -328,19 +330,19 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Parameter
     private String log;
 
-    @Component
+    @Inject
     ToolchainProvider toolchainProvider;
 
-    @Component
+    @Inject
     private ToolchainManager toolchainManager;
 
-    @Component
+    @Inject
     private PluginRealmHelper pluginRealmHelper;
 
-    @Component
+    @Inject
     private Logger logger;
 
-    @Component
+    @Inject
     private MavenDependenciesResolver dependenciesResolver;
 
     private ExecutionEnvironment[] manifestBREEs;
@@ -351,7 +353,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private List<String> currentExcludes;
 
-    @Component
+    @Inject
     private TychoProjectManager tychoProjectManager;
 
     private Integer currentRelease;
@@ -820,19 +822,28 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private void configureJavaHome(CompilerConfiguration compilerConfiguration) throws MojoExecutionException {
         if (useJDK == JDKUsage.BREE) {
-            ExecutionEnvironment[] brees = getBREE();
-            String toolchainId;
-            if (brees.length > 0) {
-                toolchainId = brees[0].getProfileName();
-            } else {
-                getLog().warn(
-                        "useJDK=BREE configured, but no BREE is set in bundle. Fail back to currently running execution environment ("
-                                + getTargetExecutionEnvironment().getProfileName() + ").");
-                toolchainId = getTargetExecutionEnvironment().getProfileName();
+            // Mirror the precedence used by getSourceLevel()/getTargetLevel(): build.properties'
+            // jre.compilation.profile takes precedence over a manifest BREE, and only if neither is
+            // present do we fall back to the reactor-wide target-platform execution environment. That
+            // reactor-wide EE is unrelated to this bundle's own compiler compliance level and can be a
+            // much newer EE than what the bundle is actually compiled for; using it here can silently
+            // leak newer JDK API onto the older bytecode the bundle is compiled for.
+            String toolchainId = getEclipsePluginProject().getBuildProperties().getJreCompilationProfile();
+            if (toolchainId == null) {
+                ExecutionEnvironment[] brees = getBREE();
+                if (brees.length > 0) {
+                    toolchainId = brees[0].getProfileName();
+                } else {
+                    getLog().warn(
+                            "useJDK=BREE configured, but no BREE is set in bundle. Fail back to currently running execution environment ("
+                                    + getTargetExecutionEnvironment().getProfileName() + ").");
+                    toolchainId = getTargetExecutionEnvironment().getProfileName();
+                }
             }
-            OSGiJavaToolchain osgiToolchain = toolchainProvider.getToolchain(useJDK, toolchainId)
+            String effectiveToolchainId = toolchainId;
+            OSGiJavaToolchain osgiToolchain = toolchainProvider.getToolchain(useJDK, effectiveToolchainId)
                     .orElseThrow(() -> new MojoExecutionException(
-                            "useJDK = BREE configured, but no toolchain of type 'jdk' with id '" + toolchainId
+                            "useJDK = BREE configured, but no toolchain of type 'jdk' with id '" + effectiveToolchainId
                                     + "' found. See https://maven.apache.org/guides/mini/guide-using-toolchains.html"));
             addCompilerCustomArgument(compilerConfiguration, "use.java.home", osgiToolchain.getJavaHome());
             configureBootClassPath(compilerConfiguration, osgiToolchain);

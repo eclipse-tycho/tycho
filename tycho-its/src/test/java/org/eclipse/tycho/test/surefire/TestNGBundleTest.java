@@ -13,13 +13,13 @@
 package org.eclipse.tycho.test.surefire;
 
 import static org.eclipse.tycho.test.util.SurefireUtil.testResultFile;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestNGBundleTest extends AbstractTychoIntegrationTest {
 
@@ -36,7 +36,10 @@ public class TestNGBundleTest extends AbstractTychoIntegrationTest {
 		assertTrue(testResultFile(verifier.getBasedir() + File.separator + "bundle.testGroups", "bundle.test",
 				"GroupsTest").exists());
 
-		assertTrue(testResultFile(verifier.getBasedir() + File.separator + "bundle.testSuites", "TestSuite").exists());
+		// suite xml files are not supported anymore, the tests are discovered by scanning instead
+		assertTrue(testResultFile(verifier.getBasedir() + File.separator + "bundle.testSuites", "bundle.test",
+				"SuitesTest").exists());
+		verifier.verifyTextInLog("The parameter suiteXmlFiles is not supported anymore");
 
 	}
 

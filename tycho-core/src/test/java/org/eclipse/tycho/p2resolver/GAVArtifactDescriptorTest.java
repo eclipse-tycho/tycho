@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -23,7 +23,7 @@ import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.GAVArtifactDescriptor;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.test.util.MockMavenContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class GAVArtifactDescriptorTest {
 

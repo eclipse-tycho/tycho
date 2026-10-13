@@ -13,17 +13,19 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.tycho.ExecutionEnvironment;
 import org.eclipse.tycho.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.SystemCapability;
@@ -32,22 +34,25 @@ import org.eclipse.tycho.core.test.utils.ResourceUtil;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
-public class CustomEEResolutionHandlerTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class CustomEEResolutionHandlerTest {
 
-    @Rule
+    @Inject
+    protected PlexusContainer container;
+
+    @RegisterExtension
     public LogVerifier logVerifier = new LogVerifier();
 
     private TargetPlatformFactory tpFactory;
     private TargetPlatformConfigurationStub tpConfig;
 
-    @Before
+    @BeforeEach
     public void setUpContext() throws Exception {
-        tpFactory = lookup(TargetPlatformFactory.class);
+        tpFactory = container.lookup(TargetPlatformFactory.class);
         tpConfig = new TargetPlatformConfigurationStub();
     }
 
@@ -67,11 +72,11 @@ public class CustomEEResolutionHandlerTest extends TychoPlexusTestCase {
         List<SystemCapability> result = eeConfigurationCapture.capturedSystemCapabilities;
 
         assertNotNull(result);
-        assertThat(result, hasItem(new SystemCapability(Type.JAVA_PACKAGE, "javax.activation", "0.0.0")));
-        assertThat(result, hasItem(new SystemCapability(Type.JAVA_PACKAGE, "javax.activation", "1.1.1")));
-        assertThat(result, hasItem(new SystemCapability(Type.OSGI_EE, "OSGi/Minimum", "1.0.0")));
-        assertThat(result, hasItem(new SystemCapability(Type.OSGI_EE, "JavaSE", "1.4.0")));
-        assertThat(result, hasItem(new SystemCapability(Type.OSGI_EE, "JavaSE", "1.5.0")));
+        assertTrue(result.contains(new SystemCapability(Type.JAVA_PACKAGE, "javax.activation", "0.0.0")), result.toString());
+        assertTrue(result.contains(new SystemCapability(Type.JAVA_PACKAGE, "javax.activation", "1.1.1")), result.toString());
+        assertTrue(result.contains(new SystemCapability(Type.OSGI_EE, "OSGi/Minimum", "1.0.0")), result.toString());
+        assertTrue(result.contains(new SystemCapability(Type.OSGI_EE, "JavaSE", "1.4.0")), result.toString());
+        assertTrue(result.contains(new SystemCapability(Type.OSGI_EE, "JavaSE", "1.5.0")), result.toString());
         assertEquals(5, result.size());
     }
 

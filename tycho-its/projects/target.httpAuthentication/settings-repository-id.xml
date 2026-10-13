@@ -1,0 +1,9 @@
+<settings>
+  <servers>
+    <server>
+      <id>[serverId]</id>
+      <username>test-user</username>
+      <password>test-password</password>
+    </server>
+  </servers>
+</settings>

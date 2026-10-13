@@ -12,23 +12,22 @@
  *******************************************************************************/
 package org.eclipse.m2e.pde.target.tests;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import java.util.List;
 
 import org.eclipse.pde.core.target.ITargetLocation;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
+@ParameterizedClass(name = "includeSource={0}")
+@MethodSource("dependencyConfigurations")
 public class DependencyExclusionTest extends AbstractMavenTargetTest {
 	@Parameter(0)
 	public Boolean includeSource;
 
-	@Parameters(name = "includeSource={0}")
 	public static List<Boolean> dependencyConfigurations() {
 		return List.of(false, true);
 	}

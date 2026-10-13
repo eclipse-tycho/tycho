@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature id="helloworld.feature" />
-   <!-- this should be auto generated too ! -->
-   <feature id="helloworld.feature.source" />
+   <feature id="helloworld.feature"/>
 </site>

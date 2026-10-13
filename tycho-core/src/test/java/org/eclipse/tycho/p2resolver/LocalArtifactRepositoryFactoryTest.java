@@ -12,10 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -25,19 +29,22 @@ import org.eclipse.tycho.p2.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.repository.LocalArtifactRepositoryFactory;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.test.util.TemporaryLocalMavenRepository;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
-public class LocalArtifactRepositoryFactoryTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class LocalArtifactRepositoryFactoryTest {
 
-    @Rule
+    @Inject
+    protected PlexusContainer container;
+
+    @RegisterExtension
     public TemporaryLocalMavenRepository tempLocalMavenRepository = new TemporaryLocalMavenRepository();
     private LocalArtifactRepositoryFactory subject;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         subject = new LocalArtifactRepositoryFactory() {
 
@@ -55,16 +62,16 @@ public class LocalArtifactRepositoryFactoryTest extends TychoPlexusTestCase {
 
     @Test
     public void testLoadWrongLocation() throws ProvisionException {
-        Assert.assertNull(subject.load(URI.create("file:/testFileUri"), 0, new NullProgressMonitor()));
+        Assertions.assertNull(subject.load(URI.create("file:/testFileUri"), 0, new NullProgressMonitor()));
     }
 
     @Test
     public void testLoad() throws ProvisionException, ComponentLookupException {
-        LocalArtifactRepository repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class),
+        LocalArtifactRepository repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class),
                 tempLocalMavenRepository.getLocalRepositoryIndex());
         repo.save();
         IArtifactRepository repo2 = subject.load(tempLocalMavenRepository.getLocalRepositoryRoot().toURI(), 0,
                 new NullProgressMonitor());
-        Assert.assertEquals(repo, repo2);
+        Assertions.assertEquals(repo, repo2);
     }
 }

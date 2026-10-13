@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,10 @@ import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.Artifact;
@@ -34,8 +38,6 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
@@ -63,7 +65,8 @@ import biz.aQute.resolve.Bndrun;
  * {@code test} maven dependency</li>
  * </ul>
  */
-@Component(role = AbstractMavenLifecycleParticipant.class)
+@Named
+@Singleton
 public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
 	private static final Set<Entry<String, String>> BND_TO_MAVEN_MAPPING = Map.of(//
@@ -73,10 +76,10 @@ public class BndMavenLifecycleParticipant extends AbstractMavenLifecycleParticip
 			Constants.TESTPATH, Artifact.SCOPE_TEST //
 	).entrySet();
 
-	@Requirement
+	@Inject
 	private Logger logger;
 
-	@Requirement
+	@Inject
 	private BndPluginManager bndPluginManager;
 
 	@Override

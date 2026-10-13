@@ -13,9 +13,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.tar;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -36,16 +36,15 @@ import java.util.Set;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class TarGzArchiverTest {
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    Path tempFolder;
 
     private TarGzArchiver archiver;
 
@@ -54,12 +53,12 @@ public class TarGzArchiverTest {
     private File testPermissionsFile;
     private File testOwnerAndGroupFile;
 
-    @Before
+    @BeforeEach
     public void createTestFiles() throws Exception {
         archiver = new TarGzArchiver();
-        tarGzArchive = tempFolder.newFile("test.tar.gz");
+        tarGzArchive = Files.createFile(tempFolder.resolve("test.tar.gz")).toFile();
         archiver.setDestFile(tarGzArchive);
-        this.archiveRoot = tempFolder.newFolder("dir1");
+        this.archiveRoot = Files.createDirectory(tempFolder.resolve("dir1")).toFile();
         File dir2 = new File(archiveRoot, "dir2");
         assertTrue(dir2.mkdirs());
         archiver.addDirectory(archiveRoot);
@@ -132,7 +131,7 @@ public class TarGzArchiverTest {
         TarArchiveEntry symLinkEntry = getTarEntries().get("dir2/testSymLink");
         assertTrue(symLinkEntry.isSymbolicLink());
         assertEquals("..", symLinkEntry.getLinkName());
-        assertEquals("Expect 8 entries in the archive", 8, getTarEntries().size());
+        assertEquals(8, getTarEntries().size(), "Expect 8 entries in the archive");
     }
 
     @Test
@@ -149,7 +148,7 @@ public class TarGzArchiverTest {
 
     @Test
     public void testSymbolicLinkOutsideArchiveInlined() throws Exception {
-        File linkTargetFile = tempFolder.newFile("linkTargetOutsideArchiveRoot");
+        File linkTargetFile = Files.createFile(tempFolder.resolve("linkTargetOutsideArchiveRoot")).toFile();
         Files.writeString(linkTargetFile.toPath(), "testContent");
         createSymbolicLink(new File(archiveRoot, "testSymLink"), linkTargetFile.toPath());
         archiver.createArchive();
@@ -162,7 +161,7 @@ public class TarGzArchiverTest {
 
     @Test
     public void testSymbolicLinkToDirOutsideArchiveInlined() throws Exception {
-        File linkTargetDir = tempFolder.newFolder("dirLinkTargetOutsideArchiveRoot");
+        File linkTargetDir = Files.createDirectory(tempFolder.resolve("dirLinkTargetOutsideArchiveRoot")).toFile();
         Files.writeString(new File(linkTargetDir, "test.txt").toPath(), "testContent");
         createSymbolicLink(new File(archiveRoot, "testDirSymLink"), linkTargetDir.toPath());
         archiver.createArchive();
@@ -191,7 +190,7 @@ public class TarGzArchiverTest {
             perms.add(PosixFilePermission.OWNER_EXECUTE);
             Files.setPosixFilePermissions(testPermissionsFile.toPath(), perms);
         } catch (Exception e) {
-            Assume.assumeNoException("skip test on filesystems that do not support POSIX file permissions", e);
+            Assumptions.abort("skip test on filesystems that do not support POSIX file permissions: " + e);
         }
     }
 
@@ -199,7 +198,7 @@ public class TarGzArchiverTest {
         try {
             Files.createSymbolicLink(link.toPath(), linkTarget);
         } catch (Exception e) {
-            Assume.assumeNoException("skip test on filesystems that do not support symbolic links", e);
+            Assumptions.abort("skip test on filesystems that do not support symbolic links: " + e);
         }
     }
 

@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.io.ByteArrayOutputStream;
@@ -23,6 +23,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -45,14 +49,17 @@ import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.eclipse.tycho.test.util.TemporaryLocalMavenRepository;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
-public class LocalArtifactRepositoryTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class LocalArtifactRepositoryTest {
 
-    @Rule
+    @Inject
+    protected PlexusContainer container;
+
+    @RegisterExtension
     public TemporaryLocalMavenRepository mvnRepo = new TemporaryLocalMavenRepository();
 
     private void deleteDir(File dir) {
@@ -76,7 +83,7 @@ public class LocalArtifactRepositoryTest extends TychoPlexusTestCase {
     @Test
     public void testOutdatedIndex() throws ComponentLookupException {
         //create Repo with single artifact
-        LocalArtifactRepository repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class),
+        LocalArtifactRepository repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class),
                 mvnRepo.getLocalRepositoryIndex());
         ArtifactDescriptor desc = newBundleArtifactDescriptor(false);
         repo.addDescriptor(desc);
@@ -84,13 +91,13 @@ public class LocalArtifactRepositoryTest extends TychoPlexusTestCase {
 
         // check: the artifact is in the index
         TychoRepositoryIndex artifactIndex = createArtifactsIndex(mvnRepo.getLocalRepositoryRoot());
-        Assert.assertFalse(artifactIndex.getProjectGAVs().isEmpty());
+        Assertions.assertFalse(artifactIndex.getProjectGAVs().isEmpty());
 
         // delete artifact content from file system
         deleteDir(new File(mvnRepo.getLocalRepositoryRoot(), "p2"));
 
         // create a new repo and check that the reference was gracefully removed from the index
-        repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class), mvnRepo.getLocalRepositoryIndex());
+        repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class), mvnRepo.getLocalRepositoryIndex());
         repo.save();
         artifactIndex = createArtifactsIndex(mvnRepo.getLocalRepositoryRoot());
         assertTrue(artifactIndex.getProjectGAVs().isEmpty());
@@ -98,7 +105,7 @@ public class LocalArtifactRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void getP2Location() throws ComponentLookupException {
-        LocalArtifactRepository repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class),
+        LocalArtifactRepository repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class),
                 mvnRepo.getLocalRepositoryIndex());
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(false);
@@ -130,7 +137,7 @@ public class LocalArtifactRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void getMavenLocation() throws ComponentLookupException {
-        LocalArtifactRepository repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class),
+        LocalArtifactRepository repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class),
                 mvnRepo.getLocalRepositoryIndex());
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(true);
@@ -143,7 +150,7 @@ public class LocalArtifactRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void getMavenLocationWithClassifierAndExtension() throws ComponentLookupException {
-        LocalArtifactRepository repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class),
+        LocalArtifactRepository repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class),
                 mvnRepo.getLocalRepositoryIndex());
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(true);
@@ -172,7 +179,7 @@ public class LocalArtifactRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void addP2Artifact() throws Exception {
-        LocalArtifactRepository repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class),
+        LocalArtifactRepository repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class),
                 mvnRepo.getLocalRepositoryIndex());
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(false);
@@ -199,7 +206,7 @@ public class LocalArtifactRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void addMavenArtifact() throws Exception {
-        LocalArtifactRepository repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class),
+        LocalArtifactRepository repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class),
                 mvnRepo.getLocalRepositoryIndex());
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(true);
@@ -214,7 +221,7 @@ public class LocalArtifactRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void reload() throws Exception {
-        LocalArtifactRepository repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class),
+        LocalArtifactRepository repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class),
                 mvnRepo.getLocalRepositoryIndex());
         ArtifactDescriptor mavenArtifact = newBundleArtifactDescriptor(true);
         ArtifactDescriptor p2Artifact = newBundleArtifactDescriptor(false);
@@ -224,14 +231,14 @@ public class LocalArtifactRepositoryTest extends TychoPlexusTestCase {
 
         repo.save();
 
-        repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class), mvnRepo.getLocalRepositoryIndex());
+        repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class), mvnRepo.getLocalRepositoryIndex());
         assertTrue(repo.contains(mavenArtifact.getArtifactKey()));
         assertTrue(repo.contains(p2Artifact.getArtifactKey()));
     }
 
     @Test
     public void testGetArtifactsNoRequests() throws ComponentLookupException {
-        LocalArtifactRepository repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class),
+        LocalArtifactRepository repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class),
                 mvnRepo.getLocalRepositoryIndex());
         IStatus status = repo.getArtifacts(new IArtifactRequest[0], new NullProgressMonitor());
         assertTrue(status.isOK());
@@ -239,7 +246,7 @@ public class LocalArtifactRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void testGetArtifactsErrorRequest() throws ComponentLookupException {
-        LocalArtifactRepository repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class),
+        LocalArtifactRepository repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class),
                 mvnRepo.getLocalRepositoryIndex());
         IArtifactRequest errorRequest = new IArtifactRequest() {
             @Override
@@ -262,7 +269,7 @@ public class LocalArtifactRepositoryTest extends TychoPlexusTestCase {
 
     @Test
     public void testGetRawArtifactDummy() throws ProvisionException, IOException, ComponentLookupException {
-        LocalArtifactRepository repo = new LocalArtifactRepository(lookup(IProvisioningAgent.class),
+        LocalArtifactRepository repo = new LocalArtifactRepository(container.lookup(IProvisioningAgent.class),
                 mvnRepo.getLocalRepositoryIndex());
         ArtifactDescriptor p2Artifact = newBundleArtifactDescriptor(false);
         byte[] content = new byte[] { 111, 112 };

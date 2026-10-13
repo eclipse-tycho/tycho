@@ -44,8 +44,8 @@ A sample snippet looks like this:
 To execute the tests, one has to invoke maven with `mvn test`.
 The following demo projects are provided as an example:
 
-- Project with a configured source folder: https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/surefire/with-source-folder
-- Project using maven standard layout: https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/surefire/with-maven-layout
+- Project with a configured source folder: https://github.com/eclipse-tycho/tycho/tree/main/demo/testing/surefire/with-source-folder
+- Project using maven standard layout: https://github.com/eclipse-tycho/tycho/tree/main/demo/testing/surefire/with-maven-layout
 
 
 ## tycho-surefire-plugin
@@ -89,9 +89,9 @@ A sample snippet looks like this:
 To execute the tests, one must invoke maven with `mvn verify`, the following demo projects are provided as an example:
 
 - Project with a configured source folder as a standalone project similar to the discouraged `eclipse-test-plugin` packaging:
-https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/tycho/standalone
+https://github.com/eclipse-tycho/tycho/tree/main/demo/testing/tycho/standalone
 - Project using maven standard layout having the tests in the same module:
-https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/tycho/samemodule
+https://github.com/eclipse-tycho/tycho/tree/main/demo/testing/tycho/samemodule
 
 ## bnd-testing
 
@@ -129,7 +129,7 @@ To execute the tests, one has to invoke maven with `mvn verify`, the following d
 - Project with maven standard layout having the tests in the same module and using [OSGi JUnit5 annotations](https://github.com/osgi/osgi-test/blob/main/org.osgi.test.junit5/README.md)
 to automatically inject services:
 
-- https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/bnd/osgi-test
+- https://github.com/eclipse-tycho/tycho/tree/main/demo/testing/bnd/osgi-test
 
 ## tycho-test-plugin
 
@@ -201,7 +201,7 @@ A sample snippet looks like this:
 
 To execute the tests, one has to invoke maven with `mvn verify`. The following demo project is provided as an example:
 
-- https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/junit-platform
+- https://github.com/eclipse-tycho/tycho/tree/main/demo/testing/junit-platform
 
 ## combining different approaches
 
@@ -301,6 +301,6 @@ After editing, refresh your project in Eclipse (F5) for the changes to take effe
 ### Example Projects
 
 See these demo projects for working examples:
-- [Surefire with source folder](https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/surefire/with-source-folder) - Shows `src_test` marked as test source
-- [Tycho standalone test](https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/tycho/standalone/test) - Shows a project with only test sources
-- [Tycho OSGi test](https://github.com/eclipse-tycho/tycho/tree/master/demo/testing/tycho/osgitest) - Shows mixed production and test sources
+- [Surefire with source folder](https://github.com/eclipse-tycho/tycho/tree/main/demo/testing/surefire/with-source-folder) - Shows `src_test` marked as test source
+- [Tycho standalone test](https://github.com/eclipse-tycho/tycho/tree/main/demo/testing/tycho/standalone/test) - Shows a project with only test sources
+- [Tycho OSGi test](https://github.com/eclipse-tycho/tycho/tree/main/demo/testing/tycho/osgitest) - Shows mixed production and test sources

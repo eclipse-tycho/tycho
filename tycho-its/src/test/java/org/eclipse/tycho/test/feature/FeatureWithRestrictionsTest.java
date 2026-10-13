@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.feature;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.Optional;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Element;
@@ -42,9 +42,8 @@ public class FeatureWithRestrictionsTest extends AbstractTychoIntegrationTest {
 		Optional<Element> unit = artifactsDocument.root().childElements("unit").filter(elem -> {
 			return unitId.equals(elem.attribute("id"));
 		}).findFirst();
-		assertTrue("Unit with id " + unitId + " not found", unit.isPresent());
-		assertFalse("Version 2 was required by unit",
-				unit.stream().flatMap(elem -> elem.childElement("requires").orElse(null).childElements("required"))
-						.anyMatch(elem -> "[2.0.0,2.0.0]".equals(elem.attribute("range"))));
+		assertTrue(unit.isPresent(), "Unit with id " + unitId + " not found");
+		assertFalse(unit.stream().flatMap(elem -> elem.childElement("requires").orElse(null).childElements("required"))
+						.anyMatch(elem -> "[2.0.0,2.0.0]".equals(elem.attribute("range"))), "Version 2 was required by unit");
 	}
 }

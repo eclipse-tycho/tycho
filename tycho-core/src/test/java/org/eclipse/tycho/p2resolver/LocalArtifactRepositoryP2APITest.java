@@ -16,16 +16,15 @@ package org.eclipse.tycho.p2resolver;
 import static org.eclipse.tycho.test.util.ProbeArtifactSink.newArtifactSinkFor;
 import static org.eclipse.tycho.test.util.ProbeRawArtifactSink.newRawArtifactSinkFor;
 import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -34,6 +33,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
@@ -59,11 +62,10 @@ import org.eclipse.tycho.test.util.ProbeOutputStream;
 import org.eclipse.tycho.test.util.ProbeRawArtifactSink;
 import org.eclipse.tycho.test.util.TemporaryLocalMavenRepository;
 import org.eclipse.tycho.test.util.TestRepositoryContent;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests of the general requirements from the {@link IRawArtifactFileProvider} and p2
@@ -73,7 +75,11 @@ import org.junit.Test;
  * The characteristics specific to the {@link LocalArtifactRepository} implementation are tested in
  * {@link LocalArtifactRepositoryTest}.
  */
-public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class LocalArtifactRepositoryP2APITest {
+
+    @Inject
+    protected PlexusContainer container;
 
     // bundle already in local repository
     private static final IArtifactKey ARTIFACT_A_KEY = TestRepositoryContent.BUNDLE_A_KEY;
@@ -104,7 +110,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     private static final Set<IArtifactDescriptor> ORIGINAL_DESCRIPTORS = Set.of( //
             ARTIFACT_A_CANONICAL, ARTIFACT_B_CANONICAL);
 
-    @Rule
+    @RegisterExtension
     public TemporaryLocalMavenRepository temporaryLocalMavenRepo = new TemporaryLocalMavenRepository();
 
     private ProbeArtifactSink testSink;
@@ -114,7 +120,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     private LocalArtifactRepository subject;
     private IStatus status;
 
-    @Before
+    @BeforeEach
     public void initSubject() throws Exception {
         temporaryLocalMavenRepo.initContentFromResourceFolder(ResourceUtil.resourceFile("repositories/local"));
         subject = new LocalArtifactRepository(null, temporaryLocalMavenRepo.getLocalRepositoryIndex());
@@ -122,13 +128,13 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
         testOutputStream = new ProbeOutputStream();
     }
 
-    @After
+    @AfterEach
     public void checkStreamNotClosed() {
         // none of the tested methods should close the stream
         assertFalse(testOutputStream.isClosed());
     }
 
-    @After
+    @AfterEach
     public void checkStatusAndSinkConsistency() {
         if (testSink != null) {
             testSink.checkConsistencyWithStatus(status);
@@ -158,8 +164,8 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     public void testGetDescriptors() {
         List<IArtifactDescriptor> result = Arrays.asList(subject.getArtifactDescriptors(ARTIFACT_A_KEY));
 
-        assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_1));
-        assertThat(result, not(hasItem(ARTIFACT_A_DESCRIPTOR_2)));
+        assertTrue(result.contains(ARTIFACT_A_DESCRIPTOR_1), result.toString());
+        assertFalse(result.contains(ARTIFACT_A_DESCRIPTOR_2), result.toString());
         assertEquals(1, result.size());
     }
 
@@ -175,8 +181,8 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     public void testQueryKeys() {
         Set<IArtifactKey> result = allKeysIn(subject);
 
-        assertThat(result, hasItem(ARTIFACT_A_KEY));
-        assertThat(result, hasItem(ARTIFACT_B_KEY));
+        assertTrue(result.contains(ARTIFACT_A_KEY), result.toString());
+        assertTrue(result.contains(ARTIFACT_B_KEY), result.toString());
         assertEquals(ORIGINAL_KEYS, result);
     }
 
@@ -184,9 +190,9 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     public void testQueryDescriptors() {
         Set<IArtifactDescriptor> result = allDescriptorsIn(subject);
 
-        assertThat(result, hasItem(ARTIFACT_A_DESCRIPTOR_1));
-        assertThat(result, not(hasItem(ARTIFACT_A_DESCRIPTOR_2)));
-        assertThat(result, hasItem(ARTIFACT_B_DESCRIPTOR));
+        assertTrue(result.contains(ARTIFACT_A_DESCRIPTOR_1), result.toString());
+        assertFalse(result.contains(ARTIFACT_A_DESCRIPTOR_2), result.toString());
+        assertTrue(result.contains(ARTIFACT_B_DESCRIPTOR), result.toString());
         assertEquals(ORIGINAL_DESCRIPTORS, result);
     }
 
@@ -268,7 +274,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     public void testGetArtifactFile() {
         File result = subject.getArtifactFile(ARTIFACT_A_KEY);
 
-        assertThat(result, is(artifactLocationOf(ARTIFACT_A_KEY, ".jar")));
+        assertEquals(artifactLocationOf(ARTIFACT_A_KEY, ".jar"), result);
     }
 
     @Test
@@ -282,7 +288,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     public void testGetRawArtifactFile() {
         File result = subject.getArtifactFile(ARTIFACT_B_CANONICAL);
 
-        assertThat(result, is(artifactLocationOf(ARTIFACT_B_KEY, ".jar")));
+        assertEquals(artifactLocationOf(ARTIFACT_B_KEY, ".jar"), result);
     }
 
     @Test
@@ -323,7 +329,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
         assertThat(status, is(errorStatus()));
     }
 
-    @Test(expected = ArtifactSinkException.class)
+    @Test
     public void testGetArtifactToBrokenSink() throws Exception {
         IArtifactSink brokenSink = new IArtifactSink() {
             @Override
@@ -351,12 +357,12 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
             }
 
         };
-        subject.getArtifact(brokenSink, null);
+        assertThrows(ArtifactSinkException.class, () -> subject.getArtifact(brokenSink, null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGetArtifactToClosedSink() throws Exception {
-        subject.getArtifact(new NonStartableArtifactSink(), null);
+        assertThrows(IllegalArgumentException.class, () -> subject.getArtifact(new NonStartableArtifactSink(), null));
     }
 
     @SuppressWarnings("deprecation")
@@ -414,9 +420,9 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
         assertThat(status, is(errorStatus()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGetRawArtifactToClosedSink() throws Exception {
-        subject.getRawArtifact(new NonStartableArtifactSink(), null);
+        assertThrows(IllegalArgumentException.class, () -> subject.getRawArtifact(new NonStartableArtifactSink(), null));
     }
 
     @SuppressWarnings("deprecation")
@@ -465,7 +471,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
             expectedException = e;
         }
 
-        assertThat(expectedException, is(instanceOf(ProvisionException.class)));
+        assertInstanceOf(ProvisionException.class, expectedException);
         assertEquals(ProvisionException.ARTIFACT_EXISTS, expectedException.getStatus().getCode());
     }
 
@@ -526,7 +532,7 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
             expectedException = e;
         }
 
-        assertThat(expectedException, is(instanceOf(ProvisionException.class)));
+        assertInstanceOf(ProvisionException.class, expectedException);
         assertEquals(ProvisionException.ARTIFACT_EXISTS, expectedException.getStatus().getCode());
     }
 
@@ -590,8 +596,8 @@ public class LocalArtifactRepositoryP2APITest extends TychoPlexusTestCase {
     }
 
     private void assertTotal(int keyDiff, int descriptorDiff) {
-        assertThat(allKeysIn(subject).size(), is(ORIGINAL_KEYS.size() + keyDiff));
-        assertThat(allDescriptorsIn(subject).size(), is(ORIGINAL_DESCRIPTORS.size() + descriptorDiff));
+        assertEquals(ORIGINAL_KEYS.size() + keyDiff, allKeysIn(subject).size());
+        assertEquals(ORIGINAL_DESCRIPTORS.size() + descriptorDiff, allDescriptorsIn(subject).size());
     }
 
     private static Set<IArtifactKey> allKeysIn(LocalArtifactRepository repository) {

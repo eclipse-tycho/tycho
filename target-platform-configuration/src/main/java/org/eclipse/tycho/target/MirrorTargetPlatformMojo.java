@@ -19,10 +19,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -43,6 +44,7 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TargetPlatformService;
+import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.repository.ListCompositeMetadataRepository;
 import org.eclipse.tycho.p2.repository.PublishingRepository;
@@ -54,16 +56,24 @@ import org.eclipse.tycho.p2maven.SlicingOptions;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManager;
 
 /**
- * Supports mirroring the computed target platform of the current project, this behaves similar to
- * what PDE offers with its export deployable feature / plug-in and assembles an update site that
- * contains everything this particular project depends on.
+ * Supports mirroring the computed target platform of the current project. For
+ * {@code eclipse-plugin}, {@code eclipse-feature}, and similar Tycho packaging types this behaves
+ * similar to what PDE offers with its export deployable feature / plug-in and assembles an update
+ * site that contains everything this particular project depends on.
+ * <p>
+ * For projects that are purely a target platform definition (i.e., contain a {@code .target} file
+ * and no code artifacts), use {@code &lt;packaging&gt;eclipse-target-definition&lt;/packaging&gt;}.
+ * This will mirror the entire target platform instead of only the project's transitive
+ * dependencies. Using a different packaging type (e.g., the default {@code jar}) with this goal on
+ * a target-only project will produce an empty or incomplete repository because no installable units
+ * are published for that project.
  */
 @Mojo(name = "mirror-target-platform", threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE, defaultPhase = LifecyclePhase.PACKAGE)
 public class MirrorTargetPlatformMojo extends AbstractMojo {
 
     private static final SiteXMLAction CATEGORY_FACTORY = new SiteXMLAction((URI) null, (String) null);
 
-    @Parameter(property = "project", readonly = true)
+    @Inject
     private MavenProject project;
 
     @Parameter(defaultValue = "${project.build.directory}/target-platform-repository")
@@ -104,24 +114,33 @@ public class MirrorTargetPlatformMojo extends AbstractMojo {
     @Parameter
     private SlicingOptions options;
 
-    @Component
+    @Inject
     private TargetPlatformService platformService;
 
-    @Component
+    @Inject
     private MirrorApplicationService mirrorService;
 
-    @Component
+    @Inject
     private ReactorRepositoryManager repositoryManager;
 
-    @Component
+    @Inject
     private IProvisioningAgent agent;
 
-    @Component
+    @Inject
     private InstallableUnitSlicer installableUnitSlicer;
+
+    @Inject
+    private TychoProjectManager tychoProjectManager;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        if (tychoProjectManager.getTychoProject(project).isEmpty()) {
+            getLog().info("Project '" + project.getId() + "' (packaging '" + project.getPackaging()
+                    + "') is not a Tycho project, skipping mirror-target-platform."
+                    + " Use <packaging>eclipse-target-definition</packaging> to mirror a target platform.");
+            return;
+        }
         TargetPlatform targetPlatform = platformService.getTargetPlatform(reactorProject).orElse(null);
         if (targetPlatform == null) {
             getLog().info("Project has no target platform, skip execution.");

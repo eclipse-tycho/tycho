@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.jarsigning;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.List;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.XMLTool;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -56,7 +56,7 @@ public class JarSigningTest extends AbstractTychoIntegrationTest {
 		for (Node artifact : artifactNodes) {
 			List<Node> checksumProperties = XMLTool.getMatchingNodes(artifact,
 					"properties/property[@name='download.checksum.sha-256']");
-			assertFalse("artifact does not have a 'download.checksum.sha-256' attribute", checksumProperties.isEmpty());
+			assertFalse(checksumProperties.isEmpty(), "artifact does not have a 'download.checksum.sha-256' attribute");
 		}
 	}
 }

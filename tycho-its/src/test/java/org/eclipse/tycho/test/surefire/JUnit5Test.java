@@ -119,10 +119,10 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
 	}
 
 	private void verifySuite(final String projectBasedir) throws Exception {
-		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.SuiteWithAllTests",
-				"bundle.test.JUnit5Test", "started from test suite");
+		// since surefire 3.6.0 tests executed from a suite are reported for their own class
+		assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit5Test", "started from test suite");
 		// make sure tests from suite were executed
-		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.SuiteWithAllTests", 1);
+		assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 1);
 	}
 
 }

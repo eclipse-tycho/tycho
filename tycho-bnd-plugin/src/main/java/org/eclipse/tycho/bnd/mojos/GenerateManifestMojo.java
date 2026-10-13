@@ -23,16 +23,16 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
@@ -72,18 +72,18 @@ public class GenerateManifestMojo extends AbstractMojo {
 		return true;
 	};
 
-	@Component
+	@Inject
 	private BndPluginManager bndPluginManager;
 
-	@Parameter(property = "project", readonly = true)
+	@Inject
 	protected MavenProject mavenProject;
 
-	@Parameter(property = "session", readonly = true)
+	@Inject
 	protected MavenSession session;
 
-	@Component
+	@Inject
 	private PluginRealmHelper pluginRealmHelper;
-	@Component
+	@Inject
 	private TychoProjectManager projectManager;
 
 	@Override

@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.TYCHO240includeLaunchers;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
@@ -24,7 +24,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.arch.Processor;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class IncludeLaunchersTest extends AbstractTychoIntegrationTest {
 
@@ -50,8 +50,8 @@ public class IncludeLaunchersTest extends AbstractTychoIntegrationTest {
 			executable = "includedLauncher.executable.gtk.linux.x86_64_1.0.0";
 		}
 		File file = new File(binaryDir, executable);
-		assertTrue("Directory " + binaryDir.getAbsolutePath() + " is not a directory", binaryDir.isDirectory());
-		assertTrue("File " + file.getAbsolutePath() + " do not exits, but " + listFiles(binaryDir), file.isFile());
+		assertTrue(binaryDir.isDirectory(), "Directory " + binaryDir.getAbsolutePath() + " is not a directory");
+		assertTrue(file.isFile(), "File " + file.getAbsolutePath() + " do not exits, but " + listFiles(binaryDir));
 
 	}
 

@@ -18,7 +18,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
 
@@ -37,6 +37,9 @@ public class P2InstalledTestRuntimeTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-DproductClassifier=" + getProductClassifier());
 		verifier.executeGoals(List.of("clean", "integration-test"));
 		verifier.verifyErrorFreeLog();
+		// the test bundle requires org.junit, so the deprecated JUnit 4 provider is
+		// selected on the p2Installed test runtime path as well
+		verifier.verifyTextInLog("[WARNING] The JUnit 4 test framework provider is deprecated");
 	}
 
 	@Test

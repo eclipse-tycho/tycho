@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.net.URI;
@@ -28,7 +28,7 @@ import org.eclipse.tycho.p2.repository.ArtifactTransferPolicy;
 import org.eclipse.tycho.p2.repository.CompositeArtifactProvider;
 import org.eclipse.tycho.p2.repository.FileRepositoryArtifactProvider;
 import org.eclipse.tycho.test.util.TestRepositoryContent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CompositeArtifactProviderTest extends CompositeArtifactProviderTestBase<IRawArtifactFileProvider> {
 
@@ -45,7 +45,7 @@ public class CompositeArtifactProviderTest extends CompositeArtifactProviderTest
         IRawArtifactFileProvider[] components = new IRawArtifactFileProvider[repositoryURLs.length];
         for (int ix = 0; ix < repositoryURLs.length; ix++) {
             components[ix] = new FileRepositoryArtifactProvider(Collections.singletonList(repositoryURLs[ix]),
-                    TRANSFER_POLICY, lookup(IProvisioningAgent.class));
+                    TRANSFER_POLICY, container.lookup(IProvisioningAgent.class));
         }
         return components;
     }

@@ -15,7 +15,7 @@ package org.eclipse.tycho.test.p2Repository;
 import static org.eclipse.tycho.test.util.P2RepositoryTool.withIdAndVersion;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -26,8 +26,8 @@ import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IdAndVersion;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoIntegrationTest {
 
@@ -47,7 +47,7 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
 	private static Verifier verifier;
 	private static P2RepositoryTool p2Repository;
 
-	@BeforeClass
+	@BeforeAll
 	public static void executeBuild() throws Exception {
 		verifier = new QualifierExpansionAndArtifactAssemblyTest().getVerifier("p2Repository.reactor", false);
 		verifier.addCliOption("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
@@ -67,8 +67,9 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
 	public void testCategoryUnitHasInclusionsVersionsExpanded() throws Exception {
 		IU categoryIU = p2Repository.getUniqueIU("20141230-qualifierOfRepo" + ".example.category");
 
-		assertThat(categoryIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.category=true"));
-		assertThat(categoryIU.getProperties(), hasItem("org.eclipse.equinox.p2.name=Example Category"));
+		List<String> properties = categoryIU.getProperties();
+		assertTrue(properties.contains("org.eclipse.equinox.p2.type.category=true"), properties.toString());
+		assertTrue(properties.contains("org.eclipse.equinox.p2.name=Example Category"), properties.toString());
 
 		assertThat(categoryIU.getInclusions(),
 				hasItem(withIdAndVersion("prr.example.feature.feature.group", FEATURE_VERSION)));
@@ -78,7 +79,8 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
 	public void testFeatureUnitHasOwnVersionAndInclusionsExpanded() throws Exception {
 		IU featureIU = p2Repository.getIU("prr.example.feature" + ".feature.group", FEATURE_VERSION);
 
-		assertThat(featureIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.group=true"));
+		List<String> properties = featureIU.getProperties();
+		assertTrue(properties.contains("org.eclipse.equinox.p2.type.group=true"), properties.toString());
 
 		List<IdAndVersion> inclusions = featureIU.getInclusions();
 		assertThat(inclusions,
@@ -94,8 +96,9 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
 	public void testProductUnitHasOwnVersionAndInclusionsExpanded() throws Exception {
 		IU featureIU = p2Repository.getIU("prr.example.product", "1.0.0.20141230-qualifierOfRepo");
 
-		assertThat(featureIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.group=true"));
-		assertThat(featureIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
+		List<String> properties = featureIU.getProperties();
+		assertTrue(properties.contains("org.eclipse.equinox.p2.type.group=true"), properties.toString());
+		assertTrue(properties.contains("org.eclipse.equinox.p2.type.product=true"), properties.toString());
 
 		List<IdAndVersion> inclusions = featureIU.getInclusions();
 		assertThat(inclusions, hasItem(withIdAndVersion("prr.example.feature.feature.group", FEATURE_VERSION)));
@@ -113,16 +116,18 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
 
 	@Test
 	public void testIncludedReactorArtifactsAreAssembled() throws Exception {
-		assertThat(p2Repository.getAllUnitIds(), hasItem("prr.example.included.feature" + ".feature.group"));
+		List<String> allUnitIds = p2Repository.getAllUnitIds();
+		assertTrue(allUnitIds.contains("prr.example.included.feature" + ".feature.group"), allUnitIds.toString());
 		assertTrue(p2Repository.getFeatureArtifact("prr.example.included.feature", DEFAULT_VERSION).isFile());
 
-		assertThat(p2Repository.getAllUnitIds(), hasItem("prr.example.included.bundle"));
+		assertTrue(allUnitIds.contains("prr.example.included.bundle"), allUnitIds.toString());
 		assertTrue(p2Repository.getBundleArtifact("prr.example.included.bundle", DEFAULT_VERSION).isFile());
 	}
 
 	@Test
 	public void testIncludedExternalArtifactIsAssembled() throws Exception {
-		assertThat(p2Repository.getAllUnitIds(), hasItem("org.eclipse.core.contenttype"));
+		List<String> allUnitIds = p2Repository.getAllUnitIds();
+		assertTrue(allUnitIds.contains("org.eclipse.core.contenttype"), allUnitIds.toString());
 		assertTrue(
 				p2Repository.getBundleArtifact("org.eclipse.core.contenttype", "3.4.1.R35x_v20090826-0451").isFile());
 	}

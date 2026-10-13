@@ -5,7 +5,6 @@
 
    <features>
       <feature id="sourcefeature.feature" version="1.0.0.qualifier"/>
-      <feature id="sourcefeature.feature.source" version="1.0.0.qualifier"/>
    </features>
 
 </product>

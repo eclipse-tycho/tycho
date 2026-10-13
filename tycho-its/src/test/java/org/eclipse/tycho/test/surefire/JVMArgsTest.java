@@ -16,8 +16,8 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class JVMArgsTest extends AbstractTychoIntegrationTest {
 
@@ -30,6 +30,6 @@ public class JVMArgsTest extends AbstractTychoIntegrationTest {
 
         File testReport = new File(verifier.getBasedir(),
                 "bundle.tests/target/surefire-reports/TEST-bundle.tests.SystemPropertyTest.xml");
-        Assert.assertTrue(testReport.exists());
+        Assertions.assertTrue(testReport.exists());
     }
 }

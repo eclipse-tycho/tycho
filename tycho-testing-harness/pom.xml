@@ -33,11 +33,6 @@
 			<artifactId>maven-plugin-testing-harness</artifactId>
 		</dependency>
 		<dependency>
-			<artifactId>junit</artifactId>
-			<groupId>junit</groupId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest</artifactId>
 			<version>3.0</version>
@@ -71,12 +66,10 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<version>${junit.version}</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.junit.platform</groupId>
 		    <artifactId>junit-platform-suite-engine</artifactId>
-		    <version>${junit.version}</version>
 		</dependency>
 	</dependencies>
 

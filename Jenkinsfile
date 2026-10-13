@@ -10,7 +10,7 @@ if(env.BRANCH_NAME == deployBranch) {
 
 pipeline {
 	options {
-		timeout(time: 180, unit: 'MINUTES')
+		timeout(time: 240, unit: 'MINUTES')
 		buildDiscarder(logRotator(numToKeepStr:'10'))
 		disableConcurrentBuilds(abortPrevious: true)
 	}

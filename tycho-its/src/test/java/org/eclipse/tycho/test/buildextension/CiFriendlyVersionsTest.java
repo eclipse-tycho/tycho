@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.buildextension;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import java.util.jar.JarFile;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.osgi.framework.Constants;
 
 public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
@@ -42,7 +42,7 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		int year = Calendar.getInstance(TimeZone.getTimeZone("UTC")).get(Calendar.YEAR);
 		File file = new File(verifier.getBasedir(), "bundle/target/bundle-1.0.0." + year + ".jar");
-		assertTrue(file.getAbsolutePath() + " is not generated!", file.isFile());
+		assertTrue(file.isFile(), file.getAbsolutePath() + " is not generated!");
 		checkManifestVersion(file, "1.0.0." + year);
 	}
 
@@ -59,7 +59,7 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 		String[] jarFiles = targetDir.list((dir, name) -> name.endsWith(".jar"));
 		assertEquals(1, jarFiles.length);
 		File file = new File(targetDir, jarFiles[0]);
-		assertTrue(file.getAbsolutePath() + " is not generated!", file.isFile());
+		assertTrue(file.isFile(), file.getAbsolutePath() + " is not generated!");
 		String qualifier = jarFiles[0].substring(13, jarFiles[0].lastIndexOf('.'));
 		// if formatter fails to parse it will throw exception and thus fail the test
 		formatter.parse(qualifier);
@@ -74,7 +74,7 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "bundle/target/bundle-1.0.0.abc.jar");
-		assertTrue(file.getAbsolutePath() + " is not generated!", file.isFile());
+		assertTrue(file.isFile(), file.getAbsolutePath() + " is not generated!");
 		checkManifestVersion(file, "1.0.0.abc");
 	}
 
@@ -85,7 +85,7 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "bundle/target/bundle-1.0.0-SNAPSHOT.jar");
-		assertTrue(file.getAbsolutePath() + " is not generated!", file.isFile());
+		assertTrue(file.isFile(), file.getAbsolutePath() + " is not generated!");
 	}
 
 	@Test
@@ -98,7 +98,7 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "bundle/target/bundle-1.0.0-M1.jar");
-		assertTrue(file.getAbsolutePath() + " is not generated!", file.isFile());
+		assertTrue(file.isFile(), file.getAbsolutePath() + " is not generated!");
 		checkManifestVersion(file, "1.0.0.zzz");
 	}
 
@@ -110,7 +110,7 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File file = new File(verifier.getBasedir(), "bundle/target/bundle-1.0.0.jar");
-		assertTrue(file.getAbsolutePath() + " is not generated!", file.isFile());
+		assertTrue(file.isFile(), file.getAbsolutePath() + " is not generated!");
 		checkManifestVersion(file, "1.0.0");
 	}
 
@@ -127,8 +127,8 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 
 		// Pre-build: verify source MANIFEST.MF and feature.xml have 0.0.6.qualifier
 		Path manifest = basedir.resolve("bundles/org.example.bundle/META-INF/MANIFEST.MF");
-		assertTrue("MANIFEST.MF should contain 0.0.6.qualifier",
-				Files.readString(manifest).contains("Bundle-Version: 0.0.6.qualifier"));
+		assertTrue(Files.readString(manifest).contains("Bundle-Version: 0.0.6.qualifier"),
+				"MANIFEST.MF should contain 0.0.6.qualifier");
 		Path featureXml = basedir.resolve("features/org.example.feature/feature.xml");
 		Feature sourceFeature = Feature.read(featureXml.toFile());
 		assertEquals("0.0.6.qualifier", sourceFeature.getVersion());
@@ -138,18 +138,18 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 
 		// Post-build: verify built bundle jar has expanded Bundle-Version
 		Path bundleJar = basedir.resolve("bundles/org.example.bundle/target/org.example.bundle-0.0.6-SNAPSHOT.jar");
-		assertTrue("Bundle jar not found: " + bundleJar, Files.isRegularFile(bundleJar));
+		assertTrue(Files.isRegularFile(bundleJar), "Bundle jar not found: " + bundleJar);
 		try (JarFile jar = new JarFile(bundleJar.toFile())) {
 			String bundleVersion = jar.getManifest().getMainAttributes().getValue(Constants.BUNDLE_VERSION);
-			assertTrue("Bundle-Version should start with 0.0.6: " + bundleVersion, bundleVersion.startsWith("0.0.6."));
+			assertTrue(bundleVersion.startsWith("0.0.6."), "Bundle-Version should start with 0.0.6: " + bundleVersion);
 		}
 
 		// Post-build: verify built feature jar has expanded version
 		Path featureJar = basedir.resolve("features/org.example.feature/target/org.example.feature-0.0.6-SNAPSHOT.jar");
-		assertTrue("Feature jar not found: " + featureJar, Files.isRegularFile(featureJar));
+		assertTrue(Files.isRegularFile(featureJar), "Feature jar not found: " + featureJar);
 		Feature builtFeature = Feature.readJar(featureJar.toFile());
-		assertTrue("Feature version should start with 0.0.6: " + builtFeature.getVersion(),
-				builtFeature.getVersion().startsWith("0.0.6."));
+		assertTrue(builtFeature.getVersion().startsWith("0.0.6."),
+				"Feature version should start with 0.0.6: " + builtFeature.getVersion());
 	}
 
 	@Test
@@ -163,10 +163,10 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 
 		Path basedir = Path.of(verifier.getBasedir());
 		Path featureJar = basedir.resolve("features/org.example.feature/target/org.example.feature-0.0.7-SNAPSHOT.jar");
-		assertTrue("Feature jar not found: " + featureJar, Files.isRegularFile(featureJar));
+		assertTrue(Files.isRegularFile(featureJar), "Feature jar not found: " + featureJar);
 		Feature builtFeature = Feature.readJar(featureJar.toFile());
-		assertTrue("Feature version should start with 0.0.7: " + builtFeature.getVersion(),
-				builtFeature.getVersion().startsWith("0.0.7."));
+		assertTrue(builtFeature.getVersion().startsWith("0.0.7."),
+				"Feature version should start with 0.0.7: " + builtFeature.getVersion());
 	}
 
 	@Test
@@ -180,10 +180,10 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 
 		Path basedir = Path.of(verifier.getBasedir());
 		Path bundleJar = basedir.resolve("bundles/org.example.bundle/target/org.example.bundle-0.0.7-SNAPSHOT.jar");
-		assertTrue("Bundle jar not found: " + bundleJar, Files.isRegularFile(bundleJar));
+		assertTrue(Files.isRegularFile(bundleJar), "Bundle jar not found: " + bundleJar);
 		try (JarFile jar = new JarFile(bundleJar.toFile())) {
 			String bundleVersion = jar.getManifest().getMainAttributes().getValue(Constants.BUNDLE_VERSION);
-			assertTrue("Bundle-Version should start with 0.0.7: " + bundleVersion, bundleVersion.startsWith("0.0.7."));
+			assertTrue(bundleVersion.startsWith("0.0.7."), "Bundle-Version should start with 0.0.7: " + bundleVersion);
 		}
 	}
 
@@ -198,17 +198,17 @@ public class CiFriendlyVersionsTest extends AbstractTychoIntegrationTest {
 		Path basedir = Path.of(verifier.getBasedir());
 
 		Path bundleJar = basedir.resolve("bundles/org.example.bundle/target/org.example.bundle-0.0.7-SNAPSHOT.jar");
-		assertTrue("Bundle jar not found: " + bundleJar, Files.isRegularFile(bundleJar));
+		assertTrue(Files.isRegularFile(bundleJar), "Bundle jar not found: " + bundleJar);
 		try (JarFile jar = new JarFile(bundleJar.toFile())) {
 			String bundleVersion = jar.getManifest().getMainAttributes().getValue(Constants.BUNDLE_VERSION);
-			assertTrue("Bundle-Version should start with 0.0.7: " + bundleVersion, bundleVersion.startsWith("0.0.7."));
+			assertTrue(bundleVersion.startsWith("0.0.7."), "Bundle-Version should start with 0.0.7: " + bundleVersion);
 		}
 
 		Path featureJar = basedir.resolve("features/org.example.feature/target/org.example.feature-0.0.7-SNAPSHOT.jar");
-		assertTrue("Feature jar not found: " + featureJar, Files.isRegularFile(featureJar));
+		assertTrue(Files.isRegularFile(featureJar), "Feature jar not found: " + featureJar);
 		Feature builtFeature = Feature.readJar(featureJar.toFile());
-		assertTrue("Feature version should start with 0.0.7: " + builtFeature.getVersion(),
-				builtFeature.getVersion().startsWith("0.0.7."));
+		assertTrue(builtFeature.getVersion().startsWith("0.0.7."),
+				"Feature version should start with 0.0.7: " + builtFeature.getVersion());
 	}
 
 }

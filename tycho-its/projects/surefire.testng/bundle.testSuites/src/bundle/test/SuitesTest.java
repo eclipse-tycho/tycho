@@ -26,8 +26,8 @@ public class SuitesTest {
         assert true;
     }
     
-    @Test
+    @Test(enabled = false)
     public void dissabledTestMethod() {
-       assert false: "This test must not be executed because it's excluded in the suite xml";
+       assert false: "This test must not be executed because it's disabled";
     }
 }

@@ -12,14 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,19 +43,23 @@ import org.apache.maven.it.Verifier;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 
 public abstract class AbstractTychoIntegrationTest {
 
-	@Rule
-	public TestName name = new TestName();
+	private String testName;
+
+	@BeforeEach
+	final void rememberTestName(TestInfo testInfo) {
+		testName = testInfo.getTestMethod().map(Method::getName).orElseGet(testInfo::getDisplayName);
+	}
 
 	protected File getBasedir(String test) throws IOException {
 		File baseDir = getTychoIntegrationTestsFolder();
 		File src = new File(new File(baseDir, "projects"), test).getAbsoluteFile();
 		File dst = new File(new File(baseDir, "target/projects"),
-				getClass().getSimpleName() + "/" + name.getMethodName() + "/" + test.replace("../", "./"))
+				getClass().getSimpleName() + "/" + testName + "/" + test.replace("../", "./"))
 				.getAbsoluteFile();
 
 		if (dst.isDirectory()) {
@@ -300,29 +305,25 @@ public abstract class AbstractTychoIntegrationTest {
 		DirectoryScanner ds = scan(baseDir, pattern);
 		File[] includedFiles = Arrays.stream(ds.getIncludedFiles()).map(file -> new File(baseDir, file))
 				.toArray(File[]::new);
-		assertEquals(
-				baseDir.getAbsolutePath() + "/" + pattern + System.lineSeparator() + Arrays.stream(includedFiles)
-						.map(f -> f.getName()).collect(Collectors.joining(System.lineSeparator())),
-				1, includedFiles.length);
-		assertTrue(baseDir.getAbsolutePath() + "/" + pattern, includedFiles[0].canRead());
+		assertEquals(1, includedFiles.length, baseDir.getAbsolutePath() + "/" + pattern + System.lineSeparator() + Arrays.stream(includedFiles) .map(f -> f.getName()).collect(Collectors.joining(System.lineSeparator())));
+		assertTrue(includedFiles[0].canRead(), baseDir.getAbsolutePath() + "/" + pattern);
 		return includedFiles;
 	}
 
 	protected void assertDirectoryExists(File targetdir, String pattern) {
 		DirectoryScanner ds = scan(targetdir, pattern);
-		assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 1, ds.getIncludedDirectories().length);
-		assertTrue(targetdir.getAbsolutePath() + "/" + pattern,
-				new File(targetdir, ds.getIncludedDirectories()[0]).exists());
+		assertEquals(1, ds.getIncludedDirectories().length, targetdir.getAbsolutePath() + "/" + pattern);
+		assertTrue(new File(targetdir, ds.getIncludedDirectories()[0]).exists(), targetdir.getAbsolutePath() + "/" + pattern);
 	}
 
 	protected void assertFileDoesNotExist(File targetdir, String pattern) {
 		DirectoryScanner ds = scan(targetdir, pattern);
-		assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 0, ds.getIncludedFiles().length);
+		assertEquals(0, ds.getIncludedFiles().length, targetdir.getAbsolutePath() + "/" + pattern);
 	}
 
 	protected void assertDirectoryDoesNotExist(File baseDir, String pattern) {
 		DirectoryScanner ds = scan(baseDir, pattern);
-		assertEquals(baseDir.getAbsolutePath() + "/" + pattern, 0, ds.getIncludedDirectories().length);
+		assertEquals(0, ds.getIncludedDirectories().length, baseDir.getAbsolutePath() + "/" + pattern);
 	}
 
 	private static DirectoryScanner scan(File targetdir, String pattern) {
@@ -385,7 +386,7 @@ public abstract class AbstractTychoIntegrationTest {
 		for (int i = 0; i < lines.size(); i++) {
 			if (lines.get(i).equals("-vm")) {
 				String vm = lines.get(i + 1);
-				assertTrue("VM (" + vm + ") is not JustJ!", vm.contains("plugins/org.eclipse.justj.openjdk."));
+				assertTrue(vm.contains("plugins/org.eclipse.justj.openjdk."), "VM (" + vm + ") is not JustJ!");
 				return;
 			}
 		}

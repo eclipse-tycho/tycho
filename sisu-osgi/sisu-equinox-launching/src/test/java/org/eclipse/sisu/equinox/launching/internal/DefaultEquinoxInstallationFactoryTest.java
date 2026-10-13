@@ -13,8 +13,6 @@
 package org.eclipse.sisu.equinox.launching.internal;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.eclipse.sisu.equinox.launching.BundleReference;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
@@ -78,7 +77,7 @@ public class DefaultEquinoxInstallationFactoryTest {
         instDesc = new DefaultEquinoxInstallationDescription();
         defaultLevel = new BundleStartLevel(null, 7, false);
 
-        subject = new DefaultEquinoxInstallationFactory(mock(Logger.class));
+        subject = new DefaultEquinoxInstallationFactory(new ConsoleLogger(Logger.LEVEL_DISABLED, "test"));
     }
 
     @Test
@@ -125,9 +124,12 @@ public class DefaultEquinoxInstallationFactoryTest {
     }
 
     private static File mockFile(String absolutePath) {
-        File file = mock(File.class);
-        when(file.getAbsolutePath()).thenReturn(absolutePath);
-        return file;
+        return new File(absolutePath) {
+            @Override
+            public String getAbsolutePath() {
+                return absolutePath;
+            }
+        };
     }
 
     private static List<String> splitAtComma(String string) {

@@ -17,11 +17,13 @@ final class EquinoxResolverConfiguration {
     public EquinoxResolverConfiguration() {
         keepUses = Boolean.getBoolean("tycho.equinox.resolver.uses");
         batchSize = System.getProperty("tycho.equinox.resolver.batch.size", keepUses ? null : "1");
+        keepRequireCapability = Boolean.getBoolean("tycho.equinox.resolver.keepRequireCapability");
     }
 
     public EquinoxResolverConfiguration(EquinoxResolverConfiguration source, boolean forceKeepUses) {
         keepUses = forceKeepUses;
         batchSize = keepUses ? null : source.batchSize;
+        keepRequireCapability = source.keepRequireCapability;
     }
 
     /**
@@ -30,6 +32,18 @@ final class EquinoxResolverConfiguration {
      * present
      */
     final boolean keepUses;
+
+    /**
+     * If set to true, {@code Require-Capability} clauses declared by bundles are kept when
+     * building the resolver state used to compute the compile classpath. By default these
+     * requirements are stripped: they are never used to derive classpath entries (Tycho's
+     * {@link DependencyComputer} only follows {@code Require-Bundle}, {@code Import-Package} and
+     * fragment-host wires), but they can needlessly cause the resolution to fail (or introduce
+     * artificial cycles) when a generic capability can't be satisfied within the reactor/target
+     * platform. This flag is a safe-guard to restore the previous behavior in case removing them
+     * has unintended side effects.
+     */
+    final boolean keepRequireCapability;
 
     /**
      * Keep the default batch size, but allow to override this if necessary, if 'uses' constrains

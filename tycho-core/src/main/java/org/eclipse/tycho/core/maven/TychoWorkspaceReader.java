@@ -164,7 +164,7 @@ public class TychoWorkspaceReader implements MavenWorkspaceReader {
                 && artifactKey.getVersion().equals(artifact.getVersion());
     }
 
-    private File findMavenArtifact(@SuppressWarnings("unused") final Artifact artifact) {
+    private File findMavenArtifact(final Artifact artifact) {
         // TODO: the implementation should be quite similar to #findP2Artifact.
         //  Inject and use P2ResolverFactory#resolveDependencyDescriptor(ArtifactDescriptor)
         //  to get the Maven groupId/artifactId/version information, which must then be

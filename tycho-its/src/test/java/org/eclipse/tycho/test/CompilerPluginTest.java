@@ -13,7 +13,7 @@
 package org.eclipse.tycho.test;
 
 import org.apache.maven.it.Verifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for the tycho-compiler-plugin

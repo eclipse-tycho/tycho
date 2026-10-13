@@ -96,7 +96,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
 	static final String DEFAULT_DATE_FORMAT = "yyyyMMddHHmm";
 
-	@Parameter(property = "session", readonly = true)
+	@Inject
     protected MavenSession session;
 
     /**
@@ -120,7 +120,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 	@Parameter(property = "tycho.buildqualifier.provider")
     protected String timestampProvider;
 
-    @Parameter(property = "mojoExecution", readonly = true)
+	@Inject
     protected MojoExecution execution;
 
 	@Inject

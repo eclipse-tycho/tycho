@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -156,12 +156,12 @@ public class ManifestAssertions {
 	 */
 	public ManifestAssertions assertPackageLowerBound(String packageName, String expectedLower, String message) {
 		VersionRange range = importPackageRanges.get(packageName);
-		assertNotNull(message + " - Import-Package '" + packageName + "' should have a version range in " + bundleName,
-				range);
+		assertNotNull(range,
+				message + " - Import-Package '" + packageName + "' should have a version range in " + bundleName);
 		Version expected = Version.parseVersion(expectedLower);
 		Version left = range.getLeft();
-		assertTrue(message + " [Import-Package " + packageName + "] - expected lower bound " + expected
-				+ " but was " + left, left.compareTo(expected) == 0);
+		assertTrue(left.compareTo(expected) == 0,
+				message + " [Import-Package " + packageName + "] - expected lower bound " + expected + " but was " + left);
 		return this;
 	}
 
@@ -177,13 +177,13 @@ public class ManifestAssertions {
 	 */
 	public ManifestAssertions assertPackageUpperBound(String packageName, String expectedUpper, String message) {
 		VersionRange range = importPackageRanges.get(packageName);
-		assertNotNull(message + " - Import-Package '" + packageName + "' should have a version range in " + bundleName,
-				range);
+		assertNotNull(range,
+				message + " - Import-Package '" + packageName + "' should have a version range in " + bundleName);
 		Version expected = Version.parseVersion(expectedUpper);
 		Version right = range.getRight();
-		assertNotNull(message + " [Import-Package " + packageName + "] - upper bound should exist: " + range, right);
-		assertTrue(message + " [Import-Package " + packageName + "] - expected upper bound " + expected
-				+ " but was " + right, right.compareTo(expected) == 0);
+		assertNotNull(right, message + " [Import-Package " + packageName + "] - upper bound should exist: " + range);
+		assertTrue(right.compareTo(expected) == 0,
+				message + " [Import-Package " + packageName + "] - expected upper bound " + expected + " but was " + right);
 		return this;
 	}
 
@@ -199,12 +199,11 @@ public class ManifestAssertions {
 	 */
 	public ManifestAssertions assertBundleLowerBound(String bundleId, String expectedLower, String message) {
 		VersionRange range = requireBundleRanges.get(bundleId);
-		assertNotNull(message + " - Require-Bundle '" + bundleId + "' should have a version range in " + bundleName,
-				range);
+		assertNotNull(range, message + " - Require-Bundle '" + bundleId + "' should have a version range in " + bundleName);
 		Version expected = Version.parseVersion(expectedLower);
 		Version left = range.getLeft();
-		assertTrue(message + " [Require-Bundle " + bundleId + "] - expected lower bound " + expected
-				+ " but was " + left, left.compareTo(expected) == 0);
+		assertTrue(left.compareTo(expected) == 0,
+				message + " [Require-Bundle " + bundleId + "] - expected lower bound " + expected + " but was " + left);
 		return this;
 	}
 
@@ -220,13 +219,12 @@ public class ManifestAssertions {
 	 */
 	public ManifestAssertions assertBundleUpperBound(String bundleId, String expectedUpper, String message) {
 		VersionRange range = requireBundleRanges.get(bundleId);
-		assertNotNull(message + " - Require-Bundle '" + bundleId + "' should have a version range in " + bundleName,
-				range);
+		assertNotNull(range, message + " - Require-Bundle '" + bundleId + "' should have a version range in " + bundleName);
 		Version expected = Version.parseVersion(expectedUpper);
 		Version right = range.getRight();
-		assertNotNull(message + " [Require-Bundle " + bundleId + "] - upper bound should exist: " + range, right);
-		assertTrue(message + " [Require-Bundle " + bundleId + "] - expected upper bound " + expected
-				+ " but was " + right, right.compareTo(expected) == 0);
+		assertNotNull(right, message + " [Require-Bundle " + bundleId + "] - upper bound should exist: " + range);
+		assertTrue(right.compareTo(expected) == 0,
+				message + " [Require-Bundle " + bundleId + "] - expected upper bound " + expected + " but was " + right);
 		return this;
 	}
 
@@ -245,8 +243,7 @@ public class ManifestAssertions {
 		String rawVersion = requireBundleRawVersions.get(bundleId);
 		assertNotNull(message + " - Require-Bundle '" + bundleId + "' should have a version in " + bundleName,
 				rawVersion);
-		assertTrue(message + " [Require-Bundle " + bundleId + "] - expected raw version '" + expectedRawVersion
-				+ "' but was '" + rawVersion + "'", expectedRawVersion.equals(rawVersion));
+		assertTrue(expectedRawVersion.equals(rawVersion), message + " [Require-Bundle " + bundleId + "] - expected raw version '" + expectedRawVersion + "' but was '" + rawVersion + "'");
 		return this;
 	}
 }

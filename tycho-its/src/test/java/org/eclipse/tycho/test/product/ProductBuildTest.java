@@ -9,10 +9,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
@@ -30,7 +28,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.TychoConstants;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Element;
@@ -93,18 +91,18 @@ public class ProductBuildTest extends AbstractTychoIntegrationTest {
 
 	protected void checkPGP(Verifier verifier, String repositoryArtifacts) {
 		File artifactXml = new File(verifier.getBasedir(), repositoryArtifacts);
-		assertTrue("required artifacts file " + artifactXml.getAbsolutePath() + " not found!", artifactXml.isFile());
+		assertTrue(artifactXml.isFile(), "required artifacts file " + artifactXml.getAbsolutePath() + " not found!");
 		Document artifactsDocument = Document.of(artifactXml.toPath());
 		Optional<Element> optional = artifactsDocument.root().childElement("artifacts").orElse(null)
 				.childElements("artifact").filter(element -> element.attribute("id").equals("org.mockito.mockito-core"))
 				.findAny();
-		assertTrue("artifact org.mockito.mockito-core not found", optional.isPresent());
+		assertTrue(optional.isPresent(), "artifact org.mockito.mockito-core not found");
 		Element element = optional.get();
 		Map<String, String> properties = element.childElement("properties").orElse(null).childElements("property")
 				.collect(Collectors.toMap(e -> e.attribute("name"), e -> e.attribute("value")));
 		for (String property : REQUIRED_PGP_PROPERTIES) {
-			assertTrue("property " + property + " is missing", properties.containsKey(property));
-			assertFalse("property " + property + " is present but empty", properties.get(property).isBlank());
+			assertTrue(properties.containsKey(property), "property " + property + " is missing");
+			assertFalse(properties.get(property).isBlank(), "property " + property + " is present but empty");
 
 		}
 	}
@@ -147,10 +145,11 @@ public class ProductBuildTest extends AbstractTychoIntegrationTest {
 		List<String> prefLines = Files.readAllLines(path);
 		for (UpdateSiteReference reference : expectedReferences) {
 			String preferencePrefix = "repositories/" + reference.uri.replace(":", "\\:").replace("/", "_");
-			assertThat(prefLines, hasItem(preferencePrefix + "/uri=" + reference.uri.replace(":", "\\:")));
-			assertThat(prefLines, hasItem(preferencePrefix + "/enabled=" + reference.enabled));
+			assertTrue(prefLines.contains(preferencePrefix + "/uri=" + reference.uri.replace(":", "\\:")),
+					prefLines.toString());
+			assertTrue(prefLines.contains(preferencePrefix + "/enabled=" + reference.enabled), prefLines.toString());
 			if (reference.name != null) {
-				assertThat(prefLines, hasItem(preferencePrefix + "/nickname=" + reference.name));
+				assertTrue(prefLines.contains(preferencePrefix + "/nickname=" + reference.name), prefLines.toString());
 			} else {
 				assertFalse(prefLines.stream().anyMatch(l -> l.startsWith(preferencePrefix + "/nickname=")));
 			}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 Christoph Läubrich and others.
+ * Copyright (c) 2025, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,9 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.codehaus.plexus.component.annotations.Component;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.targetplatform.TargetDefinition;
@@ -29,7 +31,8 @@ import org.eclipse.tycho.targetplatform.TargetDefinition;
 /**
  * Tree-structured report layout that organizes units by target file and location.
  */
-@Component(role = ReportLayout.class, hint = "tree")
+@Named("tree")
+@Singleton
 final class TreeUsageReportLayout implements ReportLayout {
 
     private final int lineWrapLimit;

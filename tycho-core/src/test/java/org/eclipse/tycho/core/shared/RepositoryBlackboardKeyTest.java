@@ -12,15 +12,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.shared;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RepositoryBlackboardKeyTest {
 
@@ -34,9 +34,9 @@ public class RepositoryBlackboardKeyTest {
 
         // then
         assertNotNull(key);
-        assertNotNull("should have a valid URI", key.toURI());
-        assertTrue("should contain encoded pathname",
-                key.toURI().getPath().indexOf(URLEncoder.encode(pathname, StandardCharsets.UTF_8)) > -1);
+        assertNotNull(key.toURI(), "should have a valid URI");
+        assertTrue(key.toURI().getPath().indexOf(URLEncoder.encode(pathname, StandardCharsets.UTF_8)) > -1,
+                "should contain encoded pathname");
     }
 
     @Test
@@ -46,7 +46,7 @@ public class RepositoryBlackboardKeyTest {
 
         // then
         assertNotNull(key);
-        assertNotNull("should have a valid URI", key.toURI());
-        assertTrue("should contain null pathname", key.toURI().getPath().indexOf("null") > -1);
+        assertNotNull(key.toURI(), "should have a valid URI");
+        assertTrue(key.toURI().getPath().indexOf("null") > -1, "should contain null pathname");
     }
 }

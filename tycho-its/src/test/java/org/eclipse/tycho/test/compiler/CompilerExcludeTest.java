@@ -18,8 +18,8 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class CompilerExcludeTest extends AbstractTychoIntegrationTest {
 
@@ -30,8 +30,8 @@ public class CompilerExcludeTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 
 		try (ZipFile zip = new ZipFile(new File(verifier.getBasedir(), "mycodelib.jar"))) {
-			Assert.assertNotNull(zip.getEntry("exclude/Activator.class"));
-			Assert.assertNull(zip.getEntry("exclude/filetoexlude.txt"));
+			Assertions.assertNotNull(zip.getEntry("exclude/Activator.class"));
+			Assertions.assertNull(zip.getEntry("exclude/filetoexlude.txt"));
 		}
 	}
 

@@ -52,7 +52,7 @@ public abstract class AbstractChangeMojo extends AbstractMojo {
     @Inject
     private VersionsEngine engine;
 
-    @Parameter(property = "session", readonly = true)
+    @Inject
     protected MavenSession session;
 
     @Inject

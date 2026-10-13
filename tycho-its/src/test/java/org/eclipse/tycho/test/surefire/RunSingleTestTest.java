@@ -14,7 +14,7 @@ package org.eclipse.tycho.test.surefire;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RunSingleTestTest extends AbstractTychoIntegrationTest {
 	@Test
@@ -25,5 +25,18 @@ public class RunSingleTestTest extends AbstractTychoIntegrationTest {
 		verifier.addCliOption("-Dtest=bundle.WorkingTest");
 		verifier.executeGoal("integration-test");
 		verifier.verifyErrorFreeLog();
+	}
+
+	@Test
+	public void testSingleMethod() throws Exception {
+		Verifier verifier = getVerifier("surefire.testSelection");
+
+		// the method suffix must reach the test provider, see
+		// https://github.com/eclipse-tycho/tycho/issues/6217; MixedTest#broken throws, so a dropped
+		// suffix fails the log check
+		verifier.addCliOption("-Dtest=bundle.MixedTest#working");
+		verifier.executeGoal("integration-test");
+		verifier.verifyErrorFreeLog();
+		verifier.verifyTextInLog("Tests run: 1");
 	}
 }

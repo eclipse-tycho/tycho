@@ -1,21 +1,23 @@
 package org.eclipse.tycho.plugins.p2.director;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.ReflectionUtils;
 import org.eclipse.tycho.p2.CommandLineArguments;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class DirectorMojoTest {
 
@@ -23,10 +25,10 @@ public class DirectorMojoTest {
 
     private CommandLineArguments recordedArgs;
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    Path tempFolder;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         directorMojo = new DirectorMojo() {
             @Override
@@ -38,7 +40,7 @@ public class DirectorMojoTest {
 
     @Test
     public void testMutualP2Options_NonePresent() throws Exception {
-        setParameter(directorMojo, "destination", tempFolder.newFolder("mandatory"));
+        setParameter(directorMojo, "destination", newFolder("mandatory"));
         directorMojo.execute();
 
         assertTrue(recordedArgs.asList().stream().skip(2).toList().isEmpty());
@@ -46,7 +48,7 @@ public class DirectorMojoTest {
 
     @Test
     public void testMutualP2Options_AllPresent() throws Exception {
-        setParameter(directorMojo, "destination", tempFolder.newFolder("mandatory"));
+        setParameter(directorMojo, "destination", newFolder("mandatory"));
         setParameter(directorMojo, "p2os", "win32");
         setParameter(directorMojo, "p2ws", "win32");
         setParameter(directorMojo, "p2arch", "x86_64");
@@ -59,7 +61,7 @@ public class DirectorMojoTest {
 
     @Test
     public void testMutualP2Options_OsMissing() throws Exception {
-        setParameter(directorMojo, "destination", tempFolder.newFolder("mandatory"));
+        setParameter(directorMojo, "destination", newFolder("mandatory"));
         setParameter(directorMojo, "p2ws", "win32");
         setParameter(directorMojo, "p2arch", "x86_64");
 
@@ -75,7 +77,7 @@ public class DirectorMojoTest {
 
     @Test
     public void testMutualP2Options_WsMissing() throws Exception {
-        setParameter(directorMojo, "destination", tempFolder.newFolder("mandatory"));
+        setParameter(directorMojo, "destination", newFolder("mandatory"));
         setParameter(directorMojo, "p2os", "win32");
         setParameter(directorMojo, "p2arch", "x86_64");
 
@@ -91,7 +93,7 @@ public class DirectorMojoTest {
 
     @Test
     public void testMutualP2Options_ArchAndOsMissing() throws Exception {
-        setParameter(directorMojo, "destination", tempFolder.newFolder("mandatory"));
+        setParameter(directorMojo, "destination", newFolder("mandatory"));
         setParameter(directorMojo, "p2ws", "win32");
 
         try {
@@ -106,33 +108,33 @@ public class DirectorMojoTest {
 
     @Test
     public void testDestination_Windows() throws Exception {
-        setParameter(directorMojo, "destination", tempFolder.newFolder("work"));
+        setParameter(directorMojo, "destination", newFolder("work"));
         setParameter(directorMojo, "p2os", "win32");
         setParameter(directorMojo, "p2ws", "win32");
         setParameter(directorMojo, "p2arch", "x86_64");
 
         directorMojo.execute();
 
-        assertEquals(List.of("-destination", new File(tempFolder.getRoot(), "work").getAbsolutePath()),
+        assertEquals(List.of("-destination", new File(tempFolder.toFile(), "work").getAbsolutePath()),
                 recordedArgs.asList().stream().limit(2).toList());
     }
 
     @Test
     public void testDestination_Linux() throws Exception {
-        setParameter(directorMojo, "destination", tempFolder.newFolder("work"));
+        setParameter(directorMojo, "destination", newFolder("work"));
         setParameter(directorMojo, "p2os", "linux");
         setParameter(directorMojo, "p2ws", "gtk");
         setParameter(directorMojo, "p2arch", "x86_64");
 
         directorMojo.execute();
 
-        assertEquals(List.of("-destination", new File(tempFolder.getRoot(), "work").getAbsolutePath()),
+        assertEquals(List.of("-destination", new File(tempFolder.toFile(), "work").getAbsolutePath()),
                 recordedArgs.asList().stream().limit(2).toList());
     }
 
     @Test
     public void testDestination_MacOs_NoAppBundleGiven() throws Exception {
-        setParameter(directorMojo, "destination", tempFolder.newFolder("work"));
+        setParameter(directorMojo, "destination", newFolder("work"));
         setParameter(directorMojo, "p2os", "macosx");
         setParameter(directorMojo, "p2ws", "cocoa");
         setParameter(directorMojo, "p2arch", "x86_64");
@@ -141,13 +143,13 @@ public class DirectorMojoTest {
 
         assertEquals(
                 List.of("-destination",
-                        new File(tempFolder.getRoot(), "work/Eclipse.app/Contents/Eclipse").getAbsolutePath()),
+                        new File(tempFolder.toFile(), "work/Eclipse.app/Contents/Eclipse").getAbsolutePath()),
                 recordedArgs.asList().stream().limit(2).toList());
     }
 
     @Test
     public void testDestination_MacOs_AppBundleRootGiven() throws Exception {
-        setParameter(directorMojo, "destination", tempFolder.newFolder("work/Foo.app"));
+        setParameter(directorMojo, "destination", newFolder("work/Foo.app"));
         setParameter(directorMojo, "p2os", "macosx");
         setParameter(directorMojo, "p2ws", "cocoa");
         setParameter(directorMojo, "p2arch", "x86_64");
@@ -156,13 +158,13 @@ public class DirectorMojoTest {
 
         assertEquals(
                 List.of("-destination",
-                        new File(tempFolder.getRoot(), "work/Foo.app/Contents/Eclipse").getAbsolutePath()),
+                        new File(tempFolder.toFile(), "work/Foo.app/Contents/Eclipse").getAbsolutePath()),
                 recordedArgs.asList().stream().limit(2).toList());
     }
 
     @Test
     public void testDestination_MacOs_InstallAreaInsideAppBundleGiven() throws Exception {
-        setParameter(directorMojo, "destination", tempFolder.newFolder("work/Foo.app/Contents/Eclipse"));
+        setParameter(directorMojo, "destination", newFolder("work/Foo.app/Contents/Eclipse"));
         setParameter(directorMojo, "p2os", "macosx");
         setParameter(directorMojo, "p2ws", "cocoa");
         setParameter(directorMojo, "p2arch", "x86_64");
@@ -171,8 +173,12 @@ public class DirectorMojoTest {
 
         assertEquals(
                 List.of("-destination",
-                        new File(tempFolder.getRoot(), "work/Foo.app/Contents/Eclipse").getAbsolutePath()),
+                        new File(tempFolder.toFile(), "work/Foo.app/Contents/Eclipse").getAbsolutePath()),
                 recordedArgs.asList().stream().limit(2).toList());
+    }
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempFolder.resolve(path)).toFile();
     }
 
     private static void setParameter(Object object, String variable, Object value)

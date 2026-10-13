@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -68,16 +69,16 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 
 	private static final String POLYGLOT_POM_TYCHO = ".polyglot.pom.tycho";
 
-	@Parameter(property = "project", readonly = true, required = true)
+	@Inject
 	protected MavenProject project;
 
-	@Parameter(defaultValue = "${session}", readonly = true, required = true)
+	@Inject
 	private MavenSession session;
 
-		@Inject
+	@Inject
 	protected ModelWriter modelWriter;
 
-		@Inject
+	@Inject
 	protected ModelReader modelReader;
 
 	@Inject
@@ -208,6 +209,7 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 		dependencies.clear();
 		List<Dependency> list = Objects.requireNonNullElse(project.getDependencies(), Collections.emptyList());
 		Set<String> p2Skipped = new TreeSet<>();
+		Set<String> addedDependencyKeys = new HashSet<>();
 		int resolved = 0;
 		for (Dependency dep : list) {
 			Dependency copy = dep.clone();
@@ -225,6 +227,15 @@ public class UpdateConsumerPomMojo extends AbstractMojo {
 				if (handler != null) {
 					copy.setType(handler.getExtension());
 				}
+			}
+			// A dependency considered via pomDependencies=consider can resolve (e.g. when
+			// mapP2Dependencies=true turns a system-scoped p2 dependency back into real
+			// Maven coordinates above) to the same groupId:artifactId:type:classifier as
+			// a dependency already declared/added for this project. Keep only the first
+			// one encountered, otherwise the generated consumer POM ends up with a
+			// duplicate <dependency> entry, which Maven's model validation rejects.
+			if (!addedDependencyKeys.add(copy.getManagementKey())) {
+				continue;
 			}
 			dependencies.add(copy);
 		}

@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.packaging;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.HashMap;
@@ -26,14 +26,14 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.DefaultModelReader;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class ConsumerPomTest extends AbstractTychoIntegrationTest {
 	DefaultModelReader reader = new DefaultModelReader();
 
 	@Test
-	@Ignore("Disabled because of maven central outages")
+	@Disabled("Disabled because of maven central outages")
 	public void testReplaceP2() throws Exception {
 		Verifier verifier = getVerifier("packaging.consumer.pom", true);
 		verifier.addCliOption("-U");
@@ -72,7 +72,7 @@ public class ConsumerPomTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		DefaultModelReader reader = new DefaultModelReader();
 		Model model = reader.read(new File(verifier.getBasedir(), "bundle/.tycho-consumer-pom.xml"), new HashMap<>());
-		assertEquals("packaging was not replaced", "jar", model.getPackaging());
+		assertEquals("jar", model.getPackaging(), "packaging was not replaced");
 	}
 
 	private void assertHasDependency(String g, String a, List<Dependency> dependencies) {

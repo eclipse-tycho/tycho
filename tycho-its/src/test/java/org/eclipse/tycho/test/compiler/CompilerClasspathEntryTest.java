@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.compiler;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 
@@ -105,15 +105,15 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		File dependencies = new File(verifier.getBasedir(), "target/dependencies-list.txt");
-		assertTrue(dependencies.getAbsoluteFile() + " not found!", dependencies.isFile());
+		assertTrue(dependencies.isFile(), dependencies.getAbsoluteFile() + " not found!");
 		List<String> lines = Files.readAllLines(dependencies.toPath());
 		String collect = lines.stream().collect(Collectors.joining(",\r\n"));
-		assertTrue("org.eclipse.osgi.services not found in dependencies: " + collect,
-				lines.stream().anyMatch(s -> s.contains("org.osgi.service.component.annotations")));
-		assertTrue("org.osgi.annotation.bundle not found in dependencies: " + collect,
-				lines.stream().anyMatch(s -> s.contains("org.osgi.annotation.bundle")));
-		assertTrue("org.osgi.annotation.versioning not found in dependencies: " + collect,
-				lines.stream().anyMatch(s -> s.contains("org.osgi.annotation.versioning")));
+		assertTrue(lines.stream().anyMatch(s -> s.contains("org.osgi.service.component.annotations")),
+				"org.eclipse.osgi.services not found in dependencies: " + collect);
+		assertTrue(lines.stream().anyMatch(s -> s.contains("org.osgi.annotation.bundle")),
+				"org.osgi.annotation.bundle not found in dependencies: " + collect);
+		assertTrue(lines.stream().anyMatch(s -> s.contains("org.osgi.annotation.versioning")),
+				"org.osgi.annotation.versioning not found in dependencies: " + collect);
 	}
 
 	@Test
@@ -122,11 +122,11 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoal("verify");
 		verifier.verifyErrorFreeLog();
 		File dependencies = new File(verifier.getBasedir(), "target/dependencies-list.txt");
-		assertTrue(dependencies.getAbsoluteFile() + " not found!", dependencies.isFile());
+		assertTrue(dependencies.isFile(), dependencies.getAbsoluteFile() + " not found!");
 		List<String> lines = Files.readAllLines(dependencies.toPath());
 		String collect = lines.stream().collect(Collectors.joining(",\r\n"));
-		assertTrue("org.eclipse.osgi.services not found in dependencies: " + collect,
-				lines.stream().anyMatch(s -> s.contains("org.eclipse.jdt.annotation")));
+		assertTrue(lines.stream().anyMatch(s -> s.contains("org.eclipse.jdt.annotation")),
+				"org.eclipse.osgi.services not found in dependencies: " + collect);
 	}
 
 }

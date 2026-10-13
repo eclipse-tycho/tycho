@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.Arrays;
 
 import org.apache.maven.MavenExecutionException;
@@ -19,7 +21,7 @@ import org.apache.maven.model.Build;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TychoMavenLifecycleParticipantTest {
 
@@ -43,17 +45,18 @@ public class TychoMavenLifecycleParticipantTest {
         tycho.validateConsistentTychoVersion(Arrays.asList(project));
     }
 
-    @Test(expected = MavenExecutionException.class)
+    @Test
     public void validateConsistentTychoVersionWithDifferentVersionsInSameProject() throws MavenExecutionException {
         TychoMavenLifecycleParticipant tycho = new TychoMavenLifecycleParticipant(new SilentLog());
         MavenProject project = createProject();
         addTychoPlugin(project, "tycho-packaging-plugin", "0.22.0");
         addTychoPlugin(project, "tycho-versions-plugin", "0.23.0");
 
-        tycho.validateConsistentTychoVersion(Arrays.asList(project));
+        assertThrows(MavenExecutionException.class,
+                () -> tycho.validateConsistentTychoVersion(Arrays.asList(project)));
     }
 
-    @Test(expected = MavenExecutionException.class)
+    @Test
     public void validateConsistentTychoVersionWithDifferentVersionsInDifferentProjects() throws MavenExecutionException {
         TychoMavenLifecycleParticipant tycho = new TychoMavenLifecycleParticipant(new SilentLog());
         MavenProject project1 = createProject();
@@ -61,7 +64,8 @@ public class TychoMavenLifecycleParticipantTest {
         MavenProject project2 = createProject();
         addTychoPlugin(project2, "tycho-versions-plugin", "0.23.0");
 
-        tycho.validateConsistentTychoVersion(Arrays.asList(project1, project2));
+        assertThrows(MavenExecutionException.class,
+                () -> tycho.validateConsistentTychoVersion(Arrays.asList(project1, project2)));
     }
 
     private MavenProject createProject() {

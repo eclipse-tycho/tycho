@@ -12,14 +12,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.tycho476;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 
-import org.apache.bcel.classfile.ClassParser;
-import org.apache.bcel.classfile.JavaClass;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ExecutionEnvironmentTest extends AbstractTychoIntegrationTest {
 
@@ -31,10 +31,17 @@ public class ExecutionEnvironmentTest extends AbstractTychoIntegrationTest {
 		// is configured indirectly via Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 		verifier.verifyErrorFreeLog();
 		File classFile = new File(verifier.getBasedir(), "target/classes/TestRunnable.class");
-		Assert.assertTrue(classFile.canRead());
-		JavaClass javaClass = new ClassParser(classFile.getAbsolutePath()).parse();
+		Assertions.assertTrue(classFile.canRead());
 		// bytecode major level 61 == target 17
-		Assert.assertEquals(61, javaClass.getMajor());
+		Assertions.assertEquals(61, readClassFileMajorVersion(classFile));
+	}
+
+	private static int readClassFileMajorVersion(File classFile) throws Exception {
+		try (DataInputStream in = new DataInputStream(new FileInputStream(classFile))) {
+			Assertions.assertEquals(0xCAFEBABE, in.readInt(), "not a class file: " + classFile);
+			in.readUnsignedShort(); // minor version
+			return in.readUnsignedShort();
+		}
 	}
 
 }

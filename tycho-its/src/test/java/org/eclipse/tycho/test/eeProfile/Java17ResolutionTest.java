@@ -12,8 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.eeProfile;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -21,14 +20,14 @@ import java.util.List;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class Java17ResolutionTest extends AbstractTychoIntegrationTest {
 
 	private static File buildResult;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUp() throws Exception {
 		Verifier verifier = new Java17ResolutionTest().getVerifier("eeProfile.java17", false);
 		verifier.executeGoal("verify");
@@ -42,7 +41,7 @@ public class Java17ResolutionTest extends AbstractTychoIntegrationTest {
 		P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
 		List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
 		// we expect java 17
-		assertThat(jreUnitVersions, hasItem("17.0.0"));
+		assertTrue(jreUnitVersions.contains("17.0.0"), jreUnitVersions.toString());
 	}
 
 }

@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.baseline;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,8 +48,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.ThrowingConsumer;
 import org.osgi.framework.Constants;
 
@@ -63,7 +63,7 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 
 	private static File baselineRepo = null;
 
-	@Before
+	@BeforeEach
 	public void buildBaselineRepository() throws Exception {
 		if (baselineRepo == null) {
 			File repoLocation = buildBaseRepo();
@@ -230,11 +230,11 @@ public class BaselineMojoTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File repoBase = new File(verifier.getBasedir(), "base-repo/site/target/repository");
-		assertTrue("base repository was not created at " + repoBase.getAbsolutePath(), repoBase.isDirectory());
-		assertTrue("content.jar was not created at " + repoBase.getAbsolutePath(),
-				new File(repoBase, "content.jar").isFile());
-		assertTrue("artifacts.jar was not created at " + repoBase.getAbsolutePath(),
-				new File(repoBase, "artifacts.jar").isFile());
+		assertTrue(repoBase.isDirectory(), "base repository was not created at " + repoBase.getAbsolutePath());
+		assertTrue(new File(repoBase, "content.jar").isFile(),
+				"content.jar was not created at " + repoBase.getAbsolutePath());
+		assertTrue(new File(repoBase, "artifacts.jar").isFile(),
+				"artifacts.jar was not created at " + repoBase.getAbsolutePath());
 		return repoBase;
 	}
 

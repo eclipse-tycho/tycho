@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -52,8 +52,8 @@ public class SurefireUtil {
 		String testCaseXPath = String.format("/testsuite/testcase[@classname='%s' and @name='%s']", classNameInReport,
 				methodName);
 		List<Node> testCaseNodes2 = XMLTool.getMatchingNodes(document, testCaseXPath);
-		assertEquals(resultFile.getAbsolutePath() + " with xpath " + testCaseXPath
-				+ " does not match the number of iterations", iterations, testCaseNodes2.size());
+		assertEquals(iterations, testCaseNodes2.size(),
+				resultFile.getAbsolutePath() + " with xpath " + testCaseXPath + " does not match the number of iterations");
 
 		List<Node> failureNodes = XMLTool.getMatchingNodes(document, testCaseXPath + "/failure");
 		assertEquals(0, failureNodes.size());
@@ -98,7 +98,7 @@ public class SurefireUtil {
 	}
 
 	private static Document readDocument(File sureFireTestReport) throws Exception {
-		assertTrue("report file not found!" + sureFireTestReport, sureFireTestReport.isFile());
+		assertTrue(sureFireTestReport.isFile(), "report file not found!" + sureFireTestReport);
 		return XMLTool.parseXMLDocument(sureFireTestReport);
 	}
 

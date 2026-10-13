@@ -16,11 +16,11 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("deployable feature no longer supported")
+@Disabled("deployable feature no longer supported")
 public class DeployableFeatureTest extends AbstractTychoIntegrationTest {
 
 	@Test
@@ -30,13 +30,13 @@ public class DeployableFeatureTest extends AbstractTychoIntegrationTest {
 		v01.verifyErrorFreeLog();
 
 		File site = new File(v01.getBasedir(), "target/site");
-		Assert.assertTrue(site.isDirectory());
+		Assertions.assertTrue(site.isDirectory());
 
-		Assert.assertTrue(new File(site, "features").list().length > 0);
-		Assert.assertTrue(new File(site, "plugins").list().length > 0);
+		Assertions.assertTrue(new File(site, "features").list().length > 0);
+		Assertions.assertTrue(new File(site, "plugins").list().length > 0);
 
-		Assert.assertTrue(new File(site, "artifacts.jar").isFile());
-		Assert.assertTrue(new File(site, "content.jar").isFile());
+		Assertions.assertTrue(new File(site, "artifacts.jar").isFile());
+		Assertions.assertTrue(new File(site, "content.jar").isFile());
 	}
 
 }

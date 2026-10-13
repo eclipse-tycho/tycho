@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,20 +15,23 @@ package org.eclipse.tycho.bnd.maven;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
 import org.apache.maven.execution.ProjectExecutionEvent;
 import org.apache.maven.execution.ProjectExecutionListener;
 import org.apache.maven.lifecycle.LifecycleExecutionException;
 import org.apache.maven.plugin.MojoExecution;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.bnd.MavenReactorRepository;
 
-@Component(role = ProjectExecutionListener.class)
+@Named
+@Singleton
 public class BndProjectExecutionListener implements ProjectExecutionListener {
 
-
-	@Requirement
-	private MavenReactorRepository mavenReactorRepository;
+	@Inject
+	private Provider<MavenReactorRepository> mavenReactorRepository;
 
 	@Override
 	public void beforeProjectExecution(ProjectExecutionEvent event) throws LifecycleExecutionException {
@@ -80,7 +83,7 @@ public class BndProjectExecutionListener implements ProjectExecutionListener {
 
 	@Override
 	public void afterProjectExecutionSuccess(ProjectExecutionEvent event) throws LifecycleExecutionException {
-		mavenReactorRepository.addProject(event.getProject());
+		mavenReactorRepository.get().addProject(event.getProject());
 	}
 
 	@Override

@@ -17,12 +17,19 @@ package org.eclipse.tycho.p2resolver;
 import static org.eclipse.tycho.test.util.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
@@ -30,28 +37,31 @@ import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.test.util.ArtifactMock;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.ReactorProjectStub;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class PomDependencyCollectorTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class PomDependencyCollectorTest {
 
-    @Rule
+    @Inject
+    protected PlexusContainer container;
+
+    @RegisterExtension
     public LogVerifier logVerifier = new LogVerifier();
 
     private PomDependencyCollector subject;
 
     private ArtifactMock artifact;
 
-    @Rule
-    public final TemporaryFolder tempManager = new TemporaryFolder();
+    @TempDir
+    Path tempManager;
 
-    @Before
+    @BeforeEach
     public void setUpSubject() throws Exception {
         subject = new PomDependencyCollectorImpl(logVerifier.getLogger(),
-                new ReactorProjectStub(tempManager.newFolder(), "test"), lookup(IProvisioningAgent.class));
+                new ReactorProjectStub(newFolder("temp"), "test"), container.lookup(IProvisioningAgent.class));
     }
 
     @Test
@@ -101,4 +111,8 @@ public class PomDependencyCollectorTest extends TychoPlexusTestCase {
                 "artifactId", "1", PackagingType.TYPE_ECLIPSE_PLUGIN, "p2metadata");
     }
 
+
+    private File newFolder(String path) throws IOException {
+        return Files.createDirectories(tempManager.resolve(path)).toFile();
+    }
 }

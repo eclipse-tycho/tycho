@@ -337,7 +337,7 @@ The resulting product archives will be in `target/products/` with the JRE includ
 - [JustJ Project](https://www.eclipse.org/justj/) - Pre-packaged JRE distributions for Eclipse
 - [Building Products](Products.html) - General information about building Eclipse products
 - [Tycho P2 Director Plugin](tycho-p2-director-plugin/plugin-info.html) - Plugin for materializing products
-- [Demo Projects](https://github.com/eclipse-tycho/tycho/tree/master/demo/justj) - Working examples of JRE inclusion
+- [Demo Projects](https://github.com/eclipse-tycho/tycho/tree/main/demo/justj) - Working examples of JRE inclusion
   - `automaticInstall` - Example using `includeJRE="true"`
   - `product` - Example using manual feature inclusion
 

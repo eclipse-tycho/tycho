@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Repository;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.util.Arrays;
@@ -22,7 +22,7 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class P2RepositoryValidateTest extends AbstractTychoIntegrationTest {
 
@@ -49,6 +49,6 @@ public class P2RepositoryValidateTest extends AbstractTychoIntegrationTest {
 		}
 		verifier.executeGoal("validate");
 		verifier.verifyErrorFreeLog();
-		assertFalse("Bundle shouldn't be copied locally just for validate", bundleCopyFolder.exists());
+		assertFalse(bundleCopyFolder.exists(), "Bundle shouldn't be copied locally just for validate");
 	}
 }

@@ -19,8 +19,8 @@ import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PomDependencyOnLocallyBuiltTychoArtifactTest extends AbstractTychoIntegrationTest {
 
@@ -50,8 +50,8 @@ public class PomDependencyOnLocallyBuiltTychoArtifactTest extends AbstractTychoI
 				TEST_PROJECT_POM_DEPENDENCY.getVersion());
 		File expectedSourceBundle = p2Repo.getBundleArtifact(TEST_PROJECT_POM_DEPENDENCY.getArtifactId() + ".source",
 				TEST_PROJECT_POM_DEPENDENCY.getVersion());
-		Assert.assertTrue(expectedBinaryBundle.isFile());
-		Assert.assertTrue(expectedSourceBundle.isFile());
+		Assertions.assertTrue(expectedBinaryBundle.isFile());
+		Assertions.assertTrue(expectedSourceBundle.isFile());
 	}
 
 	private void setUpBundleWithSourceBundle() throws Exception {

@@ -133,6 +133,9 @@ public class GeneratorMojo extends AbstractMojo {
 	@Parameter(name = "content-redirections", property = "content-redirections")
 	private List<String> contentRedirections;
 	
+	@Parameter(name = "maven-lookup-exclusions", property = "maven-lookup-exclusions")
+	private List<String> mavenLookupExclusions;
+	
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (installations == null && installation == null) {
@@ -220,9 +223,23 @@ public class GeneratorMojo extends AbstractMojo {
 		        if (trim.isEmpty()) {
 		            continue;
 		        }
+		        getLog().debug("Add content redirection: "+trim);
 		        arguments.add(trim);
 		    }
 		}
+
+		if (mavenLookupExclusions != null && !mavenLookupExclusions.isEmpty()) {
+			arguments.add("-maven-lookup-exclusions");
+			for (String s : mavenLookupExclusions) {
+				String trim = s.trim();
+				if (trim.isEmpty()) {
+					continue;
+				}
+				getLog().info("Add maven lookup exclusion pattern: " + trim);
+				arguments.add(trim);
+			}
+		}
+		
 		getLog().info("Calling application with arguments: " + arguments);
 		try (EclipseFramework framework = application.startFramework(workspace, arguments)) {
 			framework.start();

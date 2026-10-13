@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,13 +30,13 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.test.util.ExecutionEnvironmentTestUtils;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 public class DependencyCollectorTest {
 
-    @Rule
+    @RegisterExtension
     public final LogVerifier logVerifier = new LogVerifier();
 
     @Test
@@ -68,16 +68,16 @@ public class DependencyCollectorTest {
                 () -> dc.resolve(Collections.emptyMap(), new NullProgressMonitor()));
         Throwable cause = e.getCause();
 
-        Assert.assertTrue(cause instanceof ProvisionException);
+        Assertions.assertTrue(cause instanceof ProvisionException);
 
         ProvisionException pe = (ProvisionException) cause;
 
-        Assert.assertTrue(pe.getStatus().isMultiStatus());
+        Assertions.assertTrue(pe.getStatus().isMultiStatus());
 
         MultiStatus status = (MultiStatus) pe.getStatus();
 
-        Assert.assertEquals(1, status.getChildren().length);
+        Assertions.assertEquals(1, status.getChildren().length);
 
-        Assert.assertTrue(e.toString().contains("this.is.a.missing.iu"));
+        Assertions.assertTrue(e.toString().contains("this.is.a.missing.iu"));
     }
 }

@@ -12,12 +12,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CustomBundlePluginTest extends AbstractTychoIntegrationTest {
 
@@ -28,7 +28,7 @@ public class CustomBundlePluginTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		File attached = new File(verifier.getBasedir(),
 				"custom.bundle.feature/target/site/plugins/custom.bundle.attached_1.0.0.123abc.jar");
-		assertTrue("Missing expected file " + attached, attached.canRead());
+		assertTrue(attached.canRead(), "Missing expected file " + attached);
 	}
 
 	@Test
@@ -38,6 +38,6 @@ public class CustomBundlePluginTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 		File attached = new File(verifier.getBasedir(),
 				"target/unresolvable-custom-bundle-1.0.0-SNAPSHOT-attached.jar");
-		assertTrue("Missing expected file " + attached, attached.canRead());
+		assertTrue(attached.canRead(), "Missing expected file " + attached);
 	}
 }

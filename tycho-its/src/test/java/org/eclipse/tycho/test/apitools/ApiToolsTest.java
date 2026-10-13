@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.apitools;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
@@ -25,7 +25,7 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.maveniverse.domtrip.Document;
 
@@ -36,7 +36,7 @@ public class ApiToolsTest extends AbstractTychoIntegrationTest {
 		verifier.executeGoals(List.of("clean", "package"));
 		verifier.verifyErrorFreeLog();
 		File descriptionFile = new File(verifier.getBasedir(), "bundle1/target/.api_description");
-		assertTrue(descriptionFile.getAbsoluteFile() + " not found", descriptionFile.isFile());
+		assertTrue(descriptionFile.isFile(), descriptionFile.getAbsoluteFile() + " not found");
 		Document document = Document.of(descriptionFile.toPath());
 		assertEquals("api-bundle-1_0.0.1-SNAPSHOT", document.root().attributeObject("name").value());
 		// TODO enhance project and assert more useful things...

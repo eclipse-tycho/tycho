@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.Artifact;
@@ -34,7 +37,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
@@ -55,7 +57,7 @@ public class PackageRepositoryMojo extends AbstractMojo implements RepositoryCon
 
 	static final String PARAMETER_REPOSITORY_TYPE = "repositoryType";
 
-	@Parameter(property = "session", readonly = true)
+	@Inject
 	protected MavenSession session;
 
 	/**
@@ -69,7 +71,7 @@ public class PackageRepositoryMojo extends AbstractMojo implements RepositoryCon
 	@Parameter(defaultValue = "${project.build.directory}")
 	private File destination;
 
-	@Parameter(property = "project", readonly = true)
+	@Inject
 	private MavenProject project;
 
 	/**
@@ -91,7 +93,7 @@ public class PackageRepositoryMojo extends AbstractMojo implements RepositoryCon
 	@Parameter(defaultValue = DEFAULT_REPOSITORY_TYPE, name = PARAMETER_REPOSITORY_TYPE)
 	private String repositoryType;
 
-	@Parameter(property = "mojoExecution", readonly = true)
+	@Inject
 	MojoExecution execution;
 
 	/**
@@ -110,13 +112,14 @@ public class PackageRepositoryMojo extends AbstractMojo implements RepositoryCon
 	@Parameter(defaultValue = "${project.build.outputTimestamp}")
 	private String outputTimestamp;
 
-	@Component(role = Archiver.class, hint = "zip")
+	@Inject
+	@Named("zip")
 	private ZipArchiver zipArchiver;
 
 	@Component(role = RepositoryGenerator.class)
 	private Map<String, RepositoryGenerator> generators;
 
-	@Component
+	@Inject
 	private MavenProjectHelper mavenProjectHelper;
 
 	@Override

@@ -67,6 +67,6 @@ public class JUnit6Provider extends AbstractJUnitProvider {
 
     @Override
     public String getSurefireProviderClassName() {
-        return "org.apache.maven.surefire.junitplatform.JUnitPlatformProvider";
+        return AbstractJUnit5Provider.JUNIT_PLATFORM_PROVIDER;
     }
 }

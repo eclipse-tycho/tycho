@@ -14,10 +14,14 @@ package org.eclipse.tycho.p2resolver;
 
 import static java.util.Collections.singletonList;
 import static org.eclipse.tycho.test.util.ProbeArtifactSink.newArtifactSinkFor;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import javax.inject.Inject;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.eclipse.tycho.test.util.TychoPlexusExtension;
+import org.codehaus.plexus.PlexusContainer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.tycho.p2.repository.ArtifactTransferPolicies;
@@ -30,18 +34,21 @@ import org.eclipse.tycho.test.util.MockMavenContext;
 import org.eclipse.tycho.test.util.ProbeArtifactSink;
 import org.eclipse.tycho.test.util.TemporaryLocalMavenRepository;
 import org.eclipse.tycho.test.util.TestRepositoryContent;
-import org.eclipse.tycho.testing.TychoPlexusTestCase;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
-public class MirroringArtifactProviderErrorTest extends TychoPlexusTestCase {
+@ExtendWith(TychoPlexusExtension.class)
+public class MirroringArtifactProviderErrorTest {
+
+    @Inject
+    protected PlexusContainer container;
 
     private static final IArtifactKey CORRUPT_ARTIFACT = TestRepositoryContent.BUNDLE_A_KEY;
 
-    @Rule
+    @RegisterExtension
     public LogVerifier logVerifier = new LogVerifier();
-    @Rule
+    @RegisterExtension
     public TemporaryLocalMavenRepository tempLocalMavenRepository = new TemporaryLocalMavenRepository();
 
     private LocalArtifactRepository localRepository;
@@ -49,13 +56,13 @@ public class MirroringArtifactProviderErrorTest extends TychoPlexusTestCase {
 
     MirroringArtifactProvider subject;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         localRepository = tempLocalMavenRepository.getLocalArtifactRepository();
 
         subject = MirroringArtifactProvider.createInstance(localRepository,
                 new RepositoryArtifactProvider(singletonList(TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT),
-                        ArtifactTransferPolicies.forLocalArtifacts(), lookup(IProvisioningAgent.class)),
+                        ArtifactTransferPolicies.forLocalArtifacts(), container.lookup(IProvisioningAgent.class)),
                 new MockMavenContext(null, logVerifier.getLogger()));
     }
 

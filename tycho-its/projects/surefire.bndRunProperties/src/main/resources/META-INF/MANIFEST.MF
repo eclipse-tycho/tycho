@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle for bndRunProperties test
+Bundle-SymbolicName: tycho.its.surefire.bndrunproperties
+Bundle-Version: 1.0.0
+Export-Package: org.eclipse.tycho.test.bnd.runprops
+Automatic-Module-Name: tycho.its.surefire.bndrunproperties
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-17

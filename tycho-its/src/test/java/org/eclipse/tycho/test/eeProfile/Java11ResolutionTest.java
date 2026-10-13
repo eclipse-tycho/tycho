@@ -12,8 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.eeProfile;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -21,14 +20,14 @@ import java.util.List;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class Java11ResolutionTest extends AbstractTychoIntegrationTest {
 
 	private static File buildResult;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUp() throws Exception {
 		Verifier verifier = new Java11ResolutionTest().getVerifier("eeProfile.java11", false);
 		verifier.executeGoal("verify");
@@ -42,7 +41,7 @@ public class Java11ResolutionTest extends AbstractTychoIntegrationTest {
 		P2RepositoryTool productRepo = P2RepositoryTool.forEclipseRepositoryModule(new File(buildResult, "repository"));
 		List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
 		// we expect both java 10 and 11 (java 10 provides more system packages)
-		assertThat(jreUnitVersions, hasItem("11.0.0"));
+		assertTrue(jreUnitVersions.contains("11.0.0"), jreUnitVersions.toString());
 	}
 
 }

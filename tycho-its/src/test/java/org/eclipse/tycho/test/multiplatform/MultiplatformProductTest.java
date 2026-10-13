@@ -12,13 +12,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.multiplatform;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MultiplatformProductTest extends AbstractTychoIntegrationTest {
 	@Test
@@ -47,7 +47,7 @@ public class MultiplatformProductTest extends AbstractTychoIntegrationTest {
 	}
 
 	private void assertFile(File file) {
-		assertTrue(file.getAbsolutePath() + " is not a file", file.isFile());
+		assertTrue(file.isFile(), file.getAbsolutePath() + " is not a file");
 	}
 
 }

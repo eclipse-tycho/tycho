@@ -26,9 +26,9 @@ This describes the steps to perform a release of Tycho:
 ## Making a new release for the current stream
 
 - [ ] Make sure all fixed issues and merged PRs have the correct milestone for this release, to finding PRs without milestone you can use the following filter `is:pr is:merged no:milestone base:main` issues without milestone can be found with `is:issue no:milestone is:closed`
-- [ ] Review the [release notes](https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md) which should provide a quick overview of new features and bug fixes
-- [ ] Create branch `tycho-N.M.x` (e.g. `tycho-7.0.x`) for upcoming release and push it to remote; this branch should remain frozen until the release, only major fixes for regressions could be merged in before release. Work can still happen regularly for the following version on the `master` branch.
-- [ ] Update the version on the master with `mvn versions:set -DnewVersion=<next tycho version>-SNAPSHOT` and mention the new release in the [release notes](https://github.com/eclipse-tycho/tycho/blob/master/RELEASE_NOTES.md), then publish the changes.
+- [ ] Review the [release notes](https://github.com/eclipse-tycho/tycho/blob/main/RELEASE_NOTES.md) which should provide a quick overview of new features and bug fixes
+- [ ] Create branch `tycho-N.M.x` (e.g. `tycho-7.0.x`) for upcoming release and push it to remote; this branch should remain frozen until the release, only major fixes for regressions could be merged in before release. Work can still happen regularly for the following version on the `main` branch.
+- [ ] Update the version on `main` with `mvn versions:set -DnewVersion=<next tycho version>-SNAPSHOT` and mention the new release in the [release notes](https://github.com/eclipse-tycho/tycho/blob/main/RELEASE_NOTES.md), then publish the changes.
 - [ ] Create release record on https://projects.eclipse.org/projects/technology.tycho projects.eclipse.org, link the N&N to https://github.com/eclipse-tycho/tycho/blob/[branch-name]/RELEASE_NOTES.md release notes]
 - [ ] Update the Jenkinsfile on the `tycho-N.M.x` and adjust the `deployBranch` to reference the new created branch
 - [ ] Announce the intent to release and request feedback about snapshots on the [GitHub discussions](https://github.com/eclipse-tycho/tycho/discussions):

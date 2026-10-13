@@ -13,7 +13,7 @@
 
 package org.eclipse.tycho.p2resolver;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +22,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.tycho.p2.publisher.rootfiles.VirtualFileSet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class VirtualFileSetTest {
 

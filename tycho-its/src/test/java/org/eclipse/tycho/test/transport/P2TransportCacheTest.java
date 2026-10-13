@@ -9,10 +9,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.transport;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 
 import org.apache.maven.it.Verifier;
@@ -20,11 +22,10 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * End-to-end test for the Tycho p2 transport cache. A small Tycho project
@@ -40,17 +41,17 @@ public class P2TransportCacheTest extends AbstractTychoIntegrationTest {
 	private static final String BUNDLE_ID = "tycho.its.p2cache.bundle";
 	private static final String ARTIFACT_PATH = "/plugins/" + BUNDLE_ID + "_1.0.0.jar";
 
-	@Rule
-	public final TemporaryFolder tempFolder = new TemporaryFolder();
+	@TempDir
+	Path tempFolder;
 
 	private HttpServer server;
 
-	@Before
+	@BeforeEach
 	public void startServer() throws Exception {
 		server = HttpServer.startServer();
 	}
 
-	@After
+	@AfterEach
 	public void stopServer() throws Exception {
 		if (server != null) {
 			server.stop();
@@ -69,7 +70,7 @@ public class P2TransportCacheTest extends AbstractTychoIntegrationTest {
 		// Isolate Tycho's p2 transport cache from the developer's ~/.m2 so
 		// previous runs cannot mask a real fetch. The same directory is reused
 		// across both invocations below, so the second build must hit the cache.
-		File cacheDir = tempFolder.newFolder("tycho-transport-cache");
+		File cacheDir = Files.createDirectory(tempFolder.resolve("tycho-transport-cache")).toFile();
 		verifier.setSystemProperty("tycho.p2.transport.cache", cacheDir.getAbsolutePath());
 		// Tycho also surfaces resolved p2 artifacts under p2/osgi/bundle/... in
 		// the Maven local repository; wipe any leftover from a previous run.
@@ -79,14 +80,14 @@ public class P2TransportCacheTest extends AbstractTychoIntegrationTest {
 		verifier.verifyErrorFreeLog();
 
 		int firstRunFetches = Collections.frequency(server.getAccessedUrls(REPO_ID), ARTIFACT_PATH);
-		assertTrue("Bundle JAR should be fetched on cold-cache build, accessed urls were: "
-				+ server.getAccessedUrls(REPO_ID), firstRunFetches >= 1);
+		assertTrue(firstRunFetches >= 1, "Bundle JAR should be fetched on cold-cache build, accessed urls were: "
+				+ server.getAccessedUrls(REPO_ID));
 
 		verifier.executeGoal("package");
 		verifier.verifyErrorFreeLog();
 
 		int secondRunFetches = Collections.frequency(server.getAccessedUrls(REPO_ID), ARTIFACT_PATH);
-		assertEquals("Bundle JAR was re-fetched on warm-cache build, accessed urls were: "
-				+ server.getAccessedUrls(REPO_ID), firstRunFetches, secondRunFetches);
+		assertEquals(firstRunFetches, secondRunFetches, "Bundle JAR was re-fetched on warm-cache build, accessed urls were: "
+				+ server.getAccessedUrls(REPO_ID));
 	}
 }
