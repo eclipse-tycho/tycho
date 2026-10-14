@@ -15,7 +15,7 @@ package org.eclipse.tycho.test.mngeclipse1007;
 import java.io.File;
 import java.util.zip.ZipFile;
 
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

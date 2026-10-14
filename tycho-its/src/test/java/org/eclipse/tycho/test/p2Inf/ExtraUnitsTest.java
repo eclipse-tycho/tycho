@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.p2Inf;
 
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.jupiter.api.Test;

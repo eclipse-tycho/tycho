@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.jupiter.api.Test;

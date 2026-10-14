@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.TYCHO0367localRepositoryCrosstalk;
 
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.jupiter.api.Test;
 

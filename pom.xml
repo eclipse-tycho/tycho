@@ -275,9 +275,9 @@
 				<version>3.4.0</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.maven.shared</groupId>
-				<artifactId>maven-verifier</artifactId>
-				<version>1.8.0</version>
+				<groupId>org.apache.maven.executor</groupId>
+				<artifactId>maven-executor</artifactId>
+				<version>1.0.0</version>
 			</dependency>
 			<dependency>
 				<groupId>biz.aQute.bnd</groupId>

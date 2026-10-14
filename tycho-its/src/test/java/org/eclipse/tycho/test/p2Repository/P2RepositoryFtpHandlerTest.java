@@ -1,7 +1,7 @@
 package org.eclipse.tycho.test.p2Repository;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
