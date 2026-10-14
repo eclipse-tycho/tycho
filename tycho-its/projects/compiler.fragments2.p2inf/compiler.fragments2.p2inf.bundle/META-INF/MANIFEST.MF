@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Fragment test 626 (p2.inf alternative)
+Bundle-SymbolicName: compiler.fragments2.p2inf
+Bundle-Version: 1.0.0
+Require-Bundle: tycho.test.host;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Bundle-ActivationPolicy: lazy
