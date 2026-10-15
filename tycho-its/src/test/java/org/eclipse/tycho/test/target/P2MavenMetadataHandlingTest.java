@@ -19,13 +19,7 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests the <code>p2MavenMetadataHandling</code> parameter of the
- * target-platform-configuration. The project depends on a bundle coming from a Maven target
- * location (commons-io), so its p2 unit carries Maven coordinates. Whether these coordinates are
- * used for the project dependency is visible in the output of <code>dependency:tree</code> after the
- * project was compiled: mapped coordinates show up as a regular <code>compile</code> dependency, unmapped ones as a
- * <code>system</code> scoped <code>p2.*</code> dependency. Only the <code>[INFO]</code> tree lines are
- * matched, as the forked build runs with debug output that lists unrelated dependencies.
+ * Tests p2MavenMetadataHandling by checking how commons-io shows up in dependency:tree.
  */
 public class P2MavenMetadataHandlingTest extends AbstractTychoIntegrationTest {
 
