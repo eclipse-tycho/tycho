@@ -74,6 +74,7 @@ import org.eclipse.tycho.core.shared.MultiLineLogger;
  */
 public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
+    private static final long LOCK_WAIT_LOG_INTERVAL_SECONDS = 30;
     protected final MavenLogger logger;
     protected final MavenLogger splittingLogger;
 
@@ -239,7 +240,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
             return true;
         } else if (remoteProviders.contains(key)) {
             Lock downloadLock = localArtifactRepository.getLockForDownload(key);
-            downloadLock.lock();
+            lockForDownload(key, downloadLock);
             try {
                 if (!isFileAlreadyAvailable(key)) { // check again within lock
                     File artifactFile;
@@ -269,6 +270,20 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
             return true;
         } else {
             return false;
+        }
+    }
+
+    private void lockForDownload(IArtifactKey key, Lock downloadLock) throws MirroringFailedException {
+        long waited = 0;
+        try {
+            while (!downloadLock.tryLock(LOCK_WAIT_LOG_INTERVAL_SECONDS, TimeUnit.SECONDS)) {
+                waited += LOCK_WAIT_LOG_INTERVAL_SECONDS;
+                logger.warn("Still waiting after " + waited + " seconds for another thread to download " + key
+                        + ", the download might be stalled (use jstack/jcmd Thread.print to see what it is waiting for)");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new MirroringFailedException("Interrupted while waiting for download of artifact " + key, e);
         }
     }
 

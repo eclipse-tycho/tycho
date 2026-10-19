@@ -109,12 +109,12 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 		@Override
 		public <T> T get(ResponseConsumer<T> consumer) throws IOException {
 			try {
-				IOException lastTransient = null;
+				TransientHttpException lastTransient = null;
 				for (int attempt = 0; attempt <= HTTP_RETRY_COUNT; attempt++) {
 					if (attempt > 0) {
 						long delay = HTTP_RETRY_INITIAL_DELAY_SECONDS * attempt;
-						logger.warn("Received transient HTTP error for " + uri + ", retrying (attempt " + attempt + "/"
-								+ HTTP_RETRY_COUNT + ") in " + delay + " seconds...");
+						logger.warn(lastTransient.getMessage() + ", retrying (attempt " + attempt + "/" + HTTP_RETRY_COUNT
+								+ ") in " + delay + " seconds...");
 						TimeUnit.SECONDS.sleep(delay);
 					}
 					try {
@@ -191,7 +191,14 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 				@Override
 				public void transferTo(OutputStream outputStream, ContentEncoding transportEncoding)
 						throws IOException {
-					transportEncoding.decode(response.body()).transferTo(outputStream);
+					IdleTimeoutInputStream idleStream = new IdleTimeoutInputStream(response.body(), TIMEOUT_SECONDS,
+							response.uri());
+					try {
+						transportEncoding.decode(idleStream).transferTo(outputStream);
+					} finally {
+						// the body itself is closed by close() of this response
+						idleStream.release();
+					}
 				}
 			}) {
 				return consumer.handleResponse(implementation);
@@ -317,11 +324,11 @@ public class Java11HttpTransportFactory implements HttpTransportFactory, Initial
 
 			}
 		};
-		client = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(TIMEOUT_SECONDS))
+		client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(TIMEOUT_SECONDS))
 				.followRedirects(Redirect.NEVER)
 				.cookieHandler(cookieManager)
 				.proxy(proxySelector).build();
-		clientHttp1 = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(TIMEOUT_SECONDS))
+		clientHttp1 = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(TIMEOUT_SECONDS))
 				.version(Version.HTTP_1_1).followRedirects(Redirect.NEVER)
 				.cookieHandler(cookieManager)
 				.proxy(proxySelector).build();
