@@ -209,6 +209,23 @@ public class ManifestAssertions {
 	}
 
 	/**
+	 * Like {@link #assertBundleLowerBound} but only compares major and minor, as
+	 * micro does not change API.
+	 */
+	public ManifestAssertions assertBundleLowerBoundMajorMinor(String bundleId, String expectedLower,
+			String message) {
+		VersionRange range = requireBundleRanges.get(bundleId);
+		assertNotNull(message + " - Require-Bundle '" + bundleId + "' should have a version range in " + bundleName, range);
+		Version expected = Version.parseVersion(expectedLower);
+		Version left = range.getLeft();
+		assertTrue(
+				message + " [Require-Bundle " + bundleId + "] - expected lower bound " + expected
+						+ " (ignoring micro) but was " + left,
+				left.getMajor() == expected.getMajor() && left.getMinor() == expected.getMinor());
+		return this;
+	}
+
+	/**
 	 * Asserts that the upper bound of the version range for a
 	 * {@code Require-Bundle} equals the expected version.
 	 *
