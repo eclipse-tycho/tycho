@@ -23,7 +23,7 @@
 	<name>Tycho Core</name>
 	<description>Core Tycho components</description>
 	<properties>
-		<jetty.version>12.1.13</jetty.version>
+		<jetty.version>12.1.14</jetty.version>
 	</properties>
 
 	<build>
@@ -270,7 +270,7 @@
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
-			<version>1.22.1</version>
+			<version>1.23.0</version>
 		</dependency>
 
 		<dependency>
