@@ -135,7 +135,13 @@ public class GeneratorMojo extends AbstractMojo {
 	
 	@Parameter(name = "maven-lookup-exclusions", property = "maven-lookup-exclusions")
 	private List<String> mavenLookupExclusions;
-	
+
+	/**
+	 * The CycloneDX version to use for the serialized SBOM.
+	 */
+	@Parameter(name = "format-version", property = "format-version")
+	private String formatVersion;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (installations == null && installation == null) {
@@ -239,7 +245,12 @@ public class GeneratorMojo extends AbstractMojo {
 				arguments.add(trim);
 			}
 		}
-		
+
+		if (formatVersion != null) {
+			arguments.add("-format-version");
+			arguments.add(formatVersion);
+		}
+
 		getLog().info("Calling application with arguments: " + arguments);
 		try (EclipseFramework framework = application.startFramework(workspace, arguments)) {
 			framework.start();
