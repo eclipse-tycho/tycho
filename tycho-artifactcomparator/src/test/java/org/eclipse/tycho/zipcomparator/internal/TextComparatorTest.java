@@ -61,7 +61,7 @@ public class TextComparatorTest {
 
         {
             String baseline = "line1\n\rline2";
-            String expectedDelta = "--- baseline" + NL + "+++ reactor" + NL + "@@ -2,1 +2,0 @@" + NL + "-";
+            String expectedDelta = "--- baseline" + NL + "+++ reactor" + NL + "@@ -2,1 +1,0 @@" + NL + "-";
 
             String reactor1 = "line1\nline2";
             ArtifactDelta delta1 = getTextDelta(baseline, reactor1);
@@ -73,7 +73,7 @@ public class TextComparatorTest {
         }
         {
             String baseline = "line1\r\n\nline2";
-            String expectedDelta = "--- baseline" + NL + "+++ reactor" + NL + "@@ -2,1 +2,0 @@" + NL + "-";
+            String expectedDelta = "--- baseline" + NL + "+++ reactor" + NL + "@@ -2,1 +1,0 @@" + NL + "-";
 
             String reactor1 = "line1\nline2";
             ArtifactDelta delta1 = getTextDelta(baseline, reactor1);
@@ -85,7 +85,7 @@ public class TextComparatorTest {
         }
         {
             String baseline = "line1\r\r\nline2";
-            String expectedDelta = "--- baseline" + NL + "+++ reactor" + NL + "@@ -2,1 +2,0 @@" + NL + "-";
+            String expectedDelta = "--- baseline" + NL + "+++ reactor" + NL + "@@ -2,1 +1,0 @@" + NL + "-";
 
             String reactor1 = "line1\nline2";
             ArtifactDelta delta1 = getTextDelta(baseline, reactor1);
@@ -97,7 +97,7 @@ public class TextComparatorTest {
         }
         {
             String baseline = "\r\nline1\r\nline2";
-            String expectedDelta = "--- baseline" + NL + "+++ reactor" + NL + "@@ -1,1 +1,0 @@" + NL + "-";
+            String expectedDelta = "--- baseline" + NL + "+++ reactor" + NL + "@@ -1,1 +0,0 @@" + NL + "-";
 
             String reactor1 = "line1\nline2";
             ArtifactDelta delta1 = getTextDelta(baseline, reactor1);
