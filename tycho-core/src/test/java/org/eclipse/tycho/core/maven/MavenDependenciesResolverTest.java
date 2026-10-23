@@ -98,6 +98,6 @@ public class MavenDependenciesResolverTest {
                         .toList(),
                 session);
         assertEquals(1, deps.size(), deps.toString());
-        FileUtils.deleteDirectory(localRepo);
+        FileUtils.deleteQuietly(localRepo);
     }
 }
