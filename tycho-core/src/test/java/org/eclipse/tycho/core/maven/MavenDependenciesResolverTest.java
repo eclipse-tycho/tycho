@@ -35,6 +35,7 @@ import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.tycho.MavenArtifactRepositoryReference;
 import org.eclipse.tycho.core.DependencyResolutionException;
@@ -65,7 +66,8 @@ public class MavenDependenciesResolverTest {
         // Create a properly configured repository session using LegacyLocalRepositoryManager
         DefaultRepositorySystemSession baseSession = MavenRepositorySystemUtils.newSession();
         ArtifactRepository localRepository = request.getLocalRepository();
-        RepositorySystemSession repositorySession = LegacyLocalRepositoryManager.overlay(localRepository, baseSession, null);
+        RepositorySystemSession repositorySession = LegacyLocalRepositoryManager.overlay(localRepository, baseSession,
+                container.lookup(RepositorySystem.class));
         
         // Create session with proper repository system session
         MavenSession session = new MavenSession(container, repositorySession, request, 
@@ -96,6 +98,6 @@ public class MavenDependenciesResolverTest {
                         .toList(),
                 session);
         assertEquals(1, deps.size(), deps.toString());
-        FileUtils.deleteDirectory(localRepo);
+        FileUtils.deleteQuietly(localRepo);
     }
 }
