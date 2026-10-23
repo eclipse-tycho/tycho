@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,8 +15,11 @@ package org.eclipse.tycho.core.maven;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.toolchain.java.JavaToolchain;
 import org.eclipse.tycho.TargetEnvironment;
 
@@ -54,6 +57,23 @@ final class JavaHomeToolchain implements JavaToolchain {
 
     public String getJavaHome() {
         return javaHome.toString();
+    }
+
+    public ArtifactVersion getJavaVersion() {
+        Path release = javaHome.resolve("release");
+        if (Files.isRegularFile(release)) {
+            Properties properties = new Properties();
+            try (var reader = Files.newBufferedReader(release)) {
+                properties.load(reader);
+            } catch (IOException e) {
+                return null;
+            }
+            String version = properties.getProperty("JAVA_VERSION");
+            if (version != null) {
+                return new DefaultArtifactVersion(version.replace("\"", "").strip());
+            }
+        }
+        return null;
     }
 
     @Override
