@@ -62,6 +62,6 @@ public class MavenDependenciesResolverTest extends AbstractMojoTestCase {
                         .toList(),
                 session);
         assertEquals(deps.toString(), 1, deps.size());
-        FileUtils.deleteDirectory(localRepo);
+        FileUtils.deleteQuietly(localRepo);
     }
 }
