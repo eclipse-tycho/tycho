@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test;
 
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.junit.jupiter.api.Test;
 
 /**

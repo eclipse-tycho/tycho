@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 import java.io.FileFilter;
 
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
