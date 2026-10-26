@@ -35,24 +35,16 @@
         <artifactId>target-platform-configuration</artifactId>
         <version>${tycho-version}</version>
         <executions>
-			  <execution>
-				  <id>inject</id>
-				  <goals>
-					  <goal>mirror-target-platform</goal>
-				  </goals>
-			  </execution>
-		</executions>
-		<configuration>
-			<destination>${project.build.directory}/site</destination>
-			<includeCategories>false</includeCategories>
-		</configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>target-platform-configuration</artifactId>
-        <version>${tycho-version}</version>
+          <execution>
+            <id>inject</id>
+            <goals>
+              <goal>mirror-target-platform</goal>
+            </goals>
+          </execution>
+        </executions>
         <configuration>
+          <destination>${project.build.directory}/site</destination>
+          <includeCategories>false</includeCategories>
           <environments>
             <environment>
               <os>linux</os>
