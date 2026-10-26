@@ -26,19 +26,6 @@
 				</executions>
 			</plugin>
 
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-p2-repository-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>verify-repository</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
 			<!-- this would find p2 bug 340345, which prevented the installation of self-signed 
 			     bundles with the p2 director --> 
 			<plugin>
