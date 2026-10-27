@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP SE and others.
+ * Copyright (c) 2010, 2026 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.eclipse.tycho.FileLockService;
+import org.eclipse.tycho.ReproducibleUtils;
 
 /**
  * <p>
@@ -76,7 +77,8 @@ public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
         try (var repoLock = fileLockService.lockVirtually(repositoryLocation);
                 var destLock = fileLockService.lockVirtually(destFile);) {
             // configure for Reproducible Builds based on outputTimestamp value
-            MavenArchiver.parseBuildOutputTimestamp(outputTimestamp).map(FileTime::from)
+            MavenArchiver.parseBuildOutputTimestamp(ReproducibleUtils.getConfiguredOutputTimestamp(outputTimestamp))
+                    .map(FileTime::from)
                     .ifPresent(modifiedTime -> inflater.configureReproducibleBuild(modifiedTime));
             inflater.addFileSet(DefaultFileSet.fileSet(repositoryLocation).prefixed(""));
             inflater.setDestFile(destFile);

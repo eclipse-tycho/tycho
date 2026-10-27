@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 SAP SE and others.
+ * Copyright (c) 2010, 2026 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -42,6 +42,7 @@ import org.codehaus.plexus.archiver.tar.TarLongFileMode;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.xz.XZArchiver;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TargetEnvironment;
 import org.eclipse.tycho.plugins.tar.TarGzArchiver;
 
@@ -235,7 +236,8 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
             } else {
                 Archiver archiver = productArchiver.get();
                 // configure for Reproducible Builds based on outputTimestamp value
-                MavenArchiver.parseBuildOutputTimestamp(outputTimestamp).map(FileTime::from)
+                MavenArchiver.parseBuildOutputTimestamp(ReproducibleUtils.getConfiguredOutputTimestamp(outputTimestamp))
+                        .map(FileTime::from)
                         .ifPresent(modifiedTime -> archiver.configureReproducibleBuild(modifiedTime));
                 archiver.setDestFile(productArchive);
                 DefaultFileSet fileSet = new DefaultFileSet(sourceDir);
@@ -256,7 +258,8 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
         archiver.setStoreCreationTimeAttribute(storeCreationTime);
         archiver.setLog(getLog());
         // configure for Reproducible Builds based on outputTimestamp value
-        MavenArchiver.parseBuildOutputTimestamp(outputTimestamp).map(FileTime::from)
+        MavenArchiver.parseBuildOutputTimestamp(ReproducibleUtils.getConfiguredOutputTimestamp(outputTimestamp))
+                .map(FileTime::from)
                 .ifPresent(modifiedTime -> archiver.configureReproducibleBuild(modifiedTime));
         archiver.addDirectory(sourceDir);
         archiver.setDestFile(productArchive);

@@ -46,6 +46,7 @@ import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.tycho.ReproducibleUtils;
 
 /**
  * Base class for bundling sources into a jar archive.
@@ -371,7 +372,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
         archiver.setArchiver(jarArchiver);
 
         // configure for Reproducible Builds based on outputTimestamp value
-        archiver.configureReproducibleBuild(outputTimestamp);
+        archiver.configureReproducibleBuild(ReproducibleUtils.getConfiguredOutputTimestamp(outputTimestamp));
 
         if (project.getBuild() != null) {
             List<Resource> resources = project.getBuild().getResources();

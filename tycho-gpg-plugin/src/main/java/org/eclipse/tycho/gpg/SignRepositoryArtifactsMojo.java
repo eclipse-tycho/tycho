@@ -40,6 +40,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.signedcontent.SignedContentFactory;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
 
 /**
@@ -221,7 +222,8 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
             }
 
             // configure for Reproducible Builds based on outputTimestamp value
-            MavenArchiver.parseBuildOutputTimestamp(outputTimestamp).map(FileTime::from)
+            MavenArchiver.parseBuildOutputTimestamp(ReproducibleUtils.getConfiguredOutputTimestamp(outputTimestamp))
+                    .map(FileTime::from)
                     .ifPresent(modifiedTime -> xzArchiver.configureReproducibleBuild(modifiedTime));
 
             xzArchiver.setDestFile(artifactsXmlXz);
