@@ -393,6 +393,7 @@
 					<!-- workaround for https://jira.codehaus.org/browse/MNG-5346 -->
 					<configuration>
 						<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+						<requiredJavaVersion>${min.jdk.version}</requiredJavaVersion>
 						<extractors>
 							<extractor>java-annotations</extractor>
 						</extractors>
