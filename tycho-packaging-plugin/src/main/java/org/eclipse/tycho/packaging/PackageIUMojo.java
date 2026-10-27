@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2024 Rapicorp, Inc. and others.
+ * Copyright (c) 2015, 2026 Rapicorp, Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -79,7 +80,8 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
         }
 
         // configure for Reproducible Builds based on outputTimestamp value
-        MavenArchiver.parseBuildOutputTimestamp(outputTimestamp).map(FileTime::from)
+        MavenArchiver.parseBuildOutputTimestamp(ReproducibleUtils.getConfiguredOutputTimestamp(outputTimestamp))
+            .map(FileTime::from)
             .ifPresent(modifiedTime -> zipArchiver.configureReproducibleBuild(modifiedTime));
 
         synchronized (LOCK) {
