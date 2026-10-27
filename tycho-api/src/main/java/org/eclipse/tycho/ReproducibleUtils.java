@@ -22,7 +22,26 @@ import java.util.stream.Collectors;
  * Utility methods for reproducible builds.
  */
 public class ReproducibleUtils {
+
+    /**
+     * Default value of ${project.build.outputTimestamp} set by the super POM since Maven 3.10.
+     */
+    public static final String MAVEN_DEFAULT_OUTPUT_TIMESTAMP = "1980-02-01T00:00:00Z";
+
     private ReproducibleUtils() {
+    }
+
+    /**
+     * Returns the given ${project.build.outputTimestamp} value, or <code>null</code> if it is the
+     * default value from the Maven 3.10 super POM. As with Maven 3.9, build qualifiers and archive
+     * entry timestamps are only fixed when the user configures outputTimestamp explicitly.
+     *
+     * @param outputTimestamp
+     *            the value of ${project.build.outputTimestamp}, may be <code>null</code>
+     * @return the value configured by the user, or <code>null</code>
+     */
+    public static String getConfiguredOutputTimestamp(String outputTimestamp) {
+        return MAVEN_DEFAULT_OUTPUT_TIMESTAMP.equals(outputTimestamp) ? null : outputTimestamp;
     }
 
     /**

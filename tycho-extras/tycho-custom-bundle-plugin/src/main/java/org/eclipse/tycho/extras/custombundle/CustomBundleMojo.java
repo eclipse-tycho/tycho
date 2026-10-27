@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -39,6 +39,7 @@ import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
 /**
@@ -193,7 +194,7 @@ public class CustomBundleMojo extends AbstractMojo {
 		archiver.setOutputFile(outputJarFile);
 
 		// configure for Reproducible Builds based on outputTimestamp value
-		archiver.configureReproducibleBuild(outputTimestamp);
+		archiver.configureReproducibleBuild(ReproducibleUtils.getConfiguredOutputTimestamp(outputTimestamp));
 
 		try {
 			archiver.getArchiver().setManifest(updateManifest());

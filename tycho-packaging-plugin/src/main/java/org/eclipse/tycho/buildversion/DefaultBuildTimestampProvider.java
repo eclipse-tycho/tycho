@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2016 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -21,13 +21,15 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.build.BuildTimestampProvider;
 
 /**
  * Build timestamp provider that returns the same timestamp for all projects. If
  * the standard Maven property ${project.build.outputTimestamp} exists, its
  * value is used for the timestamp. If it does not exist (or cannot be parsed),
- * the ${maven.build.timestamp} timestamp is used instead.
+ * or has the default value from the Maven 3.10 super POM, the
+ * ${maven.build.timestamp} timestamp is used instead.
  */
 @Component(role = BuildTimestampProvider.class, hint = DefaultBuildTimestampProvider.ROLE_HINT)
 public class DefaultBuildTimestampProvider implements BuildTimestampProvider {
@@ -38,7 +40,8 @@ public class DefaultBuildTimestampProvider implements BuildTimestampProvider {
     public Date getTimestamp(MavenSession session, MavenProject project, MojoExecution execution) {
 		// Use the outputTimestamp property value if available for reproducible builds
 		final String outputTimestamp = (String) project.getProperties().get("project.build.outputTimestamp");
-		Optional<Instant> reproducibleTimestamp = MavenArchiver.parseBuildOutputTimestamp(outputTimestamp);
+		Optional<Instant> reproducibleTimestamp = MavenArchiver
+				.parseBuildOutputTimestamp(ReproducibleUtils.getConfiguredOutputTimestamp(outputTimestamp));
 		if (reproducibleTimestamp.isPresent()) {
 			return Date.from(reproducibleTimestamp.get());
 		} else {

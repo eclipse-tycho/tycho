@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,7 @@ import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.packaging.RepositoryGenerator;
 import org.eclipse.tycho.packaging.RepositoryGenerator.RepositoryConfiguration;
 import org.eclipse.tycho.packaging.RepositoryGenerator.RepositoryLayout;
@@ -122,7 +123,8 @@ public class PackageRepositoryMojo extends AbstractMojo implements RepositoryCon
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		// configure for Reproducible Builds based on outputTimestamp value
-		MavenArchiver.parseBuildOutputTimestamp(outputTimestamp).map(FileTime::from)
+		MavenArchiver.parseBuildOutputTimestamp(ReproducibleUtils.getConfiguredOutputTimestamp(outputTimestamp))
+			.map(FileTime::from)
 			.ifPresent(modifiedTime -> zipArchiver.configureReproducibleBuild(modifiedTime));
 
 		RepositoryGenerator generator = generators.get(repositoryType);
