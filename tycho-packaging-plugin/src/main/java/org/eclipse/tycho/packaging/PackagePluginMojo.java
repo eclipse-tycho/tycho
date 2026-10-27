@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2024 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -48,6 +48,7 @@ import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.TychoProjectManager;
@@ -223,7 +224,8 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 			File jarFile = new File(project.getBasedir(), jarName);
 			JarArchiver archiver = new JarArchiver();
 			// configure for Reproducible Builds based on outputTimestamp value
-			MavenArchiver.parseBuildOutputTimestamp(outputTimestamp).map(FileTime::from)
+			MavenArchiver.parseBuildOutputTimestamp(ReproducibleUtils.getConfiguredOutputTimestamp(outputTimestamp))
+					.map(FileTime::from)
 					.ifPresent(modifiedTime -> archiver.configureReproducibleBuild(modifiedTime));
 			archiver.setDestFile(jarFile);
 			File outputDirectory = jar.getOutputDirectory();
@@ -253,7 +255,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 			archiver.setArchiver(jarArchiver);
 
 			// configure for Reproducible Builds based on outputTimestamp value
-			archiver.configureReproducibleBuild(outputTimestamp);
+			archiver.configureReproducibleBuild(ReproducibleUtils.getConfiguredOutputTimestamp(outputTimestamp));
 
 			File pluginFile = new File(buildDirectory, finalName + ".jar");
 			if (pluginFile.exists()) {

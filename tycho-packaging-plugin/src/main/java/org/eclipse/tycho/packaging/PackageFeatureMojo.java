@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2024 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,7 @@ import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.BuildProperties;
 import org.eclipse.tycho.BuildPropertiesParser;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.TargetPlatformService;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -172,7 +173,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
             JarArchiver jarArchiver = getJarArchiver();
             archiver.setArchiver(jarArchiver);
             // configure for Reproducible Builds based on outputTimestamp value
-            archiver.configureReproducibleBuild(outputTimestamp);
+            archiver.configureReproducibleBuild(ReproducibleUtils.getConfiguredOutputTimestamp(outputTimestamp));
             archiver.setOutputFile(outputJar);
             jarArchiver.setDestFile(outputJar);
 
