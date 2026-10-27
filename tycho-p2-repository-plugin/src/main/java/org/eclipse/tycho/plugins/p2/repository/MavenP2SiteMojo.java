@@ -612,13 +612,15 @@ public class MavenP2SiteMojo extends AbstractMojo {
                                     gaCache);
                         }
                     }
-                } catch (ArtifactDescriptorException e) {
+                } catch (ArtifactDescriptorException | IllegalArgumentException e) {
                     if (failOnResolveError) {
                         throw new MojoExecutionException(e);
                     }
                 }
             }
-        } catch (ArtifactResolutionException e) {
+        } catch (ArtifactResolutionException | IllegalArgumentException e) {
+            // since Maven 3.10 the resolver rejects invalid requests, e.g. coordinates with
+            // uninterpolated properties like ${os.detected.classifier}, with IllegalArgumentException
             if (failOnResolveError) {
                 throw new MojoExecutionException(e);
             }
