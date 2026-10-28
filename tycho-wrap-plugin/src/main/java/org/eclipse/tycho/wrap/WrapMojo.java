@@ -50,7 +50,8 @@ import aQute.bnd.version.Version;
  * two "flavors" of their artifact: a plain one and an OSGi-fied one 
  * that could help to convince projects to provide such things as 
  * it has zero influence to their build and ways how they build artifacts.
- * 
+ * <p>
+ * See also the {@code verify} goal to validate the OSGi metadata of a project.
  */
 @Mojo(name = "wrap", requiresProject = true, threadSafe = true, defaultPhase = LifecyclePhase.PACKAGE)
 public class WrapMojo extends AbstractMojo {
