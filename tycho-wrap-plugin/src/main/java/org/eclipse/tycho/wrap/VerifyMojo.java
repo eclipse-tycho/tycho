@@ -124,7 +124,7 @@ public class VerifyMojo extends AbstractMojo {
 			Resource resource = createProjectResource();
 			List<Requirement> requirements = resource.getRequirements(PackageNamespace.PACKAGE_NAMESPACE);
 			if (requirements.isEmpty()) {
-				log.info("It has requirements specified!");
+				log.info("It has no requirements specified!");
 			} else {
 				log.info("It has " + requirements.size() + " requirements:");
 				for (Requirement requirement : requirements) {
@@ -135,24 +135,9 @@ public class VerifyMojo extends AbstractMojo {
 					} else {
 						Optional<Entry<Artifact, Resource>> artifactMatch = map.entrySet().stream()
 								.filter(entry -> entry.getValue().getCapabilities(null).stream().anyMatch(matcher))
-								.sorted(new Comparator<Entry<Artifact, Resource>>() {
-
-									@Override
-									public int compare(Entry<Artifact, Resource> o1, Entry<Artifact, Resource> o2) {
-										boolean wr1 = o1.getValue() instanceof WrappedResource;
-										boolean wr2 = o2.getValue() instanceof WrappedResource;
-										if (wr1 == wr2) {
-											return 0;
-										}
-										if (wr1) {
-											return -1;
-										}
-										if (wr2) {
-											return 1;
-										}
-										return 0;
-									}
-								}).findFirst();
+								// prefer real OSGi bundles over artifacts that were only wrapped for analysis
+								.sorted(Comparator.comparing(entry -> entry.getValue() instanceof WrappedResource))
+								.findFirst();
 						if (artifactMatch.isEmpty()) {
 							log.info(FAIL + req + " not found in the artifacts of the current project!");
 							if (!Util.isOptional(requirement)) {
@@ -210,7 +195,7 @@ public class VerifyMojo extends AbstractMojo {
 		if (missingRequirements.isEmpty()) {
 			return;
 		}
-		log.error("Problems where detected that will hinder your artifact from being used in an OSGi environment:");
+		log.error("Problems were detected that will hinder your artifact from being used in an OSGi environment:");
 		for (Entry<String, String> entry : missingRequirements.entrySet()) {
 			log.error("\t" + entry.getKey() + " --> " + entry.getValue());
 		}
@@ -222,7 +207,7 @@ public class VerifyMojo extends AbstractMojo {
 		StringBuilder sb = new StringBuilder();
 		sb.append(missingRequirements.size());
 		sb.append(
-				" requirements can possibly not satisfied in an OSGi environment, see the logfile for more details on specific items!");
+				" requirements can possibly not be satisfied in an OSGi environment, see the logfile for more details on specific items!");
 
 		throw new MojoFailureException(sb.toString());
 	}
@@ -248,7 +233,7 @@ public class VerifyMojo extends AbstractMojo {
 			String version = manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
 			getLog().info("The Bundle-SymbolicName is: " + bsn);
 			checkBSN(bsn);
-			getLog().info("The Bundle-Version is: " + version == null ? "0" : version);
+			getLog().info("The Bundle-Version is: " + (version == null ? "0" : version));
 			checkVersion(version);
 			builder.addManifest(manifest);
 			Resource resource = builder.build();
@@ -259,7 +244,7 @@ public class VerifyMojo extends AbstractMojo {
 	private void checkVersion(String version) throws MojoFailureException {
 		if (version == null) {
 			getLog().warn(
-					"The 'Bundle-Version' header is missing, consider adding a version to your bundle ro prevent it getting the default version."
+					"The 'Bundle-Version' header is missing, consider adding a version to your bundle to prevent it getting the default version."
 							+ System.lineSeparator()
 							+ "See https://docs.osgi.org/specification/osgi.core/8.0.0/framework.module.html#d0e2103 for details.");
 			return;
