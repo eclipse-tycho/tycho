@@ -42,6 +42,11 @@
 			<item name="Creating SBOMs for Eclipse Artifacts" href="SBOM.html">
 				<item name="SBOM Plugin" href="tycho-sbom-plugin/plugin-info.html" />
 			</item>
+			<item name="OSGi Metadata for Plain Maven Projects" href="OsgiMetadataForMavenProjects.html">
+				<item name="Tycho Wrap Plugin" href="tycho-wrap-plugin/plugin-info.html" />
+				<item name="Wrap Mojo" href="tycho-wrap-plugin/wrap-mojo.html" />
+				<item name="Verify Mojo" href="tycho-wrap-plugin/verify-mojo.html" />
+			</item>
 			<item name="Troubleshooting" href="Troubleshooting.html" />
 		</menu>
 		<menu name="Other Tycho Plugins" inherit="top">
