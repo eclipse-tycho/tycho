@@ -492,6 +492,10 @@ public class BundlesAction extends AbstractPublisherAction {
 		Map<String, String> directives = req.getDirectives();
 
 		String capFilter = directives.get(Namespace.REQUIREMENT_FILTER_DIRECTIVE);
+		if (capFilter == null) {
+			// p2 cannot create a requirement without a filter, be lenient and ignore it
+			return;
+		}
 		boolean optional = directives.get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE) == Namespace.RESOLUTION_OPTIONAL;
 		boolean greedy = optional ? INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE)) : true;
 
@@ -508,6 +512,10 @@ public class BundlesAction extends AbstractPublisherAction {
 		Map<String, String> directives = req.getDirectives();
 
 		String capFilter = directives.get(Namespace.REQUIREMENT_FILTER_DIRECTIVE);
+		if (capFilter == null) {
+			// p2 cannot create a requirement without a filter, be lenient and ignore it
+			return;
+		}
 		boolean optional = directives.get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE) == Namespace.RESOLUTION_OPTIONAL;
 		boolean greedy = optional ? INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE)) : true;
 
