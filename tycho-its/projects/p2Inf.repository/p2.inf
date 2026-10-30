@@ -1,0 +1,5 @@
+units.0.id = p2inf.repository.custom.unit
+units.0.version = 1.0.0
+units.0.provides.1.namespace = org.eclipse.equinox.p2.iu
+units.0.provides.1.name = p2inf.repository.custom.unit
+units.0.provides.1.version = 1.0.0

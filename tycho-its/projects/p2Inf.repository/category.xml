@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <category-def name="p2inf.category" label="p2.inf Category">
+      <description>Category next to a p2.inf file.</description>
+   </category-def>
+</site>
