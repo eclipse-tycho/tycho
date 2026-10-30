@@ -78,6 +78,25 @@ You can include any installable unit (IU) directly:
 
 For more advanced inclusion patterns using p2 query expressions, see [Advanced Category Definitions](CategoryDefinitions.html).
 
+### Adding Custom Metadata with p2.inf
+
+A `p2.inf` file placed in the project root next to `category.xml` allows to contribute additional installable units to the repository.
+This uses the regular [p2.inf advice format](https://github.com/eclipse-equinox/p2/blob/master/docs/Customizing_Metadata.md) (`units.N.id`, `units.N.version`, `units.N.provides.M.*`, `units.N.requires.M.*`, ...):
+
+```
+units.0.id = com.example.custom.unit
+units.0.version = 1.0.0
+units.0.provides.0.namespace = org.eclipse.equinox.p2.iu
+units.0.provides.0.name = com.example.custom.unit
+units.0.provides.0.version = 1.0.0
+units.0.requires.0.namespace = org.eclipse.equinox.p2.iu
+units.0.requires.0.name = com.example.feature.feature.group
+units.0.requires.0.range = [1.0.0,2.0.0)
+```
+
+Units defined this way are added to the generated repository metadata and are also made available to other projects in the reactor that resolve the `eclipse-repository` project.
+A complete example can be found in the integration test [p2Inf.repository](https://github.com/eclipse-tycho/tycho/tree/main/tycho-its/projects/p2Inf.repository) (see [RepositoryP2InfTest](https://github.com/eclipse-tycho/tycho/blob/main/tycho-its/src/test/java/org/eclipse/tycho/test/p2Inf/RepositoryP2InfTest.java)).
+
 ## Assembling the Repository
 
 The `tycho-p2-repository-plugin` assembles the final p2 repository. By default it only includes what is explicitly listed in `category.xml`.
