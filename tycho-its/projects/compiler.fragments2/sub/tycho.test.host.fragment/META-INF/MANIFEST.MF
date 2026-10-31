@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: tycho.test.host.fragment; singleton:=true
+Bundle-ManifestVersion: 2
+Bundle-Vendor: Eclipse tycho
+Fragment-Host: tycho.test.host; bundle-version="1.0.0"
+Export-Package: tycho.test.host
+Bundle-Name: Tychotest host fragment
+Bundle-Version: 1.0.0
+Bundle-Localization: fragment
