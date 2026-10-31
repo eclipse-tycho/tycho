@@ -277,6 +277,10 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             }
         } else if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
             Feature feature = new FeatureParser().parse(location);
+            if (feature == null) {
+                throw new IllegalArgumentException(
+                        "Unable to read feature metadata from " + location.getAbsolutePath());
+            }
             feature.setLocation(location.getAbsolutePath());
             if (dependenciesOnly) {
                 actions.add(new FeatureDependenciesAction(feature));
