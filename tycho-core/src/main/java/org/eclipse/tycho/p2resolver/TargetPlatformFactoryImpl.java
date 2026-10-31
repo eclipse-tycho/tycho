@@ -132,8 +132,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
     private final IProvisioningAgent remoteAgent;
     private final IRepositoryIdManager remoteRepositoryIdManager;
-    private final IMetadataRepositoryManager remoteMetadataRepositoryManager;
-    private final IArtifactRepositoryManager remoteArtifactRepositoryManager;
     private final boolean offline;
 
     /** The Maven local repository as p2 IArtifactRepository */
@@ -159,16 +157,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         this.remoteAgent = remoteAgent;
         this.remoteRepositoryIdManager = repositoryIdManager;
         this.offline = mavenContext.isOffline();
-
-        this.remoteMetadataRepositoryManager = remoteAgent.getService(IMetadataRepositoryManager.class);
-        if (remoteMetadataRepositoryManager == null) {
-            throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
-        }
-
-        this.remoteArtifactRepositoryManager = remoteAgent.getService(IArtifactRepositoryManager.class);
-        if (remoteArtifactRepositoryManager == null) {
-            throw new IllegalStateException("No artifact repository manager found"); //$NON-NLS-1$
-        }
 
         this.localMetadataRepository = localMetadataRepo;
         this.localArtifactRepository = localArtifactRepo;
@@ -457,7 +445,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             List<IMetadataRepository> metadataRepositories, Set<URI> loaded, Map<URI, Boolean> artifactRepositories,
             boolean includeReferences) throws ProvisionException {
         if (loaded.add(location.getURL().normalize())) {
-            IMetadataRepository repository = remoteMetadataRepositoryManager.loadRepository(location.getURL(), monitor);
+            IMetadataRepository repository = getRemoteMetadataRepositoryManager().loadRepository(location.getURL(),
+                    monitor);
             metadataRepositories.add(repository);
             if (includeReferences) {
                 for (IRepositoryReference reference : repository.getReferences()) {
@@ -481,6 +470,18 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             }
 
         }
+    }
+
+    /**
+     * Looks up the manager on each use: instances of this class may outlive the OSGi framework (and
+     * its p2 agent), which is stopped at the end of every Maven session.
+     */
+    private IMetadataRepositoryManager getRemoteMetadataRepositoryManager() {
+        IMetadataRepositoryManager manager = remoteAgent.getService(IMetadataRepositoryManager.class);
+        if (manager == null) {
+            throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
+        }
+        return manager;
     }
 
     private static final class SortedRepositories {

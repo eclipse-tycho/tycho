@@ -47,10 +47,12 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.eclipse.tycho.test.util.TychoPlexusExtension;
 import org.codehaus.plexus.PlexusContainer;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.IDependencyMetadata.DependencyMetadataType;
@@ -243,6 +245,22 @@ public class TargetPlatformFactoryTest {
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
                 REACTOR_ARTIFACTS, pomDependencyCollector);
         assertThat(finalTP.getInstallableUnits(), not(hasItem(unitWithId("test.unit"))));
+    }
+
+    @Test
+    public void testRepositoryLoadAfterFrameworkRestart() throws Exception {
+        tpConfig.addP2Repository(ResourceUtil.resourceFile("targetresolver/v1_content").toURI());
+        subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null);
+
+        // stop the OSGi framework like TychoMavenLifecycleParticipant.afterSessionEnd does at the end of a build
+        ((Disposable) container.lookup(EquinoxServiceFactory.class)).dispose();
+
+        // the next build reuses the factory and loads a repository that is not cached yet
+        tpConfig.addP2Repository(ResourceUtil.resourceFile("targetresolver/v2_content").toURI());
+        P2TargetPlatform targetPlatform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null);
+
+        assertThat(targetPlatform.getInstallableUnits(),
+                hasItem(unit("trt.bundle.referenced", "2.0.0.201108051319")));
     }
 
     @Test
