@@ -115,43 +115,49 @@ public class DefaultPluginRealmHelper implements PluginRealmHelper {
         }
         MavenSession executeSession = mavenSession.clone();
         executeSession.setCurrentProject(project);
-        lifecyclePluginResolver.resolveMissingPluginVersions(project, executeSession);
-        List<Plugin> plugins = projectHelper.getPlugins(project, executeSession);
-        for (Plugin plugin : plugins) {
-            if (plugin.isExtensions()) {
-                // due to maven classloading model limitations, build extensions plugins cannot
-                // share classes
-                // since tycho core, i.e. this code, is loaded as a build extension, no other
-                // extensions plugin
-                // can load classes from tycho core
-                // https://cwiki.apache.org/MAVEN/maven-3x-class-loading.html
-                continue;
-            }
-            PluginDescriptor pluginDescriptor;
-            try {
-                pluginDescriptor = mavenPluginManager.getPluginDescriptor(plugin, project.getRemotePluginRepositories(),
-                        executeSession.getRepositorySession());
-                // session);
-            } catch (PluginResolutionException e) {
-                // if the plugin really does not exist, the Maven build will fail later on
-                // anyway -> ignore for now (cf. bug #432957)
-                logger.debug("PluginResolutionException while looking for components from " + plugin, e);
-                continue;
-            }
-            if (pluginDescriptor != null) {
-                if (filter == null || filter.accept(pluginDescriptor)) {
-                    ClassRealm pluginRealm = buildPluginManager.getPluginRealm(executeSession, pluginDescriptor);
-                    if (pluginRealm != null) {
-                        ClassLoader origTCCL = Thread.currentThread().getContextClassLoader();
-                        try {
-                            Thread.currentThread().setContextClassLoader(pluginRealm);
-                            runnable.run();
-                        } finally {
-                            Thread.currentThread().setContextClassLoader(origTCCL);
+        try {
+            lifecyclePluginResolver.resolveMissingPluginVersions(project, executeSession);
+            List<Plugin> plugins = projectHelper.getPlugins(project, executeSession);
+            for (Plugin plugin : plugins) {
+                if (plugin.isExtensions()) {
+                    // due to maven classloading model limitations, build extensions plugins cannot
+                    // share classes
+                    // since tycho core, i.e. this code, is loaded as a build extension, no other
+                    // extensions plugin
+                    // can load classes from tycho core
+                    // https://cwiki.apache.org/MAVEN/maven-3x-class-loading.html
+                    continue;
+                }
+                PluginDescriptor pluginDescriptor;
+                try {
+                    pluginDescriptor = mavenPluginManager.getPluginDescriptor(plugin, project.getRemotePluginRepositories(),
+                            executeSession.getRepositorySession());
+                    // session);
+                } catch (PluginResolutionException e) {
+                    // if the plugin really does not exist, the Maven build will fail later on
+                    // anyway -> ignore for now (cf. bug #432957)
+                    logger.debug("PluginResolutionException while looking for components from " + plugin, e);
+                    continue;
+                }
+                if (pluginDescriptor != null) {
+                    if (filter == null || filter.accept(pluginDescriptor)) {
+                        ClassRealm pluginRealm = buildPluginManager.getPluginRealm(executeSession, pluginDescriptor);
+                        if (pluginRealm != null) {
+                            ClassLoader origTCCL = Thread.currentThread().getContextClassLoader();
+                            try {
+                                Thread.currentThread().setContextClassLoader(pluginRealm);
+                                runnable.run();
+                            } finally {
+                                Thread.currentThread().setContextClassLoader(origTCCL);
+                            }
                         }
                     }
                 }
             }
+        } finally {
+            // the clone has its own thread local, reset it so that the (possibly pooled) thread does
+            // not keep a reference to the project after the clone is discarded
+            executeSession.setCurrentProject(null);
         }
 
     }
