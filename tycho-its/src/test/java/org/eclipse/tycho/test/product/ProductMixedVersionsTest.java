@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.jupiter.api.Test;
 

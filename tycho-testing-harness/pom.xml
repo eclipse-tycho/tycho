@@ -39,16 +39,6 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.maven.shared</groupId>
-			<artifactId>maven-verifier</artifactId>
-			<exclusions>
-				<exclusion>
-					<artifactId>junit</artifactId>
-					<groupId>junit</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-api</artifactId>
 			<version>${project.version}</version>
