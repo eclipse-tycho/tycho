@@ -41,6 +41,7 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
+import org.eclipse.tycho.p2maven.helper.MavenSessionHelper;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
@@ -65,14 +66,14 @@ public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerServic
 	@Inject
 	private RepositorySystem repositorySystem;
 
-	private MavenSession mavenSession;
+	@Inject
+	private MavenSessionHelper sessionHelper;
 
 	@Inject
 	private ArtifactHandlerManager artifactHandlerManager;
 
 	@Override
 	public void afterFrameworkStarted(EmbeddedEquinox framework) {
-		this.mavenSession = context.getSession();
 		framework.registerService(URLStreamHandlerService.class, this,
 				Map.of(URLConstants.URL_HANDLER_PROTOCOL, new String[] { PROTOCOL }));
 	}
@@ -83,7 +84,7 @@ public class MavenURLStreamHandlerService extends AbstractURLStreamHandlerServic
 		if (session == null) {
 			logger.warn(
 					"Called connect() outside maven thread, using global session, project specific repositories or configuration might be ignored!");
-			session = mavenSession;
+			session = sessionHelper.getSession();
 		}
 		return new MavenURLConnection(url, session, repositorySystem, artifactHandlerManager, logger);
 	}
