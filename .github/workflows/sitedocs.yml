@@ -44,7 +44,7 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
       with:
-        java-version: 21
+        java-version: 25
         distribution: 'temurin'
         cache: maven
     - name: Set up Maven
@@ -53,7 +53,7 @@ jobs:
         maven-version: 3.9.16
     - name: Build site-doc
       env:
-       JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
+       JAVA_HOME: ${{ env.JAVA_HOME_25_X64 }}
       run: | 
         mvn -U -V -e -B -ntp clean install site site:stage --file tycho/pom.xml -T1C -DskipTests
     - name: Upload site-doc

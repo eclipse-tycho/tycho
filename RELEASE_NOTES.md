@@ -6,6 +6,11 @@ If you are reading this in the browser, then you can quickly jump to specific ve
 
 ## 6.0.0 (under development)
 
+### Java 25 required to run Tycho build
+
+Tycho now requires to run with Java 25, in line with the Eclipse Platform requiring Java 25 starting with the 2026-12 release.
+As before it can still compile / test for older Java releases.
+
 ### Multi-Release JAR compilation using JDT's `release` classpath attribute
 
 Tycho now natively supports the [JDT multi-release JAR compilation feature](https://eclipse.dev/eclipse/markdown/?f=news/4.38/jdt.md#multi-release-jar-compilation-support)

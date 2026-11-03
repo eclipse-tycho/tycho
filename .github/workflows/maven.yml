@@ -28,6 +28,7 @@ jobs:
             11
             17
             21
+            25
         distribution: 'temurin'
         cache: maven
     - name: Set up Maven
@@ -36,7 +37,7 @@ jobs:
         maven-version: 3.9.16
     - name: Build Tycho
       env:
-       JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
+       JAVA_HOME: ${{ env.JAVA_HOME_25_X64 }}
       run: | 
         mvn -U -V -e -B -ntp clean install --file pom.xml -DtrimStackTrace=false -Pits -fae
     - name: Upload Test Results

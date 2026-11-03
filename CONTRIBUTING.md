@@ -88,7 +88,7 @@ and the minimal reproducer project to Tycho's [issue tracker](https://github.com
 
 ### Prerequisites
 
-Java 21 and Maven 3.9.12, or newer.
+Java 25 and Maven 3.9.12, or newer.
 
 If your Internet connection uses a proxy, make sure that you have the proxy configured in your [Maven settings.xml](https://maven.apache.org/settings.html).
 
