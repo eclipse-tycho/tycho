@@ -17,11 +17,11 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.jupiter.api.Test;
 
-public class CompilerExtraExportsJava17Test extends AbstractTychoIntegrationTest {
+public class CompilerExtraExportsJava25Test extends AbstractTychoIntegrationTest {
 
 	@Test
 	public void testExtraExports() throws Exception {
-		Verifier verifier = getVerifier("compiler.extraExports.java21", false);
+		Verifier verifier = getVerifier("compiler.extraExports.java25", false);
 		verifier.executeGoal("compile");
 		verifier.verifyErrorFreeLog();
 	}
