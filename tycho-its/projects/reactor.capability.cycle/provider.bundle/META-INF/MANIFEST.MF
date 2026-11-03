@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Transport Provider Bundle
+Bundle-SymbolicName: provider.bundle
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Provide-Capability: osgi.implementation;p2.agent.servicename=org.eclipse.equinox.internal.p2.repository.Transport;version=1.0.0
+Require-Bundle: consumer.bundle;bundle-version="1.0.0"
