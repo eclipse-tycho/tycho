@@ -19,13 +19,11 @@ import java.net.Proxy;
 import java.net.Proxy.Type;
 import java.net.URI;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.LegacySupport;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.Authentication;
@@ -40,22 +38,13 @@ public class ProxyHelper {
 	@Inject
 	protected Logger logger;
 	@Inject
-	protected LegacySupport context;
+	protected MavenSessionHelper sessionHelper;
 
 	@Inject
 	protected SettingsDecrypterHelper decrypter;
 
-	private RepositorySystemSession repositorySession;
-
-	@PostConstruct
-	public void initialize() {
-		MavenSession session = context.getSession();
-		if (session != null) {
-			repositorySession = session.getRepositorySession();
-		}
-	}
-
 	public Proxy getProxy(URI uri) {
+		RepositorySystemSession repositorySession = getRepositorySession();
 		if (repositorySession != null) {
 			RemoteRepository repository = new RemoteRepository.Builder(null, P2ArtifactRepositoryLayout.ID,
 					uri.toASCIIString()).build();
@@ -79,6 +68,7 @@ public class ProxyHelper {
 	}
 
 	public PasswordAuthentication getPasswordAuthentication(URI uri, RequestorType type) {
+		RepositorySystemSession repositorySession = getRepositorySession();
 		if (repositorySession != null) {
 			RemoteRepository repository = new RemoteRepository.Builder(null, P2ArtifactRepositoryLayout.ID,
 					uri.toASCIIString()).build();
@@ -95,6 +85,11 @@ public class ProxyHelper {
 			}
 		}
 		return null;
+	}
+
+	private RepositorySystemSession getRepositorySession() {
+		MavenSession session = sessionHelper.getSession();
+		return session != null ? session.getRepositorySession() : null;
 	}
 
 }
