@@ -170,6 +170,13 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 		runDemo("osgi-repository", "deploy", "-DaltDeploymentRepository=snapshot-repo::default::file:maven-repository");
 	}
 
+	@Test
+	public void testTargetPlatformDemo() throws Exception {
+		Verifier verifier = runDemo("target-platform");
+		// all project_loc variants must be resolved, otherwise the target is incomplete
+		verifier.verifyTextNotInLog("Cannot resolve ${project_loc");
+	}
+
 	protected Verifier runDemo(String test, String... xargs) throws Exception {
 		Verifier verifier = super.getVerifier("../../demo/" + test, true, true);
 		for (String xarg : xargs) {

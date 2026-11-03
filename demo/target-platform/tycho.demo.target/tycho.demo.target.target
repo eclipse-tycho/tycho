@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="Target Platform Demo">
+    <locations>
+        <!-- 1. Matched against the project name (<name> in the pom.xml, which is also the name in the Eclipse .project file) -->
+        <location path="${project_loc:tycho.demo.by.project.name}/plugins" type="Directory"/>
+        <!-- Same as above, the leading slash is the notation the Eclipse IDE uses and is ignored by Tycho -->
+        <location path="${project_loc:/tycho.demo.by.project.name}/plugins" type="Directory"/>
+        <!-- 2. Matched against the Maven artifactId -->
+        <location path="${project_loc:tycho.demo.by.artifact.id}/plugins" type="Directory"/>
+        <!-- 3. Matched against the name of the folder that contains the project -->
+        <location path="${project_loc:by-directory-name}/plugins" type="Directory"/>
+    </locations>
+</target>
