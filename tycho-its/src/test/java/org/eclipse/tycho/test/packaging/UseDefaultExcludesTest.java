@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.File;
 import java.util.jar.JarFile;
 
-import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.verifier.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.jupiter.api.Test;
 
