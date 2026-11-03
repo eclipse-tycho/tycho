@@ -69,7 +69,7 @@ Eclipse Tycho is a set of Maven plugins and extensions for building Eclipse plug
 
 **Key Technologies:**
 - Java 17+ (minimum JDK 25 for building)
-- Maven 3.9.9 or newer
+- Maven 3.10.0 or newer
 - Eclipse Platform (p2, Equinox, OSGi)
 - JDT (Eclipse Java Development Tools)
 - BND (OSGi tooling)
@@ -77,7 +77,7 @@ Eclipse Tycho is a set of Maven plugins and extensions for building Eclipse plug
 ## Development Environment
 
 ### Prerequisites
-- Java 17 and Maven 3.9.9, or newer
+- Java 25 and Maven 3.10.0, or newer
 - Configure Maven proxy settings if behind a firewall (in `~/.m2/settings.xml`)
 
 ### Building the Project
@@ -191,7 +191,7 @@ public void test() throws Exception {
 
 ### Debug Build Issues
 - Ensure local Tycho version matches project's Tycho version
-- Check that prerequisites (Java 17+, Maven 3.9.9+) are met
+- Check that prerequisites (Java 25+, Maven 3.10.0+) are met
 - Review Tycho's Maven settings if using custom repositories
 
 ## Common Patterns
