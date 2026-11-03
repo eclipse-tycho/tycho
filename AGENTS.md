@@ -68,7 +68,7 @@ these rules, follow these rules and tell the user why.
 Eclipse Tycho is a set of Maven plugins and extensions for building Eclipse plug-ins, OSGi bundles, Eclipse features, update sites/p2 repositories, RCP applications, and bnd workspaces with Maven. Tycho integrates Maven with Eclipse and OSGi.
 
 **Key Technologies:**
-- Java 17+ (minimum JDK 21 for building)
+- Java 17+ (minimum JDK 25 for building)
 - Maven 3.9.9 or newer
 - Eclipse Platform (p2, Equinox, OSGi)
 - JDT (Eclipse Java Development Tools)
