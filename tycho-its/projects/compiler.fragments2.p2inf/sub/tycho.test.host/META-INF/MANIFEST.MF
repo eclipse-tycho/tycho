@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+X-VersionControl: "@(#)$Id$"
+Bundle-ManifestVersion: 2
+Bundle-Name: Tychotest host
+Bundle-SymbolicName: tycho.test.host;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: Eclipse tycho
+Bundle-Localization: plugin
+Export-Package: tycho.test.host
+Build-Jdk: 1.8.0_131
+Eclipse-ExtensibleAPI: true
+Bundle-RequiredExecutionEnvironment: JavaSE-17
