@@ -515,7 +515,7 @@
 										<version>${min.jdk.version}</version>
 									</requireJavaVersion>
 									<requireMavenVersion>
-										<version>3.8.6</version>
+										<version>3.10.0</version>
 									</requireMavenVersion>
 									<requirePluginVersions />
 								</rules>
