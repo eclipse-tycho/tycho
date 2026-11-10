@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Embedded Maven Dependency
+Bundle-SymbolicName: tycho.demo.embed
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: lib/commons-lang3.jar
+Export-Package: org.apache.commons.lang3;version="3.17.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-17
