@@ -142,6 +142,25 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testMavenDependencyEmbedDemo() throws Exception {
+		Verifier verifier = runDemo("maven-dependency-embed");
+		Path basedir = Path.of(verifier.getBasedir());
+		File embedJar = basedir.resolve("tycho.demo.embed/target/tycho.demo.embed-1.0.0-SNAPSHOT.jar").toFile();
+		try (JarFile jarFile = new JarFile(embedJar)) {
+			assertNotNull(jarFile.getEntry("lib/commons-lang3.jar"), "commons-lang3 was not embedded in the bundle");
+			String classpath = jarFile.getManifest().getMainAttributes().getValue("Bundle-ClassPath");
+			assertTrue(classpath.contains("lib/commons-lang3.jar"), "Bundle-ClassPath does not reference the jar");
+			String exports = jarFile.getManifest().getMainAttributes().getValue("Export-Package");
+			assertTrue(exports.contains("org.apache.commons.lang3"), "package is not exported");
+		}
+		File consumerJar = basedir.resolve("tycho.demo.consumer/target/tycho.demo.consumer-1.0.0-SNAPSHOT.jar")
+				.toFile();
+		try (JarFile jarFile = new JarFile(consumerJar)) {
+			assertNotNull(jarFile.getEntry("tycho/demo/consumer/Consumer.class"), "consumer was not compiled");
+		}
+	}
+
+	@Test
 	public void testTychoBndPdeWorkspaceDemo() throws Exception {
 		runDemo("bnd-pde-workspace");
 	}

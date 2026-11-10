@@ -9,6 +9,17 @@ Sample projects demonstrating how to use Tycho.
 * `testing`: Demonstrate different ways to test Bundles/Plugins with Tycho see https://tycho.eclipseprojects.io/doc/master/TestingBundles.html for more details.
 * `pde-automatic-manifest`: Demonstrate the combination of classical PDE project layouts with project layouts that use automatic MANIFEST generation to build an Eclipse based product.
 * `lombok`: Demonstrate how to use [Project Lombok](https://projectlombok.org/) with Tycho.
+* `bnd-workspace/`: Build a BND Workspace with Maven without any poms.
+* `bnd-pde-workspace/`: Build a mixture of BND Workspace and PDE projects with Maven.
+* `custom-signing-product/`: Build a product repository with custom icons.
+* `justj/`: Demonstrate how to include a JustJ JRE in a product, either manually (`product`) or with `includeJRE` (`automaticInstall`).
+* `maven-dependency-embed/`: Embed a Maven dependency into a bundle using the `maven-dependency-plugin` (not common practice).
+* `multi-release-jar/`: Build a [Multi-Release-Jar](https://openjdk.org/jeps/238) manifest-first with supplemental manifests.
+* `multi-release-jar-classpath/`: Build a Multi-Release-Jar using the JDT `release` classpath attribute.
+* `osgi-repository/`: Publish bundles as an OSGi Repository to a Maven repository.
+* `p2-maven-site/`: Publish bundles and a P2 update-site to a Maven repository.
+* `publish-p2/`: Publish any bundle jar as a P2 update-site.
+* `promote-p2/`: Promote a created repository to an Eclipse update site using the p2 manager.
 
 Each demo project (except itp02) can be built by executing:
 
