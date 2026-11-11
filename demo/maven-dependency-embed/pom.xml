@@ -10,6 +10,7 @@
 	<modules>
 		<module>tycho.demo.embed</module>
 		<module>tycho.demo.consumer</module>
+		<module>tycho.demo.internal</module>
 	</modules>
 	<properties>
 		<tycho-version>${tycho-version}</tycho-version>
