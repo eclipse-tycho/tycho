@@ -39,3 +39,23 @@ Only do it for a jar you own, with good reasons, and when you are aware of the i
 
 If the reason for embedding is that the jar has no OSGi manifest headers, Tycho and PDE already offer the *Maven target location*.
 It transparently wraps jars on demand into bundles, so they can be consumed like any other dependency from the target platform without embedding them.
+
+## Embedding for internal use (`tycho.demo.internal`)
+
+The bundle `tycho.demo.internal` shows a variant where nothing is exported, so the jars are purely for internal use.
+It adds the latest Eclipse release as a p2 repository in its `pom.xml`, declares `commons-text` and `gson` as Maven dependencies with `scope=provided` and uses `Require-Bundle: org.eclipse.core.runtime` in the manifest.
+
+Tycho adds the resolved manifest dependencies (including the whole transitive chain of `org.eclipse.core.runtime`, e.g. `org.eclipse.osgi`) to the Maven project.
+A plain `copy-dependencies` therefore copies them into `lib` as well, which is usually not intended.
+Eclipse bundles are available from the target platform at runtime and must not be embedded.
+
+The copied bundles come with different scopes, so the simplest way to get only what is wanted is a scope filter:
+
+```xml
+<goal>copy-dependencies</goal>
+...
+<includeScope>provided</includeScope>
+```
+
+The transitive dependencies of a `provided` dependency inherit that scope, so `commons-lang3` (from `commons-text`) and `error_prone_annotations` (from `gson`) are still copied.
+Bundles resolved from p2 (group id `p2.eclipse.plugin`, scope `system`) and the `org.osgi` jars pulled in by them (scope `compile`) are skipped.
