@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Host with a fragment from the target platform
+Bundle-SymbolicName: org.eclipse.swt;singleton:=true
+Bundle-Version: 3.128.0.qualifier
+Eclipse-ExtensibleAPI: true
+Bundle-RequiredExecutionEnvironment: JavaSE-21
