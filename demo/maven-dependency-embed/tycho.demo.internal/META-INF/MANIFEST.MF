@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Internal Embedded Dependencies
+Bundle-SymbolicName: tycho.demo.internal
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.core.runtime
+Bundle-ClassPath: .,
+ lib/commons-text-1.12.0.jar,
+ lib/commons-lang3-3.14.0.jar,
+ lib/gson-2.11.0.jar,
+ lib/error_prone_annotations-2.27.0.jar
+Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -25,6 +25,12 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.apache.maven.it.VerificationException;
@@ -157,6 +163,32 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 				.toFile();
 		try (JarFile jarFile = new JarFile(consumerJar)) {
 			assertNotNull(jarFile.getEntry("tycho/demo/consumer/Consumer.class"), "consumer was not compiled");
+		}
+		// only the provided dependencies and their transitives must be copied, not
+		// the bundles coming from Require-Bundle (or their dependencies)
+		Path lib = basedir.resolve("tycho.demo.internal/lib");
+		Set<String> copied;
+		try (Stream<Path> files = Files.list(lib)) {
+			copied = files.map(path -> path.getFileName().toString()).filter(name -> name.endsWith(".jar"))
+					.collect(Collectors.toCollection(TreeSet::new));
+		}
+		assertEquals(Set.of("commons-text-1.12.0.jar", "commons-lang3-3.14.0.jar", "gson-2.11.0.jar",
+				"error_prone_annotations-2.27.0.jar"), copied, "unexpected content in lib folder");
+		// the packaged bundle must embed exactly these jars, reference them and export nothing
+		Set<String> expectedEntries = copied.stream().map(name -> "lib/" + name)
+				.collect(Collectors.toCollection(TreeSet::new));
+		try (JarFile jarFile = new JarFile(
+				basedir.resolve("tycho.demo.internal/target/tycho.demo.internal-1.0.0-SNAPSHOT.jar").toFile())) {
+			Set<String> embedded = jarFile.stream().map(JarEntry::getName)
+					.filter(name -> name.startsWith("lib/") && !name.equals("lib/"))
+					.collect(Collectors.toCollection(TreeSet::new));
+			assertEquals(expectedEntries, embedded, "unexpected jars embedded in the bundle");
+			Attributes attributes = jarFile.getManifest().getMainAttributes();
+			List<String> classpath = Arrays.stream(attributes.getValue("Bundle-ClassPath").split(",")).map(String::trim)
+					.toList();
+			assertTrue(classpath.containsAll(expectedEntries), "Bundle-ClassPath does not reference all jars");
+			assertNull(attributes.getValue("Export-Package"), "no package should be exported");
+			assertEquals("org.eclipse.core.runtime", attributes.getValue("Require-Bundle"));
 		}
 	}
 
