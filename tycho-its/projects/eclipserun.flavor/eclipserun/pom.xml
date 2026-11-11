@@ -65,47 +65,11 @@
 							<type>eclipse-plugin</type>
 						</dependency>
 						<dependency>
-							<artifactId>org.eclipse.core.net</artifactId>
-							<type>eclipse-plugin</type>
-						</dependency>
-						<dependency>
-							<artifactId>org.eclipse.core.net.win32.x86_64</artifactId>
-							<type>eclipse-plugin</type>
-						</dependency>
-						<dependency>
 							<artifactId>org.eclipse.pde.core</artifactId>
 							<type>eclipse-plugin</type>
 						</dependency>
 						<dependency>
-							<artifactId>org.eclipse.ecf.filetransfer</artifactId>
-							<type>eclipse-plugin</type>
-						</dependency>
-						<dependency>
-							<artifactId>org.eclipse.ecf.provider.filetransfer</artifactId>
-							<type>eclipse-plugin</type>
-						</dependency>
-						<dependency>
-							<artifactId>org.eclipse.ecf.provider.filetransfer.httpclient5</artifactId>
-							<type>eclipse-plugin</type>
-						</dependency>
-						<dependency>
-							<artifactId>org.eclipse.ecf.provider.filetransfer.httpclient5.win32</artifactId>
-							<type>eclipse-plugin</type>
-						</dependency>
-						<dependency>
-							<artifactId>org.eclipse.ecf.provider.filetransfer.ssl</artifactId>
-							<type>eclipse-plugin</type>
-						</dependency>
-						<dependency>
-							<artifactId>org.eclipse.ecf.ssl</artifactId>
-							<type>eclipse-plugin</type>
-						</dependency>
-						<dependency>
 							<artifactId>org.eclipse.equinox.p2.touchpoint.natives</artifactId>
-							<type>eclipse-plugin</type>
-						</dependency>
-						<dependency>
-							<artifactId>org.eclipse.equinox.p2.transport.ecf</artifactId>
 							<type>eclipse-plugin</type>
 						</dependency>
 						<dependency>

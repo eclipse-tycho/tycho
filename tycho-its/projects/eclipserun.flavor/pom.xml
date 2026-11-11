@@ -24,7 +24,6 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<executionEnvironment>JavaSE-11</executionEnvironment>
-					<resolver>p2</resolver>
 					<target>
 						<artifact>
 							<groupId>${project.groupId}</groupId>
@@ -32,14 +31,6 @@
 							<version>${project.version}</version>
 						</artifact>
 					</target>
-					<ignoreTychoRepositories>true</ignoreTychoRepositories>
-					<environments>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86_64</arch>
-						</environment>
-					</environments>
 				</configuration>
 			</plugin>
 			<plugin>
