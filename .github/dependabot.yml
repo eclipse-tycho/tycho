@@ -12,6 +12,9 @@ updates:
     p2:
       patterns:
         - "org.eclipse.platform:org.eclipse.equinox.p2.*"
+    maven-resolver:
+      patterns:
+        - "org.apache.maven.resolver:*"
   ignore:
     - dependency-name: "org.codehaus.plexus:plexus-archiver"
       versions: ["4.10.1", "4.10.2", "4.10.3"]
@@ -35,6 +38,9 @@ updates:
     p2:
       patterns:
         - "org.eclipse.platform:org.eclipse.equinox.p2.*"
+    maven-resolver:
+      patterns:
+        - "org.apache.maven.resolver:*"
   ignore:
     - dependency-name: "org.codehaus.plexus:plexus-archiver"
       versions: ["4.10.1", "4.10.2", "4.10.3"]
