@@ -90,9 +90,7 @@ public class ProjectHelper {
      */
     public boolean hasPluginExecution(String pluginGroupId, String pluginArtifactId, String goal, MavenProject project,
             MavenSession mavenSession) {
-        MavenSession clone = mavenSession.clone();
-        clone.setCurrentProject(project);
-        List<Plugin> plugins = getPlugins(project, clone);
+        List<Plugin> plugins = getPluginsForCurrentProject(project, mavenSession);
         for (Plugin plugin : plugins) {
             if (plugin.getGroupId().equals(pluginGroupId) && plugin.getArtifactId().equals(pluginArtifactId)) {
                 for (PluginExecution execution : plugin.getExecutions()) {
@@ -119,9 +117,7 @@ public class ProjectHelper {
 
     public Xpp3Dom getPluginConfiguration(String pluginGroupId, String pluginArtifactId, String goal,
             MavenProject project, MavenSession mavenSession) {
-        MavenSession clone = mavenSession.clone();
-        clone.setCurrentProject(project);
-        List<Plugin> plugins = getPlugins(project, clone);
+        List<Plugin> plugins = getPluginsForCurrentProject(project, mavenSession);
         for (Plugin plugin : plugins) {
             if (plugin.getGroupId().equals(pluginGroupId) && plugin.getArtifactId().equals(pluginArtifactId)) {
                 if (goal == null) {
@@ -138,6 +134,18 @@ public class ProjectHelper {
             }
         }
         return null;
+    }
+
+    private List<Plugin> getPluginsForCurrentProject(MavenProject project, MavenSession mavenSession) {
+        MavenSession clone = mavenSession.clone();
+        clone.setCurrentProject(project);
+        try {
+            return getPlugins(project, clone);
+        } finally {
+            // the clone has its own thread local, reset it so that the (possibly pooled) thread does
+            // not keep a reference to the project after the clone is discarded
+            clone.setCurrentProject(null);
+        }
     }
 
     public MavenProject getCurrentProject() {
