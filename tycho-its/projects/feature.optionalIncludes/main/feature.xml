@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="feature.optionalIncludes.main"
+      label="Main"
+      version="1.0.0.qualifier">
+
+   <includes
+         id="feature.optionalIncludes.included"
+         version="0.0.0"/>
+
+   <includes
+         id="feature.optionalIncludes.missing"
+         version="0.0.0"
+         optional="true"/>
+
+</feature>
