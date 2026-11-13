@@ -62,6 +62,11 @@ public class TychoReactorReader implements MavenWorkspaceReader {
             if (mainArtifact != null && mainArtifact.getFile() != null && mainArtifact.getFile().exists()) {
                 return mainArtifact.getFile();
             }
+            // Prefer the compiled classes over the project root, if they exist, when not packaged in this session, 
+            File outputDirectory = new File(project.getBuild().getOutputDirectory());
+            if (outputDirectory.isDirectory()) {
+                return outputDirectory;
+            }
             return project.getBasedir();
         }).orElse(null);
     }
