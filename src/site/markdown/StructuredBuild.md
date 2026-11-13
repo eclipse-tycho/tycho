@@ -88,3 +88,33 @@ Tycho however can derive most of the information from other already existing fil
 ```
 
 - You can now run your build with `mvn verify`.
+
+## Where a pomless module looks for its parent
+
+A pomless module has no `pom.xml` in which a `<parent>` could be declared, so Tycho derives the parent from the file system.
+By default it uses the directory one level up (`..`), which is what a structured layout provides.
+
+If the parent is somewhere else, set the property `tycho.pomless.parent` in the `build.properties` of the module.
+The value may point to a directory or directly to a POM file, and it is resolved relative to the module directory:
+
+```properties
+bin.includes = META-INF/,.
+source.. = src/
+tycho.pomless.parent = ../../releng/parent
+```
+
+The same property can be set as a system property to change the default for every module of the build, for example in `.mvn/maven.config`:
+
+```properties
+-Dtycho.pomless.parent=../../releng/parent
+```
+
+Absolute values are used as they are, which is useful if the modules are not all at the same depth, for example because they come from Git submodules or from a flat layout.
+Combined with `${maven.multiModuleProjectDirectory}`, which Maven sets to the directory containing the `.mvn` folder, every module of the build resolves the root POM as its parent, no matter how deeply it is nested:
+
+```properties
+-Dtycho.pomless.parent=${maven.multiModuleProjectDirectory}
+```
+
+Note that this also bypasses any intermediate aggregator as a parent, so use it for layouts where the root POM is meant to be the parent of every module.
+A `build.properties` entry always wins over the system property, so individual modules can still opt out.
