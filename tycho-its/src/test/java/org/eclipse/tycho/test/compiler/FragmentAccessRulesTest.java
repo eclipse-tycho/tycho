@@ -23,22 +23,16 @@ import org.junit.Test;
 public class FragmentAccessRulesTest extends AbstractTychoIntegrationTest {
 
 	@Test
-	public void testSuppressedRestrictionIsNotReportedAsUnnecessary() throws Exception {
+	public void testAccessRulesOfFragmentAreApplied() throws Exception {
 		Verifier verifier = getVerifier("compiler.fragments.accessRules", false);
 		verifier.executeGoal("compile");
 		verifier.verifyErrorFreeLog();
+		// a suppressed restriction is really needed
 		verifyTextNotInLog(verifier, "Unnecessary @SuppressWarnings(\"restriction\")");
-	}
-
-	@Test
-	public void testInternalApiOfFragmentIsDiscouraged() throws Exception {
-		Verifier verifier = getVerifier("compiler.fragments.accessRules", false);
-		verifier.executeGoal("compile");
-		verifier.verifyErrorFreeLog();
+		// and an unsuppressed one is reported
 		verifier.verifyTextInLog("Unsuppressed.java");
 		verifier.verifyTextInLog("Discouraged access: The type 'DPIUtil' is not API");
 	}
-
 	@Test
 	public void testFragmentFromTargetIsOnClasspathOfItsHost() throws Exception {
 		Verifier verifier = getVerifier("compiler.fragments.hostClasspath", false);
