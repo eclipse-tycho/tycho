@@ -23,6 +23,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -40,7 +41,7 @@ import org.eclipse.tycho.osgi.framework.Features;
 import org.eclipse.tycho.p2maven.transport.TransportCacheConfig;
 import org.osgi.framework.BundleException;
 
-@Mojo(name = "generator", threadSafe = true, requiresProject = false)
+@Mojo(name = "generator", threadSafe = true, requiresProject = false, defaultPhase = LifecyclePhase.VERIFY)
 public class GeneratorMojo extends AbstractMojo {
 
 	@Component
@@ -74,6 +75,22 @@ public class GeneratorMojo extends AbstractMojo {
 
 	@Parameter(property = "index", defaultValue = "${project.build.directory}/index.html")
 	private File index;
+
+	/**
+	 * The base URL of the SBOM renderer used for the links in the generated index,
+	 * defaults to the renderer hosted at https://download.eclipse.org/cbi/sbom. The
+	 * renderer must be hosted on the same origin as the SBOMs.
+	 */
+	@Parameter(property = "renderer")
+	private String renderer;
+
+	/**
+	 * A URI redirection in the form "source->target" to redirect the location of
+	 * the index to the URI where it is (or will be) hosted. If the redirected
+	 * location is not a file URI it is opened in the browser.
+	 */
+	@Parameter(property = "preview")
+	private String preview;
 
 	@Parameter(property = "print.xml")
 	private boolean xml;
@@ -186,6 +203,14 @@ public class GeneratorMojo extends AbstractMojo {
 		String indexPath = getAbsolutePath(index, false, true, null);
 		getLog().info("Index is written to " + indexPath);
 		arguments.add(indexPath);
+		if (renderer != null && !renderer.isBlank()) {
+			arguments.add("-renderer");
+			arguments.add(renderer.trim());
+		}
+		if (preview != null && !preview.isBlank()) {
+			arguments.add("-preview");
+			arguments.add(preview.trim());
+		}
 		arguments.add("-cache");
 		File cachePath;
 		if (cache == null) {
