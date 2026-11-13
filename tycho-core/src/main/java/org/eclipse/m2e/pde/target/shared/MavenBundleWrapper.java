@@ -324,7 +324,10 @@ public class MavenBundleWrapper {
     }
 
     public static Version createOSGiVersion(Artifact artifact) {
-        String version = artifact.getVersion();
+        // The base version, so that a snapshot resolved from a remote repository, whose version is timestamped
+        // (1.0.0-20250101.120000-1), maps to 1.0.0.SNAPSHOT as a locally installed one does, rather than to the 0.0.1
+        // fallback.
+        String version = artifact.getBaseVersion();
         return createOSGiVersion(version);
     }
 

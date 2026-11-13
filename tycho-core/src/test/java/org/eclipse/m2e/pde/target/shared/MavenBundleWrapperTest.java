@@ -28,6 +28,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import org.eclipse.aether.artifact.DefaultArtifact;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -178,6 +179,23 @@ public class MavenBundleWrapperTest {
 
         assertTrue(MavenBundleWrapper.isOutdated(cacheFile.toPath(), sourceFile.toPath()),
                 "Cache should be outdated when source is newer");
+    }
+
+    @Test
+    public void testCreateOSGiVersion_timestampedSnapshot() {
+        // A snapshot resolved from a remote repository carries a timestamped version; the OSGi version must come from
+        // its base version, not fall back to 0.0.1.
+        DefaultArtifact artifact = new DefaultArtifact("com.example", "example", "jar", "0.52.105-20261012.043628-68");
+        assertEquals("0.52.105-SNAPSHOT", artifact.getBaseVersion());
+
+        assertEquals("0.52.105.SNAPSHOT", MavenBundleWrapper.createOSGiVersion(artifact).toString());
+    }
+
+    @Test
+    public void testCreateOSGiVersion_release() {
+        DefaultArtifact artifact = new DefaultArtifact("com.example", "example", "jar", "0.52.104");
+
+        assertEquals("0.52.104", MavenBundleWrapper.createOSGiVersion(artifact).toString());
     }
 
     private File newFile(String name) throws IOException {
