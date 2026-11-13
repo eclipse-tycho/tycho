@@ -140,7 +140,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
             } finally {
                 visited.leave(artifact);
             }
-        } else {
+        } else if (!ref.isOptional()) {
             visitor.missingFeature(ref, visited.getWalkback());
         }
     }

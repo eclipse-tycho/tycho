@@ -15,6 +15,7 @@ package org.eclipse.tycho.packaging;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +24,7 @@ import java.io.File;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.TargetPlatform;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
@@ -67,6 +69,37 @@ public class FeatureXmlTransformerTest {
         assertThat(feature.getPlugins(), hasItem(plugin("org.junit4", "4.8.1.v20100302")));
         PluginRef plugin = feature.getPlugins().get(0);
 		assertEquals("org.junit4", plugin.getId());
+    }
+
+    @Test
+    public void testExpandReferencesOptionalFeatureMissing() throws Exception {
+        subject = new DefaultFeatureXmlTransformer(new SilentLog(), new NoopFileLockService());
+        Feature feature = Feature.read(new File(TestUtil.getBasedir("projects/featureXmlVersionExpansion/"), "feature.xml"));
+        feature.getIncludedFeatures().get(0).getDom().attribute("optional", "true");
+
+        TargetPlatform tp = mock(TargetPlatform.class);
+        when(tp.resolveArtifact("eclipse-feature", "org.eclipse.rcp", "4.5.0.qualifier"))
+                .thenThrow(new DependencyResolutionException("not found"));
+        when(tp.resolveArtifact("eclipse-plugin", "org.junit4", "4.8.1.qualifier")).thenReturn(junit4InTP);
+        when(tp.getArtifactLocation(junit4InTP)).thenReturn(junit4JarLocation);
+
+        subject.expandReferences(feature, tp);
+
+        assertThat(feature.getIncludedFeatures(), hasItem(feature("org.eclipse.rcp", "4.5.0.qualifier")));
+    }
+
+    @Test
+    public void testExpandReferencesRequiredFeatureMissing() throws Exception {
+        subject = new DefaultFeatureXmlTransformer(new SilentLog(), new NoopFileLockService());
+        Feature feature = Feature.read(new File(TestUtil.getBasedir("projects/featureXmlVersionExpansion/"), "feature.xml"));
+
+        TargetPlatform tp = mock(TargetPlatform.class);
+        when(tp.resolveArtifact("eclipse-feature", "org.eclipse.rcp", "4.5.0.qualifier"))
+                .thenThrow(new DependencyResolutionException("not found"));
+        when(tp.resolveArtifact("eclipse-plugin", "org.junit4", "4.8.1.qualifier")).thenReturn(junit4InTP);
+        when(tp.getArtifactLocation(junit4InTP)).thenReturn(junit4JarLocation);
+
+        assertThrows(DependencyResolutionException.class, () -> subject.expandReferences(feature, tp));
     }
 
     private static Matcher<FeatureRef> feature(final String id, final String version) {
