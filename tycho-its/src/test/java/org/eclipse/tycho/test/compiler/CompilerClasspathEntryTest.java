@@ -100,6 +100,16 @@ public class CompilerClasspathEntryTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	public void testComponentPropertyTypeFromReactorBundle() throws Exception {
+		Verifier verifier = getVerifier("tycho-ds-reactor-property-type", true, true);
+		verifier.executeGoals(List.of("clean", "verify"));
+		verifier.verifyErrorFreeLog();
+		Path generated = Path.of(verifier.getBasedir(), "plugin.b/target/classes/OSGI-INF/foo.b.FlavoredComponent.xml");
+		assertTrue(Files.isRegularFile(generated));
+		assertTrue(Files.readString(generated).contains("name=\"flavor\""));
+	}
+
+	@Test
 	public void testOSGiAnnotations() throws Exception {
 		Verifier verifier = getVerifier("compiler.annotations", false, true);
 		verifier.executeGoal("verify");

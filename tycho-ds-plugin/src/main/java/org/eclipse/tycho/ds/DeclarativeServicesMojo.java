@@ -172,7 +172,7 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 					for (ClasspathEntry entry : classpath) {
 						List<File> locations = entry.getLocations();
 						for (File file : locations) {
-							if (file.exists() && !file.equals(outputDirectory) && file.length() > 0) {
+							if (isClasspathEntry(file, outputDirectory)) {
 								try {
 									analyzer.addClasspath(file);
 								} catch (IOException e) {
@@ -256,6 +256,11 @@ public class DeclarativeServicesMojo extends AbstractMojo {
 				throw new MojoFailureException("Generation of DS components failed: " + e.getMessage(), e);
 			}
 		}
+	}
+
+	// reactor dependencies are class directories, which can have a length of zero (e.g. on Windows)
+	static boolean isClasspathEntry(File file, File outputDirectory) {
+		return file.exists() && !file.equals(outputDirectory) && (file.isDirectory() || file.length() > 0);
 	}
 
 }
