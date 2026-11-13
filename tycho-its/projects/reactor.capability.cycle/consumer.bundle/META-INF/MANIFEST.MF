@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Transport Consumer Bundle
+Bundle-SymbolicName: consumer.bundle
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Capability: osgi.implementation;
+  filter:="(|(p2.agent.service.name=org.eclipse.equinox.internal.p2.repository.Transport)(p2.agent.servicename=org.eclipse.equinox.internal.p2.repository.Transport))"
