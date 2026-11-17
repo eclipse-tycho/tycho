@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others.
+ * Copyright (c) 2023, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,6 @@ package org.eclipse.tycho.versionbump;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -27,7 +26,6 @@ import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.wagon.Wagon;
 import org.codehaus.mojo.versions.api.ArtifactVersions;
 import org.codehaus.mojo.versions.api.DefaultVersionsHelper;
 import org.codehaus.mojo.versions.api.PomHelper;
@@ -40,6 +38,7 @@ import org.codehaus.mojo.versions.utils.VersionsExpressionEvaluator;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
+import org.eclipse.aether.spi.connector.transport.TransporterProvider;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -65,7 +64,7 @@ public class MavenLocationUpdater {
     @Inject
     protected RepositorySystem repositorySystem;
     @Inject
-    protected Map<String, Wagon> wagonMap;
+    protected TransporterProvider transporterProvider;
 
     List<MavenVersionUpdate> update(Element mavenLocation, UpdateTargetMojo context)
             throws VersionRangeResolutionException, ArtifactResolutionException, MojoExecutionException,
@@ -120,8 +119,8 @@ public class MavenLocationUpdater {
     }
 
     DefaultVersionsHelper getHelper(UpdateTargetMojo context) throws MojoExecutionException {
-        RuleService ruleService = new RulesServiceBuilder().withWagonMap(wagonMap).withServerId("serverId")
-                .withLog(context.getLog()).withMavenSession(context.getMavenSession())
+        RuleService ruleService = new RulesServiceBuilder().withTransporterProvider(transporterProvider)
+                .withServerId("serverId").withLog(context.getLog()).withMavenSession(context.getMavenSession())
                 .withRulesUri(context.getMavenRulesUri()).withRuleSet(context.getMavenRuleSet())
                 .withIgnoredVersions(context.getMavenIgnoredVersions()).build();
         PomHelper pomHelper = new PomHelper(artifactFactory,
