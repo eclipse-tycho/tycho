@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Christoph Läubrich and others
+ * Copyright (c) 2023, 2026 Christoph Läubrich and others
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -356,8 +356,9 @@ public class MavenBundleWrapper {
     }
 
     private static boolean isExcludedFromWrapping(String name) {
-        return name.equals(JarFile.MANIFEST_NAME) || name.startsWith("META-INF/SIG-") || name.startsWith("META-INF/")
-                && (name.endsWith(".SF") || name.endsWith(".RSA") || name.endsWith(".DSA"));
+        return name.equals(JarFile.MANIFEST_NAME) || name.startsWith("META-INF/SIG-") || (name.startsWith("META-INF/")
+                && (name.endsWith(".SF") || name.endsWith(".RSA") || name.endsWith(".DSA")
+                        || name.startsWith("META-INF/services/")));
     }
 
     public static void addSourceBundleMetadata(Manifest manifest, String symbolicName, String version) {
