@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2022 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2026 Sonatype Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -88,6 +88,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
+import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2maven.InstallableUnitGenerator;
 import org.eclipse.tycho.p2tools.RepositoryReferenceTool;
@@ -776,7 +777,14 @@ public abstract class AbstractEclipseTestMojo extends AbstractTestMojo {
         }
         PropertiesWrapper wrapper = createSurefireProperties(provider, scanResult);
         storeProperties(wrapper.getProperties(), surefireProperties);
-        for (ArtifactDescriptor artifact : testRuntimeArtifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN)) {
+        List<ArtifactDescriptor> bundles = testRuntimeArtifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
+        Set<String> requiredSourceBundleIds = ArtifactTypeHelper.collectRequiredSourceBundleIds(bundles);
+        for (ArtifactDescriptor artifact : bundles) {
+            if (ArtifactTypeHelper.isSourceBundle(artifact)
+                    && !requiredSourceBundleIds.contains(artifact.getKey().getId())) {
+                // source bundles are not needed at runtime unless explicitly referenced
+                continue;
+            }
             // note that this project is added as directory structure rooted at project basedir.
             // project classes and test-classes are added via dev.properties file (see #createDevProperties())
             // all other projects are added as bundle jars.
