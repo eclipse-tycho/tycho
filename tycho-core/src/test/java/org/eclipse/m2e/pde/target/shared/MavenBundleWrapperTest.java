@@ -15,6 +15,7 @@ package org.eclipse.m2e.pde.target.shared;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -146,6 +147,20 @@ public class MavenBundleWrapperTest {
     }
 
     @Test
+    public void testGetEclipseSourceBundle_excludesServiceRegistrations() throws Exception {
+        File sourceFile = temporaryFolder.newFile("services-source.jar");
+        createSourceJar(sourceFile, null, "META-INF/services/com.example.Service");
+
+        File result = MavenBundleWrapper.getEclipseSourceBundle(sourceFile, new Manifest(), "com.example.bundle",
+                "1.0.0");
+
+        try (JarFile jar = new JarFile(result)) {
+            assertNotNull(jar.getEntry("com/example/Test.java"));
+            assertNull(jar.getEntry("META-INF/services/com.example.Service"));
+        }
+    }
+
+    @Test
     public void testIsOutdated_returnsTrueForMissingCache() throws Exception {
         File sourceFile = temporaryFolder.newFile("source.jar");
         File cacheFile = new File(temporaryFolder.getRoot(), "cache.jar");
@@ -184,7 +199,7 @@ public class MavenBundleWrapperTest {
         createSourceJar(file, null);
     }
 
-    private void createSourceJar(File file, String additionalContent) throws IOException {
+    private void createSourceJar(File file, String additionalContent, String... extraEntries) throws IOException {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
         try (JarOutputStream jos = new JarOutputStream(new FileOutputStream(file), manifest)) {
@@ -196,6 +211,10 @@ public class MavenBundleWrapperTest {
             }
             jos.write(content.getBytes());
             jos.closeEntry();
+            for (String extraEntry : extraEntries) {
+                jos.putNextEntry(new ZipEntry(extraEntry));
+                jos.closeEntry();
+            }
         }
     }
 }
