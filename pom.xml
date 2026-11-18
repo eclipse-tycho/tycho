@@ -150,7 +150,8 @@
 			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-xml</artifactId>
-				<version>3.0.2</version>
+				<!-- stay on 3.x: 4.x requires Maven 4 -->
+				<version>3.1.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
