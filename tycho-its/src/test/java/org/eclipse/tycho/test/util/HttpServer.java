@@ -92,6 +92,31 @@ public class HttpServer {
 
 	}
 
+	private static class PermanentRedirectServlet extends HttpServlet {
+		private final Function<String, String> relativeUrlToNewUrl;
+
+		public PermanentRedirectServlet(Function<String, String> relativeUrlToNewUrl) {
+			super();
+			this.relativeUrlToNewUrl = relativeUrlToNewUrl;
+		}
+
+		private void sendPermanentRedirect(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+			resp.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+			resp.setHeader("Location", relativeUrlToNewUrl.apply(req.getServletPath()));
+		}
+
+		@Override
+		protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+			sendPermanentRedirect(req, resp);
+		}
+
+		@Override
+		protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+			sendPermanentRedirect(req, resp);
+		}
+
+	}
+
 	private static final int BIND_ATTEMPTS = 20;
 
 	private final Server server;
@@ -197,6 +222,23 @@ public class HttpServer {
 		registerContext(context);
 		return getUrl(contextName);
 
+	}
+
+	/**
+	 * Registers a context that responds with HTTP 301 (Moved Permanently).
+	 *
+	 * @param contextName         - a path prefix to handle
+	 * @param relativeUrlToNewUrl - redirecting function. Takes a path within
+	 *                            context starting with slash and returns the new
+	 *                            absolute URL to redirect to (Location header
+	 *                            value).
+	 * @return an URL prefix to redirect from
+	 */
+	public String addPermanentRedirect(String contextName, Function<String, String> relativeUrlToNewUrl) {
+		ServletContextHandler context = new ServletContextHandler(contexts, URIUtil.SLASH + contextName);
+		context.addServlet(new ServletHolder(new PermanentRedirectServlet(relativeUrlToNewUrl)), URIUtil.SLASH);
+		registerContext(context);
+		return getUrl(contextName);
 	}
 
 	public String getUrl(String contextName) {
