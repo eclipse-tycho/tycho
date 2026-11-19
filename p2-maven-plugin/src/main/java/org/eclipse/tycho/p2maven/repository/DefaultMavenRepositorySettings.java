@@ -31,7 +31,6 @@ import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
@@ -39,17 +38,16 @@ import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.StringUtils;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.tycho.MavenRepositoryLocation;
 import org.eclipse.tycho.MavenRepositorySettings;
+import org.eclipse.tycho.p2maven.helper.MavenSessionHelper;
 import org.eclipse.tycho.p2maven.helper.SettingsDecrypterHelper;
 
 @Component(role = MavenRepositorySettings.class)
-public class DefaultMavenRepositorySettings implements MavenRepositorySettings, Initializable {
+public class DefaultMavenRepositorySettings implements MavenRepositorySettings {
 
     private static final ArtifactRepositoryPolicy P2_REPOSITORY_POLICY = new ArtifactRepositoryPolicy(true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);
@@ -57,7 +55,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
     @Requirement
     private Logger logger;
     @Requirement
-	private LegacySupport legacySupport;
+	private MavenSessionHelper sessionHelper;
 
     @Requirement
     private SettingsDecrypterHelper decrypter;
@@ -67,11 +65,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 
 	private Map<String, URI> idToMirrorMap = new HashMap<>();
 
-	private Settings settings;
-
-	private List<Mirror> mirrors;
-
-	private RepositorySystemSession repositorySession;
+	private RepositorySystemSession testRepositorySession;
 
     public DefaultMavenRepositorySettings() {
         // for plexus
@@ -79,7 +73,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 
 	public DefaultMavenRepositorySettings(RepositorySystemSession repositorySystemSession) {
 		// for test
-		repositorySession = repositorySystemSession;
+		testRepositorySession = repositorySystemSession;
     }
 
     @Override
@@ -92,7 +86,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 		}
 		ArtifactRepository locationAsMavenRepository = new MavenArtifactRepository(location.getId(),
                 location.getURL().toString(), p2layout, P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
-		Mirror mirror = getTychoMirror(locationAsMavenRepository, mirrors);
+		Mirror mirror = getTychoMirror(locationAsMavenRepository, getConfiguredMirrors());
         if (mirror != null) {
             return new MavenRepositoryLocation(mirror.getId(), URI.create(mirror.getUrl()));
         }
@@ -104,6 +98,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 		if (location.getId() == null) {
             return null;
         }
+		Settings settings = getSettings();
 		Server serverSettings = settings.getServer(location.getId());
 		if (serverSettings == null) {
 			URI url = location.getURL();
@@ -121,6 +116,11 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
         }
         return null;
     }
+
+	private Settings getSettings() {
+		MavenSession session = getSession();
+		return session != null ? session.getSettings() : new Settings();
+	}
 
 	public Stream<URI> parentPathURLs(URI uri) {
 		String originalPath = uri.getPath();
@@ -146,7 +146,7 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 
     public Mirror getTychoMirror(ArtifactRepository repository, List<Mirror> mirrors) {
         // if we find a mirror the default way (the maven way) we will use that mirror
-		Mirror mavenMirror = getMirror(repositorySession, RepositoryUtils.toRepo(repository)).orElse(null);
+		Mirror mavenMirror = getMirror(getRepositorySession(), RepositoryUtils.toRepo(repository)).orElse(null);
         if (mavenMirror != null || mirrors == null) {
             return mavenMirror;
         }
@@ -159,6 +159,14 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
         }
         return null;
     }
+
+	private RepositorySystemSession getRepositorySession() {
+		if (testRepositorySession != null) {
+			return testRepositorySession;
+		}
+		MavenSession session = getSession();
+		return session != null ? session.getRepositorySession() : null;
+	}
 
     private static boolean isPrefixMirrorOf(ArtifactRepository repo, Mirror mirror) {
         boolean isMirrorOfRepoUrl = repo.getUrl() != null && repo.getUrl().startsWith(mirror.getMirrorOf());
@@ -186,21 +194,19 @@ public class DefaultMavenRepositorySettings implements MavenRepositorySettings, 
 	}
 
 	@Override
-	public void initialize() throws InitializationException {
-		MavenSession session = legacySupport.getSession();
-		if (session != null) {
-			settings = session.getSettings();
-			mirrors = session.getRequest().getMirrors();
-			repositorySession = session.getRepositorySession();
-		} else {
-			settings = new Settings();
-			mirrors = Collections.emptyList();
-		}
+	public Stream<MavenRepositoryLocation> getMirrors() {
+		return getConfiguredMirrors().stream()
+				.map(m -> new MavenRepositoryLocation(m.getId(), URI.create(m.getUrl())));
 	}
 
-	@Override
-	public Stream<MavenRepositoryLocation> getMirrors() {
-		return mirrors.stream().map(m -> new MavenRepositoryLocation(m.getId(), URI.create(m.getUrl())));
+	private List<Mirror> getConfiguredMirrors() {
+		MavenSession session = getSession();
+		return session != null ? session.getRequest().getMirrors() : Collections.emptyList();
+	}
+
+	// read on each use, this component outlives the session in a long-lived JVM (e.g. Maven Daemon)
+	private MavenSession getSession() {
+		return sessionHelper != null ? sessionHelper.getSession() : null;
 	}
 
 	private static Optional<Mirror> getMirror(RepositorySystemSession session, RemoteRepository remoteRepository) {
