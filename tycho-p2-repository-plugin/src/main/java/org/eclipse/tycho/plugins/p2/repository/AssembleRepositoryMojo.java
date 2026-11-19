@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 SAP SE and others.
+ * Copyright (c) 2010, 2026 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -343,7 +343,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
             reactorProject.setContextValue(TychoConstants.CTX_METADATA_ARTIFACT_LOCATION, categoriesDirectory);
             MavenProject project = getProject();
             RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(project, getSession(),
-                    RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
+                    RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE
+                            | RepositoryReferenceTool.REPOSITORIES_SKIP_SOURCE_BUNDLE_DOWNLOAD);
             sources.setTargetPlatform(projectManager.getTargetPlatform(project)
                     .orElseThrow(() -> new MojoFailureException(TychoConstants.TYCHO_NOT_CONFIGURED + project)));
 
