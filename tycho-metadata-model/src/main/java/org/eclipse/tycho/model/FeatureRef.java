@@ -77,6 +77,14 @@ public class FeatureRef {
         dom.attribute("ws", value);
     }
 
+    /**
+     * @return <code>true</code> if the <code>optional</code> attribute of the reference is set to
+     *         <code>true</code>, <code>false</code> otherwise
+     */
+    public boolean isOptional() {
+        return Boolean.parseBoolean(dom.attribute("optional"));
+    }
+
     public InstallMode getInstallMode() throws ModelFileSyntaxException {
         String installModeString = dom.attribute("installMode");
 
