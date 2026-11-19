@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="No Start Product" uid="noconfig.product.id" id="product.branding" application="product.bundle.application" version="0.0.1.qualifier" useFeatures="true" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.rcp"/>
+      <feature id="org.eclipse.e4.rcp"/>
+      <feature id="org.eclipse.emf.common"/>
+      <feature id="org.eclipse.emf.ecore"/>
+
+      <feature id="flavor.example.feature"/>
+   </features>
+
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+   </configurations>
+
+</product>
