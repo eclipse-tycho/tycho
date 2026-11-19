@@ -435,11 +435,21 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 OsgiManifest manifest = bundleReader.loadManifest(location);
                 Filter filter = manifest.getTargetEnvironmentFilter();
                 if (filter == null || environments.stream().anyMatch(env -> env.match(filter))) {
-                    classpath.add(new DefaultClasspathEntry(null, readArtifactKey(location),
-                            Collections.singletonList(location), null));
+                    ArtifactKey fragmentKey = readArtifactKey(location);
+                    // a fragment that is already resolved has its access rules, don't add it again unrestricted
+                    if (!containsEntryFor(classpath, fragmentKey)) {
+                        classpath.add(new DefaultClasspathEntry(null, fragmentKey, Collections.singletonList(location),
+                                null));
+                    }
                 }
             }
         }
+    }
+
+    private static boolean containsEntryFor(List<ClasspathEntry> classpath, ArtifactKey key) {
+        return classpath.stream().map(ClasspathEntry::getArtifactKey).anyMatch(existing -> existing != null
+                && existing.getType().equals(key.getType()) && existing.getId().equals(key.getId())
+                && existing.getVersion().equals(key.getVersion()));
     }
 
     private void handleMissingExtraClasspathEntry(String entry, ClasspathDependenciesAction action) {

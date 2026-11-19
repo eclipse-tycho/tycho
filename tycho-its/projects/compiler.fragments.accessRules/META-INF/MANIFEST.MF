@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Access rules of fragments
+Bundle-SymbolicName: compiler.fragments.accessRules
+Bundle-Version: 1.0.0
+Require-Bundle: org.eclipse.swt
+Bundle-RequiredExecutionEnvironment: JavaSE-21
