@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2026 SAP SE and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -39,6 +39,7 @@ import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProjectManager;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.resolver.target.ArtifactTypeHelper;
 import org.eclipse.tycho.p2.repository.RepositoryBlackboardKey;
 import org.eclipse.tycho.p2.resolver.ResolverException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -54,6 +55,12 @@ public class RepositoryReferenceTool {
      * list of repositories.
      */
     public static final int REPOSITORIES_INCLUDE_CURRENT_MODULE = 1;
+
+    /**
+     * Option to indicate that source bundles don't need to be downloaded upfront, because the
+     * caller fetches the artifacts it needs on demand from the target platform.
+     */
+    public static final int REPOSITORIES_SKIP_SOURCE_BUNDLE_DOWNLOAD = 2;
 
     @Requirement(hint = "p2")
     private DependencyResolver dependencyResolver;
@@ -85,7 +92,8 @@ public class RepositoryReferenceTool {
      * @param session
      *            The current Maven session
      * @param flags
-     *            Options flags; supported flags are {@link #REPOSITORIES_INCLUDE_CURRENT_MODULE}
+     *            Options flags; supported flags are {@link #REPOSITORIES_INCLUDE_CURRENT_MODULE} and
+     *            {@link #REPOSITORIES_SKIP_SOURCE_BUNDLE_DOWNLOAD}
      * @return a {@link RepositoryReferences} instance with the repositories.
      * @throws MojoExecutionException
      *             in case of internal errors
@@ -107,7 +115,8 @@ public class RepositoryReferenceTool {
         repositories.addArtifactRepository(RepositoryBlackboardKey.forResolutionContextArtifacts(module.getBasedir()));
 
         // metadata and artifacts of target platform
-        addTargetPlatformRepository(repositories, session, module);
+        addTargetPlatformRepository(repositories, session, module,
+                (flags & REPOSITORIES_SKIP_SOURCE_BUNDLE_DOWNLOAD) != 0);
         repositories.addArtifactRepository(new File(session.getLocalRepository().getBasedir()));
         return repositories;
     }
@@ -117,8 +126,8 @@ public class RepositoryReferenceTool {
      * during the initial dependency resolution (see
      * org.eclipse.tycho.p2.resolver.P2ResolverImpl.toResolutionResult(...)).
      */
-    private void addTargetPlatformRepository(RepositoryReferences sources, MavenSession session, MavenProject project)
-            throws MojoExecutionException, MojoFailureException {
+    private void addTargetPlatformRepository(RepositoryReferences sources, MavenSession session, MavenProject project,
+            boolean skipSourceBundleDownload) throws MojoExecutionException, MojoFailureException {
         try {
             File repositoryLocation = new File(project.getBuild().getDirectory(), "targetPlatformRepository");
             repositoryLocation.mkdirs();
@@ -135,7 +144,9 @@ public class RepositoryReferenceTool {
 
                 DependencyArtifacts dependencyArtifacts = dependencyResolver.resolveDependencies(session, project,
                         targetPlatform, resolverConfiguration, configuration.getEnvironments());
-                dependencyArtifacts.getArtifacts().forEach(artifact -> artifact.getLocation(true)); // ensure artifacts are available locally
+                dependencyArtifacts.getArtifacts().stream()
+                        .filter(artifact -> !skipSourceBundleDownload || !ArtifactTypeHelper.isSourceBundle(artifact))
+                        .forEach(artifact -> artifact.getLocation(true)); // ensure artifacts are available locally
 
                 // this contains dependency-only metadata for 'this' project
                 Set<IInstallableUnit> targetPlatformInstallableUnits = new HashSet<>(
