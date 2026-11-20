@@ -243,8 +243,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 //short circuit
                 return;
             }
+            MavenSession clone = session.clone();
             try {
-                MavenSession clone = session.clone();
                 clone.setCurrentProject(project);
                 resolver.resolveProject(clone, project);
                 if (DUMP_DATA) {
@@ -259,6 +259,10 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 if (failFast) {
                     throw e;
                 }
+            } finally {
+                // the clone has its own thread local, reset it so that the (possibly pooled) thread does
+                // not keep a reference to the project after the clone is discarded
+                clone.setCurrentProject(null);
             }
         };
 

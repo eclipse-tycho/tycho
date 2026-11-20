@@ -79,8 +79,8 @@ public class GenerateTargetMojo extends AbstractMojo {
         List<MavenProject> projects = mavenSession.getProjects();
         List<IInstallableUnit> reactorDependencies = projects.stream().parallel().unordered().flatMap(project -> {
             MavenSession old = legacySupport.getSession();
+            MavenSession clone = mavenSession.clone();
             try {
-                MavenSession clone = mavenSession.clone();
                 clone.setCurrentProject(project);
                 legacySupport.setSession(clone);
                 return projectManager.getDependencyArtifacts(project).map(DependencyArtifacts::getNonReactorUnits)
@@ -95,6 +95,7 @@ public class GenerateTargetMojo extends AbstractMojo {
                         });
             } finally {
                 legacySupport.setSession(old);
+                clone.setCurrentProject(null);
             }
         }).distinct().toList();
         List<String> repoList = projects.stream().flatMap(project -> {
