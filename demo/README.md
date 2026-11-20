@@ -9,6 +9,7 @@ Sample projects demonstrating how to use Tycho.
 * `testing`: Demonstrate different ways to test Bundles/Plugins with Tycho see https://tycho.eclipseprojects.io/doc/master/TestingBundles.html for more details.
 * `pde-automatic-manifest`: Demonstrate the combination of classical PDE project layouts with project layouts that use automatic MANIFEST generation to build an Eclipse based product.
 * `lombok`: Demonstrate how to use [Project Lombok](https://projectlombok.org/) with Tycho.
+* `annotation-processor/`: Run a custom annotation processor (referenced with `annotationProcessorPaths`) that generates a yml documentation file into a bundle.
 * `bnd-workspace/`: Build a BND Workspace with Maven without any poms.
 * `bnd-pde-workspace/`: Build a mixture of BND Workspace and PDE projects with Maven.
 * `custom-signing-product/`: Build a product repository with custom icons.

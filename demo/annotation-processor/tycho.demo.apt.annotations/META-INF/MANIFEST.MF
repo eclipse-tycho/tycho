@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Documentation Annotations
+Bundle-SymbolicName: tycho.demo.apt.annotations
+Bundle-Version: 1.0.0.qualifier
+Export-Package: tycho.demo.apt.annotations
+Bundle-RequiredExecutionEnvironment: JavaSE-17
