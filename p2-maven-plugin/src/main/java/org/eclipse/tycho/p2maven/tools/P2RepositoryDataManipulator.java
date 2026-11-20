@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025, 2025 Hannes Wellmann and others.
+ * Copyright (c) 2025, 2026 Hannes Wellmann and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -133,7 +133,7 @@ public class P2RepositoryDataManipulator {
 			modifyOutputRepository(manager.getMetadataRepository(location.getURL(), location.getId()), outputLocation,
 					manager::mirrorMetadataRepository, r -> r.executeBatch(m -> modification.accept(r), null));
 		}
-		xzCompress(repository, outputLocation);
+		xzCompress(repository);
 	}
 
 	@FunctionalInterface
@@ -155,8 +155,9 @@ public class P2RepositoryDataManipulator {
 		}
 	}
 
-	private void xzCompress(ModifiedRepositoryDescriptor repository, Path outputLocation) throws IOException {
+	private void xzCompress(ModifiedRepositoryDescriptor repository) throws IOException {
 		if (repository.xzCompress()) {
+			Path outputLocation = resolveOutputLocation(repository);
 			XZCompressor xzCompressor = new XZCompressor();
 			xzCompressor.setPreserveOriginalFile(repository.keepNonXzIndexFiles());
 			xzCompressor.setRepoFolder(outputLocation.toAbsolutePath().toString());
@@ -210,7 +211,7 @@ public class P2RepositoryDataManipulator {
 					}, modification, CompositeMetadataRepository.PI_REPOSITORY_TYPE,
 					CompositeMetadataRepositoryFactory.CONTENT_FILENAME);
 		}
-		createP2Index(repository.outputLocation(), repository.isMetadata(), repository.isArtifact());
+		createP2Index(resolveOutputLocation(repository), repository.isMetadata(), repository.isArtifact());
 	}
 
 	private <T, M extends IRepositoryManager<T>, R extends ICompositeRepository<T>> void modifyOutputCompositeRepository(
@@ -234,15 +235,7 @@ public class P2RepositoryDataManipulator {
 				throw e;
 			}
 		}
-		Path outputLocation = descriptor.outputLocation();
-		if (outputLocation == null) {
-			try {
-				outputLocation = Path.of(repository.getURL());
-			} catch (Exception e) {
-				throw new IllegalStateException(
-						"Repository is not modifable and no output location is defined: " + repository.getURL(), e);
-			}
-		}
+		Path outputLocation = resolveOutputLocation(descriptor);
 
 		modification.accept(state);
 
@@ -252,6 +245,20 @@ public class P2RepositoryDataManipulator {
 			state.getProperties().put(IRepository.PROP_COMPRESSED, Boolean.toString(compress));
 			new CompositeRepositoryIO().write(state, output, piRepositoryType);
 		}
+	}
+
+	private static Path resolveOutputLocation(ModifiedRepositoryDescriptor descriptor) {
+		Path outputLocation = descriptor.outputLocation();
+		if (outputLocation == null) { // In-place edit
+			MavenRepositoryLocation repository = descriptor.repository();
+			try {
+				outputLocation = Path.of(repository.getURL());
+			} catch (Exception e) {
+				throw new IllegalStateException(
+						"Repository is not modifable and no output location is defined: " + repository.getURL(), e);
+			}
+		}
+		return outputLocation;
 	}
 
 	private static OutputStream createCompositeFileOutputStream(Path directory, String filename, boolean compress)
