@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 Christoph Läubrich and others.
+ * Copyright (c) 2022, 2026 Christoph Läubrich and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -34,8 +34,14 @@ public class DefaultSignedContentFactory implements SignedContentFactory {
 	@Requirement(hint = "connect")
 	private EquinoxServiceFactory serviceFactory;
 
+	/**
+	 * Synchronized because Equinox lazily creates and opens the trust engine tracker in
+	 * <code>SignedBundleHook.getTrustEngines()</code> without synchronization. A concurrent first
+	 * caller can see the tracker before it is opened, gets no trust engines and so reports a jar
+	 * signed by an anchored certificate as not anchored.
+	 */
 	@Override
-	public SignedContent getSignedContent(File content) throws IOException, InvalidKeyException, SignatureException,
+	public synchronized SignedContent getSignedContent(File content) throws IOException, InvalidKeyException, SignatureException,
 			CertificateException, NoSuchAlgorithmException, NoSuchProviderException {
 		return Objects.requireNonNull(serviceFactory.getService(SignedContentFactory.class),
 				"SignedContentFactory Service not available").getSignedContent(content);
