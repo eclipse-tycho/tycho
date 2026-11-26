@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -135,6 +136,20 @@ public class DemoTest extends AbstractTychoIntegrationTest {
 		String expectedLocation = "tycho.demo.impl/target/executable/tycho.demo.app.jar";
 		File exportedJar = Path.of(verifier.getBasedir(), expectedLocation).toFile();
 		assertTrue(exportedJar.exists(), "Did not find exported executable jar at expected location: " + expectedLocation);
+	}
+
+	@Test
+	public void testAnnotationProcessorDemo() throws Exception {
+		Verifier verifier = runDemo("annotation-processor");
+		File bundle = Path.of(verifier.getBasedir(),
+				"tycho.demo.apt.consumer/target/tycho.demo.apt.consumer-1.0.0-SNAPSHOT.jar").toFile();
+		try (JarFile jarFile = new JarFile(bundle)) {
+			JarEntry entry = jarFile.getJarEntry("doc/documentation.yml");
+			assertNotNull(entry, "generated documentation.yml is not part of the bundle");
+			String yml = new String(jarFile.getInputStream(entry).readAllBytes(), StandardCharsets.UTF_8);
+			assertTrue(yml.contains("A service that is documented with our own annotation"), yml);
+			assertTrue(yml.contains("Executes the service"), yml);
+		}
 	}
 
 	@Test
