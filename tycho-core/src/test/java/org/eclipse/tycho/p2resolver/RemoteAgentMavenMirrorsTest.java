@@ -25,7 +25,6 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.eclipse.tycho.test.util.TychoPlexusExtension;
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -109,10 +108,9 @@ public class RemoteAgentMavenMirrorsTest {
         }
     }
 
-    private void prepareMavenMirrorConfiguration(String id, URI mirrorUrl) throws InitializationException {
+    private void prepareMavenMirrorConfiguration(String id, URI mirrorUrl) {
         DefaultMavenRepositorySettings mavenRepositorySettings = (DefaultMavenRepositorySettings) subject
                 .getService(IRepositoryIdManager.class).getSettings();
-        mavenRepositorySettings.initialize();
         mavenRepositorySettings.addMirror(id, mirrorUrl);
     }
 
