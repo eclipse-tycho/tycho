@@ -80,9 +80,41 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     private static final Version LUNA_SR2_EXECUTABLE_FEATURE_VERSION = Version.parseVersion("3.6.102.v20150204-1316");
 
     /**
-     * The name of the p2 installation flavor to create. "tooling" in all uses of p2.
+     * <p>
+     * The name of the p2 installation flavor the product is published for.
+     * </p>
+     * <p>
+     * A flavor is a label p2 uses to choose between alternative sets of configuration units. These
+     * units hold the touchpoint instructions for installing bundles, such as start levels and
+     * auto-start. The publisher generates them for the flavor named here, and they apply only
+     * when the product is installed with the same flavor. The flavor is part of each generated
+     * unit's id (for example <code>customwin32.win32.x86_64com.example.plugin</code> for flavor
+     * "custom") and of the <code>org.eclipse.equinox.p2.flavor</code> capability the unit
+     * provides.
+     * </p>
+     * <p>
+     * The p2 director must use the same value, through its <code>-flavor</code> option or the
+     * <code>flavor</code> parameter of the <code>tycho-p2-director-plugin</code> goals
+     * <code>materialize-products</code> and <code>archive-products</code>. Otherwise the
+     * configuration is not applied.
+     * </p>
+     * <p>
+     * Keep the default "tooling" in most cases. It is also the default of the p2 director and of
+     * Eclipse IDE products, so it fits products installed with the director or the Eclipse
+     * provisioning UI into a default profile.
+     * </p>
+     * <p>
+     * Use a different flavor if a custom provisioning mechanism installs the product with its own
+     * flavor, or if one repository holds several variants of the same bundles with different
+     * configuration, such as start levels, and each variant is installed with its own flavor.
+     * With only "tooling", those variants would produce units with the same id (for example
+     * <code>toolingwin32.win32.x86_64com.example.plugin</code>), so instructions like
+     * <code>setStartLevel(startLevel:6)</code> and <code>setStartLevel(startLevel:4)</code>
+     * could not be told apart.
+     * </p>
      */
-    private static final String FLAVOR = "tooling";
+    @Parameter(defaultValue = "tooling")
+    private String flavor;
 
     @Component(role = UnArchiver.class, hint = "zip")
     private UnArchiver deflater;
@@ -137,7 +169,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 boolean includeLaunchers = productConfiguration.includeLaunchers();
                 seeds.addAll(
                         publisher.publishProduct(productFile, includeLaunchers ? getExpandedLauncherBinaries() : null,
-                                FLAVOR, productConfiguration.includeJRE() ? jreName : null));
+                                flavor, productConfiguration.includeJRE() ? jreName : null));
                 hasLaunchers |= includeLaunchers;
             } catch (IOException e) {
                 throw new MojoExecutionException(
