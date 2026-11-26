@@ -16,6 +16,7 @@ package org.eclipse.tycho.packaging;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.DependencyResolutionException;
 import org.eclipse.tycho.FileLockService;
 import org.eclipse.tycho.IllegalArtifactReferenceException;
 import org.eclipse.tycho.TargetPlatform;
@@ -100,8 +102,8 @@ public class DefaultFeatureXmlTransformer implements FeatureXmlTransformer {
 					version = String.format("%s|%s", importRef.getVersion(), importRef.getMatch());
 				}
 			}
-			ArtifactKey includedFeature = resolveFeatureReference(targetPlatform, featureRef, version);
-			featureRef.setVersion(includedFeature.getVersion());
+			Optional<ArtifactKey> includedFeature = resolveFeatureReference(targetPlatform, featureRef, version);
+			includedFeature.ifPresent(f -> featureRef.setVersion(f.getVersion()));
 		}
 
 		return feature;
@@ -139,10 +141,23 @@ public class DefaultFeatureXmlTransformer implements FeatureXmlTransformer {
 		}
 	}
 
-	private ArtifactKey resolveFeatureReference(TargetPlatform targetPlatform, FeatureRef featureRef, String version)
-			throws MojoFailureException {
+	/**
+	 * @return the resolved feature, or empty if the reference is optional and the
+	 *         feature is not part of the target platform (the reference is then
+	 *         left unchanged)
+	 */
+	private Optional<ArtifactKey> resolveFeatureReference(TargetPlatform targetPlatform, FeatureRef featureRef,
+			String version) throws MojoFailureException {
 		try {
-			return targetPlatform.resolveArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE, featureRef.getId(), version);
+			return Optional.of(
+					targetPlatform.resolveArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE, featureRef.getId(), version));
+		} catch (DependencyResolutionException e) {
+			if (featureRef.isOptional()) {
+				log.debug("Optional feature " + quote(featureRef.getId())
+						+ " is not available in the target platform, keeping reference unchanged");
+				return Optional.empty();
+			}
+			throw e;
 		} catch (IllegalArtifactReferenceException e) {
 			throw new MojoFailureException("Invalid feature reference with id=" + quote(featureRef.getId())
 					+ " and version " + quote(featureRef.getVersion()) + ": " + e.getMessage(), e);
