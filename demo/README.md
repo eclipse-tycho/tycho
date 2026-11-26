@@ -16,6 +16,7 @@ Sample projects demonstrating how to use Tycho.
 * `maven-dependency-embed/`: Embed a Maven dependency into a bundle using the `maven-dependency-plugin` (not common practice).
 * `multi-release-jar/`: Build a [Multi-Release-Jar](https://openjdk.org/jeps/238) manifest-first with supplemental manifests.
 * `multi-release-jar-classpath/`: Build a Multi-Release-Jar using the JDT `release` classpath attribute.
+* `sbom-product/`: Create SBOMs for a product built for multiple platforms using the `tycho-sbom-plugin:generator` mojo.
 * `osgi-repository/`: Publish bundles as an OSGi Repository to a Maven repository.
 * `p2-maven-site/`: Publish bundles and a P2 update-site to a Maven repository.
 * `publish-p2/`: Publish any bundle jar as a P2 update-site.
