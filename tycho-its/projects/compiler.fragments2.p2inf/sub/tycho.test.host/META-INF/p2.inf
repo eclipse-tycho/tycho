@@ -1,0 +1,7 @@
+requires.1.namespace = org.eclipse.equinox.p2.iu
+requires.1.name = tycho.test.host.fragment
+requires.1.range = [1.0.0,1.0.0]
+# disable this requirement while the host itself is being built in the reactor, otherwise
+# the reactor build order detects a cycle (host -> fragment via this requirement,
+# fragment -> host via Fragment-Host). This mirrors what org.eclipse.swt does.
+requires.1.filter = (!(tycho.test.host.buildtime=true))
