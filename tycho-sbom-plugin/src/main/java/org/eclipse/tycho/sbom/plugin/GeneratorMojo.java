@@ -39,8 +39,16 @@ import org.eclipse.tycho.osgi.framework.Features;
 import org.eclipse.tycho.p2maven.transport.TransportCacheConfig;
 import org.osgi.framework.BundleException;
 
+/**
+ * Generates an SBOM using the CBI p2 SBOM generator. The generator is
+ * downloaded from a rolling nightly repository (unless
+ * <code>generatorRepository</code> is set) and <b>requires Java 25 or newer</b>
+ * to run this goal.
+ */
 @Mojo(name = "generator", threadSafe = true, requiresProject = false)
 public class GeneratorMojo extends AbstractMojo {
+
+	private static final int MINIMUM_JAVA_VERSION = 25;
 
 	@Component
 	private MavenProject project;
@@ -54,7 +62,10 @@ public class GeneratorMojo extends AbstractMojo {
 	private TransportCacheConfig transportCacheConfig;
 
 	/**
-	 * The repository where the generator should be soured from
+	 * The repository where the generator should be soured from. If not set, the
+	 * rolling nightly at
+	 * <code>https://download.eclipse.org/cbi/updates/p2-sbom/products/nightly/</code>
+	 * is used, which requires Java 25 or newer.
 	 */
 	@Parameter()
 	private Repository generatorRepository;
@@ -143,6 +154,12 @@ public class GeneratorMojo extends AbstractMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
+		int javaVersion = Runtime.version().feature();
+		if (javaVersion < MINIMUM_JAVA_VERSION) {
+			throw new MojoFailureException("The tycho-sbom generator goal requires Java " + MINIMUM_JAVA_VERSION
+					+ " or newer, but Maven is running on Java " + javaVersion
+					+ ". Please run Maven with a newer JDK.");
+		}
 		if (installations == null && installation == null) {
 			throw new MojoFailureException("One of 'installations' or 'installation' must be specified");
 		}
