@@ -21,11 +21,13 @@ import java.util.List;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class SbomPluginTest extends AbstractTychoIntegrationTest {
 
 	@Test
+	@Ignore("The generator nightly requires Java 25 (see #6555)")
 	public void testBuildWithProfile() throws Exception {
 		Verifier verifier = getVerifier("sbom-simple-product", false);
 		verifier.addCliOption("-Psbom-generation");
@@ -37,6 +39,7 @@ public class SbomPluginTest extends AbstractTychoIntegrationTest {
 	}
 
 	@Test
+	@Ignore("The generator nightly requires Java 25 (see #6555)")
 	public void testCLIInvocation() throws Exception {
 		Verifier verifier = getVerifier("sbom-simple-product", true);
 		verifier.executeGoals(List.of("clean", "package"));
