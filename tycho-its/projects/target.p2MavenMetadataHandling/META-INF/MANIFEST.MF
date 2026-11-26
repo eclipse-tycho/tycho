@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: test.bundle
+Bundle-Version: 0.0.1.qualifier
+Automatic-Module-Name: test.bundle
+Require-Bundle: org.apache.commons.commons-io
