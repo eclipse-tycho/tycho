@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2025 Red Hat Inc. and others.
+ * Copyright (c) 2021, 2026 Red Hat Inc. and others.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -25,6 +27,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.gpg.AbstractGpgMojoExtension;
 import org.apache.maven.plugins.gpg.ProxySignerWithPublicKeyAccess;
 import org.apache.maven.project.MavenProject;
+import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSignature;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.UnArchiver;
@@ -39,6 +42,7 @@ import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.osgi.signedcontent.SignedContentFactory;
 import org.eclipse.tycho.ReproducibleUtils;
 import org.eclipse.tycho.p2maven.repository.P2RepositoryManager;
@@ -147,6 +151,19 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
      */
     @Parameter(defaultValue = "${project.build.outputTimestamp}")
     private String outputTimestamp;
+
+    /**
+     * Configure to {@code true} to fail the build when a signature is created at a time the
+     * signing key is not valid, i.e., after the key has expired or before it was created. p2
+     * verifies signatures against the public key that is added to the repository, and reports
+     * such signatures with a warning whenever the artifacts are installed or mirrored. A typical
+     * cause is a secret key that was exported before the key's expiration date was extended.
+     * Configure to {@code false} to only log a warning instead.
+     */
+    @Parameter(property = "tycho.pgp.failOnInvalidKey", defaultValue = "true")
+    private boolean failOnInvalidKey;
+
+    private final Set<String> reportedInvalidKeys = ConcurrentHashMap.newKeySet();
 
     @Component(role = UnArchiver.class, hint = "zip")
     private ZipUnArchiver zipUnArchiver;
@@ -301,6 +318,11 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
                 var signatures = signer.generateSignature(artifact);
                 var signerKeys = signatures.all().stream().map(PGPSignature::getKeyID)
                         .flatMap(id -> signer.getPublicKeys().getKeys(id).stream()).toList();
+                for (var signature : signatures.all()) {
+                    for (var key : signer.getPublicKeys().getKeys(signature.getKeyID())) {
+                        checkKeyValidity(signature, key);
+                    }
+                }
                 var keyStore = KeyStore.create(existingKeys);
                 keyStore.add(signerKeys);
                 allKeys.add(keyStore);
@@ -314,9 +336,47 @@ public class SignRepositoryArtifactsMojo extends AbstractGpgMojoExtension {
                     ((ArtifactDescriptor) artifactDescriptor).setProperty(
                             PGPSignatureVerifier.PGP_SIGNER_KEYS_PROPERTY_NAME, keyStore.toArmoredString());
                 }
-            } catch (MojoExecutionException | IOException e) {
+            } catch (MojoExecutionException | MojoFailureException | IOException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
+    }
+
+    private void checkKeyValidity(PGPSignature signature, PGPPublicKey key) throws MojoFailureException {
+        var problem = getKeyValidityProblem(signature, key);
+        if (problem == null) {
+            return;
+        }
+        if (failOnInvalidKey) {
+            throw new MojoFailureException(problem
+                    + " Update the key used for signing, or set 'failOnInvalidKey' to false to only log a warning.");
+        }
+        if (reportedInvalidKeys.add(PGPPublicKeyService.toHexFingerprint(key))) {
+            getLog().warn(problem);
+        }
+    }
+
+    /**
+     * Checks the signature against the validity period of the key, the same way p2 does when
+     * verifying the signature.
+     * 
+     * @return a description of the problem, or {@code null} if the key was valid at the time the
+     *         signature was created.
+     */
+    private static String getKeyValidityProblem(PGPSignature signature, PGPPublicKey key) {
+        var delta = PGPPublicKeyService.compareSignatureTimeToKeyValidityTime(signature, key);
+        if (delta == 0) {
+            return null;
+        }
+        var fingerprint = PGPPublicKeyService.toHexFingerprint(key);
+        var signatureTime = signature.getCreationTime().toInstant();
+        var keyCreationTime = key.getCreationTime().toInstant();
+        if (delta < 0) {
+            return "The PGP signature was created at " + signatureTime + ", before its key " + fingerprint
+                    + " was created at " + keyCreationTime + ".";
+        }
+        return "The PGP signature was created at " + signatureTime + ", after its key " + fingerprint
+                + " expired at " + keyCreationTime.plusSeconds(key.getValidSeconds())
+                + ". p2 will warn about this signature when installing the artifact.";
     }
 }
