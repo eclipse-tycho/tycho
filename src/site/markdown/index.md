@@ -46,6 +46,9 @@ Generate Software Bill of Materials (SBOM) documents for your Eclipse artifacts 
 ### [Tycho CI Friendly Versions](TychoCiFriendly.html)
 Use enhanced version properties for continuous integration workflows and automated releases.
 
+### [OSGi Metadata for Plain Maven Projects](OsgiMetadataForMavenProjects.html)
+Use `tycho-wrap:verify` and `tycho-wrap:wrap` in builds that do not use Eclipse/Tycho to validate or provide OSGi metadata for users not familiar with OSGi.
+
 ### Properties
 - [Build Properties](BuildProperties.html) - Configure build.properties for Eclipse projects
 - [System Properties](SystemProperties.html) - Control Tycho behavior with system properties
