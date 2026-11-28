@@ -143,6 +143,21 @@ repositories are grouped. This is useful when mirroring several independent repo
 tools) into a single site, so users see one combined entry instead of many unrelated top-level categories
 in the "Install New Software" dialog.
 
+### New `jgit.additionalPaths` option for the jgit build timestamp provider
+
+The `jgit` build timestamp provider only considers the history of the project folder, so a bundle whose content is
+generated from sources elsewhere in the repository (e.g. web resources built by the `frontend-maven-plugin`) kept its
+qualifier when only those sources changed. Such paths can now be listed in `jgit.additionalPaths` of the
+`tycho-packaging-plugin`, one per line. The qualifier then also follows the last commit in these paths, and uncommitted
+changes in them are handled per `jgit.dirtyWorkingTree` like those in the project folder. Relative paths are resolved against the project folder, so configure the option in the project that needs it.
+Paths inside submodules are not supported.
+
+```xml
+<configuration>
+    <jgit.additionalPaths>../../web-sources</jgit.additionalPaths>
+</configuration>
+```
+
 ### Surefire 3.6.0: JUnit 4 and TestNG tests are executed via the JUnit Platform
 
 Tycho now uses Maven Surefire 3.6.0 which has removed its dedicated JUnit 3, JUnit 4 and TestNG providers in favour of one

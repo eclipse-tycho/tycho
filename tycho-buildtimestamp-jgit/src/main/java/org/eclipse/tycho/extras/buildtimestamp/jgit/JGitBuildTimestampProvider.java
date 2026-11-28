@@ -17,10 +17,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -68,7 +70,18 @@ import org.eclipse.tycho.build.BuildTimestampProvider;
  * patterns specified in &lt;jgit.ignore&gt; element of tycho-packaging-plugin
  * configuration block. Like in a .gitignore file each pattern is separated by a
  * newline (unix or windows style) or form-feed.
- * 
+ * <p>
+ * Further paths, e.g. sources the project's content is generated from, can be
+ * listed one per line in &lt;jgit.additionalPaths&gt;. The timestamp then also
+ * follows the last commit in these paths, and uncommitted changes in them are
+ * handled per &lt;jgit.dirtyWorkingTree&gt; like those under the project basedir.
+ * Relative paths are resolved against the project basedir; each must exist in
+ * the project's repository. Paths inside submodules are not supported.
+ *
+ * <pre>
+ * &lt;jgit.additionalPaths&gt;../../web-sources&lt;/jgit.additionalPaths&gt;
+ * </pre>
+ *
  * <p>
  * Typical usage
  * 
@@ -99,6 +112,10 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 	private static final String PARAMETER_JGIT_IGNORE = "jgit.ignore";
 
 	private static final String PARAMETER_JGIT_DIRTY_WORKING_TREE = "jgit.dirtyWorkingTree";
+
+	private static final String PARAMETER_JGIT_ADDITIONAL_PATHS = "jgit.additionalPaths";
+
+	private static final Pattern LINE_DELIMITER = Pattern.compile("[\n\r\f]");
 
 	@Inject
 	@Named("default")
@@ -137,8 +154,16 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 		}
 		try {
 			try (Repository repository = builder.build()) {
-				String relPath = getRelPath(repository, project);
-				TreeFilter pathFilter = createPathFilter(relPath, execution);
+				List<String> relPaths = new ArrayList<>();
+				relPaths.add(getRelPath(repository, project.getBasedir()));
+				for (File additionalPath : getAdditionalPaths(project, execution)) {
+					if (!additionalPath.exists()) {
+						throw new MojoExecutionException(
+								PARAMETER_JGIT_ADDITIONAL_PATHS + " entry " + additionalPath + " does not exist");
+					}
+					relPaths.add(getRelPath(repository, additionalPath));
+				}
+				TreeFilter pathFilter = createPathFilter(relPaths, execution);
 				ObjectId headId = repository.resolve(Constants.HEAD);
 				if (headId == null) {
 					String message = "Git repository without HEAD on " + project.getBasedir()
@@ -166,8 +191,8 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 						if (dirtyBehaviour == DirtyBehavior.FALLBACK) {
 							return defaultTimestampProvider.getTimestamp(session, project, execution);
 						}
-						String message = "Working tree is dirty.\ngit status " + (relPath != null ? relPath : "")
-								+ ":\n" + toGitStatusStyleOutput(diff);
+						String message = "Working tree is dirty.\ngit status " + String.join(" ", relPaths) + ":\n"
+								+ toGitStatusStyleOutput(diff);
 						if (dirtyBehaviour == DirtyBehavior.WARNING) {
 							if (!quiet) {
 								logger.warn(message);
@@ -219,44 +244,53 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 		return System.getProperty(PARAMETER_JGIT_DIRTY_WORKING_TREE);
 	}
 
-	private static TreeFilter createPathFilter(String relPath, MojoExecution execution) {
-		if (relPath != null && !relPath.isEmpty()) {
-			return new PathFilter(relPath, getIgnoreFilter(execution));
+	private static TreeFilter createPathFilter(List<String> relPaths, MojoExecution execution) {
+		if (relPaths.contains("")) {
+			// the repository root covers every other path
+			return null;
 		}
-		return null;
+		return new PathFilter(relPaths, getIgnorePatterns(execution));
 	}
 
-	private static String getIgnoreFilter(MojoExecution execution) {
+	private static List<File> getAdditionalPaths(MavenProject project, MojoExecution execution) {
+		Xpp3Dom pluginConfiguration = getDom(execution);
+		Xpp3Dom additionalPathsDom = pluginConfiguration == null ? null
+				: pluginConfiguration.getChild(PARAMETER_JGIT_ADDITIONAL_PATHS);
+		if (additionalPathsDom == null) {
+			return List.of();
+		}
+		return splitLines(additionalPathsDom.getValue()).stream().map(File::new) //
+				.map(f -> f.isAbsolute() ? f : new File(project.getBasedir(), f.getPath())).toList();
+	}
+
+	private static List<String> getIgnorePatterns(MojoExecution execution) {
 		Xpp3Dom pluginConfiguration = getDom(execution);
 		if (pluginConfiguration == null) {
-			return null;
+			return List.of();
 		}
 		Xpp3Dom ignoreDom = pluginConfiguration.getChild(PARAMETER_JGIT_IGNORE);
 		if (ignoreDom == null) {
-			return null;
+			return List.of();
 		}
-		return ignoreDom.getValue().trim();
+		return splitLines(ignoreDom.getValue());
 	}
 
-	private String getRelPath(Repository repository, MavenProject project) throws IOException {
-		String workTree = repository.getWorkTree().getCanonicalPath();
+	private static List<String> splitLines(String value) {
+		if (value == null) {
+			return List.of();
+		}
+		return LINE_DELIMITER.splitAsStream(value).filter(line -> !line.isBlank()).map(String::strip).toList();
+	}
 
-		String path = project.getBasedir().getCanonicalPath();
-
+	private static String getRelPath(Repository repository, File file) throws IOException {
+		Path workTree = repository.getWorkTree().getCanonicalFile().toPath();
+		// compared by name elements, so a sibling 'repo-other' does not count as inside 'repo'
+		Path path = file.getCanonicalFile().toPath();
 		if (!path.startsWith(workTree)) {
-			throw new IOException(project + " is not in git repository working tree " + repository.getWorkTree());
+			throw new IOException(file + " is not in git repository working tree " + repository.getWorkTree());
 		}
-
-		path = path.substring(workTree.length());
-
-		if (path.startsWith(File.separator)) {
-			path = path.substring(File.separator.length());
-		}
-
 		// git stores paths unix-style
-		path = path.replace(File.separatorChar, '/');
-
-		return path;
+		return workTree.relativize(path).toString().replace(File.separatorChar, '/');
 	}
 
 	private static String toGitStatusStyleOutput(IndexDiff diff) {
