@@ -143,6 +143,13 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 	@Parameter(alias = "jgit.ignore")
 	private String dummy2;
 
+	/**
+	 * This is only a dummy parameter used to prevent maven from complaining about
+	 * "unknown" parameters when using the jgit extension
+	 */
+	@Parameter(alias = "jgit.additionalPaths")
+	private String dummy3;
+
     // setter is needed to make sure we always use UTC
     public void setFormat(String formatString) {
         format = new SimpleDateFormat(formatString);
